@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "es2015", "es2016.array.include", "es2017.object"],
+    "experimentalDecorators": true,
+    "target": "es5",
+    "sourceMap": true,
+    "noImplicitThis": true,
+    "moduleResolution": "node",
+    "downlevelIteration": true
+  },
+  "files": ["resources/ts/app.ts"]
+}

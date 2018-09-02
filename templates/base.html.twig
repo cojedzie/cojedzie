@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+        {% block body %}
+            <main id="app" class="container">
+                <stop-picker></stop-picker>
+            </main>
+        {% endblock %}
+        <script src="bundle.js"></script>
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

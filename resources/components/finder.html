@@ -1,0 +1,42 @@
+<div class="finder">
+    <input class="form-control" v-model="filter" />
+
+    <div v-if="state === 'fetching'">
+        <fa icon="spinner-third" pulse/>
+    </div>
+    <div class="finder__stops" v-else-if="filter.length > 2 && Object.keys(filtered).length > 0">
+        <div class="stop-group" v-for="(group, name) in filtered">
+            <div class="stop-group__header">
+                <button class="btn btn-action">
+                    <fa :icon="['fal', 'chevron-down']"></fa>
+                </button>
+
+                <h3 class="stop-group__name">{{ name }}</h3>
+
+                <div class="actions flex-space-left">
+                    <button class="btn btn-action" @click="group.forEach(select)">
+                        <fa :icon="['fal', 'check-double']"></fa>
+                        wybierz wszystkie
+                    </button>
+                </div>
+            </div>
+            <ul class="stop-group__stops list-unstyled">
+                <li v-for="stop in group" :key="stop.id">
+                    <stop :stop="stop">
+                        <template slot="actions">
+                            <button @click="select(stop, $event)" class="btn btn-action">
+                                <fa :icon="['fal', 'check']" />
+                            </button>
+                        </template>
+                    </stop>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="alert alert-warning" v-else-if="filter.length > 2">
+        Nie znaleziono więcej przystanków, spełniających te kryteria.
+    </div>
+    <div class="alert alert-info" v-else>
+        Wprowadź zapytanie powyżej, aby wyszukać przystanek.
+    </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="departures">
+    <div class="departures__actions">
+        <div class="departures__auto-refresh">
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" v-model="autoRefresh" :id="`autorefresh_${_uid}`">
+                <label class="custom-control-label" :for="`autorefresh_${_uid}`">auto odświeżanie:</label>
+            </div>
+            <div v-if="autoRefresh" class="d-flex align-items-center">
+                <input v-model="interval" class="form-control form-control-sm mx-1"/>
+                s
+            </div>
+        </div>
+
+        <button @click="update" class="flex-space-left btn btn-sm btn-outline-action">
+            <fa :icon="['far', 'sync']" /> odśwież
+        </button>
+    </div>
+
+    <ul class="departures__list list-underlined">
+        <li class="departure" v-for="departure in departures">
+            <div class="departure__line line">
+                <div class="line__symbol d-flex align-items-center">
+                    <fa :icon="['fac', departure.line.type]" fixed-width class="mr-1"/>
+                    {{ departure.line.symbol }}
+                </div>
+                <div class="line__display">{{ departure.display }}</div>
+            </div>
+
+            <div class="departure__time">
+                <span class="departure__scheduled" v-if="departure.scheduled.format('HH:mm') !== departure.estimated.format('HH:mm')">
+                    {{ departure.scheduled.format('HH:mm') }}
+                </span>
+                <span class="badge" :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
+                      v-if="departure.delay < 0 || departure.delay > 30">
+                    {{ departure.delay|signed }}s
+                </span>
+                <span class="departure__estimated">{{ departure.estimated.format('HH:mm') }}</span>
+            </div>
+
+            <stop :stop="departure.stop" class="departure__stop">
+                <template slot="actions">
+                    <fa :icon="['fal', 'sign']" fixed-width class="mr-1"/>
+                </template>
+            </stop>
+        </li>
+    </ul>
+</div>

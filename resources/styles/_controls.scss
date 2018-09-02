@@ -1,0 +1,11 @@
+.btn {
+  &.btn-action {
+    @extend .btn-link;
+
+    color: black;
+  }
+
+  &.btn-outline-action {
+    @extend .btn-outline-dark;
+  }
+}

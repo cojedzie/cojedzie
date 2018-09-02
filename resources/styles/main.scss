@@ -1,0 +1,17 @@
+$border-radius: 2px;
+$border-radius-lg: $border-radius;
+$border-radius-sm: $border-radius;
+
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+
+$custom-control-indicator-checked-bg: $dark;
+$custom-control-indicator-active-bg: $dark;
+
+@import "~bootstrap/scss/bootstrap";
+
+@import "common";
+@import "stop";
+@import "departure";
+@import "line";
+@import "controls";

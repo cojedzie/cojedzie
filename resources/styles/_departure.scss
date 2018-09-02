@@ -1,0 +1,53 @@
+.departure {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .departure__line {
+    flex: 3 0;
+  }
+
+  .departure__stop {
+    width: 100%;
+  }
+
+  .departure__time {
+    width: 9rem;
+    text-align: right;
+
+    .departure__scheduled {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.departures__actions {
+  display: flex;
+  align-items: center;
+
+  .departures__auto-refresh {
+    display: flex;
+    align-items: center;
+  }
+
+  .form-control {
+    width: auto;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .departure__time {
+    order: 2;
+  }
+
+  .departure__stop {
+    flex: 2 0;
+    width: auto;
+  }
+}
+
+@include media-breakpoint-up(sm) {
+  .departure__time {
+    margin-left: auto;
+  }
+}

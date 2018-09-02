@@ -1,0 +1,23 @@
+.stop, .stop-group__header {
+  display: flex;
+  align-items: center;
+}
+
+.stop__name {
+}
+
+.stop__description {
+  margin: 0 .5rem;
+}
+
+.stop__actions {
+  display: flex;
+}
+
+
+.stop-group__name {
+  font-size: $font-size-base;
+  font-weight: bold;
+
+  margin-bottom: 0;
+}

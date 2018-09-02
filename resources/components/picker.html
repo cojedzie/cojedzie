@@ -1,0 +1,17 @@
+<div class="picker">
+    <departures :stops="stops"/>
+
+    <ul class="picker__stops list-underlined">
+        <li v-for="stop in stops" :key="stop.id">
+            <stop :stop="stop">
+                <template slot="actions">
+                    <button @click="remove(stop)" class="btn btn-action">
+                        <fa :icon="['fal', 'times']" />
+                    </button>
+                </template>
+            </stop>
+        </li>
+    </ul>
+
+    <stop-finder @select="add" :blacklist="stops"/>
+</div>

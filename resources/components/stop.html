@@ -1,0 +1,19 @@
+<div class="stop">
+    <div class="stop__actions">
+        <slot name="actions"/>
+    </div>
+
+    <span class="stop__name">{{ stop.name }}</span>
+    <span class="stop__description badge badge-dark" v-if="stop.variant">{{ stop.variant }}</span>
+    <slot/>
+
+    <div class="stop__actions flex-space-left">
+        <button class="btn btn-action">
+            <fa :icon="['fal', 'info-circle']"/>
+        </button>
+
+        <button class="btn btn-action">
+            <fa :icon="['fal', 'map-marked-alt']"/>
+        </button>
+    </div>
+</div>
