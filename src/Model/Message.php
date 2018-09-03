@@ -4,6 +4,8 @@
 namespace App\Model;
 
 
+use Carbon\Carbon;
+
 class Message implements Fillable
 {
     use FillTrait;
@@ -16,13 +18,25 @@ class Message implements Fillable
      * Message content.
      * @var string
      */
-    public $message;
+    private $message;
 
     /**
      * Message type, see TYPE_* constants
-     * @var
+     * @var string
      */
-    public $type = self::TYPE_UNKNOWN;
+    private $type = self::TYPE_UNKNOWN;
+
+    /**
+     * Message validity time span start
+     * @var Carbon|null
+     */
+    private $validFrom;
+
+    /**
+     * Message validity time span end
+     * @var Carbon|null
+     */
+    private $validTo;
 
     /**
      * @return string
@@ -54,5 +68,37 @@ class Message implements Fillable
     public function setType($type): void
     {
         $this->type = $type;
+    }
+
+    /**
+     * @return Carbon|null
+     */
+    public function getValidFrom(): ?Carbon
+    {
+        return $this->validFrom;
+    }
+
+    /**
+     * @param Carbon|null $validFrom
+     */
+    public function setValidFrom(?Carbon $validFrom): void
+    {
+        $this->validFrom = $validFrom;
+    }
+
+    /**
+     * @return Carbon|null
+     */
+    public function getValidTo(): ?Carbon
+    {
+        return $this->validTo;
+    }
+
+    /**
+     * @param Carbon|null $validTo
+     */
+    public function setValidTo(?Carbon $validTo): void
+    {
+        $this->validTo = $validTo;
     }
 }

@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Exception\NonExistentServiceException;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
+use App\Provider\MessageRepository;
 use App\Provider\StopRepository;
 use const Kadet\Functional\_;
 use function Kadet\Functional\any;
@@ -54,6 +55,10 @@ class RepositoryParameterConverter implements ParamConverterInterface
                     $request->attributes->set($configuration->getName(), $provider->getDepartureRepository());
                     break;
 
+                case is_a($class, MessageRepository::class, true):
+                    $request->attributes->set($configuration->getName(), $provider->getMessageRepository());
+                    break;
+
                 default:
                     return false;
             }
@@ -66,12 +71,13 @@ class RepositoryParameterConverter implements ParamConverterInterface
 
     public function supports(ParamConverter $configuration)
     {
-        $instance = curry('is_a', 3)(_, _, true);
+        $supports = any(array_map(curry('is_a', 3)(_, _, true), [
+            StopRepository::class,
+            LineRepository::class,
+            DepartureRepository::class,
+            MessageRepository::class
+        ]));
 
-        return any(
-            $instance(StopRepository::class),
-            $instance(LineRepository::class),
-            $instance(DepartureRepository::class)
-        )($configuration->getClass());
+        return $supports($configuration->getClass());
     }
 }
