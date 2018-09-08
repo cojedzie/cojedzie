@@ -7,18 +7,20 @@ use App\Entity\ProviderEntity;
 
 class IdUtils
 {
+    const DELIMITER = '::';
+
     public function generate(ProviderEntity $provider, $id)
     {
-        return sprintf('%s-%s', $provider->getId(), $id);
+        return sprintf('%s%s%s', $provider->getId(), self::DELIMITER, $id);
     }
 
-    public function strip(ProviderEntity $provider, $id)
+    public function strip($id)
     {
-        return substr($id, strlen($provider->getId()) + 1);
+        return explode(self::DELIMITER, $id)[1];
     }
 
     public function of(Entity $entity)
     {
-        return $this->strip($entity->getProvider(), $entity->getId());
+        return $this->strip($entity->getId());
     }
 }

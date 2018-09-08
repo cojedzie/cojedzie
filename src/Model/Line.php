@@ -2,12 +2,9 @@
 
 namespace App\Model;
 
-use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tightenco\Collect\Support\Collection;
 
-class Line implements Fillable, Referable, NormalizableInterface
+class Line implements Fillable, Referable
 {
     const TYPE_TRAM       = 'tram';
     const TYPE_BUS        = 'bus';
@@ -119,13 +116,5 @@ class Line implements Fillable, Referable, NormalizableInterface
     public function setOperator(Operator $operator): void
     {
         $this->operator = $operator;
-    }
-
-    public function normalize(NormalizerInterface $normalizer, $format = null, array $context = [])
-    {
-        $normalizer = new ObjectNormalizer();
-        $normalizer->setIgnoredAttributes(['tracks']);
-
-        return $normalizer->normalize($this);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tightenco\Collect\Support\Arr;
@@ -76,6 +77,7 @@ class Stop implements Referable, Fillable, NormalizableInterface
         $this->variant = $variant;
     }
 
+    /** @Groups({"hidden"}) */
     public function getLatitude(): ?float
     {
         return $this->latitude;
@@ -86,6 +88,7 @@ class Stop implements Referable, Fillable, NormalizableInterface
         $this->latitude = $latitude;
     }
 
+    /** @Groups({"hidden"}) */
     public function getLongitude(): ?float
     {
         return $this->longitude;

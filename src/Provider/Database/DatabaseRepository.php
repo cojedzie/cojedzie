@@ -2,9 +2,12 @@
 
 namespace App\Provider\Database;
 
+use App\Entity\Entity;
 use App\Entity\ProviderEntity;
+use App\Service\EntityConverter;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
+use Kadet\Functional as f;
 
 class DatabaseRepository
 {
@@ -17,15 +20,19 @@ class DatabaseRepository
     /** @var IdUtils */
     protected $id;
 
+    /** @var EntityConverter */
+    protected $converter;
+
     /**
      * DatabaseRepository constructor.
      *
      * @param EntityManagerInterface $em
      */
-    public function __construct(EntityManagerInterface $em, IdUtils $id)
+    public function __construct(EntityManagerInterface $em, IdUtils $id, EntityConverter $converter)
     {
-        $this->em = $em;
-        $this->id = $id;
+        $this->em        = $em;
+        $this->id        = $id;
+        $this->converter = $converter;
     }
 
     /** @return static */
@@ -35,5 +42,10 @@ class DatabaseRepository
         $result->provider = $provider;
 
         return $result;
+    }
+
+    protected function convert(Entity $entity)
+    {
+        return $this->converter->convert($entity);
     }
 }

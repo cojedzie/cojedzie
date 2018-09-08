@@ -15,7 +15,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
     {
         $stops = $this->em->getRepository(StopEntity::class)->findAll();
 
-        return collect($stops)->map(\Closure::fromCallable([$this, 'convert']));
+        return collect($stops)->map(f\ref([$this, 'convert']));
     }
 
     public function getAllGroups(): Collection
@@ -36,7 +36,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
         $ids = collect($ids)->map(f\apply(f\ref([$this->id, 'generate']), $this->provider));
 
         $stops = $this->em->getRepository(StopEntity::class)->findBy(['id' => $ids->all()]);
-        return collect($stops)->map(\Closure::fromCallable([$this, 'convert']));
+        return collect($stops)->map(f\ref([$this, 'convert']));
     }
 
     public function findGroupsByName(string $name): Collection
@@ -47,24 +47,9 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
             ->where('s.name LIKE :name')
             ->getQuery();
 
-        $stops = collect($query->execute([':name' => "%$name%"]))->map(\Closure::fromCallable([$this, 'convert']));
+        $stops = collect($query->execute([':name' => "%$name%"]))->map(f\ref([$this, 'convert']));
 
         return $this->group($stops);
-    }
-
-    private function convert(StopEntity $entity): Stop
-    {
-        return Stop::createFromArray([
-            'id'          => $this->id->of($entity),
-            'name'        => $entity->getName(),
-            'description' => $entity->getDescription(),
-            'variant'     => $entity->getVariant(),
-            'onDemand'    => $entity->isOnDemand(),
-            'location'    => [
-                $entity->getLatitude(),
-                $entity->getLongitude(),
-            ],
-        ]);
     }
 
     private function group(Collection $stops)

@@ -31,10 +31,32 @@ services:
         resource: '../src/Provider'
         public: true
 
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    #proxy configuration
+    proxy.locator:
+        class: 'ProxyManager\FileLocator\FileLocator'
+        arguments: ['%kernel.cache_dir%/proxy']
+
+    proxy.strategy:
+        class: 'ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy'
+        arguments: ['@proxy.locator']
+
+    proxy.config:
+        class: 'ProxyManager\Configuration'
+        calls:
+        - ['setGeneratorStrategy', ['@proxy.strategy']]
+        - ['setProxiesTargetDir', ['%kernel.cache_dir%/proxy']]
+
+    ProxyManager\Configuration: '@proxy.config'
+
+    # serializer configuration
     serializer.datetime_normalizer:
         class: Symfony\Component\Serializer\Normalizer\DateTimeNormalizer
         arguments: [!php/const DateTime::ATOM]
-        tags:  [serializer.normalizer]
+        tags: [serializer.normalizer]
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Service\Normalizer\:
+        resource: '../src/Service/Normalizer'
+        tags: [serializer.normalizer]

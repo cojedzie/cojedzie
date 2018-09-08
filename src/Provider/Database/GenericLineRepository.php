@@ -33,15 +33,4 @@ class GenericLineRepository extends DatabaseRepository implements LineRepository
 
         return collect($lines)->map(f\ref([$this, 'convert']));
     }
-
-    private function convert(LineEntity $line): Line
-    {
-        return Line::createFromArray([
-            'id'       => $this->id->of($line),
-            'symbol'   => $line->getSymbol(),
-            'night'    => $line->isNight(),
-            'fast'     => $line->isFast(),
-            'type'     => $line->getType()
-        ]);
-    }
 }
