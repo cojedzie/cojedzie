@@ -1,59 +1,70 @@
 <?php
 
-namespace App\Model;
+namespace App\Entity;
 
-use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Tightenco\Collect\Support\Collection;
+use App\Model\Fillable;
+use App\Model\FillTrait;
+use App\Model\Referable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
-class Line implements Fillable, Referable, NormalizableInterface
+/**
+ * @ORM\Entity
+ * @ORM\Table("line")
+ */
+class LineEntity implements Fillable, Entity
 {
-    const TYPE_TRAM       = 'tram';
-    const TYPE_BUS        = 'bus';
-    const TYPE_TRAIN      = 'train';
-    const TYPE_METRO      = 'metro';
-    const TYPE_TROLLEYBUS = 'trolleybus';
-    const TYPE_UNKNOWN    = 'unknown';
-
-    use FillTrait, ReferableTrait;
+    use FillTrait, ReferableEntityTrait, ProviderReferenceTrait;
 
     /**
      * Line symbol, for example '10', or 'A'
      * @var string
+     *
+     * @ORM\Column(type="string", length=16)
      */
     private $symbol;
 
     /**
      * Line type tram, bus or whatever.
      * @var string
+     *
+     * @ORM\Column(type="string", length=20)
      */
     private $type;
 
     /**
      * Is line considered as fast line?
      * @var boolean
+     *
+     * @ORM\Column(type="boolean")
      */
     private $fast = false;
 
     /**
      * Is line considered as night line?
      * @var boolean
+     *
+     * @ORM\Column(type="boolean")
      */
     private $night = false;
 
     /**
      * Line operator
-     * @var Operator
+     *
+     * @var OperatorEntity
+     * @ORM\ManyToOne(targetEntity=OperatorEntity::class)
      */
     private $operator;
 
     /**
-     * Tracks for this line
-     * @var Collection<Track>|Track[]
+     * @ORM\OneToMany(targetEntity=TrackEntity::class, mappedBy="line")
      */
     private $tracks;
 
+    public function __construct()
+    {
+        $this->tracks = new ArrayCollection();
+    }
 
     public function getSymbol(): string
     {
@@ -95,37 +106,24 @@ class Line implements Fillable, Referable, NormalizableInterface
         $this->night = $night;
     }
 
-    public function getTracks(): ?Collection
+    public function getTracks()
     {
         return $this->tracks;
     }
 
-    public function setTracks($tracks)
-    {
-        $this->tracks = collect($tracks);
-    }
-
     /**
-     * @return Operator
+     * @return OperatorEntity
      */
-    public function getOperator(): ?Operator
+    public function getOperator(): ?OperatorEntity
     {
         return $this->operator;
     }
 
     /**
-     * @param Operator $operator
+     * @param OperatorEntity $operator
      */
-    public function setOperator(Operator $operator): void
+    public function setOperator(OperatorEntity $operator): void
     {
         $this->operator = $operator;
-    }
-
-    public function normalize(NormalizerInterface $normalizer, $format = null, array $context = [])
-    {
-        $normalizer = new ObjectNormalizer();
-        $normalizer->setIgnoredAttributes(['tracks']);
-
-        return $normalizer->normalize($this);
     }
 }

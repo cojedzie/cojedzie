@@ -1,48 +1,73 @@
 <?php
 
-namespace App\Model;
+namespace App\Entity;
 
-use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Tightenco\Collect\Support\Arr;
+use App\Model\Fillable;
+use App\Model\FillTrait;
+use App\Model\Referable;
+use Doctrine\ORM\Mapping as ORM;
 
-class Stop implements Referable, Fillable, NormalizableInterface
+/**
+ * @ORM\Entity(readOnly=true)
+ * @ORM\Table("stop")
+ */
+class StopEntity implements Entity, Fillable
 {
-    use FillTrait, ReferableTrait;
+    use FillTrait, ReferableEntityTrait, ProviderReferenceTrait;
+
+    /**
+     * Identifier for stop coming from provider
+     *
+     * @ORM\Column(type="string")
+     * @ORM\Id
+     */
+    private $id;
 
     /**
      * Stop name
      * @var string
+     *
+     * @ORM\Column(type="string")
      */
     private $name;
 
     /**
      * Optional stop description, should not be longer than 255 chars
      * @var string|null
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $description;
 
     /**
      * Optional stop variant - for example number of shed
      * @var string|null
+     *
+     * @ORM\Column(type="string", nullable=true)
      */
     private $variant;
 
     /**
      * Latitude of stop
+     *
      * @var float|null
+     * @ORM\Column(type="float", nullable=true)
      */
     private $latitude;
 
     /**
      * Longitude of stop
+     *
      * @var float|null
+     * @ORM\Column(type="float", nullable=true)
      */
     private $longitude;
 
     /**
      * True if stop is available only on demand
      * @var bool
+     *
+     * @ORM\Column(type="boolean")
      */
     private $onDemand = false;
 
@@ -96,16 +121,6 @@ class Stop implements Referable, Fillable, NormalizableInterface
         $this->longitude = $longitude;
     }
 
-    public function getLocation(): array
-    {
-        return [ $this->latitude, $this->longitude ];
-    }
-
-    public function setLocation(array $location)
-    {
-        list($this->latitude, $this->longitude) = $location;
-    }
-
     public function isOnDemand(): bool
     {
         return $this->onDemand;
@@ -114,10 +129,5 @@ class Stop implements Referable, Fillable, NormalizableInterface
     public function setOnDemand(bool $onDemand): void
     {
         $this->onDemand = $onDemand;
-    }
-
-    public function normalize(NormalizerInterface $normalizer, $format = null, array $context = [])
-    {
-        return Arr::except($normalizer->normalize($this), ['latitude', 'longitude']);
     }
 }

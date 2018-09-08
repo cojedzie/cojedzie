@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Model;
-
 
 use Carbon\Carbon;
 
@@ -12,7 +10,6 @@ class Departure implements Fillable
 
     /**
      * Information about line
-     *
      * @var \App\Model\Line
      */
     private $line;

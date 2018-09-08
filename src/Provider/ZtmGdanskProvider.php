@@ -3,10 +3,11 @@
 
 namespace App\Provider;
 
-use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository,
-    ZtmGdanskLineRepository,
-    ZtmGdanskMessageRepository,
-    ZtmGdanskStopRepository};
+use App\Entity\ProviderEntity;
+use App\Provider\Database\GenericLineRepository;
+use App\Provider\Database\GenericStopRepository;
+use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
+use Doctrine\ORM\EntityManagerInterface;
 
 class ZtmGdanskProvider implements Provider
 {
@@ -16,13 +17,18 @@ class ZtmGdanskProvider implements Provider
     private $messages;
 
     public function __construct(
-        ZtmGdanskLineRepository $lines,
-        ZtmGdanskDepartureRepository $departures,
-        ZtmGdanskStopRepository $stops,
+        EntityManagerInterface $em,
+        GenericLineRepository $lines,
+        GenericStopRepository $stops,
         ZtmGdanskMessageRepository $messages
     ) {
+        $provider = $em->getReference(ProviderEntity::class, 'ztm-gdansk');
+
+        $lines = $lines->withProvider($provider);
+        $stops = $stops->withProvider($provider);
+
         $this->lines      = $lines;
-        $this->departures = $departures;
+        $this->departures = new ZtmGdanskDepartureRepository($lines);
         $this->stops      = $stops;
         $this->messages   = $messages;
     }
