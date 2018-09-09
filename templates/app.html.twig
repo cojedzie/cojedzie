@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title "#{parent()} - #{provider.name}" %}
+{% block body %}
+    <stop-picker></stop-picker>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        window.app = {
+            provider: {{ provider.identifier|json_encode|raw }}
+        }
+    </script>
+{% endblock %}

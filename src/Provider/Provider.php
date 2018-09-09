@@ -8,4 +8,7 @@ interface Provider
     public function getLineRepository(): LineRepository;
     public function getStopRepository(): StopRepository;
     public function getMessageRepository(): MessageRepository;
+
+    public function getName();
+    public function getIdentifier();
 }

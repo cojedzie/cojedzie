@@ -64,6 +64,8 @@ final class EntityConverter
                     'symbol'   => $entity->getSymbol(),
                     'type'     => $entity->getType(),
                     'operator' => $convert($entity->getOperator()),
+                    'night'    => $entity->isNight(),
+                    'fast'     => $entity->isFast(),
                     'tracks'   => $this->collection($entity->getTracks(), $convert),
                 ]);
                 break;

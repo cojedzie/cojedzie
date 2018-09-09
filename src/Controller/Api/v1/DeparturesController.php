@@ -1,8 +1,9 @@
 <?php
 
 
-namespace App\Controller;
+namespace App\Controller\Api\v1;
 
+use App\Controller\Controller;
 use App\Model\Departure;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
@@ -12,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class DeparturesController
  *
- * @Route("/{provider}/departures")
+ * @Route("/departures")
  */
 class DeparturesController extends Controller
 {

@@ -3,30 +3,18 @@
 
 namespace App\Service;
 
-
 use App\Exception\NonExistentServiceException;
 use App\Provider\Provider;
-use App\Provider\ZtmGdanskProvider;
+use Kadet\Functional\Transforms as t;
+use Tightenco\Collect\Support\Collection;
 
 class ProviderResolver
 {
-    private const PROVIDER = [
-        'gdansk' => ZtmGdanskProvider::class
-    ];
+    private $providers;
 
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    private $container;
-
-    /**
-     * ProviderResolver constructor.
-     *
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-     */
-    public function __construct(\Symfony\Component\DependencyInjection\ContainerInterface $container)
+    public function __construct($providers)
     {
-        $this->container = $container;
+        $this->providers = collect($providers)->keyBy(t\property('identifier'));
     }
 
     /**\
@@ -37,10 +25,17 @@ class ProviderResolver
      */
     public function resolve(string $name): Provider
     {
-        if (!array_key_exists($name, static::PROVIDER)) {
-            throw new NonExistentServiceException();
+        if (!$this->providers->has($name)) {
+            $message = sprintf("Provider '%s' doesn't exist, you can choose from: %s", $name, $this->providers->keys()->implode(', '));
+            throw new NonExistentServiceException($message);
         }
 
-        return $this->container->get(static::PROVIDER[$name]);
+        return $this->providers->get($name);
+    }
+
+    /** @return Provider[] */
+    public function all(): Collection
+    {
+        return clone $this->providers;
     }
 }

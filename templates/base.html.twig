@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="main.css" />
+
+        <title>{% block title %}Czy dojadę?{% endblock %}</title>
     </head>
     <body>
-        {% block body %}
-            <main id="app" class="container">
-                <stop-picker></stop-picker>
-            </main>
-        {% endblock %}
+        <main role="main" class="container" id="app">
+            {% block body %}{% endblock %}
+        </main>
+
         <script src="bundle.js"></script>
         {% block javascripts %}{% endblock %}
     </body>

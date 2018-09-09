@@ -16,13 +16,23 @@ class ZtmGdanskProvider implements Provider
     private $stops;
     private $messages;
 
+    public function getName()
+    {
+        return 'MZKZG Trójmiasto';
+    }
+
+    public function getIdentifier()
+    {
+        return 'trojmiasto';
+    }
+
     public function __construct(
         EntityManagerInterface $em,
         GenericLineRepository $lines,
         GenericStopRepository $stops,
         ZtmGdanskMessageRepository $messages
     ) {
-        $provider = $em->getReference(ProviderEntity::class, 'ztm-gdansk');
+        $provider = $em->getReference(ProviderEntity::class, $this->getIdentifier());
 
         $lines = $lines->withProvider($provider);
         $stops = $stops->withProvider($provider);

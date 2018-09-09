@@ -1,8 +1,9 @@
 <?php
 
 
-namespace App\Controller;
+namespace App\Controller\Api\v1;
 
+use App\Controller\Controller;
 use App\Provider\StopRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class StopsController
  *
  * @package App\Controller
- * @Route("/{provider}/stops")
+ * @Route("/stops")
  */
 class StopsController extends Controller
 {

@@ -9,26 +9,11 @@ import stop   = require('../../components/stop.html');
 
 import { Prop, Watch } from "vue-property-decorator";
 import { filter, map } from "../utils";
-import { debounce, throttle } from "../decorators";
-import { Departures } from "./departures";
+import { debounce } from "../decorators";
 
 @Component({ template: picker })
 export class PickerComponent extends Vue {
-    protected stops?: Stop[] = [{
-        "id": 2001,
-        "name": "Dworzec Główny",
-        "description": null,
-        "location": [54.35544, 18.64565],
-        "variant": "01",
-        "onDemand": false
-    }, {
-        "id": 2002,
-        "name": "Dworzec Główny",
-        "description": null,
-        "location": [54.35541, 18.64548],
-        "variant": "02",
-        "onDemand": false
-    }];
+    protected stops?: Stop[] = [];
 
     private remove(stop: Stop) {
         this.stops = this.stops.filter(s => s != stop);
@@ -70,10 +55,7 @@ export class FinderComponent extends Vue {
 
         this.state = 'fetching';
 
-        const response = await fetch(urls.prepare(urls.stops.search, {
-            name: this.filter,
-            provider: 'gdansk'
-        }));
+        const response = await fetch(urls.prepare(urls.stops.search, { name: this.filter }));
 
         if (response.ok) {
             this.found = await response.json();

@@ -1,4 +1,6 @@
 const path = require('path');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
 const config = {
     entry: {
         main: ['./resources/ts/app.ts'],
@@ -24,7 +26,9 @@ const config = {
             }]
         },{
             test: /\.s[ac]ss$/,
-            use: ["style-loader", "css-loader?sourceMap", "sass-loader?sourceMap"]
+            use: [{
+                loader: MiniCssExtractPlugin.loader,
+            }, "css-loader?sourceMap", "sass-loader?sourceMap"]
         }, {
             test: /\.css$/,
             use: ["style-loader", "css-loader"]
@@ -46,6 +50,9 @@ const config = {
             use: 'raw-loader'
         }]
     },
+    plugins: [
+        new MiniCssExtractPlugin({ filename: '[name].css' })
+    ],
 };
 
 module.exports = (env, argv) => {

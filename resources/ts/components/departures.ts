@@ -23,7 +23,6 @@ export class Departures extends Vue {
     async update() {
         const response = await fetch(urls.prepare(urls.departures, {
             stop: this.stops.map(stop => stop.id),
-            provider: 'gdansk'
         }));
 
         if (response.ok) {

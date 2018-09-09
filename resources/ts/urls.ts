@@ -45,12 +45,14 @@ export function prepare(url: string, params: UrlParams = { }) {
     return Object.keys(params).length > 0 ? `${url}?${query(params)}` : url;
 }
 
+const base = '/{provider}/api/v1';
+
 export default {
-    departures: '/{provider}/departures',
+    departures: `${base}/departures`,
     stops: {
-        all:    '/{provider}/stops',
-        search: '/{provider}/stops/search',
-        get:    '/{provider}/stop/{id}'
+        all:    `${base}/stops`,
+        search: `${base}/stops/search`,
+        get:    `${base}/stops/{id}`
     },
-    prepare
+    prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: window['app'].provider }, params))
 }

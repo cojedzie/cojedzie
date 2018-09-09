@@ -27,6 +27,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
     private $em;
     private $ids;
     private $logger;
+    private $provider;
 
     /**
      * ZtmGdanskDataUpdateSubscriber constructor.
@@ -34,19 +35,24 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
      * @param $provider
      * @param $em
      */
-    public function __construct(EntityManagerInterface $em, IdUtils $ids, LoggerInterface $logger)
-    {
-        $this->em     = $em;
-        $this->ids    = $ids;
-        $this->logger = $logger;
+    public function __construct(
+        EntityManagerInterface $em,
+        IdUtils $ids,
+        LoggerInterface $logger,
+        ZtmGdanskProvider $provider
+    ) {
+        $this->em       = $em;
+        $this->ids      = $ids;
+        $this->logger   = $logger;
+        $this->provider = $provider;
     }
 
     public function update()
     {
         $provider = ProviderEntity::createFromArray([
-            'name'  => 'ZTM Gdańsk',
+            'name'  => $this->provider->getName(),
             'class' => ZtmGdanskProvider::class,
-            'id'    => 'ztm-gdansk',
+            'id'    => $this->provider->getIdentifier(),
         ]);
 
         $this->em->persist($provider);
@@ -94,7 +100,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                 OperatorEntity::class,
                 $this->ids->generate($provider, $line['agencyId'])
             );
-            $type = [
+            $type     = [
                 2 => LineModel::TYPE_TRAM,
                 5 => LineModel::TYPE_TROLLEYBUS,
             ];

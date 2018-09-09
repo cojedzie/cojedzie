@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api\v1;
 
 
+use App\Controller\Controller;
 use App\Provider\MessageRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
- * @Route("/{provider}/messages")
+ * @Route("/messages")
  */
 class MessagesController extends Controller
 {

@@ -24,6 +24,10 @@
                     {{ departure.line.symbol }}
                 </div>
                 <div class="line__display">{{ departure.display }}</div>
+                <div class="line__perks flex-space-left">
+                    <fa :icon="['fas', 'walking']" fixed-width v-if="departure.line.fast"/>
+                    <fa :icon="['fal', 'moon']" fixed-width v-if="departure.line.night"/>
+                </div>
             </div>
 
             <div class="departure__time">

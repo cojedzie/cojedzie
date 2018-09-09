@@ -13,3 +13,19 @@
 .flex-space-right {
   margin-right: auto;
 }
+
+.alert {
+  border-width: 0;
+  background: transparent;
+
+  @each $color, $value in $theme-colors {
+    &.alert-#{$color} {
+      border-bottom: 2px solid theme-color-level($color, $alert-color-level);
+      transition: background-color ease 200ms;
+
+      &:hover {
+        background-color: rgba(theme-color-level($color, $alert-bg-level), .5);
+      }
+    }
+  }
+}
