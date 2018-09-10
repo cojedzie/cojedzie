@@ -20,15 +20,12 @@
                     </button>
                 </div>
             </div>
-            <ul class="stop-group__stops list-unstyled">
-                <li v-for="stop in group" :key="stop.id">
-                    <stop :stop="stop">
-                        <template slot="actions">
-                            <button @click="select(stop, $event)" class="btn btn-action">
-                                <fa :icon="['fal', 'check']" />
-                            </button>
-                        </template>
-                    </stop>
+            <ul class="stop-group__stops list-underlined">
+                <li v-for="stop in group" :key="stop.id" class="d-flex">
+                    <button @click="select(stop, $event)" class="btn btn-action">
+                        <fa :icon="['fal', 'check']" />
+                    </button>
+                    <stop :stop="stop" class="flex-grow-1"></stop>
                 </li>
             </ul>
         </div>

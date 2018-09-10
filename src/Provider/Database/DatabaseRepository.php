@@ -4,6 +4,7 @@ namespace App\Provider\Database;
 
 use App\Entity\Entity;
 use App\Entity\ProviderEntity;
+use App\Model\Referable;
 use App\Service\EntityConverter;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,5 +48,12 @@ class DatabaseRepository
     protected function convert(Entity $entity)
     {
         return $this->converter->convert($entity);
+    }
+
+    protected function reference($class, Referable $referable)
+    {
+        $id = $this->id->generate($this->provider, $referable->getId());
+
+        return $this->em->getReference($class, $id);
     }
 }

@@ -11,10 +11,11 @@ use App\Model\Line;
 use App\Model\Operator;
 use App\Model\Stop;
 use App\Model\Track;
-use App\Service\Proxy\ReferenceObjectFactory;
+use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Proxy\Proxy;
 use Kadet\Functional as f;
+use Kadet\Functional\Transforms as t;
 use const Kadet\Functional\_;
 
 final class EntityConverter
@@ -22,7 +23,7 @@ final class EntityConverter
     private $id;
     private $reference;
 
-    public function __construct(IdUtils $id, ReferenceObjectFactory $reference)
+    public function __construct(IdUtils $id, ReferenceFactory $reference)
     {
         $this->id        = $id;
         $this->reference = $reference;
@@ -66,7 +67,7 @@ final class EntityConverter
                     'operator' => $convert($entity->getOperator()),
                     'night'    => $entity->isNight(),
                     'fast'     => $entity->isFast(),
-                    'tracks'   => $this->collection($entity->getTracks(), $convert),
+                    'tracks'   => $this->collection($entity->getTracks())->map($convert),
                 ]);
                 break;
 
@@ -74,7 +75,9 @@ final class EntityConverter
                 $result->fill([
                     'variant'     => $entity->getVariant(),
                     'description' => $entity->getDescription(),
-                    'stops'       => $this->collection($entity->getStops(), $convert),
+                    'stops'       => $this->collection($entity->getStopsInTrack())
+                        ->map(t\property('stop'))
+                        ->map($convert),
                     'line'        => $convert($entity->getLine()),
                 ]);
                 break;
@@ -89,6 +92,7 @@ final class EntityConverter
                         $entity->getLongitude(),
                     ],
                 ]);
+                break;
         }
 
         return $result;
@@ -106,10 +110,10 @@ final class EntityConverter
         return $entity->getId();
     }
 
-    private function collection(PersistentCollection $collection, $converter)
+    private function collection($collection)
     {
-        if ($collection->isInitialized()) {
-            return collect($collection)->map($converter);
+        if (!$collection instanceof PersistentCollection || $collection->isInitialized()) {
+            return collect($collection);
         }
 
         return collect();

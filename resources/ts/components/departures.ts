@@ -7,7 +7,7 @@ import moment = require("moment");
 import { Jsonified } from "../utils";
 import { debounce } from "../decorators";
 
-@Component({template})
+@Component({ template })
 export class Departures extends Vue {
     private _intervalId: number;
 

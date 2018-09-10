@@ -1,0 +1,6 @@
+<div class="collapse">
+    <lazy v-if="lazy" :activate="visible">
+        <slot></slot>
+    </lazy>
+    <slot v-else></slot>
+</div>

@@ -8,7 +8,12 @@
   }
 
   .departure__stop {
+    @extend %flex;
     width: 100%;
+
+    .stop {
+      flex: 1 1 auto;
+    }
   }
 
   .departure__time {

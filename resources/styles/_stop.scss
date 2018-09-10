@@ -1,6 +1,7 @@
 .stop, .stop-group__header {
-  display: flex;
-  align-items: center;
+  @extend %flex;
+
+  flex-wrap: wrap;
 }
 
 .stop__name {
@@ -14,6 +15,9 @@
   display: flex;
 }
 
+.stop__details {
+  flex-basis: 100%;
+}
 
 .stop-group__name {
   font-size: $font-size-base;

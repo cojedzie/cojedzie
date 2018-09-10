@@ -1,0 +1,43 @@
+<div v-if="ready">
+    <div class="row">
+        <div class="col-md">
+            <strong>Linie:</strong>
+            <ul class="stop__lines list-unstyled list-inline">
+                <li v-for="line in lines" class="list-inline-item">
+                    <fa :icon="['fac', line.type]" fixed-width></fa>
+
+                    <span class="badge badge-dark">
+                        <fa :icon="['fas', 'walking']" fixed-width v-if="line.fast"/>
+                        <fa :icon="['fal', 'moon']" fixed-width v-if="line.night"/>
+
+                        {{ line.symbol }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md">
+            <strong>Trasy:</strong>
+            <ul class="stop__tracks list-underlined">
+                <li v-for="{ track, order } in tracks" class="track">
+                    <div class="track__line">
+                        <fa :icon="['fac', track.line.type]" fixed-width></fa>
+                        <span class="badge badge-dark">
+                            <fa :icon="['fas', 'walking']" fixed-width v-if="track.line.fast"/>
+                            <fa :icon="['fal', 'moon']" fixed-width v-if="track.line.night"/>
+
+                            {{ track.line.symbol }}
+                        </span>
+                    </div>
+                    <div class="track__description">
+                        {{ track.description }}
+                    </div>
+                    <span class="badge badge-pill badge-light track__order">#{{ order }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div v-else class="text-center">
+    <fa icon="spinner-third" pulse></fa>
+</div>

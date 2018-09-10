@@ -41,11 +41,15 @@
                 <span class="departure__estimated">{{ departure.estimated.format('HH:mm') }}</span>
             </div>
 
-            <stop :stop="departure.stop" class="departure__stop">
-                <template slot="actions">
-                    <fa :icon="['fal', 'sign']" fixed-width class="mr-1"/>
-                </template>
-            </stop>
+            <div class="departure__stop">
+                <fa :icon="['fal', 'sign']" fixed-width class="mr-1"/>
+                <stop :stop="departure.stop"></stop>
+            </div>
         </li>
     </ul>
+
+    <div class="alert alert-info" v-if="stops.length === 0">
+        <fa :icon="['fal', 'info-circle']"></fa>
+        Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
+    </div>
 </div>

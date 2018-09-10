@@ -7,6 +7,7 @@ type Simplify<T, K = any> = string |
 
 export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> }
 export type Optionalify<T> = { [K in keyof T]?: T[K] }
+export type Dictionary<T> = { [key: string]: T };
 
 export type Index = string | symbol | number;
 

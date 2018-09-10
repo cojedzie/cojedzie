@@ -1,0 +1,4 @@
+<div class="popper" :class="{ 'has-arrow': arrow, 'd-none': !visible }">
+    <div class="popper-arrow" ref="arrow" v-if="arrow"></div>
+    <slot />
+</div>

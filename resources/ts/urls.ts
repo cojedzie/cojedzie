@@ -52,7 +52,8 @@ export default {
     stops: {
         all:    `${base}/stops`,
         search: `${base}/stops/search`,
-        get:    `${base}/stops/{id}`
+        get:    `${base}/stops/{id}`,
+        tracks: `${base}/stops/{id}/tracks`
     },
     prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: window['app'].provider }, params))
 }

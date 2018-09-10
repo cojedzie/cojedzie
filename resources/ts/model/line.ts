@@ -7,3 +7,9 @@ export interface Line {
     night: boolean;
     fast: boolean;
 }
+
+export interface Track {
+    id: string;
+    description: string;
+    line: Line;
+}

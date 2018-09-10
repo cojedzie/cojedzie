@@ -6,6 +6,7 @@ namespace App\Provider;
 use App\Entity\ProviderEntity;
 use App\Provider\Database\GenericLineRepository;
 use App\Provider\Database\GenericStopRepository;
+use App\Provider\Database\GenericTrackRepository;
 use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -14,6 +15,7 @@ class ZtmGdanskProvider implements Provider
     private $lines;
     private $departures;
     private $stops;
+    private $tracks;
     private $messages;
 
     public function getName()
@@ -30,17 +32,20 @@ class ZtmGdanskProvider implements Provider
         EntityManagerInterface $em,
         GenericLineRepository $lines,
         GenericStopRepository $stops,
+        GenericTrackRepository $tracks,
         ZtmGdanskMessageRepository $messages
     ) {
         $provider = $em->getReference(ProviderEntity::class, $this->getIdentifier());
 
-        $lines = $lines->withProvider($provider);
-        $stops = $stops->withProvider($provider);
+        $lines  = $lines->withProvider($provider);
+        $stops  = $stops->withProvider($provider);
+        $tracks = $tracks->withProvider($provider);
 
         $this->lines      = $lines;
         $this->departures = new ZtmGdanskDepartureRepository($lines);
         $this->stops      = $stops;
         $this->messages   = $messages;
+        $this->tracks     = $tracks;
     }
 
     public function getDepartureRepository(): DepartureRepository
@@ -61,5 +66,10 @@ class ZtmGdanskProvider implements Provider
     public function getMessageRepository(): MessageRepository
     {
         return $this->messages;
+    }
+
+    public function getTrackRepository(): TrackRepository
+    {
+        return $this->tracks;
     }
 }

@@ -9,6 +9,7 @@ use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Provider\StopRepository;
+use App\Provider\TrackRepository;
 use const Kadet\Functional\_;
 use function Kadet\Functional\any;
 use function Kadet\Functional\curry;
@@ -59,6 +60,10 @@ class RepositoryParameterConverter implements ParamConverterInterface
                     $request->attributes->set($configuration->getName(), $provider->getMessageRepository());
                     break;
 
+                case is_a($class, TrackRepository::class, true):
+                    $request->attributes->set($configuration->getName(), $provider->getTrackRepository());
+                    break;
+
                 default:
                     return false;
             }
@@ -75,7 +80,8 @@ class RepositoryParameterConverter implements ParamConverterInterface
             StopRepository::class,
             LineRepository::class,
             DepartureRepository::class,
-            MessageRepository::class
+            MessageRepository::class,
+            TrackRepository::class,
         ]));
 
         return $supports($configuration->getClass());

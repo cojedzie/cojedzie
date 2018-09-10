@@ -26,7 +26,7 @@ class JustReferenceNormalizer implements NormalizerInterface
      */
     public function normalize($object, $format = null, array $context = [])
     {
-        return [ 'id' => $object->getId() ];
+        return [ 'id' => $object->getId(), 'href' => '#' ];
     }
 
     /**

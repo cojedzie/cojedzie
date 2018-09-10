@@ -1,8 +1,23 @@
 .line {
-  display: flex;
-  align-items: center;
+  @extend %flex;
 
   .line__symbol {
     min-width: 4rem;
+  }
+}
+
+.track {
+  @extend %flex;
+  flex-shrink: 0;
+  flex-grow: 0;
+
+  .track__line {
+    width: 6rem;
+    flex-shrink: 0;
+  }
+
+  .track__description {
+    flex: 1 1 auto;
+    white-space: normal;
   }
 }

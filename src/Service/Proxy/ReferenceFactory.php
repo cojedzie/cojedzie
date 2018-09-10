@@ -5,7 +5,7 @@ namespace App\Service\Proxy;
 use ProxyManager\Factory\AbstractBaseFactory;
 use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
 
-class ReferenceObjectFactory extends AbstractBaseFactory
+class ReferenceFactory extends AbstractBaseFactory
 {
     public function get($class, $id)
     {

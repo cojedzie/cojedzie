@@ -1,4 +1,3 @@
-/// <reference path="types/popper.js.d.ts"/>
 /// <reference path="types/webpack.d.ts"/>
 
 import '../styles/main.scss'
@@ -6,13 +5,13 @@ import '../styles/main.scss'
 import './font-awesome'
 import './filters'
 
-import * as Popper from 'popper.js';
+import Popper from 'popper.js';
 import * as $ from "jquery";
 
 import * as components from './components';
 
 window['$'] = window['jQuery'] = $;
-window['popper'] = Popper;
+window['Popper'] = Popper;
 
 // dependencies
 import 'bootstrap'

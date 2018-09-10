@@ -70,12 +70,5 @@ export class FinderComponent extends Vue {
     }
 }
 
-@Component({ template: stop })
-export class StopComponent extends Vue {
-    @Prop(Object)
-    public stop: Stop;
-}
-
 Vue.component('StopPicker', PickerComponent);
 Vue.component('StopFinder', FinderComponent);
-Vue.component('Stop', StopComponent);

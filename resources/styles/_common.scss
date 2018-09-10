@@ -1,7 +1,7 @@
 .list-underlined {
   @extend .list-unstyled;
 
-  li {
+  > li {
     border-bottom: 1px solid $text-muted;
   }
 }
@@ -28,4 +28,13 @@
       }
     }
   }
+}
+
+.collapse {
+  padding-bottom: .5rem;
+}
+
+%flex {
+  display: flex;
+  align-items: center;
 }

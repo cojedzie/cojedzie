@@ -1,0 +1,108 @@
+@mixin triangle-border($color, $orientation, $size) {
+  border-width:
+          if($orientation == top, 0, $size)
+          if($orientation == right, 0, $size)
+          if($orientation == bottom, 0, $size)
+          if($orientation == left, 0, $size)
+;
+
+  border-color:
+          if($orientation == bottom, $color, transparent)
+          if($orientation == left, $color, transparent)
+          if($orientation == top, $color, transparent)
+          if($orientation == right, $color, transparent)
+;
+
+  #{$orientation}: -$size;
+  @if ($orientation == top) or ($orientation == bottom) {
+    left: 50%;
+    transform: translateX(-50%);
+  } @else {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+@mixin triangle($orientation, $size, $color, $border: none) {
+  background: $color;
+
+  &::after {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    content: "";
+    position: absolute;
+
+    @include triangle-border($color, $orientation, $size);
+  }
+
+  @if $border != none {
+    &::before {
+      width: 0;
+      height: 0;
+      border-style: solid;
+      content: "";
+      position: absolute;
+
+      @include triangle-border($border, $orientation, $size + 1);
+    }
+  }
+}
+
+@mixin triangle-top($size, $color, $border: none)    { @include triangle(top, $size, $color, $border); }
+@mixin triangle-bottom($size, $color, $border: none) { @include triangle(bottom, $size, $color, $border); }
+@mixin triangle-left($size, $color, $border: none)   { @include triangle(left, $size, $color, $border); }
+@mixin triangle-right($size, $color, $border: none)  { @include triangle(right, $size, $color, $border); }
+
+.popper {
+  $arrow-base: 10px;
+  $arrow-color: white;
+  $arrow-border: black;
+
+  $popper-padding: .5rem;
+
+  padding: $popper-padding;
+  background: white;
+  border: 1px solid black;
+  z-index: 1000;
+  position: relative;
+
+  max-width: 500px;
+  min-width: 200px;
+
+  border-radius: 2px;
+
+  .popper-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  @mixin placement($placement) {
+    $opposite: (
+            left: right,
+            right: left,
+            top: bottom,
+            bottom: top
+    );
+
+    &[x-placement^="#{$placement}"] {
+      margin-#{map-get($opposite, $placement)}: $arrow-base;
+
+      .popper-arrow {
+        #{map-get($opposite, $placement)}: 0;
+        @include triangle(map-get($opposite, $placement), $arrow-base, $arrow-color, $arrow-border);
+      }
+    }
+  }
+
+  &.has-arrow {
+    @include placement("left");
+    @include placement("right");
+    @include placement("top");
+    @include placement("bottom");
+  }
+
+  animation: ease-in fade-in 150ms
+}
+

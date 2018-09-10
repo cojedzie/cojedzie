@@ -159,8 +159,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         $this->logger->info(sprintf('Saving %d tracks from ZTM Gdańsk', count($stops)));
 
         return collect($tracks)->map(function ($track) use ($provider, $stops) {
-            $track = TrackEntity::createFromArray([
-                'id'          => $track['id'],
+            $entity = TrackEntity::createFromArray([
+                'id'          => $this->ids->generate($provider, $track['id']),
                 'line'        => $this->em->getReference(
                     LineEntity::class,
                     $this->ids->generate($provider, $track['routeId'])
@@ -169,20 +169,20 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                 'provider'    => $provider,
             ]);
 
-            $stops = $stops->get($track->getId())->map(function ($stop) use ($track, $provider) {
+            $stops = $stops->get($track['id'])->map(function ($stop) use ($entity, $provider) {
                 return StopInTrack::createFromArray([
                     'stop'  => $this->em->getReference(
                         StopEntity::class,
                         $this->ids->generate($provider, $stop['stopId'])
                     ),
-                    'track' => $track,
+                    'track' => $entity,
                     'order' => $stop['stopSequence'],
                 ]);
             });
 
-            $track->setStopsInTrack($stops->all());
+            $entity->setStopsInTrack($stops->all());
 
-            return $track;
+            return $entity;
         });
     }
 

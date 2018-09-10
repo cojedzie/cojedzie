@@ -4,7 +4,10 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Model\Stop;
 use App\Provider\StopRepository;
+use App\Provider\TrackRepository;
+use App\Service\Proxy\ReferenceFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -46,5 +49,17 @@ class StopsController extends Controller
     public function one(Request $request, StopRepository $stops, $id)
     {
         return $this->json($stops->getById($id));
+    }
+
+    /**
+     * @Route("/{id}/tracks", methods={"GET"})
+     */
+    public function tracks(ReferenceFactory $reference, TrackRepository $tracks, $id)
+    {
+        $stop = $reference->get(Stop::class, $id);
+
+        return $this->json($tracks->getByStop($stop)->map(function ($tuple) {
+            return array_combine(['track', 'order'], $tuple);
+        }));
     }
 }
