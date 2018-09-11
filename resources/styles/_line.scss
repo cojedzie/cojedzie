@@ -1,5 +1,5 @@
 .line {
-  @extend %flex;
+  @extend .flex;
 
   .line__symbol {
     min-width: 4rem;
@@ -7,7 +7,7 @@
 }
 
 .track {
-  @extend %flex;
+  @extend .flex;
   flex-shrink: 0;
   flex-grow: 0;
 

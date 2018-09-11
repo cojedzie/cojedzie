@@ -20,7 +20,7 @@ class ZtmGdanskProvider implements Provider
 
     public function getName()
     {
-        return 'MZKZG Trójmiasto';
+        return 'MZKZG - Trójmiasto';
     }
 
     public function getIdentifier()

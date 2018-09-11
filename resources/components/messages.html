@@ -1,0 +1,6 @@
+<ul class="messages list-unstyled">
+    <li class="messages__message alert" :class="`alert-${type(message)}`" v-for="message in messages">
+        <fa :icon="icon(message)" fixed-width></fa>
+        {{ message.message }}
+    </li>
+</ul>

@@ -34,7 +34,21 @@
   padding-bottom: .5rem;
 }
 
-%flex {
+.flex {
   display: flex;
   align-items: center;
+}
+
+.section__title {
+  @extend .alert;
+  @extend .alert-dark;
+
+  font-size: medium;
+  background: transparent;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+
+  &:hover {
+    background: none;
+  }
 }

@@ -49,6 +49,7 @@ const base = '/{provider}/api/v1';
 
 export default {
     departures: `${base}/departures`,
+    messages:   `${base}/messages`,
     stops: {
         all:    `${base}/stops`,
         search: `${base}/stops/search`,

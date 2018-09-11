@@ -1,5 +1,5 @@
 .stop, .stop-group__header {
-  @extend %flex;
+  @extend .flex;
 
   flex-wrap: wrap;
 }

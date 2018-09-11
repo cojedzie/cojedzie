@@ -8,7 +8,7 @@
   }
 
   .departure__stop {
-    @extend %flex;
+    @extend .flex;
     width: 100%;
 
     .stop {
@@ -27,12 +27,10 @@
 }
 
 .departures__actions {
-  display: flex;
-  align-items: center;
+  @extend .flex;
 
   .departures__auto-refresh {
-    display: flex;
-    align-items: center;
+    @extend .flex;
   }
 
   .form-control {

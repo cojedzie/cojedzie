@@ -15,11 +15,23 @@ window['Popper'] = Popper;
 
 // dependencies
 import 'bootstrap'
-import Vue from 'vue';
+import { Vue } from "vue-property-decorator";
 
 // here goes "public" API
 window['czydojade'] = {
     components
 };
 
-window['app'] = new Vue({ el: '#app' });
+window['app'] = new Vue({
+    el: '#app',
+    data: {
+        messages: {
+            count:   0,
+            visible: true
+        }
+    }, methods: {
+        handleMessagesUpdate(messages) {
+            this.messages.count = messages.length;
+        }
+    }
+});
