@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use App\Event\DataUpdateEvent;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Kadet\Functional\Predicats as p;
 
 class DataUpdater
 {
@@ -30,7 +32,9 @@ class DataUpdater
     public function update()
     {
         $schema = $this->em->getConnection()->getSchemaManager();
-        collect($schema->listTables())->each([$schema, 'dropAndCreateTable']);
+        collect($schema->listTables())->reject(function (Table $schema) {
+            return $schema->getName() === 'migrations';
+        })->each([$schema, 'dropAndCreateTable']);
 
         $this->dispatcher->dispatch(self::UPDATE_EVENT, new DataUpdateEvent());
     }
