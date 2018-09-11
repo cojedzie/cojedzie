@@ -2,7 +2,7 @@
 {% block title "#{parent()} - #{provider.name}" %}
 
 {% block body %}
-    <section class="messages" v-if="messages.count > 0">
+    <section class="messages" v-show="messages.count > 0">
         <h2 class="section__title flex">
             <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
             Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
