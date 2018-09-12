@@ -40,10 +40,13 @@ class ZtmGdanskMessageRepository implements MessageRepository
                 'validTo'   => new Carbon($message['endDate']),
             ]);
 
-            $message->setType($this->classifier->classify($message));
+            if ($type = $this->classifier->classify($message)) {
+                $message->setType($type);
+                return $message;
+            }
 
-            return $message;
-        });
+            return null;
+        })->filter()->values();
     }
 
     public function getForStop(Stop $stop): Collection

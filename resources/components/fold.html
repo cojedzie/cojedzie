@@ -1,4 +1,4 @@
-<div class="collapse">
+<div class="collapse" :class="{'show': visible}">
     <lazy v-if="lazy" :activate="visible">
         <slot></slot>
     </lazy>

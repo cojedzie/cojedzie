@@ -13,7 +13,7 @@ class ZtmGdanskMessageTypeClassifier
                 return Message::TYPE_BREAKDOWN;
 
             case preg_match('#gdansk.pl/powietrze#i', $message->getMessage()):
-                return Message::TYPE_INFO;
+                return false; // spam
 
             default:
                 return Message::TYPE_UNKNOWN;

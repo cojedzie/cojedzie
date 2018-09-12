@@ -22,7 +22,7 @@ export class MessagesComponent extends Vue {
             this.messages = await response.json();
         }
 
-        this.$emit('updated', this.messages);
+        this.$emit('update', this.messages);
     }
 
     public icon(message: Message) {
