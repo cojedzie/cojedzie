@@ -8,6 +8,7 @@ use App\Provider\Database\GenericLineRepository;
 use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
+use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ZtmGdanskProvider implements Provider
@@ -33,7 +34,8 @@ class ZtmGdanskProvider implements Provider
         GenericLineRepository $lines,
         GenericStopRepository $stops,
         GenericTrackRepository $tracks,
-        ZtmGdanskMessageRepository $messages
+        ZtmGdanskMessageRepository $messages,
+        ReferenceFactory $referenceFactory
     ) {
         $provider = $em->getReference(ProviderEntity::class, $this->getIdentifier());
 
@@ -42,7 +44,7 @@ class ZtmGdanskProvider implements Provider
         $tracks = $tracks->withProvider($provider);
 
         $this->lines      = $lines;
-        $this->departures = new ZtmGdanskDepartureRepository($lines);
+        $this->departures = new ZtmGdanskDepartureRepository($lines, $referenceFactory);
         $this->stops      = $stops;
         $this->messages   = $messages;
         $this->tracks     = $tracks;

@@ -10,5 +10,11 @@ export interface Departure {
     line:      Line;
     delay:     number;
 
-    vehicle?:  string;
+    vehicle?:  Vehicle;
+}
+
+export interface Vehicle {
+    id: string;
+
+    // todo: ???
 }

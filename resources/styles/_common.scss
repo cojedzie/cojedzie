@@ -30,8 +30,13 @@
   }
 }
 
-.collapse {
-  padding-bottom: .5rem;
+.fold {
+  overflow-y: hidden;
+  overflow-x: hidden;
+
+  transition: height 250ms ease;
+  will-change: height;
+  box-sizing: padding-box;
 }
 
 .flex {

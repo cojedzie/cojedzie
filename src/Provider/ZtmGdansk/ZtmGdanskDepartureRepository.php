@@ -4,8 +4,10 @@ namespace App\Provider\ZtmGdansk;
 
 use App\Model\Departure;
 use App\Model\Stop;
+use App\Model\Vehicle;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
+use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional\Transforms as t;
@@ -17,12 +19,16 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     /** @var LineRepository */
     private $lines;
 
+    /** @var ReferenceFactory */
+    private $reference;
+
     /**
      * @param LineRepository $lines
      */
-    public function __construct(LineRepository $lines)
+    public function __construct(LineRepository $lines, ReferenceFactory $reference)
     {
         $this->lines = $lines;
+        $this->reference = $reference;
     }
 
     public function getForStop(Stop $stop): Collection
@@ -42,7 +48,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 'estimated' => $estimated,
                 'stop'      => $stop,
                 'display'   => trim($delay['headsign']),
-                'vehicle'   => $delay['vehicleCode'],
+                'vehicle'   => $this->reference->get(Vehicle::class, $delay['vehicleCode']),
                 'line'      => $lines->get($delay['routeId']),
             ]);
         })->values();

@@ -1,6 +1,8 @@
-<div class="collapse" :class="{'show': visible}">
-    <lazy v-if="lazy" :activate="visible">
-        <slot></slot>
-    </lazy>
-    <slot v-else></slot>
+<div class="fold">
+    <div class="fold__inner" ref="inner">
+        <lazy v-if="lazy" :activate="visible">
+            <slot></slot>
+        </lazy>
+        <slot v-else></slot>
+    </div>
 </div>

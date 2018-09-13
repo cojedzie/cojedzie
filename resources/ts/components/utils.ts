@@ -42,16 +42,33 @@ export class PopperComponent extends Vue {
 
 @Component({ template: collapse })
 export class FoldComponent extends Vue {
+    private observer: MutationObserver;
+
     @Prop(Boolean)
     public visible: boolean;
 
     @Prop(Boolean)
     public lazy: boolean;
 
+    mounted() {
+        this.resize();
+        this.observer = new MutationObserver(() => this.resize());
+
+        this.observer.observe(this.$refs['inner'] as Node, {
+            characterData: true,
+            subtree: true,
+            childList: true
+        });
+    }
+
+    destroyed() {
+        this.observer.disconnect();
+    }
+
     @Watch('visible')
-    private onVisibilityChange(value) {
-        const action = () => $(this.$el).collapse(value ? 'show' : 'hide');
-        setTimeout(action);
+    private resize() {
+        const inner = this.$refs['inner'] as HTMLDivElement;
+        this.$el.style.height = `${(this.visible && inner) ? inner.clientHeight : 0}px`;
     }
 }
 

@@ -22,7 +22,7 @@ class Departure implements Fillable
 
     /**
      * Vehicle identification
-     * @var string|null
+     * @var Vehicle|null
      */
     private $vehicle;
 
@@ -54,12 +54,12 @@ class Departure implements Fillable
         $this->line = $line;
     }
 
-    public function getVehicle(): ?string
+    public function getVehicle(): ?Vehicle
     {
         return $this->vehicle;
     }
 
-    public function setVehicle(?string $vehicle): void
+    public function setVehicle(?Vehicle $vehicle): void
     {
         $this->vehicle = $vehicle;
     }
