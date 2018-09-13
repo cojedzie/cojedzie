@@ -10,7 +10,7 @@
                 <fa :icon="['fal', details ? 'chevron-circle-up' : 'info-circle']"/>
             </button>
 
-            <button class="btn btn-action" ref="action-map">
+            <button class="btn btn-action" ref="action-map" @click="map = true" @focusout="map = false">
                 <fa :icon="['fal', 'map-marked-alt']"/>
             </button>
         </slot>
@@ -19,4 +19,13 @@
     <fold :visible="details" class="stop__details" lazy>
         <stop-details :stop="stop"></stop-details>
     </fold>
+
+    <popper reference="action-map" :visible="map" arrow placement="left-start">
+        <div style="height: 300px; width: 500px">
+            <l-map :center="stop.location" :zoom=17 :options="{ zoomControl: false, dragging: false }">
+                <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png" attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'></l-tile-layer>
+                <l-marker :lat-lng="stop.location"></l-marker>
+            </l-map>
+        </div>
+    </popper>
 </div>

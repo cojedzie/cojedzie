@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
-import * as $ from 'jquery';
 
 import popper   = require("../../components/popper.html");
 import lazy     = require("../../components/lazy.html");
@@ -21,6 +20,9 @@ export class PopperComponent extends Vue {
     @Prop({ type: Boolean, default: false })
     public visible: boolean;
 
+    @Prop(Boolean)
+    public lazy: boolean;
+
     private _popper;
 
     mounted() {
@@ -37,6 +39,7 @@ export class PopperComponent extends Vue {
     @Watch('visible')
     private onVisibilityUpdate() {
         this._popper.update();
+        window.dispatchEvent(new Event('resize'));
     }
 }
 

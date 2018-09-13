@@ -44,6 +44,7 @@ export class StopComponent extends Vue {
     public stop: Stop;
 
     details: boolean = false;
+    map: boolean = false;
 }
 
 Vue.component('Stop', StopComponent);

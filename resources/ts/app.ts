@@ -5,6 +5,8 @@ import '../styles/main.scss'
 import './font-awesome'
 import './filters'
 
+import "leaflet/dist/leaflet.css";
+
 import Popper from 'popper.js';
 import * as $ from "jquery";
 

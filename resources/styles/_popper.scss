@@ -59,13 +59,14 @@
   $arrow-color: white;
   $arrow-border: black;
 
-  $popper-padding: .5rem;
+  $popper-padding: 2px;
 
   padding: $popper-padding;
   background: white;
   border: 1px solid black;
   z-index: 1000;
   position: relative;
+  box-sizing: content-box;
 
   max-width: 500px;
   min-width: 200px;
@@ -86,7 +87,7 @@
             bottom: top
     );
 
-    &[x-placement^="#{$placement}"] {
+    &[x-placement*="#{$placement}"] {
       margin-#{map-get($opposite, $placement)}: $arrow-base;
 
       .popper-arrow {
