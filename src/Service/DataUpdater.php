@@ -6,7 +6,6 @@ use App\Event\DataUpdateEvent;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Kadet\Functional\Predicats as p;
 
 class DataUpdater
 {
@@ -33,7 +32,7 @@ class DataUpdater
     {
         $schema = $this->em->getConnection()->getSchemaManager();
         collect($schema->listTables())->reject(function (Table $schema) {
-            return $schema->getName() === 'migrations';
+            return $schema->getName() === 'migration_versions';
         })->each([$schema, 'dropAndCreateTable']);
 
         $this->dispatcher->dispatch(self::UPDATE_EVENT, new DataUpdateEvent());

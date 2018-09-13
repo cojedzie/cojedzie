@@ -131,7 +131,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
             return StopEntity::createFromArray([
                 'id'        => $this->ids->generate($provider, $stop['stopId']),
                 'name'      => trim($stop['stopName'] ?? $stop['stopDesc']),
-                'variant'   => trim($stop['zoneName'] == 'Gdańsk' ? $stop['subName'] : null),
+                'variant'   => trim($stop['zoneName'] == 'Gdańsk' ? $stop['stopCode'] : null),
                 'latitude'  => $stop['stopLat'],
                 'longitude' => $stop['stopLon'],
                 'onDemand'  => (bool)$stop['onDemand'],
