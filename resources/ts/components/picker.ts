@@ -1,17 +1,12 @@
 import Component from "vue-class-component";
 import Vue from "vue";
 import { Stop, StopGroup, StopGroups } from "../model";
-import urls from '../urls';
-
-import picker = require("../../components/picker.html");
-import finder = require('../../components/finder.html');
-import stop   = require('../../components/stop.html');
-
 import { Prop, Watch } from "vue-property-decorator";
 import { filter, map } from "../utils";
 import { debounce } from "../decorators";
+import urls from '../urls';
 
-@Component({ template: picker })
+@Component({ template: require("../../components/picker.html") })
 export class PickerComponent extends Vue {
     protected stops?: Stop[] = [];
 
@@ -26,7 +21,7 @@ export class PickerComponent extends Vue {
 
 type FinderState = 'fetching' | 'ready' | 'error';
 
-@Component({ template: finder })
+@Component({ template: require('../../components/finder.html') })
 export class FinderComponent extends Vue {
     protected found?: StopGroups = {};
 

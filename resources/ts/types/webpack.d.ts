@@ -9,3 +9,5 @@ declare module "*.svg" {
 }
 
 declare module "*.png" {}
+
+declare function require(path: string): any;

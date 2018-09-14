@@ -1,18 +1,17 @@
 import Vue from 'vue';
 import { Component, Prop, Watch } from "vue-property-decorator";
-
-import messages = require("../../components/messages.html");
 import { Message } from "../model/message";
 import urls from "../urls";
 
 import { faInfoCircle, faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-light-svg-icons";
 
-@Component({ template: messages })
+@Component({ template: require("../../components/messages.html") })
 export class MessagesComponent extends Vue {
     public messages: Message[] = [];
 
     async mounted() {
         this.update();
+        setInterval(() => this.update(), 5000);
     }
 
     async update() {

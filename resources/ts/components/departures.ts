@@ -2,12 +2,11 @@ import Vue from 'vue'
 import { Departure, Stop } from "../model";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import urls from '../urls';
-import template = require("../../components/departures.html");
 import moment = require("moment");
 import { Jsonified } from "../utils";
 import { debounce } from "../decorators";
 
-@Component({ template })
+@Component({ template: require("../../components/departures.html") })
 export class Departures extends Vue {
     private _intervalId: number;
 

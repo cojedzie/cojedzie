@@ -2,11 +2,7 @@ import Vue from 'vue';
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
 
-import popper   = require("../../components/popper.html");
-import lazy     = require("../../components/lazy.html");
-import collapse = require("../../components/fold.html");
-
-@Component({ template: popper })
+@Component({ template: require("../../components/popper.html") })
 export class PopperComponent extends Vue {
     @Prop(String)
     public reference: string;
@@ -43,7 +39,7 @@ export class PopperComponent extends Vue {
     }
 }
 
-@Component({ template: collapse })
+@Component({ template: require('../../components/fold.html') })
 export class FoldComponent extends Vue {
     private observer: MutationObserver;
 
@@ -55,8 +51,8 @@ export class FoldComponent extends Vue {
 
     mounted() {
         this.resize();
-        this.observer = new MutationObserver(() => this.resize());
 
+        this.observer = new MutationObserver(() => this.resize());
         this.observer.observe(this.$refs['inner'] as Node, {
             characterData: true,
             subtree: true,
@@ -75,7 +71,7 @@ export class FoldComponent extends Vue {
     }
 }
 
-@Component({ template: lazy })
+@Component({ template: require("../../components/lazy.html") })
 export class LazyComponent extends Vue {
     @Prop(Boolean)
     public    activate: boolean;

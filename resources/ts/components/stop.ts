@@ -1,12 +1,9 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Line, Stop, Track } from "../model";
 import Vue from 'vue';
-
-import template = require('../../components/stop.html');
-import details  = require('../../components/stop-details.html');
 import urls from "../urls";
 
-@Component({ template: details })
+@Component({ template: require('../../components/stop-details.html') })
 class StopDetailsComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -38,7 +35,7 @@ class StopDetailsComponent extends Vue {
     }
 }
 
-@Component({ template })
+@Component({ template: require('../../components/stop.html') })
 export class StopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;

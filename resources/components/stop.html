@@ -10,7 +10,7 @@
                 <fa :icon="['fal', details ? 'chevron-circle-up' : 'info-circle']"/>
             </button>
 
-            <button class="btn btn-action" ref="action-map" @click="map = true" @focusout="map = false">
+            <button class="btn btn-action" ref="action-map" v-hover:map>
                 <fa :icon="['fal', 'map-marked-alt']"/>
             </button>
         </slot>
