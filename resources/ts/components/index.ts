@@ -1,4 +1,5 @@
 export * from './utils'
+export * from './line'
 export * from './picker'
 export * from './departures'
 export * from './stop'

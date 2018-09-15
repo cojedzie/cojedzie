@@ -1,8 +1,17 @@
 .line {
   @extend .flex;
+}
 
-  .line__symbol {
-    min-width: 4rem;
+.line__symbol {
+  @each $type, $color in $line-types {
+    .icon {
+      padding: 0 .2rem;
+    }
+
+    &.line--#{$type} .icon {
+      background-color: $color;
+      color: color-yiq($color);
+    }
   }
 }
 

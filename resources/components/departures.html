@@ -18,16 +18,9 @@
 
     <ul class="departures__list list-underlined">
         <li class="departure" v-for="departure in departures">
-            <div class="departure__line line">
-                <div class="line__symbol d-flex align-items-center">
-                    <fa :icon="['fac', departure.line.type]" fixed-width class="mr-1"/>
-                    {{ departure.line.symbol }}
-                </div>
+            <div class="departure__line">
+                <line-symbol :line="departure.line"></line-symbol>
                 <div class="line__display">{{ departure.display }}</div>
-                <div class="line__perks flex-space-left">
-                    <fa :icon="['fas', 'walking']" fixed-width v-if="departure.line.fast"/>
-                    <fa :icon="['fal', 'moon']" fixed-width v-if="departure.line.night"/>
-                </div>
             </div>
 
             <div class="departure__time">

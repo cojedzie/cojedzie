@@ -1,0 +1,12 @@
+<span class="line__symbol flex" :class="[`line--${line.type}`]">
+    <span class="flex align-items-stretch">
+        <span class="icon">
+            <fa :icon="['fac', line.type]" fixed-width></fa>
+        </span>
+        <span class="badge badge-dark flex">
+            <fa :icon="['fas', 'walking']" fixed-width v-if="line.fast"></fa>
+            <fa :icon="['fal', 'moon']" fixed-width v-if="line.night"></fa>
+            {{ line.symbol }}
+        </span>
+    </span>
+</span>

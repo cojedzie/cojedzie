@@ -7,10 +7,6 @@
     <div class="finder__stops" v-else-if="filter.length > 2 && Object.keys(filtered).length > 0">
         <div class="stop-group" v-for="(group, name) in filtered">
             <div class="stop-group__header">
-                <button class="btn btn-action">
-                    <fa :icon="['fal', 'chevron-down']"></fa>
-                </button>
-
                 <h3 class="stop-group__name">{{ name }}</h3>
 
                 <div class="actions flex-space-left">

@@ -1,10 +1,14 @@
 .departure {
-  display: flex;
-  align-items: center;
+  @extend .flex;
   flex-wrap: wrap;
 
   .departure__line {
+    @extend .flex;
     flex: 3 0;
+
+    .line__symbol {
+      min-width: 5rem;
+    }
   }
 
   .departure__stop {

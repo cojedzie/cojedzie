@@ -37,6 +37,10 @@ export class PopperComponent extends Vue {
         this._popper.update();
         window.dispatchEvent(new Event('resize'));
     }
+
+    destroyed() {
+        this._popper.destroy();
+    }
 }
 
 @Component({ template: require('../../components/fold.html') })

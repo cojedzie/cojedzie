@@ -1,12 +1,19 @@
 $border-radius: 0;
 $border-radius-lg: $border-radius;
 $border-radius-sm: $border-radius;
-
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 
 $custom-control-indicator-checked-bg: $dark;
 $custom-control-indicator-active-bg: $dark;
+
+$line-types: (
+  'trolleybus': #419517,
+  'tram':       #cd2e12,
+  'bus':        #005ea8,
+  'train':      $yellow,
+  'unknown':    $dark
+);
 
 @import "~bootstrap/scss/bootstrap";
 
@@ -16,3 +23,5 @@ $custom-control-indicator-active-bg: $dark;
 @import "line";
 @import "controls";
 @import "popper";
+
+svg.svg-inline--fa { transform: rotate(360deg) }
