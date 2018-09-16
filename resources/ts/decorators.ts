@@ -1,11 +1,11 @@
-export interface Decorator<TArgs extends any[], FArgs extends any[], TRet, FRet> {
-    decorate(f: (...farg: FArgs) => FRet, ...args: TArgs): (...farg: FArgs) => TRet;
+export interface Decorator<TArgs extends any[], FArgs extends any[], TRet extends any, FRet extends any> {
+    decorate(f: (...farg: FArgs) => any, ...args: TArgs): (...farg: FArgs) => TRet;
 
     (...args: TArgs): (target, name: string | symbol, descriptor: TypedPropertyDescriptor<(...farg: FArgs) => FRet>) => void;
 }
 
-export function decorator<TArgs extends any[], FArgs extends any[], TRet, FRet>
-    (decorate: (f: (...fargs: FArgs) => FRet, ...args: TArgs) => (...fargs: FArgs) => TRet)
+export function decorator<TArgs extends any[], FArgs extends any[], TRet extends any, FRet extends any>
+    (decorate: (f: (...farg: FArgs) => FRet, ...args: TArgs) => (...farg: FArgs) => TRet)
     : Decorator<TArgs, FArgs, TRet, FRet> {
 
     const factory = function (this: Decorator<TArgs, FArgs, TRet, FRet>, ...args: TArgs) {
@@ -41,5 +41,13 @@ export const debounce = decorator(function (decorated, time: number, max: number
             timeout = undefined;
             decorated.call(this, ...args);
         }, time);
+    }
+});
+
+export const condition = decorator(function <Args extends any[], Ret extends any>(decorated: (...args: Args) => Ret, predicate: (...args: Args) => boolean) {
+    return function (this: any, ...args: Args) {
+        if (predicate(...args)) {
+            return decorated(...args);
+        }
     }
 });

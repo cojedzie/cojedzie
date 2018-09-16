@@ -1,4 +1,4 @@
-<span class="line__symbol flex" :class="[`line--${line.type}`]">
+<span class="line__symbol flex" :class="{ [`line--${line.type}`]: true, 'line--night': line.night, 'line--fast': line.fast }">
     <span class="flex align-items-stretch">
         <span class="icon">
             <fa :icon="['fac', line.type]" fixed-width></fa>

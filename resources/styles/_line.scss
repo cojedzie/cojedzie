@@ -8,9 +8,25 @@
       padding: 0 .2rem;
     }
 
-    &.line--#{$type} .icon {
-      background-color: $color;
-      color: color-yiq($color);
+    &.line--#{$type} {
+     .icon {
+        background-color: $color;
+        color: color-yiq($color);
+      }
+
+      .badge {
+        background-color: transparent;
+        color: $color;
+        border: 1px solid $color;
+      }
+    }
+
+    &.line--night {
+      .badge {
+        background-color: $dark;
+        color: $white;
+        border: none;
+      }
     }
   }
 }

@@ -15,7 +15,7 @@
   display: flex;
 }
 
-.stop__details {
+.stop__details-fold {
   flex-basis: 100%;
   .fold__inner { padding-bottom: .75rem; }
 }
@@ -29,4 +29,21 @@
 
 .stop__tracks .line__symbol .badge {
   flex-grow: 1;
+}
+
+.stop__details {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 (-$grid-gutter-width/2);
+
+  section {
+    flex: 0 0 100%;
+    padding: 0 $grid-gutter-width/2;
+  }
+
+  &.size-lg {
+    section {
+      flex: 0 0 50%;
+    }
+  }
 }

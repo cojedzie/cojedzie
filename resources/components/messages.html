@@ -1,6 +1,15 @@
 <ul class="messages list-unstyled">
-    <li class="messages__message alert" :class="`alert-${type(message)}`" v-for="message in messages">
+    <li class="message alert" :class="`alert-${type(message)}`" v-for="message in messages">
         <fa :icon="icon(message)" fixed-width></fa>
         {{ message.message }}
+
+        <div class="message__info">
+            <small class="message__date">
+                Komunikat ważny od
+                {{ message.validFrom.format('HH:mm') }}
+                do
+                {{ message.validTo.format('HH:mm') }}
+            </small>
+        </div>
     </li>
 </ul>

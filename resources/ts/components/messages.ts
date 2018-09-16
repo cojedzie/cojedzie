@@ -4,6 +4,8 @@ import { Message } from "../model/message";
 import urls from "../urls";
 
 import { faInfoCircle, faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-light-svg-icons";
+import { Jsonified } from "../utils";
+import moment = require("moment");
 
 @Component({ template: require("../../components/messages.html") })
 export class MessagesComponent extends Vue {
@@ -18,7 +20,15 @@ export class MessagesComponent extends Vue {
         const response = await fetch(urls.prepare(urls.messages));
 
         if (response.ok) {
-            this.messages = await response.json();
+            const messages = (await response.json()) as Jsonified<Message>[];
+            this.messages = messages.map(m => {
+                const message = m as Message;
+
+                message.validFrom = moment(m.validFrom);
+                message.validTo   = moment(m.validTo);
+
+                return message;
+            });
         }
 
         this.$emit('update', this.messages);

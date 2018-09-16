@@ -3,6 +3,10 @@
     @extend .btn-link;
 
     color: black;
+
+    &:focus {
+      outline: 2px solid rgba($blue, .2);
+    }
   }
 
   &.btn-outline-action {

@@ -15,6 +15,11 @@ $line-types: (
   'unknown':    $dark
 );
 
+$default-spacing: .5rem;
+
+$alert-margin-bottom:    $default-spacing;
+$headings-margin-bottom: $default-spacing;
+
 @import "~bootstrap/scss/bootstrap";
 
 @import "common";
