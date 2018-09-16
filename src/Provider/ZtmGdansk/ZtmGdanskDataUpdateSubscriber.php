@@ -18,10 +18,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 {
-    const OPERATORS_URL       = "http://91.244.248.30/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agency.json";
-    const LINES_URL           = "http://91.244.248.30/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
-    const STOPS_URL           = 'http://91.244.248.19/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/cd4c08b5-460e-40db-b920-ab9fc93c1a92/download/stops.json';
-    const TRACKS_URL          = "http://91.244.248.30/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
+    const OPERATORS_URL       = "http://91.244.248.19/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/8b3aa347-3bb7-4c58-9113-d47458ec1fc3/download/agency.json";
+    const LINES_URL           = "http://91.244.248.19/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/4128329f-5adb-4082-b326-6e1aea7caddf/download/routes.json";
+    const STOPS_URL           = "http://91.244.248.19/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/cd4c08b5-460e-40db-b920-ab9fc93c1a92/download/stops.json";
+    const TRACKS_URL          = "http://91.244.248.19/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/33618472-342c-4a4a-ba88-a911ec0ad5a7/download/trips.json";
     const STOPS_IN_TRACKS_URL = "http://91.244.248.19/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/0f2de200-e78b-4183-ae0d-071d7f07fc3f/download/stopsintrips.json";
 
     private $em;
