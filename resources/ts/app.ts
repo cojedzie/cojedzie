@@ -1,10 +1,6 @@
 /// <reference path="types/webpack.d.ts"/>
 
 import '../styles/main.scss'
-
-import './font-awesome'
-import './filters'
-
 import "leaflet/dist/leaflet.css";
 
 import Popper from 'popper.js';
@@ -18,6 +14,13 @@ window['Popper'] = Popper;
 // dependencies
 import 'bootstrap'
 import { Vue } from "vue-property-decorator";
+
+import './filters'
+
+// async dependencies
+(async function () {
+    import ('./font-awesome');
+})();
 
 // here goes "public" API
 window['czydojade'] = {

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import { Departure, Stop } from "../model";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import urls from '../urls';
-import moment = require("moment");
+import * as moment from "moment";
 import { Jsonified } from "../utils";
 import { debounce } from "../decorators";
 

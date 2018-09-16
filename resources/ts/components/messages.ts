@@ -5,7 +5,7 @@ import urls from "../urls";
 
 import { faInfoCircle, faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-light-svg-icons";
 import { Jsonified } from "../utils";
-import moment = require("moment");
+import * as moment from "moment";
 
 @Component({ template: require("../../components/messages.html") })
 export class MessagesComponent extends Vue {
