@@ -11,7 +11,7 @@
             </button>
 
             <button class="btn btn-action" ref="action-map" v-hover:map>
-                <fa :icon="['fal', 'map-marked-alt']"/>
+                <fa :icon="['fal', 'map-marker-alt']"/>
             </button>
         </slot>
     </div>
@@ -20,7 +20,7 @@
         <stop-details :stop="stop"></stop-details>
     </fold>
 
-    <popper reference="action-map" :visible="map" arrow placement="left-start">
+    <popper reference="action-map" :visible="map" arrow>
         <div style="height: 300px; width: 500px">
             <l-map :center="stop.location" :zoom=17 :options="{ zoomControl: false, dragging: false }">
                 <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png" attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'></l-tile-layer>

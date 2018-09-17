@@ -7,7 +7,7 @@
     flex: 3 0;
 
     .line__symbol {
-      min-width: 5rem;
+      min-width: 6rem;
     }
   }
 
@@ -28,6 +28,28 @@
       text-decoration: line-through;
     }
   }
+
+
+
+}
+
+.departures {
+  &.size-md {
+    .departure__time {
+      order: 2;
+    }
+
+    .departure__stop {
+      flex: 2 0;
+      width: auto;
+    }
+  }
+
+  &.size-sm {
+    .departure__time {
+      margin-left: auto;
+    }
+  }
 }
 
 .departures__actions {
@@ -39,22 +61,5 @@
 
   .form-control {
     width: auto;
-  }
-}
-
-@include media-breakpoint-up(lg) {
-  .departure__time {
-    order: 2;
-  }
-
-  .departure__stop {
-    flex: 2 0;
-    width: auto;
-  }
-}
-
-@include media-breakpoint-up(sm) {
-  .departure__time {
-    margin-left: auto;
   }
 }

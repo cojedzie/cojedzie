@@ -2,19 +2,44 @@
 {% block title "#{parent()} - #{provider.name}" %}
 
 {% block body %}
-    <section class="messages" v-show="messages.count > 0">
-        <h2 class="section__title flex">
-            <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
-            Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
-            <button class="btn btn-action btn-sm flex-space-left" @click="messages.visible = !messages.visible">
-                <fa :icon="['fal', messages.visible ? 'chevron-up' : 'chevron-down']" fixed-width />
-            </button>
-        </h2>
-        <fold :visible="messages.visible">
-            <messages @update="handleMessagesUpdate"></messages>
-        </fold>
-    </section>
-    <stop-picker></stop-picker>
+    <div class="row">
+        <div class="col-md-4">
+            <section class="picker">
+                <h2 class="section__title">
+                    <fa :icon="['fal', 'sign']" fixed-width></fa>
+                    Przystanki
+                </h2>
+                <stop-picker :stops.sync="stops"></stop-picker>
+            </section>
+        </div>
+        <div class="col-md-8">
+            <section class="messages" v-show="messages.count > 0">
+                <h2 class="section__title flex">
+                    <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
+                    Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
+                    <button class="btn btn-action btn-sm flex-space-left" @click="messages.visible = !messages.visible">
+                        <fa :icon="['fal', messages.visible ? 'chevron-up' : 'chevron-down']" fixed-width/>
+                    </button>
+                </h2>
+                <fold :visible="messages.visible">
+                    <messages @update="handleMessagesUpdate"></messages>
+                </fold>
+            </section>
+
+            <section>
+                <h2 class="section__title flex">
+                    <fa :icon="['fal', 'clock']" fixed-width class="mr-1"></fa>
+                    Odjazdy
+                    <button class="btn btn-action flex-space-left" @click="$refs.departures.update()">
+                        <fa-layers>
+                            <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'"></fa>
+                        </fa-layers>
+                    </button>
+                </h2>
+                <departures :stops="stops" ref="departures" @update:state="departures.state = $event"></departures>
+            </section>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}

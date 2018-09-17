@@ -10,6 +10,7 @@ export type Optionalify<T> = { [K in keyof T]?: T[K] }
 export type Dictionary<T> = { [key: string]: T };
 
 export type Index = string | symbol | number;
+export type FetchingState = 'fetching' | 'ready' | 'error' | 'not-initialized';
 
 export function map<T extends {}, KT extends keyof T, R extends { [KR in keyof T] }>(source: T, mapper: (value: T[KT], key: KT) => R[KT]): R {
     const result: R = {} as R;
@@ -35,4 +36,8 @@ export function filter<T, KT extends keyof T>(source: T, filter: (value: T[KT], 
 
 export function signed(number: number): string {
     return number > 0 ? `+${number}` : number.toString();
+}
+
+export function ensureArray<T>(x: T[]|T): T[] {
+    return x instanceof Array ? x : [ x ];
 }

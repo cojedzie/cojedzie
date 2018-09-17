@@ -12,6 +12,7 @@ window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
 
 // dependencies
+import './font-awesome';
 import 'bootstrap'
 import { Vue } from "vue-property-decorator";
 
@@ -19,7 +20,6 @@ import './filters'
 
 // async dependencies
 (async function () {
-    import ('./font-awesome');
 })();
 
 // here goes "public" API
@@ -30,9 +30,13 @@ window['czydojade'] = {
 window['app'] = new Vue({
     el: '#app',
     data: {
+        stops: [],
         messages: {
             count:   0,
             visible: true
+        },
+        departures: {
+            state: ''
         }
     }, methods: {
         handleMessagesUpdate(messages) {

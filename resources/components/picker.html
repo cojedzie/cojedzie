@@ -1,6 +1,4 @@
 <div class="picker">
-    <departures :stops="stops"/>
-
     <ul class="picker__stops list-underlined">
         <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
             <button @click="remove(stop)" class="btn btn-action">

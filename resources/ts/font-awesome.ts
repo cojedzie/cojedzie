@@ -7,8 +7,10 @@ import { fas } from "@fortawesome/pro-solid-svg-icons";
 import { fal } from "@fortawesome/pro-light-svg-icons";
 import { fac } from "./icons";
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from '@fortawesome/vue-fontawesome'
 
 library.add(far, fas, fal, fac);
 
 Vue.component('fa', FontAwesomeIcon);
+Vue.component('fa-layers', FontAwesomeLayers);
+Vue.component('fa-text', FontAwesomeLayersText);

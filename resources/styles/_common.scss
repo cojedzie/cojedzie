@@ -54,7 +54,14 @@
   padding-top: .5rem;
   padding-bottom: .5rem;
 
+  line-height: $btn-line-height;
+
   &:hover {
     background: none;
+  }
+
+  .btn {
+    margin-top: -.5rem;
+    margin-bottom: -.5rem;
   }
 }

@@ -3,23 +3,31 @@ import { Departure, Stop } from "../model";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import urls from '../urls';
 import * as moment from "moment";
-import { Jsonified } from "../utils";
-import { debounce } from "../decorators";
+import { FetchingState, Jsonified } from "../utils";
+import { debounce, Notify } from "../decorators";
 
 @Component({ template: require("../../components/departures.html") })
 export class Departures extends Vue {
     private _intervalId: number;
 
-    autoRefresh: boolean    = false;
     departures: Departure[] = [];
-    interval: number        = 20;
 
     @Prop(Array)
     stops: Stop[];
 
+    @Prop({ default: false, type: Boolean })
+    autoRefresh: boolean;
+
+    @Prop({ default: 20, type: Number })
+    interval: number;
+
+    @Notify()
+    state: FetchingState;
+
     @Watch('stops')
     @debounce(300)
     async update() {
+        this.state = 'fetching';
         const response = await fetch(urls.prepare(urls.departures, {
             stop: this.stops.map(stop => stop.id),
         }));
@@ -33,6 +41,10 @@ export class Departures extends Vue {
 
                 return departure as Departure;
             });
+
+            this.state = 'ready';
+        } else {
+            this.state = 'error';
         }
     }
 

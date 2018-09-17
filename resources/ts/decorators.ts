@@ -1,3 +1,6 @@
+import Vue from 'vue';
+import getOwnPropertyDescriptor = Reflect.getOwnPropertyDescriptor;
+
 export interface Decorator<TArgs extends any[], FArgs extends any[], TRet extends any, FRet extends any> {
     decorate(f: (...farg: FArgs) => any, ...args: TArgs): (...farg: FArgs) => TRet;
 
@@ -48,6 +51,27 @@ export const condition = decorator(function <Args extends any[], Ret extends any
     return function (this: any, ...args: Args) {
         if (predicate(...args)) {
             return decorated(...args);
+        }
+    }
+});
+
+// decorators.js
+import { createDecorator } from 'vue-class-component'
+
+export const Notify = (name?: string) => createDecorator((options, key) => {
+    const symbol = Symbol(key);
+
+    if (typeof options.computed === 'undefined') {
+        options.computed = {};
+    }
+
+    options.computed[key] = {
+        get: function (this: Vue) {
+            return this[symbol];
+        },
+        set: function (this: Vue, value: any) {
+            this[symbol] = value;
+            this.$emit(name ? name : `update:${key}`, value);
         }
     }
 });
