@@ -1,5 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const BabelMinifyPlugin = require('babel-minify-webpack-plugin');
 
 const config = {
     entry: {
@@ -53,6 +54,11 @@ const config = {
     plugins: [
         new MiniCssExtractPlugin({ filename: '[name].css' })
     ],
+    optimization: {
+        minimizer: [
+          new BabelMinifyPlugin()
+        ]
+    }
 };
 
 module.exports = (env, argv) => {
