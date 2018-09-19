@@ -1,5 +1,6 @@
 .list-underlined {
   @extend .list-unstyled;
+  margin-bottom: 0;
 
   > li {
     border-bottom: 1px solid $dark;
@@ -45,23 +46,37 @@
   align-items: center;
 }
 
-.section__title {
-  @extend .alert;
-  @extend .alert-dark;
+.section {
+  margin-bottom: 1rem;
 
-  font-size: medium;
-  background: transparent;
-  padding-top: .5rem;
-  padding-bottom: .5rem;
+  .section__title {
+    @extend .alert;
+    @extend .alert-dark;
 
-  line-height: $btn-line-height;
+    font-size: medium;
+    background: transparent;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
 
-  &:hover {
-    background: none;
+    line-height: $btn-line-height;
+
+    &:hover {
+      background: none;
+    }
+
+    .btn {
+      margin-top: -.5rem;
+      margin-bottom: -.5rem;
+    }
   }
+}
 
-  .btn {
-    margin-top: -.5rem;
-    margin-bottom: -.5rem;
+#app {
+  margin-top: $grid-gutter-width / 2;
+}
+
+@include media-breakpoint-up('md') {
+  #app {
+    margin-top: 4rem;
   }
 }

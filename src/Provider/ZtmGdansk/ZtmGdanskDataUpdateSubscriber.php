@@ -9,7 +9,7 @@ use App\Entity\StopEntity;
 use App\Entity\StopInTrack;
 use App\Entity\TrackEntity;
 use App\Model\Line as LineModel;
-use App\Provider\ZtmGdanskProvider;
+use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\DataUpdater;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;

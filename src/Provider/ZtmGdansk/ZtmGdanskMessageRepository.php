@@ -7,7 +7,7 @@ namespace App\Provider\ZtmGdansk;
 use App\Model\Message;
 use App\Model\Stop;
 use App\Provider\MessageRepository;
-use App\Provider\ZtmGdanskProvider;
+use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\IdUtils;
 use Carbon\Carbon;
 use Symfony\Component\Cache\Adapter\AdapterInterface;

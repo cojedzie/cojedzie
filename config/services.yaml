@@ -67,4 +67,4 @@ services:
 
     # other servces
     App\Service\ProviderResolver:
-        arguments: [!tagged app.provider]
+        arguments: [!tagged app.provider, '%kernel.debug%']

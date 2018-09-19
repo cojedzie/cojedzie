@@ -1,12 +1,18 @@
 <?php
 
 
-namespace App\Provider;
+namespace App\Provider\ZtmGdansk;
 
 use App\Entity\ProviderEntity;
 use App\Provider\Database\GenericLineRepository;
 use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTrackRepository;
+use App\Provider\DepartureRepository;
+use App\Provider\LineRepository;
+use App\Provider\MessageRepository;
+use App\Provider\Provider;
+use App\Provider\StopRepository;
+use App\Provider\TrackRepository;
 use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\EntityManagerInterface;
