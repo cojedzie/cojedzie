@@ -4,7 +4,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import urls from '../urls';
 import * as moment from "moment";
 import { FetchingState, Jsonified } from "../utils";
-import { debounce, Notify } from "../decorators";
+import { debounce, notify } from "../decorators";
 
 @Component({ template: require("../../components/departures.html") })
 export class Departures extends Vue {
@@ -21,7 +21,7 @@ export class Departures extends Vue {
     @Prop({ default: 20, type: Number })
     interval: number;
 
-    @Notify()
+    @notify()
     state: FetchingState;
 
     @Watch('stops')

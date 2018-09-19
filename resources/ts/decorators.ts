@@ -58,7 +58,7 @@ export const condition = decorator(function <Args extends any[], Ret extends any
 // decorators.js
 import { createDecorator } from 'vue-class-component'
 
-export const Notify = (name?: string) => createDecorator((options, key) => {
+export const notify = (name?: string) => createDecorator((options, key) => {
     const symbol = Symbol(key);
 
     if (typeof options.computed === 'undefined') {

@@ -176,7 +176,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                         $this->ids->generate($provider, $stop['stopId'])
                     ),
                     'track' => $entity,
-                    'order' => $stop['stopSequence'],
+                    'order' => $stop['stopSequence'] + (int)($stop['stopId'] > 30000), // HACK! Gdynia has 0 based sequence
                 ]);
             });
 
