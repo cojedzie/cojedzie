@@ -31,4 +31,41 @@ $container-max-widths: map-merge($container-max-widths, ( xl: 1320px ));
 @import "controls";
 @import "popper";
 
-svg.svg-inline--fa { transform: rotate(360deg) }
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  main {
+    flex: 1 1 auto;
+  }
+
+  footer {
+    @extend .flex;
+    border-top: 2px solid black;
+    padding: $alert-padding-y $alert-padding-y;
+    transition: all .5s ease;
+    opacity: .06;
+    filter: grayscale(100%);
+
+    &:hover {
+      opacity: 1;
+      filter: grayscale(0%);
+    }
+
+    img {
+      height: 1.5rem;
+    }
+  }
+}
+
+#app {
+  margin-top: $grid-gutter-width / 2;
+}
+
+@include media-breakpoint-up('md') {
+  #app {
+    margin-top: 4rem;
+  }
+}
+

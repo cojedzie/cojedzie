@@ -14,3 +14,4 @@
 /.idea/
 /public/*
 !/public/index.php
+!/public/manifest.json

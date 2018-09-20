@@ -1,6 +1,8 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const BabelMinifyPlugin = require('babel-minify-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ImageminPlugin = require('imagemin-webpack-plugin').default;
 
 const config = {
     entry: {
@@ -13,7 +15,7 @@ const config = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
-          'vue$': 'vue/dist/vue.esm.js'
+            'vue$': 'vue/dist/vue.esm.js'
         }
     },
     module: {
@@ -25,7 +27,7 @@ const config = {
             use: ['raw-loader', {
                 loader: path.resolve('./resources/svg-icon-loader.js')
             }]
-        },{
+        }, {
             test: /\.s[ac]ss$/,
             use: [{
                 loader: MiniCssExtractPlugin.loader,
@@ -52,11 +54,13 @@ const config = {
         }]
     },
     plugins: [
-        new MiniCssExtractPlugin({ filename: '[name].css' })
+        new MiniCssExtractPlugin({ filename: '[name].css' }),
+        new CopyWebpackPlugin([{ from: './resources/images/', to: 'images/' }]),
+        new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i })
     ],
     optimization: {
         minimizer: [
-          new BabelMinifyPlugin()
+            new BabelMinifyPlugin()
         ]
     }
 };

@@ -10,6 +10,7 @@
         "nesbot/carbon": "^1.33",
         "ocramius/proxy-manager": "^2.0",
         "sensio/framework-extra-bundle": "^5.2",
+        "symfony/asset": "*",
         "symfony/console": "*",
         "symfony/flex": "^1.1",
         "symfony/framework-bundle": "*",

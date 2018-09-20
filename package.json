@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "babel-minify-webpack-plugin": "^0.3.1",
+    "copy-webpack-plugin": "^4.5.2",
+    "imagemin-webpack-plugin": "^2.3.0",
     "mini-css-extract-plugin": "^0.4.2",
     "vue2-leaflet": "^1.0.2"
   }

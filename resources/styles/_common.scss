@@ -71,12 +71,6 @@
   }
 }
 
-#app {
-  margin-top: $grid-gutter-width / 2;
-}
-
-@include media-breakpoint-up('md') {
-  #app {
-    margin-top: 4rem;
-  }
+svg.svg-inline--fa {
+  transform: rotate(360deg)
 }

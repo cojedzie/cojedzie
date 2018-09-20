@@ -3,7 +3,8 @@
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="main.css" />
+        <link rel="stylesheet" href="{{ asset('main.css') }}" />
+        <link rel="manifest" href="manifest.json" />
 
         <title>{% block title %}Czy dojadę?{% endblock %}</title>
     </head>
@@ -11,8 +12,17 @@
         <main role="main" class="container" id="app">
             {% block body %}{% endblock %}
         </main>
+        <footer class="container">
+            {% block footer %}
+                <span class="copyright flex flex-space-left">
+                    brought to you by
+                    <a href="https://kadet.net"><img src="{{ asset('images/kadet-net-logo.png') }}" alt="kadet.net logo" class="mx-1"/></a>
+                    &copy; {{ 'now'|date('Y') }}
+                </span>
+            {% endblock %}
+        </footer>
 
         {% block javascripts %}{% endblock %}
-        <script src="bundle.js"></script>
+        <script src="{{ asset('bundle.js') }}"></script>
     </body>
 </html>
