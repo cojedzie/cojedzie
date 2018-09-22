@@ -1,15 +1,30 @@
 {
   "name": "Czy Dojadę?",
-  "short_name": "Czy Dojadę",
+  "short_name": "Czy Dojadę?",
   "orientation": "portrait",
   "lang": "pl_PL",
   "start_url": ".",
   "display": "fullscreen",
-  "background_color": "#fff",
-  "theme_color": "white",
+  "background_color": "#005ea8",
+  "theme_color": "#005ea8",
   "description": "Odpowiedź na odwieczne pytanie ludzkości - czy tramwaje jeżdżą?",
   "icons": [{
-    "src": "images/icon.svg",
+    "src": "images/icon-256.png",
     "sizes": "256x256"
+  },{
+    "src": "images/icon-512.png",
+    "sizes": "512x512"
+  },{
+    "src": "images/icon-64.png",
+    "sizes": "64x64"
+  },{
+    "src": "images/icon-128.png",
+    "sizes": "128x128"
+  },{
+    "src": "images/icon-192.png",
+    "sizes": "192x192"
+  },{
+    "src": "images/icon-96.png",
+    "sizes": "96x96"
   }]
 }

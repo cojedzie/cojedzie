@@ -55,7 +55,7 @@ const config = {
     },
     plugins: [
         new MiniCssExtractPlugin({ filename: '[name].css' }),
-        new CopyWebpackPlugin([{ from: './resources/images/', to: 'images/' }]),
+        new CopyWebpackPlugin([{ from: './resources/images/', to: 'images/', ignore: ['*.ai'] }]),
         new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i })
     ],
     optimization: {
