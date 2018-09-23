@@ -4,7 +4,7 @@
   "orientation": "portrait",
   "lang": "pl_PL",
   "start_url": ".",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#005ea8",
   "theme_color": "#005ea8",
   "description": "Odpowiedź na odwieczne pytanie ludzkości - czy tramwaje jeżdżą?",
