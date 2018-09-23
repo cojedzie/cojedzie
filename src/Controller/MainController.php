@@ -24,4 +24,12 @@ class MainController extends Controller
     {
         return $this->render('app.html.twig', ['provider' => $provider]);
     }
+
+    /**
+     * @Route("/{provider}/manifest.json", name="webapp_manifest")
+     */
+    public function manifest(Provider $provider)
+    {
+        return $this->render('manifest.json.twig', ['provider' => $provider]);
+    }
 }

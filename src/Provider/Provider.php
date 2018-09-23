@@ -11,5 +11,6 @@ interface Provider
     public function getTrackRepository(): TrackRepository;
 
     public function getName();
+    public function getShortName();
     public function getIdentifier();
 }

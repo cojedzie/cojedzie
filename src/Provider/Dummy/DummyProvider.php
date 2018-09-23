@@ -42,6 +42,11 @@ class DummyProvider implements Provider
         return "Dummy data for debugging";
     }
 
+    public function getShortName()
+    {
+        return "dummy";
+    }
+
     public function getIdentifier()
     {
         return "dummy";

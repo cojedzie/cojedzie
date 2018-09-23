@@ -4,7 +4,7 @@
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="{{ asset('main.css') }}" />
-        <link rel="manifest" href="manifest.json" />
+        <link rel="manifest" href="{% block manifest 'manifest.json' %}" />
 
         <!-- icons -->
         <link rel="icon" href="images/favicon.png" sizes="16x16" />

@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 {% block title "#{parent()} - #{provider.name}" %}
+{% block manifest path('webapp_manifest', { provider: provider.identifier }) %}
 
 {% block body %}
     <div class="row">

@@ -30,6 +30,11 @@ class ZtmGdanskProvider implements Provider
         return 'MZKZG - Trójmiasto';
     }
 
+    public function getShortName()
+    {
+        return 'Trójmiasto';
+    }
+
     public function getIdentifier()
     {
         return 'trojmiasto';
