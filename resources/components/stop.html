@@ -23,7 +23,7 @@
     <popper reference="action-map" :visible="map" arrow>
         <div style="height: 300px; width: 500px">
             <l-map :center="stop.location" :zoom=17 :options="{ zoomControl: false, dragging: false }">
-                <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png" attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'></l-tile-layer>
+                <l-tile-layer url="//{s}.tile.osm.org/{z}/{x}/{y}.png" attribution='&copy; <a href="//osm.org/copyright">OpenStreetMap</a> contributors'></l-tile-layer>
                 <l-marker :lat-lng="stop.location"></l-marker>
             </l-map>
         </div>
