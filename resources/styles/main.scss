@@ -40,6 +40,12 @@ body {
     flex: 1 1 auto;
   }
 
+  .attribution {
+    font-size: small;
+    color: $text-muted;
+    text-align: right;
+  }
+
   footer {
     @extend .flex;
     border-top: 2px solid black;

@@ -10,7 +10,8 @@ interface Provider
     public function getMessageRepository(): MessageRepository;
     public function getTrackRepository(): TrackRepository;
 
-    public function getName();
-    public function getShortName();
-    public function getIdentifier();
+    public function getName(): string;
+    public function getShortName(): string;
+    public function getIdentifier(): string;
+    public function getAttribution(): ?string;
 }

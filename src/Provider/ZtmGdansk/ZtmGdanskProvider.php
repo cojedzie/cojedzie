@@ -25,19 +25,24 @@ class ZtmGdanskProvider implements Provider
     private $tracks;
     private $messages;
 
-    public function getName()
+    public function getName(): string
     {
         return 'MZKZG - Trójmiasto';
     }
 
-    public function getShortName()
+    public function getShortName(): string
     {
         return 'Trójmiasto';
     }
 
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return 'trojmiasto';
+    }
+
+    public function getAttribution(): string
+    {
+        return '<a href="http://ztm.gda.pl/otwarty_ztm">Otwarte Dane</a> Zarządu Transportu Miejskiego w Gdańsku';
     }
 
     public function __construct(
