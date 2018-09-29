@@ -6,6 +6,8 @@ use App\Entity\LineEntity;
 use App\Entity\StopEntity;
 use App\Entity\StopInTrack;
 use App\Entity\TrackEntity;
+use function App\Functions\encapsulate;
+use App\Model\Stop;
 use App\Model\Track;
 use App\Provider\TrackRepository;
 use Tightenco\Collect\Support\Collection;
@@ -32,13 +34,16 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
 
     public function getByStop($stop): Collection
     {
+        $reference = f\apply(f\ref([$this, 'reference']), StopEntity::class);
+        $stop      = array_map([Stop::class, 'reference'], encapsulate($stop));
+
         $tracks = $this->em->createQueryBuilder()
             ->from(StopInTrack::class, 'st')
             ->join('st.track', 't')
-            ->where('st.stop = :stop')
+            ->where('st.stop in (:stop)')
             ->select(['st', 't'])
             ->getQuery()
-            ->execute(['stop' => $this->reference(StopEntity::class, $stop)]);
+            ->execute(['stop' => array_map($reference, $stop)]);
 
         return collect($tracks)->map(function (StopInTrack $entity) {
             return [ $this->convert($entity->getTrack()), $entity->getOrder() ];
@@ -47,14 +52,17 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
 
     public function getByLine($line): Collection
     {
+        $reference = f\apply(f\ref([$this, 'reference']), LineEntity::class);
+        $line      = array_map([Stop::class, 'reference'], encapsulate($line));
+
         $tracks = $this->em->createQueryBuilder()
             ->from(StopInTrack::class, 'st')
             ->join('st.track', 't')
             ->join('t.stops', 's')
-            ->where('st.line = :line')
+            ->where('st.line in (:line)')
             ->select(['st', 't', 's'])
             ->getQuery()
-            ->execute(['stop' => $this->reference(LineEntity::class, $line)]);
+            ->execute(['stop' => array_map($reference, $line)]);
 
         return collect($tracks)->map(f\ref([$this, 'convert']));
     }
