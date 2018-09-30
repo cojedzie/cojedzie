@@ -65,6 +65,9 @@ Vue.use(Vuex);
                 updateMessages:   'messages/update',
                 updateDepartures: 'departures/update'
             })
+        },
+        mounted() {
+            this.$el.classList.remove('not-ready');
         }
     });
 })();

@@ -38,6 +38,33 @@ body {
 
   main {
     flex: 1 1 auto;
+    position: relative;
+
+    > * {
+      transition: opacity .3s ease-in-out;
+    }
+  }
+
+  main::after {
+    transition: opacity .3s ease-in-out;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    content: "";
+    opacity: 0;
+    background: url("../images/logo.png") center center no-repeat;
+  }
+
+  main.not-ready {
+    > * {
+      opacity: 0;
+    }
+
+    &::after {
+      opacity: 1 !important;
+    }
   }
 
   .attribution {
@@ -71,7 +98,7 @@ body {
 
 @include media-breakpoint-up('md') {
   #app {
-    margin-top: 4rem;
+    padding-top: 4rem;
   }
 }
 
