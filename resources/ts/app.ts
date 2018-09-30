@@ -10,16 +10,22 @@ window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
 
 // dependencies
-import { Vue } from "vue-property-decorator";
+import Vue from "vue";
+import Vuex, { mapActions, mapState, Store } from 'vuex';
+
+Vue.use(Vuex);
 
 // async dependencies
 (async function () {
-    const [ components ] = await Promise.all([
+    const [ components, { default: store } ] = await Promise.all([
         import('./components'),
+        import('./store'),
         import('./font-awesome'),
         import('./filters'),
         import('bootstrap'),
     ]);
+
+    store.dispatch('messages/update');
 
     // here goes "public" API
     window['czydojade'] = {
@@ -28,19 +34,29 @@ import { Vue } from "vue-property-decorator";
 
     window['app'] = new Vue({
         el: '#app',
+        store: store,
         data: {
             stops: [],
-            messages: {
-                count:   0,
-                visible: true
+            sections: {
+                messages: true
             },
             departures: {
                 state: ''
             }
-        }, methods: {
-            handleMessagesUpdate(messages) {
-                this.messages.count = messages.length;
+        },
+        computed: {
+            messages(this: any) {
+                return {
+                    count:  this.$store.getters['messages/count'],
+                    counts: this.$store.getters['messages/counts'],
+                    state:  this.$store.state.messages.state
+                };
             }
+        },
+        methods: {
+            ...mapActions({
+                updateMessages: 'messages/update'
+            })
         }
     });
 })();

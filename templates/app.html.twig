@@ -9,12 +9,15 @@
                 <h2 class="section__title flex">
                     <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
                     Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
-                    <button class="btn btn-action btn-sm flex-space-left" @click="messages.visible = !messages.visible">
-                        <fa :icon="['fal', messages.visible ? 'chevron-up' : 'chevron-down']" fixed-width/>
+                    <button class="btn btn-action flex-space-left" @click="updateMessages">
+                        <fa :icon="['fal', 'sync']" :spin="messages.state === 'fetching'"></fa>
+                    </button>
+                    <button class="btn btn-action" @click="sections.messages = !sections.messages">
+                        <fa :icon="['fal', sections.messages ? 'chevron-up' : 'chevron-down']" fixed-width/>
                     </button>
                 </h2>
-                <fold :visible="messages.visible">
-                    <messages @update="handleMessagesUpdate"></messages>
+                <fold :visible="sections.messages">
+                    <messages></messages>
                 </fold>
             </section>
 
