@@ -35,7 +35,6 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
     public function getByStop($stop): Collection
     {
         $reference = f\apply(f\ref([$this, 'reference']), StopEntity::class);
-        $stop      = array_map([Stop::class, 'reference'], encapsulate($stop));
 
         $tracks = $this->em->createQueryBuilder()
             ->from(StopInTrack::class, 'st')
@@ -43,7 +42,7 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
             ->where('st.stop in (:stop)')
             ->select(['st', 't'])
             ->getQuery()
-            ->execute(['stop' => array_map($reference, $stop)]);
+            ->execute(['stop' => array_map($reference, encapsulate($stop))]);
 
         return collect($tracks)->map(function (StopInTrack $entity) {
             return [ $this->convert($entity->getTrack()), $entity->getOrder() ];
@@ -53,7 +52,6 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
     public function getByLine($line): Collection
     {
         $reference = f\apply(f\ref([$this, 'reference']), LineEntity::class);
-        $line      = array_map([Stop::class, 'reference'], encapsulate($line));
 
         $tracks = $this->em->createQueryBuilder()
             ->from(StopInTrack::class, 'st')
@@ -62,7 +60,7 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
             ->where('st.line in (:line)')
             ->select(['st', 't', 's'])
             ->getQuery()
-            ->execute(['stop' => array_map($reference, $line)]);
+            ->execute(['stop' => array_map($reference, encapsulate($line))]);
 
         return collect($tracks)->map(f\ref([$this, 'convert']));
     }

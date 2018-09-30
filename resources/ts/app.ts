@@ -39,9 +39,6 @@ Vue.use(Vuex);
             stops: [],
             sections: {
                 messages: true
-            },
-            departures: {
-                state: ''
             }
         },
         computed: {
@@ -51,11 +48,22 @@ Vue.use(Vuex);
                     counts: this.$store.getters['messages/counts'],
                     state:  this.$store.state.messages.state
                 };
+            },
+            departures(this: any) {
+                return {
+                    state: this.$store.state.departures.state
+                };
+            }
+        },
+        watch: {
+            stops(this: any, stops) {
+                this.updateDepartures({ stops });
             }
         },
         methods: {
             ...mapActions({
-                updateMessages: 'messages/update'
+                updateMessages:   'messages/update',
+                updateDepartures: 'departures/update'
             })
         }
     });

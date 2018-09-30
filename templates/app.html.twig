@@ -25,13 +25,11 @@
                 <h2 class="section__title flex">
                     <fa :icon="['fal', 'clock']" fixed-width class="mr-1"></fa>
                     Odjazdy
-                    <button class="btn btn-action flex-space-left" @click="$refs.departures.update()">
-                        <fa-layers>
-                            <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'"></fa>
-                        </fa-layers>
+                    <button class="btn btn-action flex-space-left" @click="updateDepartures({ stops })">
+                        <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'"></fa>
                     </button>
                 </h2>
-                <departures :stops="stops" ref="departures" @update:state="departures.state = $event"></departures>
+                <departures :stops="stops"></departures>
                 {% if provider.attribution %}
                     <div class="attribution">
                         <fa :icon="['fal', 'info-circle']"></fa>

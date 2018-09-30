@@ -1,24 +1,20 @@
-import { ActionContext, Module, Store } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { RootState } from "./root";
 import { Message, MessageType } from "../model/message";
-
+import common, { CommonState } from "./common";
 import urls from "../urls";
-import { FetchingState, Jsonified } from "../utils";
+import { Jsonified } from "../utils";
 import * as moment from 'moment';
-import { Moment } from "moment";
 
-export interface MessagesState {
-    messages: Message[],
-    state: FetchingState,
-    lastUpdate: Moment
+export interface MessagesState extends CommonState {
+    messages: Message[]
 }
 
 export const messages: Module<MessagesState, RootState> = {
     namespaced: true,
     state: {
         messages: [],
-        state: "not-initialized",
-        lastUpdate: moment()
+        ...common.state,
     },
     getters: {
         count: state => state.messages.length,
@@ -34,8 +30,7 @@ export const messages: Module<MessagesState, RootState> = {
             state.lastUpdate = moment();
             state.state      = 'ready';
         },
-        fetching: (state: MessagesState) => state.state = 'fetching',
-        error:    (state: MessagesState, error) => state.state = 'error',
+        ...common.mutations
     },
     actions: {
         async update({ commit }: ActionContext<MessagesState, RootState>) {
@@ -44,7 +39,8 @@ export const messages: Module<MessagesState, RootState> = {
             const response = await fetch(urls.prepare(urls.messages));
 
             if (!response.ok) {
-                commit('error', await response.json());
+                const error = await response.json() as Error;
+                commit('error', error.message);
                 return;
             }
 
@@ -60,3 +56,5 @@ export const messages: Module<MessagesState, RootState> = {
         }
     }
 };
+
+export default messages;

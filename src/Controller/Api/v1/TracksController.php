@@ -3,6 +3,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Model\Stop;
 use App\Provider\TrackRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,14 +41,16 @@ class TracksController extends Controller
 
     private function byStop(Request $request, TrackRepository $repository)
     {
-        $stop = encapsulate($request->query->get('stop'));
+        $stop = $request->query->get('stop');
+        $stop = array_map([Stop::class, 'reference'], encapsulate($stop));
 
         return $this->json($repository->getByStop($stop));
     }
 
     private function byLine(Request $request, TrackRepository $repository)
     {
-        $line = encapsulate($request->query->get('line'));
+        $line = $request->query->get('line');
+        $line = array_map([Stop::class, 'reference'], encapsulate($line));
 
         return $this->json($repository->getByLine($line));
     }
