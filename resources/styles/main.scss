@@ -48,13 +48,15 @@ body {
   main::after {
     transition: opacity .3s ease-in-out;
     position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
+    top: 2rem;
+    bottom: 2rem;
+    right: 2rem;
+    left: 2rem;
     content: "";
     opacity: 0;
     background: url("../images/logo.png") center center no-repeat;
+    background-size: contain;
+    display: none;
   }
 
   main.not-ready {
@@ -64,6 +66,7 @@ body {
 
     &::after {
       opacity: 1 !important;
+      display: block;
     }
   }
 
