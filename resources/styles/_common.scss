@@ -44,6 +44,21 @@
 .flex {
   display: flex;
   align-items: center;
+
+  > .text {
+    margin-left: .2rem;
+    margin-right: .2rem;
+    display: inline-block;
+    margin-bottom: 0;
+
+    &:last-child, & + .text {
+      margin-right: 0;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
 }
 
 .section {
@@ -52,6 +67,15 @@
   .section__title {
     @extend .alert;
     @extend .alert-dark;
+
+    > * {
+      font-size: medium;
+    }
+
+    @include direct-headings {
+      @extend .flex;
+      margin-bottom: 0;
+    }
 
     font-size: medium;
     background: transparent;

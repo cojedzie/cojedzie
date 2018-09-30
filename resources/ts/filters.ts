@@ -1,4 +1,4 @@
-import { signed } from "./utils";
+import { set, signed } from "./utils";
 import Vue from 'vue';
 import { condition } from "./decorators";
 
@@ -11,11 +11,11 @@ Vue.directive('hover', (el, binding, node) => {
         }
 
         if (typeof binding.value === 'boolean') {
-            node.context[binding.expression] = hovered;
+            set(node.context, binding.expression, hovered);
         }
 
         if (typeof binding.arg !== 'undefined') {
-            node.context[binding.arg] = hovered;
+            set(node.context, binding.arg, hovered);
         }
     };
 

@@ -19,7 +19,13 @@ export class PopperComponent extends Vue {
     @Prop(Boolean)
     public lazy: boolean;
 
+    public hovered: boolean = false;
+
     private _popper;
+
+    get show() {
+        return this.visible || this.hovered;
+    }
 
     mounted() {
         const reference = this.$parent.$refs[this.reference] as HTMLElement;
@@ -30,6 +36,12 @@ export class PopperComponent extends Vue {
                 arrow: { enabled: this.arrow, element: this.$refs['arrow'] as Element }
             }
         });
+
+        this.$nextTick(() => this._popper.update())
+    }
+
+    updated() {
+        this._popper.update();
     }
 
     @Watch('visible')
@@ -67,6 +79,7 @@ export class FoldComponent extends Vue {
     destroyed() {
         this.observer.disconnect();
     }
+
 
     @Watch('visible')
     private resize() {

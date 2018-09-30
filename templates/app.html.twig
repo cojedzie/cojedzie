@@ -6,29 +6,67 @@
     <div class="row">
         <div class="col-md-8 order-md-last">
             <section class="section messages" v-show="messages.count > 0">
-                <h2 class="section__title flex">
-                    <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
-                    Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
-                    <button class="btn btn-action flex-space-left" @click="updateMessages">
+                <header class="section__title flex">
+                    <h2>
+                        <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
+                        Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
+                    </h2>
+                    <button class="btn btn-action flex-space-left" ref="settings-messages" v-hover="settings.messages">
+                        <fa :icon="['fal', 'cog']"></fa>
+                    </button>
+                    <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
                         <fa :icon="['fal', 'sync']" :spin="messages.state === 'fetching'"></fa>
                     </button>
                     <button class="btn btn-action" @click="sections.messages = !sections.messages">
                         <fa :icon="['fal', sections.messages ? 'chevron-up' : 'chevron-down']" fixed-width/>
                     </button>
-                </h2>
+
+                    <popper reference="settings-messages" :visible="settings.messages" arrow placement="left-start">
+                        <h3 class="popper__heading flex">
+                            <fa :icon="['far', 'cog']"></fa>
+                            <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
+                            <input type="checkbox" class="flex-space-left" id="messages-auto-refresh" v-model="autorefresh.messages.active"/>
+                        </h3>
+                        <div class="flex" v-show="autorefresh.messages.active">
+                            <span class="text">co</span>
+                            <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
+                            <input type="text" class="form-control form-control-sm" id="messages-auto-refresh-interval" v-model="autorefresh.messages.interval"/>
+                            <span class="text">s</span>
+                        </div>
+                    </popper>
+                </header>
                 <fold :visible="sections.messages">
                     <messages></messages>
                 </fold>
             </section>
 
             <section class="section">
-                <h2 class="section__title flex">
-                    <fa :icon="['fal', 'clock']" fixed-width class="mr-1"></fa>
-                    Odjazdy
-                    <button class="btn btn-action flex-space-left" @click="updateDepartures({ stops })">
+                <header class="section__title flex">
+                    <h2>
+                        <fa :icon="['fal', 'clock']" fixed-width></fa>
+                        <span class="text">Odjazdy</span>
+                    </h2>
+                    <button class="btn btn-action flex-space-left" ref="settings-departures" v-hover="settings.departures">
+                        <fa :icon="['fal', 'cog']"></fa>
+                    </button>
+                    <button class="btn btn-action" @click="updateDepartures({ stops })">
                         <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'"></fa>
                     </button>
-                </h2>
+
+                    <popper reference="settings-departures" :visible="settings.departures" arrow placement="left-start">
+                        <h3 class="popper__heading flex">
+                            <fa :icon="['far', 'cog']"></fa>
+                            <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
+                            <input type="checkbox" class="flex-space-left" id="messages-auto-refresh" v-model="autorefresh.departures.active"/>
+                        </h3>
+                        <div class="flex" v-show="autorefresh.messages.active">
+                            <span class="text">co</span>
+                            <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
+                            <input type="text" class="form-control form-control-sm" id="messages-auto-refresh-interval" v-model="autorefresh.departures.interval"/>
+                            <span class="text">s</span>
+                        </div>
+                    </popper>
+                </header>
                 <departures :stops="stops"></departures>
                 {% if provider.attribution %}
                     <div class="attribution">

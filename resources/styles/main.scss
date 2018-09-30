@@ -1,6 +1,7 @@
 $border-radius: 0;
 $border-radius-lg: $border-radius;
 $border-radius-sm: $border-radius;
+
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 
@@ -23,6 +24,18 @@ $headings-margin-bottom: $default-spacing;
 $container-max-widths: map-merge($container-max-widths, ( xl: 1320px ));
 
 @import "~bootstrap/scss/bootstrap";
+
+@mixin headings {
+  h1, h2, h3, h4, h5, h6 {
+    @content
+  }
+}
+
+@mixin direct-headings {
+  > h1, > h2, > h3, > h4, > h5, > h6 {
+    @content
+  }
+}
 
 @import "common";
 @import "stop";

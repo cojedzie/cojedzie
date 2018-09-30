@@ -1,6 +1,6 @@
-<div class="popper" :class="{ 'has-arrow': arrow, 'd-none': !visible }">
-    <div class="popper-arrow" ref="arrow" v-if="arrow"></div>
-    <lazy v-if="lazy" :activate="visible">
+<div class="popper" :class="{ 'popper--arrow': arrow, 'd-none': !show }" v-hover="hovered">
+    <div class="popper__arrow" ref="arrow" v-if="arrow"></div>
+    <lazy v-if="lazy" :activate="show">
         <slot></slot>
     </lazy>
     <slot v-else></slot>

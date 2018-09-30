@@ -55,11 +55,11 @@
 @mixin triangle-right($size, $color, $border: none)  { @include triangle(right, $size, $color, $border); }
 
 .popper {
-  $arrow-base: 10px;
+  $arrow-base: 8px;
   $arrow-color: white;
   $arrow-border: black;
 
-  $popper-padding: 2px;
+  $popper-padding: .5rem;
 
   padding: $popper-padding;
   background: white;
@@ -73,10 +73,20 @@
 
   border-radius: 2px;
 
-  .popper-arrow {
+  .popper__arrow {
     position: absolute;
     width: 0;
     height: 0;
+  }
+
+  &.popper--no-padding {
+    padding: 0;
+  }
+
+  .popper__heading {
+    font-size: $font-size-sm;
+    font-weight: bold;
+    margin-bottom: .5rem;
   }
 
   @mixin placement($placement) {
@@ -90,14 +100,14 @@
     &[x-placement*="#{$placement}"] {
       margin-#{map-get($opposite, $placement)}: $arrow-base;
 
-      .popper-arrow {
+      .popper__arrow {
         #{map-get($opposite, $placement)}: 0;
         @include triangle(map-get($opposite, $placement), $arrow-base, $arrow-color, $arrow-border);
       }
     }
   }
 
-  &.has-arrow {
+  &.popper--arrow {
     @include placement("left");
     @include placement("right");
     @include placement("top");

@@ -32,6 +32,8 @@ Vue.use(Vuex);
         components
     };
 
+    let intervals = { messages: null, departures: null };
+
     window['app'] = new Vue({
         el: '#app',
         store: store,
@@ -39,7 +41,22 @@ Vue.use(Vuex);
             stops: [],
             sections: {
                 messages: true
-            }
+            },
+            settings: {
+                messages: false,
+                departures: false
+            },
+            autorefresh: {
+                messages: {
+                    active:   true,
+                    interval: 60
+                },
+                departures: {
+                    active:   true,
+                    interval: 10
+                }
+            },
+
         },
         computed: {
             messages(this: any) {
@@ -58,7 +75,26 @@ Vue.use(Vuex);
         watch: {
             stops(this: any, stops) {
                 this.updateDepartures({ stops });
-            }
+            },
+            autorefresh: { immediate: true, handler(this: any, settings) {
+                if (intervals.messages) {
+                    clearInterval(intervals.messages);
+                    intervals.messages = null;
+                }
+
+                if (intervals.departures) {
+                    clearInterval(intervals.departures);
+                    intervals.messages = null;
+                }
+
+                if (settings.messages.active) {
+                    intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, settings.messages.interval) * 1000);
+                }
+
+                if (settings.departures.active) {
+                    intervals.departures = setInterval(() => this.updateDepartures({ stops: this.stops }), Math.max(5, settings.departures.interval) * 1000);
+                }
+            } }
         },
         methods: {
             ...mapActions({

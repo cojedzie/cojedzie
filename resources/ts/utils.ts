@@ -41,3 +41,21 @@ export function signed(number: number): string {
 export function ensureArray<T>(x: T[]|T): T[] {
     return x instanceof Array ? x : [ x ];
 }
+
+export function set(object: any, path: string, value: any) {
+    const segments = path.split('.');
+    while (segments.length > 1) {
+        object = object[segments.shift()];
+    }
+
+    object[segments.shift()] = value;
+}
+
+export function get(object: any, path: string): any {
+    const segments = path.split('.');
+    while (segments.length > 1) {
+        object = object[segments.shift()];
+    }
+
+    return object[segments.shift()];
+}
