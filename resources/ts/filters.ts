@@ -26,7 +26,7 @@ Vue.directive('hover', (el, binding, node) => {
     el.addEventListener('click', activate);
     el.addEventListener('keydown', condition.decorate(deactivate, e => e.keyCode == 27));
     el.addEventListener('mouseleave', deactivate);
-    el.addEventListener('blur', deactivate);
+    el.addEventListener('focusout', deactivate);
 });
 
 Vue.directive('responsive', (el, binding) => {

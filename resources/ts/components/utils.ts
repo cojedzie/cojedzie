@@ -33,7 +33,25 @@ export class PopperComponent extends Vue {
         this._popper = new Popper(reference, this.$el, {
             placement: this.placement,
             modifiers: {
-                arrow: { enabled: this.arrow, element: this.$refs['arrow'] as Element }
+                arrow: { enabled: this.arrow, element: this.$refs['arrow'] as Element },
+                responsive: {
+                    enabled: true,
+                    order: 890,
+                    fn(data) {
+                        if (window.innerWidth < 560) {
+                            data.instance.options.placement = 'bottom';
+                            data.styles.transform = `translate3d(0, ${data.offsets.popper.top}px, 0)`;
+                            data.styles.width = '100%';
+                            data.styles.margin = '0';
+                            data.styles.right = '0';
+                            data.styles.left = '0';
+                            data.styles.width = 'auto';
+                            data.arrowStyles.left = `${data.offsets.popper.left + data.offsets.arrow.left}px`;
+                        }
+
+                        return data;
+                    }
+                }
             }
         });
 
@@ -79,7 +97,6 @@ export class FoldComponent extends Vue {
     destroyed() {
         this.observer.disconnect();
     }
-
 
     @Watch('visible')
     private resize() {

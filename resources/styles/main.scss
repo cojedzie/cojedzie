@@ -91,10 +91,10 @@ body {
 
   footer {
     @extend .flex;
-    border-top: 2px solid black;
+    font-size: $font-size-sm;
     padding: $alert-padding-y $alert-padding-y;
     transition: all .5s ease;
-    opacity: .06;
+    opacity: .15;
     filter: grayscale(100%);
 
     &:hover {

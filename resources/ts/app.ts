@@ -76,25 +76,29 @@ Vue.use(Vuex);
             stops(this: any, stops) {
                 this.updateDepartures({ stops });
             },
-            autorefresh: { immediate: true, handler(this: any, settings) {
-                if (intervals.messages) {
-                    clearInterval(intervals.messages);
-                    intervals.messages = null;
-                }
+            autorefresh: {
+                immediate: true,
+                deep: true,
+                handler(this: any, settings) {
+                    if (intervals.messages) {
+                        clearInterval(intervals.messages);
+                        intervals.messages = null;
+                    }
 
-                if (intervals.departures) {
-                    clearInterval(intervals.departures);
-                    intervals.messages = null;
-                }
+                    if (intervals.departures) {
+                        clearInterval(intervals.departures);
+                        intervals.messages = null;
+                    }
 
-                if (settings.messages.active) {
-                    intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, settings.messages.interval) * 1000);
-                }
+                    if (settings.messages.active) {
+                        intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, settings.messages.interval) * 1000);
+                    }
 
-                if (settings.departures.active) {
-                    intervals.departures = setInterval(() => this.updateDepartures({ stops: this.stops }), Math.max(5, settings.departures.interval) * 1000);
+                    if (settings.departures.active) {
+                        intervals.departures = setInterval(() => this.updateDepartures({ stops: this.stops }), Math.max(5, settings.departures.interval) * 1000);
+                    }
                 }
-            } }
+            }
         },
         methods: {
             ...mapActions({

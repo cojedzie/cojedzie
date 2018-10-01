@@ -11,6 +11,7 @@ const config = {
     output: {
         path: path.resolve('./public/'),
         filename: "bundle.js",
+        chunkFilename: 'bundle.[chunkhash:8].js'
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
