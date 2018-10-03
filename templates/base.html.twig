@@ -35,6 +35,14 @@
         </footer>
 
         {% block javascripts %}{% endblock %}
+        <script>
+            window.czydojade = {
+                state: {{ {
+                    version: 1,
+                    stops: app.request.query.get('stop', [])
+                }|json_encode|raw }}
+            };
+        </script>
         <script src="{{ asset('bundle.js') }}"></script>
     </body>
 </html>

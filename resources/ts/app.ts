@@ -11,7 +11,7 @@ window['Popper'] = Popper;
 
 // dependencies
 import Vue from "vue";
-import Vuex, { mapActions, mapState, Store } from 'vuex';
+import Vuex, { mapActions, mapMutations, mapState, Store } from 'vuex';
 
 Vue.use(Vuex);
 
@@ -25,12 +25,13 @@ Vue.use(Vuex);
         import('bootstrap'),
     ]);
 
-    store.dispatch('messages/update');
-
     // here goes "public" API
-    window['czydojade'] = {
+    window['czydojade'] = Object.assign({}, window['czydojade'], {
         components
-    };
+    });
+
+    store.dispatch('messages/update');
+    store.dispatch('load', window['czydojade'].state);
 
     let intervals = { messages: null, departures: null };
 
@@ -38,7 +39,6 @@ Vue.use(Vuex);
         el: '#app',
         store: store,
         data: {
-            stops: [],
             sections: {
                 messages: true
             },
@@ -70,6 +70,14 @@ Vue.use(Vuex);
                 return {
                     state: this.$store.state.departures.state
                 };
+            },
+            stops: {
+                get(this: Vue) {
+                    return this.$store.state.stops;
+                },
+                set(this: Vue, value) {
+                    this.$store.commit('updateStops', value);
+                }
             }
         },
         watch: {
@@ -104,7 +112,13 @@ Vue.use(Vuex);
             ...mapActions({
                 updateMessages:   'messages/update',
                 updateDepartures: 'departures/update'
-            })
+            }),
+            ...mapMutations({
+                updateStops: 'updateStops'
+            }),
+            save(this: Vue) {
+                this.$store.dispatch('save').then(x => console.log(x));
+            }
         },
         mounted() {
             this.$el.classList.remove('not-ready');

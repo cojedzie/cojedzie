@@ -12,9 +12,23 @@ use App\Provider\TrackRepository;
 
 class DummyProvider implements Provider
 {
+    private $departures;
+    private $stops;
+
+    /**
+     * DummyProvider constructor.
+     *
+     * @param $departures
+     */
+    public function __construct(DummyDepartureRepository $departures, DummyStopRepository $stops)
+    {
+        $this->departures = $departures;
+        $this->stops      = $stops;
+    }
+
     public function getDepartureRepository(): DepartureRepository
     {
-        throw new NotSupportedException();
+        return $this->departures;
     }
 
     public function getLineRepository(): LineRepository
@@ -24,7 +38,7 @@ class DummyProvider implements Provider
 
     public function getStopRepository(): StopRepository
     {
-        throw new NotSupportedException();
+        return $this->stops;
     }
 
     public function getMessageRepository(): MessageRepository

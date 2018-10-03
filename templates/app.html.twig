@@ -12,12 +12,12 @@
                         Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
                     </h2>
                     <button class="btn btn-action flex-space-left" ref="settings-messages" v-hover="settings.messages">
-                        <fa :icon="['fal', 'cog']"></fa>
+                        <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
-                        <fa :icon="['fal', 'sync']" :spin="messages.state === 'fetching'"></fa>
+                        <fa :icon="['fal', 'sync']" :spin="messages.state === 'fetching'" fixed-width></fa>
                     </button>
-                    <button class="btn btn-action" @click="sections.messages = !sections.messages">
+                    <button class="btn btn-action" @click="sections.messages = !sections.messages" fixed-width>
                         <fa :icon="['fal', sections.messages ? 'chevron-up' : 'chevron-down']" fixed-width/>
                     </button>
 
@@ -47,10 +47,10 @@
                         <span class="text">Odjazdy</span>
                     </h2>
                     <button class="btn btn-action flex-space-left" ref="settings-departures" v-hover="settings.departures">
-                        <fa :icon="['fal', 'cog']"></fa>
+                        <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateDepartures({ stops })">
-                        <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'"></fa>
+                        <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'" fixed-width></fa>
                     </button>
 
                     <popper reference="settings-departures" :visible="settings.departures" arrow placement="left-start">

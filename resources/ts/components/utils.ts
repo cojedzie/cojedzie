@@ -68,7 +68,7 @@ export class PopperComponent extends Vue {
         window.dispatchEvent(new Event('resize'));
     }
 
-    destroyed() {
+    beforeDestroy() {
         this._popper.destroy();
     }
 }
@@ -94,7 +94,7 @@ export class FoldComponent extends Vue {
         });
     }
 
-    destroyed() {
+    beforeDestroy() {
         this.observer.disconnect();
     }
 
