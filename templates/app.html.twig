@@ -46,6 +46,7 @@
                         <fa :icon="['fal', 'clock']" fixed-width></fa>
                         <span class="text">Odjazdy</span>
                     </h2>
+
                     <button class="btn btn-action flex-space-left" ref="settings-departures" v-hover="settings.departures">
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
@@ -77,12 +78,32 @@
             </section>
         </div>
         <div class="col-md-4 order-md-first">
+            <section class="section picker" v-if="stops.length > 0">
+                <header class="section__title flex">
+                    <h2>
+                        <fa :icon="['fal', 'sign']" fixed-width></fa>
+                        <span class="text">Przystanki</span>
+                    </h2>
+                    <button class="btn btn-action flex-space-left" @click="clear">
+                        <fa :icon="['fal', 'trash-alt']" fixed-width></fa>
+                    </button>
+                </header>
+
+                <ul class="picker__stops list-underlined">
+                    <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
+                        <button @click="remove(stop)" class="btn btn-action">
+                            <fa :icon="['fal', 'times']"></fa>
+                        </button>
+                        <stop :stop="stop" class="flex-grow-1"></stop>
+                    </li>
+                </ul>
+            </section>
             <section class="section picker">
                 <h2 class="section__title">
-                    <fa :icon="['fal', 'sign']" fixed-width></fa>
-                    Przystanki
+                    <fa :icon="['fal', 'search']" fixed-width></fa>
+                    Wybierz przystanki
                 </h2>
-                <stop-picker :stops.sync="stops"></stop-picker>
+                <stop-finder @select="add" :blacklist="stops"/>
             </section>
         </div>
     </div>

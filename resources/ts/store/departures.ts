@@ -10,7 +10,7 @@ export interface DeparturesState extends CommonState {
     departures: Departure[],
 }
 
-interface ObtainPayload {
+export interface ObtainPayload {
     stops: Stop[]
 }
 

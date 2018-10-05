@@ -33,13 +33,15 @@ Vue.directive('hover',  {
         el.addEventListener('focusout', deactivate);
     },
     unbind(el, binding) {
-        const { activate, deactivate, keyboard } = binding['events'];
+        if (typeof binding['events'] !== 'undefined') {
+            const { activate, deactivate, keyboard } = binding['events'];
 
-        el.removeEventListener('mouseenter', activate);
-        el.removeEventListener('click', activate);
-        el.removeEventListener('keydown', keyboard);
-        el.removeEventListener('mouseleave', deactivate);
-        el.removeEventListener('focusout', deactivate);
+            el.removeEventListener('mouseenter', activate);
+            el.removeEventListener('click', activate);
+            el.removeEventListener('keydown', keyboard);
+            el.removeEventListener('mouseleave', deactivate);
+            el.removeEventListener('focusout', deactivate);
+        }
     }
 });
 
@@ -72,6 +74,8 @@ Vue.directive('responsive', {
         }
     },
     unbind(el, binding) {
-        window.removeEventListener('resize', binding['resize']);
+        if (typeof binding['resize'] !== 'undefined') {
+            window.removeEventListener('resize', binding['resize']);
+        }
     }
 });

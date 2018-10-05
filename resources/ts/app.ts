@@ -25,103 +25,11 @@ Vue.use(Vuex);
         import('bootstrap'),
     ]);
 
-    // here goes "public" API
-    window['czydojade'] = Object.assign({}, window['czydojade'], {
-        components
-    });
-
     store.dispatch('messages/update');
     store.dispatch('load', window['czydojade'].state);
 
-    let intervals = { messages: null, departures: null };
-
-    window['app'] = new Vue({
-        el: '#app',
-        store: store,
-        data: {
-            sections: {
-                messages: true
-            },
-            settings: {
-                messages: false,
-                departures: false
-            },
-            autorefresh: {
-                messages: {
-                    active:   true,
-                    interval: 60
-                },
-                departures: {
-                    active:   true,
-                    interval: 10
-                }
-            },
-
-        },
-        computed: {
-            messages(this: any) {
-                return {
-                    count:  this.$store.getters['messages/count'],
-                    counts: this.$store.getters['messages/counts'],
-                    state:  this.$store.state.messages.state
-                };
-            },
-            departures(this: any) {
-                return {
-                    state: this.$store.state.departures.state
-                };
-            },
-            stops: {
-                get(this: Vue) {
-                    return this.$store.state.stops;
-                },
-                set(this: Vue, value) {
-                    this.$store.commit('updateStops', value);
-                }
-            }
-        },
-        watch: {
-            stops(this: any, stops) {
-                this.updateDepartures({ stops });
-            },
-            autorefresh: {
-                immediate: true,
-                deep: true,
-                handler(this: any, settings) {
-                    if (intervals.messages) {
-                        clearInterval(intervals.messages);
-                        intervals.messages = null;
-                    }
-
-                    if (intervals.departures) {
-                        clearInterval(intervals.departures);
-                        intervals.messages = null;
-                    }
-
-                    if (settings.messages.active) {
-                        intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, settings.messages.interval) * 1000);
-                    }
-
-                    if (settings.departures.active) {
-                        intervals.departures = setInterval(() => this.updateDepartures({ stops: this.stops }), Math.max(5, settings.departures.interval) * 1000);
-                    }
-                }
-            }
-        },
-        methods: {
-            ...mapActions({
-                updateMessages:   'messages/update',
-                updateDepartures: 'departures/update'
-            }),
-            ...mapMutations({
-                updateStops: 'updateStops'
-            }),
-            save(this: Vue) {
-                this.$store.dispatch('save').then(x => console.log(x));
-            }
-        },
-        mounted() {
-            this.$el.classList.remove('not-ready');
-        }
+    // here goes "public" API
+    window['czydojade'] = Object.assign({}, window['czydojade'], {
+        components, application: new components.Application({ el: '#app' })
     });
 })();

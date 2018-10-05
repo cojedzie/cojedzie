@@ -1,6 +1,7 @@
 import { Stop } from "../model";
 import { ActionTree, MutationTree } from "vuex";
 import urls from "../urls";
+import { ensureArray } from "../utils";
 
 export interface RootState {
     stops: Stop[],
@@ -16,7 +17,9 @@ export const state: RootState = {
 };
 
 export const mutations: MutationTree<RootState> = {
-    updateStops: (state, stops) => state.stops = stops,
+    add:    (state, stops) => state.stops = [...state.stops, ...ensureArray(stops)],
+    remove: (state, stop) => state.stops = state.stops.filter(s => s != stop),
+    clear:  (state) => state.stops = [],
 };
 
 export const actions: ActionTree<RootState, undefined> = {

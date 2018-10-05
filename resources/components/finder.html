@@ -1,5 +1,5 @@
 <div class="finder">
-    <input class="form-control" v-model="filter" />
+    <input class="form-control" v-model="filter" placeholder="Zacznij pisać nazwę aby szukać..."/>
 
     <div v-if="state === 'fetching'">
         <fa icon="spinner-third" pulse/>
@@ -29,9 +29,5 @@
     <div class="alert alert-warning" v-else-if="filter.length > 2">
         <fa :icon="['far', 'exclamation-triangle']"></fa>
         Nie znaleziono więcej przystanków, spełniających te kryteria.
-    </div>
-    <div class="alert alert-info" v-else>
-        <fa :icon="['far', 'search']"></fa>
-        Wprowadź zapytanie powyżej, aby wyszukać przystanek.
     </div>
 </div>
