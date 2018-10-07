@@ -1,0 +1,38 @@
+@mixin vue-animation($name, $animation: .5s ease-in-out) {
+  .#{$name}-enter-active {
+    animation: #{$name}-in $animation;
+    animation-fill-mode: backwards;
+  }
+
+  .#{$name}-leave-active {
+    animation: #{$name}-in $animation reverse;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes #{$name}-in {
+    @content
+  }
+}
+
+@include vue-animation(fade, 250ms ease-in-out) {
+  0% {
+    opacity: 0
+  }
+  100% {
+    opacity: 1
+  }
+}
+
+.transition-box {
+  @include clearfix;
+
+  > * {
+    width: 100%;
+    float: left;
+    min-height: 2px;
+
+    &:not(:first-child) {
+      margin-left: -100%;
+    }
+  }
+}

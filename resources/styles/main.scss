@@ -43,6 +43,7 @@ $container-max-widths: map-merge($container-max-widths, ( xl: 1320px ));
 @import "line";
 @import "controls";
 @import "popper";
+@import "animations";
 
 body {
   min-height: 100vh;

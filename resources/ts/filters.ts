@@ -30,7 +30,7 @@ Vue.directive('hover',  {
         el.addEventListener('click', activate);
         el.addEventListener('keydown', keyboard);
         el.addEventListener('mouseleave', deactivate);
-        el.addEventListener('focusout', deactivate);
+        // el.addEventListener('focusout', deactivate);
     },
     unbind(el, binding) {
         if (typeof binding['events'] !== 'undefined') {
@@ -40,7 +40,7 @@ Vue.directive('hover',  {
             el.removeEventListener('click', activate);
             el.removeEventListener('keydown', keyboard);
             el.removeEventListener('mouseleave', deactivate);
-            el.removeEventListener('focusout', deactivate);
+            // el.removeEventListener('focusout', deactivate);
         }
     }
 });

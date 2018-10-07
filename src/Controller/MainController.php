@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Provider\Provider;
 use App\Service\ProviderResolver;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends Controller
@@ -20,9 +21,15 @@ class MainController extends Controller
     /**
      * @Route("/{provider}", name="app")
      */
-    public function app(Provider $provider)
+    public function app(Provider $provider, Request $request)
     {
-        return $this->render('app.html.twig', ['provider' => $provider]);
+        $state = json_decode($request->query->get('state', '{}'), true) ?: [];
+        $state = array_merge([
+            'version' => 1,
+            'stops'   => []
+        ], $state);
+
+        return $this->render('app.html.twig', compact('state', 'provider'));
     }
 
     /**

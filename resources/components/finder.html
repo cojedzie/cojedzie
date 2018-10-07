@@ -1,7 +1,7 @@
 <div class="finder">
     <input class="form-control" v-model="filter" placeholder="Zacznij pisać nazwę aby szukać..."/>
 
-    <div v-if="state === 'fetching'">
+    <div v-if="state === 'fetching'" class="text-center p-4">
         <fa icon="spinner-third" pulse/>
     </div>
     <div class="finder__stops" v-else-if="filter.length > 2 && Object.keys(filtered).length > 0">

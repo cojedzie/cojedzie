@@ -17,9 +17,10 @@ export const state: RootState = {
 };
 
 export const mutations: MutationTree<RootState> = {
-    add:    (state, stops) => state.stops = [...state.stops, ...ensureArray(stops)],
-    remove: (state, stop) => state.stops = state.stops.filter(s => s != stop),
-    clear:  (state) => state.stops = [],
+    add:     (state, stops) => state.stops = [...state.stops, ...ensureArray(stops)],
+    replace: (state, stops) => state.stops = stops,
+    remove:  (state, stop) => state.stops = state.stops.filter(s => s != stop),
+    clear:   (state) => state.stops = [],
 };
 
 export const actions: ActionTree<RootState, undefined> = {
@@ -28,7 +29,7 @@ export const actions: ActionTree<RootState, undefined> = {
             const response = await fetch(urls.prepare(urls.stops.all, { id: stops }));
 
             if (response.ok) {
-                commit('updateStops', await response.json());
+                commit('replace', await response.json());
             }
         }
     },

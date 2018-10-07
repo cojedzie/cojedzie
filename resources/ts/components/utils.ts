@@ -20,11 +20,12 @@ export class PopperComponent extends Vue {
     public lazy: boolean;
 
     public hovered: boolean = false;
+    public focused: boolean = false;
 
     private _popper;
 
     get show() {
-        return this.visible || this.hovered;
+        return this.visible || this.hovered || this.focused;
     }
 
     mounted() {

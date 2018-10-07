@@ -4,6 +4,7 @@ import { Component, Watch } from "vue-property-decorator";
 import { Mutation, Action } from 'vuex-class'
 import { ObtainPayload } from "../store/departures";
 import { Stop } from "../model";
+import { PopperComponent } from "./utils";
 
 @Component({ store })
 export class Application extends Vue {
@@ -11,9 +12,11 @@ export class Application extends Vue {
         messages: true
     };
 
-    private settings = {
+    private visibility = {
         messages: false,
-        departures: false
+        departures: false,
+        save: false,
+        picker: 'search'
     };
 
     private autorefresh = {
@@ -55,23 +58,19 @@ export class Application extends Vue {
         this.$el.classList.remove('not-ready');
     }
 
-    @Action('messages/update') updateMessages: () => void;
+    @Action('messages/update')   updateMessages: () => void;
     @Action('departures/update') updateDepartures: (payload: ObtainPayload) => void;
 
     @Mutation add: (stops: Stop[]) => void;
     @Mutation remove: (stop: Stop) => void;
     @Mutation clear: () => void;
 
-    save() {
-        this.$store.dispatch('save').then(x => console.log(x));
-    }
-
     @Watch('stops')
     onStopUpdate(this: any, stops) {
         this.updateDepartures({ stops });
     }
 
-    @Watch('settings', { immediate: true, deep: true })
+    @Watch('autorefresh', { immediate: true, deep: true })
     onAutorefreshUpdate(settings) {
         if (this.intervals.messages) {
             clearInterval(this.intervals.messages);

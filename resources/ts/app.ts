@@ -25,11 +25,14 @@ Vue.use(Vuex);
         import('bootstrap'),
     ]);
 
+    // here goes "public" API
+    window['czydojade'] = Object.assign({
+        state: {}
+    }, window['czydojade'], {
+        components,
+        application: new components.Application({ el: '#app' })
+    });
+
     store.dispatch('messages/update');
     store.dispatch('load', window['czydojade'].state);
-
-    // here goes "public" API
-    window['czydojade'] = Object.assign({}, window['czydojade'], {
-        components, application: new components.Application({ el: '#app' })
-    });
 })();

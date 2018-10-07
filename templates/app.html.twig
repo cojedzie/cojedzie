@@ -11,17 +11,17 @@
                         <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
                         Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
                     </h2>
-                    <button class="btn btn-action flex-space-left" ref="settings-messages" v-hover="settings.messages">
+                    <button class="btn btn-action flex-space-left" ref="settings-messages" v-hover="visibility.messages">
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
                         <fa :icon="['fal', 'sync']" :spin="messages.state === 'fetching'" fixed-width></fa>
                     </button>
-                    <button class="btn btn-action" @click="sections.messages = !sections.messages" fixed-width>
+                    <button class="btn btn-action" @click="sections.messages = !sections.messages">
                         <fa :icon="['fal', sections.messages ? 'chevron-up' : 'chevron-down']" fixed-width/>
                     </button>
 
-                    <popper reference="settings-messages" :visible="settings.messages" arrow placement="left-start">
+                    <popper reference="settings-messages" :visible="visibility.messages" arrow placement="left-start">
                         <h3 class="popper__heading flex">
                             <fa :icon="['far', 'cog']"></fa>
                             <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
@@ -47,14 +47,14 @@
                         <span class="text">Odjazdy</span>
                     </h2>
 
-                    <button class="btn btn-action flex-space-left" ref="settings-departures" v-hover="settings.departures">
+                    <button class="btn btn-action flex-space-left" ref="settings-departures" v-hover="visibility.departures">
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateDepartures({ stops })">
                         <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'" fixed-width></fa>
                     </button>
 
-                    <popper reference="settings-departures" :visible="settings.departures" arrow placement="left-start">
+                    <popper reference="settings-departures" :visible="visibility.departures" arrow placement="left-start">
                         <h3 class="popper__heading flex">
                             <fa :icon="['far', 'sync']" fixed-width></fa>
                             <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
@@ -87,6 +87,17 @@
                     <button class="btn btn-action flex-space-left" @click="clear">
                         <fa :icon="['fal', 'trash-alt']" fixed-width></fa>
                     </button>
+                    <button class="btn btn-action" @click="visibility.save = true" @focusout="visibility.save = false" ref="save">
+                        <fa :icon="['fal', 'star']" fixed-width></fa>
+                    </button>
+
+                    <popper reference="save" :visible="visibility.save" arrow>
+                        <h3 class="popper__heading flex">
+                            <fa :icon="['far', 'star']" fixed-width></fa>
+                            <span class="text">Dodaj do ulubionych</span>
+                        </h3>
+                        <favourites-adder></favourites-adder>
+                    </popper>
                 </header>
 
                 <ul class="picker__stops list-underlined">
@@ -99,11 +110,34 @@
                 </ul>
             </section>
             <section class="section picker">
-                <h2 class="section__title">
-                    <fa :icon="['fal', 'search']" fixed-width></fa>
-                    Wybierz przystanki
-                </h2>
-                <stop-finder @select="add" :blacklist="stops"/>
+                <header class="section__title flex">
+                    <template v-if="visibility.picker === 'search'">
+                        <h2 class="flex-grow-1">
+                            <fa :icon="['fal', 'search']" fixed-width class="mr-1"></fa>
+                            Wybierz przystanki
+                        </h2>
+                        <button class="btn btn-action" @click="visibility.picker = 'favourites'">
+                            <fa :icon="['fal', 'star']" fixed-witdth></fa>
+                        </button>
+                    </template>
+                    <template v-else>
+                        <h2 class="flex-grow-1">
+                            <fa :icon="['fal', 'star']" fixed-width class="mr-1"></fa>
+                            Zapisane
+                        </h2>
+                        <button class="btn btn-action" @click="visibility.picker = 'search'">
+                            <fa :icon="['fal', 'search']" fixed-witdth></fa>
+                        </button>
+                    </template>
+                </header>
+                <div class="transition-box">
+                    <transition name="fade">
+                        <keep-alive>
+                            <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
+                            <favourites v-else-if="visibility.picker === 'favourites'"></favourites>
+                        </keep-alive>
+                    </transition>
+                </div>
             </section>
         </div>
     </div>
@@ -113,6 +147,9 @@
     <script>
         window.data = {
             provider: {{ provider.identifier|json_encode|raw }}
-        }
+        };
+
+        window.czydojade = {};
+        window.czydojade.state = {{ state|json_encode|raw }};
     </script>
 {% endblock %}

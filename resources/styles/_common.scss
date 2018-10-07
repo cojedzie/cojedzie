@@ -87,7 +87,7 @@
       background: none;
     }
 
-    .btn {
+    > .btn {
       margin-top: -.5rem;
       margin-bottom: -.5rem;
     }
@@ -96,4 +96,16 @@
 
 svg.svg-inline--fa {
   transform: rotate(360deg)
+}
+
+.btn-unstyled {
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  display: block;
+}
+
+.icon {
+  padding: .5rem 0.75rem;
 }

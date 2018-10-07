@@ -26,6 +26,10 @@
         </main>
         <footer class="container">
             {% block footer %}
+                <span>
+                    <img src="{{ asset('images/logo.png') }}" alt="czydojade logo"/>
+                    v. {{ version() }}
+                </span>
                 <span class="copyright flex flex-space-left">
                     brought to you by
                     <a href="https://kadet.net"><img src="{{ asset('images/kadet-net-logo.png') }}" alt="kadet.net logo" class="mx-1"/></a>
@@ -35,14 +39,6 @@
         </footer>
 
         {% block javascripts %}{% endblock %}
-        <script>
-            window.czydojade = {
-                state: {{ {
-                    version: 1,
-                    stops: app.request.query.get('stop', [])
-                }|json_encode|raw }}
-            };
-        </script>
         <script src="{{ asset('bundle.js') }}"></script>
     </body>
 </html>

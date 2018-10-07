@@ -4,10 +4,16 @@
 
     color: black;
 
+    &:hover, &:active, &:focus {
+      text-decoration: none;
+    }
+
     &:focus {
       outline: 2px solid rgba($blue, .2);
     }
   }
+
+  display: inline-block;
 
   &.btn-outline-action {
     @extend .btn-outline-dark;
