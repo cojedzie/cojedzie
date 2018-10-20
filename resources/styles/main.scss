@@ -92,6 +92,8 @@ body {
 
   footer {
     @extend .flex;
+    flex-wrap: wrap;
+
     font-size: $font-size-sm;
     padding: $alert-padding-y $alert-padding-y;
     transition: all .5s ease;
@@ -106,6 +108,11 @@ body {
     img {
       height: 1.5rem;
     }
+
+    > * {
+      flex: 1 1 auto;
+      padding: .4rem 0;
+    }
   }
 }
 
@@ -116,6 +123,10 @@ body {
 @include media-breakpoint-up('md') {
   #app {
     padding-top: 4rem;
+  }
+
+  body footer > * {
+    flex: 0 1 auto;
   }
 }
 
