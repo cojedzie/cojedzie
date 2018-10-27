@@ -15,6 +15,7 @@ use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
 use App\Service\Proxy\ReferenceFactory;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ZtmGdanskProvider implements Provider
@@ -24,6 +25,9 @@ class ZtmGdanskProvider implements Provider
     private $stops;
     private $tracks;
     private $messages;
+
+    /** @var ProviderEntity */
+    private $entity;
 
     public function getName(): string
     {
@@ -64,6 +68,7 @@ class ZtmGdanskProvider implements Provider
         $this->stops      = $stops;
         $this->messages   = $messages;
         $this->tracks     = $tracks;
+        $this->entity     = $provider;
     }
 
     public function getDepartureRepository(): DepartureRepository
@@ -89,5 +94,10 @@ class ZtmGdanskProvider implements Provider
     public function getTrackRepository(): TrackRepository
     {
         return $this->tracks;
+    }
+
+    public function getLastUpdate(): ?Carbon
+    {
+        return $this->entity->getUpdateDate();
     }
 }

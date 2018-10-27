@@ -23,9 +23,13 @@ trait FillTrait
 
     public static function createFromArray(array $vars = [], ...$args)
     {
-        $object = empty($args)
-            ? (new \ReflectionClass(static::class))->newInstanceWithoutConstructor()
-            : new static(...$args);
+        $reflection  = new \ReflectionClass(static::class);
+        $constructor = $reflection->getConstructor();
+
+
+        $object = empty($args) && ($constructor && $constructor->getNumberOfRequiredParameters() > 0)
+            ? $reflection->newInstanceWithoutConstructor()
+            : $reflection->newInstanceArgs($args);
 
         $object->fill($vars);
 

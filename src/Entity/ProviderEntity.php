@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
+use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -29,6 +30,21 @@ class ProviderEntity implements Fillable, Referable
      */
     private $class;
 
+    /**
+     * Time and date of last data update
+     *
+     * @ORM\Column(type="datetime", nullable=false)
+     */
+    private $updateDate;
+
+    /**
+     * ProviderEntity constructor.
+     */
+    public function __construct()
+    {
+        $this->updateDate = Carbon::now();
+    }
+
     public function getName()
     {
         return $this->name;
@@ -47,5 +63,13 @@ class ProviderEntity implements Fillable, Referable
     public function setClass($class): void
     {
         $this->class = $class;
+    }
+
+    /**
+     * @return Carbon
+     */
+    public function getUpdateDate()
+    {
+        return Carbon::instance($this->updateDate);
     }
 }

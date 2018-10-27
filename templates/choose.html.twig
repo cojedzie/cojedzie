@@ -5,7 +5,13 @@
         <fa :icon="['fal', 'info-circle']"></fa>
         Wybierz źródło danych
     </div>
-    {% for provider in providers %}
-        <a href="{{ path('app', { provider: provider.identifier }) }}">{{ provider.name }}</a>
-    {% endfor %}
+    <ul class="list-underlined">
+        {% for provider in providers %}
+            <li title="Aktualizacja: {{ provider.lastUpdate ? provider.lastUpdate.format('Y.m.d H:i') : 'live' }}">
+                <a href="{{ path('app', { provider: provider.identifier }) }}" class="btn btn-block btn-action text-left">
+                    {{ provider.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}

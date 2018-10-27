@@ -30,11 +30,21 @@ class DataUpdater
 
     public function update()
     {
-        $schema = $this->em->getConnection()->getSchemaManager();
-        collect($schema->listTables())->reject(function (Table $schema) {
-            return $schema->getName() === 'migration_versions';
-        })->each([$schema, 'dropAndCreateTable']);
+        $connection = $this->em->getConnection();
+        $schema     = $connection->getSchemaManager();
 
-        $this->dispatcher->dispatch(self::UPDATE_EVENT, new DataUpdateEvent());
+        try {
+            $connection->beginTransaction();
+
+            collect($schema->listTables())->reject(function (Table $schema) {
+                return $schema->getName() === 'migration_versions';
+            })->each([$schema, 'dropAndCreateTable']);
+
+            $this->dispatcher->dispatch(self::UPDATE_EVENT, new DataUpdateEvent());
+            $connection->commit();
+        } catch (\Throwable $exception) {
+            $connection->rollBack();
+            throw $exception;
+        }
     }
 }

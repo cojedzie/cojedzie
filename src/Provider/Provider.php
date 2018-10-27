@@ -2,6 +2,8 @@
 
 namespace App\Provider;
 
+use Carbon\Carbon;
+
 interface Provider
 {
     public function getDepartureRepository(): DepartureRepository;
@@ -14,4 +16,6 @@ interface Provider
     public function getShortName(): string;
     public function getIdentifier(): string;
     public function getAttribution(): ?string;
+
+    public function getLastUpdate(): ?Carbon;
 }

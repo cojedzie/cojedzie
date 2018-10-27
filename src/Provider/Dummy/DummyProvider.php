@@ -9,6 +9,7 @@ use App\Provider\MessageRepository;
 use App\Provider\Provider;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
+use Carbon\Carbon;
 
 class DummyProvider implements Provider
 {
@@ -67,6 +68,11 @@ class DummyProvider implements Provider
     }
 
     public function getAttribution(): ?string
+    {
+        return null;
+    }
+
+    public function getLastUpdate(): ?Carbon
     {
         return null;
     }
