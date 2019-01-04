@@ -3,6 +3,7 @@
 namespace App\Provider\ZtmGdansk;
 
 use App\Model\Departure;
+use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Vehicle;
 use App\Provider\DepartureRepository;
@@ -49,7 +50,10 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 'stop'      => $stop,
                 'display'   => trim($delay['headsign']),
                 'vehicle'   => $this->reference->get(Vehicle::class, $delay['vehicleCode']),
-                'line'      => $lines->get($delay['routeId']),
+                'line'      => $lines->get($delay['routeId']) ?: Line::createFromArray([
+                    'symbol' => $delay['routeId'],
+                    'type'   => Line::TYPE_UNKNOWN
+                ]),
             ]);
         })->values();
     }
