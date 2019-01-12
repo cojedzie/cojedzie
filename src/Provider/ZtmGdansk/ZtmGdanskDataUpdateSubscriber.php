@@ -8,13 +8,17 @@ use App\Entity\ProviderEntity;
 use App\Entity\StopEntity;
 use App\Entity\StopInTrack;
 use App\Entity\TrackEntity;
+use App\Entity\TripEntity;
+use App\Entity\TripStopEntity;
 use App\Model\Line as LineModel;
-use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\DataUpdater;
 use App\Service\IdUtils;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use function Kadet\Functional\partial;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Tightenco\Collect\Support\Collection;
 
 class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 {
@@ -62,11 +66,9 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         $save = [$this->em, 'persist'];
 
         $this->getOperators($provider)->each($save);
-        $this->getLines($provider)->each($save);
         $this->getStops($provider)->each($save);
         $this->getTracks($provider)->each($save);
-
-        $this->em->flush();
+        $this->getLines($provider)->each($save)->each(partial([$this, 'getSchedule'], $provider, $save));
     }
 
     private function getOperators(ProviderEntity $provider)
@@ -188,6 +190,66 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 
             return $entity;
         });
+    }
+
+    public function getSchedule(ProviderEntity $provider, callable $save, LineEntity $line)
+    {
+        $this->logger->info(sprintf('Obtaining schedule for line %s from ZTM Gdańsk', $line->getId()));
+
+        $schedule = file_get_contents("http://87.98.237.99:88/stopTimes?date=".(date('Y-m-d'))."&routeId=".$this->ids->of($line));
+        $schedule = json_decode($schedule, true)['stopTimes'];
+        $schedule = collect($schedule)->groupBy(function ($stop) {
+            return sprintf("%s-%d", $stop['busServiceName'], $stop['order']);
+        });
+
+        collect($schedule)->map(function (Collection $trips, $id) use ($provider) {
+            $entity = TripEntity::createFromArray([
+                'id'       => $this->ids->generate($provider, $id),
+                'operator' => $this->em->getReference(
+                    OperatorEntity::class,
+                    $this->ids->generate($provider, $trips->first()['agencyId'])
+                ),
+                'track' => $this->em->getReference(
+                    TrackEntity::class,
+                    $this->ids->generate($provider, $trips->first()['tripId'])
+                ),
+                'variant' => $trips->first(function ($trip) {
+                    return !empty($trip['noteSymbol']);
+                }, ['noteSymbol' => null])['noteSymbol'],
+                'note' => $trips->first(function ($trip) {
+                    return !empty($trip['noteSymbol']);
+                }, ['noteDescription' => null])['noteDescription'],
+            ]);
+
+            $stops = $trips->map(function ($stop) use ($entity, $provider) {
+                $base = Carbon::create(1899, 12, 30, 00, 00, 00);
+                $date = Carbon::createFromFormat('Y-m-d', $stop['date'])->setTime(00, 00, 00);
+
+                $arrival   = $base->diff(Carbon::createFromTimeString($stop['arrivalTime']));
+                $departure = $base->diff(Carbon::createFromTimeString($stop['departureTime']));
+
+                $arrival   = (clone $date)->add($arrival);
+                $departure = (clone $date)->add($departure);
+
+                return TripStopEntity::createFromArray([
+                    'trip'      => $entity,
+                    'stop'      => $this->em->getReference(
+                        StopEntity::class,
+                        $this->ids->generate($provider, $stop['stopId'])
+                    ),
+                    'order'     => $stop['stopSequence'],
+                    'arrival'   => $arrival,
+                    'departure' => $departure,
+                ]);
+            });
+
+            $entity->setStops($stops);
+
+            return $entity;
+        })->each($save);
+
+        $this->em->flush();
+        $this->em->clear();
     }
 
     public static function getSubscribedEvents()

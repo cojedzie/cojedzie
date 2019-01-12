@@ -2,15 +2,8 @@
 
 namespace App\Service;
 
-use App\Entity\Entity;
-use App\Entity\LineEntity;
-use App\Entity\OperatorEntity;
-use App\Entity\StopEntity;
-use App\Entity\TrackEntity;
-use App\Model\Line;
-use App\Model\Operator;
-use App\Model\Stop;
-use App\Model\Track;
+use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity, TripStopEntity};
+use App\Model\{Line, Operator, ScheduleStop, Stop, Track, Trip};
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Proxy\Proxy;
@@ -33,7 +26,7 @@ final class EntityConverter
      * @param Entity $entity
      * @param array  $cache
      *
-     * @return Line|Track|Stop|Operator
+     * @return Line|Track|Stop|Operator|Trip|ScheduleStop
      */
     public function convert(Entity $entity, array $cache = [])
     {
@@ -93,6 +86,24 @@ final class EntityConverter
                     ],
                 ]);
                 break;
+
+            case $entity instanceof TripEntity:
+                $result->fill([
+                    'variant'  => $entity->getVariant(),
+                    'note'     => $entity->getNote(),
+                    'schedule' => $this->collection($entity->getStops())->map($convert),
+                    'track'    => $convert($entity->getTrack()),
+                ]);
+                break;
+
+            case $entity instanceof TripStopEntity:
+                $result->fill([
+                    'arrival'   => $entity->getArrival(),
+                    'departure' => $entity->getDeparture(),
+                    'stop'      => $convert($entity->getStop()),
+                    'order'     => $convert($entity->getOrder()),
+                ]);
+                break;
         }
 
         return $result;
@@ -133,6 +144,12 @@ final class EntityConverter
 
             case $entity instanceof StopEntity:
                 return Stop::class;
+
+            case $entity instanceof TripEntity:
+                return Trip::class;
+
+            case $entity instanceof TripStopEntity:
+                return ScheduleStop::class;
 
             default:
                 return false;

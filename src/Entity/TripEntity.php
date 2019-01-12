@@ -49,9 +49,9 @@ class TripEntity implements Entity, Fillable
     private $note;
 
     /**
-     * @var Collection<StopInTrack>
+     * @var Collection<TripStopEntity>
      *
-     * @ORM\OneToMany(targetEntity=StopInTrack::class, fetch="EXTRA_LAZY", mappedBy="track", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity=TripStopEntity::class, fetch="EXTRA_LAZY", mappedBy="trip", cascade={"persist"})
      * @ORM\OrderBy({"order": "ASC"})
      */
     private $stops;
