@@ -37,7 +37,9 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $estimates = json_decode(file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId()), true)['delay'];
         $estimates = collect($estimates);
 
-        $lines = $estimates->map(function ($delay) { return $delay['routeId']; })->unique();
+        $lines = $estimates->map(function ($delay) {
+            return $delay['routeId'];
+        })->unique();
         $lines = $this->lines->getManyById($lines)->keyBy(t\property('id'));
 
         return collect($estimates)->map(function ($delay) use ($stop, $lines) {
@@ -52,7 +54,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 'vehicle'   => $this->reference->get(Vehicle::class, $delay['vehicleCode']),
                 'line'      => $lines->get($delay['routeId']) ?: Line::createFromArray([
                     'symbol' => $delay['routeId'],
-                    'type'   => Line::TYPE_UNKNOWN
+                    'type'   => Line::TYPE_UNKNOWN,
                 ]),
             ]);
         })->values();

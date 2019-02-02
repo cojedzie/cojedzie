@@ -209,14 +209,14 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                     OperatorEntity::class,
                     $this->ids->generate($provider, $trips->first()['agencyId'])
                 ),
-                'track' => $this->em->getReference(
+                'track'    => $this->em->getReference(
                     TrackEntity::class,
                     $this->ids->generate($provider, $trips->first()['tripId'])
                 ),
-                'variant' => $trips->first(function ($trip) {
+                'variant'  => $trips->first(function ($trip) {
                     return !empty($trip['noteSymbol']);
                 }, ['noteSymbol' => null])['noteSymbol'],
-                'note' => $trips->first(function ($trip) {
+                'note'     => $trips->first(function ($trip) {
                     return !empty($trip['noteSymbol']);
                 }, ['noteDescription' => null])['noteDescription'],
             ]);
