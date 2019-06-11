@@ -30,6 +30,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
     const TRACKS_URL          = self::BASE_URL."/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
     const STOPS_IN_TRACKS_URL = self::BASE_URL."/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
 
+    const SCHEDULE_URL        = "http://ckan2.multimediagdansk.pl/stopTimes";
+
     private $em;
     private $ids;
     private $logger;
@@ -196,7 +198,12 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
     {
         $this->logger->info(sprintf('Obtaining schedule for line %s from ZTM Gdańsk', $line->getId()));
 
-        $schedule = file_get_contents("http://87.98.237.99:88/stopTimes?date=".(date('Y-m-d'))."&routeId=".$this->ids->of($line));
+        $url = sprintf("%s?%s", self::SCHEDULE_URL, http_build_query([
+            'date'    => date('Y-m-d'),
+            'routeId' => $this->ids->of($line),
+        ]));
+
+        $schedule = file_get_contents($url);
         $schedule = json_decode($schedule, true)['stopTimes'];
         $schedule = collect($schedule)->groupBy(function ($stop) {
             return sprintf("%s-%d", $stop['busServiceName'], $stop['order']);

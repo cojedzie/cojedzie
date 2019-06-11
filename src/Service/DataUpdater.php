@@ -46,13 +46,14 @@ class DataUpdater
             })->each([$schema, 'dropAndCreateTable']);
 
             $this->dispatcher->dispatch(self::UPDATE_EVENT, new DataUpdateEvent());
+            unlink($backup);
         } catch (\Throwable $exception) {
             $connection->close();
 
             unlink($path);
             rename($backup, $path);
-        } finally {
-            unlink($backup);
+
+            throw $exception;
         }
     }
 }

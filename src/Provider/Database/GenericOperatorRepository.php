@@ -26,7 +26,7 @@ class GenericOperatorRepository extends DatabaseRepository implements OperatorRe
     public function getManyById($ids): Collection
     {
         $repository = $this->em->getRepository(Operator::class);
-        $operators      = $repository->findBy(['id' => $ids]);
+        $operators  = $repository->findBy(['id' => $ids]);
 
         return collect($operators);
     }

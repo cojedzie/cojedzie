@@ -6,6 +6,7 @@ use App\Model\Departure;
 use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Vehicle;
+use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Service\Proxy\ReferenceFactory;

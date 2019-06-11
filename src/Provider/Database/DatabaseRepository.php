@@ -45,7 +45,7 @@ class DatabaseRepository
         return $result;
     }
 
-    protected function convert(Entity $entity)
+    protected function convert($entity)
     {
         return $this->converter->convert($entity);
     }

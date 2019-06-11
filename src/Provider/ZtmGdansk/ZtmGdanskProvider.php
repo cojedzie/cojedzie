@@ -5,6 +5,7 @@ namespace App\Provider\ZtmGdansk;
 
 use App\Entity\ProviderEntity;
 use App\Provider\Database\GenericLineRepository;
+use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\DepartureRepository;
@@ -54,14 +55,16 @@ class ZtmGdanskProvider implements Provider
         GenericLineRepository $lines,
         GenericStopRepository $stops,
         GenericTrackRepository $tracks,
+        GenericScheduleRepository $schedule,
         ZtmGdanskMessageRepository $messages,
         ReferenceFactory $referenceFactory
     ) {
         $provider = $em->getReference(ProviderEntity::class, $this->getIdentifier());
 
-        $lines  = $lines->withProvider($provider);
-        $stops  = $stops->withProvider($provider);
-        $tracks = $tracks->withProvider($provider);
+        $lines    = $lines->withProvider($provider);
+        $stops    = $stops->withProvider($provider);
+        $tracks   = $tracks->withProvider($provider);
+        $schedule = $schedule->withProvider($provider);
 
         $this->lines      = $lines;
         $this->departures = new ZtmGdanskDepartureRepository($lines, $referenceFactory);

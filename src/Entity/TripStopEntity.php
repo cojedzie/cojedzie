@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Model\Fillable;
 use App\Model\FillTrait;
+use App\Model\Trip;
+use App\Service\IdUtils;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,12 +18,14 @@ class TripStopEntity implements Fillable
     use FillTrait;
 
     /**
+     * @var StopEntity
      * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
      * @ORM\Id
      */
     private $stop;
 
     /**
+     * @var TripEntity
      * @ORM\ManyToOne(targetEntity=TripEntity::class, fetch="EAGER")
      * @ORM\Id
      */

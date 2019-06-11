@@ -110,7 +110,8 @@ final class EntityConverter
     }
 
     // HACK to not trigger doctrine stupid lazy loading.
-    private function getId(Entity $entity) {
+    private function getId(Entity $entity)
+    {
         if ($entity instanceof Proxy) {
             $id = (new \ReflectionClass(get_parent_class($entity)))->getProperty('id');
             $id->setAccessible(true);
