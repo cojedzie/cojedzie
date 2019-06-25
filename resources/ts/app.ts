@@ -35,4 +35,10 @@ Vue.use(Vuex);
 
     store.dispatch('messages/update');
     store.dispatch('load', window['czydojade'].state);
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/dist/service-worker.js');
+        });
+    }
 })();

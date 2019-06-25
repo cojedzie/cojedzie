@@ -40,6 +40,7 @@
     "mini-css-extract-plugin": "^0.4.2",
     "vue2-leaflet": "^1.0.2",
     "vuex": "^3.0.1",
-    "vuex-class": "^0.3.1"
+    "vuex-class": "^0.3.1",
+    "workbox-webpack-plugin": "^4.3.1"
   }
 }

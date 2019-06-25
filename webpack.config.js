@@ -3,13 +3,15 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const BabelMinifyPlugin = require('babel-minify-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
+const { GenerateSW } = require('workbox-webpack-plugin');
 
 const config = {
     entry: {
         main: ['./resources/ts/app.ts'],
     },
     output: {
-        path: path.resolve('./public/'),
+        path: path.resolve('./public/dist/'),
+        publicPath: "/dist/",
         filename: "bundle.js",
         chunkFilename: 'bundle.[chunkhash:8].js'
     },
@@ -56,8 +58,9 @@ const config = {
     },
     plugins: [
         new MiniCssExtractPlugin({ filename: '[name].css' }),
-        new CopyWebpackPlugin([{ from: './resources/images/', to: 'images/', ignore: ['*.ai'] }]),
-        new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i })
+        new CopyWebpackPlugin([{ from: './resources/images/', to: '../images/', ignore: ['*.ai'] }]),
+        new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
+        new GenerateSW()
     ],
     optimization: {
         minimizer: [
