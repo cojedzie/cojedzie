@@ -60,7 +60,14 @@ const config = {
         new MiniCssExtractPlugin({ filename: '[name].css' }),
         new CopyWebpackPlugin([{ from: './resources/images/', to: '../images/', ignore: ['*.ai'] }]),
         new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
-        new GenerateSW()
+        new GenerateSW({
+            navigationPreload: true,
+            runtimeCaching: [{
+              urlPattern: ({event}) => event.request.mode === 'navigate',
+              handler: 'NetworkFirst',
+            }],
+            swDest: '../service-worker.js'
+        })
     ],
     optimization: {
         minimizer: [
