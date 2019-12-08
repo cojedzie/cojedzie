@@ -56,11 +56,13 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
     {
         return $stops->groupBy(function (Stop $stop) {
             return $stop->getName();
-        })->map(function ($group, $key) {
-            $group = new StopGroup($group);
+        })->map(function ($stops, $key) {
+            $group = new StopGroup();
+
             $group->setName($key);
+            $group->setStops($stops);
 
             return $group;
-        });
+        })->values();
     }
 }

@@ -35,10 +35,10 @@ export class FinderComponent extends Vue {
 
         this.state = 'fetching';
 
-        const response = await fetch(urls.prepare(urls.stops.search, { name: this.filter }));
+        const response = await fetch(urls.prepare(urls.stops.grouped, { name: this.filter }));
 
         if (response.ok) {
-            this.found = await response.json();
+            this.found = (await response.json()).reduce((accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }), {});
             this.state = 'ready';
         } else {
             this.state = 'error';

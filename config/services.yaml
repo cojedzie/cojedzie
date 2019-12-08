@@ -42,6 +42,15 @@ services:
     assets.modified_time_version_strategy:
         class: App\Asset\ModifiedTimeVersionStrategy
 
+    #eerialziser
+    jms_serializer.serialized_name_annotation_strategy:
+        class: JMS\Serializer\Naming\SerializedNameAnnotationStrategy
+        arguments:
+            - '@jms_serializer.identical_property_naming_strategy'
+
+    App\Serialization\CarbonHandler:
+        arguments: ['@jms_serializer.datetime_handler']
+
     #proxy configuration
     proxy.locator:
         class: 'ProxyManager\FileLocator\FileLocator'

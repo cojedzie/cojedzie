@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use Swagger\Annotations as SWG;
 use Tightenco\Collect\Support\Collection;
 
 class Track implements Referable, Fillable
@@ -29,10 +30,10 @@ class Track implements Referable, Fillable
 
     /**
      * Stops in track
-     * @var Collection
+     * @var Stop[]|Collection
+     * @SWG\Property(type="Stop")
      */
     private $stops;
-
 
     /**
      * Track constructor.

@@ -2,11 +2,15 @@
 
 namespace App\Model;
 
+use Swagger\Annotations as SWG;
+
 trait ReferableTrait
 {
     /**
      * Identifier coming from provider service
      * @var string
+     *
+     * @SWG\Property(example="1045")
      */
     private $id;
 

@@ -7,6 +7,8 @@ use App\Controller\Controller;
 use App\Model\Departure;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,17 +20,22 @@ use Symfony\Component\Routing\Annotation\Route;
 class DeparturesController extends Controller
 {
     /**
-     * @Route("/{id}")
+     * @Route("/{stop}", methods={"GET"})
+     * @SWG\Response(
+     *     description="Gets departures from particular stop.",
+     *     response=200,
+     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=Departure::class)))
+     * )
      */
-    public function stop(DepartureRepository $departures, StopRepository $stops, $id)
+    public function stop(DepartureRepository $departures, StopRepository $stops, $stop)
     {
-        $stop = $stops->getById($id);
+        $stop = $stops->getById($stop);
 
         return $this->json($departures->getForStop($stop));
     }
 
     /**
-     * @Route("/")
+     * @Route("/", methods={"GET"})
      */
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {

@@ -4,10 +4,13 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Stop;
+use App\Model\Track;
 use App\Provider\TrackRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use function App\Functions\encapsulate;
 
 /**
@@ -16,7 +19,12 @@ use function App\Functions\encapsulate;
 class TracksController extends Controller
 {
     /**
-     * @Route("/")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns all tracks for specific provider, e.g. ZTM Gdańsk.",
+     * )
+     * @SWG\Tag(name="tracks")
+     * @Route("/", methods={"GET"})
      */
     public function index(Request $request, TrackRepository $repository)
     {
@@ -28,7 +36,12 @@ class TracksController extends Controller
             case $request->query->has('id'):
                 return $this->byId($request, $repository);
             default:
-                throw new BadRequestHttpException(sprintf('At least one parameter of %s must be set.', implode(', ', ['stop', 'line', 'id'])));
+                throw new BadRequestHttpException(
+                    sprintf(
+                        'At least one parameter of %s must be set.',
+                        implode(', ', ['stop', 'line', 'id'])
+                    )
+                );
         }
     }
 

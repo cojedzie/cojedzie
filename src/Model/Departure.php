@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use Carbon\Carbon;
+use JMS\Serializer\Annotation as Serializer;
 
 class Departure implements Fillable
 {
@@ -104,6 +105,7 @@ class Departure implements Fillable
         $this->stop = $stop;
     }
 
+    /** @Serializer\VirtualProperty() */
     public function getDelay(): ?int
     {
         return $this->getEstimated()

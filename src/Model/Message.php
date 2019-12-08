@@ -3,6 +3,8 @@
 namespace App\Model;
 
 use Carbon\Carbon;
+use JMS\Serializer\Annotation as Serializer;
+use Swagger\Annotations as SWG;
 
 class Message implements Fillable
 {
@@ -14,18 +16,23 @@ class Message implements Fillable
 
     /**
      * Message content.
+     * @Serializer\Type("string")
      * @var string
      */
     private $message;
 
     /**
      * Message type, see TYPE_* constants
+     * @Serializer\Type("string")
+     * @SWG\Property(type="string", enum={ Message::TYPE_INFO, Message::TYPE_BREAKDOWN, Message::TYPE_UNKNOWN })
      * @var string
      */
     private $type = self::TYPE_UNKNOWN;
 
     /**
      * Message validity time span start
+     * @Serializer\Type("Carbon")
+     * @SWG\Property(type="string")
      * @var Carbon|null
      */
     private $validFrom;
@@ -33,6 +40,8 @@ class Message implements Fillable
     /**
      * Message validity time span end
      * @var Carbon|null
+     * @Serializer\Type("Carbon")
+     * @SWG\Property(type="string")
      */
     private $validTo;
 

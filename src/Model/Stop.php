@@ -2,11 +2,18 @@
 
 namespace App\Model;
 
+use JMS\Serializer\Annotation as Serializer;
+use Swagger\Annotations as SWG;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tightenco\Collect\Support\Arr;
 
+/**
+ * Class Stop
+ *
+ * @package App\Model
+ */
 class Stop implements Referable, Fillable, NormalizableInterface
 {
     use FillTrait, ReferableTrait;
@@ -14,36 +21,45 @@ class Stop implements Referable, Fillable, NormalizableInterface
     /**
      * Stop name
      * @var string
+     * @SWG\Property(example="Jasień PKM")
+     * @Serializer\Type("string")
      */
     private $name;
 
     /**
-     * Optional stop description, should not be longer than 255 chars
+     * Optional stop description, should not be longer than 255 chars.
      * @var string|null
+     * @Serializer\Type("string")
      */
     private $description;
 
     /**
-     * Optional stop variant - for example number of shed
+     * Optional stop variant - for example number of shed.
      * @var string|null
+     * @SWG\Property(example="01")
+     * @Serializer\Type("string")
      */
     private $variant;
 
     /**
      * Latitude of stop
      * @var float|null
+     * @Serializer\Exclude()
      */
     private $latitude;
 
     /**
      * Longitude of stop
      * @var float|null
+     * @Serializer\Exclude()
      */
     private $longitude;
 
     /**
      * True if stop is available only on demand
      * @var bool
+     * @Serializer\Type("bool")
+     * @SWG\Property(example=false)
      */
     private $onDemand = false;
 
@@ -77,7 +93,6 @@ class Stop implements Referable, Fillable, NormalizableInterface
         $this->variant = $variant;
     }
 
-    /** @Groups({"hidden"}) */
     public function getLatitude(): ?float
     {
         return $this->latitude;
@@ -88,7 +103,6 @@ class Stop implements Referable, Fillable, NormalizableInterface
         $this->latitude = $latitude;
     }
 
-    /** @Groups({"hidden"}) */
     public function getLongitude(): ?float
     {
         return $this->longitude;
@@ -99,6 +113,12 @@ class Stop implements Referable, Fillable, NormalizableInterface
         $this->longitude = $longitude;
     }
 
+    /**
+     * @return string[]
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("array<string>")
+     * @SWG\Property(type="array", @SWG\Items(type="string", example="1"))
+     */
     public function getLocation(): array
     {
         return [ $this->latitude, $this->longitude ];
@@ -106,7 +126,7 @@ class Stop implements Referable, Fillable, NormalizableInterface
 
     public function setLocation(array $location)
     {
-        list($this->latitude, $this->longitude) = $location;
+        [$this->latitude, $this->longitude] = $location;
     }
 
     public function isOnDemand(): bool

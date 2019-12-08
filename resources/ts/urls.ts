@@ -51,10 +51,10 @@ export default {
     departures: `${base}/departures`,
     messages:   `${base}/messages`,
     stops: {
-        all:    `${base}/stops`,
-        search: `${base}/stops/search`,
-        get:    `${base}/stops/{id}`,
-        tracks: `${base}/stops/{id}/tracks`
+        all:     `${base}/stops`,
+        grouped: `${base}/stops/groups`,
+        get:     `${base}/stops/{id}`,
+        tracks:  `${base}/stops/{id}/tracks`
     },
     prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: window['data'].provider }, params))
 }

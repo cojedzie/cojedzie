@@ -1,0 +1,19 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Czy Dojadę?
+            version: 0.1.0
+        parameters:
+            provider:
+                in: path
+                name: provider
+                type: string
+                description: Data provider identificator, e.g. trojmiasto for ZTM Gdańsk.
+                required: true
+
+    areas:
+        path_patterns:
+            - ^/[^\/]+/api(?!/doc$) # Accepts routes under /api except /api/doc
+
+
+

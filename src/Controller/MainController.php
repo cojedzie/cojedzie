@@ -26,7 +26,7 @@ class MainController extends Controller
         $state = json_decode($request->query->get('state', '{}'), true) ?: [];
         $state = array_merge([
             'version' => 1,
-            'stops'   => []
+            'stops'   => [],
         ], $state);
 
         return $this->render('app.html.twig', compact('state', 'provider'));
