@@ -4,44 +4,57 @@ namespace App\Model;
 
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 
 class Departure implements Fillable
 {
     use FillTrait;
 
     /**
-     * Information about line
-     * @var \App\Model\Line
+     * Information about line.
+     * @var Line
+     * @Serializer\Type(Line::class)
+     * @SWG\Property(ref=@Model(type=Line::class, groups={"Default"}))
+     *
      */
     private $line;
 
     /**
-     * Information about stop
-     * @var \App\Model\Stop
+     * Information about stop.
+     * @var Stop
+     * @Serializer\Type(Stop::class)
      */
     private $stop;
 
     /**
-     * Vehicle identification
+     * Vehicle identification.
      * @var Vehicle|null
+     * @Serializer\Type(Vehicle::class)
      */
     private $vehicle;
 
     /**
-     * Displayed destination
+     * Displayed destination.
      * @var string|null
+     * @Serializer\Type("string")
+     * @SWG\Property(example="Łostowice Świętokrzyska")
      */
     private $display;
 
     /**
-     * Estimated time of departure, null if case of no realtime data
+     * Estimated time of departure, null if case of no realtime data.
      * @var Carbon|null
+     * @Serializer\Type("Carbon")
+     * @SWG\Property(type="string", format="date-time")
      */
     private $estimated;
 
     /**
-     * Scheduled time of departure
+     * Scheduled time of departure.
      * @var Carbon
+     * @Serializer\Type("Carbon")
+     * @SWG\Property(type="string", format="date-time")
      */
     private $scheduled;
 
@@ -105,7 +118,11 @@ class Departure implements Fillable
         $this->stop = $stop;
     }
 
-    /** @Serializer\VirtualProperty() */
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("int")
+     * @SWG\Property(type="int")
+     */
     public function getDelay(): ?int
     {
         return $this->getEstimated()

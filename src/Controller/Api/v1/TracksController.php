@@ -23,7 +23,7 @@ class TracksController extends Controller
      *     response=200,
      *     description="Returns all tracks for specific provider, e.g. ZTM Gdańsk.",
      * )
-     * @SWG\Tag(name="tracks")
+     * @SWG\Tag(name="Tracks")
      * @Route("/", methods={"GET"})
      */
     public function index(Request $request, TrackRepository $repository)

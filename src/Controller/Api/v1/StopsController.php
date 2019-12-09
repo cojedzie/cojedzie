@@ -5,6 +5,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Stop;
+use App\Model\Track;
 use App\Model\StopGroup;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package App\Controller
  * @Route("/stops")
  *
- * @SWG\Tag(name="stops")
+ * @SWG\Tag(name="Stops")
  * @SWG\Parameter(ref="#/parameters/provider")
  */
 class StopsController extends Controller
@@ -49,10 +50,6 @@ class StopsController extends Controller
                 $result = $stops->getManyById($request->query->get('id'));
                 break;
 
-            case $request->query->has('name'):
-                $result = $stops->findGroupsByName($request->query->get('name'));
-                break;
-
             default:
                 $result = $stops->getAllGroups();
         }
@@ -79,10 +76,6 @@ class StopsController extends Controller
     public function groups(Request $request, StopRepository $stops)
     {
         switch (true) {
-            case $request->query->has('id'):
-                $result = $stops->getManyById($request->query->get('id'));
-                break;
-
             case $request->query->has('name'):
                 $result = $stops->findGroupsByName($request->query->get('name'));
                 break;
@@ -117,6 +110,17 @@ class StopsController extends Controller
 
     /**
      * @Route("/{id}/tracks", methods={"GET"})
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns specific stop referenced via identificator.",
+     *     @SWG\Schema(type="object", properties={
+     *         @SWG\Property(property="track", type="object", ref=@Model(type=Track::class)),
+     *         @SWG\Property(property="order", type="integer", minimum="0")
+     *     })
+     * )
+     *
+     * @SWG\Tag(name="Tracks")
      */
     public function tracks(ReferenceFactory $reference, TrackRepository $tracks, $id)
     {

@@ -2,30 +2,36 @@
 
 namespace App\Model;
 
+use JMS\Serializer\Annotation as Serializer;
+
 class Operator implements Fillable, Referable
 {
     use FillTrait, ReferableTrait;
 
     /**
      * Describes operator name
+     * @Serializer\Type("string")
      * @var string
      */
     private $name;
 
     /**
      * Contact email to operator
+     * @Serializer\Type("string")
      * @var string|null
      */
     private $email;
 
     /**
      * URL of operators page
+     * @Serializer\Type("string")
      * @var string|null
      */
     private $url;
 
     /**
      * Contact phone to operator
+     * @Serializer\Type("string")
      * @var string|null
      */
     private $phone;

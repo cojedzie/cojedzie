@@ -16,6 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class DeparturesController
  *
  * @Route("/departures")
+ * @SWG\Tag(name="Departures")
+ * @SWG\Parameter(ref="#/parameters/provider")
  */
 class DeparturesController extends Controller
 {
@@ -36,6 +38,19 @@ class DeparturesController extends Controller
 
     /**
      * @Route("/", methods={"GET"})
+     * @SWG\Response(
+     *     description="Gets departures from given stops.",
+     *     response=200,
+     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=Departure::class)))
+     * )
+     *
+     * @SWG\Parameter(
+     *     name="stop",
+     *     description="Stop identifiers.",
+     *     type="array",
+     *     in="query",
+     *     @SWG\Items(type="string")
+     * )
      */
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {

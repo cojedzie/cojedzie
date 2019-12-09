@@ -2,18 +2,21 @@
 
 namespace App\Model;
 
-use Swagger\Annotations as SWG;
+use JMS\Serializer\Annotation as Serializer;
 
 trait ReferableTrait
 {
     /**
      * Identifier coming from provider service
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"Default", "Identity", "Minimal"})
      * @var string
-     *
-     * @SWG\Property(example="1045")
      */
     private $id;
 
+    /**
+     * @return string
+     */
     public function getId()
     {
         return $this->id;

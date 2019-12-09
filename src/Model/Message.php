@@ -17,6 +17,7 @@ class Message implements Fillable
     /**
      * Message content.
      * @Serializer\Type("string")
+     * @SWG\Property(example="Tram accident on Haller alley, possible delays on lines: 2, 3, 4, 5.")
      * @var string
      */
     private $message;
@@ -32,7 +33,7 @@ class Message implements Fillable
     /**
      * Message validity time span start
      * @Serializer\Type("Carbon")
-     * @SWG\Property(type="string")
+     * @SWG\Property(type="string", format="date-time")
      * @var Carbon|null
      */
     private $validFrom;
@@ -41,7 +42,7 @@ class Message implements Fillable
      * Message validity time span end
      * @var Carbon|null
      * @Serializer\Type("Carbon")
-     * @SWG\Property(type="string")
+     * @SWG\Property(type="string", format="date-time")
      */
     private $validTo;
 

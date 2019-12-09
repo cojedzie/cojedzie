@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Tightenco\Collect\Support\Collection;
 
@@ -11,6 +13,8 @@ class Track implements Referable, Fillable
 
     /**
      * Line variant describing track, for example 'a'
+     * @Serializer\Type("string")
+     * @SWG\Property(example="a")
      * @var string|null
      *
      */
@@ -18,12 +22,14 @@ class Track implements Referable, Fillable
 
     /**
      * Track description
+     * @Serializer\Type("string")
      * @var string|null
      */
     private $description;
 
     /**
      * Line reference
+     * @SWG\Property(ref=@Model(type=Line::class, groups={"Default"}))
      * @var Line
      */
     private $line;
@@ -31,7 +37,8 @@ class Track implements Referable, Fillable
     /**
      * Stops in track
      * @var Stop[]|Collection
-     * @SWG\Property(type="Stop")
+     * @Serializer\Type("Collection")
+     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Stop::class)))
      */
     private $stops;
 

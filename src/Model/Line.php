@@ -2,6 +2,9 @@
 
 namespace App\Model;
 
+use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 use Tightenco\Collect\Support\Collection;
 
 class Line implements Fillable, Referable
@@ -17,36 +20,54 @@ class Line implements Fillable, Referable
 
     /**
      * Line symbol, for example '10', or 'A'
+     * @Serializer\Type("string")
+     * @SWG\Property(example="10")
      * @var string
      */
     private $symbol;
 
     /**
      * Line type tram, bus or whatever.
+     * @Serializer\Type("string")
+     * @SWG\Property(type="string", enum={
+     *     Line::TYPE_BUS,
+     *     Line::TYPE_UNKNOWN,
+     *     Line::TYPE_METRO,
+     *     Line::TYPE_TRAIN,
+     *     Line::TYPE_TRAM,
+     *     Line::TYPE_TROLLEYBUS
+     * })
      * @var string
      */
     private $type;
 
     /**
      * Is line considered as fast line?
+     * @Serializer\Type("bool")
      * @var boolean
      */
     private $fast = false;
 
     /**
      * Is line considered as night line?
+     * @Serializer\Type("bool")
      * @var boolean
      */
     private $night = false;
 
     /**
      * Line operator
+     * @Serializer\Type(Operator::class)
+     * @SWG\Property(ref=@Model(type=Operator::class, groups={"Identity"}))
      * @var Operator
      */
     private $operator;
 
     /**
      * Tracks for this line
+     * @Serializer\Type("Collection")
+     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Track::class)))
+     * @Serializer\Groups("Full")
      * @var Collection<Track>|Track[]
      */
     private $tracks;
