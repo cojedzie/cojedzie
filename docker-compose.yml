@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www:cached
+      - ./docker/nginx/czydojade:/etc/nginx/conf.d/czydojade.conf
+
+  php:
+    build: docker/php
+    volumes:
+      - ./:/var/www:cached
+      - ./docker/php/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf

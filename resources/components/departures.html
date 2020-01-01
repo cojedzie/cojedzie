@@ -2,7 +2,7 @@
     <ul class="departures__list list-underlined">
         <li class="departure" v-for="departure in departures">
             <div class="departure__line">
-                <line-symbol :line="departure.line"></line-symbol>
+                <line-symbol :line="departure.line"/>
                 <div class="line__display">{{ departure.display }}</div>
             </div>
 
@@ -18,14 +18,14 @@
             </div>
 
             <div class="departure__stop">
-                <fa :icon="['fal', 'sign']" fixed-width class="mr-1"></fa>
-                <stop :stop="departure.stop"></stop>
+                <fa :icon="['fal', 'sign']" fixed-width class="mr-1"/>
+                <stop :stop="departure.stop"/>
             </div>
         </li>
     </ul>
 
     <div class="alert alert-info" v-if="stops.length === 0">
-        <fa :icon="['fal', 'info-circle']"></fa>
+        <fa :icon="['fal', 'info-circle']"/>
         Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
     </div>
 </div>
