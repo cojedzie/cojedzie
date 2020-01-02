@@ -1,4 +1,10 @@
 FROM php:7.3-fpm
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git zip libzip-dev
+
+RUN docker-php-ext-install zip
+
 RUN pecl install xdebug-2.9.0 && docker-php-ext-enable xdebug
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
