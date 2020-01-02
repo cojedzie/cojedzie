@@ -15,7 +15,7 @@ use Kadet\Functional\Transforms as t;
 
 class ZtmGdanskDepartureRepository implements DepartureRepository
 {
-    const ESTIMATES_URL = 'http://87.98.237.99:88/delays';
+    const ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
 
     /** @var LineRepository */
     private $lines;

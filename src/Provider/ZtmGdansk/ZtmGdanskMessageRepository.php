@@ -15,7 +15,7 @@ use Tightenco\Collect\Support\Collection;
 
 class ZtmGdanskMessageRepository implements MessageRepository
 {
-    const MESSAGES_URL = "http://87.98.237.99:88/displayMessages";
+    const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
 
     private $cache;
     private $classifier;
