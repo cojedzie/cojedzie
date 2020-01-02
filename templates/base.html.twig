@@ -40,7 +40,8 @@
             {% block footer %}
                 <span>
                     <img src="{{ asset('images/logo.png') }}" alt="czydojade logo"/>
-                    v. {{ version() }}
+                    v. {{ version() }} &bullet;
+                    <a href="{{ url('app.swagger_ui') }}">API</a>
                 </span>
                 <span class="copyright flex flex-space-left justify-content-end">
                     <a href="https://kadet.net"><img src="{{ asset('images/kadet-net-logo.png') }}" alt="kadet.net logo" class="mx-1"/></a>
@@ -50,6 +51,6 @@
         </footer>
 
         {% block javascripts %}{% endblock %}
-        <script src="{{ asset('dist/bundle.js') }}"></script>
+        <script src="{{ asset('dist/main.js') }}"></script>
     </body>
 </html>

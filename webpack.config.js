@@ -8,12 +8,13 @@ const { GenerateSW } = require('workbox-webpack-plugin');
 const config = {
     entry: {
         main: ['./resources/ts/app.ts'],
+        api: ['./resources/styles/api.scss']
     },
     output: {
         path: path.resolve('./public/dist/'),
         publicPath: "/dist/",
-        filename: "bundle.js",
-        chunkFilename: 'bundle.[chunkhash:8].js'
+        filename: "[name].js",
+        chunkFilename: '[name].[chunkhash:8].js'
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],

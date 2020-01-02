@@ -1,0 +1,48 @@
+#formats {
+  font-family: Open Sans, sans-serif;
+}
+
+.swagger-ui .opblock-tag,
+.swagger-ui .opblock .opblock-section-header label,
+.swagger-ui .opblock .opblock-section-header h4,
+.swagger-ui .opblock .opblock-summary-method,
+.swagger-ui .tab li,
+.swagger-ui .scheme-container .schemes > label,
+.swagger-ui .loading-container .loading:after,
+.swagger-ui .btn,
+.swagger-ui .btn.cancel,
+.swagger-ui select,
+.swagger-ui label,
+.swagger-ui .dialog-ux .modal-ux-content h4,
+.swagger-ui .dialog-ux .modal-ux-header h3,
+.swagger-ui section.models h4,
+.swagger-ui section.models h5,
+.swagger-ui .model-title,
+.swagger-ui .parameter__name,
+.swagger-ui .topbar a,
+.swagger-ui .topbar .download-url-wrapper .download-url-button,
+.swagger-ui .info .title small pre,
+.swagger-ui .scopes h2,
+.swagger-ui .errors-wrapper hgroup h4 {
+  font-family: Open Sans, sans-serif !important;
+}
+
+body {
+  margin: 0;
+}
+
+header {
+  display: none;
+}
+
+header::before, #swagger-ui.api-platform .opblock.opblock-get .opblock-summary-method {
+  background: #005ea8;
+}
+
+#swagger-ui.api-platform .info .title {
+  color: #005ea8;
+}
+
+.swagger-ui section.models {
+  border-radius: 0;
+}
