@@ -8,7 +8,7 @@ import * as iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import * as iconUrl from 'leaflet/dist/images/marker-icon.png';
 import * as shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-delete L.Icon.Default.prototype._getIconUrl;
+delete L.Icon.Default.prototype['_getIconUrl'];
 
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 

@@ -4,17 +4,13 @@ namespace App\Model;
 
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Tightenco\Collect\Support\Arr;
 
 /**
  * Class Stop
  *
  * @package App\Model
  */
-class Stop implements Referable, Fillable, NormalizableInterface
+class Stop implements Referable, Fillable
 {
     use FillTrait, ReferableTrait;
 
@@ -137,10 +133,5 @@ class Stop implements Referable, Fillable, NormalizableInterface
     public function setOnDemand(bool $onDemand): void
     {
         $this->onDemand = $onDemand;
-    }
-
-    public function normalize(NormalizerInterface $normalizer, $format = null, array $context = [])
-    {
-        return Arr::except($normalizer->normalize($this), ['latitude', 'longitude']);
     }
 }

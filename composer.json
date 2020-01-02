@@ -19,6 +19,7 @@
         "symfony/framework-bundle": "^4.4",
         "symfony/monolog-bundle": "^3.3",
         "symfony/orm-pack": "^1.0",
+        "symfony/profiler-pack": "^1.0",
         "symfony/twig-bundle": "^4.4",
         "symfony/yaml": "^4.4",
         "tightenco/collect": "^5.6"

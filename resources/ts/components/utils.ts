@@ -102,7 +102,7 @@ export class FoldComponent extends Vue {
     @Watch('visible')
     private resize() {
         const inner = this.$refs['inner'] as HTMLDivElement;
-        this.$el.style.height = `${(this.visible && inner) ? inner.clientHeight : 0}px`;
+        (this.$el as HTMLElement).style.height = `${(this.visible && inner) ? inner.clientHeight : 0}px`;
     }
 }
 

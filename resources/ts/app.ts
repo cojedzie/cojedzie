@@ -23,7 +23,7 @@ Vue.use(Vuex);
         import('./font-awesome'),
         import('./filters'),
         import('bootstrap'),
-    ]);
+    ] as const);
 
     // here goes "public" API
     window['czydojade'] = Object.assign({

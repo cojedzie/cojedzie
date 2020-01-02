@@ -24,7 +24,7 @@
     "sass-loader": "^7.1.0",
     "style-loader": "^0.22.1",
     "ts-loader": "^4.5.0",
-    "typescript": "^3.0.1",
+    "typescript": "^3.6",
     "vue": "^2.5.17",
     "vue-class-component": "^6.2.0",
     "vue-property-decorator": "^7.0.0",
