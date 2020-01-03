@@ -29,7 +29,7 @@ class StopInTrack implements Fillable
     /**
      * Order in track
      * @var int
-     *
+     * @ORM\Id
      * @ORM\Column(name="sequence", type="integer")
      */
     private $order;
