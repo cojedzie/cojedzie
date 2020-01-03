@@ -21,7 +21,10 @@ trait FillTrait
         }
     }
 
-    public static function createFromArray(array $vars = [], ...$args)
+    /**
+     * @return static
+     */
+    public static function createFromArray(array $vars = [], ...$args): self
     {
         $reflection  = new \ReflectionClass(static::class);
         $constructor = $reflection->getConstructor();

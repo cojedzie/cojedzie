@@ -10,15 +10,20 @@ use App\Entity\StopInTrack;
 use App\Entity\TrackEntity;
 use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
+use App\Event\DataUpdateEvent;
 use App\Model\Line as LineModel;
 use App\Service\DataUpdater;
 use App\Service\IdUtils;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
-use function Kadet\Functional\partial;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Tightenco\Collect\Support\Collection;
+use function Kadet\Functional\ref;
 
 class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 {
@@ -55,7 +60,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         $this->provider = $provider;
     }
 
-    public function update()
+    public function update(DataUpdateEvent $event)
     {
         $provider = ProviderEntity::createFromArray([
             'name'  => $this->provider->getName(),
@@ -65,20 +70,23 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 
         $this->em->persist($provider);
 
-        $save = [$this->em, 'persist'];
+        $save = ref([$this->em, 'persist']);
 
-        $this->getOperators($provider)->each($save);
-        $this->getStops($provider)->each($save);
-        $this->getTracks($provider)->each($save);
-        $this->getLines($provider)->each($save)->each(partial([$this, 'getSchedule'], $provider, $save));
+        $this->getOperators($provider, $event)->each($save);
+        $this->getStops($provider, $event)->each($save);
+        $this->getTracks($provider, $event)->each($save);
+
+        $lines = $this->getLines($provider, $event)->each($save);
+        $this->updateSchedule($provider, $lines, $event);
     }
 
-    private function getOperators(ProviderEntity $provider)
+    private function getOperators(ProviderEntity $provider, DataUpdateEvent $event)
     {
-        $this->logger->info('Obtaining operators from ZTM Gdańsk');
-
+        $output = $event->getOutput();
+        $output->write('Obtaining operators from ZTM Gdańsk...');
         $operators = file_get_contents(self::OPERATORS_URL);
         $operators = json_decode($operators, true)['agency'];
+        $output->writeln(sprintf('done (%d)', count($operators)));
 
         $this->logger->info(sprintf('Saving %s operators from ZTM Gdańsk', count($operators)));
 
@@ -91,12 +99,13 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         });
     }
 
-    private function getLines(ProviderEntity $provider)
+    private function getLines(ProviderEntity $provider, DataUpdateEvent $event)
     {
-        $this->logger->info('Obtaining lines from ZTM Gdańsk');
-
+        $output = $event->getOutput();
+        $output->write('Obtaining lines from ZTM Gdańsk... ');
         $lines = file_get_contents(self::LINES_URL);
         $lines = json_decode($lines, true)[date('Y-m-d')]['routes'];
+        $output->writeln(sprintf('done (%d)', count($lines)));
 
         $this->logger->info(sprintf('Saving %s lines from ZTM Gdańsk', count($lines)));
 
@@ -124,15 +133,16 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         });
     }
 
-    private function getStops(ProviderEntity $provider)
+    private function getStops(ProviderEntity $provider, DataUpdateEvent $event)
     {
-        $this->logger->info('Obtaining stops from ZTM Gdańsk');
+        $output = $event->getOutput();
 
+        $output->write('Obtaining stops from ZTM Gdańsk... ');
         $stops = file_get_contents(self::STOPS_URL);
         $stops = json_decode($stops, true)[date('Y-m-d')]['stops'];
+        $output->writeln(sprintf('done (%d)', count($stops)));
 
-        $this->logger->info(sprintf('Saving %d stops from ZTM Gdańsk', count($stops)));
-
+        $this->logger->debug(sprintf("Saving %d stops tracks from ZTM Gdańsk.", count($stops)));
         return collect($stops)->map(function ($stop) use ($provider) {
             return StopEntity::createFromArray([
                 'id'        => $this->ids->generate($provider, $stop['stopId']),
@@ -146,25 +156,27 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         });
     }
 
-    public function getTracks(ProviderEntity $provider)
+    public function getTracks(ProviderEntity $provider, DataUpdateEvent $event)
     {
-        ini_set('memory_limit','2G');
+        ini_set('memory_limit', '2G');
 
-        $this->logger->info('Obtaining tracks from ZTM Gdańsk');
+        $output = $event->getOutput();
 
+        $output->write('Obtaining tracks from ZTM Gdańsk... ');
         $tracks = file_get_contents(self::TRACKS_URL);
         $tracks = json_decode($tracks, true)[date('Y-m-d')]['trips'];
+        $output->writeln(sprintf('done (%d)', count($tracks)));
+        $this->logger->debug(sprintf("Got %d tracks from ZTM Gdańsk.", count($tracks)));
 
-        $this->logger->info('Obtaining stops associations from ZTM Gdańsk');
-
+        $output->write('Obtaining stops associations... ');
         $stops = file_get_contents(self::STOPS_IN_TRACKS_URL);
         $stops = json_decode($stops, true)[date('Y-m-d')]['stopsInTrip'];
+        $output->writeln(sprintf('done (%d)', count($stops)));
+        $this->logger->debug(sprintf("Got %d stops in all tracks from ZTM Gdańsk.", count($stops)));
 
         $stops = collect($stops)->groupBy(function ($stop) {
             return sprintf("R%sT%s", $stop['routeId'], $stop['tripId']);
         });
-
-        $this->logger->info(sprintf('Saving %d tracks from ZTM Gdańsk', count($stops)));
 
         return collect($tracks)->map(function ($track) use ($provider, $stops) {
             $entity = TrackEntity::createFromArray([
@@ -194,10 +206,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         });
     }
 
-    public function getSchedule(ProviderEntity $provider, callable $save, LineEntity $line)
+    public function saveScheduleForLine(ProviderEntity $provider, LineEntity $line)
     {
-        $this->logger->info(sprintf('Obtaining schedule for line %s from ZTM Gdańsk', $line->getId()));
-
         $url = sprintf("%s?%s", self::SCHEDULE_URL, http_build_query([
             'date'    => date('Y-m-d'),
             'routeId' => $this->ids->of($line),
@@ -253,7 +263,9 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
             $entity->setStops($stops);
 
             return $entity;
-        })->each($save);
+        })->each(ref([$this->em, 'persist']));
+
+        $this->logger->debug(sprintf('Got schedule for line %s from ZTM Gdańsk', $line->getId()));
 
         $this->em->flush();
         $this->em->clear();
@@ -264,5 +276,25 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         return [
             DataUpdater::UPDATE_EVENT => 'update',
         ];
+    }
+
+    private function updateSchedule(ProviderEntity $provider, Collection $lines, DataUpdateEvent $event)
+    {
+        $event->getOutput()->writeln(sprintf("Obtaining schedule for %d lines...", count($lines)));
+        $progress = new ProgressBar($event->getOutput(), $lines->count());
+        $progress->setFormat('%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%, line %line%');
+        $progress->start();
+        /** @var LineEntity $line */
+        foreach ($lines as $line) {
+            $progress->setMessage($line->getSymbol(), 'line');
+            $progress->display();
+
+            $this->saveScheduleForLine($provider, $line);
+            $progress->advance();
+        }
+
+        $progress->finish();
+        $progress->
+        $event->getOutput()->writeln("done");
     }
 }

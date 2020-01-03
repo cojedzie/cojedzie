@@ -5,8 +5,8 @@ namespace App\Service;
 use App\Event\DataUpdateEvent;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\ORM\EntityManagerInterface;
-use function Sodium\add;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DataUpdater
 {
@@ -29,7 +29,7 @@ class DataUpdater
         $this->em = $em;
     }
 
-    public function update()
+    public function update(OutputInterface $output = null)
     {
         $connection = $this->em->getConnection();
         $connection->getConfiguration()->setSQLLogger(null);
@@ -45,7 +45,7 @@ class DataUpdater
                 return $schema->getName() === 'migration_versions';
             })->each([$schema, 'dropAndCreateTable']);
 
-            $this->dispatcher->dispatch(self::UPDATE_EVENT, new DataUpdateEvent());
+            $this->dispatcher->dispatch(new DataUpdateEvent($output), DataUpdateEvent::NAME);
             unlink($backup);
         } catch (\Throwable $exception) {
             $connection->close();
