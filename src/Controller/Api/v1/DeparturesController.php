@@ -51,16 +51,22 @@ class DeparturesController extends Controller
      *     in="query",
      *     @SWG\Items(type="string")
      * )
+     *
+     * @SWG\Parameter(
+     *     name="limit",
+     *     description="Max departures count",
+     *     type="integer",
+     *     in="query"
+     * )
      */
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {
-        $stops = collect($request->query->get('stop'))
-            ->map([ $stops, 'getById' ])
+        $stops = $stops->getManyById($request->query->get('stop'))
             ->flatMap([ $departures, 'getForStop' ])
             ->sortBy(function (Departure $departure) {
                 return $departure->getEstimated();
             });
 
-        return $this->json($stops->values());
+        return $this->json($stops->values()->slice(0, (int)$request->query->get('limit', 8)));
     }
 }

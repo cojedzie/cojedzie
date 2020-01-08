@@ -12,6 +12,7 @@ use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
 use App\Event\DataUpdateEvent;
 use App\Model\Line as LineModel;
+use App\Model\Location;
 use App\Service\DataUpdater;
 use App\Service\IdUtils;
 use Carbon\Carbon;
@@ -148,7 +149,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                 'id'        => $this->ids->generate($provider, $stop['stopId']),
                 'name'      => trim($stop['stopName'] ?? $stop['stopDesc']),
                 'variant'   => trim($stop['zoneName'] == 'Gdańsk' ? $stop['stopCode'] : null),
-                'latitude'  => $stop['stopLat'],
+                'latitude'  => Location::fromArray($stop['stopLat']),
                 'longitude' => $stop['stopLon'],
                 'onDemand'  => (bool)$stop['onDemand'],
                 'provider'  => $provider,
@@ -196,7 +197,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                         $this->ids->generate($provider, $stop['stopId'])
                     ),
                     'track' => $entity,
-                    'order' => $stop['stopSequence'] + (int)($stop['stopId'] > 30000), // HACK! Gdynia has 0 based sequence
+                    // HACK! Gdynia has 0 based sequence
+                    'order' => $stop['stopSequence'] + (int)($stop['stopId'] > 30000),
                 ]);
             });
 

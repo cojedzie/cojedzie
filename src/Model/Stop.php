@@ -16,6 +16,7 @@ class Stop implements Referable, Fillable
 
     /**
      * Stop name
+     *
      * @var string
      * @SWG\Property(example="Jasień PKM")
      * @Serializer\Type("string")
@@ -24,6 +25,7 @@ class Stop implements Referable, Fillable
 
     /**
      * Optional stop description, should not be longer than 255 chars.
+     *
      * @var string|null
      * @Serializer\Type("string")
      */
@@ -31,6 +33,7 @@ class Stop implements Referable, Fillable
 
     /**
      * Optional stop variant - for example number of shed.
+     *
      * @var string|null
      * @SWG\Property(example="01")
      * @Serializer\Type("string")
@@ -38,21 +41,16 @@ class Stop implements Referable, Fillable
     private $variant;
 
     /**
-     * Latitude of stop
-     * @var float|null
-     * @Serializer\Exclude()
+     * Optional stop location in form of latitude and longitude
+     *
+     * @var ?Location
+     * @Serializer\Type(Location::class)
      */
-    private $latitude;
-
-    /**
-     * Longitude of stop
-     * @var float|null
-     * @Serializer\Exclude()
-     */
-    private $longitude;
+    private $location;
 
     /**
      * True if stop is available only on demand
+     *
      * @var bool
      * @Serializer\Type("bool")
      * @SWG\Property(example=false)
@@ -89,42 +87,6 @@ class Stop implements Referable, Fillable
         $this->variant = $variant;
     }
 
-    public function getLatitude(): ?float
-    {
-        return $this->latitude;
-    }
-
-    public function setLatitude(?float $latitude): void
-    {
-        $this->latitude = $latitude;
-    }
-
-    public function getLongitude(): ?float
-    {
-        return $this->longitude;
-    }
-
-    public function setLongitude(?float $longitude): void
-    {
-        $this->longitude = $longitude;
-    }
-
-    /**
-     * @return string[]
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("array<string>")
-     * @SWG\Property(type="array", @SWG\Items(type="string", example="1"))
-     */
-    public function getLocation(): array
-    {
-        return [ $this->latitude, $this->longitude ];
-    }
-
-    public function setLocation(array $location)
-    {
-        [$this->latitude, $this->longitude] = $location;
-    }
-
     public function isOnDemand(): bool
     {
         return $this->onDemand;
@@ -133,5 +95,15 @@ class Stop implements Referable, Fillable
     public function setOnDemand(bool $onDemand): void
     {
         $this->onDemand = $onDemand;
+    }
+
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?Location $location): void
+    {
+        $this->location = $location;
     }
 }

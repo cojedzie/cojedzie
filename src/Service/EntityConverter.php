@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity, TripStopEntity};
-use App\Model\{Line, Operator, ScheduleStop, Stop, Track, Trip};
+use App\Model\{Line, Location, Operator, ScheduleStop, Stop, Track, Trip};
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Proxy\Proxy;
@@ -80,10 +80,10 @@ final class EntityConverter
                     'name'        => $entity->getName(),
                     'variant'     => $entity->getVariant(),
                     'description' => $entity->getDescription(),
-                    'location'    => [
-                        $entity->getLatitude(),
+                    'location'    => new Location(
                         $entity->getLongitude(),
-                    ],
+                        $entity->getLatitude()
+                    ),
                 ]);
                 break;
 
