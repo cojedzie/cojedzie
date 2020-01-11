@@ -64,9 +64,7 @@ class DeparturesController extends Controller
         $stops = $stops
             ->getManyById($request->query->get('stop'))
             ->flatMap([ $departures, 'getForStop' ])
-            ->sortBy(function (Departure $departure) {
-                return $departure->getEstimated();
-            });
+            ;
 
         return $this->json($stops->values()->slice(0, (int)$request->query->get('limit', 8)));
     }

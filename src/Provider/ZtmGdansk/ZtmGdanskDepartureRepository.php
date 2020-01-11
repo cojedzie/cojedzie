@@ -40,6 +40,14 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
     public function getForStop(Stop $stop): Collection
     {
+        $real      = $this->getRealDepartures($stop);
+        $scheduled = $this->getScheduledDepartures($stop, $real->isNotEmpty());
+
+        return $this->pair($scheduled, $real);
+    }
+
+    private function getRealDepartures(Stop $stop)
+    {
         $estimates = json_decode(file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId()), true)['delay'];
         $estimates = collect($estimates);
 
@@ -49,7 +57,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $lines = $this->lines->getManyById($lines)->keyBy(t\property('id'));
 
         return collect($estimates)->map(function ($delay) use ($stop, $lines) {
-            $scheduled = new Carbon($delay['theoreticalTime']);
+            $scheduled = (new Carbon($delay['theoreticalTime'], 'Europe/Warsaw'))->tz('UTC');
             $estimated = (clone $scheduled)->addSeconds($delay['delayInSeconds']);
 
             return Departure::createFromArray([
@@ -64,5 +72,41 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 ]),
             ]);
         })->values();
+    }
+
+    private function getScheduledDepartures(Stop $stop, bool $hasRealData = true)
+    {
+        $now = Carbon::now();
+
+        // If we have real data we skip 5 minutes, because sometimes trams or buses get out too quickly.
+        return $this->schedule->getDeparturesForStop($stop, $hasRealData ? $now->addMinutes(5) : $now);
+    }
+
+    private function pair(Collection $schedule, Collection $real)
+    {
+        $key = function (Departure $departure) {
+            return sprintf("%s::%s", $departure->getScheduled()->format("H:i"), $departure->getLine()->getSymbol());
+        };
+
+        $schedule = $schedule->keyBy($key)->all();
+        $real     = $real->keyBy($key);
+
+        return $real->map(function (Departure $real, $key) use (&$schedule) {
+            $scheduled = null;
+
+            if (array_key_exists($key, $schedule)) {
+                $scheduled = $schedule[$key];
+                unset($schedule[$key]);
+            }
+
+            return [ $real, $scheduled ];
+        })->merge(collect($schedule)->map(function (Departure $scheduled) {
+            return [ null, $scheduled ];
+        }))->map(function ($pair) {
+            return $pair[0] ?? $pair[1];
+        })->sortBy(function (Departure $departure) {
+            $time = $departure->getEstimated() ?? $departure->getScheduled();
+            return $time->getTimestamp();
+        });
     }
 }

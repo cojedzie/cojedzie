@@ -99,7 +99,7 @@ class TripStopEntity implements Fillable
 
     public function getDeparture(): Carbon
     {
-        return Carbon::instance($this->departure);
+        return Carbon::instance($this->departure)->tz('UTC');
     }
 
     public function setDeparture(Carbon $departure): void
