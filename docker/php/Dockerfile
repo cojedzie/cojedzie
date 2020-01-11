@@ -7,6 +7,8 @@ RUN docker-php-ext-install zip
 
 RUN pecl install xdebug-2.9.0 && docker-php-ext-enable xdebug
 
+RUN echo "xdebug.remote_enable = 1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini;
+
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
@@ -16,3 +18,5 @@ RUN chmod +x /usr/local/bin/composer
 RUN ln -snf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
 
 WORKDIR /var/www
+
+EXPOSE 9001

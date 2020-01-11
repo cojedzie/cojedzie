@@ -8,6 +8,7 @@ use App\Model\Trip;
 use App\Service\IdUtils;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
 
 /**
  * @ORM\Entity
@@ -26,7 +27,7 @@ class TripStopEntity implements Fillable
 
     /**
      * @var TripEntity
-     * @ORM\ManyToOne(targetEntity=TripEntity::class, fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity=TripEntity::class, fetch="EAGER", inversedBy="stops")
      * @ORM\Id
      */
     private $trip;
@@ -98,7 +99,7 @@ class TripStopEntity implements Fillable
 
     public function getDeparture(): Carbon
     {
-        return $this->departure;
+        return Carbon::instance($this->departure);
     }
 
     public function setDeparture(Carbon $departure): void

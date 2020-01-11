@@ -45,7 +45,7 @@ export const departures: Module<DeparturesState, RootState> = {
             const departures = await response.json() as Jsonified<Departure>[];
             commit('update', departures.map(departure => {
                 departure.scheduled = moment.parseZone(departure.scheduled);
-                departure.estimated = moment.parseZone(departure.estimated);
+                departure.estimated = departure.estimated && moment.parseZone(departure.estimated);
 
                 return departure as Departure;
             }));

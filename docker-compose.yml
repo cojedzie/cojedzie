@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 services:
   nginx:
@@ -11,6 +11,9 @@ services:
 
   php:
     build: docker/php
+    mem_limit: 2g
+    env_file:
+      - ./docker/php/.env
     volumes:
       - ./:/var/www:cached
       - ./docker/php/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf

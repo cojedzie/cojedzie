@@ -35,7 +35,7 @@ class DataUpdater
         $connection->getConfiguration()->setSQLLogger(null);
         $schema     = $connection->getSchemaManager();
 
-        $path   = $connection->getParams()['path'];
+        $path   = preg_replace("~sqlite:///~si", '', $connection->getParams()['path']);
         $backup = "$path.backup";
 
         copy($path, $backup);

@@ -5,7 +5,7 @@ import { Moment } from "moment";
 export interface Departure {
     display:   string;
     estimated: Moment;
-    scheduled: Moment;
+    scheduled?: Moment;
     stop:      Stop;
     line:      Line;
     delay:     number;

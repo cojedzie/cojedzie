@@ -5,8 +5,8 @@ doctrine:
     dbal:
         driver: 'pdo_sqlite'
         url: '%env(resolve:DATABASE_URL)%'
-        logging: false
-        profiling: false
+        logging: true
+        profiling: true
 
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'

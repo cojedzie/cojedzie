@@ -12,6 +12,7 @@ use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Provider\Provider;
+use App\Provider\ScheduleRepository;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
@@ -67,7 +68,7 @@ class ZtmGdanskProvider implements Provider
         $schedule = $schedule->withProvider($provider);
 
         $this->lines      = $lines;
-        $this->departures = new ZtmGdanskDepartureRepository($lines, $referenceFactory);
+        $this->departures = new ZtmGdanskDepartureRepository($lines, $schedule, $referenceFactory);
         $this->stops      = $stops;
         $this->messages   = $messages;
         $this->tracks     = $tracks;

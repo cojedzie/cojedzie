@@ -9,6 +9,7 @@ use App\Model\Vehicle;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
+use App\Provider\ScheduleRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Tightenco\Collect\Support\Collection;
@@ -24,13 +25,17 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     /** @var ReferenceFactory */
     private $reference;
 
+    /** @var ScheduleRepository */
+    private $schedule;
+
     /**
      * @param LineRepository $lines
      */
-    public function __construct(LineRepository $lines, ReferenceFactory $reference)
+    public function __construct(LineRepository $lines, ScheduleRepository $schedule, ReferenceFactory $reference)
     {
         $this->lines = $lines;
         $this->reference = $reference;
+        $this->schedule = $schedule;
     }
 
     public function getForStop(Stop $stop): Collection

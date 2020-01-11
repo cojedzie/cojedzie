@@ -38,15 +38,14 @@ class TrackEntity implements Entity, Fillable
      *
      * @var LineEntity
      *
-     * @ORM\ManyToOne(targetEntity=LineEntity::class, fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity=LineEntity::class, fetch="EAGER", inversedBy="tracks")
      */
     private $line;
 
     /**
      * Stops in track
      * @var Collection
-     * @ORM\OneToMany(targetEntity=StopInTrack::class, fetch="EXTRA_LAZY", mappedBy="track", cascade={"persist"})
-     * @ORM\OrderBy({"order": "ASC"})
+     * @ORM\OneToMany(targetEntity=StopInTrack::class, fetch="LAZY", mappedBy="track", cascade={"persist"})
      */
     private $stopsInTrack;
 
