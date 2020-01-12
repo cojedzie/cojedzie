@@ -8,6 +8,7 @@ RUN docker-php-ext-install zip
 RUN pecl install xdebug-2.9.0 && docker-php-ext-enable xdebug
 
 RUN echo "xdebug.remote_enable = 1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini;
+RUN echo "date.timezone = Europe/Warsaw" >> /usr/local/etc/php/conf.d/datetime.ini;
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 RUN php composer-setup.php
