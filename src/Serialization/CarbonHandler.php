@@ -73,7 +73,7 @@ final class CarbonHandler implements SubscribingHandlerInterface
         array $type,
         SerializationContext $context
     ) {
-        return $this->dateTimeHandler->serializeDateTime($visitor, $date, $type, $context);
+        return $this->dateTimeHandler->serializeDateTime($visitor, $date->tz('Europe/Warsaw'), $type, $context);
     }
 
     /**

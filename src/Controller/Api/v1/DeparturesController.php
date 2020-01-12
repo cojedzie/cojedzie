@@ -54,7 +54,7 @@ class DeparturesController extends Controller
      *
      * @SWG\Parameter(
      *     name="limit",
-     *     description="Max departures count",
+     *     description="Max departures count.",
      *     type="integer",
      *     in="query"
      * )

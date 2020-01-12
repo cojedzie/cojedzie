@@ -21,7 +21,7 @@ class StopInTrack implements Fillable
     private $stop;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TrackEntity::class, fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity=TrackEntity::class, fetch="EAGER", inversedBy="stopsInTrack")
      * @ORM\Id
      */
     private $track;

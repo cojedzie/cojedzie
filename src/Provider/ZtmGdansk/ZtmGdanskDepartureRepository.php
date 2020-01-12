@@ -12,6 +12,7 @@ use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
+use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional\Transforms as t;
 
@@ -41,7 +42,9 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     public function getForStop(Stop $stop): Collection
     {
         $real      = $this->getRealDepartures($stop);
-        $scheduled = $this->getScheduledDepartures($stop, $real->isNotEmpty());
+        $now       = Carbon::now();
+        $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
+        $scheduled = $this->getScheduledDepartures($stop, $first < $now ? $now : $first);
 
         return $this->pair($scheduled, $real);
     }
@@ -74,12 +77,9 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         })->values();
     }
 
-    private function getScheduledDepartures(Stop $stop, bool $hasRealData = true)
+    private function getScheduledDepartures(Stop $stop, Carbon $time)
     {
-        $now = Carbon::now();
-
-        // If we have real data we skip 5 minutes, because sometimes trams or buses get out too quickly.
-        return $this->schedule->getDeparturesForStop($stop, $hasRealData ? $now->addMinutes(5) : $now);
+        return $this->schedule->getDeparturesForStop($stop, $time);
     }
 
     private function pair(Collection $schedule, Collection $real)

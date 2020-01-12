@@ -65,6 +65,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 
     public function update(DataUpdateEvent $event)
     {
+        ini_set('memory_limit', '2G');
+
         $output = $event->getOutput();
 
         $provider = ProviderEntity::createFromArray([
@@ -172,8 +174,6 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 
     public function getTracks(ProviderEntity $provider, DataUpdateEvent $event, $stops = [])
     {
-        ini_set('memory_limit', '2G');
-
         $output = $event->getOutput();
 
         $output->write('Obtaining tracks from ZTM Gdańsk... ');
@@ -231,8 +231,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         $schedule = JsonObjects::from($url, 'stopTimes.*');
         $trips = new Collection();
 
-        $schedule->each(function ($stop) use ($provider, &$trips) {
-            $id     = sprintf('%s-%d', $stop['busServiceName'], $stop['order']);
+        $schedule->each(function ($stop) use ($provider, $line, &$trips, &$ids) {
+            $id     = sprintf('%s-%s-%d', $stop['busServiceName'], $stop['tripId'], $stop['order']);
             $trip   = $trips[$id] ?? $trips[$id] = (function () use ($stop, $id, $provider) {
                 $trip = TripEntity::createFromArray([
                     'id'       => $this->ids->generate($provider, $id),
@@ -252,7 +252,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
             })();
 
             $base = Carbon::create(1899, 12, 30, 00, 00, 00);
-            $date = Carbon::createFromFormat('Y-m-d', $stop['date'])->setTime(00, 00, 00);
+            $date = Carbon::createFromFormat('Y-m-d', $stop['date'], 'Europe/Warsaw')->setTime(00, 00, 00);
 
             $arrival   = $base->diff(Carbon::createFromTimeString($stop['arrivalTime']));
             $departure = $base->diff(Carbon::createFromTimeString($stop['departureTime']));
@@ -267,11 +267,12 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                     $this->ids->generate($provider, $stop['stopId'])
                 ),
                 'order'     => $stop['stopSequence'],
-                'arrival'   => $arrival,
-                'departure' => $departure,
+                'arrival'   => $arrival->tz('UTC'),
+                'departure' => $departure->tz('UTC'),
             ]);
 
             $entity->setTrip($trip);
+
             $this->em->persist($entity);
         });
 

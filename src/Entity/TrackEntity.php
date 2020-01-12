@@ -46,6 +46,7 @@ class TrackEntity implements Entity, Fillable
      * Stops in track
      * @var Collection
      * @ORM\OneToMany(targetEntity=StopInTrack::class, fetch="LAZY", mappedBy="track", cascade={"persist"})
+     * @ORM\OrderBy({"order": "ASC"})
      */
     private $stopsInTrack;
 

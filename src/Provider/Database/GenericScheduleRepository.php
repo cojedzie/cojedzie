@@ -5,6 +5,7 @@ namespace App\Provider\Database;
 use App\Entity\StopEntity;
 use App\Entity\StopInTrack;
 use App\Entity\TrackEntity;
+use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
 use App\Model\Departure;
 use App\Model\Line;
@@ -26,9 +27,9 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ->createQueryBuilder()
             ->select('ts', 't')
             ->from(TripStopEntity::class, 'ts')
+            ->join('ts.trip', 't')
             ->where('ts.departure >= :from')
             ->andWhere('ts.stop = :stop')
-            ->join('ts.trip', 't')
             ->orderBy('ts.departure', 'ASC')
             ->setMaxResults($count)
             ->getQuery();
@@ -44,7 +45,6 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ->join('t.stopsInTrack', 's')
             ->join('s.stop', 'st')
             ->where('t.id in (:tracks)')
-            ->orderBy('s.order', 'DESC')
             ->getQuery()
             ->execute([
                 ':tracks' => $schedule->map(function (TripStopEntity $stop) {
