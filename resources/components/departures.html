@@ -7,15 +7,15 @@
             </div>
 
             <div class="departure__time">
-                <fa :icon="['far', 'clock']" v-if="!departure.estimated" title="Czas rozkładowy, nie uwzględniający aktualnej sytuacji komunikacyjnej."/>
-                <span :class="[ 'departure__scheduled', departure.estimated && departure.scheduled.format('HH:mm') !== departure.estimated.format('HH:mm') && 'departure__scheduled--delayed']">
-                    {{ departure.scheduled.format('HH:mm') }}
-                </span>
+                <fa :icon="['far', 'clock']" v-if="!departure.estimated" title="Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej."/>
+                <span class="departure__estimated" v-if="departure.estimated && departure.scheduled.format('HH:mm') !== departure.estimated.format('HH:mm')">{{ departure.estimated.format('HH:mm') }}</span>
                 <span class="badge" :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
                       v-if="departure.delay < 0 || departure.delay > 30">
                     {{ departure.delay|signed }}s
                 </span>
-                <span class="departure__estimated" v-if="departure.estimated && departure.scheduled.format('HH:mm') !== departure.estimated.format('HH:mm')">{{ departure.estimated.format('HH:mm') }}</span>
+                <span :class="[ 'departure__scheduled', departure.estimated && departure.scheduled.format('HH:mm') !== departure.estimated.format('HH:mm') && 'departure__scheduled--delayed']">
+                    {{ departure.scheduled.format('HH:mm') }}
+                </span>
             </div>
 
             <div class="departure__stop">
