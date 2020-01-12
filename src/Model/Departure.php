@@ -108,6 +108,11 @@ class Departure implements Fillable
         $this->scheduled = $scheduled;
     }
 
+    public function getDeparture(): Carbon
+    {
+        return $this->estimated ?? $this->scheduled;
+    }
+
     public function getStop(): Stop
     {
         return $this->stop;

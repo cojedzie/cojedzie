@@ -11,6 +11,8 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use function Kadet\Functional\ref;
+use function Kadet\Functional\Transforms\property;
 
 /**
  * Class DeparturesController
@@ -63,8 +65,8 @@ class DeparturesController extends Controller
     {
         $stops = $stops
             ->getManyById($request->query->get('stop'))
-            ->flatMap([ $departures, 'getForStop' ])
-            ;
+            ->flatMap(ref([ $departures, 'getForStop' ]))
+            ->sortBy(property('departure'));
 
         return $this->json($stops->values()->slice(0, (int)$request->query->get('limit', 8)));
     }
