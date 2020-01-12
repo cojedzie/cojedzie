@@ -11,7 +11,7 @@ class VersionExtension extends AbstractExtension
     {
         return [
             new TwigFunction('version', function () {
-                return substr(`git rev-parse HEAD`, 0, 8) ?: '1.0-dev';
+                return substr(`git rev-parse HEAD`, 0, 8) ?: '0.2-dev';
             })
         ];
     }
