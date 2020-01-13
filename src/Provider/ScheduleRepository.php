@@ -3,6 +3,7 @@
 namespace App\Provider;
 
 use App\Model\Stop;
+use Carbon\Carbon;
 use Tightenco\Collect\Support\Collection;
 
 interface ScheduleRepository
@@ -11,7 +12,7 @@ interface ScheduleRepository
 
     public function getDeparturesForStop(
         Stop $stop,
-        \DateTime $from,
+        Carbon $from,
         int $count = ScheduleRepository::DEFAULT_DEPARTURES_COUNT
     ): Collection;
 }

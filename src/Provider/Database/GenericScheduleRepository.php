@@ -20,7 +20,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
 {
     public function getDeparturesForStop(
         Stop $stop,
-        \DateTime $from,
+        Carbon $from,
         int $count = ScheduleRepository::DEFAULT_DEPARTURES_COUNT
     ): Collection {
         $query = $this->em

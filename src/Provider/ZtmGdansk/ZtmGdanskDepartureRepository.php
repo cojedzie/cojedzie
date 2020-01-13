@@ -42,7 +42,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     public function getForStop(Stop $stop): Collection
     {
         $real      = $this->getRealDepartures($stop);
-        $now       = Carbon::now();
+        $now       = Carbon::now('UTC');
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
         $scheduled = $this->getScheduledDepartures($stop, $first < $now ? $now : $first);
 
@@ -60,7 +60,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $lines = $this->lines->getManyById($lines)->keyBy(t\property('id'));
 
         return collect($estimates)->map(function ($delay) use ($stop, $lines) {
-            $scheduled = (new Carbon($delay['theoreticalTime'], 'Europe/Warsaw'));
+            $scheduled = (new Carbon($delay['theoreticalTime'], 'Europe/Warsaw'))->tz('UTC');
             $estimated = (clone $scheduled)->addSeconds($delay['delayInSeconds']);
 
             return Departure::createFromArray([
@@ -85,7 +85,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     private function pair(Collection $schedule, Collection $real)
     {
         $key = function (Departure $departure) {
-            return sprintf("%s::%s", $departure->getScheduled()->format("H:i"), $departure->getLine()->getSymbol());
+            return sprintf("%s::%s", $departure->getLine()->getSymbol(), $departure->getScheduled()->format("H:i"));
         };
 
         $schedule = $schedule->keyBy($key)->all();
