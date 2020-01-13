@@ -13,6 +13,7 @@ window['Popper'] = Popper;
 // dependencies
 import Vue from "vue";
 import Vuex, { mapActions, mapMutations, mapState, Store } from 'vuex';
+import { Workbox } from "workbox-window";
 
 Vue.use(Vuex);
 
@@ -38,8 +39,18 @@ Vue.use(Vuex);
     store.dispatch('load', window['czydojade'].state);
 
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/service-worker.js');
+        const wb = new Workbox("/service-worker.js");
+
+        wb.addEventListener('waiting', event => {
+            if (window.confirm("Dostępna jest nowa wersja, przeładować?")) {
+                wb.addEventListener('controlling', event => {
+                    window.location.reload();
+                });
+
+                wb.messageSW({type: 'SKIP_WAITING'});
+            }
         });
+
+        wb.register();
     }
 })();

@@ -268,6 +268,11 @@
     "@types/webpack-sources" "*"
     source-map "^0.6.0"
 
+"@types/workbox-window@^4.3.3":
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/@types/workbox-window/-/workbox-window-4.3.3.tgz#47f91df7ce7eea5c151a6beb3e8398c7db8ee538"
+  integrity sha512-iIq2obSq3gvzhwFxg+/02v4VqfHjRg9hpEjoM68TKYcmCAe9QGlFsJ5qPZkJKUuZDVW7cUoR3iiA2jIALFU6Ag==
+
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
