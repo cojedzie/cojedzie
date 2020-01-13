@@ -16,7 +16,7 @@ class ZtmGdanskMessageTypeClassifier
                 return false; // spam
 
             default:
-                return Message::TYPE_UNKNOWN;
+                return Message::TYPE_INFO;
         }
     }
 }
