@@ -1,15 +1,34 @@
 import Vuex from 'vuex';
 
-import messages from './messages';
-import departures from './departures'
-import favourites, { localStorageSaver } from './favourites'
+import messages, { MessagesState } from './messages';
+import departures, { DeparturesState } from './departures'
+import favourites, { FavouritesState, localStorageSaver } from './favourites'
 
-import { state, mutations, actions } from "./root";
+import { state, mutations, actions, RootState } from "./root";
+import VuexPersistence from "vuex-persist";
+
+export type State = {
+    messages: MessagesState;
+    departures: DeparturesState;
+    favourites: FavouritesState;
+} & RootState;
+
+const localStoragePersist = new VuexPersistence<State>({
+    reducer: state => ({ favourites: state.favourites })
+});
+
+const sessionStoragePersist = new VuexPersistence<State>({
+    reducer: state => ({ stops: state.stops }),
+    storage: window.sessionStorage
+});
 
 export default new Vuex.Store({
     state, mutations, actions,
     modules: { messages, departures, favourites },
     plugins: [
+        // todo: remove after some time
         localStorageSaver('favourites.favourites', 'favourites'),
+        localStoragePersist.plugin,
+        sessionStoragePersist.plugin,
     ]
 })

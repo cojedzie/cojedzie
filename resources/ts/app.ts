@@ -12,7 +12,7 @@ window['Popper'] = Popper;
 
 // dependencies
 import Vue from "vue";
-import Vuex, { mapActions, mapMutations, mapState, Store } from 'vuex';
+import Vuex from 'vuex';
 import { Workbox } from "workbox-window";
 
 Vue.use(Vuex);
