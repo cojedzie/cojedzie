@@ -42,7 +42,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     public function getForStop(Stop $stop): Collection
     {
         $real      = $this->getRealDepartures($stop);
-        $now       = Carbon::now('UTC');
+        $now       = Carbon::now();
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
         $scheduled = $this->getScheduledDepartures($stop, $first < $now ? $now : $first);
 

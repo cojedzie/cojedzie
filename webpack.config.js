@@ -2,6 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const BabelMinifyPlugin = require('babel-minify-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const { GenerateSW } = require('workbox-webpack-plugin');
 
@@ -58,6 +59,7 @@ const config = {
         }]
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({ filename: '[name].css' }),
         new CopyWebpackPlugin([{ from: './resources/images/', to: '../images/', ignore: ['*.ai'] }]),
         new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
