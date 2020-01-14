@@ -1,0 +1,5 @@
+<l-map :center="stop.location" :zoom=17 :options="{ zoomControl: false, dragging: false }">
+    <l-tile-layer url="//{s}.tile.osm.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="//osm.org/copyright">OpenStreetMap</a> contributors'/>
+    <l-marker :lat-lng="stop.location"/>
+</l-map>

@@ -102,10 +102,10 @@
 
                 <ul class="picker__stops list-underlined">
                     <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
-                        <button @click="remove(stop)" class="btn btn-action">
+                        <button @click="remove(stop)" class="btn btn-action align-self-start">
                             <fa :icon="['fal', 'times']"></fa>
                         </button>
-                        <stop :stop="stop" class="flex-grow-1"></stop>
+                        <picker-stop :stop="stop" class="flex-grow-1"></picker-stop>
                     </li>
                 </ul>
             </section>

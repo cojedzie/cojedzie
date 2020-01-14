@@ -10,4 +10,5 @@ declare module "*.svg" {
 
 declare module "*.png" {}
 
+// @ts-ignore
 declare function require(path: string): any;

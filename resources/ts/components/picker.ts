@@ -6,7 +6,21 @@ import { ensureArray, FetchingState, filter, map } from "../utils";
 import { debounce } from "../decorators";
 import urls from '../urls';
 
-@Component({ template: require('../../components/finder.html') })
+@Component({ template: require('../../components/picker/stop.html') })
+export class PickerStopComponent extends Vue {
+    @Prop(Object)
+    public stop: Stop;
+
+    details: boolean = false;
+    map: boolean = false;
+}
+
+@Component({
+    template: require('../../components/finder.html'),
+    components: {
+        "PickerStop": PickerStopComponent
+    }
+})
 export class FinderComponent extends Vue {
     protected found?: StopGroups = {};
 
@@ -51,3 +65,4 @@ export class FinderComponent extends Vue {
 }
 
 Vue.component('StopFinder', FinderComponent);
+Vue.component('PickerStop', PickerStopComponent);

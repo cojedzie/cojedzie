@@ -2,9 +2,9 @@
     <ul class="list-underlined" v-if="favourites.length > 0">
         <li v-for="favourite in favourites" class="flex">
             <a href="#" @click="choose(favourite)" class="btn btn-action pl-0 flex-grow-1 text-left">
-            <span class="icon">
-                <fa :icon="['fal', 'star']"></fa>
-            </span>
+                <span class="icon">
+                    <fa :icon="['fal', 'star']"></fa>
+                </span>
                 <span class="text">{{ favourite.name }}</span>
             </a>
             <button class="btn btn-action" @click="remove(favourite)">
