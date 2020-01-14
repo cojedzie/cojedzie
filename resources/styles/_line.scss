@@ -2,6 +2,10 @@
   @extend .flex;
 }
 
+.line__display {
+  line-height: 1.2;
+}
+
 .line__symbol {
   @each $type, $color in $line-types {
     .icon {

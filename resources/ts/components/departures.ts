@@ -7,7 +7,7 @@ import store from '../store'
 const { State } = namespace('departures');
 
 @Component({ template: require("../../components/departures.html"), store })
-export class Departures extends Vue {
+export class DeparturesComponent extends Vue {
     @State
     departures: Departure[];
 
@@ -15,4 +15,21 @@ export class Departures extends Vue {
     stops: Stop[];
 }
 
-Vue.component('Departures', Departures);
+@Component({ template: require("../../components/departures/departure.html"), store })
+export class DepartureComponent extends Vue {
+    @Prop(Object)
+    departure: Departure;
+
+    get timeDiffers() {
+        const departure = this.departure;
+
+        return departure.estimated && departure.scheduled.format('HH:mm') !== departure.estimated.format('HH:mm');
+    }
+
+    get time() {
+        return this.departure.estimated || this.departure.scheduled;
+    }
+}
+
+Vue.component('Departures', DeparturesComponent);
+Vue.component('Departure', DepartureComponent);

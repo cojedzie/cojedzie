@@ -1,36 +1,29 @@
 .departure {
   @extend .flex;
   flex-wrap: wrap;
+}
 
-  .departure__line {
-    @extend .flex;
-    flex: 3 0;
+.departure__line {
+  @extend .flex;
+  flex: 3 0;
 
-    .line__symbol {
-      min-width: 6rem;
-    }
+  .line__symbol {
+    min-width: 6rem;
   }
+}
 
-  .departure__stop {
-    @extend .flex;
-    width: 100%;
+.departure__stop {
+  @extend .flex;
+  width: 100%;
+}
 
-    .stop {
-      flex: 1 1 auto;
-    }
-  }
+.departure__time {
+  width: 9rem;
+  text-align: right;
+}
 
-  .departure__time {
-    width: 9rem;
-    text-align: right;
-
-    .departure__scheduled--delayed {
-      text-decoration: line-through;
-    }
-  }
-
-
-
+.departure__time--delayed {
+  text-decoration: line-through;
 }
 
 .departures {
