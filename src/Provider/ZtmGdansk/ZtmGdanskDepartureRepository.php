@@ -42,9 +42,9 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     public function getForStop(Stop $stop): Collection
     {
         $real      = $this->getRealDepartures($stop);
-        $now       = Carbon::now();
+        $now       = Carbon::now()->second(0);
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
-        $scheduled = $this->getScheduledDepartures($stop, $first < $now ? $now : $first);
+        $scheduled = $this->getScheduledDepartures($stop, $first);
 
         return $this->pair($scheduled, $real);
     }
@@ -103,10 +103,26 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         })->merge(collect($schedule)->map(function (Departure $scheduled) {
             return [ null, $scheduled ];
         }))->map(function ($pair) {
-            return $pair[0] ?? $pair[1];
+            return $this->merge(...$pair);
         })->sortBy(function (Departure $departure) {
             $time = $departure->getEstimated() ?? $departure->getScheduled();
             return $time->getTimestamp();
         });
+    }
+
+    private function merge(?Departure $real, ?Departure $scheduled)
+    {
+        if (!$real) {
+            return $scheduled;
+        }
+
+        if (!$scheduled) {
+            return $real;
+        }
+
+        $departure = clone $real;
+        $departure->setDisplay($scheduled->getDisplay());
+
+        return $departure;
     }
 }

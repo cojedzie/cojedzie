@@ -22,7 +22,7 @@ const sessionStoragePersist = new VuexPersistence<State>({
     storage: window.sessionStorage
 });
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
     state, mutations, actions,
     modules: { messages, departures, favourites },
     plugins: [
@@ -31,4 +31,6 @@ export default new Vuex.Store({
         localStoragePersist.plugin,
         sessionStoragePersist.plugin,
     ]
-})
+});
+
+export default store;
