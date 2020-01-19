@@ -66,10 +66,6 @@ export class PopperComponent extends Vue {
         this._popper.update();
     }
 
-    get listeners() {
-        return { ...this.$listeners, focusout: this.focusOut }
-    }
-
     @Watch('visible')
     private onVisibilityUpdate() {
         this._popper.update();

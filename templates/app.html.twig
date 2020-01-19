@@ -106,7 +106,7 @@
                     </button>
                 </div>
 
-                <popper reference="save" v-if="visibility.save" arrow tabindex="-1" @leave="visibility.save = false">
+                <popper reference="save" v-if="visibility.save" arrow tabindex="-1" @leave="visibility.save = false" placement="bottom-end">
                     <favourites-adder @saved="visibility.save = false"/>
                 </popper>
             </section>

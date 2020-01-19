@@ -1,4 +1,4 @@
-<div class="popper" :class="{ 'popper--arrow': arrow }" v-on="listeners">
+<div class="popper" :class="{ 'popper--arrow': arrow }" v-on="$listeners">
     <div class="popper__arrow" ref="arrow" v-if="arrow"></div>
     <slot />
 </div>
