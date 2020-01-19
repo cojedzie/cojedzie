@@ -13,7 +13,7 @@
           if($orientation == right, $color, transparent)
 ;
 
-  #{$orientation}: -$size;
+  #{$orientation}: -($size - .5px);
   @if ($orientation == top) or ($orientation == bottom) {
     left: 50%;
     transform: translateX(-50%);
@@ -57,14 +57,15 @@
 .popper {
   $arrow-base: 8px;
   $arrow-color: white;
-  $arrow-border: black;
+  $arrow-border: rgba(black, 0.2);
 
-  $popper-padding: .6rem;
+  $popper-padding: .75rem;
 
   padding: $popper-padding;
   background: white;
-  border: 1px solid black;
+  //border: 1px solid black;
   z-index: 1000;
+  box-shadow: rgba(black, .7) 0 1px 3px;
   position: relative;
   box-sizing: content-box;
 
