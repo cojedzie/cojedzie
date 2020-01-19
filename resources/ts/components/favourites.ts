@@ -19,6 +19,7 @@ export class FavouritesComponent extends Vue {
 @Component({ template: require('../../components/favourites/save.html' )})
 export class FavouritesAdderComponent extends Vue {
     private name = "";
+    private errors = { name: [] };
 
     @Mutation add: (fav: Favourite) => void;
 
@@ -28,10 +29,28 @@ export class FavouritesAdderComponent extends Vue {
 
         const favourite: Favourite = { name, state };
 
-        this.add(favourite);
-        this.name = '';
+        if (this.validate(favourite)) {
+            this.add(favourite);
+            this.name = '';
 
-        this.$emit('saved', favourite);
+            this.$emit('saved', favourite);
+        }
+    }
+
+    private validate(favourite: Favourite) {
+        let errors = { name: [] };
+
+        if (favourite.name.length == 0) {
+            errors.name.push("Musisz podać nazwę.");
+        }
+
+        if (this.$store.state.favourites.favourites.filter(other => other.name == favourite.name).length > 0) {
+            errors.name.push("Istnieje już zapisana grupa przystanków o takiej nazwie.");
+        }
+
+        this.errors = errors;
+
+        return Object.entries(errors).map(a => a[1]).reduce((acc, cur) => [ ...acc, ...cur ]).length == 0;
     }
 }
 

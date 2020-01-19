@@ -1,11 +1,17 @@
 import Vue from 'vue';
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
+import { Portal } from "portal-vue";
 
-@Component({ template: require("../../components/popper.html") })
+@Component({
+    template: require("../../components/popper.html")
+})
 export class PopperComponent extends Vue {
     @Prop(String)
     public reference: string;
+
+    @Prop(Object)
+    public refs: string;
 
     @Prop({ type: String, default: "auto" })
     public placement: Placement;
@@ -13,23 +19,19 @@ export class PopperComponent extends Vue {
     @Prop(Boolean)
     public arrow: boolean;
 
-    @Prop({ type: Boolean, default: false })
-    public visible: boolean;
-
-    @Prop(Boolean)
-    public lazy: boolean;
-
-    public hovered: boolean = false;
-    public focused: boolean = false;
-
+    private _event;
     private _popper;
 
-    get show() {
-        return this.visible || this.hovered || this.focused;
+    focusOut(event: MouseEvent) {
+        if (this.$el.contains(event.target as Node)) {
+            return;
+        }
+
+        this.$emit('leave', event);
     }
 
     mounted() {
-        const reference = this.$parent.$refs[this.reference] as HTMLElement;
+        const reference = this.refsSource[this.reference] as HTMLElement;
 
         this._popper = new Popper(reference, this.$el, {
             placement: this.placement,
@@ -42,8 +44,6 @@ export class PopperComponent extends Vue {
                         if (window.innerWidth < 560) {
                             data.instance.options.placement = 'bottom';
                             data.styles.transform = `translate3d(0, ${data.offsets.popper.top}px, 0)`;
-                            data.styles.width = '100%';
-                            data.styles.margin = '0';
                             data.styles.right = '0';
                             data.styles.left = '0';
                             data.styles.width = 'auto';
@@ -56,11 +56,18 @@ export class PopperComponent extends Vue {
             }
         });
 
-        this.$nextTick(() => this._popper.update())
+        this.$nextTick(() => {
+            this._popper.update();
+            document.addEventListener('click', this._event = this.focusOut.bind(this), { capture: true });
+        });
     }
 
     updated() {
         this._popper.update();
+    }
+
+    get listeners() {
+        return { ...this.$listeners, focusout: this.focusOut }
     }
 
     @Watch('visible')
@@ -71,6 +78,19 @@ export class PopperComponent extends Vue {
 
     beforeDestroy() {
         this._popper.destroy();
+        this._event && document.removeEventListener('click', this._event, { capture: true });
+    }
+
+    get refsSource() {
+        if (this.refs) {
+            return this.refs;
+        }
+
+        if (this.$parent.$options.name == 'portalTarget') {
+            return this.$parent.$parent.$refs;
+        }
+
+        return this.$parent.$refs
     }
 }
 

@@ -13,9 +13,11 @@ window['Popper'] = Popper;
 // dependencies
 import Vue from "vue";
 import Vuex from 'vuex';
+import PortalVue from 'portal-vue';
 import { Workbox } from "workbox-window";
 
 Vue.use(Vuex);
+Vue.use(PortalVue);
 
 // async dependencies
 (async function () {

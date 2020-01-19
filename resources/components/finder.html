@@ -1,8 +1,8 @@
 <div class="finder">
-    <input class="form-control" v-model="filter" placeholder="Zacznij pisać nazwę aby szukać..."/>
+    <input class="form-control" :value="filter" @input="filter = $event.target.value" placeholder="Zacznij pisać nazwę aby szukać..."/>
 
     <div v-if="filter.length < 3" class="mt-2">
-        <favourites></favourites>
+        <favourites />
     </div>
 
     <div v-if="state === 'fetching'" class="text-center p-4">

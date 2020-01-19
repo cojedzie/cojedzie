@@ -114,3 +114,10 @@
     @include placement("bottom");
   }
 }
+
+@include media-breakpoint-down('sm') {
+  .popper {
+    margin-left: $spacer;
+    margin-right: $spacer;
+  }
+}

@@ -11,7 +11,7 @@
                         <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
                         Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
                     </h2>
-                    <button class="btn btn-action flex-space-left" ref="settings-messages" v-hover="visibility.messages">
+                    <button class="btn btn-action flex-space-left" ref="settings-messages" @click="visibility.messages = true">
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
@@ -21,7 +21,7 @@
                         <fa :icon="['fal', sections.messages ? 'chevron-up' : 'chevron-down']" fixed-width/>
                     </button>
 
-                    <popper reference="settings-messages" :visible="visibility.messages" arrow placement="left-start">
+                    <popper reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
                         <h3 class="popper__heading flex">
                             <fa :icon="['far', 'cog']"></fa>
                             <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
@@ -47,26 +47,27 @@
                         <span class="text">Odjazdy</span>
                     </h2>
 
-                    <button class="btn btn-action flex-space-left" ref="settings-departures" v-hover="visibility.departures">
+                    <button class="btn btn-action flex-space-left" ref="settings-departures" @click="visibility.departures = true">
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateDepartures({ stops })">
                         <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'" fixed-width></fa>
                     </button>
-
-                    <popper reference="settings-departures" :visible="visibility.departures" arrow placement="left-start">
-                        <h3 class="popper__heading flex">
-                            <fa :icon="['far', 'sync']" fixed-width></fa>
-                            <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
-                            <input type="checkbox" class="flex-space-left" id="messages-auto-refresh" v-model="autorefresh.departures.active"/>
-                        </h3>
-                        <div class="flex" v-show="autorefresh.messages.active">
-                            <span class="text">co</span>
-                            <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
-                            <input type="text" class="form-control form-control-sm form-control-simple" id="messages-auto-refresh-interval" v-model="autorefresh.departures.interval"/>
-                            <span class="text">s</span>
-                        </div>
-                    </popper>
+                    <portal to="popups">
+                        <popper reference="settings-departures" v-if="visibility.departures" arrow placement="left-start" @leave="visibility.departures = false">
+                            <h3 class="popper__heading flex">
+                                <fa :icon="['far', 'sync']" fixed-width></fa>
+                                <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
+                                <input type="checkbox" class="flex-space-left" id="messages-auto-refresh" v-model="autorefresh.departures.active"/>
+                            </h3>
+                            <div class="flex" v-show="autorefresh.messages.active">
+                                <span class="text">co</span>
+                                <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
+                                <input type="text" class="form-control form-control-sm form-control-simple" id="messages-auto-refresh-interval" v-model="autorefresh.departures.interval"/>
+                                <span class="text">s</span>
+                            </div>
+                        </popper>
+                    </portal>
                 </header>
                 <departures :stops="stops"></departures>
                 {% if provider.attribution %}
@@ -87,17 +88,6 @@
                     <button class="btn btn-action flex-space-left" @click="clear">
                         <fa :icon="['fal', 'trash-alt']" fixed-width></fa>
                     </button>
-                    <button class="btn btn-action" @click="visibility.save = true" @focusout="visibility.save = false" ref="save">
-                        <fa :icon="['fal', 'star']" fixed-width></fa>
-                    </button>
-
-                    <popper reference="save" :visible="visibility.save" arrow>
-                        <h3 class="popper__heading flex">
-                            <fa :icon="['far', 'star']" fixed-width></fa>
-                            <span class="text">Dodaj do ulubionych</span>
-                        </h3>
-                        <favourites-adder></favourites-adder>
-                    </popper>
                 </header>
 
                 <ul class="picker__stops list-underlined">
@@ -108,6 +98,17 @@
                         <picker-stop :stop="stop" class="flex-grow-1"></picker-stop>
                     </li>
                 </ul>
+
+                <div class="d-flex mt-2">
+                    <button class="btn btn-action btn-sm flex-space-left" @click="visibility.save = true" ref="save">
+                        <fa :icon="['fal', 'star']" fixed-width></fa>
+                        zapisz jako...
+                    </button>
+                </div>
+
+                <popper reference="save" v-if="visibility.save" arrow tabindex="-1" @leave="visibility.save = false">
+                    <favourites-adder @saved="visibility.save = false"/>
+                </popper>
             </section>
             <section class="section picker">
                 <header class="section__title flex">
@@ -130,7 +131,7 @@
                         </button>
                     </template>
                 </header>
-                <div class="transition-box">
+                <div class="transition-box" style="overflow: hidden;">
                     <transition name="fade">
                         <keep-alive>
                             <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
@@ -141,6 +142,8 @@
             </section>
         </div>
     </div>
+
+    <portal-target name="popups" multiple></portal-target>
 {% endblock %}
 
 {% block javascripts %}

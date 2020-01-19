@@ -14,4 +14,6 @@
 /.idea/
 /public/*
 !/public/index.php
-!/public/manifest.json
+!/public/manifest.jso
+
+/yarn-error.log

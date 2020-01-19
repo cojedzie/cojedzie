@@ -1,6 +1,14 @@
-<div class="input-group">
-    <input class="form-control form-control-sm" placeholder="nazwa" v-model="name"/>
-    <button class="btn btn-sm btn-dark" @click="save">
-        <fa :icon="['fal', 'check']"></fa>
-    </button>
-</div>
+<form class="favourite-add-form" @submit="save">
+    <label for="favourite_add_name">Nazwa</label>
+    <div class="input-group">
+        <input class="form-control form-control-sm" placeholder="np. Z pracy"
+               :class="{ 'is-invalid': errors.name.length > 0 }" id="favourite_add_name"
+               v-model="name" v-autofocus/>
+        <button class="btn btn-sm btn-dark" type="submit">
+            <fa :icon="['fal', 'check']"></fa>
+        </button>
+        <div v-if="errors.name.length > 0" class="invalid-feedback">
+            <p v-for="error in errors.name">{{ error }}</p>
+        </div>
+    </div>
+</form>

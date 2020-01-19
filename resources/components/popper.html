@@ -1,7 +1,4 @@
-<div class="popper" :class="{ 'popper--arrow': arrow, 'd-none': !show }" @focusin="focused = true" @focusout="focused = false" v-hover="hovered">
+<div class="popper" :class="{ 'popper--arrow': arrow }" v-on="listeners">
     <div class="popper__arrow" ref="arrow" v-if="arrow"></div>
-    <lazy v-if="lazy" :activate="show">
-        <slot></slot>
-    </lazy>
-    <slot v-else></slot>
+    <slot />
 </div>

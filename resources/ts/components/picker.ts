@@ -13,6 +13,11 @@ export class PickerStopComponent extends Vue {
 
     details: boolean = false;
     map: boolean = false;
+    inMap: boolean = false;
+
+    get showMap() {
+        return this.inMap || this.map;
+    }
 }
 
 @Component({

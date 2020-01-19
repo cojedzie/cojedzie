@@ -45,6 +45,20 @@ Vue.directive('hover',  {
     }
 });
 
+Vue.directive('autofocus', {
+   inserted(el, binding) {
+       if (binding.value !== undefined) {
+           const value = binding.value;
+
+           if ((typeof value === "boolean" && !value) || (typeof value === "function" && !value(el))) {
+               return;
+           }
+       }
+
+       el.focus();
+   }
+});
+
 Vue.directive('responsive', {
     inserted(el, binding) {
         const breakpoints = typeof binding.value === 'object' ? binding.value : {

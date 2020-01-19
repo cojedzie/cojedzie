@@ -51,7 +51,13 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
     private function getRealDepartures(Stop $stop)
     {
-        $estimates = json_decode(file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId()), true)['delay'];
+        try {
+            $estimates = file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId());
+            $estimates = json_decode($estimates, true)['delay'];
+        } catch (\Error $e) {
+            return collect();
+        }
+
         $estimates = collect($estimates);
 
         $lines = $estimates->map(function ($delay) {
