@@ -69,14 +69,10 @@ services:
     ProxyManager\Configuration: '@proxy.config'
 
     # serializer configuration
-    serializer.datetime_normalizer:
-        class: Symfony\Component\Serializer\Normalizer\DateTimeNormalizer
-        arguments: [!php/const DateTime::ATOM]
-        tags: [serializer.normalizer]
+    App\Service\SerializerContextFactory:
+        arguments:
+            $factory: '@jms_serializer.metadata_factory'
 
-    App\Service\Normalizer\:
-        resource: '../src/Service/Normalizer'
-        tags: [serializer.normalizer]
 
     # other servces
     App\Service\ProviderResolver:

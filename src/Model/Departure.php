@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Serialization\SerializeAs;
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -22,10 +23,29 @@ class Departure implements Fillable
      * Information about line.
      * @var Line
      * @Serializer\Type(Line::class)
+     * @SerializeAs({"Default": "Default"})
      * @SWG\Property(ref=@Model(type=Line::class, groups={"Default"}))
      *
      */
     private $line;
+
+    /**
+     * Information about line.
+     * @var Track|null
+     * @Serializer\Type(Track::class)
+     * @SerializeAs({"Default": "Identity"})
+     * @SWG\Property(ref=@Model(type=Track::class, groups={"Identity"}))
+     */
+    private $track;
+
+    /**
+     * Information about line.
+     * @var Trip|null
+     * @Serializer\Type(Trip::class)
+     * @SerializeAs({"Default": "Identity"})
+     * @SWG\Property(ref=@Model(type=Trip::class, groups={"Identity"}))
+     */
+    private $trip;
 
     /**
      * Information about stop.
@@ -138,6 +158,26 @@ class Departure implements Fillable
     public function setStop(Stop $stop): void
     {
         $this->stop = $stop;
+    }
+
+    public function getTrack(): ?Track
+    {
+        return $this->track;
+    }
+
+    public function setTrack(?Track $track): void
+    {
+        $this->track = $track;
+    }
+
+    public function getTrip(): ?Trip
+    {
+        return $this->trip;
+    }
+
+    public function setTrip(?Trip $trip): void
+    {
+        $this->trip = $trip;
     }
 
     /**

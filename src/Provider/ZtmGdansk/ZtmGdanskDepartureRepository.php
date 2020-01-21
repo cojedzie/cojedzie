@@ -129,6 +129,8 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
         $departure = clone $real;
         $departure->setDisplay($scheduled->getDisplay());
+        $departure->setTrack($scheduled->getTrack());
+        $departure->setTrip($scheduled->getTrip());
 
         return $departure;
     }

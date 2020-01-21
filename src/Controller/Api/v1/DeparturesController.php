@@ -7,6 +7,7 @@ use App\Controller\Controller;
 use App\Model\Departure;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
+use App\Service\SerializerContextFactory;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,6 +69,11 @@ class DeparturesController extends Controller
             ->flatMap(ref([ $departures, 'getForStop' ]))
             ->sortBy(property('departure'));
 
-        return $this->json($stops->values()->slice(0, (int)$request->query->get('limit', 8)));
+        return $this->json(
+            $stops->values()->slice(0, (int)$request->query->get('limit', 8)),
+            200,
+            [],
+            $this->serializerContextFactory->create(Departure::class, ['Default'])
+        );
     }
 }
