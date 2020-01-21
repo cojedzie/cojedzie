@@ -58,6 +58,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             $last = $entity->getTrip()->getTrack()->getStopsInTrack()->last()->getStop();
 
             return Departure::createFromArray([
+                'id'        => sprintf('%s::%s', $entity->getTrip()->getId(), $entity->getDeparture()->format('H:i')),
                 'scheduled' => $entity->getDeparture(),
                 'stop'      => $stop,
                 'display'   => $last->getName(),

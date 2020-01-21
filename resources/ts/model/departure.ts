@@ -3,14 +3,15 @@ import { Line } from "./line";
 import { Moment } from "moment";
 
 export interface Departure {
-    display:   string;
+    id: string;
+    display: string;
     estimated: Moment;
     scheduled?: Moment;
-    stop:      Stop;
-    line:      Line;
-    delay:     number;
+    stop: Stop;
+    line: Line;
+    delay: number;
 
-    vehicle?:  Vehicle;
+    vehicle?: Vehicle;
 }
 
 export interface Vehicle {

@@ -126,17 +126,15 @@
                             <fa :icon="['fal', 'star']" fixed-width class="mr-1"></fa>
                             Zapisane
                         </h2>
-                        <button class="btn btn-action" @click="visibility.picker = 'search'">
+                        <button class="btn btn-action" @click="visibility.picker = 'sech'">
                             <fa :icon="['fal', 'search']" fixed-witdth></fa>
                         </button>
                     </template>
                 </header>
                 <div class="transition-box" style="overflow: hidden;">
                     <transition name="fade">
-                        <keep-alive>
-                            <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
-                            <favourites v-else-if="visibility.picker === 'favourites'"></favourites>
-                        </keep-alive>
+                        <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
+                        <favourites v-else-if="visibility.picker === 'favourites'"></favourites>
                     </transition>
                 </div>
             </section>

@@ -12,6 +12,13 @@ class Departure implements Fillable
     use FillTrait;
 
     /**
+     * Unique identifier of departure, can be meaningless.
+     * @var string
+     * @Serializer\Type("string")
+     */
+    private $key;
+
+    /**
      * Information about line.
      * @var Line
      * @Serializer\Type(Line::class)
@@ -57,6 +64,16 @@ class Departure implements Fillable
      * @SWG\Property(type="string", format="date-time")
      */
     private $scheduled;
+
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+
+    public function setKey(string $key): void
+    {
+        $this->key = $key;
+    }
 
     public function getLine(): Line
     {

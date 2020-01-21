@@ -70,6 +70,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
             $estimated = (clone $scheduled)->addSeconds($delay['delayInSeconds']);
 
             return Departure::createFromArray([
+                'id'        => sprintf('%s::%s', $delay['routeId'], $scheduled->format('H:i')),
                 'scheduled' => $scheduled,
                 'estimated' => $estimated,
                 'stop'      => $stop,
