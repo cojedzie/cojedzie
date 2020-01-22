@@ -68,6 +68,19 @@ services:
 
     ProxyManager\Configuration: '@proxy.config'
 
+    # converter
+    App\Service\AggregateConverter:
+        arguments:
+          - !tagged_iterator app.converter
+
+    App\Service\Converter: '@App\Service\AggregateConverter'
+
+    App\Service\EntityConverter:
+        tags: ['app.converter']
+
+    App\Service\ScheduledStopConverter:
+        tags: ['app.converter']
+
     # serializer configuration
     App\Service\SerializerContextFactory:
         arguments:

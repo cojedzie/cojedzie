@@ -9,6 +9,7 @@ use App\Provider\MessageRepository;
 use App\Provider\Provider;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
+use App\Provider\TripRepository;
 use Carbon\Carbon;
 
 class DummyProvider implements Provider
@@ -75,5 +76,10 @@ class DummyProvider implements Provider
     public function getLastUpdate(): ?Carbon
     {
         return null;
+    }
+
+    public function getTripRepository(): TripRepository
+    {
+        throw new NotSupportedException();
     }
 }

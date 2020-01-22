@@ -21,7 +21,7 @@ final class SerializerContextFactory
         $this->reader = $reader;
     }
 
-    public function create($subject, array $groups)
+    public function create($subject, array $groups = ['Default'])
     {
         return SerializationContext::create()->setGroups($this->groups($subject, $groups));
     }

@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use App\Serialization\SerializeAs;
+use JMS\Serializer\Annotation as Serializer;
 use Tightenco\Collect\Support\Collection;
 
 class Trip implements Referable, Fillable
@@ -10,6 +12,7 @@ class Trip implements Referable, Fillable
 
     /**
      * Line variant describing trip, for example 'a'
+     * @Serializer\Type("string")
      * @var string|null
      *
      */
@@ -18,18 +21,22 @@ class Trip implements Referable, Fillable
     /**
      * Trip description
      * @var string|null
+     * @Serializer\Type("string")
      */
     private $description;
 
     /**
      * Line reference
      * @var ?Track
+     * @Serializer\Type("App\Model\Track")
+     * @SerializeAs({"Default": "Identity"})
      */
     private $track;
 
     /**
      * Stops in track
-     * @var Collection<ScheduleStop>
+     * @Serializer\Type("Collection<App\Model\ScheduledStop>")
+     * @var Collection<ScheduledStop>
      */
     private $schedule;
 

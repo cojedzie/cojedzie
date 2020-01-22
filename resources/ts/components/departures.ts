@@ -8,17 +8,17 @@ const { State } = namespace('departures');
 
 @Component({ template: require("../../components/departures.html"), store })
 export class DeparturesComponent extends Vue {
-    @State
-    departures: Departure[];
+    @State departures: Departure[];
 
     @Prop(Array)
     stops: Stop[];
 }
 
-@Component({ template: require("../../components/departures/departure.html"), store })
+@Component({ template: require("../../components/departures/departure.html") })
 export class DepartureComponent extends Vue {
-    @Prop(Object)
-    departure: Departure;
+    @Prop(Object) departure: Departure;
+
+    showTrip: boolean = false;
 
     get timeDiffers() {
         const departure = this.departure;

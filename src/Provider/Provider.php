@@ -11,6 +11,7 @@ interface Provider
     public function getStopRepository(): StopRepository;
     public function getMessageRepository(): MessageRepository;
     public function getTrackRepository(): TrackRepository;
+    public function getTripRepository(): TripRepository;
 
     public function getName(): string;
     public function getShortName(): string;

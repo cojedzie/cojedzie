@@ -5,7 +5,7 @@ namespace App\Provider\Database;
 use App\Entity\Entity;
 use App\Entity\ProviderEntity;
 use App\Model\Referable;
-use App\Service\EntityConverter;
+use App\Service\Converter;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Kadet\Functional as f;
@@ -21,7 +21,7 @@ class DatabaseRepository
     /** @var IdUtils */
     protected $id;
 
-    /** @var EntityConverter */
+    /** @var Converter */
     protected $converter;
 
     /**
@@ -29,7 +29,7 @@ class DatabaseRepository
      *
      * @param EntityManagerInterface $em
      */
-    public function __construct(EntityManagerInterface $em, IdUtils $id, EntityConverter $converter)
+    public function __construct(EntityManagerInterface $em, IdUtils $id, Converter $converter)
     {
         $this->em        = $em;
         $this->id        = $id;

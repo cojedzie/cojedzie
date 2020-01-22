@@ -8,6 +8,7 @@ use App\Provider\Database\GenericLineRepository;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTrackRepository;
+use App\Provider\Database\GenericTripRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
@@ -15,6 +16,7 @@ use App\Provider\Provider;
 use App\Provider\ScheduleRepository;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
+use App\Provider\TripRepository;
 use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
@@ -30,6 +32,7 @@ class ZtmGdanskProvider implements Provider
 
     /** @var ProviderEntity */
     private $entity;
+    private $trips;
 
     public function getName(): string
     {
@@ -57,6 +60,7 @@ class ZtmGdanskProvider implements Provider
         GenericStopRepository $stops,
         GenericTrackRepository $tracks,
         GenericScheduleRepository $schedule,
+        GenericTripRepository $trips,
         ZtmGdanskMessageRepository $messages,
         ReferenceFactory $referenceFactory
     ) {
@@ -66,6 +70,7 @@ class ZtmGdanskProvider implements Provider
         $stops    = $stops->withProvider($provider);
         $tracks   = $tracks->withProvider($provider);
         $schedule = $schedule->withProvider($provider);
+        $trips    = $trips->withProvider($provider);
 
         $this->lines      = $lines;
         $this->departures = new ZtmGdanskDepartureRepository($lines, $schedule, $referenceFactory);
@@ -73,6 +78,7 @@ class ZtmGdanskProvider implements Provider
         $this->messages   = $messages;
         $this->tracks     = $tracks;
         $this->entity     = $provider;
+        $this->trips      = $trips;
     }
 
     public function getDepartureRepository(): DepartureRepository
@@ -98,6 +104,11 @@ class ZtmGdanskProvider implements Provider
     public function getTrackRepository(): TrackRepository
     {
         return $this->tracks;
+    }
+
+    public function getTripRepository(): TripRepository
+    {
+        return $this->trips;
     }
 
     public function getLastUpdate(): ?Carbon

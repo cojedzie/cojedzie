@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity, TripStopEntity};
-use App\Model\{Line, Location, Operator, ScheduleStop, Stop, Track, Trip};
+use App\Model\{Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Proxy\Proxy;
@@ -11,8 +11,10 @@ use Kadet\Functional as f;
 use Kadet\Functional\Transforms as t;
 use const Kadet\Functional\_;
 
-final class EntityConverter
+final class EntityConverter implements Converter, RecursiveConverter
 {
+    use RecursiveConverterTrait;
+
     private $id;
     private $reference;
 
@@ -26,9 +28,9 @@ final class EntityConverter
      * @param Entity $entity
      * @param array  $cache
      *
-     * @return Line|Track|Stop|Operator|Trip|ScheduleStop
+     * @return Line|Track|Stop|Operator|Trip|ScheduledStop
      */
-    public function convert(Entity $entity, array $cache = [])
+    public function convert($entity, array $cache = [])
     {
         if (array_key_exists($key = get_class($entity).':'.$this->getId($entity), $cache)) {
             return $cache[$key];
@@ -40,7 +42,11 @@ final class EntityConverter
 
         $result  = $this->create($entity);
         $cache   = $cache + [$key => $result];
-        $convert = f\partial([$this, 'convert'], _, $cache);
+        $convert = function ($entity) use ($cache) {
+            return $this->supports($entity)
+                ? $this->convert($entity, $cache)
+                : $this->parent->convert($entity);
+        };
 
         switch (true) {
             case $entity instanceof OperatorEntity:
@@ -95,15 +101,6 @@ final class EntityConverter
                     'track'    => $convert($entity->getTrack()),
                 ]);
                 break;
-
-            case $entity instanceof TripStopEntity:
-                $result->fill([
-                    'arrival'   => $entity->getArrival(),
-                    'departure' => $entity->getDeparture(),
-                    'stop'      => $convert($entity->getStop()),
-                    'order'     => $convert($entity->getOrder()),
-                ]);
-                break;
         }
 
         return $result;
@@ -149,9 +146,6 @@ final class EntityConverter
             case $entity instanceof TripEntity:
                 return Trip::class;
 
-            case $entity instanceof TripStopEntity:
-                return ScheduleStop::class;
-
             default:
                 return false;
         }
@@ -171,5 +165,10 @@ final class EntityConverter
         $class = $this->getModelClassForEntity($entity);
 
         return $this->reference->get($class, ['id' => $id]);
+    }
+
+    public function supports($entity)
+    {
+        return $entity instanceof Entity;
     }
 }

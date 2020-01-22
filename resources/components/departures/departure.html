@@ -1,33 +1,38 @@
-<li class="departure">
-    <div class="departure__line">
-        <line-symbol :line="departure.line"/>
-        <div class="line__display">{{ departure.display }}</div>
-    </div>
+<li>
+    <div class="departure">
+        <div class="departure__line">
+            <line-symbol :line="departure.line"/>
+            <div class="line__display">{{ departure.display }}</div>
+        </div>
 
-    <div class="departure__time">
-        <fa-layers v-if="!departure.estimated" class="mr-1" title="Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej.">
-            <fa :icon="['far', 'clock']"/>
-            <fa :icon="['fas', 'exclamation-triangle']" transform="shrink-5 down-4 right-6"/>
-        </fa-layers>
-        <span :class="[ 'departure__time', 'departure__time--delayed']" v-if="timeDiffers">
-            {{ departure.scheduled.format('HH:mm') }}
-        </span>
-        <span class="badge" :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
-              v-if="departure.delay < 0 || departure.delay > 30">
+        <div class="departure__time">
+            <fa-layers v-if="!departure.estimated" class="mr-1" title="Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej.">
+                <fa :icon="['far', 'clock']"/>
+                <fa :icon="['fas', 'exclamation-triangle']" transform="shrink-5 down-4 right-6"/>
+            </fa-layers>
+
+            <span :class="[ 'departure__time', 'departure__time--delayed']" v-if="timeDiffers">
+                {{ departure.scheduled.format('HH:mm') }}
+            </span>
+            <span class="badge" :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
+                  v-if="departure.delay < 0 || departure.delay > 30">
                     {{ departure.delay|signed }}s
-        </span>
+            </span>
 
-        <span class="departure__time">{{ time.format('HH:mm') }}</span>
-    </div>
+            <span class="departure__time">{{ time.format('HH:mm') }}</span>
+        </div>
 
-    <div class="departure__stop">
-        <fa :icon="['fal', 'sign']" fixed-width class="mr-1 flex-shrink-0"/>
-        <stop :stop="departure.stop"/>
+        <div class="departure__stop">
+            <fa :icon="['fal', 'sign']" fixed-width class="mr-1 flex-shrink-0"/>
+            <stop :stop="departure.stop"/>
 
-        <div class="stop__actions flex-space-left">
-            <button class="btn btn-action">
-                <fa :icon="['far', 'code-commit']" rotation="90" />
-            </button>
+            <div class="stop__actions flex-space-left">
+                <button class="btn btn-action" @click="showTrip = !showTrip">
+                    <fa :icon="['far', 'code-commit']" rotation="90" />
+                </button>
+            </div>
         </div>
     </div>
+    <fold :visible="showTrip">
+    </fold>
 </li>

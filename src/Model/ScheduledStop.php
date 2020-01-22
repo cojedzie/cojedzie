@@ -4,7 +4,7 @@ namespace App\Model;
 
 use Carbon\Carbon;
 
-class ScheduleStop implements Fillable
+class ScheduledStop implements Fillable
 {
     use FillTrait;
 
