@@ -56,5 +56,6 @@ export default {
         get:     `${base}/stops/{id}`,
         tracks:  `${base}/stops/{id}/tracks`
     },
+    trip: `${base}/trips/{id}`,
     prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: window['data'].provider }, params))
 }

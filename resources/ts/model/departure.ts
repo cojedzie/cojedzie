@@ -1,9 +1,10 @@
 import { Stop } from "./stop";
 import { Line } from "./line";
 import { Moment } from "moment";
+import { Identity } from "./identity";
 
 export interface Departure {
-    id: string;
+    key: string;
     display: string;
     estimated: Moment;
     scheduled?: Moment;
@@ -12,6 +13,7 @@ export interface Departure {
     delay: number;
 
     vehicle?: Vehicle;
+    trip?: Identity;
 }
 
 export interface Vehicle {

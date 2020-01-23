@@ -1,0 +1,97 @@
+@import "trigonometry";
+
+$description-rotation: 60deg;
+$description-width: 250px;
+
+$trip-stop-marker-size: .9rem;
+$trip-stop-line-width: .2rem;
+
+.trip {
+  display: flex;
+  justify-content: center;
+}
+
+.trip__stops {
+  padding-top: sin($description-rotation) * $description-width;
+  padding-right: cos($description-rotation) * $description-width;
+  padding-left: 0;
+  display: flex;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.trip-stop {
+  width: 2.5rem;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trip-stop:first-child {
+  .trip-stop__marker::before {
+    content: none;
+  }
+}
+
+.trip-stop:last-child {
+  .trip-stop__marker::after {
+    content: none;
+  }
+}
+
+.trip-stop__marker {
+  width: $trip-stop-marker-size;
+  height: $trip-stop-marker-size;
+  border: $dark $trip-stop-line-width solid;
+  border-radius: 100%;
+  background: white;
+  margin: .75rem 0;
+
+  &::before, &::after {
+    content: "";
+    display: block;
+    height: $trip-stop-line-width;
+    background: $dark;
+    width: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: -1;
+  }
+
+  &::after {
+    right: 0;
+  }
+
+  &::before {
+    left: 0;
+  }
+}
+
+@each $type, $color in $line-types {
+  .trip--#{$type} {
+    .trip-stop__marker {
+      border-color: $color;
+
+      &::before, &::after {
+        background: $color;
+      }
+    }
+  }
+}
+
+.trip-stop__description {
+  display: flex;
+  transform: rotate(-$description-rotation) translateX(.75rem);
+  transform-origin: 0 50%;
+  max-width: $description-width;
+  position: absolute;
+  left: 50%;
+  top: 0;
+
+  .stop {
+    width: max-content;
+  }
+}

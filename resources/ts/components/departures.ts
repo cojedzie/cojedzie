@@ -3,6 +3,8 @@ import { Departure, Stop } from "../model";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { namespace } from 'vuex-class';
 import store from '../store'
+import { Trip } from "../model/trip";
+import urls from "../urls";
 
 const { State } = namespace('departures');
 
@@ -19,6 +21,7 @@ export class DepartureComponent extends Vue {
     @Prop(Object) departure: Departure;
 
     showTrip: boolean = false;
+    trip: Trip = null;
 
     get timeDiffers() {
         const departure = this.departure;
@@ -28,6 +31,19 @@ export class DepartureComponent extends Vue {
 
     get time() {
         return this.departure.estimated || this.departure.scheduled;
+    }
+
+    @Watch('showTrip')
+    async downloadTrips() {
+        if (this.showTrip != true || this.trip != null) {
+            return;
+        }
+
+        const response = await fetch(urls.prepare(urls.trip, { id: this.departure.trip.id }));
+
+        if (response.ok) {
+            this.trip = await response.json();
+        }
     }
 }
 
