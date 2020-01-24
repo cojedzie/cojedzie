@@ -45,14 +45,11 @@ export const messages: Module<MessagesState, RootState> = {
             }
 
             const messages = await response.json() as Jsonified<Message>[];
-            commit('update', messages.map(m => {
-                const message = m as Message;
-
-                message.validFrom = moment(m.validFrom);
-                message.validTo   = moment(m.validTo);
-
-                return message;
-            }));
+            commit('update', messages.map(m => ({
+                ...m,
+                validFrom: moment(m.validFrom),
+                validTo:   moment(m.validTo),
+            })));
         }
     }
 };
