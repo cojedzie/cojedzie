@@ -6,6 +6,7 @@ $description-width: 250px;
 $trip-stop-marker-size: .9rem;
 $trip-stop-marker-spacing: .75rem;
 $trip-line-width: .2rem;
+$trip-visited: rgba($dark, .3);
 
 .trip {
   display: flex;
@@ -87,6 +88,25 @@ $trip-line-width: .2rem;
   }
 }
 
+.trip__stop--visited {
+  .trip__marker {
+    border-color: $trip-visited;
+    &::before, &::after {
+      background: $trip-visited;
+    }
+  }
+
+  .trip__description, .trip__departure {
+    opacity: .4;
+  }
+}
+
+.trip__stop--current .trip__marker {
+  &::before {
+    background: $trip-visited;
+  }
+}
+
 .trip__description {
   display: flex;
   transform: rotate(-$description-rotation) translateX(.75rem);
@@ -100,7 +120,6 @@ $trip-line-width: .2rem;
     width: max-content;
   }
 }
-
 
 .trip__departure {
   font-size: $small-font-size;

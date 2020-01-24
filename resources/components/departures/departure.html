@@ -34,7 +34,7 @@
         </div>
     </div>
     <fold :visible="showTrip">
-        <trip :schedule="trip.schedule" v-if="trip" :class="[ `trip--${departure.line.type}` ]"/>
+        <trip :schedule="trip.schedule" :current="departure.stop" v-if="trip" :class="[ `trip--${departure.line.type}` ]"/>
         <div v-else class="text-center">
             <fa icon="spinner-third" pulse></fa>
         </div>
