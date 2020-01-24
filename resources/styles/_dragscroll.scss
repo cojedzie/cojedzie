@@ -1,0 +1,6 @@
+.drag-scroll {
+  cursor : grab;
+  &:active {
+    cursor : grabbing;
+  }
+}

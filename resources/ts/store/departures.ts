@@ -1,6 +1,6 @@
 import { Module } from "vuex";
 import { RootState } from "./root";
-import { Departure, Stop } from "../model";
+import { Departure, Line, Stop } from "../model";
 import * as moment from 'moment'
 import common, { CommonState } from './common'
 import urls from "../urls";
@@ -43,12 +43,12 @@ export const departures: Module<DeparturesState, RootState> = {
             }
 
             const departures = await response.json() as Jsonified<Departure>[];
-            commit('update', departures.map(departure => {
-                departure.scheduled = moment.parseZone(departure.scheduled);
-                departure.estimated = departure.estimated && moment.parseZone(departure.estimated);
-
-                return departure as Departure;
-            }));
+            commit('update', departures.map((departure): Departure => ({
+                ...departure,
+                line: departure.line as Line,
+                scheduled: moment.parseZone(departure.scheduled),
+                estimated: departure.estimated && moment.parseZone(departure.estimated),
+            })));
         }
     }
 };

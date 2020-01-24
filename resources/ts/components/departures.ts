@@ -5,6 +5,8 @@ import { namespace } from 'vuex-class';
 import store from '../store'
 import { Trip } from "../model/trip";
 import urls from "../urls";
+import { Jsonified } from "../utils";
+import * as moment from "moment";
 
 const { State } = namespace('departures');
 
@@ -19,9 +21,20 @@ export class DeparturesComponent extends Vue {
 @Component({ template: require("../../components/departures/departure.html") })
 export class DepartureComponent extends Vue {
     @Prop(Object) departure: Departure;
+    scheduledTrip: Trip = null;
 
     showTrip: boolean = false;
-    trip: Trip = null;
+
+    processTrip(trip: Jsonified<Trip>): Trip {
+        return {
+            ...trip,
+            schedule: trip.schedule.map(s => ({
+                ...s,
+                arrival: moment.parseZone(s.arrival),
+                departure: moment.parseZone(s.departure),
+            }))
+        };
+    };
 
     get timeDiffers() {
         const departure = this.departure;
@@ -42,8 +55,20 @@ export class DepartureComponent extends Vue {
         const response = await fetch(urls.prepare(urls.trip, { id: this.departure.trip.id }));
 
         if (response.ok) {
-            this.trip = await response.json();
+            this.scheduledTrip = this.processTrip(await response.json());
         }
+    }
+
+    get trip() {
+        const trip = this.scheduledTrip;
+        return trip && {
+            ...trip,
+            schedule: trip.schedule.map(stop => ({
+                ...stop,
+                arrival: stop.arrival.clone().add(this.departure.delay, 'seconds'),
+                departure: stop.departure.clone().add(this.departure.delay, 'seconds'),
+            }))
+        };
     }
 }
 

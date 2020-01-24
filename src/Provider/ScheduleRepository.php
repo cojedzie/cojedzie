@@ -8,7 +8,7 @@ use Tightenco\Collect\Support\Collection;
 
 interface ScheduleRepository
 {
-    const DEFAULT_DEPARTURES_COUNT = 8;
+    const DEFAULT_DEPARTURES_COUNT = 16;
 
     public function getDeparturesForStop(
         Stop $stop,

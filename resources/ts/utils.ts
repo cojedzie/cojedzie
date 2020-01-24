@@ -1,9 +1,13 @@
-type Simplify<T, K = any> = string |
+import { Moment } from "moment";
+
+type Simplify<T> = string |
     T extends string   ? string :
     T extends number   ? number :
     T extends boolean  ? boolean :
-    T extends Array<K> ? Array<K>  :
-    T extends Object   ? Object : any;
+    T extends Moment   ? string :
+    T extends Array<infer K> ? Array<Simplify<K>>  :
+    T extends (infer K)[] ? Simplify<K>[] :
+    T extends Object ? Jsonified<T> : any;
 
 export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> }
 export type Optionalify<T> = { [K in keyof T]?: T[K] }

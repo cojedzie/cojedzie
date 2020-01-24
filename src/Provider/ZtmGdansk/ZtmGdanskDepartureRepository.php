@@ -46,7 +46,9 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
         $scheduled = $this->getScheduledDepartures($stop, $first);
 
-        return $this->pair($scheduled, $real);
+        return $this->pair($scheduled, $real)->filter(function (Departure $departure) use ($now) {
+            return $departure->getDeparture() > $now;
+        });
     }
 
     private function getRealDepartures(Stop $stop)

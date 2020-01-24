@@ -1,0 +1,13 @@
+<div class="trip">
+    <ol class="trip__stops" v-dragscroll.x>
+        <li v-for="stop in schedule" class="trip__stop">
+            <div class="trip__marker"/>
+            <div class="trip__description">
+                <stop :stop="stop.stop"/>
+            </div>
+            <div class="trip__departure">
+                {{ stop.departure.format('HH:mm') }}
+            </div>
+        </li>
+    </ol>
+</div>

@@ -14,10 +14,12 @@ window['Popper'] = Popper;
 import Vue from "vue";
 import Vuex from 'vuex';
 import PortalVue from 'portal-vue';
+import VueDragscroll from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
 
 Vue.use(Vuex);
 Vue.use(PortalVue);
+Vue.use(VueDragscroll);
 
 // async dependencies
 (async function () {

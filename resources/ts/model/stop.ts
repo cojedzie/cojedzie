@@ -2,7 +2,10 @@ export interface Stop {
     id: any;
     name: string;
     description?: string;
-    location?: [ number, number ];
+    location?: {
+        lat: number,
+        lng: number,
+    };
     onDemand?: boolean;
     variant?: string;
 }
