@@ -157,7 +157,9 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         $this->logger->debug(sprintf("Saving %d stops tracks from ZTM Gdańsk.", count($stops)));
         return collect($stops)
             ->filter(function ($stop) {
-                return $stop['nonpassenger'] !== null && $stop['nonpassenger'] !== 1;
+                return $stop['nonpassenger'] !== 1
+                    && $stop['virtual'] !== 1
+                    && $stop['depot'] !== 1;
             })
             ->map(function ($stop) use ($provider) {
                 return StopEntity::createFromArray([

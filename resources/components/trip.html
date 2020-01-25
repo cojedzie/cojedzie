@@ -1,5 +1,5 @@
 <div class="trip">
-    <ol class="trip__stops" v-dragscroll.x>
+    <ol class="trip__stops" v-dragscroll.x ref="stops">
         <li v-for="stop in stops" class="trip__stop" :class="[ stop.current && 'trip__stop--current', stop.visited && 'trip__stop--visited' ]">
             <div class="trip__marker"/>
             <div class="trip__description">

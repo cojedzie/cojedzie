@@ -76,6 +76,10 @@ $trip-visited: rgba($dark, .3);
   }
 }
 
+.trip__stop--current .trip__marker {
+  box-shadow: 0 0 .5rem $dark;
+}
+
 @each $type, $color in $line-types {
   .trip--#{$type} {
     .trip__marker {
@@ -84,6 +88,10 @@ $trip-visited: rgba($dark, .3);
       &::before, &::after {
         background: $color;
       }
+    }
+
+    .trip__stop--current .trip__marker {
+      box-shadow: 0 0 .5rem $color;
     }
   }
 }
@@ -101,7 +109,7 @@ $trip-visited: rgba($dark, .3);
   }
 }
 
-.trip__stop--current .trip__marker {
+.trip__stop--visited + .trip__stop:not(.trip__stop--visited) .trip__marker {
   &::before {
     background: $trip-visited;
   }
