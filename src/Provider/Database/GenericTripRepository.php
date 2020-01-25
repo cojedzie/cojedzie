@@ -16,6 +16,7 @@ class GenericTripRepository extends DatabaseRepository implements TripRepository
             ->createQueryBuilder()
             ->from(TripEntity::class, 't')
             ->join('t.stops', 'ts')
+            ->join('ts.stop', 's')
             ->select('t', 'ts')
             ->where('t.id = :id')
             ->getQuery()

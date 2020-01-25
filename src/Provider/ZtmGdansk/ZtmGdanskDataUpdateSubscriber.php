@@ -171,7 +171,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                     'onDemand'  => (bool)$stop['onDemand'],
                     'provider'  => $provider,
                 ]);
-            });
+            })
+        ;
     }
 
     public function getTracks(ProviderEntity $provider, DataUpdateEvent $event, $stops = [])
