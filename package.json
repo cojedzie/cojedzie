@@ -34,11 +34,14 @@
     "xpath": "^0.0.27"
   },
   "dependencies": {
+    "@types/mapbox-gl-leaflet": "^0.0.1",
     "@types/workbox-window": "^4.3.3",
     "babel-minify-webpack-plugin": "^0.3.1",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^4.5.2",
     "imagemin-webpack-plugin": "^2.3.0",
+    "mapbox-gl": "^1.6.1",
+    "mapbox-gl-leaflet": "^0.0.11",
     "mini-css-extract-plugin": "^0.4.2",
     "portal-vue": "^2.1.7",
     "vue-dragscroll": "^1.10.2",
