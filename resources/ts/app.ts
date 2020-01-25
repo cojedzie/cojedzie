@@ -21,6 +21,8 @@ Vue.use(Vuex);
 Vue.use(PortalVue);
 Vue.use(VueDragscroll);
 
+Vue.prototype.$isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
+
 // async dependencies
 (async function () {
     const [ components, { default: store } ] = await Promise.all([
