@@ -7,8 +7,8 @@ import { Portal } from "portal-vue";
     template: require("../../components/popper.html")
 })
 export class PopperComponent extends Vue {
-    @Prop(String)
-    public reference: string;
+    @Prop([ String, HTMLElement ])
+    public reference: string | HTMLElement;
 
     @Prop(Object)
     public refs: string;
@@ -22,6 +22,28 @@ export class PopperComponent extends Vue {
     private _event;
     private _popper;
 
+    private getReferenceElement() {
+        const isInPortal = this.$parent.$options.name == 'portalTarget';
+
+        if (typeof this.reference === 'string') {
+            if (this.refs) {
+                return this.refs[this.reference];
+            }
+
+            if (isInPortal) {
+                return this.$parent.$parent.$refs[this.reference];
+            }
+
+            return this.$parent.$refs[this.reference];
+        }
+
+        if (this.reference instanceof HTMLElement) {
+            return this.reference;
+        }
+
+        return isInPortal ? this.$parent.$el : this.$el.parentElement;
+    }
+
     focusOut(event: MouseEvent) {
         if (this.$el.contains(event.target as Node)) {
             return;
@@ -31,7 +53,7 @@ export class PopperComponent extends Vue {
     }
 
     mounted() {
-        const reference = this.refsSource[this.reference] as HTMLElement;
+        const reference = this.getReferenceElement();
 
         this._popper = new Popper(reference, this.$el, {
             placement: this.placement,
@@ -75,18 +97,6 @@ export class PopperComponent extends Vue {
     beforeDestroy() {
         this._popper.destroy();
         this._event && document.removeEventListener('click', this._event, { capture: true });
-    }
-
-    get refsSource() {
-        if (this.refs) {
-            return this.refs;
-        }
-
-        if (this.$parent.$options.name == 'portalTarget') {
-            return this.$parent.$parent.$refs;
-        }
-
-        return this.$parent.$refs
     }
 }
 

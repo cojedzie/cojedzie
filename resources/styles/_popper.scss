@@ -108,11 +108,37 @@
     }
   }
 
-  &.popper--arrow {
+  @mixin arrows {
     @include placement("left");
     @include placement("right");
     @include placement("top");
     @include placement("bottom");
+  }
+
+  &.popper--arrow {
+    @include arrows;
+  }
+
+  &.popper--tooltip {
+    background: $dark;
+    color: white;
+    padding: .5rem .75rem;
+    font-size: $small-font-size;
+    font-weight: bold;
+    min-width: 0;
+    box-shadow: none;
+
+    &.popper--arrow {
+      $arrow-color: $dark;
+      $arrow-border: none;
+      $arrow-base: 6px;
+
+      @include arrows;
+
+      .popper__arrow::before {
+        border: none;
+      }
+    }
   }
 }
 

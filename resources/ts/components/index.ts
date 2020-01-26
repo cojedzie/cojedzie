@@ -1,3 +1,4 @@
+export * from './tooltip';
 export * from './utils'
 export * from './line'
 export * from './picker'
