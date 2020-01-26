@@ -17,6 +17,21 @@
   }
 }
 
+.favourite {
+  display: flex;
+}
+
+.favourite__entry {
+  @extend .btn;
+  @extend .btn-action;
+
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  padding: 0;
+  text-align: left;
+}
+
 .favourite__stop {
   display: inline-flex;
 
