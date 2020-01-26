@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { Component, Prop } from 'vue-property-decorator'
-import { namespace, State } from "vuex-class";
+import { namespace, State, Mutation } from "vuex-class";
 import { Favourite } from "../store/favourites";
 import { SavedState } from "../store/root";
 import { Stop } from "../model";
@@ -12,9 +12,10 @@ import { Favourites } from "../store";
 export class FavouritesComponent extends Vue {
     @Favourites.State favourites: Favourite[];
     @Favourites.Mutation remove: (fav: Favourite) => void;
+    @Mutation('replace') setStops: (stops: Stop[]) => void;
 
     choose(favourite: Favourite) {
-        this.$store.dispatch('load', favourite.state);
+        this.setStops(favourite.stops);
     }
 }
 
@@ -22,11 +23,7 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     return {
         id: uuid.v4(),
         name,
-        stops,
-        state: {
-            version: 1,
-            stops: stops.map(stop => stop.id),
-        },
+        stops
     }
 }
 

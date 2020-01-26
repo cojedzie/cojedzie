@@ -7,7 +7,6 @@ export interface Favourite {
     id: string;
     name:  string;
     stops: Stop[];
-    state: SavedState;
 }
 
 export interface FavouritesState {

@@ -63,3 +63,7 @@ export function get(object: any, path: string): any {
 
     return object[segments.shift()];
 }
+
+export function distinct<T>(value: T, index: number, array: T[]) {
+    return array.indexOf(value) === index;
+}

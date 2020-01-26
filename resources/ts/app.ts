@@ -17,6 +17,8 @@ import PortalVue from 'portal-vue';
 import VueDragscroll from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
 
+import { migrate } from "./store/migrations";
+
 Vue.use(Vuex);
 Vue.use(PortalVue);
 Vue.use(VueDragscroll);
@@ -25,6 +27,8 @@ Vue.prototype.$isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints 
 
 // async dependencies
 (async function () {
+    await migrate("vuex");
+
     const [ components, { default: store } ] = await Promise.all([
         import('./components'),
         import('./store'),
