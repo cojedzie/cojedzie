@@ -6,6 +6,7 @@ import favourites, { FavouritesState, localStorageSaver } from './favourites'
 
 import { state, mutations, actions, RootState } from "./root";
 import VuexPersistence from "vuex-persist";
+import { namespace } from "vuex-class";
 
 export type State = {
     messages: MessagesState;
@@ -34,3 +35,5 @@ const store = new Vuex.Store({
 });
 
 export default store;
+
+export const Favourites = namespace('favourites');

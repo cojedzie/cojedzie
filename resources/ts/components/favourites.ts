@@ -1,33 +1,46 @@
 import Vue from 'vue'
-import { Component } from 'vue-property-decorator'
-import { namespace } from "vuex-class";
+import { Component, Prop } from 'vue-property-decorator'
+import { namespace, State } from "vuex-class";
 import { Favourite } from "../store/favourites";
 import { SavedState } from "../store/root";
+import { Stop } from "../model";
+import * as uuid from "uuid";
+import { Favourites } from "../store";
 
-const { State, Mutation } = namespace('favourites');
 
 @Component({ template: require('../../components/favourites.html' )})
 export class FavouritesComponent extends Vue {
-    @State favourites: Favourite[];
-    @Mutation remove: (fav: Favourite) => void;
+    @Favourites.State favourites: Favourite[];
+    @Favourites.Mutation remove: (fav: Favourite) => void;
 
     choose(favourite: Favourite) {
         this.$store.dispatch('load', favourite.state);
     }
 }
 
+function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
+    return {
+        id: uuid.v4(),
+        name,
+        stops,
+        state: {
+            version: 1,
+            stops: stops.map(stop => stop.id),
+        },
+    }
+}
+
 @Component({ template: require('../../components/favourites/save.html' )})
 export class FavouritesAdderComponent extends Vue {
+    @State stops: Stop[];
+
     private name = "";
     private errors = { name: [] };
 
-    @Mutation add: (fav: Favourite) => void;
+    @Favourites.Mutation add: (favourite: Favourite) => void;
 
     async save() {
-        const state = await this.$store.dispatch('save') as SavedState;
-        const name  = this.name;
-
-        const favourite: Favourite = { name, state };
+        const favourite: Favourite = createFavouriteEntry(this.name, this.stops);
 
         if (this.validate(favourite)) {
             this.add(favourite);

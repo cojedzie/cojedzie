@@ -1,9 +1,12 @@
 import { RootState, SavedState } from "./root";
 import { Module, Plugin, Store } from "vuex";
 import * as utils from "../utils";
+import { Stop } from "../model";
 
 export interface Favourite {
+    id: string;
     name:  string;
+    stops: Stop[];
     state: SavedState;
 }
 

@@ -1,5 +1,32 @@
 @include media-breakpoint-up('sm') {
   .favourite-add-form {
-    width: 250px;
+    width: 300px;
+  }
+}
+
+.favourite__stops {
+  display: block;
+  white-space: nowrap;
+  padding-left: 0;
+  font-size: $small-font-size;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.favourite__stop {
+  display: inline-flex;
+
+  &::after {
+    content: ", ";
+    margin-right: .5em;
+  }
+
+  &:last-child::after {
+    content: none;
+    margin-right: 0;
   }
 }
