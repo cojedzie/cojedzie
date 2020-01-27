@@ -6460,6 +6460,11 @@ vue-property-decorator@^7.0.0:
   dependencies:
     vue-class-component "^6.2.0"
 
+vue-removed-hook-mixin@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/vue-removed-hook-mixin/-/vue-removed-hook-mixin-0.1.1.tgz#df2e939c87d8ecf1707f0b3b3a21def81dedbaf5"
+  integrity sha512-ElO0fn1QT25S7WVHUS7rSug7qBHwR/OPxBTdaH2+DdMz0A/lyw3H40c/Q08k2xvndmx7tAglsevcTk2DgKPsvw==
+
 vue2-leaflet@^1.0.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/vue2-leaflet/-/vue2-leaflet-1.2.3.tgz#00ddeb9db4fb9a5e3b8f9c09cd97a4734366415e"

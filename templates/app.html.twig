@@ -86,6 +86,7 @@
                         <span class="text">Przystanki</span>
                     </h2>
                     <button class="btn btn-action flex-space-left" @click="clear">
+                        <tooltip placement="top">usuń wszystkie</tooltip>
                         <fa :icon="['fal', 'trash-alt']" fixed-width></fa>
                     </button>
                 </header>
@@ -118,6 +119,7 @@
                             Wybierz przystanki
                         </h2>
                         <button class="btn btn-action" @click="visibility.picker = 'favourites'">
+                            <tooltip placement="top">Zapisane</tooltip>
                             <fa :icon="['fal', 'star']" fixed-witdth></fa>
                         </button>
                     </template>
@@ -127,6 +129,7 @@
                             Zapisane
                         </h2>
                         <button class="btn btn-action" @click="visibility.picker = 'search'">
+                            <tooltip placement="top">Wybierz przystanki</tooltip>
                             <fa :icon="['fal', 'search']" fixed-witdth></fa>
                         </button>
                     </template>

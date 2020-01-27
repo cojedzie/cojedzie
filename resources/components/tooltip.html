@@ -1,5 +1,7 @@
 <portal to="popups">
-    <popper class="popper--tooltip" arrow :reference="element" :placement="placement" v-if="show">
-        <slot />
-    </popper>
+    <transition name="fade">
+        <popper class="popper--tooltip" arrow :reference="element" :placement="placement" v-if="show" :responsive="false">
+            <slot />
+        </popper>
+    </transition>
 </portal>

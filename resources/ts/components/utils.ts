@@ -2,9 +2,11 @@ import Vue from 'vue';
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
 import { Portal } from "portal-vue";
+import vueRemovedHookMixin from "vue-removed-hook-mixin";
 
 @Component({
-    template: require("../../components/popper.html")
+    template: require("../../components/popper.html"),
+    mixins: [ vueRemovedHookMixin ]
 })
 export class PopperComponent extends Vue {
     @Prop([ String, HTMLElement ])
@@ -18,6 +20,9 @@ export class PopperComponent extends Vue {
 
     @Prop(Boolean)
     public arrow: boolean;
+
+    @Prop({ type: Boolean, default: true })
+    public responsive: boolean;
 
     private _event;
     private _popper;
@@ -60,11 +65,11 @@ export class PopperComponent extends Vue {
             modifiers: {
                 arrow: { enabled: this.arrow, element: this.$refs['arrow'] as Element },
                 responsive: {
-                    enabled: true,
+                    enabled: this.responsive,
                     order: 890,
                     fn(data) {
                         if (window.innerWidth < 560) {
-                            data.instance.options.placement = 'bottom';
+                            data.instance.options.placement = 'top';
                             data.styles.transform = `translate3d(0, ${data.offsets.popper.top}px, 0)`;
                             data.styles.right = '0';
                             data.styles.left = '0';
@@ -95,8 +100,11 @@ export class PopperComponent extends Vue {
     }
 
     beforeDestroy() {
-        this._popper.destroy();
         this._event && document.removeEventListener('click', this._event, { capture: true });
+    }
+
+    removed() {
+        this._popper.destroy();
     }
 }
 

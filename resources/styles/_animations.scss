@@ -14,7 +14,7 @@
   }
 }
 
-@include vue-animation(fade, 250ms ease-in-out) {
+@include vue-animation(fade, 150ms ease-in-out) {
   0% {
     opacity: 0
   }
