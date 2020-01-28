@@ -15,15 +15,26 @@ import Vue from "vue";
 import Vuex from 'vuex';
 import PortalVue from 'portal-vue';
 import VueDragscroll from 'vue-dragscroll';
+import { Plugin as VueFragment } from 'vue-fragment';
 import { Workbox } from "workbox-window";
 
 import { migrate } from "./store/migrations";
+import { Component } from "vue-property-decorator";
 
 Vue.use(Vuex);
 Vue.use(PortalVue);
 Vue.use(VueDragscroll);
+Vue.use(VueFragment);
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        $isTouch: boolean;
+    }
+}
 
 Vue.prototype.$isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
+
+Component.registerHooks(['removed']);
 
 // async dependencies
 (async function () {

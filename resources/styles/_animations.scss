@@ -14,7 +14,16 @@
   }
 }
 
-@include vue-animation(fade, 150ms ease-in-out) {
+@include vue-animation(fade, 250ms ease-in-out) {
+  0% {
+    opacity: 0
+  }
+  100% {
+    opacity: 1
+  }
+}
+
+@include vue-animation(tooltip, 100ms ease-in-out) {
   0% {
     opacity: 0
   }

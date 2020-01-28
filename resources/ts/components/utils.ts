@@ -104,7 +104,7 @@ export class PopperComponent extends Vue {
     }
 
     removed() {
-        this._popper.destroy();
+        this._popper.destroy()
     }
 }
 

@@ -1,7 +1,10 @@
-<portal to="popups">
-    <transition name="fade">
-        <popper class="popper--tooltip" arrow :reference="element" :placement="placement" v-if="show" :responsive="false">
-            <slot />
-        </popper>
-    </transition>
-</portal>
+<fragment>
+    <portal to="popups">
+        <transition name="tooltip">
+            <popper class="popper--tooltip" aria-hidden="true" arrow :reference="root" :placement="placement" v-if="show" :responsive="false">
+                <slot />
+            </popper>
+        </transition>
+    </portal>
+    <span ref="root" class="sr-only"><slot /></span>
+</fragment>

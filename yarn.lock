@@ -6453,6 +6453,11 @@ vue-dragscroll@^1.10.2:
   resolved "https://registry.yarnpkg.com/vue-dragscroll/-/vue-dragscroll-1.10.2.tgz#34ace3c6aa7a39edc157cac5e9ea1d5b31b1119c"
   integrity sha512-fGVw8KP3ggbp49csa1Tbj2my0YuNmZ1zxYYge4QWIypGNHVwd9hResy/v6QF5HxY0a+qd2EBteeBpxtJxFMp5A==
 
+vue-fragment@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/vue-fragment/-/vue-fragment-1.5.1.tgz#44c070d55ed1e9a6c698ef57a5c83f64bb06feeb"
+  integrity sha512-ig6eES6TcMBbANW71ylB+AJgRN+Zksb3f50AxjGpAk6hMzqmeuD80qeh4LJP0jVw2dMBMjgRUfIkrvxygoRgtQ==
+
 vue-property-decorator@^7.0.0:
   version "7.3.0"
   resolved "https://registry.yarnpkg.com/vue-property-decorator/-/vue-property-decorator-7.3.0.tgz#d50d67f0b0f1c814f9f2fba36d6eeccbcc62dbb6"
