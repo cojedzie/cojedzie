@@ -4,6 +4,7 @@
     <div class="stop__actions flex-space-left">
         <slot name="actions">
             <button class="btn btn-action" ref="action-info" @click="details = !details">
+                <tooltip>dodatkowe informacje</tooltip>
                 <fa :icon="['fal', details ? 'chevron-circle-up' : 'info-circle']"/>
             </button>
 

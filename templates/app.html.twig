@@ -12,12 +12,18 @@
                         Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
                     </h2>
                     <button class="btn btn-action flex-space-left" ref="settings-messages" @click="visibility.messages = true">
+                        <tooltip>ustawienia</tooltip>
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
+                        <tooltip>odśwież</tooltip>
                         <fa :icon="['fal', 'sync']" :spin="messages.state === 'fetching'" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="sections.messages = !sections.messages">
+                        <tooltip>
+                            {{ '{{ ' }} sections.messages ? 'zwiń' : 'rozwiń' {{ '}}' }}
+                            <span class="sr-only">sekcję komunikatów</span>
+                        </tooltip>
                         <fa :icon="['fal', sections.messages ? 'chevron-up' : 'chevron-down']" fixed-width/>
                     </button>
 
@@ -48,9 +54,11 @@
                     </h2>
 
                     <button class="btn btn-action flex-space-left" ref="settings-departures" @click="visibility.departures = true">
+                        <tooltip>ustawienia</tooltip>
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
                     <button class="btn btn-action" @click="updateDepartures({ stops })">
+                        <tooltip>odśwież</tooltip>
                         <fa :icon="['fal', 'sync']" :spin="departures.state === 'fetching'" fixed-width></fa>
                     </button>
                     <portal to="popups">
@@ -86,7 +94,7 @@
                         <span class="text">Przystanki</span>
                     </h2>
                     <button class="btn btn-action flex-space-left" @click="clear">
-                        <tooltip placement="top">usuń wszystkie</tooltip>
+                        <tooltip>usuń wszystkie</tooltip>
                         <fa :icon="['fal', 'trash-alt']" fixed-width></fa>
                     </button>
                 </header>
@@ -94,6 +102,7 @@
                 <ul class="picker__stops list-underlined">
                     <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
                         <button @click="remove(stop)" class="btn btn-action align-self-start">
+                            <tooltip>usuń przystanek</tooltip>
                             <fa :icon="['fal', 'times']"></fa>
                         </button>
                         <picker-stop :stop="stop" class="flex-grow-1"></picker-stop>
@@ -119,7 +128,7 @@
                             Wybierz przystanki
                         </h2>
                         <button class="btn btn-action" @click="visibility.picker = 'favourites'">
-                            <tooltip placement="top">Zapisane</tooltip>
+                            <tooltip>Zapisane</tooltip>
                             <fa :icon="['fal', 'star']" fixed-witdth></fa>
                         </button>
                     </template>
@@ -129,7 +138,7 @@
                             Zapisane
                         </h2>
                         <button class="btn btn-action" @click="visibility.picker = 'search'">
-                            <tooltip placement="top">Wybierz przystanki</tooltip>
+                            <tooltip>Wybierz przystanki</tooltip>
                             <fa :icon="['fal', 'search']" fixed-witdth></fa>
                         </button>
                     </template>

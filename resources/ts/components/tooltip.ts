@@ -12,8 +12,8 @@ const longPressTimeout = 1000;
 
 @Component({ template: require('../../components/tooltip.html') })
 export class TooltipComponent extends Vue {
-    @Prop({ type: String, default: "auto" }) public placement: string;
-    @Prop({ type: Number, default: 200 }) public delay: number;
+    @Prop({ type: String, default: "top" }) public placement: string;
+    @Prop({ type: Number, default: 400 }) public delay: number;
     @Prop({ type: Array, default: () => ["hover", "focus"]}) public triggers: Trigger[];
 
     public show: boolean = false;
