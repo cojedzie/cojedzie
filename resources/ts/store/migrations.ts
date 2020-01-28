@@ -5,13 +5,15 @@ import * as uuid from "uuid";
 type Migration = {
     name: string,
     key: string,
-    up: (state: any) => Promise<any>;
+    skip?: (state: any) => boolean,
+    up: (state: any) => Promise<any>,
 }
 
 const migrations: Migration[] = [
     {
         name: "202001261540_full_stop_in_state",
         key: "vuex",
+        skip: state => !state || !state.favourites || !state.favourites.favourites,
         up: async state => {
             const current = state.favourites.favourites;
 
@@ -46,6 +48,7 @@ export async function migrate(key: string) {
     const result = await migrations
         .filter(migration => migration.key == key)
         .filter(migration => !current.includes(migration.name))
+        .filter(migration => !migration.skip || !migration.skip(state))
         .reduce(async (state, migration) => {
             current.push(migration.name);
             return await migration.up(state)
