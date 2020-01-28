@@ -14,24 +14,23 @@ const longPressTimeout = 1000;
 export class TooltipComponent extends Vue {
     @Prop({ type: String, default: "auto" }) public placement: string;
     @Prop({ type: Number, default: 200 }) public delay: number;
-    @Prop({ type: Array, default: ["hover", "focus"]}) public triggers: Trigger[];
+    @Prop({ type: Array, default: () => ["hover", "focus"]}) public triggers: Trigger[];
 
     public show: boolean = false;
     public root: Element = null;
 
-    private _events: Events;
+    private _events: Events = {};
 
     mounted() {
         this.root = (this.$refs['root'] as HTMLSpanElement).parentElement;
-
-        this._registerEventListeners();
+        this.updateTriggers();
     }
 
     beforeDestroy() {
         this._removeEventListeners();
     }
 
-    @Watch('triggers', { immediate: true })
+    @Watch('triggers')
     updateTriggers() {
         this._removeEventListeners();
 
