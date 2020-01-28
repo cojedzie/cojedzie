@@ -13,7 +13,11 @@ const migrations: Migration[] = [
     {
         name: "202001261540_full_stop_in_state",
         key: "vuex",
-        skip: state => !state || !state.favourites || !state.favourites.favourites,
+        skip: state =>
+            !state
+            || !state.favourites
+            || !state.favourites.favourites
+            || state.favourites.favourites.length == 0,
         up: async state => {
             const current = state.favourites.favourites;
 
@@ -48,9 +52,13 @@ export async function migrate(key: string) {
     const result = await migrations
         .filter(migration => migration.key == key)
         .filter(migration => !current.includes(migration.name))
-        .filter(migration => !migration.skip || !migration.skip(state))
         .reduce(async (state, migration) => {
             current.push(migration.name);
+
+            if (migration.skip && migration.skip(state)) {
+                return state;
+            }
+
             return await migration.up(state)
         }, state);
 
