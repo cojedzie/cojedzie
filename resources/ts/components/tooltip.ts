@@ -6,7 +6,7 @@ type Events = {
     [evnet: string]: (...any) => void,
 }
 
-type Trigger = "hover" | "focus";
+type Trigger = "hover" | "focus" | "long-press";
 
 const longPressTimeout = 1000;
 
@@ -14,10 +14,10 @@ const longPressTimeout = 1000;
 export class TooltipComponent extends Vue {
     @Prop({ type: String, default: "top" }) public placement: string;
     @Prop({ type: Number, default: 400 }) public delay: number;
-    @Prop({ type: Array, default: () => ["hover", "focus"]}) public triggers: Trigger[];
+    @Prop({ type: Array, default: () => ["hover", "focus", "long-press"]}) public triggers: Trigger[];
 
     public show: boolean = false;
-    public root: Element = null;
+    public root: HTMLElement = null;
 
     private _events: Events = {};
 
@@ -38,7 +38,7 @@ export class TooltipComponent extends Vue {
 
         let blocked: boolean = false;
 
-        if (this.triggers.includes("hover")) {
+        if (this.triggers.includes("hover") && !this.$isTouch) {
             let timeout;
 
             this._events['mouseenter'] = () => {
@@ -56,12 +56,37 @@ export class TooltipComponent extends Vue {
                 this._events['touchstart'] = () => {
                     // this is to prevent showing tooltips after tap
                     blocked = true;
-                    setTimeout(() => blocked = false, longPressTimeout);
+                    setTimeout(() => blocked = false, longPressTimeout - 50);
                 }
             }
 
             this._events['focus'] = () => {
                 this.show = !blocked;
+            };
+
+            this._events['blur'] = () => {
+                this.show = false
+            };
+        }
+
+        if (this.triggers.includes("long-press") && this.$isTouch) {
+            let timeout;
+
+            this._events['touchstart'] = () => {
+                timeout = window.setTimeout(() => { this.show = true }, longPressTimeout);
+
+                // this is to prevent showing tooltips after tap
+                blocked = true;
+                setTimeout(() => blocked = false, longPressTimeout - 50);
+            };
+
+            this._events['touchend'] = ev => {
+                window.clearTimeout(timeout);
+
+                if (this.show) {
+                    ev.preventDefault();
+                    this.root.focus();
+                }
             };
 
             this._events['blur'] = () => {
