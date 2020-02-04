@@ -57,6 +57,15 @@ class Stop implements Referable, Fillable
      */
     private $onDemand = false;
 
+    /**
+     * Name of group that this stop is part of.
+     *
+     * @Serializer\Type("string")
+     * @SWG\Property(example="Jasień PKM")
+     * @var string|null
+     */
+    private $group;
+
     public function getName(): string
     {
         return $this->name;
@@ -105,5 +114,15 @@ class Stop implements Referable, Fillable
     public function setLocation(?Location $location): void
     {
         $this->location = $location;
+    }
+
+    public function getGroup(): ?string
+    {
+        return $this->group;
+    }
+
+    public function setGroup(?string $group): void
+    {
+        $this->group = $group;
     }
 }

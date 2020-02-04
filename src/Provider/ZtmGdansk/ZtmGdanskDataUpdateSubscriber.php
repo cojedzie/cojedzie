@@ -162,14 +162,17 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                     && $stop['depot'] !== 1;
             })
             ->map(function ($stop) use ($provider) {
+                $name = trim($stop['stopName'] ?? $stop['stopDesc']);
+
                 return StopEntity::createFromArray([
                     'id'        => $this->ids->generate($provider, $stop['stopId']),
-                    'name'      => trim($stop['stopName'] ?? $stop['stopDesc']),
-                    'variant'   => trim($stop['zoneName'] == 'Gdańsk' ? $stop['stopCode'] : null),
+                    'name'      => $name,
+                    'variant'   => trim($stop['zoneName'] == 'Gdańsk' ? $stop['stopCode'] ?? $stop['subName'] : null),
                     'latitude'  => $stop['stopLat'],
                     'longitude' => $stop['stopLon'],
                     'onDemand'  => (bool)$stop['onDemand'],
                     'provider'  => $provider,
+                    'group'     => $name,
                 ]);
             })
         ;

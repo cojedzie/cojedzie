@@ -27,11 +27,6 @@ class DummyStopRepository implements StopRepository
         return collect();
     }
 
-    public function getAllGroups(): Collection
-    {
-        return collect();
-    }
-
     public function getById($id): ?Stop
     {
         return Stop::createFromArray(['id' => $id, 'name' => 'lorem']);
@@ -42,7 +37,7 @@ class DummyStopRepository implements StopRepository
         return collect($ids)->map(f\ref([ $this, 'getById' ]));
     }
 
-    public function findGroupsByName(string $name): Collection
+    public function findByName(string $name): Collection
     {
         return collect();
     }

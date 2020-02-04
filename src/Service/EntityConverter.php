@@ -86,6 +86,7 @@ final class EntityConverter implements Converter, RecursiveConverter
                     'name'        => $entity->getName(),
                     'variant'     => $entity->getVariant(),
                     'description' => $entity->getDescription(),
+                    'group'       => $entity->getGroup(),
                     'location'    => new Location(
                         $entity->getLongitude(),
                         $entity->getLatitude()

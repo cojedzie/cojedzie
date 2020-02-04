@@ -14,6 +14,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Tightenco\Collect\Support\Collection;
 
 /**
  * Class StopsController
@@ -51,7 +52,7 @@ class StopsController extends Controller
                 break;
 
             default:
-                $result = $stops->getAllGroups();
+                $result = $stops->getAll();
         }
 
         return $this->json($result->all());
@@ -77,14 +78,14 @@ class StopsController extends Controller
     {
         switch (true) {
             case $request->query->has('name'):
-                $result = $stops->findGroupsByName($request->query->get('name'));
+                $result = $stops->findByName($request->query->get('name'));
                 break;
 
             default:
-                $result = $stops->getAllGroups();
+                $result = $stops->getAll();
         }
 
-        return $this->json($result->all());
+        return $this->json(static::group($result)->all());
     }
 
     /**
@@ -129,5 +130,19 @@ class StopsController extends Controller
         return $this->json($tracks->getByStop($stop)->map(function ($tuple) {
             return array_combine(['track', 'order'], $tuple);
         }));
+    }
+
+    public static function group(Collection $stops)
+    {
+        return $stops->groupBy(function (Stop $stop) {
+            return $stop->getGroup();
+        })->map(function ($stops, $key) {
+            $group = new StopGroup();
+
+            $group->setName($key);
+            $group->setStops($stops);
+
+            return $group;
+        })->values();
     }
 }
