@@ -3,7 +3,9 @@
 namespace App\Model;
 
 use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
+use Tightenco\Collect\Support\Collection;
 
 /**
  * Class Stop
@@ -66,6 +68,17 @@ class Stop implements Referable, Fillable
      */
     private $group;
 
+    /**
+     * Collection of possible destination stops.
+     *
+     * @Serializer\Groups({"WithDestinations"})
+     * @Serializer\Type("Collection")
+     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Stop::class, groups={"Default"})))
+     *
+     * @var Collection<Stop>
+     */
+    private $destinations;
+
     public function getName(): string
     {
         return $this->name;
@@ -124,5 +137,15 @@ class Stop implements Referable, Fillable
     public function setGroup(?string $group): void
     {
         $this->group = $group;
+    }
+
+    public function getDestinations(): Collection
+    {
+        return $this->destinations;
+    }
+
+    public function setDestinations(Collection $destinations): void
+    {
+        $this->destinations = $destinations;
     }
 }

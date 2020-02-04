@@ -44,7 +44,7 @@ class TrackEntity implements Entity, Fillable
 
     /**
      * Stops in track
-     * @var Collection
+     * @var StopInTrack[]|Collection
      * @ORM\OneToMany(targetEntity=StopInTrack::class, fetch="LAZY", mappedBy="track", cascade={"persist"})
      * @ORM\OrderBy({"order": "ASC"})
      */
@@ -103,5 +103,10 @@ class TrackEntity implements Entity, Fillable
     public function setStopsInTrack(array $stopsInTrack): void
     {
         $this->stopsInTrack = new ArrayCollection($stopsInTrack);
+    }
+
+    public function getFinal(): StopInTrack
+    {
+        return $this->getStopsInTrack()->last();
     }
 }

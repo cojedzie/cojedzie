@@ -71,6 +71,8 @@ final class SerializerContextFactory
         foreach ($groups as $group) {
             if (array_key_exists($group, $annotation->map)) {
                 $result[] = $annotation->map[$group];
+            } else {
+                $result[] = $groups;
             }
         }
 

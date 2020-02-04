@@ -3,10 +3,14 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
+use App\Entity\StopInTrack;
+use App\Entity\TrackEntity;
 use App\Model\Stop;
+use App\Model\Track;
 use App\Provider\StopRepository;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional as f;
+use Kadet\Functional\Transforms as t;
 
 class GenericStopRepository extends DatabaseRepository implements StopRepository
 {
@@ -41,6 +45,33 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
             ->where('s.name LIKE :name')
             ->getQuery();
 
-        return collect($query->execute([':name' => "%$name%"]))->map(f\ref([$this, 'convert']));
+        $stops = collect($query->execute([':name' => "%$name%"]));
+
+        $destinations = collect($this->em->createQueryBuilder()
+            ->select('t', 'ts', 'ts2', 's')
+            ->from(TrackEntity::class, 't')
+            ->join('t.stopsInTrack', 'ts')
+            ->join('t.stopsInTrack', 'ts2')
+            ->join('ts2.stop', 's')
+            ->where('ts.stop IN (:stops)')
+            ->getQuery()
+            ->execute(['stops' => $stops->map(t\property('id'))->all()]))
+            ->reduce(function ($grouped, TrackEntity $track) {
+                foreach ($track->getStopsInTrack()->map(t\property('stop'))->map(t\property('id')) as $stop) {
+                    $grouped[$stop] = ($grouped[$stop] ?? collect())->add($track);
+                }
+
+                return $grouped;
+            }, collect())
+            ->map(function (Collection $tracks) {
+                return $tracks->map(function (TrackEntity $track) {
+                    return $this->convert($track->getFinal()->getStop());
+                })->unique()->values();
+            })
+            ;
+
+        return collect($stops)->map(f\ref([$this, 'convert']))->each(function (Stop $stop) use ($destinations) {
+            $stop->setDestinations($destinations[$this->id->generate($this->provider, $stop->getId())]);
+        });
     }
 }

@@ -28,7 +28,7 @@ class StopGroup
      * @var Collection|Stop[]
      * @SWG\Property(
      *     type="array",
-     *     @SWG\Items(ref=@Model(type=Stop::class))
+     *     @SWG\Items(ref=@Model(type=Stop::class, groups={"Default", "WithDestinations"}))
      * )
      */
     private $stops;
