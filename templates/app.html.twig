@@ -103,7 +103,7 @@
                     <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
                         <picker-stop :stop="stop" class="flex-grow-1">
                             <template v-slot:primary-action>
-                                <button @click="remove(stop)" class="btn btn-action align-self-start">
+                                <button @click="remove(stop)" class="btn btn-action">
                                     <tooltip>usuń przystanek</tooltip>
                                     <fa :icon="['fal', 'times']"></fa>
                                 </button>

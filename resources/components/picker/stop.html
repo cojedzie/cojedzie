@@ -1,12 +1,14 @@
 <div class="finder__stop">
     <div class="d-flex">
         <slot name="primary-action" />
-        <div style="overflow: hidden">
-            <stop :stop="stop" />
-<!--            <div style="white-space: nowrap">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Earum, ut!</div>-->
-            <ul class="stop__destinations">
-                <li class="stop__destination" v-for="destination in stop.destinations" :key="destination.id"><stop :stop="destination"/></li>
-            </ul>
+        <div class="overflow-hidden align-self-center">
+            <stop :stop="stop" class="my-1"/>
+            <div class="stop__destinations" v-if="stop.destinations && stop.destinations.length > 0">
+                <fa :icon="['far', 'chevron-right']" />
+                <ul class="ml-1">
+                    <li class="stop__destination" v-for="destination in stop.destinations" :key="destination.id">{{ destination.name }}</li>
+                </ul>
+            </div>
         </div>
 
         <div class="stop__actions flex-space-left">

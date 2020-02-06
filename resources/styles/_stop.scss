@@ -1,13 +1,15 @@
-.stop, .stop-group__header {
+.stop-group__header {
   @extend .flex;
 
   flex-wrap: wrap;
 }
 
+.stop {
+  flex-wrap: nowrap;
+}
+
 .stop__name {
-  //flex: 1 0;
   line-height: 1.1;
-  margin-right: .5em;
 }
 
 .stop__actions {
@@ -24,6 +26,10 @@
   font-weight: bold;
 
   margin-bottom: 0;
+}
+
+.stop__variant {
+  margin-left: .5em;
 }
 
 .stop__tracks .line__symbol .badge {
@@ -48,7 +54,13 @@
 }
 
 .stop__destinations {
-  @extend .favourite__stops;
+  display: flex;
+  font-size: $small-font-size;
+  align-items: center;
+
+  ul {
+    @extend .favourite__stops;
+  }
 }
 
 .stop__destination {

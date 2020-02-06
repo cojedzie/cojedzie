@@ -24,7 +24,7 @@
                 <li v-for="stop in group" :key="stop.id" class="d-flex">
                     <picker-stop :stop="stop" class="flex-grow-1">
                         <template v-slot:primary-action>
-                            <button @click="select(stop, $event)" class="btn btn-action align-self-start">
+                            <button @click="select(stop, $event)" class="btn btn-action">
                                 <tooltip>dodaj przystanek</tooltip>
                                 <fa :icon="['fal', 'check']" />
                             </button>
