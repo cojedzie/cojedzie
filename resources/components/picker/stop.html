@@ -1,19 +1,27 @@
-<div class="d-flex flex-wrap">
-    <stop :stop="stop" />
+<div class="finder__stop">
+    <div class="d-flex">
+        <slot name="primary-action" />
+        <div style="overflow: hidden">
+            <stop :stop="stop" />
+<!--            <div style="white-space: nowrap">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Earum, ut!</div>-->
+            <ul class="stop__destinations">
+                <li class="stop__destination" v-for="destination in stop.destinations" :key="destination.id"><stop :stop="destination"/></li>
+            </ul>
+        </div>
 
-    <div class="stop__actions flex-space-left">
-        <slot name="actions">
-            <button class="btn btn-action" ref="action-info" @click="details = !details">
-                <tooltip>dodatkowe informacje</tooltip>
-                <fa :icon="['fal', details ? 'chevron-circle-up' : 'info-circle']"/>
-            </button>
+        <div class="stop__actions flex-space-left">
+            <slot name="actions">
+                <button class="btn btn-action" ref="action-info" @click="details = !details">
+                    <tooltip>dodatkowe informacje</tooltip>
+                    <fa :icon="['fal', details ? 'chevron-circle-up' : 'info-circle']"/>
+                </button>
 
-            <button class="btn btn-action" ref="action-map" v-hover:map>
-                <fa :icon="['fal', 'map-marker-alt']"/>
-            </button>
-        </slot>
+                <button class="btn btn-action" ref="action-map" v-hover:map>
+                    <fa :icon="['fal', 'map-marker-alt']"/>
+                </button>
+            </slot>
+        </div>
     </div>
-
     <fold :visible="details" class="stop__details-fold" lazy>
         <stop-details :stop="stop"/>
     </fold>

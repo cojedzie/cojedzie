@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Model\Fillable;
 use App\Model\FillTrait;
+use App\Service\IterableUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -50,6 +51,12 @@ class TrackEntity implements Entity, Fillable
      */
     private $stopsInTrack;
 
+    /**
+     * Final stop in this track.
+     * @var StopInTrack
+     * @ORM\OneToOne(targetEntity=StopInTrack::class, fetch="LAZY")
+     */
+    private $final;
 
     /**
      * Track constructor.
@@ -98,15 +105,17 @@ class TrackEntity implements Entity, Fillable
     }
 
     /**
-     * @param Collection $stopsInTrack
+     * @param iterable $stopsInTrack
      */
-    public function setStopsInTrack(array $stopsInTrack): void
+    public function setStopsInTrack(iterable $stopsInTrack): void
     {
-        $this->stopsInTrack = new ArrayCollection($stopsInTrack);
+        $this->stopsInTrack = IterableUtils::toArrayCollection($stopsInTrack);
+
+        $this->final = $this->stopsInTrack->last();
     }
 
     public function getFinal(): StopInTrack
     {
-        return $this->getStopsInTrack()->last();
+        return $this->final;
     }
 }

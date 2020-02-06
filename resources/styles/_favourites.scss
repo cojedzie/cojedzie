@@ -11,6 +11,7 @@
   font-size: $small-font-size;
   overflow-x: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 
   &:last-child {
     margin-bottom: 0;

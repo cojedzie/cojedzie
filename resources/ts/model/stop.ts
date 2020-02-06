@@ -8,6 +8,7 @@ export interface Stop {
     };
     onDemand?: boolean;
     variant?: string;
+    destinations?: Stop[];
 }
 
 export type StopGroup = Stop[];

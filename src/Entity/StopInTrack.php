@@ -4,32 +4,42 @@ namespace App\Entity;
 
 use App\Model\Fillable;
 use App\Model\FillTrait;
+use App\Model\Referable;
+use App\Model\ReferableTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table("track_stop")
+ * @ORM\Table("track_stop", uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="stop_in_track_idx", columns={"stop_id", "track_id", "sequence"})
+ * })
  */
-class StopInTrack implements Fillable
+class StopInTrack implements Fillable, Referable
 {
-    use FillTrait;
+    use FillTrait, ReferableEntityTrait;
+
+    /**
+     * Identifier for stop coming from provider
+     *
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     */
+    private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
-     * @ORM\Id
      */
     private $stop;
 
     /**
      * @ORM\ManyToOne(targetEntity=TrackEntity::class, fetch="EAGER", inversedBy="stopsInTrack")
-     * @ORM\Id
      */
     private $track;
 
     /**
      * Order in track
      * @var int
-     * @ORM\Id
      * @ORM\Column(name="sequence", type="integer")
      */
     private $order;

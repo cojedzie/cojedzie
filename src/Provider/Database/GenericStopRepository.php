@@ -3,10 +3,8 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
-use App\Entity\StopInTrack;
 use App\Entity\TrackEntity;
 use App\Model\Stop;
-use App\Model\Track;
 use App\Provider\StopRepository;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional as f;
@@ -23,7 +21,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
 
     public function getById($id): ?Stop
     {
-        $id = $this->id->generate($this->provider, $id);
+        $id   = $this->id->generate($this->provider, $id);
         $stop = $this->em->getRepository(StopEntity::class)->find($id);
 
         return $this->convert($stop);
@@ -31,7 +29,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
 
     public function getManyById($ids): Collection
     {
-        $ids = collect($ids)->map(f\apply(f\ref([$this->id, 'generate']), $this->provider));
+        $ids   = collect($ids)->map(f\apply(f\ref([$this->id, 'generate']), $this->provider));
         $stops = $this->em->getRepository(StopEntity::class)->findBy(['id' => $ids->all()]);
 
         return collect($stops)->map(f\ref([$this, 'convert']));
@@ -48,12 +46,12 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
         $stops = collect($query->execute([':name' => "%$name%"]));
 
         $destinations = collect($this->em->createQueryBuilder()
-            ->select('t', 'ts', 'ts2', 's')
+            ->select('t', 'f', 'fs', 'ts')
             ->from(TrackEntity::class, 't')
             ->join('t.stopsInTrack', 'ts')
-            ->join('t.stopsInTrack', 'ts2')
-            ->join('ts2.stop', 's')
             ->where('ts.stop IN (:stops)')
+            ->join('t.final', 'f')
+            ->join('f.stop', 'fs')
             ->getQuery()
             ->execute(['stops' => $stops->map(t\property('id'))->all()]))
             ->reduce(function ($grouped, TrackEntity $track) {
@@ -67,8 +65,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
                 return $tracks->map(function (TrackEntity $track) {
                     return $this->convert($track->getFinal()->getStop());
                 })->unique()->values();
-            })
-            ;
+            });
 
         return collect($stops)->map(f\ref([$this, 'convert']))->each(function (Stop $stop) use ($destinations) {
             $stop->setDestinations($destinations[$this->id->generate($this->provider, $stop->getId())]);

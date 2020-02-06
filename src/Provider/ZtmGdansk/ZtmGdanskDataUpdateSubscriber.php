@@ -12,7 +12,6 @@ use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
 use App\Event\DataUpdateEvent;
 use App\Model\Line as LineModel;
-use App\Model\Location;
 use App\Service\DataUpdater;
 use App\Service\IdUtils;
 use Carbon\Carbon;
@@ -20,13 +19,10 @@ use Cerbero\JsonObjects\JsonObjects;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
-use Symfony\Component\Console\Output\ConsoleSectionOutput;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Tightenco\Collect\Support\Collection;
-use function Cerbero\JsonObjects\JsonObjects;
 use function Kadet\Functional\ref;
+use function Kadet\Functional\Transforms\property;
 
 class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 {
@@ -44,6 +40,8 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
     private $ids;
     private $logger;
     private $provider;
+
+    private $stopBlacklist = [];
 
     /**
      * ZtmGdanskDataUpdateSubscriber constructor.
@@ -147,6 +145,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
 
     private function getStops(ProviderEntity $provider, DataUpdateEvent $event)
     {
+        $this->stopBlacklist = [];
         $output = $event->getOutput();
 
         $output->write('Obtaining stops from ZTM Gdańsk... ');
@@ -157,9 +156,12 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         $this->logger->debug(sprintf("Saving %d stops tracks from ZTM Gdańsk.", count($stops)));
         return collect($stops)
             ->filter(function ($stop) {
-                return $stop['nonpassenger'] !== 1
-                    && $stop['virtual'] !== 1
-                    && $stop['depot'] !== 1;
+                if ($stop['nonpassenger'] === 1 || $stop['virtual'] === 1 || $stop['depot'] === 1) {
+                    $this->stopBlacklist[] = $stop['stopId'];
+                    return false;
+                }
+
+                return true;
             })
             ->map(function ($stop) use ($provider) {
                 $name = trim($stop['stopName'] ?? $stop['stopDesc']);
@@ -178,7 +180,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         ;
     }
 
-    public function getTracks(ProviderEntity $provider, DataUpdateEvent $event, $stops = [])
+    public function getTracks(ProviderEntity $provider, DataUpdateEvent $event, Collection $stops = null)
     {
         $output = $event->getOutput();
 
@@ -209,19 +211,24 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                 'provider'    => $provider,
             ]);
 
-            $stops = $stops->get($track['id'])->map(function ($stop) use ($entity, $provider) {
-                return StopInTrack::createFromArray([
-                    'stop'  => $this->em->getReference(
-                        StopEntity::class,
-                        $this->ids->generate($provider, $stop['stopId'])
-                    ),
-                    'track' => $entity,
-                    // HACK! Gdynia has 0 based sequence
-                    'order' => $stop['stopSequence'] + (int)($stop['stopId'] > 30000),
-                ]);
-            });
+            $stops = $stops->get($track['id'])
+                ->filter(function ($stop) {
+                    return !in_array($stop['stopId'], $this->stopBlacklist);
+                })
+                ->map(function ($stop) use ($entity, $provider) {
+                    return StopInTrack::createFromArray([
+                        'stop'  => $this->em->getReference(
+                            StopEntity::class,
+                            $this->ids->generate($provider, $stop['stopId'])
+                        ),
+                        'track' => $entity,
+                        // HACK! Gdynia has 0 based sequence
+                        'order' => $stop['stopSequence'] + (int)($stop['stopId'] > 30000),
+                    ]);
+                })
+                ->sortBy(property("order"));
 
-            $entity->setStopsInTrack($stops->all());
+            $entity->setStopsInTrack($stops);
 
             return $entity;
         });

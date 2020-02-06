@@ -101,11 +101,14 @@
 
                 <ul class="picker__stops list-underlined">
                     <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
-                        <button @click="remove(stop)" class="btn btn-action align-self-start">
-                            <tooltip>usuń przystanek</tooltip>
-                            <fa :icon="['fal', 'times']"></fa>
-                        </button>
-                        <picker-stop :stop="stop" class="flex-grow-1"></picker-stop>
+                        <picker-stop :stop="stop" class="flex-grow-1">
+                            <template v-slot:primary-action>
+                                <button @click="remove(stop)" class="btn btn-action align-self-start">
+                                    <tooltip>usuń przystanek</tooltip>
+                                    <fa :icon="['fal', 'times']"></fa>
+                                </button>
+                            </template>
+                        </picker-stop>
                     </li>
                 </ul>
 
@@ -143,7 +146,7 @@
                         </button>
                     </template>
                 </header>
-                <div class="transition-box" style="overflow: hidden;">
+                <div class="transition-box">
                     <transition name="fade">
                         <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
                         <favourites v-else-if="visibility.picker === 'favourites'"></favourites>

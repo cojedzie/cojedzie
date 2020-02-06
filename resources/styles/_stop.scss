@@ -5,7 +5,7 @@
 }
 
 .stop__name {
-  flex: 1 0;
+  //flex: 1 0;
   line-height: 1.1;
   margin-right: .5em;
 }
@@ -45,4 +45,16 @@
       flex: 0 0 50%;
     }
   }
+}
+
+.stop__destinations {
+  @extend .favourite__stops;
+}
+
+.stop__destination {
+  @extend .favourite__stop;
+}
+
+.finder__stop {
+  max-width: 100%;
 }
