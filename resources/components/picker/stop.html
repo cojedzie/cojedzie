@@ -28,9 +28,9 @@
         <stop-details :stop="stop"/>
     </fold>
 
-    <popper reference="action-map" v-show="showMap" arrow class="popper--no-padding" style="width: 500px;" placement="right-start" v-hover:inMap>
-        <lazy :activate="showMap">
+    <keep-alive>
+        <popper reference="action-map" v-if="showMap" arrow class="popper--no-padding" style="width: 500px;" placement="right-start" v-hover:inMap>
             <stop-map :stop="stop" style="height: 300px"/>
-        </lazy>
-    </popper>
+        </popper>
+    </keep-alive>
 </div>
