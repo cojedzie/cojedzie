@@ -43,6 +43,13 @@ $grid-gutter-width: $spacer * 2;
   }
 }
 
+@mixin spacing($spacing: .25em) {
+  margin-left: $spacing;
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
 @mixin no-scrollbars {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* Internet Explorer 10+ */

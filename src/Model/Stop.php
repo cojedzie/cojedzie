@@ -73,9 +73,9 @@ class Stop implements Referable, Fillable
      *
      * @Serializer\Groups({"WithDestinations"})
      * @Serializer\Type("Collection")
-     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Stop::class, groups={"Default"})))
+     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Destination::class, groups={"Default"})))
      *
-     * @var Collection<Stop>
+     * @var Collection<Destination>
      */
     private $destinations;
 

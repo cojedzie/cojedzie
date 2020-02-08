@@ -1,12 +1,16 @@
 <span class="line__symbol flex" :class="{ [`line--${line.type}`]: true, 'line--night': line.night, 'line--fast': line.fast }">
     <span class="flex align-items-stretch">
-        <span class="icon">
-            <fa :icon="['fac', line.type]" fixed-width/>
-        </span>
-        <span class="badge badge-dark flex">
-            <fa :icon="['fas', 'walking']" fixed-width v-if="line.fast"/>
-            <fa :icon="['fal', 'moon']" fixed-width v-if="line.night"/>
-            {{ line.symbol }}
-        </span>
+        <slot name="icon" v-if="!simple">
+            <span class="icon">
+                <fa :icon="['fac', line.type]" fixed-width/>
+            </span>
+        </slot>
+        <slot name="badge">
+            <span class="badge badge-dark flex">
+                <fa :icon="['fal', 'moon']" fixed-width v-if="line.night && !simple"/>
+                {{ line.symbol }}
+                <fa :icon="['fas', 'walking']" v-if="line.fast"/>
+            </span>
+        </slot>
     </span>
 </span>

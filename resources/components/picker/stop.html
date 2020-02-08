@@ -2,11 +2,17 @@
     <div class="d-flex">
         <slot name="primary-action" />
         <div class="overflow-hidden align-self-center">
-            <stop :stop="stop" class="my-1"/>
+            <stop :stop="stop" />
             <div class="stop__destinations" v-if="destinations && destinations.length > 0">
-                <fa :icon="['far', 'chevron-right']" />
                 <ul class="ml-1">
-                    <li class="stop__destination" v-for="destination in destinations" :key="destination.id">{{ destination.name }}</li>
+                    <li class="stop__destination destination" v-for="destination in destinations" :key="destination.stop.id">
+                        <ul class="destination__lines">
+                            <li v-for="line in destination.lines">
+                                <line-symbol :line="line" :key="line.symbol" simple/>
+                            </li>
+                        </ul>
+                        <span class="destination__name ml-1">{{ destination.stop.name }}</span>
+                    </li>
                 </ul>
             </div>
         </div>

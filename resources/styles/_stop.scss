@@ -53,6 +53,16 @@
 
 .stop__destination {
   @extend .favourite__stop;
+  align-items: center;
+}
+
+.destination__line {
+  @extend .line__symbol;
+}
+
+.destination__lines li {
+  display: inline-block;
+  @include spacing;
 }
 
 .finder__stop {

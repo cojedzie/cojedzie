@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TripController extends Controller
 {
     /**
-     * @Route("/{id}")
+     * @Route("/{id}", methods={"GET"})
      */
     public function one($id, TripRepository $repository)
     {

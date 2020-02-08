@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
-import { Portal } from "portal-vue";
 import vueRemovedHookMixin from "vue-removed-hook-mixin";
 
 @Component({
@@ -155,3 +154,9 @@ export class LazyComponent extends Vue {
 Vue.component('Popper', PopperComponent);
 Vue.component('Fold', FoldComponent);
 Vue.component('Lazy', LazyComponent);
+
+// https://github.com/vuejs/vue/issues/7829
+Vue.component('Empty', {
+    functional: true,
+    render: (h, { data }) => h('template', data, '')
+});

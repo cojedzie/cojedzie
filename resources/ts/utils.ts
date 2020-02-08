@@ -95,3 +95,22 @@ export function unique<T, U>(array: T[], criterion: (item: T) => U = identity) {
 
     return result;
 }
+
+type Pattern<TResult, TArgs extends any[]> = [
+    (...args: TArgs) => boolean,
+    ((...args: TArgs) => TResult) | TResult,
+]
+
+export function match<TResult, TArgs extends any[]>(...patterns: Pattern<TResult, TArgs>[]): (...args: TArgs) => TResult {
+    return (...args: TArgs) => {
+        for (let [pattern, action] of patterns) {
+            if (pattern(...args)) {
+                return typeof action === "function" ? (action as (...args: TArgs) => TResult)(...args) : action;
+            }
+        }
+
+        throw new Error(`No pattern matches args: ${JSON.stringify(args)}`);
+    }
+}
+
+match.default = (...args: any[]) => true;

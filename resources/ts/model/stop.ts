@@ -1,3 +1,5 @@
+import { Line } from "./line";
+
 export interface Stop {
     id: any;
     name: string;
@@ -8,7 +10,12 @@ export interface Stop {
     };
     onDemand?: boolean;
     variant?: string;
-    destinations?: Stop[];
+    destinations?: Destination[];
+}
+
+export type Destination = {
+    stop: Stop;
+    lines: Line[]
 }
 
 export type StopGroup = Stop[];

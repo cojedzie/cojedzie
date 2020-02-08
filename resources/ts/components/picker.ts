@@ -1,8 +1,8 @@
 import Component from "vue-class-component";
 import Vue from "vue";
-import { Stop, StopGroup, StopGroups } from "../model";
+import { Destination, Line, Stop, StopGroup, StopGroups } from "../model";
 import { Prop, Watch } from "vue-property-decorator";
-import { FetchingState, filter, map, unique } from "../utils";
+import { FetchingState, filter, map, match, unique } from "../utils";
 import { debounce } from "../decorators";
 import urls from '../urls';
 
@@ -20,7 +20,29 @@ export class PickerStopComponent extends Vue {
     }
 
     get destinations() {
-        return unique(this.stop.destinations, stop => stop.name);
+        const compactLines = destination => ({
+            ...destination,
+            lines: Object.entries(groupLinesByType(destination.lines || [])).map(([type, lines]) => ({
+                type: type,
+                symbol: joinedSymbol(lines),
+                night: lines.every(line => line.night),
+                fast: lines.every(line => line.fast),
+            })),
+            all: destination.lines
+        });
+
+        const groupLinesByType = (lines: Line[]) => lines.reduce<{ [kind: string]: Line[]}>((groups, line) => ({
+            ...groups,
+            [line.type]: [ ...(groups[line.type] || []), line ]
+        }), {});
+
+        const joinedSymbol = match<string, [Line[]]>(
+            [lines => lines.length === 1, lines => lines[0].symbol],
+            [lines => lines.length === 2, ([first, second]) => `${first.symbol}, ${second.symbol}`],
+            [lines => lines.length > 2,   ([first]) => `${first.symbol}…`],
+        );
+
+        return unique(this.stop.destinations || [], destination => destination.stop.name).map(compactLines);
     }
 }
 

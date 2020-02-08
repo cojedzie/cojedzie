@@ -6,6 +6,9 @@ import { Line } from "../model";
 export class LineComponent extends Vue {
     @Prop(Object)
     public line: Line;
+
+    @Prop(Boolean)
+    public simple: boolean;
 }
 
 Vue.component('LineSymbol', LineComponent);
