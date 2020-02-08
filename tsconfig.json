@@ -9,5 +9,6 @@
     "moduleResolution": "node",
     "downlevelIteration": true
   },
-  "files": ["resources/ts/app.ts"]
+  "files": ["resources/ts/app.ts"],
+  "include": ["resources/ts/**/*.ts"]
 }

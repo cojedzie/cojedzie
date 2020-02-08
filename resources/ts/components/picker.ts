@@ -1,6 +1,6 @@
 import Component from "vue-class-component";
 import Vue from "vue";
-import { Destination, Line, Stop, StopGroup, StopGroups } from "../model";
+import { Destination, Line, StopWithDestinations as Stop, StopGroup, StopGroups } from "../model";
 import { Prop, Watch } from "vue-property-decorator";
 import { FetchingState, filter, map, match, unique } from "../utils";
 import { debounce } from "../decorators";

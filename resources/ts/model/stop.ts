@@ -10,6 +10,9 @@ export interface Stop {
     };
     onDemand?: boolean;
     variant?: string;
+}
+
+export interface StopWithDestinations extends Stop{
     destinations?: Destination[];
 }
 
