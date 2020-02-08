@@ -20,7 +20,8 @@ const config = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
-            'vue$': 'vue/dist/vue.esm.js'
+            'vue$': 'vue/dist/vue.esm.js',
+            'mapbox-gl$': 'mapbox-gl/dist/mapbox-gl-unminified'
         }
     },
     module: {
@@ -71,12 +72,7 @@ const config = {
             }],
             swDest: '../service-worker.js'
         })
-    ],
-    optimization: {
-        minimizer: [
-            new BabelMinifyPlugin()
-        ]
-    }
+    ]
 };
 
 module.exports = (env, argv) => {

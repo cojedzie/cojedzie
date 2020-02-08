@@ -67,3 +67,11 @@ export function get(object: any, path: string): any {
 export function distinct<T>(value: T, index: number, array: T[]) {
     return array.indexOf(value) === index;
 }
+
+export function time<T>(action: () => T, name?: string) {
+    const start = performance.now();
+    const result = action();
+    console.debug(`${name || 'this'} operation took ${performance.now() - start}ms`);
+
+    return result;
+}
