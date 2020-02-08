@@ -3,10 +3,10 @@
         <slot name="primary-action" />
         <div class="overflow-hidden align-self-center">
             <stop :stop="stop" class="my-1"/>
-            <div class="stop__destinations" v-if="stop.destinations && stop.destinations.length > 0">
+            <div class="stop__destinations" v-if="destinations && destinations.length > 0">
                 <fa :icon="['far', 'chevron-right']" />
                 <ul class="ml-1">
-                    <li class="stop__destination" v-for="destination in stop.destinations" :key="destination.id">{{ destination.name }}</li>
+                    <li class="stop__destination" v-for="destination in destinations" :key="destination.id">{{ destination.name }}</li>
                 </ul>
             </div>
         </div>

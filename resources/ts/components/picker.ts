@@ -2,7 +2,7 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { Stop, StopGroup, StopGroups } from "../model";
 import { Prop, Watch } from "vue-property-decorator";
-import { ensureArray, FetchingState, filter, map, time } from "../utils";
+import { FetchingState, filter, map, unique } from "../utils";
 import { debounce } from "../decorators";
 import urls from '../urls';
 
@@ -17,6 +17,10 @@ export class PickerStopComponent extends Vue {
 
     get showMap() {
         return this.inMap || this.map;
+    }
+
+    get destinations() {
+        return unique(this.stop.destinations, stop => stop.name);
     }
 }
 
@@ -38,7 +42,7 @@ export class FinderComponent extends Vue {
     get filtered(): StopGroups {
         const groups = map(
             this.found,
-            (group: StopGroup, name: string) =>
+            (group: StopGroup) =>
                 group.filter(stop => !this.blacklist.some(blacklisted => blacklisted.id === stop.id))
         ) as StopGroups;
 

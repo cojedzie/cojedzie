@@ -75,3 +75,23 @@ export function time<T>(action: () => T, name?: string) {
 
     return result;
 }
+
+export const identity = a => a;
+
+export function unique<T, U>(array: T[], criterion: (item: T) => U = identity) {
+    const result: T[] = [];
+    const known = new Set<U>();
+
+    const entries = array.map(item => [ criterion(item), item ]) as [ U, T ][];
+
+    for (const [ key, item ] of entries) {
+        if (known.has(key)) {
+            continue;
+        }
+
+        known.add(key);
+        result.push(item);
+    }
+
+    return result;
+}
