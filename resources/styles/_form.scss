@@ -1,11 +1,41 @@
 label {
   font-weight: bold;
-  font-size: .8rem;
   margin-bottom: 0;
   margin-top: -0.2rem;
   display: block;
 }
 
+.label-sm {
+  font-size: .8rem;
+}
+
 .form-group:last-child {
   margin-bottom: 0;
+}
+
+.form-control, .input-group-text {
+  background: rgba($dark, .06);
+  border: none;
+  border-bottom: 2px solid $dark;
+
+  &:focus {
+    background: rgba($dark, .06);
+  }
+}
+
+.form-control--framed {
+  background: transparent;
+  border: 1px solid $text-muted;
+
+  &:focus {
+    background-color: transparent;
+  }
+}
+
+.input-group-append {
+  margin-left: 0;
+}
+
+.input-group-prepend {
+  margin-right: 0;
 }

@@ -38,7 +38,6 @@
 
   transition: height 250ms ease;
   will-change: height;
-  box-sizing: padding-box;
 }
 
 .flex {
@@ -92,10 +91,6 @@
       margin-bottom: -.5rem;
     }
   }
-}
-
-svg.svg-inline--fa {
-  //transform: rotate(360deg)
 }
 
 .btn-unstyled {

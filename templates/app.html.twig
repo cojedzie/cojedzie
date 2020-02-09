@@ -11,7 +11,7 @@
                         <fa :icon="['fal', 'bullhorn']" fixed-width class="mr-2"></fa>
                         Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
                     </h2>
-                    <button class="btn btn-action flex-space-left" ref="settings-messages" @click="visibility.messages = true">
+                    <button class="btn btn-action flex-space-left" ref="settings-messages" @click="visibility.messages = !visibility.messages">
                         <tooltip>ustawienia</tooltip>
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
@@ -37,10 +37,16 @@
                                 <ui-switch id="messages-auto-refresh" v-model="autorefresh.messages.active" class="flex-space-left"></ui-switch>
                             </h3>
                             <div class="flex" v-if="autorefresh.messages.active">
-                                <span class="text">co</span>
-                                <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
-                                <input type="text" class="form-control form-control-sm" id="messages-auto-refresh-interval" v-model="autorefresh.messages.interval"/>
-                                <span class="text">s</span>
+                                <label for="messages-auto-refresh-interval" class="text">
+                                    <span class="sr-only">częstotliwość odświeżania</span>
+                                    co
+                                </label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control form-control-sm form-control-simple" id="messages-auto-refresh-interval" v-model="autorefresh.messages.interval"/>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" aria-label="sekund">s</span>
+                                    </div>
+                                </div>
                             </div>
                         </popper>
                     </portal>
@@ -57,7 +63,7 @@
                         <span class="text">Odjazdy</span>
                     </h2>
 
-                    <button class="btn btn-action flex-space-left" ref="settings-departures" @click="visibility.departures = true">
+                    <button class="btn btn-action flex-space-left" ref="settings-departures" @click="visibility.departures = !visibility.departures">
                         <tooltip>ustawienia</tooltip>
                         <fa :icon="['fal', 'cog']" fixed-width></fa>
                     </button>
@@ -68,17 +74,23 @@
                     <portal to="popups">
                         <popper reference="settings-departures" v-if="visibility.departures" arrow placement="left-start" @leave="visibility.departures = false">
                             <h3 class="popper__heading flex">
-                                <label class="text" for="messages-auto-refresh">
+                                <label class="text" for="departures-auto-refresh">
                                     <fa :icon="['far', 'sync']" fixed-width></fa>
                                     autoodświeżanie
                                 </label>
-                                <ui-switch id="messages-auto-refresh" v-model="autorefresh.departures.active" class="flex-space-left"></ui-switch>
+                                <ui-switch id="departures-auto-refresh" v-model="autorefresh.departures.active" class="flex-space-left"></ui-switch>
                             </h3>
                             <div class="flex" v-if="autorefresh.departures.active">
-                                <span class="text">co</span>
-                                <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
-                                <input type="text" class="form-control form-control-sm form-control-simple" id="messages-auto-refresh-interval" v-model="autorefresh.departures.interval"/>
-                                <span class="text">s</span>
+                                <label for="departures-auto-refresh-interval" class="text">
+                                    <span class="sr-only">częstotliwość odświeżania</span>
+                                    co
+                                </label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control form-control-sm form-control-simple" id="departures-auto-refresh-interval" v-model="autorefresh.departures.interval"/>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" aria-label="sekund">s</span>
+                                    </div>
+                                </div>
                             </div>
                         </popper>
                     </portal>
