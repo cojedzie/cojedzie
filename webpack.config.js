@@ -20,8 +20,7 @@ const config = {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-            'mapbox-gl$': 'mapbox-gl/dist/mapbox-gl-unminified',
-            '@templates': path.resolve(__dirname, './resources/components/'),
+            'mapbox-gl$': 'mapbox-gl/dist/mapbox-gl-unminified'
         }
     },
     module: {

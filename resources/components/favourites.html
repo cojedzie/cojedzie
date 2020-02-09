@@ -3,7 +3,7 @@
         <li v-for="favourite in favourites" class="favourite">
             <button @click="choose(favourite)" class="favourite__entry">
                 <div class="icon">
-                    <fa :icon="['fal', 'star']"/>
+                    <ui-icon icon="favourite"/>
                 </div>
                 <div class="overflow-hidden">
                     <span class="text flex-grow-1">{{ favourite.name }}</span>
@@ -14,12 +14,12 @@
             </button>
             <button class="btn btn-action" @click="remove(favourite)">
                 <tooltip placement="left">usuń</tooltip>
-                <fa :icon="['fal', 'trash-alt']"></fa>
+                <ui-icon icon="delete"/>
             </button>
         </li>
     </ul>
     <div class="alert alert-info" v-else>
-        <fa :icon="['fal', 'info-circle']"></fa>
+        <ui-icon icon="info"/>
         Brak zapisanych zespołów przystanków
     </div>
 </div>

@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import { Component } from "vue-property-decorator";
 import { Message } from "../model/message";
-import { faInfoCircle, faExclamationTriangle, faQuestionCircle } from "@fortawesome/pro-light-svg-icons";
 import { namespace } from 'vuex-class';
 import store from '../store'
 
@@ -13,9 +12,6 @@ export class MessagesComponent extends Vue {
 
     public icon(message: Message) {
         switch (message.type) {
-            case "breakdown": return faExclamationTriangle;
-            case "info": return faInfoCircle;
-            case "unknown": return faQuestionCircle;
         }
     }
 

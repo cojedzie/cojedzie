@@ -6,10 +6,6 @@ import "leaflet/dist/leaflet.css";
 
 import Popper from 'popper.js';
 import * as $ from "jquery";
-
-window['$'] = window['jQuery'] = $;
-window['Popper'] = Popper;
-
 // dependencies
 import Vue from "vue";
 import Vuex from 'vuex';
@@ -20,6 +16,9 @@ import { Workbox } from "workbox-window";
 
 import { migrate } from "./store/migrations";
 import { Component } from "vue-property-decorator";
+
+window['$'] = window['jQuery'] = $;
+window['Popper'] = Popper;
 
 Vue.use(Vuex);
 Vue.use(PortalVue);
@@ -43,7 +42,6 @@ Component.registerHooks(['removed']);
     const [ components, { default: store } ] = await Promise.all([
         import('./components'),
         import('./store'),
-        import('./font-awesome'),
         import('./filters'),
         import('bootstrap'),
     ] as const);

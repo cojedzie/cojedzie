@@ -2,14 +2,14 @@
     <span class="flex align-items-stretch">
         <slot name="icon" v-if="!simple">
             <span class="icon">
-                <fa :icon="['fac', line.type]" fixed-width/>
+                <ui-icon :icon="`line-${line.type}`" fixed-width/>
             </span>
         </slot>
         <slot name="badge">
             <span class="badge badge-dark flex">
-                <fa :icon="['fal', 'moon']" fixed-width v-if="line.night && !simple"/>
+                <ui-icon icon="night" fixed-width v-if="line.night && !simple"/>
                 {{ line.symbol }}
-                <fa :icon="['fas', 'walking']" v-if="line.fast"/>
+                <ui-icon icon="fast" v-if="line.fast"/>
             </span>
         </slot>
     </span>

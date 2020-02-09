@@ -6,7 +6,7 @@
     </div>
 
     <div v-if="state === 'fetching'" class="text-center p-4">
-        <fa icon="spinner-third" pulse/>
+        <ui-icon icon="spinner"/>
     </div>
     <div class="finder__stops" v-else-if="filter.length > 2 && Object.keys(filtered).length > 0">
         <div class="stop-group" v-for="(group, name) in filtered">
@@ -16,7 +16,7 @@
                 <div class="actions flex-space-left">
                     <button class="btn btn-action" @click="select(group)">
                         <tooltip>wybierz wszystkie</tooltip>
-                        <fa :icon="['fal', 'check-double']"></fa>
+                        <ui-icon icon="add-all"/>
                     </button>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                         <template v-slot:primary-action>
                             <button @click="select(stop, $event)" class="btn btn-action">
                                 <tooltip>dodaj przystanek</tooltip>
-                                <fa :icon="['fal', 'check']" />
+                                <ui-icon icon="add" />
                             </button>
                         </template>
                     </picker-stop>
@@ -35,7 +35,7 @@
         </div>
     </div>
     <div class="alert alert-warning" v-else-if="filter.length > 2">
-        <fa :icon="['far', 'exclamation-triangle']"></fa>
+        <ui-icon icon="warning"/>
         Nie znaleziono więcej przystanków, spełniających te kryteria.
     </div>
 </div>

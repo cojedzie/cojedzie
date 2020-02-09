@@ -6,11 +6,10 @@
         </div>
 
         <div class="departure__time">
-            <fa-layers v-if="!departure.estimated" class="mr-1">
+            <template v-if="!departure.estimated">
                 <tooltip placement="top-end">Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej.</tooltip>
-                <fa :icon="['far', 'clock']"/>
-                <fa :icon="['fas', 'exclamation-triangle']" transform="shrink-5 down-4 right-6"/>
-            </fa-layers>
+                <ui-icon icon="departure-warning"/>
+            </template>
 
             <span :class="[ 'departure__time', 'departure__time--delayed']" v-if="timeDiffers">
                 {{ departure.scheduled.format('HH:mm') }}
@@ -24,13 +23,13 @@
         </div>
 
         <div class="departure__stop">
-            <fa :icon="['fal', 'sign']" fixed-width class="mr-1 flex-shrink-0"/>
+            <ui-icon icon="stop" fixed-width class="mr-1 flex-shrink-0"/>
             <stop :stop="departure.stop"/>
 
             <div class="stop__actions flex-space-left">
                 <button class="btn btn-action" @click="showTrip = !showTrip">
                     <tooltip>pokaż/ukryj trasę</tooltip>
-                    <fa :icon="['far', 'code-commit']" />
+                    <ui-icon icon="track" />
                 </button>
             </div>
         </div>
@@ -38,7 +37,7 @@
     <fold :visible="showTrip">
         <trip :schedule="trip.schedule" :current="departure.stop" v-if="trip" :class="[ `trip--${departure.line.type}` ]"/>
         <div v-else class="text-center">
-            <fa icon="spinner-third" pulse></fa>
+            <ui-icon icon="spinner"/>
         </div>
     </fold>
 </li>

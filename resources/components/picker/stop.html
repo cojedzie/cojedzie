@@ -21,11 +21,11 @@
             <slot name="actions">
                 <button class="btn btn-action" ref="action-info" @click="details = !details">
                     <tooltip>dodatkowe informacje</tooltip>
-                    <fa :icon="['fal', details ? 'chevron-circle-up' : 'info-circle']"/>
+                    <ui-icon :icon="details ? 'info-hide' : 'info'"/>
                 </button>
 
                 <button class="btn btn-action" ref="action-map" v-hover:map>
-                    <fa :icon="['fal', 'map-marker-alt']"/>
+                    <ui-icon icon="map"/>
                 </button>
             </slot>
         </div>

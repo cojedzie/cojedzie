@@ -1,6 +1,6 @@
 <ul class="messages list-unstyled">
     <li class="message alert" :class="`alert-${type(message)}`" v-for="message in messages">
-        <fa :icon="icon(message)" fixed-width></fa>
+        <ui-icon :icon="`message-${type(message)}`" fixed-width />
         {{ message.message }}
 
         <div class="message__info">
