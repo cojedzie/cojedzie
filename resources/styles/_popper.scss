@@ -88,6 +88,10 @@
     font-size: $font-size-sm;
     font-weight: bold;
     margin-bottom: .5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   @mixin placement($placement) {

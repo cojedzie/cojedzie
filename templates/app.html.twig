@@ -27,19 +27,23 @@
                         <fa :icon="['fal', sections.messages ? 'chevron-up' : 'chevron-down']" fixed-width/>
                     </button>
 
-                    <popper reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
-                        <h3 class="popper__heading flex">
-                            <fa :icon="['far', 'cog']"></fa>
-                            <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
-                            <input type="checkbox" class="flex-space-left" id="messages-auto-refresh" v-model="autorefresh.messages.active"/>
-                        </h3>
-                        <div class="flex" v-show="autorefresh.messages.active">
-                            <span class="text">co</span>
-                            <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
-                            <input type="text" class="form-control form-control-sm" id="messages-auto-refresh-interval" v-model="autorefresh.messages.interval"/>
-                            <span class="text">s</span>
-                        </div>
-                    </popper>
+                    <portal to="popups">
+                        <popper reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
+                            <h3 class="popper__heading flex">
+                                <label class="text" for="messages-auto-refresh">
+                                    <fa :icon="['far', 'sync']" fixed-width></fa>
+                                    autoodświeżanie
+                                </label>
+                                <ui-switch id="messages-auto-refresh" v-model="autorefresh.messages.active" class="flex-space-left"></ui-switch>
+                            </h3>
+                            <div class="flex" v-if="autorefresh.messages.active">
+                                <span class="text">co</span>
+                                <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
+                                <input type="text" class="form-control form-control-sm" id="messages-auto-refresh-interval" v-model="autorefresh.messages.interval"/>
+                                <span class="text">s</span>
+                            </div>
+                        </popper>
+                    </portal>
                 </header>
                 <fold :visible="sections.messages">
                     <messages></messages>
@@ -64,11 +68,13 @@
                     <portal to="popups">
                         <popper reference="settings-departures" v-if="visibility.departures" arrow placement="left-start" @leave="visibility.departures = false">
                             <h3 class="popper__heading flex">
-                                <fa :icon="['far', 'sync']" fixed-width></fa>
-                                <label class="text" for="messages-auto-refresh">autoodświeżanie</label>
-                                <input type="checkbox" class="flex-space-left" id="messages-auto-refresh" v-model="autorefresh.departures.active"/>
+                                <label class="text" for="messages-auto-refresh">
+                                    <fa :icon="['far', 'sync']" fixed-width></fa>
+                                    autoodświeżanie
+                                </label>
+                                <ui-switch id="messages-auto-refresh" v-model="autorefresh.departures.active" class="flex-space-left"></ui-switch>
                             </h3>
-                            <div class="flex" v-show="autorefresh.messages.active">
+                            <div class="flex" v-if="autorefresh.departures.active">
                                 <span class="text">co</span>
                                 <label class="sr-only" for="messages-auto-refresh-interval">częstotliwość odświeżania</label>
                                 <input type="text" class="form-control form-control-sm form-control-simple" id="messages-auto-refresh-interval" v-model="autorefresh.departures.interval"/>
