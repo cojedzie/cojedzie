@@ -1,0 +1,4 @@
+<div class="ui-switch" :class="[ value && 'ui-switch--checked' ]" v-bind="$attrs" @click="update">
+    <div class="ui-switch__track"><div class="ui-switch__thumb"></div></div>
+    <input type="checkbox" class="ui-switch__checkbox" :id="id" :checked="value" @input="update"/>
+</div>

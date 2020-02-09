@@ -1,0 +1,48 @@
+$ui-switch-marker-size: .7rem;
+$ui-switch-spacing: 1px;
+$ui-switch-duration: 150ms;
+$ui-switch-width-factor: 2.25;
+
+.ui-switch {
+  padding: 3px;
+}
+
+.ui-switch__checkbox {
+  display: none;
+}
+
+.ui-switch__track {
+  border: 1px solid $dark;
+  border-radius: $ui-switch-marker-size;
+  padding: $ui-switch-spacing;
+  width: $ui-switch-width-factor * $ui-switch-marker-size;
+  height: $ui-switch-marker-size;
+  position: relative;
+  box-sizing: content-box;
+  background: white;
+  transition: background-color $ui-switch-duration ease-in-out;
+  cursor: pointer;
+}
+
+.ui-switch__thumb {
+  border-radius: 100%;
+  width: $ui-switch-marker-size;
+  height: $ui-switch-marker-size;
+  background: $dark;
+  position: absolute;
+  transition: all $ui-switch-duration ease-in-out;
+  transition-property: background-color, left;
+  margin-left: $ui-switch-spacing;
+  left: 0;
+}
+
+.ui-switch--checked {
+  .ui-switch__thumb {
+    background: white;
+    left: ($ui-switch-width-factor - 1) * $ui-switch-marker-size;
+  }
+
+  .ui-switch__track {
+    background: $dark;
+  }
+}
