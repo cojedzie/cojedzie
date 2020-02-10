@@ -183,7 +183,7 @@
             provider: {{ provider.identifier|json_encode|raw }}
         };
 
-        window.czydojade = {};
-        window.czydojade.state = {{ state|json_encode|raw }};
+        window.app = {};
+        window.app.state = {{ state|json_encode|raw }};
     </script>
 {% endblock %}

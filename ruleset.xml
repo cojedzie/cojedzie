@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<rulset name="Kadet.CzyDojade">
-    <description>Czy Dojadę ruleset</description>
+<rulset name="CoJedzie">
+    <description>Co Jedzie ruleset</description>
 
     <arg name="colors"/>
     <arg name="parallel" value="75"/>

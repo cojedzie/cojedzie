@@ -47,15 +47,15 @@ Component.registerHooks(['removed']);
     ] as const);
 
     // here goes "public" API
-    window['czydojade'] = Object.assign({
+    window['app'] = Object.assign({
         state: {}
-    }, window['czydojade'], {
+    }, window['app'], {
         components,
         application: new components.Application({ el: '#app' })
     });
 
     store.dispatch('messages/update');
-    store.dispatch('load', window['czydojade'].state);
+    store.dispatch('load', window['app'].state);
 
     if ('serviceWorker' in navigator) {
         const wb = new Workbox("/service-worker.js");

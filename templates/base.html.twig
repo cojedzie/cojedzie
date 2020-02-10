@@ -15,10 +15,10 @@
         <link rel="apple-touch-icon" href="images/ios.png" sizes="512x512">
         <link rel="apple-touch-icon" href="images/ios-80.png" sizes="80x80">
         <link rel="apple-touch-icon" href="images/ios-192.png" sizes="192x192">
-        <meta name="apple-mobile-web-app-title" content="Czy Dojadę?">
+        <meta name="apple-mobile-web-app-title" content="Co Jedzie?">
         <meta name="apple-mobile-web-app-capable" content="yes">
 
-        <title>{% block title %}Czy dojadę?{% endblock %}</title>
+        <title>{% block title %}Co Jedzie?{% endblock %}</title>
 
         {% if ga_tracking %}
             <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -39,7 +39,7 @@
         <footer class="container">
             {% block footer %}
                 <span>
-                    <img src="{{ asset('images/logo.png') }}" alt="czydojade logo"/>
+                    <img src="{{ asset('images/logo.png') }}" alt="co jedzie logo"/>
                     v. {{ version() }} &bullet;
                     <a href="{{ url('app.swagger_ui') }}">API</a>
                 </span>

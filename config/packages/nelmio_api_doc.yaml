@@ -1,7 +1,7 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: Czy Dojadę?
+            title: Co Jedzie?
             version: 0.1.0
         parameters:
             provider:
