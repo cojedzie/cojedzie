@@ -15,7 +15,7 @@ import {
     faInfoCircle,
     faMapMarkerAlt,
     faMoon,
-    faQuestionCircle,
+    faQuestionCircle, faQuestionSquare,
     faSearch,
     faSign,
     faStar,
@@ -60,6 +60,7 @@ const messageTypeIcons: Dictionary<Icon> = {
 
 const definitions: Dictionary<Icon> = {
     'favourite': simple(faStar),
+    'unknown': simple(faQuestionSquare),
     'add': simple(faCheck),
     'add-all': simple(faCheckDouble),
     'remove-stop': simple(faTimes),
@@ -113,14 +114,20 @@ export class UiIcon extends Vue {
         validator: value => typeof value === "object" || Object.keys(definitions).includes(value),
         required: true,
     })
-    icon: keyof typeof definitions;
+    icon: string | IconDefinition;
 
-    get definition() {
-        return {...(typeof this.icon === "string" ? definitions[this.icon] : { icon: this.icon }), ...this.$attrs};
+    get definition(): Icon {
+        return typeof this.icon === "string"
+            ? definitions[this.icon] || definitions['unknown']
+            : { icon: this.icon as IconDefinition, type: "simple" };
+    }
+
+    get attrs() {
+        return { ...this.definition, ...this.$attrs };
     }
 
     get type() {
-        return definitions[this.icon].type;
+        return this.definition.type;
     }
 }
 

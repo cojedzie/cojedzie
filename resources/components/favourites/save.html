@@ -6,7 +6,7 @@
                    :class="{ 'is-invalid': errors.name.length > 0 }" id="favourite_add_name"
                    v-model="name" v-autofocus/>
             <button class="btn btn-sm btn-dark" type="submit">
-                <ui-icon class="add" />
+                <ui-icon icon="add" />
             </button>
             <div v-if="errors.name.length > 0" class="invalid-feedback">
                 <p v-for="error in errors.name">{{ error }}</p>
