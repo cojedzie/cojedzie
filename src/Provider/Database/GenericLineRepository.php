@@ -3,8 +3,15 @@
 namespace App\Provider\Database;
 
 use App\Entity\LineEntity;
+use App\Event\HandleDatabaseModifierEvent;
+use App\Handlers\Database\LimitDatabaseHandler;
+use App\Handlers\Database\WithIdDatabaseHandler;
+use App\Handlers\ModifierHandler;
 use App\Model\Line;
+use App\Modifiers\Limit;
+use App\Modifiers\WithId;
 use App\Provider\LineRepository;
+use App\Modifiers\Modifier;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional as f;
 
@@ -12,25 +19,52 @@ class GenericLineRepository extends DatabaseRepository implements LineRepository
 {
     public function getAll(): Collection
     {
-        $repository = $this->em->getRepository(LineEntity::class);
-        $lines      = $repository->findAll();
-
-        return collect($lines)->map(f\ref([$this, 'convert']));
+        return $this->all();
     }
 
     public function getById($id): ?Line
     {
-        $repository = $this->em->getRepository(LineEntity::class);
-        return $this->convert($repository->find($id));
+        return $this->first(new WithId($id));
     }
 
     public function getManyById($ids): Collection
     {
-        $ids = collect($ids)->map(f\apply(f\ref([$this->id, 'generate']), $this->provider));
+        return $this->all(new WithId($ids));
+    }
 
-        $repository = $this->em->getRepository(LineEntity::class);
-        $lines      = $repository->findBy(['id' => $ids->all()]);
+    public function first(Modifier ...$modifiers)
+    {
+        return $this->all(Limit::count(1), ...$modifiers)->first();
+    }
 
-        return collect($lines)->map(f\ref([$this, 'convert']));
+    public function all(Modifier ...$modifiers)
+    {
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->from(LineEntity::class, 'line')
+            ->select('line')
+        ;
+
+        foreach ($modifiers as $modifier) {
+            $event   = new HandleDatabaseModifierEvent($modifier, $this, $builder, [
+                'alias'    => 'line',
+                'provider' => $this->provider,
+            ]);
+
+            $handler = $this->getHandlers()[get_class($modifier)];
+
+            $handler->process($event);
+        }
+
+        return collect($builder->getQuery()->execute())->map(f\ref([$this, 'convert']));
+    }
+
+    /** @return ModifierHandler[] */
+    private function getHandlers()
+    {
+        return [
+            WithId::class => new WithIdDatabaseHandler($this->id),
+            Limit::class  => new LimitDatabaseHandler(),
+        ];
     }
 }

@@ -7,7 +7,7 @@ namespace App\Provider;
 use App\Model\Line;
 use Tightenco\Collect\Support\Collection;
 
-interface LineRepository extends Repository
+interface LineRepository extends FluentRepository
 {
     public function getAll(): Collection;
 
