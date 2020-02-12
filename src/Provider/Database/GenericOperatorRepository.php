@@ -30,4 +30,9 @@ class GenericOperatorRepository extends DatabaseRepository implements OperatorRe
 
         return collect($operators);
     }
+
+    protected static function getHandlers()
+    {
+        return [];
+    }
 }

@@ -3,14 +3,13 @@
 namespace App\Handlers\Database;
 
 use App\Handlers\ModifierHandler;
-use App\Modifiers\WithId;
+use App\Modifiers\IdFilter;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Service\IdUtils;
 use function Kadet\Functional\apply;
-use function Kadet\Functional\ref;
 
-class WithIdDatabaseHandler implements ModifierHandler
+class IdFilterDatabaseHandler implements ModifierHandler
 {
     /**
      * @var IdUtils
@@ -28,7 +27,7 @@ class WithIdDatabaseHandler implements ModifierHandler
             return;
         }
 
-        /** @var WithId $modifier */
+        /** @var IdFilter $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];

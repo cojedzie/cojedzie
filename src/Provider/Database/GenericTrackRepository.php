@@ -64,4 +64,9 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
 
         return collect($tracks)->map(f\ref([$this, 'convert']));
     }
+
+    protected static function getHandlers()
+    {
+        return [];
+    }
 }

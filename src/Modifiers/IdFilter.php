@@ -5,7 +5,7 @@ namespace App\Modifiers;
 use App\Exception\InvalidOptionException;
 use App\Modifiers\Modifier;
 
-class WithId implements Modifier
+class IdFilter implements Modifier
 {
     /** @var string|array */
     private $id;

@@ -70,4 +70,9 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ]);
         });
     }
+
+    protected static function getHandlers()
+    {
+        return [];
+    }
 }

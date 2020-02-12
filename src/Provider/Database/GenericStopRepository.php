@@ -83,4 +83,9 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
             $stop->setDestinations($destinations[$this->id->generate($this->provider, $stop->getId())]);
         });
     }
+
+    protected static function getHandlers()
+    {
+        return [];
+    }
 }

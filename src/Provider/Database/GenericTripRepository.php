@@ -25,4 +25,9 @@ class GenericTripRepository extends DatabaseRepository implements TripRepository
 
         return $this->convert($trip);
     }
+
+    protected static function getHandlers()
+    {
+        return [];
+    }
 }
