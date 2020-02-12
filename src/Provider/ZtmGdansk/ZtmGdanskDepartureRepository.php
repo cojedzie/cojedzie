@@ -6,6 +6,7 @@ use App\Model\Departure;
 use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Vehicle;
+use App\Modifiers\IdFilter;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
@@ -65,7 +66,8 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $lines = $estimates->map(function ($delay) {
             return $delay['routeId'];
         })->unique();
-        $lines = $this->lines->getManyById($lines)->keyBy(t\property('id'));
+
+        $lines = $this->lines->all(new IdFilter($lines))->keyBy(t\property('id'));
 
         return collect($estimates)->map(function ($delay) use ($stop, $lines) {
             $scheduled = (new Carbon($delay['theoreticalTime'], 'Europe/Warsaw'))->tz('UTC');

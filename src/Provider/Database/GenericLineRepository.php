@@ -17,27 +17,12 @@ use Kadet\Functional as f;
 
 class GenericLineRepository extends DatabaseRepository implements LineRepository
 {
-    public function getAll(): Collection
-    {
-        return $this->all();
-    }
-
-    public function getById($id): ?Line
-    {
-        return $this->first(new IdFilter($id));
-    }
-
-    public function getManyById($ids): Collection
-    {
-        return $this->all(new IdFilter($ids));
-    }
-
     public function first(Modifier ...$modifiers)
     {
         return $this->all(Limit::count(1), ...$modifiers)->first();
     }
 
-    public function all(Modifier ...$modifiers)
+    public function all(Modifier ...$modifiers): Collection
     {
         $builder = $this->em
             ->createQueryBuilder()

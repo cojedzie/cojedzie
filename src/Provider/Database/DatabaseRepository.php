@@ -96,7 +96,10 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
      *
      * @return array
      */
-    protected abstract static function getHandlers();
+    protected static function getHandlers()
+    {
+        return [];
+    }
 
     /**
      * @inheritDoc
