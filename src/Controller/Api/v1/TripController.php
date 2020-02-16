@@ -4,6 +4,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Trip;
+use App\Modifier\IdFilter;
 use App\Provider\TripRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +19,7 @@ class TripController extends Controller
      */
     public function one($id, TripRepository $repository)
     {
-        $trip = $repository->getById($id);
+        $trip = $repository->all(new IdFilter($id));
 
         return $this->json($trip, Response::HTTP_OK, [], $this->serializerContextFactory->create(Trip::class));
     }

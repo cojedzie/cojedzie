@@ -4,30 +4,25 @@ namespace App\Provider\Database;
 
 use App\Entity\TripEntity;
 use App\Model\Trip;
+use App\Modifier\Modifier;
 use App\Provider\TripRepository;
+use Tightenco\Collect\Support\Collection;
 
 class GenericTripRepository extends DatabaseRepository implements TripRepository
 {
-    public function getById(string $id): Trip
+    public function all(Modifier ...$modifiers): Collection
     {
-        $id   = $this->id->generate($this->provider, $id);
-
-        $trip = $this->em
+        $builder = $this->em
             ->createQueryBuilder()
-            ->from(TripEntity::class, 't')
-            ->join('t.stops', 'ts')
+            ->from(TripEntity::class, 'trip')
+            ->join('trip.stops', 'ts')
             ->join('ts.stop', 's')
-            ->select('t', 'ts')
-            ->where('t.id = :id')
-            ->getQuery()
-            ->setParameter('id', $id)
-            ->getOneOrNullResult();
+            ->select('t', 'ts');
 
-        return $this->convert($trip);
-    }
-
-    protected static function getHandlers()
-    {
-        return [];
+        return $this->allFromQueryBuilder($builder, $modifiers, [
+            'alias'  => 'operator',
+            'entity' => TripEntity::class,
+            'type'   => Trip::class,
+        ]);
     }
 }

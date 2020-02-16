@@ -4,7 +4,6 @@ namespace App\Provider;
 
 use App\Model\Trip;
 
-interface TripRepository
+interface TripRepository extends FluentRepository
 {
-    public function getById(string $id): Trip;
 }
