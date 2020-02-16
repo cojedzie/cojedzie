@@ -11,6 +11,7 @@ class IdUtils
 
     public function generate(ProviderEntity $provider, $id)
     {
+        // todo: use array cache if not fast enough
         return sprintf('%s%s%s', $provider->getId(), self::DELIMITER, $id);
     }
 

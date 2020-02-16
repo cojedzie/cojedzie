@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handlers;
+namespace App\Handler;
 
 use App\Event\HandleModifierEvent;
 

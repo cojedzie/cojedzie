@@ -8,7 +8,11 @@ export function query(params: UrlParams = { }) {
     function *simplify(name: string, param: any): IterableIterator<ParamValuePair> {
         if (typeof param === 'string') {
             yield [ name, param ];
-        } else if (typeof param === 'number') {
+        } else if (typeof param === 'boolean') {
+            if (param) {
+                yield [ name, '1' ];
+            }
+        }  else if (typeof param === 'number') {
             yield [ name, param.toString() ];
         } else if (param instanceof Array) {
             for (let entry of param) {

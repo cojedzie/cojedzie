@@ -2,7 +2,7 @@
 
 namespace App\Provider;
 
-use App\Modifiers\Modifier;
+use App\Modifier\Modifier;
 use Tightenco\Collect\Support\Collection;
 
 interface FluentRepository extends Repository

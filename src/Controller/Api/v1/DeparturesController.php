@@ -5,6 +5,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Departure;
+use App\Modifier\IdFilter;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
 use App\Service\SerializerContextFactory;
@@ -34,7 +35,7 @@ class DeparturesController extends Controller
      */
     public function stop(DepartureRepository $departures, StopRepository $stops, $stop)
     {
-        $stop = $stops->getById($stop);
+        $stop = $stops->first(new IdFilter($stop));
 
         return $this->json($departures->getForStop($stop));
     }
@@ -65,7 +66,7 @@ class DeparturesController extends Controller
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {
         $stops = $stops
-            ->getManyById($request->query->get('stop'))
+            ->all(new IdFilter($request->query->get('stop')))
             ->flatMap(ref([ $departures, 'getForStop' ]))
             ->sortBy(property('departure'));
 

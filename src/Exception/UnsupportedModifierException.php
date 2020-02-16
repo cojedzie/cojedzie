@@ -2,10 +2,10 @@
 
 namespace App\Exception;
 
-use App\Modifiers\Modifier;
+use App\Modifier\Modifier;
 use App\Provider\Repository;
 
-class UnsupportedModifierException extends \Exception
+class UnsupportedModifierException extends \LogicException
 {
     public static function createFromModifier(Modifier $modifier, Repository $repository)
     {

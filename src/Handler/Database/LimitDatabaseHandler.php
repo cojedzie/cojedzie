@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Handlers\Database;
+namespace App\Handler\Database;
 
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
-use App\Handlers\ModifierHandler;
-use App\Modifiers\Limit;
+use App\Handler\ModifierHandler;
+use App\Modifier\Limit;
 
 class LimitDatabaseHandler implements ModifierHandler
 {

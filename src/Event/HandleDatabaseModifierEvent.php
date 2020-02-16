@@ -3,7 +3,7 @@
 namespace App\Event;
 
 use App\Event\HandleModifierEvent;
-use App\Modifiers\Modifier;
+use App\Modifier\Modifier;
 use App\Provider\Repository;
 use Doctrine\ORM\QueryBuilder;
 

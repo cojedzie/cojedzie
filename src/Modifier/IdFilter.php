@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modifiers;
+namespace App\Modifier;
 
 use App\Exception\InvalidOptionException;
-use App\Modifiers\Modifier;
+use App\Modifier\Modifier;
 
 class IdFilter implements Modifier
 {

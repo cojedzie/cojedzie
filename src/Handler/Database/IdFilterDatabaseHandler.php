@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Handlers\Database;
+namespace App\Handler\Database;
 
-use App\Handlers\ModifierHandler;
-use App\Modifiers\IdFilter;
+use App\Handler\ModifierHandler;
+use App\Modifier\IdFilter;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Service\IdUtils;

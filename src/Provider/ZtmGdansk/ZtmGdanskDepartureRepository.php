@@ -6,7 +6,7 @@ use App\Model\Departure;
 use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Vehicle;
-use App\Modifiers\IdFilter;
+use App\Modifier\IdFilter;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;

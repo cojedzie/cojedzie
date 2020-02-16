@@ -2,7 +2,7 @@
 
 namespace App\Event;
 
-use App\Modifiers\Modifier;
+use App\Modifier\Modifier;
 use App\Provider\Repository;
 
 class HandleModifierEvent

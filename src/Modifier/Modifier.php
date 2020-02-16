@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modifiers;
+namespace App\Modifier;
 
 interface Modifier
 {

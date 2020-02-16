@@ -7,6 +7,9 @@ use App\Controller\Controller;
 use App\Model\Stop;
 use App\Model\Track;
 use App\Model\StopGroup;
+use App\Modifier\IdFilter;
+use App\Modifier\FieldFilter;
+use App\Modifier\IncludeDestinations;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use App\Service\Proxy\ReferenceFactory;
@@ -46,16 +49,9 @@ class StopsController extends Controller
      */
     public function index(Request $request, StopRepository $stops)
     {
-        switch (true) {
-            case $request->query->has('id'):
-                $result = $stops->getManyById($request->query->get('id'));
-                break;
+        $modifiers = $this->getModifiersFromRequest($request);
 
-            default:
-                $result = $stops->getAll();
-        }
-
-        return $this->json($result->all());
+        return $this->json($stops->all(...$modifiers)->toArray());
     }
 
     /**
@@ -76,16 +72,9 @@ class StopsController extends Controller
      */
     public function groups(Request $request, StopRepository $stops)
     {
-        switch (true) {
-            case $request->query->has('name'):
-                $result = $stops->findByName($request->query->get('name'));
-                break;
+        $modifiers = $this->getModifiersFromRequest($request);
 
-            default:
-                $result = $stops->getAll();
-        }
-
-        return $this->json(static::group($result)->all());
+        return $this->json(static::group($stops->all(...$modifiers))->toArray());
     }
 
     /**
@@ -106,7 +95,7 @@ class StopsController extends Controller
      */
     public function one(Request $request, StopRepository $stops, $id)
     {
-        return $this->json($stops->getById($id));
+        return $this->json($stops->first(new IdFilter($id), new IncludeDestinations()));
     }
 
     /**
@@ -144,5 +133,29 @@ class StopsController extends Controller
 
             return $group;
         })->values();
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return array
+     */
+    private function getModifiersFromRequest(Request $request): array
+    {
+        $modifiers = [];
+
+        if ($request->query->has('name')) {
+            $modifiers[] = FieldFilter::contains('name', $request->query->get('name'));
+        }
+
+        if ($request->query->has('id')) {
+            $modifiers[] = new IdFilter($request->query->get('id'));
+        }
+
+        if ($request->query->has('include-destinations')) {
+            $modifiers[] = new IncludeDestinations();
+        }
+
+        return $modifiers;
     }
 }
