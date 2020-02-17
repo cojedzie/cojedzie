@@ -3,8 +3,11 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Track;
+use App\Modifier\IdFilter;
+use App\Modifier\RelatedFilter;
 use App\Provider\TrackRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
@@ -49,7 +52,7 @@ class TracksController extends Controller
     {
         $id = encapsulate($request->query->get('id'));
 
-        return $this->json($repository->getManyById($id));
+        return $this->json($repository->all(new IdFilter($id)));
     }
 
     private function byStop(Request $request, TrackRepository $repository)
@@ -63,8 +66,8 @@ class TracksController extends Controller
     private function byLine(Request $request, TrackRepository $repository)
     {
         $line = $request->query->get('line');
-        $line = array_map([Stop::class, 'reference'], encapsulate($line));
+        $line = Line::reference($line);
 
-        return $this->json($repository->getByLine($line));
+        return $this->json($repository->all(new RelatedFilter($line)));
     }
 }

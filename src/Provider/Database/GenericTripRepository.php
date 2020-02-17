@@ -20,7 +20,7 @@ class GenericTripRepository extends DatabaseRepository implements TripRepository
             ->select('t', 'ts');
 
         return $this->allFromQueryBuilder($builder, $modifiers, [
-            'alias'  => 'operator',
+            'alias'  => 'trip',
             'entity' => TripEntity::class,
             'type'   => Trip::class,
         ]);

@@ -27,7 +27,7 @@ class IncludeDestinationsDatabaseHandler implements PostProcessingHandler
         $this->id = $id;
     }
 
-    public function process(PostProcessEvent $event)
+    public function postProcess(PostProcessEvent $event)
     {
         $provider = $event->getMeta()['provider'];
         $stops = $event

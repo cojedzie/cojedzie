@@ -2,36 +2,18 @@
 
 namespace App\Provider\Database;
 
-use App\Entity\LineEntity;
 use App\Entity\StopEntity;
 use App\Entity\StopInTrack;
 use App\Entity\TrackEntity;
-use function App\Functions\encapsulate;
-use App\Model\Stop;
+use App\Modifier\Modifier;
 use App\Model\Track;
 use App\Provider\TrackRepository;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional as f;
+use function App\Functions\encapsulate;
 
 class GenericTrackRepository extends DatabaseRepository implements TrackRepository
 {
-    public function getAll(): Collection
-    {
-        $tracks = $this->em->getRepository(TrackEntity::class)->findAll();
-
-        return collect($tracks)->map(f\ref([$this, 'convert']));
-    }
-
-    public function getById($id): Track
-    {
-        // TODO: Implement getById() method.
-    }
-
-    public function getManyById($ids): Collection
-    {
-        // TODO: Implement getManyById() method.
-    }
-
     public function getByStop($stop): Collection
     {
         $reference = f\apply(f\ref([$this, 'reference']), StopEntity::class);
@@ -49,24 +31,17 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
         });
     }
 
-    public function getByLine($line): Collection
+    public function all(Modifier ...$modifiers): Collection
     {
-        $reference = f\apply(f\ref([$this, 'reference']), LineEntity::class);
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->from(TrackEntity::class, 'track')
+            ->select('track');
 
-        $tracks = $this->em->createQueryBuilder()
-            ->from(StopInTrack::class, 'st')
-            ->join('st.track', 't')
-            ->join('t.stops', 's')
-            ->where('st.line in (:line)')
-            ->select(['st', 't', 's'])
-            ->getQuery()
-            ->execute(['stop' => array_map($reference, encapsulate($line))]);
-
-        return collect($tracks)->map(f\ref([$this, 'convert']));
-    }
-
-    protected static function getHandlers()
-    {
-        return [];
+        return $this->allFromQueryBuilder($builder, $modifiers, [
+            'alias'  => 'track',
+            'entity' => TrackEntity::class,
+            'type'   => Track::class,
+        ]);
     }
 }

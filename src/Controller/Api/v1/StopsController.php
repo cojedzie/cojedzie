@@ -10,6 +10,7 @@ use App\Model\StopGroup;
 use App\Modifier\IdFilter;
 use App\Modifier\FieldFilter;
 use App\Modifier\IncludeDestinations;
+use App\Modifier\RelatedFilter;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use App\Service\Proxy\ReferenceFactory;

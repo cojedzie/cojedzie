@@ -7,6 +7,7 @@ use App\Event\HandleModifierEvent;
 use App\Handler\ModifierHandler;
 use App\Model\Stop;
 use App\Modifier\FieldFilter;
+use function App\Functions\encapsulate;
 
 class FieldFilterDatabaseHandler implements ModifierHandler
 {
@@ -33,8 +34,13 @@ class FieldFilterDatabaseHandler implements ModifierHandler
 
         $parameter = sprintf(":%s_%s", $alias, $field);
 
+        if ($operator === 'in' || $operator === 'not in') {
+            $parameter = "($parameter)";
+            $value     = encapsulate($value);
+        }
+
         $builder
-            ->where(sprintf("%s.%s %s %s", $alias, $field, $operator, $parameter))
+            ->andWhere(sprintf("%s.%s %s %s", $alias, $field, $operator, $parameter))
             ->setParameter($parameter, $value)
         ;
     }

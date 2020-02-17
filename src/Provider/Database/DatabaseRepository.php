@@ -9,12 +9,15 @@ use App\Exception\UnsupportedModifierException;
 use App\Handler\Database\IdFilterDatabaseHandler;
 use App\Handler\Database\LimitDatabaseHandler;
 use App\Handler\Database\FieldFilterDatabaseHandler;
+use App\Handler\Database\RelatedFilterDatabaseGenericHandler;
+use App\Handler\ModifierHandler;
 use App\Handler\PostProcessingHandler;
 use App\Model\Referable;
 use App\Modifier\IdFilter;
 use App\Modifier\Limit;
 use App\Modifier\Modifier;
 use App\Modifier\FieldFilter;
+use App\Modifier\RelatedFilter;
 use App\Provider\Repository;
 use App\Service\Converter;
 use App\Service\IdUtils;
@@ -85,27 +88,26 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
         foreach ($modifiers as $modifier) {
             $handler = $this->getHandler($modifier);
 
-            switch (true) {
-                case $handler instanceof PostProcessingHandler:
-                    $reducers[] = function ($result) use ($meta, $modifier, $handler) {
-                        $event = new PostProcessEvent($result, $modifier, $this, array_merge([
-                            'provider' => $this->provider,
-                        ], $meta));
+            if ($handler instanceof ModifierHandler) {
+                $event = new HandleDatabaseModifierEvent($modifier, $this, $builder, array_merge([
+                    'provider' => $this->provider,
+                ], $meta));
 
-                        $handler->process($event);
+                $handler->process($event);
+            }
 
-                        return $event->getData();
-                    };
-                    break;
-
-                default:
-                    $event = new HandleDatabaseModifierEvent($modifier, $this, $builder, array_merge([
+            if ($handler instanceof PostProcessingHandler) {
+                $reducers[] = function ($result) use ($meta, $modifier, $handler) {
+                    $event = new PostProcessEvent($result, $modifier, $this, array_merge([
                         'provider' => $this->provider,
                     ], $meta));
 
-                    $handler->process($event);
-                    break;
+                    $handler->postProcess($event);
+
+                    return $event->getData();
+                };
             }
+
         }
 
         return collect($reducers);
@@ -155,9 +157,10 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
     public static function getSubscribedServices()
     {
         return array_merge([
-            IdFilter::class    => IdFilterDatabaseHandler::class,
-            Limit::class       => LimitDatabaseHandler::class,
-            FieldFilter::class => FieldFilterDatabaseHandler::class,
+            IdFilter::class      => IdFilterDatabaseHandler::class,
+            Limit::class         => LimitDatabaseHandler::class,
+            FieldFilter::class   => FieldFilterDatabaseHandler::class,
+            RelatedFilter::class => RelatedFilterDatabaseGenericHandler::class,
         ], static::getHandlers());
     }
 }

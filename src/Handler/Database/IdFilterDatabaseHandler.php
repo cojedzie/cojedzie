@@ -37,7 +37,7 @@ class IdFilterDatabaseHandler implements ModifierHandler
         $mapper   = apply([$this->id, 'generate'], $provider);
 
         $builder
-            ->where($modifier->isMultiple() ? "{$alias} in (:id)" : "{$alias} = :id")
+            ->andWhere($modifier->isMultiple() ? "{$alias} in (:id)" : "{$alias} = :id")
             ->setParameter(':id', $modifier->isMultiple() ? array_map($mapper, $id) : $mapper($id));
         ;
     }
