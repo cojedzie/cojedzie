@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
@@ -42,7 +41,8 @@ class StopsController extends Controller
      *     name="id",
      *     in="query",
      *     type="array",
-     *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will return all data.",
+     *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will
+     *     return all data.",
      *     @SWG\Items(type="string")
      * )
      *
@@ -136,27 +136,18 @@ class StopsController extends Controller
         })->values();
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return array
-     */
-    private function getModifiersFromRequest(Request $request): array
+    private function getModifiersFromRequest(Request $request)
     {
-        $modifiers = [];
-
         if ($request->query->has('name')) {
-            $modifiers[] = FieldFilter::contains('name', $request->query->get('name'));
+            yield FieldFilter::contains('name', $request->query->get('name'));
         }
 
         if ($request->query->has('id')) {
-            $modifiers[] = new IdFilter($request->query->get('id'));
+            yield new IdFilter($request->query->get('id'));
         }
 
         if ($request->query->has('include-destinations')) {
-            $modifiers[] = new IncludeDestinations();
+            yield new IncludeDestinations();
         }
-
-        return $modifiers;
     }
 }
