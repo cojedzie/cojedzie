@@ -5,16 +5,19 @@ namespace App\Service;
 use App\Entity\LineEntity;
 use App\Entity\ProviderEntity;
 use App\Entity\StopEntity;
+use App\Entity\TrackEntity;
 use App\Model\Line;
 use App\Model\Referable;
 use App\Model\Stop;
+use App\Model\Track;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class ReferenceFactory
+final class EntityReferenceFactory
 {
     protected $mapping = [
-        Line::class => LineEntity::class,
-        Stop::class => StopEntity::class,
+        Line::class  => LineEntity::class,
+        Stop::class  => StopEntity::class,
+        Track::class => TrackEntity::class,
     ];
 
     private $em;

@@ -2,18 +2,18 @@
 
 namespace App\Handler\Database;
 
-use App\Entity\StopInTrack;
+use App\Entity\TrackStopEntity;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Handler\ModifierHandler;
 use App\Modifier\RelatedFilter;
-use App\Service\ReferenceFactory;
+use App\Service\EntityReferenceFactory;
 
 class TrackByStopDatabaseHandler implements ModifierHandler
 {
     private $references;
 
-    public function __construct(ReferenceFactory $references)
+    public function __construct(EntityReferenceFactory $references)
     {
         $this->references = $references;
     }

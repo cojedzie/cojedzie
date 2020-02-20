@@ -3,7 +3,7 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
-use App\Entity\StopInTrack;
+use App\Entity\TrackStopEntity;
 use App\Entity\TrackEntity;
 use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;

@@ -2,33 +2,28 @@
 
 namespace App\Provider\Database;
 
-use App\Entity\StopEntity;
-use App\Entity\StopInTrack;
+use App\Entity\TrackStopEntity;
 use App\Entity\TrackEntity;
+use App\Model\TrackStop;
 use App\Modifier\Modifier;
 use App\Model\Track;
 use App\Provider\TrackRepository;
 use Tightenco\Collect\Support\Collection;
-use Kadet\Functional as f;
-use function App\Functions\encapsulate;
 
 class GenericTrackRepository extends DatabaseRepository implements TrackRepository
 {
-    public function getByStop($stop): Collection
+    public function stops(Modifier ...$modifiers): Collection
     {
-        $reference = f\apply(f\ref([$this, 'reference']), StopEntity::class);
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->from(TrackStopEntity::class, 'track_stop')
+            ->select(['track_stop']);
 
-        $tracks = $this->em->createQueryBuilder()
-            ->from(StopInTrack::class, 'st')
-            ->join('st.track', 't')
-            ->where('st.stop in (:stop)')
-            ->select(['st', 't'])
-            ->getQuery()
-            ->execute(['stop' => array_map($reference, encapsulate($stop))]);
-
-        return collect($tracks)->map(function (StopInTrack $entity) {
-            return [ $this->convert($entity->getTrack()), $entity->getOrder() ];
-        });
+        return $this->allFromQueryBuilder($builder, $modifiers, [
+            'alias'  => 'track_stop',
+            'entity' => TrackStopEntity::class,
+            'type'   => TrackStop::class,
+        ]);
     }
 
     public function all(Modifier ...$modifiers): Collection

@@ -8,9 +8,10 @@ use App\Handler\ModifierHandler;
 use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Track;
+use App\Model\TrackStop;
 use App\Modifier\RelatedFilter;
 use App\Service\IdUtils;
-use App\Service\ReferenceFactory;
+use App\Service\EntityReferenceFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
@@ -18,9 +19,13 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSubscriberInterface
 {
     protected $mapping = [
-        Track::class => [
+        Track::class     => [
             Line::class => 'line',
             Stop::class => TrackByStopDatabaseHandler::class,
+        ],
+        TrackStop::class => [
+            Stop::class  => 'stop',
+            Track::class => 'track',
         ],
     ];
 
@@ -33,11 +38,11 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         ContainerInterface $inner,
         EntityManagerInterface $em,
         IdUtils $idUtils,
-        ReferenceFactory $references
+        EntityReferenceFactory $references
     ) {
-        $this->inner = $inner;
-        $this->em = $em;
-        $this->id = $idUtils;
+        $this->inner      = $inner;
+        $this->em         = $em;
+        $this->id         = $idUtils;
         $this->references = $references;
     }
 
@@ -71,6 +76,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
             /** @var ModifierHandler $inner */
             $inner = $this->inner->get($relationship);
             $inner->process($event);
+
             return;
         }
 
@@ -80,8 +86,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         $builder
             ->join(sprintf('%s.%s', $alias, $relationship), $relationship)
             ->andWhere(sprintf("%s = %s", $relationship, $parameter))
-            ->setParameter($parameter, $reference)
-        ;
+            ->setParameter($parameter, $reference);
     }
 
     /**

@@ -6,7 +6,7 @@ use App\Entity\LineEntity;
 use App\Entity\OperatorEntity;
 use App\Entity\ProviderEntity;
 use App\Entity\StopEntity;
-use App\Entity\StopInTrack;
+use App\Entity\TrackStopEntity;
 use App\Entity\TrackEntity;
 use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
@@ -216,7 +216,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
                     return !in_array($stop['stopId'], $this->stopBlacklist);
                 })
                 ->map(function ($stop) use ($entity, $provider) {
-                    return StopInTrack::createFromArray([
+                    return TrackStopEntity::createFromArray([
                         'stop'  => $this->em->getReference(
                             StopEntity::class,
                             $this->ids->generate($provider, $stop['stopId'])

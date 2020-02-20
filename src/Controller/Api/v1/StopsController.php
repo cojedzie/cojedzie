@@ -4,7 +4,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Stop;
-use App\Model\Track;
+use App\Model\TrackStop;
 use App\Model\StopGroup;
 use App\Modifier\IdFilter;
 use App\Modifier\FieldFilter;
@@ -12,7 +12,6 @@ use App\Modifier\IncludeDestinations;
 use App\Modifier\RelatedFilter;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
-use App\Service\Proxy\ReferenceFactory;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -105,21 +104,12 @@ class StopsController extends Controller
      * @SWG\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
-     *     @SWG\Schema(type="object", properties={
-     *         @SWG\Property(property="track", type="object", ref=@Model(type=Track::class)),
-     *         @SWG\Property(property="order", type="integer", minimum="0")
-     *     })
+     *     @SWG\Schema(ref=@Model(type=TrackStop::class))
      * )
-     *
-     * @SWG\Tag(name="Tracks")
      */
-    public function tracks(ReferenceFactory $reference, TrackRepository $tracks, $id)
+    public function tracks(TrackRepository $tracks, $id)
     {
-        $stop = $reference->get(Stop::class, $id);
-
-        return $this->json($tracks->getByStop($stop)->map(function ($tuple) {
-            return array_combine(['track', 'order'], $tuple);
-        }));
+        return $this->json($tracks->stops(new RelatedFilter(Stop::reference($id))));
     }
 
     public static function group(Collection $stops)

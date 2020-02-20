@@ -28,6 +28,8 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 abstract class DatabaseRepository implements ServiceSubscriberInterface, Repository
 {
+    const DEFAULT_LIMIT = 100;
+
     /** @var EntityManagerInterface */
     protected $em;
 
@@ -115,6 +117,8 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
 
     protected function allFromQueryBuilder(QueryBuilder $builder, iterable $modifiers, array $meta = [])
     {
+        $builder->setMaxResults(self::DEFAULT_LIMIT);
+
         $reducers = $this->processQueryBuilder($builder, $modifiers, $meta);
 
         return $reducers->reduce(function ($result, $reducer) {
