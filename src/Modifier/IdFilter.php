@@ -2,8 +2,9 @@
 
 namespace App\Modifier;
 
-use App\Exception\InvalidOptionException;
+use App\Exception\InvalidArgumentException;
 use App\Modifier\Modifier;
+use App\Service\IterableUtils;
 
 class IdFilter implements Modifier
 {
@@ -13,10 +14,10 @@ class IdFilter implements Modifier
     public function __construct($id)
     {
         if (!is_iterable($id) && !is_string($id)) {
-            throw InvalidOptionException::invalidType('id', $id, ['string', 'array']);
+            throw InvalidArgumentException::invalidType('id', $id, ['string', 'array']);
         }
 
-        $this->id = $id instanceof \Traversable ? iterator_to_array($id) : $id;
+        $this->id = is_iterable($id) ? IterableUtils::toArray($id) : $id;
     }
 
     public function getId()

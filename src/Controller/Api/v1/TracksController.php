@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use function App\Functions\encapsulate;
+use function Kadet\Functional\ref;
 
 /**
  * @Route("/tracks")
@@ -51,17 +52,17 @@ class TracksController extends Controller
     private function getModifiersFromRequest(Request $request)
     {
         if ($request->query->has('stop')) {
-            $stop = $request->query->get('stop');
-            $stop = Stop::reference($stop);
+            $stop = encapsulate($request->query->get('stop'));
+            $stop = collect($stop)->map([Stop::class, 'reference']);
 
-            yield new RelatedFilter($stop);
+            yield new RelatedFilter($stop, Stop::class);
         }
 
         if ($request->query->has('line')) {
-            $line = $request->query->get('line');
-            $line = Line::reference($line);
+            $line = encapsulate($request->query->get('line'));
+            $line = collect($line)->map([Line::class, 'reference']);
 
-            yield new RelatedFilter($line);
+            yield new RelatedFilter($line, Line::class);
         }
 
         if ($request->query->has('id')) {
@@ -74,8 +75,8 @@ class TracksController extends Controller
     private function getStopsModifiersFromRequest(Request $request)
     {
         if ($request->query->has('stop')) {
-            $stop = $request->query->get('stop');
-            $stop = Stop::reference($stop);
+            $stop = encapsulate($request->query->get('stop'));
+            $stop = collect($stop)->map(ref([Stop::class, 'reference']));
 
             yield new RelatedFilter($stop);
         }

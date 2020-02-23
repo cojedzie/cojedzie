@@ -2,17 +2,23 @@
 
 namespace App\Modifier;
 
+use App\Exception\InvalidArgumentException;
 use App\Model\Referable;
+use App\Service\IterableUtils;
 
 class RelatedFilter implements Modifier
 {
     private $relationship;
-    private $object;
+    private $reference;
 
-    public function __construct(Referable $object, ?string $relation = null)
+    public function __construct($reference, ?string $relation = null)
     {
-        $this->object       = $object;
-        $this->relationship = $relation ?: get_class($object);
+        if (!is_iterable($reference) && !$reference instanceof Referable) {
+            throw InvalidArgumentException::invalidType('object', $reference, [Referable::class, 'iterable']);
+        }
+
+        $this->reference    = is_iterable($reference) ? IterableUtils::toArray($reference) : $reference;
+        $this->relationship = $relation ?: get_class($reference);
     }
 
     public function getRelationship(): string
@@ -20,8 +26,13 @@ class RelatedFilter implements Modifier
         return $this->relationship;
     }
 
-    public function getRelated(): Referable
+    public function getRelated()
     {
-        return $this->object;
+        return $this->reference;
+    }
+
+    public function isMultiple()
+    {
+        return is_array($this->reference);
     }
 }

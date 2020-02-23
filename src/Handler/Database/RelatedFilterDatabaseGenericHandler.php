@@ -85,7 +85,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
 
         $builder
             ->join(sprintf('%s.%s', $alias, $relationship), $relationship)
-            ->andWhere(sprintf("%s = %s", $relationship, $parameter))
+            ->andWhere(sprintf($modifier->isMultiple() ? "%s in (%s)" : "%s = %s", $relationship, $parameter))
             ->setParameter($parameter, $reference);
     }
 

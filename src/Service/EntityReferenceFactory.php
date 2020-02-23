@@ -6,11 +6,16 @@ use App\Entity\LineEntity;
 use App\Entity\ProviderEntity;
 use App\Entity\StopEntity;
 use App\Entity\TrackEntity;
+use App\Exception\InvalidArgumentException;
 use App\Model\Line;
 use App\Model\Referable;
 use App\Model\Stop;
 use App\Model\Track;
 use Doctrine\ORM\EntityManagerInterface;
+use Tightenco\Collect\Support\Collection;
+use function Kadet\Functional\partial;
+use function Kadet\Functional\ref;
+use const Kadet\Functional\_;
 
 final class EntityReferenceFactory
 {
@@ -29,7 +34,25 @@ final class EntityReferenceFactory
         $this->id = $id;
     }
 
-    public function create(Referable $object, ProviderEntity $provider)
+    public function create($object, ProviderEntity $provider)
+    {
+        switch (true) {
+            case $object instanceof Referable:
+                return $this->createEntityReference($object, $provider);
+            case is_array($object):
+                return array_map(partial(ref([$this, 'createEntityReference']), _, $provider), $object);
+            case $object instanceof Collection:
+                return $object->map(partial(ref([$this, 'createEntityReference']), _, $provider));
+            default:
+                throw InvalidArgumentException::invalidType(
+                    'object',
+                    $object,
+                    [Referable::class, Collection::class, 'array']
+                );
+        }
+    }
+
+    private function createEntityReference(Referable $object, ProviderEntity $provider)
     {
         $class = get_class($object);
 

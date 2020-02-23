@@ -34,9 +34,11 @@ class TrackByStopDatabaseHandler implements ModifierHandler
         $parameter = sprintf(":%s_%s", $alias, $relationship);
         $reference = $this->references->create($modifier->getRelated(), $event->getMeta()['provider']);
 
+        $condition = $modifier->isMultiple() ? 'stop_in_track.stop IN (%s)' : 'stop_in_track.stop = %s';
+
         $builder
             ->join(sprintf("%s.%s", $alias, $relationship), 'stop_in_track')
-            ->andWhere(sprintf("stop_in_track.stop = %s", $parameter))
+            ->andWhere(sprintf($condition, $parameter))
             ->setParameter($parameter, $reference)
         ;
     }
