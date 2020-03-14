@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Model\Fillable;
 use App\Model\FillTrait;
+use App\Model\Referable;
 use App\Model\Trip;
 use App\Service\IdUtils;
 use Carbon\Carbon;
@@ -14,21 +15,28 @@ use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
  * @ORM\Entity
  * @ORM\Table("trip_stop")
  */
-class TripStopEntity implements Fillable
+class TripStopEntity implements Fillable, Referable
 {
-    use FillTrait;
+    use FillTrait, ReferableEntityTrait;
+
+    /**
+     * Identifier for stop coming from provider
+     *
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     */
+    private $id;
 
     /**
      * @var StopEntity
      * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
-     * @ORM\Id
      */
     private $stop;
 
     /**
      * @var TripEntity
      * @ORM\ManyToOne(targetEntity=TripEntity::class, fetch="EAGER", inversedBy="stops")
-     * @ORM\Id
      */
     private $trip;
 
@@ -37,7 +45,6 @@ class TripStopEntity implements Fillable
      * @var int
      *
      * @ORM\Column(name="sequence", type="integer")
-     * @ORM\Id
      */
     private $order;
 
