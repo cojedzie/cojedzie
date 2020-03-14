@@ -10,11 +10,11 @@ use App\Model\Stop;
 use App\Service\Converter;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use Tightenco\Collect\Support\Collection;
 use Kadet\Functional as f;
 use Kadet\Functional\Transforms as t;
+use Tightenco\Collect\Support\Collection;
 
-class IncludeDestinationsDatabaseHandler implements PostProcessingHandler
+class WithDestinationsDatabaseHandler implements PostProcessingHandler
 {
     private $em;
     private $converter;

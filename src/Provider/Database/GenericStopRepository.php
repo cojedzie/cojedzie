@@ -3,10 +3,10 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
-use App\Handler\Database\IncludeDestinationsDatabaseHandler;
+use App\Handler\Database\WithDestinationsDatabaseHandler;
 use App\Model\Stop;
 use App\Modifier\Modifier;
-use App\Modifier\IncludeDestinations;
+use App\Modifier\With;
 use App\Provider\StopRepository;
 use Tightenco\Collect\Support\Collection;
 
@@ -30,7 +30,11 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
     protected static function getHandlers()
     {
         return array_merge(parent::getHandlers(), [
-            IncludeDestinations::class => IncludeDestinationsDatabaseHandler::class,
+            With::class => function (With $modifier) {
+                return $modifier->getRelationship() === 'destinations'
+                    ? WithDestinationsDatabaseHandler::class
+                    : GenericWithHandler::class;
+            },
         ]);
     }
 }

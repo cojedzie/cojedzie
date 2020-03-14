@@ -4,12 +4,12 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Stop;
-use App\Model\TrackStop;
 use App\Model\StopGroup;
-use App\Modifier\IdFilter;
+use App\Model\TrackStop;
 use App\Modifier\FieldFilter;
-use App\Modifier\IncludeDestinations;
+use App\Modifier\IdFilter;
 use App\Modifier\RelatedFilter;
+use App\Modifier\With;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -95,7 +95,7 @@ class StopsController extends Controller
      */
     public function one(Request $request, StopRepository $stops, $id)
     {
-        return $this->json($stops->first(new IdFilter($id), new IncludeDestinations()));
+        return $this->json($stops->first(new IdFilter($id), new With("destinations")));
     }
 
     /**
@@ -137,7 +137,7 @@ class StopsController extends Controller
         }
 
         if ($request->query->has('include-destinations')) {
-            yield new IncludeDestinations();
+            yield new With("destinations");
         }
     }
 }

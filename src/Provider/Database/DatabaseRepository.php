@@ -5,28 +5,26 @@ namespace App\Provider\Database;
 use App\Entity\ProviderEntity;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\PostProcessEvent;
-use App\Exception\UnsupportedModifierException;
+use App\Handler\Database\FieldFilterDatabaseHandler;
 use App\Handler\Database\IdFilterDatabaseHandler;
 use App\Handler\Database\LimitDatabaseHandler;
-use App\Handler\Database\FieldFilterDatabaseHandler;
 use App\Handler\Database\RelatedFilterDatabaseGenericHandler;
 use App\Handler\ModifierHandler;
 use App\Handler\PostProcessingHandler;
 use App\Model\Referable;
+use App\Modifier\FieldFilter;
 use App\Modifier\IdFilter;
 use App\Modifier\Limit;
 use App\Modifier\Modifier;
-use App\Modifier\FieldFilter;
 use App\Modifier\RelatedFilter;
 use App\Provider\Repository;
 use App\Service\Converter;
+use App\Service\HandlerProvider;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use Psr\Container\ContainerInterface;
-use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
-abstract class DatabaseRepository implements ServiceSubscriberInterface, Repository
+abstract class DatabaseRepository implements Repository
 {
     const DEFAULT_LIMIT = 100;
 
@@ -42,7 +40,7 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
     /** @var Converter */
     protected $converter;
 
-    /** @var ContainerInterface */
+    /** @var HandlerProvider */
     protected $handlers;
 
     /**
@@ -54,12 +52,19 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
         EntityManagerInterface $em,
         IdUtils $id,
         Converter $converter,
-        ContainerInterface $handlers
+        HandlerProvider $handlers
     ) {
         $this->em        = $em;
         $this->id        = $id;
         $this->converter = $converter;
         $this->handlers  = $handlers;
+
+        $this->handlers->loadConfiguration(array_merge([
+            IdFilter::class      => IdFilterDatabaseHandler::class,
+            Limit::class         => LimitDatabaseHandler::class,
+            FieldFilter::class   => FieldFilterDatabaseHandler::class,
+            RelatedFilter::class => RelatedFilterDatabaseGenericHandler::class,
+        ], static::getHandlers()));
     }
 
     /** @return static */
@@ -88,7 +93,7 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
         $reducers = [];
 
         foreach ($modifiers as $modifier) {
-            $handler = $this->getHandler($modifier);
+            $handler = $this->handlers->get($modifier);
 
             if ($handler instanceof ModifierHandler) {
                 $event = new HandleDatabaseModifierEvent($modifier, $this, $builder, array_merge([
@@ -120,26 +125,16 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
         $builder->setMaxResults(self::DEFAULT_LIMIT);
 
         $reducers = $this->processQueryBuilder($builder, $modifiers, $meta);
+        $result   = collect($builder->getQuery()->execute())->map(\Closure::fromCallable([$this, 'convert']));
 
         return $reducers->reduce(function ($result, $reducer) {
             return $reducer($result);
-        }, collect($builder->getQuery()->execute())->map(\Closure::fromCallable([$this, 'convert'])));
+        }, $result);
     }
 
     public function first(Modifier ...$modifiers)
     {
         return $this->all(Limit::count(1), ...$modifiers)->first();
-    }
-
-    protected function getHandler(Modifier $modifier)
-    {
-        $class = get_class($modifier);
-
-        if (!$this->handlers->has($class)) {
-            throw UnsupportedModifierException::createFromModifier($modifier, $this);
-        }
-
-        return $this->handlers->get($class);
     }
 
     /**
@@ -153,18 +148,5 @@ abstract class DatabaseRepository implements ServiceSubscriberInterface, Reposit
     protected static function getHandlers()
     {
         return [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getSubscribedServices()
-    {
-        return array_merge([
-            IdFilter::class      => IdFilterDatabaseHandler::class,
-            Limit::class         => LimitDatabaseHandler::class,
-            FieldFilter::class   => FieldFilterDatabaseHandler::class,
-            RelatedFilter::class => RelatedFilterDatabaseGenericHandler::class,
-        ], static::getHandlers());
     }
 }
