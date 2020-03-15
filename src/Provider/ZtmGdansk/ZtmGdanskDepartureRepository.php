@@ -10,18 +10,22 @@ use App\Model\Vehicle;
 use App\Modifier\FieldFilter;
 use App\Modifier\IdFilter;
 use App\Modifier\Limit;
+use App\Modifier\Modifier;
 use App\Modifier\RelatedFilter;
 use App\Modifier\With;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
+use App\Service\IterableUtils;
+use App\Service\ModifierUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional\Transforms as t;
 use function App\Functions\setup;
+use function Kadet\Functional\ref;
 
 class ZtmGdanskDepartureRepository implements DepartureRepository
 {
@@ -46,16 +50,22 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $this->schedule = $schedule;
     }
 
-    public function getForStop(Stop $stop): Collection
+    public function current(iterable $stops, Modifier ...$modifiers)
     {
-        $real      = $this->getRealDepartures($stop);
+        $real      = IterableUtils::toCollection($stops)
+            ->flatMap(ref([$this, 'getRealDepartures']))
+            ->sortBy(t\property('estimated'))
+        ;
+
         $now       = Carbon::now()->second(0);
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
-        $scheduled = $this->getScheduledDepartures($stop, $first);
+        $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractModifiers($modifiers));
 
-        return $this->pair($scheduled, $real)->filter(function (Departure $departure) use ($now) {
+        $result = $this->pair($scheduled, $real)->filter(function (Departure $departure) use ($now) {
             return $departure->getDeparture() > $now;
         });
+
+        return $this->processResultWithModifiers($result, $modifiers);
     }
 
     private function getRealDepartures(Stop $stop)
@@ -94,14 +104,14 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         })->values();
     }
 
-    private function getScheduledDepartures(Stop $stop, Carbon $time)
+    private function getScheduledDepartures($stop, Carbon $time, Modifier ...$modifiers)
     {
         return $this->schedule->all(
-            new RelatedFilter($stop),
+            new RelatedFilter($stop, Stop::class),
             new FieldFilter('departure', $time, '>='),
             new With('track'),
             new With('destination'),
-            Limit::count(16)
+            ...$modifiers
         );
     }
 
@@ -180,5 +190,32 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
             $converted->setScheduled($stop->getDeparture());
             $converted->setStop($stop->getStop());
         });
+    }
+
+    private function extractModifiers(iterable $modifiers)
+    {
+        $result = [];
+
+        /** @var Limit $limit */
+        if ($limit = ModifierUtils::getOfType($modifiers, Limit::class)) {
+            $result[] = new Limit($limit->getOffset(), $limit->getCount() * 2);
+        } else {
+            $result[] = Limit::count(16);
+        }
+
+        return $result;
+    }
+
+    private function processResultWithModifiers(Collection $result, iterable $modifiers)
+    {
+        foreach ($modifiers as $modifier) {
+            switch (true) {
+                case $modifier instanceof Limit:
+                    $result = $result->slice($modifier->getOffset(), $modifier->getCount());
+                    break;
+            }
+        }
+
+        return $result;
     }
 }

@@ -6,6 +6,7 @@ use App\Model\Departure;
 use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Vehicle;
+use App\Modifier\Modifier;
 use App\Provider\DepartureRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
@@ -25,21 +26,21 @@ class DummyDepartureRepository implements DepartureRepository
         $this->reference = $reference;
     }
 
-    public function getForStop(Stop $stop): Collection
+    public function current(iterable $stops, Modifier ...$modifiers)
     {
         return collect([
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
-            [ 1, Line::TYPE_TRAM, 'lorem ipsum', 2137 ],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
+            [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
         ])->map(function ($departure) use ($stop) {
-            list($symbol, $type, $display, $vehicle) = $departure;
+            [$symbol, $type, $display, $vehicle] = $departure;
             $scheduled = new Carbon();
             $estimated = (clone $scheduled)->addSeconds(40);
 

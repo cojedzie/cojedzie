@@ -72,7 +72,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
 
         if (!array_key_exists($modifier->getRelationship(), $this->mapping[$type])) {
             throw new \InvalidArgumentException(
-                sprintf("Relationship %s is not supported for .", $type)
+                sprintf("Relationship %s is not supported for %s.", $modifier->getRelationship(), $type)
             );
         }
 
