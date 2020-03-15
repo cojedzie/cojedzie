@@ -13,3 +13,9 @@ function encapsulate($value)
             return [ $value ];
     }
 }
+
+function setup($value, $callback)
+{
+    $callback($value);
+    return $value;
+}

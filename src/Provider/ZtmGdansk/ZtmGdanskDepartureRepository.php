@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional\Transforms as t;
+use function App\Functions\setup;
 
 class ZtmGdanskDepartureRepository implements DepartureRepository
 {
@@ -162,25 +163,22 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
             return $real;
         }
 
-        $departure = clone $real;
-        $departure->setDisplay($real->getDisplay());
-        $departure->setTrack($scheduled->getTrack());
-        $departure->setTrip($scheduled->getTrip());
-
-        return $departure;
+        return setup(clone $real, function (Departure $departure) use ($scheduled, $real) {
+            $departure->setDisplay($real->getDisplay());
+            $departure->setTrack($scheduled->getTrack());
+            $departure->setTrip($scheduled->getTrip());
+        });
     }
 
     private function convertScheduledStopToDeparture(ScheduledStop $stop): Departure
     {
-        $converted = new Departure();
-
-        $converted->setDisplay($stop->getTrack()->getDestination()->getName());
-        $converted->setLine($stop->getTrack()->getLine());
-        $converted->setTrack($stop->getTrack());
-        $converted->setTrip($stop->getTrip());
-        $converted->setScheduled($stop->getDeparture());
-        $converted->setStop($stop->getStop());
-
-        return $converted;
+        return setup(new Departure(), function (Departure $converted) use ($stop) {
+            $converted->setDisplay($stop->getTrack()->getDestination()->getName());
+            $converted->setLine($stop->getTrack()->getLine());
+            $converted->setTrack($stop->getTrack());
+            $converted->setTrip($stop->getTrip());
+            $converted->setScheduled($stop->getDeparture());
+            $converted->setStop($stop->getStop());
+        });
     }
 }
