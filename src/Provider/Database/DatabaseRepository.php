@@ -9,6 +9,7 @@ use App\Handler\Database\FieldFilterDatabaseHandler;
 use App\Handler\Database\IdFilterDatabaseHandler;
 use App\Handler\Database\LimitDatabaseHandler;
 use App\Handler\Database\RelatedFilterDatabaseGenericHandler;
+use App\Handler\Database\GenericWithDatabaseHandler;
 use App\Handler\ModifierHandler;
 use App\Handler\PostProcessingHandler;
 use App\Model\Referable;
@@ -17,6 +18,7 @@ use App\Modifier\IdFilter;
 use App\Modifier\Limit;
 use App\Modifier\Modifier;
 use App\Modifier\RelatedFilter;
+use App\Modifier\With;
 use App\Provider\Repository;
 use App\Service\Converter;
 use App\Service\HandlerProvider;
@@ -64,6 +66,7 @@ abstract class DatabaseRepository implements Repository
             Limit::class         => LimitDatabaseHandler::class,
             FieldFilter::class   => FieldFilterDatabaseHandler::class,
             RelatedFilter::class => RelatedFilterDatabaseGenericHandler::class,
+            With::class          => GenericWithDatabaseHandler::class,
         ], static::getHandlers()));
     }
 

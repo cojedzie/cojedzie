@@ -32,7 +32,7 @@ final class EntityConverter implements Converter, RecursiveConverter
      */
     public function convert($entity, array $cache = [])
     {
-        if (array_key_exists($key = get_class($entity).':'.$this->getId($entity), $cache)) {
+        if (array_key_exists($key = get_class($entity) . ':' . $this->getId($entity), $cache)) {
             return $cache[$key];
         }
 
@@ -78,6 +78,7 @@ final class EntityConverter implements Converter, RecursiveConverter
                         ->map(t\property('stop'))
                         ->map($convert),
                     'line'        => $convert($entity->getLine()),
+                    'destination' => $convert($entity->getFinal()->getStop()),
                 ]);
                 break;
 
@@ -154,7 +155,7 @@ final class EntityConverter implements Converter, RecursiveConverter
 
     private function create(Entity $entity)
     {
-        $id = $this->id->of($entity);
+        $id    = $this->id->of($entity);
         $class = $this->getModelClassForEntity($entity);
 
         return $class::createFromArray(['id' => $id]);
@@ -162,7 +163,7 @@ final class EntityConverter implements Converter, RecursiveConverter
 
     private function reference(Entity $entity)
     {
-        $id = $this->id->strip($this->getId($entity));
+        $id    = $this->id->strip($this->getId($entity));
         $class = $this->getModelClassForEntity($entity);
 
         return $this->reference->get($class, ['id' => $id]);

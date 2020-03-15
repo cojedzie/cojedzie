@@ -6,7 +6,7 @@ use App\Model\Stop;
 use Carbon\Carbon;
 use Tightenco\Collect\Support\Collection;
 
-interface ScheduleRepository
+interface ScheduleRepository extends FluentRepository
 {
     const DEFAULT_DEPARTURES_COUNT = 16;
 

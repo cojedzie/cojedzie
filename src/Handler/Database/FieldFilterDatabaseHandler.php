@@ -5,6 +5,7 @@ namespace App\Handler\Database;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Handler\ModifierHandler;
+use App\Model\ScheduledStop;
 use App\Model\Stop;
 use App\Modifier\FieldFilter;
 use function App\Functions\encapsulate;
@@ -15,6 +16,10 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         Stop::class => [
             'name' => 'name',
         ],
+        ScheduledStop::class => [
+            'departure' => 'departure',
+            'arrival'   => 'arrival',
+        ]
     ];
 
     public function process(HandleModifierEvent $event)

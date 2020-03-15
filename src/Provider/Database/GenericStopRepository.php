@@ -3,6 +3,7 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
+use App\Handler\Database\GenericWithDatabaseHandler;
 use App\Handler\Database\WithDestinationsDatabaseHandler;
 use App\Model\Stop;
 use App\Modifier\Modifier;
@@ -33,7 +34,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
             With::class => function (With $modifier) {
                 return $modifier->getRelationship() === 'destinations'
                     ? WithDestinationsDatabaseHandler::class
-                    : GenericWithHandler::class;
+                    : GenericWithDatabaseHandler::class;
             },
         ]);
     }

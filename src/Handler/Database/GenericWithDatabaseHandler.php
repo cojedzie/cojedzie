@@ -5,48 +5,41 @@ namespace App\Handler\Database;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Handler\ModifierHandler;
-use App\Model\Line;
 use App\Model\ScheduledStop;
-use App\Model\Stop;
 use App\Model\Track;
 use App\Model\TrackStop;
-use App\Model\Trip;
 use App\Modifier\RelatedFilter;
-use App\Service\IdUtils;
 use App\Service\EntityReferenceFactory;
+use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Container\ContainerInterface;
-use Symfony\Contracts\Service\ServiceSubscriberInterface;
+use function Kadet\Functional\Transforms\property;
 
-class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSubscriberInterface
+class GenericWithDatabaseHandler implements ModifierHandler
 {
     protected $mapping = [
-        Track::class     => [
-            Line::class => 'line',
-            Stop::class => TrackByStopDatabaseHandler::class,
+        Track::class         => [
+            'line'  => 'line',
+            'stops' => 'stopsInTrack',
         ],
-        TrackStop::class => [
-            Stop::class  => 'stop',
-            Track::class => 'track',
+        TrackStop::class     => [
+            'track' => 'track',
         ],
         ScheduledStop::class => [
-            Stop::class => 'stop',
-            Trip::class => 'trip',
+            'trip'        => 'trip',
+            'track'       => 'trip.track',
+            'destination' => 'trip.track.final',
         ],
     ];
 
     private $em;
-    private $inner;
     private $id;
     private $references;
 
     public function __construct(
-        ContainerInterface $inner,
         EntityManagerInterface $em,
         IdUtils $idUtils,
         EntityReferenceFactory $references
     ) {
-        $this->inner      = $inner;
         $this->em         = $em;
         $this->id         = $idUtils;
         $this->references = $references;
@@ -64,12 +57,6 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         $alias    = $event->getMeta()['alias'];
         $type     = $event->getMeta()['type'];
 
-        if (!array_key_exists($type, $this->mapping)) {
-            throw new \InvalidArgumentException(
-                sprintf("Relationship filtering for %s is not supported.", $type)
-            );
-        }
-
         if (!array_key_exists($modifier->getRelationship(), $this->mapping[$type])) {
             throw new \InvalidArgumentException(
                 sprintf("Relationship %s is not supported for .", $type)
@@ -78,21 +65,17 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
 
         $relationship = $this->mapping[$type][$modifier->getRelationship()];
 
-        if ($this->inner->has($relationship)) {
-            /** @var ModifierHandler $inner */
-            $inner = $this->inner->get($relationship);
-            $inner->process($event);
+        foreach ($this->getRelationships($relationship, $alias) as [$relationshipPath, $relationshipAlias]) {
+            $selected = collect($builder->getDQLPart('select'))->flatMap(property('parts'));
 
-            return;
+            if ($selected->contains($relationshipAlias)) {
+                continue;
+            }
+
+            $builder
+                ->join($relationshipPath, $relationshipAlias)
+                ->addSelect($relationshipAlias);
         }
-
-        $parameter = sprintf(":%s_%s", $alias, $relationship);
-        $reference = $this->references->create($modifier->getRelated(), $event->getMeta()['provider']);
-
-        $builder
-            ->join(sprintf('%s.%s', $alias, $relationship), $relationship)
-            ->andWhere(sprintf($modifier->isMultiple() ? "%s in (%s)" : "%s = %s", $relationship, $parameter))
-            ->setParameter($parameter, $reference);
     }
 
     /**
@@ -103,5 +86,14 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         return [
             TrackByStopDatabaseHandler::class,
         ];
+    }
+
+    private function getRelationships($relationship, $alias)
+    {
+        $relationships = explode('.', $relationship);
+
+        foreach ($relationships as $current) {
+            yield [sprintf("%s.%s", $alias, $current), $alias = sprintf('%s_%s', $alias, $current)];
+        }
     }
 }

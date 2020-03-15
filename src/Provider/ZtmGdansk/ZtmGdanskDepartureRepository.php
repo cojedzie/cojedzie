@@ -4,9 +4,14 @@ namespace App\Provider\ZtmGdansk;
 
 use App\Model\Departure;
 use App\Model\Line;
+use App\Model\ScheduledStop;
 use App\Model\Stop;
 use App\Model\Vehicle;
+use App\Modifier\FieldFilter;
 use App\Modifier\IdFilter;
+use App\Modifier\Limit;
+use App\Modifier\RelatedFilter;
+use App\Modifier\With;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
@@ -90,13 +95,33 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
     private function getScheduledDepartures(Stop $stop, Carbon $time)
     {
-        return $this->schedule->getDeparturesForStop($stop, $time);
+        return $this->schedule->all(
+            new RelatedFilter($stop),
+            new FieldFilter('departure', $time, '>='),
+            new With('track'),
+            new With('destination'),
+            Limit::count(16)
+        );
     }
 
     private function pair(Collection $schedule, Collection $real)
     {
-        $key = function (Departure $departure) {
-            return sprintf("%s::%s", $departure->getLine()->getSymbol(), $departure->getScheduled()->format("H:i"));
+        $key = function ($departure) {
+            if ($departure instanceof Departure) {
+                return sprintf(
+                    "%s::%s",
+                    $departure->getLine()->getId(),
+                    $departure->getScheduled()->format("H:i")
+                );
+            } elseif ($departure instanceof ScheduledStop) {
+                return sprintf(
+                    "%s::%s",
+                    $departure->getTrack()->getLine()->getId(),
+                    $departure->getDeparture()->format("H:i")
+                );
+            } else {
+                throw new \Exception();
+            }
         };
 
         $schedule = $schedule->keyBy($key)->all();
@@ -110,21 +135,27 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 unset($schedule[$key]);
             }
 
-            return [ $real, $scheduled ];
-        })->merge(collect($schedule)->map(function (Departure $scheduled) {
-            return [ null, $scheduled ];
+            return [
+                'estimated' => $real,
+                'scheduled' => $scheduled,
+            ];
+        })->merge(collect($schedule)->map(function (ScheduledStop $scheduled) {
+            return [
+                'estimated' => null,
+                'scheduled' => $scheduled,
+            ];
         }))->map(function ($pair) {
-            return $this->merge(...$pair);
+            return $this->merge($pair['estimated'], $pair['scheduled']);
         })->sortBy(function (Departure $departure) {
             $time = $departure->getEstimated() ?? $departure->getScheduled();
             return $time->getTimestamp();
         });
     }
 
-    private function merge(?Departure $real, ?Departure $scheduled)
+    private function merge(?Departure $real, ?ScheduledStop $scheduled)
     {
         if (!$real) {
-            return $scheduled;
+            return $this->convertScheduledStopToDeparture($scheduled);
         }
 
         if (!$scheduled) {
@@ -132,10 +163,24 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         }
 
         $departure = clone $real;
-        $departure->setDisplay($scheduled->getDisplay());
+        $departure->setDisplay($real->getDisplay());
         $departure->setTrack($scheduled->getTrack());
         $departure->setTrip($scheduled->getTrip());
 
         return $departure;
+    }
+
+    private function convertScheduledStopToDeparture(ScheduledStop $stop): Departure
+    {
+        $converted = new Departure();
+
+        $converted->setDisplay($stop->getTrack()->getDestination()->getName());
+        $converted->setLine($stop->getTrack()->getLine());
+        $converted->setTrack($stop->getTrack());
+        $converted->setTrip($stop->getTrip());
+        $converted->setScheduled($stop->getDeparture());
+        $converted->setStop($stop->getStop());
+
+        return $converted;
     }
 }

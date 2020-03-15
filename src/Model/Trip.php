@@ -41,6 +41,12 @@ class Trip implements Referable, Fillable
     private $schedule;
 
     /**
+     * Destination stop of this trip
+     * @var Stop|null
+     */
+    private $destination;
+
+    /**
      * Track constructor.
      */
     public function __construct()
@@ -86,5 +92,15 @@ class Trip implements Referable, Fillable
     public function setSchedule($schedule = [])
     {
         return $this->schedule = collect($schedule);
+    }
+
+    public function getDestination(): ?Stop
+    {
+        return $this->destination;
+    }
+
+    public function setDestination(?Stop $destination): void
+    {
+        $this->destination = $destination;
     }
 }
