@@ -2,10 +2,7 @@
 
 namespace App\Service;
 
-use Hoa\Iterator\Recursive\Recursive;
-use Symfony\Component\DependencyInjection\ServiceLocator;
-use function Kadet\Functional\Predicates\equals;
-use function Kadet\Functional\Predicates\method;
+use Tightenco\Collect\Support\Collection;
 
 class AggregateConverter implements Converter
 {
@@ -39,5 +36,10 @@ class AggregateConverter implements Converter
         return $this->converters->some(function (Converter $converter) use ($entity) {
             return $converter->supports($entity);
         });
+    }
+
+    public function getConverters(): Collection
+    {
+        return clone $this->converters;
     }
 }

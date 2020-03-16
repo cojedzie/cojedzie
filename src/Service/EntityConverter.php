@@ -11,17 +11,19 @@ use Kadet\Functional as f;
 use Kadet\Functional\Transforms as t;
 use const Kadet\Functional\_;
 
-final class EntityConverter implements Converter, RecursiveConverter
+final class EntityConverter implements Converter, RecursiveConverter, CacheableConverter
 {
     use RecursiveConverterTrait;
 
     private $id;
     private $reference;
+    private $cache;
 
     public function __construct(IdUtils $id, ReferenceFactory $reference)
     {
         $this->id        = $id;
         $this->reference = $reference;
+        $this->cache     = [];
     }
 
     /**
@@ -30,21 +32,22 @@ final class EntityConverter implements Converter, RecursiveConverter
      *
      * @return Line|Track|Stop|Operator|Trip|ScheduledStop
      */
-    public function convert($entity, array $cache = [])
+    public function convert($entity)
     {
-        if (array_key_exists($key = get_class($entity) . ':' . $this->getId($entity), $cache)) {
-            return $cache[$key];
+        if (array_key_exists($key = get_class($entity) . ':' . $this->getId($entity), $this->cache)) {
+            return $this->cache[$key];
         }
 
         if ($entity instanceof Proxy && !$entity->__isInitialized()) {
             return $this->reference($entity);
         }
 
-        $result  = $this->create($entity);
-        $cache   = $cache + [$key => $result];
-        $convert = function ($entity) use ($cache) {
+        $result = $this->create($entity);
+        $this->cache[$key] = $result;
+
+        $convert = function ($entity) {
             return $this->supports($entity)
-                ? $this->convert($entity, $cache)
+                ? $this->convert($entity)
                 : $this->parent->convert($entity);
         };
 
@@ -172,5 +175,10 @@ final class EntityConverter implements Converter, RecursiveConverter
     public function supports($entity)
     {
         return $entity instanceof Entity;
+    }
+
+    public function flushCache()
+    {
+        $this->cache = [];
     }
 }

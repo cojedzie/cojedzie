@@ -25,6 +25,7 @@ use App\Service\HandlerProvider;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 abstract class DatabaseRepository implements Repository
 {
@@ -128,7 +129,10 @@ abstract class DatabaseRepository implements Repository
         $builder->setMaxResults(self::DEFAULT_LIMIT);
 
         $reducers = $this->processQueryBuilder($builder, $modifiers, $meta);
-        $result   = collect($builder->getQuery()->execute())->map(\Closure::fromCallable([$this, 'convert']));
+        $query    = $builder->getQuery();
+
+        $paginator = new Paginator($query);
+        $result    = collect($paginator)->map(\Closure::fromCallable([$this, 'convert']));
 
         return $reducers->reduce(function ($result, $reducer) {
             return $reducer($result);

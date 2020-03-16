@@ -174,7 +174,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         }
 
         return setup(clone $real, function (Departure $departure) use ($scheduled, $real) {
-            $departure->setDisplay($real->getDisplay());
+            $departure->setDisplay($this->extractDisplayFromScheduledStop($scheduled));
             $departure->setTrack($scheduled->getTrack());
             $departure->setTrip($scheduled->getTrip());
         });
@@ -183,13 +183,18 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     private function convertScheduledStopToDeparture(ScheduledStop $stop): Departure
     {
         return setup(new Departure(), function (Departure $converted) use ($stop) {
-            $converted->setDisplay($stop->getTrack()->getDestination()->getName());
+            $converted->setDisplay($this->extractDisplayFromScheduledStop($stop));
             $converted->setLine($stop->getTrack()->getLine());
             $converted->setTrack($stop->getTrack());
             $converted->setTrip($stop->getTrip());
             $converted->setScheduled($stop->getDeparture());
             $converted->setStop($stop->getStop());
         });
+    }
+
+    private function extractDisplayFromScheduledStop(ScheduledStop $stop)
+    {
+        return $stop->getTrack()->getDestination()->getName();
     }
 
     private function extractModifiers(iterable $modifiers)

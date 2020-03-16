@@ -8,6 +8,7 @@ use App\Handler\ModifierHandler;
 use App\Model\ScheduledStop;
 use App\Model\Track;
 use App\Model\TrackStop;
+use App\Model\Trip;
 use App\Modifier\RelatedFilter;
 use App\Service\EntityReferenceFactory;
 use App\Service\IdUtils;
@@ -20,6 +21,9 @@ class GenericWithDatabaseHandler implements ModifierHandler
         Track::class         => [
             'line'  => 'line',
             'stops' => 'stopsInTrack',
+        ],
+        Trip::class          => [
+            'schedule' => 'stops.stop',
         ],
         TrackStop::class     => [
             'track' => 'track',

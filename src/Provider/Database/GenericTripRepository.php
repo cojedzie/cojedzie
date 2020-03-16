@@ -15,9 +15,7 @@ class GenericTripRepository extends DatabaseRepository implements TripRepository
         $builder = $this->em
             ->createQueryBuilder()
             ->from(TripEntity::class, 'trip')
-            ->join('trip.stops', 'ts')
-            ->join('ts.stop', 's')
-            ->select('t', 'ts');
+            ->select('trip');
 
         return $this->allFromQueryBuilder($builder, $modifiers, [
             'alias'  => 'trip',
