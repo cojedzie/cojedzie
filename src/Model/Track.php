@@ -43,6 +43,14 @@ class Track implements Referable, Fillable
     private $stops;
 
     /**
+     * Destination stop of this track
+     * @var Stop|null
+     * @Serializer\Type(Stop::class)
+     * @SWG\Property(ref=@Model(type=Stop::class))
+     */
+    private $destination;
+
+    /**
      * Track constructor.
      */
     public function __construct()
@@ -88,5 +96,15 @@ class Track implements Referable, Fillable
     public function setStops($stops = [])
     {
         return $this->stops = collect($stops);
+    }
+
+    public function getDestination(): ?Stop
+    {
+        return $this->destination;
+    }
+
+    public function setDestination(?Stop $destination): void
+    {
+        $this->destination = $destination;
     }
 }

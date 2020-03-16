@@ -2,66 +2,41 @@
 
 namespace App\Provider\Database;
 
-use App\Entity\LineEntity;
-use App\Entity\StopEntity;
-use App\Entity\StopInTrack;
+use App\Entity\TrackStopEntity;
 use App\Entity\TrackEntity;
-use function App\Functions\encapsulate;
-use App\Model\Stop;
+use App\Model\TrackStop;
+use App\Modifier\Modifier;
 use App\Model\Track;
 use App\Provider\TrackRepository;
 use Tightenco\Collect\Support\Collection;
-use Kadet\Functional as f;
 
 class GenericTrackRepository extends DatabaseRepository implements TrackRepository
 {
-    public function getAll(): Collection
+    public function stops(Modifier ...$modifiers): Collection
     {
-        $tracks = $this->em->getRepository(TrackEntity::class)->findAll();
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->from(TrackStopEntity::class, 'track_stop')
+            ->select(['track_stop']);
 
-        return collect($tracks)->map(f\ref([$this, 'convert']));
+        return $this->allFromQueryBuilder($builder, $modifiers, [
+            'alias'  => 'track_stop',
+            'entity' => TrackStopEntity::class,
+            'type'   => TrackStop::class,
+        ]);
     }
 
-    public function getById($id): Track
+    public function all(Modifier ...$modifiers): Collection
     {
-        // TODO: Implement getById() method.
-    }
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->from(TrackEntity::class, 'track')
+            ->select('track');
 
-    public function getManyById($ids): Collection
-    {
-        // TODO: Implement getManyById() method.
-    }
-
-    public function getByStop($stop): Collection
-    {
-        $reference = f\apply(f\ref([$this, 'reference']), StopEntity::class);
-
-        $tracks = $this->em->createQueryBuilder()
-            ->from(StopInTrack::class, 'st')
-            ->join('st.track', 't')
-            ->where('st.stop in (:stop)')
-            ->select(['st', 't'])
-            ->getQuery()
-            ->execute(['stop' => array_map($reference, encapsulate($stop))]);
-
-        return collect($tracks)->map(function (StopInTrack $entity) {
-            return [ $this->convert($entity->getTrack()), $entity->getOrder() ];
-        });
-    }
-
-    public function getByLine($line): Collection
-    {
-        $reference = f\apply(f\ref([$this, 'reference']), LineEntity::class);
-
-        $tracks = $this->em->createQueryBuilder()
-            ->from(StopInTrack::class, 'st')
-            ->join('st.track', 't')
-            ->join('t.stops', 's')
-            ->where('st.line in (:line)')
-            ->select(['st', 't', 's'])
-            ->getQuery()
-            ->execute(['stop' => array_map($reference, encapsulate($line))]);
-
-        return collect($tracks)->map(f\ref([$this, 'convert']));
+        return $this->allFromQueryBuilder($builder, $modifiers, [
+            'alias'  => 'track',
+            'entity' => TrackEntity::class,
+            'type'   => Track::class,
+        ]);
     }
 }

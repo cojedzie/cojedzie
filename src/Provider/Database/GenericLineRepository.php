@@ -3,34 +3,32 @@
 namespace App\Provider\Database;
 
 use App\Entity\LineEntity;
+use App\Event\HandleDatabaseModifierEvent;
+use App\Handler\Database\LimitDatabaseHandler;
+use App\Handler\Database\IdFilterDatabaseHandler;
+use App\Handler\ModifierHandler;
 use App\Model\Line;
+use App\Modifier\Limit;
+use App\Modifier\IdFilter;
 use App\Provider\LineRepository;
+use App\Modifier\Modifier;
 use Tightenco\Collect\Support\Collection;
 use Kadet\Functional as f;
 
 class GenericLineRepository extends DatabaseRepository implements LineRepository
 {
-    public function getAll(): Collection
+    public function all(Modifier ...$modifiers): Collection
     {
-        $repository = $this->em->getRepository(LineEntity::class);
-        $lines      = $repository->findAll();
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->from(LineEntity::class, 'line')
+            ->select('line')
+        ;
 
-        return collect($lines)->map(f\ref([$this, 'convert']));
-    }
-
-    public function getById($id): ?Line
-    {
-        $repository = $this->em->getRepository(LineEntity::class);
-        return $this->convert($repository->find($id));
-    }
-
-    public function getManyById($ids): Collection
-    {
-        $ids = collect($ids)->map(f\apply(f\ref([$this->id, 'generate']), $this->provider));
-
-        $repository = $this->em->getRepository(LineEntity::class);
-        $lines      = $repository->findBy(['id' => $ids->all()]);
-
-        return collect($lines)->map(f\ref([$this, 'convert']));
+        return $this->allFromQueryBuilder($builder, $modifiers, [
+            'alias'  => 'line',
+            'entity' => LineEntity::class,
+            'type'   => Line::class,
+        ]);
     }
 }

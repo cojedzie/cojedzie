@@ -4,53 +4,25 @@ namespace App\Model;
 
 use Carbon\Carbon;
 
-class ScheduledStop implements Fillable
+class ScheduledStop extends TrackStop
 {
-    use FillTrait;
-
     /**
-     * Stop (as a place) related to that scheduled bus stop
-     * @var Stop
-     */
-    private $stop;
-
-    /**
-     * Order in trip
-     * @var int
-     */
-    private $order;
-
-    /**
-     * Arrival time
+     * Arrival time.
      * @var Carbon
      */
     private $arrival;
 
     /**
-     * Departure time
+     * Departure time.
      * @var Carbon
      */
     private $departure;
 
-    public function getStop()
-    {
-        return $this->stop;
-    }
-
-    public function setStop($stop): void
-    {
-        $this->stop = $stop;
-    }
-
-    public function getOrder(): int
-    {
-        return $this->order;
-    }
-
-    public function setOrder(int $order): void
-    {
-        $this->order = $order;
-    }
+    /**
+     * Exact trip that this scheduled stop is part of.
+     * @var Trip|null
+     */
+    private $trip;
 
     public function getArrival(): Carbon
     {
@@ -70,5 +42,15 @@ class ScheduledStop implements Fillable
     public function setDeparture(Carbon $departure): void
     {
         $this->departure = $departure;
+    }
+
+    public function getTrip(): ?Trip
+    {
+        return $this->trip;
+    }
+
+    public function setTrip(?Trip $trip): void
+    {
+        $this->trip = $trip;
     }
 }

@@ -3,14 +3,16 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
-use App\Entity\StopInTrack;
+use App\Entity\TrackStopEntity;
 use App\Entity\TrackEntity;
 use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
 use App\Model\Departure;
 use App\Model\Line;
+use App\Model\ScheduledStop;
 use App\Model\Stop;
 use App\Model\Vehicle;
+use App\Modifier\Modifier;
 use App\Provider\ScheduleRepository;
 use Carbon\Carbon;
 use Tightenco\Collect\Support\Collection;
@@ -69,5 +71,21 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
                 'trip'      => $this->convert($trip),
             ]);
         });
+    }
+
+    public function all(Modifier ...$modifiers): Collection
+    {
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->select('trip_stop')
+            ->from(TripStopEntity::class, 'trip_stop')
+            ->orderBy('trip_stop.departure', 'ASC')
+        ;
+
+        return $this->allFromQueryBuilder($builder, $modifiers, [
+            'alias'  => 'trip_stop',
+            'type'   => ScheduledStop::class,
+            'entity' => TripStopEntity::class,
+        ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Provider\Dummy;
 
 use App\Model\Stop;
+use App\Modifier\Modifier;
 use App\Provider\StopRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Tightenco\Collect\Support\Collection;
@@ -40,5 +41,15 @@ class DummyStopRepository implements StopRepository
     public function findByName(string $name): Collection
     {
         return collect();
+    }
+
+    public function first(Modifier ...$modifiers)
+    {
+        // TODO: Implement first() method.
+    }
+
+    public function all(Modifier ...$modifiers): Collection
+    {
+        // TODO: Implement all() method.
     }
 }

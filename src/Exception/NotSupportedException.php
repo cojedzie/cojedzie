@@ -2,6 +2,6 @@
 
 namespace App\Exception;
 
-class NotSupportedException extends \RuntimeException
+class NotSupportedException extends \LogicException
 {
 }

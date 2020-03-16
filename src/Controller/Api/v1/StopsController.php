@@ -1,15 +1,17 @@
 <?php
 
-
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Stop;
-use App\Model\Track;
 use App\Model\StopGroup;
+use App\Model\TrackStop;
+use App\Modifier\FieldFilter;
+use App\Modifier\IdFilter;
+use App\Modifier\RelatedFilter;
+use App\Modifier\With;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
-use App\Service\Proxy\ReferenceFactory;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +40,8 @@ class StopsController extends Controller
      *     name="id",
      *     in="query",
      *     type="array",
-     *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will return all data.",
+     *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will
+     *     return all data.",
      *     @SWG\Items(type="string")
      * )
      *
@@ -46,16 +49,9 @@ class StopsController extends Controller
      */
     public function index(Request $request, StopRepository $stops)
     {
-        switch (true) {
-            case $request->query->has('id'):
-                $result = $stops->getManyById($request->query->get('id'));
-                break;
+        $modifiers = $this->getModifiersFromRequest($request);
 
-            default:
-                $result = $stops->getAll();
-        }
-
-        return $this->json($result->all());
+        return $this->json($stops->all(...$modifiers)->toArray());
     }
 
     /**
@@ -76,16 +72,9 @@ class StopsController extends Controller
      */
     public function groups(Request $request, StopRepository $stops)
     {
-        switch (true) {
-            case $request->query->has('name'):
-                $result = $stops->findByName($request->query->get('name'));
-                break;
+        $modifiers = $this->getModifiersFromRequest($request);
 
-            default:
-                $result = $stops->getAll();
-        }
-
-        return $this->json(static::group($result)->all());
+        return $this->json(static::group($stops->all(...$modifiers))->toArray());
     }
 
     /**
@@ -106,7 +95,7 @@ class StopsController extends Controller
      */
     public function one(Request $request, StopRepository $stops, $id)
     {
-        return $this->json($stops->getById($id));
+        return $this->json($stops->first(new IdFilter($id), new With("destinations")));
     }
 
     /**
@@ -115,21 +104,12 @@ class StopsController extends Controller
      * @SWG\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
-     *     @SWG\Schema(type="object", properties={
-     *         @SWG\Property(property="track", type="object", ref=@Model(type=Track::class)),
-     *         @SWG\Property(property="order", type="integer", minimum="0")
-     *     })
+     *     @SWG\Schema(ref=@Model(type=TrackStop::class))
      * )
-     *
-     * @SWG\Tag(name="Tracks")
      */
-    public function tracks(ReferenceFactory $reference, TrackRepository $tracks, $id)
+    public function tracks(TrackRepository $tracks, $id)
     {
-        $stop = $reference->get(Stop::class, $id);
-
-        return $this->json($tracks->getByStop($stop)->map(function ($tuple) {
-            return array_combine(['track', 'order'], $tuple);
-        }));
+        return $this->json($tracks->stops(new RelatedFilter(Stop::reference($id))));
     }
 
     public static function group(Collection $stops)
@@ -144,5 +124,20 @@ class StopsController extends Controller
 
             return $group;
         })->values();
+    }
+
+    private function getModifiersFromRequest(Request $request)
+    {
+        if ($request->query->has('name')) {
+            yield FieldFilter::contains('name', $request->query->get('name'));
+        }
+
+        if ($request->query->has('id')) {
+            yield new IdFilter($request->query->get('id'));
+        }
+
+        if ($request->query->has('include-destinations')) {
+            yield new With("destinations");
+        }
     }
 }

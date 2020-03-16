@@ -66,8 +66,11 @@ const config = {
         new GenerateSW({
             navigationPreload: true,
             runtimeCaching: [{
-              urlPattern: ({event}) => event.request.mode === 'navigate',
-              handler: 'NetworkFirst',
+                urlPattern: ({ event }) => event.request.mode === 'navigate',
+                handler: 'NetworkFirst',
+            }, {
+                urlPattern: /^https?:\/\/api\.maptiler\.com\//,
+                handler: 'CacheFirst',
             }],
             swDest: '../service-worker.js'
         })

@@ -4,7 +4,6 @@
 namespace App\Exception;
 
 
-class NonExistentServiceException extends \Exception
+class NonExistentServiceException extends \LogicException
 {
-
 }
