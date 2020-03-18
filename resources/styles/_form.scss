@@ -3,17 +3,18 @@ label {
   margin-bottom: 0;
   margin-top: -0.2rem;
   display: block;
+  font-size: .8rem;
 }
 
 .label-sm {
-  font-size: .8rem;
+  font-size: .6rem;
 }
 
 .form-group:last-child {
   margin-bottom: 0;
 }
 
-.form-control, .input-group-text {
+.form-control, .input-group-text, .btn-addon {
   background: rgba($dark, .06);
   border: none;
   border-bottom: 2px solid $dark;
@@ -32,7 +33,8 @@ label {
   }
 }
 
-.input-group-append {
+.input-group-append,
+.input-group-append .btn + .btn {
   margin-left: 0;
 }
 

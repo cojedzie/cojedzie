@@ -30,6 +30,8 @@ export class Application extends Vue {
         }
     };
 
+    private count = 8;
+
     private intervals = { messages: null, departures: null };
 
     get messages() {

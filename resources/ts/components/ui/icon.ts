@@ -23,7 +23,7 @@ import {
     faTimes,
     faTrashAlt
 } from "@fortawesome/pro-light-svg-icons";
-import { faClock as faClockBold, faCodeCommit, faSpinnerThird } from "@fortawesome/pro-regular-svg-icons";
+import { faClock as faClockBold, faCodeCommit, faMinus, faPlus, faSpinnerThird } from "@fortawesome/pro-regular-svg-icons";
 import { faExclamationTriangle as faSolidExclamationTriangle, faWalking } from "@fortawesome/pro-solid-svg-icons";
 import { fac } from "../../icons";
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from "@fortawesome/vue-fontawesome";
@@ -81,6 +81,8 @@ const definitions: Dictionary<Icon> = {
     'map': simple(faMapMarkerAlt),
     'stop': simple(faSign),
     'spinner': simple(faSpinnerThird, { spin: true }),
+    'increment': simple(faPlus, { "fixed-width": true }),
+    'decrement': simple(faMinus, { "fixed-width": true }),
     'departure-warning': stack([
         {icon: faClockBold},
         {icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6"}

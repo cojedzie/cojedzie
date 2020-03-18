@@ -2,9 +2,11 @@ $border-radius: 0;
 $border-radius-lg: $border-radius;
 $border-radius-sm: $border-radius;
 
+
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 
+$form-group-margin-bottom: $form-group-margin-bottom / 2;
 $primary: #005ea8;
 
 $custom-control-indicator-checked-bg: $dark;
