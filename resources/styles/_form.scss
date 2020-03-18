@@ -38,6 +38,11 @@ label {
   margin-left: 0;
 }
 
+.btn-addon:disabled {
+  opacity: 1;
+  color: rgba($dark, .5)
+}
+
 .input-group-prepend {
   margin-right: 0;
 }

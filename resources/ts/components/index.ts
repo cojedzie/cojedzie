@@ -10,3 +10,5 @@ export * from './app'
 export * from './favourites'
 export * from './trip'
 export * from './ui'
+export * from './settings'
+export { Departures } from "../store";

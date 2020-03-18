@@ -2,9 +2,8 @@ import Vue from 'vue'
 import store from '../store'
 import { Component, Watch } from "vue-property-decorator";
 import { Mutation, Action } from 'vuex-class'
-import { ObtainPayload } from "../store/departures";
 import { Stop } from "../model";
-import { PopperComponent } from "./utils";
+import { DeparturesSettingsState } from "../store/settings/departures";
 
 @Component({ store })
 export class Application extends Vue {
@@ -23,14 +22,8 @@ export class Application extends Vue {
         messages: {
             active: true,
             interval: 60
-        },
-        departures: {
-            active: true,
-            interval: 10
         }
     };
-
-    private count = 8;
 
     private intervals = { messages: null, departures: null };
 
@@ -60,16 +53,39 @@ export class Application extends Vue {
         this.$el.classList.remove('not-ready');
     }
 
+    created() {
+        this.initDeparturesRefreshInterval();
+    }
+
+    private initDeparturesRefreshInterval() {
+        const departuresAutorefreshCallback = () => {
+            const {autorefresh, autorefreshInterval} = this.$store.state['departures-settings'] as DeparturesSettingsState;
+
+            if (this.intervals.departures) {
+                clearInterval(this.intervals.departures);
+            }
+
+            if (autorefresh) {
+                this.intervals.departures = setInterval(() => this.updateDepartures(), Math.max(5, autorefreshInterval) * 1000)
+            }
+        };
+
+        this.$store.watch(({"departures-settings": state}) => state.autorefresh, departuresAutorefreshCallback);
+        this.$store.watch(({"departures-settings": state}) => state.autorefreshInterval, departuresAutorefreshCallback);
+
+        departuresAutorefreshCallback();
+    }
+
     @Action('messages/update')   updateMessages: () => void;
-    @Action('departures/update') updateDepartures: (payload: ObtainPayload) => void;
+    @Action('departures/update') updateDepartures: () => void;
 
     @Mutation add: (stops: Stop[]) => void;
     @Mutation remove: (stop: Stop) => void;
     @Mutation clear: () => void;
 
     @Watch('stops')
-    onStopUpdate(this: any, stops) {
-        this.updateDepartures({ stops });
+    onStopUpdate() {
+        this.updateDepartures();
     }
 
     @Watch('autorefresh', { immediate: true, deep: true })
@@ -79,17 +95,8 @@ export class Application extends Vue {
             this.intervals.messages = null;
         }
 
-        if (this.intervals.departures) {
-            clearInterval(this.intervals.departures);
-            this.intervals.messages = null;
-        }
-
         if (settings.messages.active) {
             this.intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, settings.messages.interval) * 1000);
-        }
-
-        if (settings.departures.active) {
-            this.intervals.departures = setInterval(() => this.updateDepartures({ stops: this.stops }), Math.max(5, settings.departures.interval) * 1000);
         }
     }
 }

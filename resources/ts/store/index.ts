@@ -4,9 +4,10 @@ import messages, { MessagesState } from './messages';
 import departures, { DeparturesState } from './departures'
 import favourites, { FavouritesState, localStorageSaver } from './favourites'
 
-import { state, mutations, actions, RootState } from "./root";
+import { actions, mutations, RootState, state } from "./root";
 import VuexPersistence from "vuex-persist";
 import { namespace } from "vuex-class";
+import departureSettings from "./settings/departures";
 
 export type State = {
     messages: MessagesState;
@@ -15,7 +16,7 @@ export type State = {
 } & RootState;
 
 const localStoragePersist = new VuexPersistence<State>({
-    reducer: state => ({ favourites: state.favourites })
+    modules: ['favourites', 'departures-settings'],
 });
 
 const sessionStoragePersist = new VuexPersistence<State>({
@@ -25,7 +26,12 @@ const sessionStoragePersist = new VuexPersistence<State>({
 
 const store = new Vuex.Store({
     state, mutations, actions,
-    modules: { messages, departures, favourites },
+    modules: {
+        messages,
+        departures,
+        favourites,
+        'departures-settings': departureSettings
+    },
     plugins: [
         // todo: remove after some time
         localStorageSaver('favourites.favourites', 'favourites'),
@@ -37,3 +43,5 @@ const store = new Vuex.Store({
 export default store;
 
 export const Favourites = namespace('favourites');
+export const DeparturesSettings = namespace('departures-settings');
+export const Departures = namespace('departures');

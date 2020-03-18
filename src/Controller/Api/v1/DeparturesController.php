@@ -68,7 +68,7 @@ class DeparturesController extends Controller
      */
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {
-        $stops  = $stops->all(new IdFilter($request->query->get('stop')));
+        $stops  = $stops->all(new IdFilter($request->query->get('stop', [])));
         $result = $departures->current($stops, ...$this->getModifiersFromRequest($request));
 
         return $this->json(

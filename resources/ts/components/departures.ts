@@ -1,21 +1,15 @@
 import Vue from 'vue'
-import { Departure, Stop } from "../model";
+import { Departure } from "../model";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { namespace } from 'vuex-class';
-import store from '../store'
+import store, { Departures } from '../store'
 import { Trip } from "../model/trip";
 import urls from "../urls";
 import { Jsonified } from "../utils";
 import * as moment from "moment";
 
-const { State } = namespace('departures');
-
 @Component({ template: require("../../components/departures.html"), store })
 export class DeparturesComponent extends Vue {
-    @State departures: Departure[];
-
-    @Prop(Array)
-    stops: Stop[];
+    @Departures.State departures: Departure[];
 }
 
 @Component({ template: require("../../components/departures/departure.html") })

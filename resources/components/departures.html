@@ -2,8 +2,4 @@
     <ul class="departures__list list-underlined">
         <departure :departure="departure" :key="departure.key" v-for="departure in departures"/>
     </ul>
-    <div class="alert alert-info" v-if="stops.length === 0">
-        <ui-icon icon="info"/>
-        Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
-    </div>
 </div>

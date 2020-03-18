@@ -73,38 +73,15 @@
                     </button>
                     <portal to="popups">
                         <popper reference="settings-departures" v-if="visibility.departures" arrow placement="left-start" @leave="visibility.departures = false">
-                            <div class="form-group">
-                                <h3 class="popper__heading flex">
-                                    <label class="text" for="departures-auto-refresh-interval">
-                                        <ui-icon icon="refresh" fixed-width></ui-icon>
-                                        autoodświeżanie
-                                    </label>
-                                    <ui-switch id="departures-auto-refresh" v-model="autorefresh.departures.active" class="flex-space-left"></ui-switch>
-                                </h3>
-                                <div class="flex " v-if="autorefresh.departures.active">
-                                    <label for="departures-auto-refresh-interval" class="text">
-                                        <span class="sr-only">częstotliwość odświeżania</span>
-                                        co
-                                    </label>
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control form-control-sm form-control-simple" id="departures-auto-refresh-interval" v-model="autorefresh.departures.interval"/>
-                                        <div class="input-group-append">
-                                            <span class="input-group-text" aria-label="sekund">s</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="text" for="departures-count">
-                                    <ui-icon icon="line-bus" fixed-width></ui-icon>
-                                    Liczba wpisów
-                                </label>
-                                <ui-numeric-input id="departures-count" v-model="count" :min="1" :max="16"></ui-numeric-input>
-                            </div>
+                            <settings-departures></settings-departures>
                         </popper>
                     </portal>
                 </header>
-                <departures :stops="stops"></departures>
+                <departures :stops="stops" v-if="stops.length > 0"></departures>
+                <div class="alert alert-info" v-else>
+                    <ui-icon icon="info"></ui-icon>
+                    Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
+                </div>
                 {% if provider.attribution %}
                     <div class="attribution">
                         <ui-icon icon="info"></ui-icon>

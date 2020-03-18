@@ -1,7 +1,6 @@
 import { FetchingState } from "../utils";
 import { Moment } from "moment";
 import { Module, MutationTree } from "vuex";
-import { RootState } from "./root";
 import * as moment from "moment";
 
 export interface CommonState {

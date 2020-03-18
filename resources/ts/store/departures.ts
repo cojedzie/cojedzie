@@ -10,10 +10,6 @@ export interface DeparturesState extends CommonState {
     departures: Departure[],
 }
 
-export interface ObtainPayload {
-    stops: Stop[]
-}
-
 export const departures: Module<DeparturesState, RootState> = {
     namespaced: true,
     state: {
@@ -29,10 +25,15 @@ export const departures: Module<DeparturesState, RootState> = {
         ...common.mutations
     },
     actions: {
-        async update({ commit }, { stops }: ObtainPayload) {
+        async update({ commit }) {
+            const count = this.state['departures-settings'].displayedEntriesCount;
+            const stops = this.state.stops;
+
             commit('fetching');
+
             const response = await fetch(urls.prepare(urls.departures, {
                 stop: stops.map(stop => stop.id),
+                limit: count || 8,
             }));
 
             if (!response.ok) {
