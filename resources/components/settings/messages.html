@@ -1,0 +1,31 @@
+<fragment>
+    <div class="form-group">
+        <div class="flex">
+            <label class="text" for="departures-auto-refresh-interval">
+                <ui-icon icon="refresh" fixed-width/>
+                autoodświeżanie
+            </label>
+            <ui-switch id="departures-auto-refresh" :value="autorefresh" @input="update({ autorefresh: $event })" class="flex-space-left"/>
+        </div>
+        <div class="flex " v-if="autorefresh">
+            <label for="departures-auto-refresh-interval" class="text">
+                <span class="sr-only">częstotliwość odświeżania</span>
+                co
+            </label>
+            <div class="input-group input-group-sm">
+                <input type="text" class="form-control form-control-sm form-control-simple" id="departures-auto-refresh-interval"
+                       :value="autorefreshInterval" @input="update({ autorefreshInterval: Number.parseInt($event.target.value) })" />
+                <div class="input-group-append">
+                    <span class="input-group-text" aria-label="sekund">s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="text" for="departures-count">
+            <ui-icon icon="messages" fixed-width/>
+            wyświetlanych komunikatów
+        </label>
+        <ui-numeric-input id="departures-count" :value="displayedEntriesCount" @input="update({ displayedEntriesCount: $event })" :min="1" />
+    </div>
+</fragment>

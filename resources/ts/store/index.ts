@@ -2,21 +2,24 @@ import Vuex from 'vuex';
 
 import messages, { MessagesState } from './messages';
 import departures, { DeparturesState } from './departures'
-import favourites, { FavouritesState, localStorageSaver } from './favourites'
+import favourites, { FavouritesState } from './favourites'
+import departureSettings, { DeparturesSettingsState } from "./settings/departures";
+import messagesSettings, { MessagesSettingsState } from "./settings/messages";
 
 import { actions, mutations, RootState, state } from "./root";
 import VuexPersistence from "vuex-persist";
 import { namespace } from "vuex-class";
-import departureSettings from "./settings/departures";
 
 export type State = {
     messages: MessagesState;
     departures: DeparturesState;
     favourites: FavouritesState;
+    "departures-settings": DeparturesSettingsState,
+    "messages-settings": MessagesSettingsState,
 } & RootState;
 
 const localStoragePersist = new VuexPersistence<State>({
-    modules: ['favourites', 'departures-settings'],
+    modules: ['favourites', 'departures-settings', 'messages-settings'],
 });
 
 const sessionStoragePersist = new VuexPersistence<State>({
@@ -24,17 +27,16 @@ const sessionStoragePersist = new VuexPersistence<State>({
     storage: window.sessionStorage
 });
 
-const store = new Vuex.Store({
+const store = new Vuex.Store<RootState>({
     state, mutations, actions,
     modules: {
         messages,
         departures,
         favourites,
-        'departures-settings': departureSettings
+        'departures-settings': departureSettings,
+        'messages-settings': messagesSettings,
     },
     plugins: [
-        // todo: remove after some time
-        localStorageSaver('favourites.favourites', 'favourites'),
         localStoragePersist.plugin,
         sessionStoragePersist.plugin,
     ]
@@ -44,4 +46,6 @@ export default store;
 
 export const Favourites = namespace('favourites');
 export const DeparturesSettings = namespace('departures-settings');
+export const MessagesSettings = namespace('messages-settings');
 export const Departures = namespace('departures');
+export const Messages = namespace('messages');

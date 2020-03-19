@@ -1,18 +1,26 @@
 import Vue from 'vue';
 import { Component } from "vue-property-decorator";
 import { Message } from "../model/message";
-import { namespace } from 'vuex-class';
-import store from '../store'
-
-const { State } = namespace('messages');
+import store, { Messages, MessagesSettings } from '../store'
 
 @Component({ template: require("../../components/messages.html"), store })
 export class MessagesComponent extends Vue {
-    @State messages: Message[];
+    @Messages.State('messages')
+    public allMessages: Message[];
 
-    public icon(message: Message) {
-        switch (message.type) {
-        }
+    @MessagesSettings.State
+    public displayedEntriesCount: number;
+
+    public showAll: boolean = false;
+
+    get messages() {
+        return this.showAll
+            ? this.allMessages
+            : this.allMessages.slice(0, this.displayedEntriesCount);
+    }
+
+    get nonDisplayedCount(): number {
+        return Math.max(this.allMessages.length - this.displayedEntriesCount, 0);
     }
 
     public type(message: Message) {

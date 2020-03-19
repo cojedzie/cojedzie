@@ -1,15 +1,29 @@
-<ul class="messages list-unstyled">
-    <li class="message alert" :class="`alert-${type(message)}`" v-for="message in messages">
-        <ui-icon :icon="`message-${type(message)}`" fixed-width />
-        {{ message.message }}
+<div class="messages mb-2">
+    <ul class="list-unstyled mb-0">
+        <li class="message alert" :class="`alert-${type(message)}`" v-for="message in messages">
+            <ui-icon :icon="`message-${message.type}`" fixed-width/>
+            {{ message.message }}
 
-        <div class="message__info">
-            <small class="message__date">
-                Komunikat ważny od
-                {{ message.validFrom.format('HH:mm') }}
-                do
-                {{ message.validTo.format('HH:mm') }}
-            </small>
+            <div class="message__info">
+                <small class="message__date">
+                    Komunikat ważny od
+                    {{ message.validFrom.format('HH:mm') }}
+                    do
+                    {{ message.validTo.format('HH:mm') }}
+                </small>
+            </div>
+        </li>
+    </ul>
+    <template v-if="nonDisplayedCount > 0">
+        <div class="flex">
+            <button class="btn btn-action btn-sm flex-space-left" @click="showAll = !showAll">
+                <template v-if="showAll">
+                    <ui-icon icon="chevron-up"/> {{ nonDisplayedCount }} mniej
+                </template>
+                <template v-else>
+                    <ui-icon icon="chevron-down"/> {{ nonDisplayedCount }} więcej
+                </template>
+            </button>
         </div>
-    </li>
-</ul>
+    </template>
+</div>

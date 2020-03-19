@@ -1,11 +1,10 @@
-import { RootState, SavedState } from "./root";
-import { Module, Plugin, Store } from "vuex";
-import * as utils from "../utils";
+import { RootState } from "./root";
+import { Module } from "vuex";
 import { Stop } from "../model";
 
 export interface Favourite {
     id: string;
-    name:  string;
+    name: string;
     stops: Stop[];
 }
 
@@ -26,14 +25,6 @@ const favourites: Module<FavouritesState, RootState> = {
             state.favourites = state.favourites.filter(f => f != favourite);
         }
     }
-};
-
-export const localStorageSaver = (path: string, key: string): Plugin<any> => (store: Store<any>) => {
-    utils.set(store.state, path, JSON.parse(window.localStorage.getItem(key) || '[]'));
-
-    store.subscribe((mutation, state) => {
-        window.localStorage.setItem(key, JSON.stringify(utils.get(state, path)));
-    })
 };
 
 export default favourites;

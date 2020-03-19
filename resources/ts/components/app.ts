@@ -4,6 +4,7 @@ import { Component, Watch } from "vue-property-decorator";
 import { Mutation, Action } from 'vuex-class'
 import { Stop } from "../model";
 import { DeparturesSettingsState } from "../store/settings/departures";
+import { MessagesSettingsState } from "../store/settings/messages";
 
 @Component({ store })
 export class Application extends Vue {
@@ -16,13 +17,6 @@ export class Application extends Vue {
         departures: false,
         save: false,
         picker: 'search'
-    };
-
-    private autorefresh = {
-        messages: {
-            active: true,
-            interval: 60
-        }
     };
 
     private intervals = { messages: null, departures: null };
@@ -55,6 +49,7 @@ export class Application extends Vue {
 
     created() {
         this.initDeparturesRefreshInterval();
+        this.initMessagesRefreshInterval();
     }
 
     private initDeparturesRefreshInterval() {
@@ -76,6 +71,25 @@ export class Application extends Vue {
         departuresAutorefreshCallback();
     }
 
+    private initMessagesRefreshInterval() {
+        const messagesAutorefreshCallback = () => {
+            const {autorefresh, autorefreshInterval} = this.$store.state['messages-settings'] as MessagesSettingsState;
+
+            if (this.intervals.messages) {
+                clearInterval(this.intervals.messages);
+            }
+
+            if (autorefresh) {
+                this.intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, autorefreshInterval) * 1000)
+            }
+        };
+
+        this.$store.watch(({"messages-settings": state}) => state.autorefresh, messagesAutorefreshCallback);
+        this.$store.watch(({"messages-settings": state}) => state.autorefreshInterval, messagesAutorefreshCallback);
+
+        messagesAutorefreshCallback();
+    }
+
     @Action('messages/update')   updateMessages: () => void;
     @Action('departures/update') updateDepartures: () => void;
 
@@ -86,17 +100,5 @@ export class Application extends Vue {
     @Watch('stops')
     onStopUpdate() {
         this.updateDepartures();
-    }
-
-    @Watch('autorefresh', { immediate: true, deep: true })
-    onAutorefreshUpdate(settings) {
-        if (this.intervals.messages) {
-            clearInterval(this.intervals.messages);
-            this.intervals.messages = null;
-        }
-
-        if (settings.messages.active) {
-            this.intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, settings.messages.interval) * 1000);
-        }
     }
 }

@@ -29,25 +29,7 @@
 
                     <portal to="popups">
                         <popper reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
-                            <h3 class="popper__heading flex">
-                                <label class="text" for="messages-auto-refresh">
-                                    <ui-icon icon="refresh" fixed-width></ui-icon>
-                                    autoodświeżanie
-                                </label>
-                                <ui-switch id="messages-auto-refresh" v-model="autorefresh.messages.active" class="flex-space-left"></ui-switch>
-                            </h3>
-                            <div class="flex" v-if="autorefresh.messages.active">
-                                <label for="messages-auto-refresh-interval" class="text">
-                                    <span class="sr-only">częstotliwość odświeżania</span>
-                                    co
-                                </label>
-                                <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control form-control-sm form-control-simple" id="messages-auto-refresh-interval" v-model="autorefresh.messages.interval"/>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text" aria-label="sekund">s</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <settings-messages></settings-messages>
                         </popper>
                     </portal>
                 </header>

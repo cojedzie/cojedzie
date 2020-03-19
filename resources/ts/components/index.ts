@@ -12,3 +12,4 @@ export * from './trip'
 export * from './ui'
 export * from './settings'
 export { Departures } from "../store";
+export { Messages } from "../store";
