@@ -36,6 +36,7 @@
   "dependencies": {
     "@types/mapbox-gl-leaflet": "^0.0.1",
     "@types/uuid": "^3.4.6",
+    "@types/vue-moment": "^4.0.0",
     "@types/workbox-window": "^4.3.3",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^4.5.2",
@@ -46,6 +47,7 @@
     "portal-vue": "^2.1.7",
     "vue-dragscroll": "^1.10.2",
     "vue-fragment": "^1.5.1",
+    "vue-moment": "^4.1.0",
     "vue-removed-hook-mixin": "^0.1.1",
     "vue2-leaflet": "^1.0.2",
     "vuex": "^3.0.1",

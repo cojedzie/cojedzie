@@ -7,11 +7,11 @@ import {
     faCheck,
     faCheckDouble,
     faChevronCircleUp,
-    faChevronDown,
-    faChevronUp,
+    faChevronDown, faChevronUp,
     faClock,
     faCog,
     faExclamationTriangle,
+    faHourglassHalf,
     faInfoCircle,
     faMapMarkerAlt,
     faMoon,
@@ -83,6 +83,7 @@ const definitions: Dictionary<Icon> = {
     'spinner': simple(faSpinnerThird, { spin: true }),
     'increment': simple(faPlus, { "fixed-width": true }),
     'decrement': simple(faMinus, { "fixed-width": true }),
+    'relative-time': simple(faHourglassHalf),
     'departure-warning': stack([
         {icon: faClockBold},
         {icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6"}

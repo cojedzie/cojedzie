@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { Departure } from "../model";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import store, { Departures } from '../store'
+import store, { Departures, DeparturesSettings } from '../store'
 import { Trip } from "../model/trip";
 import urls from "../urls";
 import { Jsonified } from "../utils";
@@ -12,10 +12,13 @@ export class DeparturesComponent extends Vue {
     @Departures.State departures: Departure[];
 }
 
-@Component({ template: require("../../components/departures/departure.html") })
+@Component({ template: require("../../components/departures/departure.html"), store })
 export class DepartureComponent extends Vue {
     @Prop(Object) departure: Departure;
     scheduledTrip: Trip = null;
+
+    @DeparturesSettings.State
+    relativeTimes: boolean;
 
     showTrip: boolean = false;
 
@@ -38,6 +41,10 @@ export class DepartureComponent extends Vue {
 
     get time() {
         return this.departure.estimated || this.departure.scheduled;
+    }
+
+    get timeLeft() {
+        return moment.duration(this.time.diff(moment()));
     }
 
     @Watch('showTrip')

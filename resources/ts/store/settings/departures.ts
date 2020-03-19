@@ -5,12 +5,14 @@ export type DeparturesSettingsState = {
     autorefresh: boolean;
     autorefreshInterval?: number;
     displayedEntriesCount?: number;
+    relativeTimes: boolean,
 }
 
 const departureSettings: Module<DeparturesSettingsState, RootState> = {
     namespaced: true,
     state: {
         autorefresh: true,
+        relativeTimes: false,
         autorefreshInterval: 10,
         displayedEntriesCount: 10
     },

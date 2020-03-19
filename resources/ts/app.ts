@@ -16,6 +16,9 @@ import { Workbox } from "workbox-window";
 
 import { migrate } from "./store/migrations";
 import { Component } from "vue-property-decorator";
+import * as VueMoment from "vue-moment";
+import * as moment from 'moment';
+import 'moment/locale/pl'
 
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
@@ -24,6 +27,7 @@ Vue.use(Vuex);
 Vue.use(PortalVue);
 Vue.use(VueDragscroll);
 Vue.use(VueFragment);
+Vue.use(VueMoment, { moment });
 
 declare module 'vue/types/vue' {
     interface Vue {

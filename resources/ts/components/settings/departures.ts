@@ -9,6 +9,9 @@ export class SettingsDepartures extends Vue {
     public autorefresh: boolean;
 
     @DeparturesSettings.State
+    public relativeTimes: boolean;
+
+    @DeparturesSettings.State
     public autorefreshInterval: number;
 
     @DeparturesSettings.State

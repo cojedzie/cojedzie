@@ -8,18 +8,23 @@
         <div class="departure__time">
             <template v-if="!departure.estimated">
                 <tooltip placement="top-end">Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej.</tooltip>
-                <ui-icon icon="departure-warning"/>
+                <ui-icon icon="departure-warning" class="mr-1"/>
             </template>
 
-            <span :class="[ 'departure__time', 'departure__time--delayed']" v-if="timeDiffers">
-                {{ departure.scheduled.format('HH:mm') }}
-            </span>
-            <span class="badge" :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
-                  v-if="departure.delay < 0 || departure.delay > 30">
+            <template v-if="!relativeTimes">
+                <span :class="[ 'departure__time', 'departure__time--delayed']" v-if="timeDiffers">
+                    {{ departure.scheduled|moment('HH:mm') }}
+                </span>
+                <span class="badge" :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
+                      v-if="departure.delay < 0 || departure.delay > 30">
                     {{ departure.delay|signed }}s
-            </span>
+                </span>
 
-            <span class="departure__time">{{ time.format('HH:mm') }}</span>
+                <span class="departure__time">{{ time|moment('HH:mm') }}</span>
+            </template>
+            <template v-else>
+                {{ timeLeft|duration('humanize', true) }}
+            </template>
         </div>
 
         <div class="departure__stop">
