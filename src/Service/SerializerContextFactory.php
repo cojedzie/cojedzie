@@ -23,7 +23,7 @@ final class SerializerContextFactory
 
     public function create($subject, array $groups = ['Default'])
     {
-        return SerializationContext::create()->setGroups($this->groups($subject, $groups));
+        return SerializationContext::create()->setSerializeNull(true)->setGroups($this->groups($subject, $groups));
     }
 
     private function groups($subject, array $groups)

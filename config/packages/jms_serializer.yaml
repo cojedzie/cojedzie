@@ -1,4 +1,8 @@
 jms_serializer:
+    default_context:
+        serialization:
+            serialize_null: true
+
     visitors:
         xml_serialization:
             format_output: '%kernel.debug%'

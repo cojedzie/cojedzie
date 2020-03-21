@@ -42,7 +42,7 @@ export class PickerStopComponent extends Vue {
             [lines => lines.length > 2,   ([first]) => `${first.symbol}…`],
         );
 
-        return unique(this.stop.destinations || [], destination => destination.stop.name).map(compactLines);
+        return unique(this.stop.destinations || [], destination => destination.stop && destination.stop.name).map(compactLines);
     }
 }
 

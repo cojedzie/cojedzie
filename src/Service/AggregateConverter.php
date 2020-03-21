@@ -3,8 +3,9 @@
 namespace App\Service;
 
 use Tightenco\Collect\Support\Collection;
+use function Kadet\Functional\Predicates\instance;
 
-class AggregateConverter implements Converter
+class AggregateConverter implements Converter, CacheableConverter
 {
     private $converters;
 
@@ -41,5 +42,23 @@ class AggregateConverter implements Converter
     public function getConverters(): Collection
     {
         return clone $this->converters;
+    }
+
+    public function flushCache()
+    {
+        $this
+            ->converters
+            ->filter(instance(CacheableConverter::class))
+            ->each(function (CacheableConverter $converter) {
+                $converter->flushCache();
+            })
+        ;
+    }
+
+    public function __clone()
+    {
+        $this->converters = $this->converters->map(function ($object) {
+            return clone $object;
+        });
     }
 }

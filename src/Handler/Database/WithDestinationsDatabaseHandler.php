@@ -7,6 +7,7 @@ use App\Event\PostProcessEvent;
 use App\Handler\PostProcessingHandler;
 use App\Model\Destination;
 use App\Model\Stop;
+use App\Service\CacheableConverter;
 use App\Service\Converter;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +26,11 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
         $this->em = $entityManager;
         $this->converter = $converter;
         $this->id = $id;
+
+        if ($this->converter instanceof CacheableConverter) {
+            $this->converter = clone $this->converter;
+            $this->converter->flushCache();
+        }
     }
 
     public function postProcess(PostProcessEvent $event)
