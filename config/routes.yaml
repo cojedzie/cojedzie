@@ -2,3 +2,8 @@ api_v1:
   resource: ../src/Controller/Api/v1
   type: annotation
   prefix: /{provider}/api/v1
+
+api_v1_providers:
+  path: /api/v1/providers
+  defaults:
+    _controller: '\App\Controller\Api\v1\ProviderController::index'

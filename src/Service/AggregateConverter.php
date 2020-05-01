@@ -8,20 +8,19 @@ use function Kadet\Functional\Predicates\instance;
 class AggregateConverter implements Converter, CacheableConverter
 {
     private $converters;
+    private $cachedConverters;
 
     public function __construct(iterable $converters)
     {
-        $this->converters = collect($converters)->each(function (Converter $converter) {
-            if ($converter instanceof RecursiveConverter) {
-                $converter->setParent($this);
-            }
-        });
+        $this->converters = $converters;
     }
 
     public function convert($entity)
     {
+        $this->ensureCachedConverters();
+
         /** @var Converter $converter */
-        $converter = $this->converters->first(function (Converter $converter) use ($entity) {
+        $converter = $this->cachedConverters->first(function (Converter $converter) use ($entity) {
             return $converter->supports($entity);
         });
 
@@ -41,7 +40,9 @@ class AggregateConverter implements Converter, CacheableConverter
 
     public function getConverters(): Collection
     {
-        return clone $this->converters;
+        $this->ensureCachedConverters();
+
+        return clone $this->cachedConverters;
     }
 
     public function flushCache()
@@ -57,8 +58,25 @@ class AggregateConverter implements Converter, CacheableConverter
 
     public function __clone()
     {
-        $this->converters = $this->converters->map(function ($object) {
+        $this->ensureCachedConverters();
+
+        $this->cachedConverters = $this->cachedConverters->map(function ($object) {
             return clone $object;
         });
+    }
+
+    private function ensureCachedConverters()
+    {
+        if (!$this->cachedConverters) {
+            $this->cachedConverters = collect($this->converters)
+                ->filter(function (Converter $converter) {
+                    return $converter !== $this;
+                })
+                ->each(function (Converter $converter) {
+                    if ($converter instanceof RecursiveConverter) {
+                        $converter->setParent($this);
+                    }
+                });
+        }
     }
 }

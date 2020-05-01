@@ -19,11 +19,14 @@ services:
         App\Provider\Provider:
             tags: [ app.provider ]
 
+        App\Service\Converter:
+            tags: [ app.converter ]
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Exception,Modifie,Entity,Model,Migrations,Tests,Functions,Handler,Kernel.php}'
+        exclude: '../src/{DependencyInjection,Exception,Modifier,Entity,Model,Migrations,Tests,Functions,Handler,Kernel.php}'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -72,18 +75,13 @@ services:
 
     ProxyManager\Configuration: '@proxy.config'
 
+
     # converter
     App\Service\AggregateConverter:
         arguments:
-          - !tagged_iterator app.converter
+            - !tagged_iterator app.converter
 
     App\Service\Converter: '@App\Service\AggregateConverter'
-
-    App\Service\EntityConverter:
-        tags: ['app.converter']
-
-    App\Service\ScheduledStopConverter:
-        tags: ['app.converter']
 
     # serializer configuration
     App\Service\SerializerContextFactory:
