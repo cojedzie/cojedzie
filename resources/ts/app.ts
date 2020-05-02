@@ -53,6 +53,11 @@ Component.registerHooks(['removed']);
 
     const appRoot = document.getElementById('app');
 
+    store.replaceState({
+        ...store.state,
+        provider: window['data']?.provider,
+    });
+
     // here goes "public" API
     window['app'] = Object.assign({
         state: {}
