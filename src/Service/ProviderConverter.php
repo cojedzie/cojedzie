@@ -17,6 +17,7 @@ class ProviderConverter implements Converter
             'name'        => $entity->getName(),
             'attribution' => $entity->getAttribution(),
             'lastUpdate'  => $entity->getLastUpdate() ? clone $entity->getLastUpdate() : null,
+            'location'    => $entity->getLocation(),
         ]);
     }
 
@@ -25,3 +26,4 @@ class ProviderConverter implements Converter
         return $entity instanceof Provider;
     }
 }
+

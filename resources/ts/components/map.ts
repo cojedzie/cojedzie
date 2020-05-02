@@ -1,4 +1,4 @@
-import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
+import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer } from 'vue2-leaflet';
 import Vue from 'vue';
 
 import * as L from 'leaflet'
@@ -48,5 +48,8 @@ Vue.component('LMap', LMap);
 Vue.component('LTileLayer', LTileLayer);
 Vue.component('LVectorLayer', LVectorLayer);
 Vue.component('LMarker', LMarker);
+Vue.component('LControl', LControl);
+Vue.component('LPopup', LPopup)
+Vue.component('LIcon', LIcon);
 
-export { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
+export { LMap, LTileLayer, LMarker, LIcon, LControl, LPopup } from 'vue2-leaflet';

@@ -1,3 +1,5 @@
+import store from "./store";
+
 export type UrlParams = {
     [name: string]: any
 }
@@ -61,5 +63,5 @@ export default {
         tracks:  `${base}/stops/{id}/tracks`
     },
     trip: `${base}/trips/{id}`,
-    prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: window['data'].provider }, params))
+    prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: store.state.provider }, params))
 }

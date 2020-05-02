@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import store from '../store'
 import { Component, Watch } from "vue-property-decorator";
-import { Mutation, Action } from 'vuex-class'
+import { Action, Mutation } from 'vuex-class'
 import { Stop } from "../model";
 import { DeparturesSettingsState } from "../store/settings/departures";
 import { MessagesSettingsState } from "../store/settings/messages";
@@ -48,6 +48,9 @@ export class Application extends Vue {
     }
 
     created() {
+        this.$store.dispatch('messages/update');
+        this.$store.dispatch('load', window['app'].state);
+
         this.initDeparturesRefreshInterval();
         this.initMessagesRefreshInterval();
     }

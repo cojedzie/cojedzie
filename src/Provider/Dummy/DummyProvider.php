@@ -3,6 +3,7 @@
 namespace App\Provider\Dummy;
 
 use App\Exception\NotSupportedException;
+use App\Model\Location;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
@@ -76,6 +77,11 @@ class DummyProvider implements Provider
     public function getLastUpdate(): ?Carbon
     {
         return null;
+    }
+
+    public function getLocation(): Location
+    {
+        return new Location(21.4474, 54.7837);
     }
 
     public function getTripRepository(): TripRepository

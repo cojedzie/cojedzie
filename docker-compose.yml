@@ -17,6 +17,8 @@ services:
       - ./:/var/www:cached
       - ./docker/php/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
+
+
   blackfire:
     image: blackfire/blackfire
     ports: ["8707"]

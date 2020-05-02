@@ -61,6 +61,20 @@ $grid-gutter-width: $spacer * 2;
   }
 }
 
+@mixin active {
+  &:hover, &:active, &:focus, #{&}--active {
+    @content
+  }
+}
+
+@mixin flex-with-spacing($spacing) {
+  display: flex;
+
+  & > *:not(:last-child) {
+    margin-right: $spacing;
+  }
+}
+
 @import "common";
 @import "stop";
 @import "departure";
@@ -72,8 +86,11 @@ $grid-gutter-width: $spacer * 2;
 @import "favourites";
 @import "trip";
 @import "dragscroll";
+@import "map";
 
 @import "ui/switch";
+
+@import "page/provider-picker";
 
 body {
   min-height: 100vh;

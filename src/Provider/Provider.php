@@ -2,6 +2,7 @@
 
 namespace App\Provider;
 
+use App\Model\Location;
 use Carbon\Carbon;
 
 interface Provider
@@ -17,6 +18,7 @@ interface Provider
     public function getShortName(): string;
     public function getIdentifier(): string;
     public function getAttribution(): ?string;
+    public function getLocation(): Location;
 
     public function getLastUpdate(): ?Carbon;
 }

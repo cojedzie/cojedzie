@@ -1,0 +1,29 @@
+.map__label-box {
+  @extend .popper;
+
+  padding: .5rem;
+  background: white;
+  transform-origin: 50% 50%;
+  transform: translateX(-50%);
+  min-width: max-content;
+
+  font-size: 9pt;
+
+  font-weight: bold;
+  align-items: center;
+
+  @include active {
+    transform: translateX(-50%) scale(1.1);
+  }
+
+  @include flex-with-spacing(.5rem);
+}
+
+.map__icon {
+  font-size: 1.5rem;
+}
+
+img.map__icon {
+  width: 24px;
+  height: 24px;
+}

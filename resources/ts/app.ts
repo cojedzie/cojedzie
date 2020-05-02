@@ -14,7 +14,6 @@ import VueDragscroll from 'vue-dragscroll';
 import { Plugin as VueFragment } from 'vue-fragment';
 import { Workbox } from "workbox-window";
 
-import { migrate } from "./store/migrations";
 import { Component } from "vue-property-decorator";
 import * as VueMoment from "vue-moment";
 import * as moment from 'moment';
@@ -41,6 +40,8 @@ Component.registerHooks(['removed']);
 
 // async dependencies
 (async function () {
+    const { migrate } = await import('./store/migrations');
+
     await migrate("vuex");
 
     const [ components, { default: store } ] = await Promise.all([
@@ -50,16 +51,15 @@ Component.registerHooks(['removed']);
         import('bootstrap'),
     ] as const);
 
+    const appRoot = document.getElementById('app');
+
     // here goes "public" API
     window['app'] = Object.assign({
         state: {}
     }, window['app'], {
         components,
-        application: new components.Application({ el: '#app' })
+        application: appRoot ? new components.Application({ el: '#app' }) : new components.PageProviderList({ el: '#provider-picker' }),
     });
-
-    store.dispatch('messages/update');
-    store.dispatch('load', window['app'].state);
 
     if ('serviceWorker' in navigator) {
         const wb = new Workbox("/service-worker.js");

@@ -3,146 +3,147 @@
 {% block manifest path('webapp_manifest', { provider: provider.identifier }) %}
 
 {% block body %}
-    <div class="row">
-        <div class="col-md-8 order-md-last">
-            <section class="section messages" v-show="messages.count > 0">
-                <header class="section__title flex">
-                    <h2>
-                        <ui-icon icon="messages" fixed-width class="mr-2"></ui-icon>
-                        Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
-                    </h2>
-                    <button class="btn btn-action flex-space-left" ref="settings-messages" @click="visibility.messages = !visibility.messages">
-                        <tooltip>ustawienia</tooltip>
-                        <ui-icon icon="settings" fixed-width></ui-icon>
-                    </button>
-                    <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
-                        <tooltip>odśwież</tooltip>
-                        <ui-icon icon="refresh" :spin="messages.state === 'fetching'" fixed-width></ui-icon>
-                    </button>
-                    <button class="btn btn-action" @click="sections.messages = !sections.messages">
-                        <tooltip>
-                            {{ '{{ ' }} sections.messages ? 'zwiń' : 'rozwiń' {{ '}}' }}
-                            <span class="sr-only">sekcję komunikatów</span>
-                        </tooltip>
-                        <ui-icon :icon="sections.messages ? 'chevron-up' : 'chevron-down'" fixed-width></ui-icon>
-                    </button>
+    <main id="app" class="container not-ready">
+        <div class="row">
+            <div class="col-md-8 order-md-last">
+                <section class="section messages" v-show="messages.count > 0">
+                    <header class="section__title flex">
+                        <h2>
+                            <ui-icon icon="messages" fixed-width class="mr-2"></ui-icon>
+                            Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ '{{ messages.count }}' }}</span>
+                        </h2>
+                        <button class="btn btn-action flex-space-left" ref="settings-messages" @click="visibility.messages = !visibility.messages">
+                            <tooltip>ustawienia</tooltip>
+                            <ui-icon icon="settings" fixed-width></ui-icon>
+                        </button>
+                        <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
+                            <tooltip>odśwież</tooltip>
+                            <ui-icon icon="refresh" :spin="messages.state === 'fetching'" fixed-width></ui-icon>
+                        </button>
+                        <button class="btn btn-action" @click="sections.messages = !sections.messages">
+                            <tooltip>
+                                {{ '{{ ' }} sections.messages ? 'zwiń' : 'rozwiń' {{ '}}' }}
+                                <span class="sr-only">sekcję komunikatów</span>
+                            </tooltip>
+                            <ui-icon :icon="sections.messages ? 'chevron-up' : 'chevron-down'" fixed-width></ui-icon>
+                        </button>
 
-                    <portal to="popups">
-                        <popper reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
-                            <settings-messages></settings-messages>
-                        </popper>
-                    </portal>
-                </header>
-                <fold :visible="sections.messages">
-                    <messages></messages>
-                </fold>
-            </section>
+                        <portal to="popups">
+                            <popper reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
+                                <settings-messages></settings-messages>
+                            </popper>
+                        </portal>
+                    </header>
+                    <fold :visible="sections.messages">
+                        <messages></messages>
+                    </fold>
+                </section>
+                <section class="section">
+                    <header class="section__title flex">
+                        <h2>
+                            <ui-icon icon="timetable" fixed-width></ui-icon>
+                            <span class="text">Odjazdy</span>
+                        </h2>
 
-            <section class="section">
-                <header class="section__title flex">
-                    <h2>
-                        <ui-icon icon="timetable" fixed-width></ui-icon>
-                        <span class="text">Odjazdy</span>
-                    </h2>
-
-                    <button class="btn btn-action flex-space-left" ref="settings-departures" @click="visibility.departures = !visibility.departures">
-                        <tooltip>ustawienia</tooltip>
-                        <ui-icon icon="settings" fixed-width></ui-icon>
-                    </button>
-                    <button class="btn btn-action" @click="updateDepartures({ stops })">
-                        <tooltip>odśwież</tooltip>
-                        <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width></ui-icon>
-                    </button>
-                    <portal to="popups">
-                        <popper reference="settings-departures" v-if="visibility.departures" arrow placement="left-start" @leave="visibility.departures = false">
-                            <settings-departures></settings-departures>
-                        </popper>
-                    </portal>
-                </header>
-                <departures :stops="stops" v-if="stops.length > 0"></departures>
-                <div class="alert alert-info" v-else>
-                    <ui-icon icon="info"></ui-icon>
-                    Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
-                </div>
-                {% if provider.attribution %}
-                    <div class="attribution">
+                        <button class="btn btn-action flex-space-left" ref="settings-departures" @click="visibility.departures = !visibility.departures">
+                            <tooltip>ustawienia</tooltip>
+                            <ui-icon icon="settings" fixed-width></ui-icon>
+                        </button>
+                        <button class="btn btn-action" @click="updateDepartures({ stops })">
+                            <tooltip>odśwież</tooltip>
+                            <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width></ui-icon>
+                        </button>
+                        <portal to="popups">
+                            <popper reference="settings-departures" v-if="visibility.departures" arrow placement="left-start" @leave="visibility.departures = false">
+                                <settings-departures></settings-departures>
+                            </popper>
+                        </portal>
+                    </header>
+                    <departures :stops="stops" v-if="stops.length > 0"></departures>
+                    <div class="alert alert-info" v-else>
                         <ui-icon icon="info"></ui-icon>
-                        Pochodzenie danych: {{ provider.attribution|raw }}
+                        Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
                     </div>
-                {% endif %}
-            </section>
-        </div>
-        <div class="col-md-4 order-md-first">
-            <section class="section picker" v-if="stops.length > 0">
-                <header class="section__title flex">
-                    <h2>
-                        <ui-icon icon="stop" fixed-width></ui-icon>
-                        <span class="text">Przystanki</span>
-                    </h2>
-                    <button class="btn btn-action flex-space-left" @click="clear">
-                        <tooltip>usuń wszystkie</tooltip>
-                        <ui-icon icon="delete" fixed-width></ui-icon>
-                    </button>
-                </header>
-
-                <ul class="picker__stops list-underlined">
-                    <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
-                        <picker-stop :stop="stop" class="flex-grow-1">
-                            <template v-slot:primary-action>
-                                <button @click="remove(stop)" class="btn btn-action">
-                                    <tooltip>usuń przystanek</tooltip>
-                                    <ui-icon icon="remove-stop"></ui-icon>
-                                </button>
-                            </template>
-                        </picker-stop>
-                    </li>
-                </ul>
-
-                <div class="d-flex mt-2">
-                    <button class="btn btn-action btn-sm flex-space-left" @click="visibility.save = true" ref="save">
-                        <ui-icon icon="favourite" fixed-width></ui-icon>
-                        zapisz jako...
-                    </button>
-                </div>
-
-                <popper reference="save" v-if="visibility.save" arrow tabindex="-1" @leave="visibility.save = false" placement="bottom-end">
-                    <favourites-adder @saved="visibility.save = false"/>
-                </popper>
-            </section>
-            <section class="section picker">
-                <header class="section__title flex">
-                    <template v-if="visibility.picker === 'search'">
-                        <h2 class="flex-grow-1">
-                            <ui-icon icon="search" fixed-width class="mr-1"></ui-icon>
-                            Wybierz przystanki
+                    {% if provider.attribution %}
+                        <div class="attribution">
+                            <ui-icon icon="info"></ui-icon>
+                            Pochodzenie danych: {{ provider.attribution|raw }}
+                        </div>
+                    {% endif %}
+                </section>
+            </div>
+            <div class="col-md-4 order-md-first">
+                <section class="section picker" v-if="stops.length > 0">
+                    <header class="section__title flex">
+                        <h2>
+                            <ui-icon icon="stop" fixed-width></ui-icon>
+                            <span class="text">Przystanki</span>
                         </h2>
-                        <button class="btn btn-action" @click="visibility.picker = 'favourites'">
-                            <tooltip>Zapisane</tooltip>
-                            <ui-icon icon="favourite" fixed-witdth></ui-icon>
+                        <button class="btn btn-action flex-space-left" @click="clear">
+                            <tooltip>usuń wszystkie</tooltip>
+                            <ui-icon icon="delete" fixed-width></ui-icon>
                         </button>
-                    </template>
-                    <template v-else>
-                        <h2 class="flex-grow-1">
-                            <ui-icon icon="favourite" fixed-width class="mr-1"></ui-icon>
-                            Zapisane
-                        </h2>
-                        <button class="btn btn-action" @click="visibility.picker = 'search'">
-                            <tooltip>Wybierz przystanki</tooltip>
-                            <ui-icon icon="search" fixed-witdth></ui-icon>
-                        </button>
-                    </template>
-                </header>
-                <div class="transition-box">
-                    <transition name="fade">
-                        <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
-                        <favourites v-else-if="visibility.picker === 'favourites'"></favourites>
-                    </transition>
-                </div>
-            </section>
-        </div>
-    </div>
+                    </header>
 
-    <portal-target name="popups" multiple></portal-target>
+                    <ul class="picker__stops list-underlined">
+                        <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
+                            <picker-stop :stop="stop" class="flex-grow-1">
+                                <template v-slot:primary-action>
+                                    <button @click="remove(stop)" class="btn btn-action">
+                                        <tooltip>usuń przystanek</tooltip>
+                                        <ui-icon icon="remove-stop"></ui-icon>
+                                    </button>
+                                </template>
+                            </picker-stop>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex mt-2">
+                        <button class="btn btn-action btn-sm flex-space-left" @click="visibility.save = true" ref="save">
+                            <ui-icon icon="favourite" fixed-width></ui-icon>
+                            zapisz jako...
+                        </button>
+                    </div>
+
+                    <popper reference="save" v-if="visibility.save" arrow tabindex="-1" @leave="visibility.save = false" placement="bottom-end">
+                        <favourites-adder @saved="visibility.save = false"/>
+                    </popper>
+                </section>
+                <section class="section picker">
+                    <header class="section__title flex">
+                        <template v-if="visibility.picker === 'search'">
+                            <h2 class="flex-grow-1">
+                                <ui-icon icon="search" fixed-width class="mr-1"></ui-icon>
+                                Wybierz przystanki
+                            </h2>
+                            <button class="btn btn-action" @click="visibility.picker = 'favourites'">
+                                <tooltip>Zapisane</tooltip>
+                                <ui-icon icon="favourite" fixed-witdth></ui-icon>
+                            </button>
+                        </template>
+                        <template v-else>
+                            <h2 class="flex-grow-1">
+                                <ui-icon icon="favourite" fixed-width class="mr-1"></ui-icon>
+                                Zapisane
+                            </h2>
+                            <button class="btn btn-action" @click="visibility.picker = 'search'">
+                                <tooltip>Wybierz przystanki</tooltip>
+                                <ui-icon icon="search" fixed-witdth></ui-icon>
+                            </button>
+                        </template>
+                    </header>
+                    <div class="transition-box">
+                        <transition name="fade">
+                            <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
+                            <favourites v-else-if="visibility.picker === 'favourites'"></favourites>
+                        </transition>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <portal-target name="popups" multiple></portal-target>
+    </main>
 {% endblock %}
 
 {% block javascripts %}

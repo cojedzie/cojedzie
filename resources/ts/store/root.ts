@@ -5,6 +5,7 @@ import { ensureArray } from "../utils";
 
 export interface RootState {
     stops: Stop[],
+    provider: any,
 }
 
 export interface SavedState {
@@ -13,7 +14,8 @@ export interface SavedState {
 }
 
 export const state: RootState = {
-    stops: []
+    stops: [],
+    provider: null,
 };
 
 export const mutations: MutationTree<RootState> = {

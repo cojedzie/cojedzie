@@ -1,13 +1,11 @@
 import { Line } from "./line";
+import { Location } from "./common";
 
 export interface Stop {
     id: any;
     name: string;
     description?: string;
-    location?: {
-        lat: number,
-        lng: number,
-    };
+    location?: Location;
     onDemand?: boolean;
     variant?: string;
 }

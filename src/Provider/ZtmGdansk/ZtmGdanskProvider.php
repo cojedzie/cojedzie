@@ -4,6 +4,7 @@
 namespace App\Provider\ZtmGdansk;
 
 use App\Entity\ProviderEntity;
+use App\Model\Location;
 use App\Provider\Database\GenericLineRepository;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;
@@ -13,11 +14,9 @@ use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Provider\Provider;
-use App\Provider\ScheduleRepository;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
-use App\Provider\ZtmGdansk\{ZtmGdanskDepartureRepository, ZtmGdanskMessageRepository};
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -52,6 +51,11 @@ class ZtmGdanskProvider implements Provider
     public function getAttribution(): string
     {
         return '<a href="http://ztm.gda.pl/otwarty_ztm">Otwarte Dane</a> Zarządu Transportu Miejskiego w Gdańsku';
+    }
+
+    public function getLocation(): Location
+    {
+        return new Location(18.6466, 54.3520);
     }
 
     public function __construct(

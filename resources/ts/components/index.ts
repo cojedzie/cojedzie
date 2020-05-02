@@ -11,5 +11,7 @@ export * from './favourites'
 export * from './trip'
 export * from './ui'
 export * from './settings'
+export * from "./page"
+
 export { Departures } from "../store";
 export { Messages } from "../store";

@@ -49,6 +49,12 @@ class Provider implements Fillable, Referable
      */
     private $lastUpdate;
 
+    /**
+     * Location of provider centre of interest.
+     * @var Location
+     */
+    private $location;
+
     public function getId(): string
     {
         return $this->id;
@@ -97,5 +103,15 @@ class Provider implements Fillable, Referable
     public function setLastUpdate(?Carbon $lastUpdate): void
     {
         $this->lastUpdate = $lastUpdate;
+    }
+
+    public function getLocation(): Location
+    {
+        return $this->location;
+    }
+
+    public function setLocation(Location $location): void
+    {
+        $this->location = $location;
     }
 }
