@@ -47,8 +47,10 @@ class AggregateConverter implements Converter, CacheableConverter
 
     public function flushCache()
     {
+        $this->ensureCachedConverters();
+
         $this
-            ->converters
+            ->cachedConverters
             ->filter(instance(CacheableConverter::class))
             ->each(function (CacheableConverter $converter) {
                 $converter->flushCache();
@@ -70,7 +72,7 @@ class AggregateConverter implements Converter, CacheableConverter
         if (!$this->cachedConverters) {
             $this->cachedConverters = collect($this->converters)
                 ->filter(function (Converter $converter) {
-                    return $converter !== $this;
+                    return $converter !== $this && !$converter instanceof AggregateConverter;
                 })
                 ->each(function (Converter $converter) {
                     if ($converter instanceof RecursiveConverter) {
