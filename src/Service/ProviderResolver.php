@@ -6,8 +6,8 @@ namespace App\Service;
 use App\Exception\NonExistentServiceException;
 use App\Provider\Dummy\DummyProvider;
 use App\Provider\Provider;
-use Kadet\Functional\Transforms as t;
 use Kadet\Functional\Predicates as p;
+use Kadet\Functional\Transforms as t;
 use Tightenco\Collect\Support\Collection;
 
 class ProviderResolver
@@ -23,16 +23,19 @@ class ProviderResolver
         }
     }
 
-    /**\
-     * @param string $name
-     *
-     * @return \App\Provider\Provider
-     * @throws \App\Exception\NonExistentServiceException
-     */
-    public function resolve(string $name): Provider
+    public function resolve(?string $name): ?Provider
     {
+        if (empty($name)) {
+            return null;
+        }
+
         if (!$this->providers->has($name)) {
-            $message = sprintf("Provider '%s' doesn't exist, you can choose from: %s", $name, $this->providers->keys()->implode(', '));
+            $message = sprintf(
+                "Provider '%s' doesn't exist, you can choose from: %s",
+                $name,
+                $this->providers->keys()->implode(', ')
+            );
+
             throw new NonExistentServiceException($message);
         }
 

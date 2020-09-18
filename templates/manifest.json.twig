@@ -1,13 +1,14 @@
 {
-    "name": "Co Jedzie? - {{ provider.shortName }}",
-    "short_name": "Co Jedzie? - {{ provider.shortName }}",
+    "name": "Co Jedzie?{% if provider %} - {{ provider.shortName }}{% endif %}",
+    "short_name": "Co Jedzie?{% if provider %} - {{ provider.shortName }}{% endif %}",
     "orientation": "portrait",
     "lang": "pl_PL",
-    "start_url": "{{ path('app', { provider: provider.identifier }) }}",
+    "start_url": "{{ provider ? path('app', { provider: provider.identifier }) : path('choose') }}",
     "display": "standalone",
     "background_color": "white",
     "theme_color": "white",
     "description": "Odpowiedź na odwieczne pytanie ludzkości - czy tramwaje jeżdżą?",
+    "categories": ["navigation", "transport", "travel", "utilities"],
     "icons": [{
         "src": "{{ asset('images/icon-256.png') }}",
         "sizes": "256x256"

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 {% block title "#{parent()} - #{provider.name}" %}
-{% block manifest path('webapp_manifest', { provider: provider.identifier }) %}
+{% block manifest path('provider_manifest', { provider: provider.identifier }) %}
 
 {% block body %}
     <main id="app" class="container not-ready">
