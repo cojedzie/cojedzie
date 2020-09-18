@@ -6,7 +6,7 @@
     "start_url": "{{ path('app', { provider: provider.identifier }) }}",
     "display": "standalone",
     "background_color": "white",
-    "theme_color": "#005ea8",
+    "theme_color": "white",
     "description": "Odpowiedź na odwieczne pytanie ludzkości - czy tramwaje jeżdżą?",
     "icons": [{
         "src": "{{ asset('images/icon-256.png') }}",
@@ -26,5 +26,13 @@
     },{
         "src": "{{ asset('images/icon-96.png') }}",
         "sizes": "96x96"
+    },{
+        "src": "{{ asset('images/icon-maskable.png') }}",
+        "sizes": "512x512",
+        "purpose": "any maskable"
+    },{
+        "src": "{{ asset('images/icon-monochrome.png') }}",
+        "sizes": "512x512",
+        "purpose": "monochrome"
     }]
 }
