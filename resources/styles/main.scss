@@ -92,6 +92,10 @@ $grid-gutter-width: $spacer * 2;
 
 @import "page/provider-picker";
 
+html, body {
+  overscroll-behavior-y: contain;
+}
+
 body {
   min-height: 100vh;
   display: flex;

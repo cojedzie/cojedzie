@@ -21,7 +21,7 @@ server {
 
 			fastcgi_param APP_ENV "dev";
 			fastcgi_param DATABASE_URL "sqlite:///%kernel.project_dir%/var/app.db";
-			fastcgi_param GOOGLE_ANALYTICS "UA-00000-00";
+			fastcgi_param GTM_TAG "GTM-00000";
 
             internal;
 		}
