@@ -36,7 +36,7 @@ const config = {
             test: /\.s[ac]ss$/,
             use: [{
                 loader: MiniCssExtractPlugin.loader,
-            }, "css-loader?sourceMap", "sass-loader?sourceMap"]
+            }, "css-loader?sourceMap&url=false", "sass-loader?sourceMap&url=false"]
         }, {
             test: /\.css$/,
             use: ["style-loader", "css-loader"]

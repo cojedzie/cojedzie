@@ -60,7 +60,14 @@
   }
 }
 
+$section-safe-margin: 0.5rem;
+
 .section {
+  padding: $section-safe-margin;
+  margin: -$section-safe-margin;
+
+  background: rgba(white, 0.85);
+
   margin-bottom: 1rem;
 
   .section__title {
