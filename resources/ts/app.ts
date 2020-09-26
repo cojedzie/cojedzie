@@ -31,10 +31,14 @@ Vue.use(VueMoment, { moment });
 declare module 'vue/types/vue' {
     interface Vue {
         $isTouch: boolean;
+        $hasSlot: (slot: string) => string;
     }
 }
 
 Vue.prototype.$isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
+Vue.prototype.$hasSlot = function (this: Vue, slot: string): boolean {
+    return !!this.$slots[slot] || !!this.$scopedSlots[slot];
+}
 
 Component.registerHooks(['removed']);
 

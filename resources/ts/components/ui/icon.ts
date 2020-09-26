@@ -7,7 +7,8 @@ import {
     faCheck,
     faCheckDouble,
     faChevronCircleUp,
-    faChevronDown, faChevronUp,
+    faChevronDown,
+    faChevronUp,
     faClock,
     faCog,
     faExclamationTriangle,
@@ -15,7 +16,8 @@ import {
     faInfoCircle,
     faMapMarkerAlt,
     faMoon,
-    faQuestionCircle, faQuestionSquare,
+    faQuestionCircle,
+    faQuestionSquare,
     faSearch,
     faSign,
     faStar,
@@ -23,7 +25,13 @@ import {
     faTimes,
     faTrashAlt
 } from "@fortawesome/pro-light-svg-icons";
-import { faClock as faClockBold, faCodeCommit, faMinus, faPlus, faSpinnerThird } from "@fortawesome/pro-regular-svg-icons";
+import {
+    faClock as faClockBold,
+    faCodeCommit,
+    faMinus,
+    faPlus,
+    faSpinnerThird
+} from "@fortawesome/pro-regular-svg-icons";
 import { faExclamationTriangle as faSolidExclamationTriangle, faWalking } from "@fortawesome/pro-solid-svg-icons";
 import { fac } from "../../icons";
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from "@fortawesome/vue-fontawesome";
@@ -88,6 +96,7 @@ const definitions: Dictionary<Icon> = {
         {icon: faClockBold},
         {icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6"}
     ]),
+    'close': simple(faTimes),
     ...lineTypeIcons,
     ...messageTypeIcons,
 };

@@ -2,6 +2,14 @@ import { set, signed } from "./utils";
 import Vue from 'vue';
 import { condition } from "./decorators";
 
+export const defaultBreakpoints = {
+    'xs': 0,
+    'sm': 576,
+    'md': 768,
+    'lg': 1024,
+    'xl': 1200,
+}
+
 Vue.filter('signed', signed);
 
 Vue.directive('hover',  {
@@ -61,13 +69,7 @@ Vue.directive('autofocus', {
 
 Vue.directive('responsive', {
     inserted(el, binding) {
-        const breakpoints = typeof binding.value === 'object' ? binding.value : {
-            'xs': 0,
-            'sm': 576,
-            'md': 768,
-            'lg': 1024,
-            'xl': 1200,
-        };
+        const breakpoints = typeof binding.value === 'object' ? binding.value : defaultBreakpoints;
 
         const resize = binding['resize'] = () => {
             const width = el.scrollWidth;

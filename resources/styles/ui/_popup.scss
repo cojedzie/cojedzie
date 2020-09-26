@@ -54,7 +54,7 @@
 @mixin triangle-left($size, $color, $border: none)   { @include triangle(left, $size, $color, $border); }
 @mixin triangle-right($size, $color, $border: none)  { @include triangle(right, $size, $color, $border); }
 
-.popper {
+.ui-popup {
   $arrow-base: 8px;
   $arrow-color: white;
   $arrow-border: rgba(black, 0.2);
@@ -74,17 +74,17 @@
 
   border-radius: 2px;
 
-  .popper__arrow {
+  .ui-popup__arrow {
     position: absolute;
     width: 0;
     height: 0;
   }
 
-  &.popper--no-padding {
+  &.ui-popup--no-padding {
     padding: 0;
   }
 
-  .popper__heading {
+  .ui-popup__heading {
     font-size: $font-size-sm;
     font-weight: bold;
     margin-bottom: .5rem;
@@ -105,7 +105,7 @@
     &[x-placement*="#{$placement}"] {
       margin-#{map-get($opposite, $placement)}: $arrow-base;
 
-      .popper__arrow {
+      .ui-popup__arrow {
         #{map-get($opposite, $placement)}: 0;
         @include triangle(map-get($opposite, $placement), $arrow-base, $arrow-color, $arrow-border);
       }
@@ -119,11 +119,11 @@
     @include placement("bottom");
   }
 
-  &.popper--arrow {
+  &.ui-popup--arrow {
     @include arrows;
   }
 
-  &.popper--tooltip {
+  &.ui-popup--tooltip {
     background: $dark;
     color: white;
     padding: .5rem .75rem;
@@ -132,14 +132,14 @@
     min-width: 0;
     box-shadow: none;
 
-    &.popper--arrow {
+    &.ui-popup--arrow {
       $arrow-color: $dark;
       $arrow-border: none;
       $arrow-base: 6px;
 
       @include arrows;
 
-      .popper__arrow::before {
+      .ui-popup__arrow::before {
         border: none;
       }
     }
@@ -147,7 +147,7 @@
 }
 
 @include media-breakpoint-down('sm') {
-  .popper {
+  .ui-popup {
     margin-left: $spacer;
     margin-right: $spacer;
   }

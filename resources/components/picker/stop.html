@@ -35,8 +35,8 @@
     </fold>
 
     <keep-alive>
-        <popper reference="action-map" v-if="showMap" arrow class="popper--no-padding" style="width: 500px;" placement="right-start" v-hover:inMap>
+        <ui-dialog reference="action-map" v-if="showMap" arrow class="ui-popup--no-padding" style="width: 500px;" placement="right-start" v-hover:inMap>
             <stop-map :stop="stop" style="height: 300px"/>
-        </popper>
+        </ui-dialog>
     </keep-alive>
 </div>

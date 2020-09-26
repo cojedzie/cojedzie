@@ -75,12 +75,24 @@ $grid-gutter-width: $spacer * 2;
   }
 }
 
+@mixin position($position, $top: inherit, $right: inherit, $bottom: inherit, $left: inherit) {
+  $right:  if($right == inherit, $top, $right);
+  $bottom: if($bottom == inherit, $top, $bottom);
+  $left:   if($left == inherit, $right, $left);
+
+  position: $position;
+
+  top: $top;
+  right: $right;
+  left: $left;
+  bottom: $bottom;
+}
+
 @import "common";
 @import "stop";
 @import "departure";
 @import "line";
 @import "controls";
-@import "popper";
 @import "animations";
 @import "form";
 @import "favourites";
@@ -89,6 +101,8 @@ $grid-gutter-width: $spacer * 2;
 @import "map";
 
 @import "ui/switch";
+@import "ui/popup";
+@import "ui/modal";
 
 @import "page/provider-picker";
 

@@ -1,0 +1,29 @@
+<div class="ui-backdrop" @click="handleBackdropClick" v-if="currentBehaviour === 'modal'">
+    <div class="ui-modal" v-bind="$attrs">
+        <div class="ui-modal__top-bar">
+            <div class="ui-modal__header">
+                <slot name="header">
+                    <div class="ui-modal__title">{{ title }}</div>
+                </slot>
+            </div>
+            <button class="btn btn-action ui-modal__close" @click.prevent="handleCloseClick">
+                <ui-icon icon="close"/>
+            </button>
+        </div>
+        <slot />
+        <div class="ui-modal__footer" v-if="hasFooter">
+            <slot name="footer" />
+        </div>
+    </div>
+</div>
+<div :class="[ 'ui-popup', arrow && 'ui-popup--arrow' ]" v-bind="$attrs" v-on="$listeners" v-else>
+    <div class="ui-popup__arrow" ref="arrow" v-if="arrow"></div>
+    <div class="ui-popup__header" v-if="hasHeader">
+        <slot name="header" />
+    </div>
+    <slot />
+    <div class="ui-popup__footer" v-if="hasFooter">
+        <slot name="footer" />
+    </div>
+</div>
+

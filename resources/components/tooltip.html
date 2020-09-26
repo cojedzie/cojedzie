@@ -1,9 +1,9 @@
 <fragment>
     <portal to="popups">
         <transition name="tooltip">
-            <popper class="popper--tooltip" aria-hidden="true" arrow :reference="root" :placement="placement" v-if="show" :responsive="false">
+            <ui-dialog class="ui-popup--tooltip" aria-hidden="true" arrow :reference="root" :placement="placement" v-if="show" :responsive="false">
                 <slot />
-            </popper>
+            </ui-dialog>
         </transition>
     </portal>
     <span ref="root" class="sr-only"><slot /></span>

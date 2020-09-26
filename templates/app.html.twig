@@ -29,9 +29,9 @@
                         </button>
 
                         <portal to="popups">
-                            <popper reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
+                            <ui-dialog reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
                                 <settings-messages></settings-messages>
-                            </popper>
+                            </ui-dialog>
                         </portal>
                     </header>
                     <fold :visible="sections.messages">
@@ -54,9 +54,9 @@
                             <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width></ui-icon>
                         </button>
                         <portal to="popups">
-                            <popper reference="settings-departures" v-if="visibility.departures" arrow placement="left-start" @leave="visibility.departures = false">
+                            <ui-dialog reference="settings-departures" v-if="visibility.departures" @leave="visibility.departures = false" arrow placement="left-start">
                                 <settings-departures></settings-departures>
-                            </popper>
+                            </ui-dialog>
                         </portal>
                     </header>
                     <departures :stops="stops" v-if="stops.length > 0"></departures>
@@ -105,9 +105,11 @@
                         </button>
                     </div>
 
-                    <popper reference="save" v-if="visibility.save" arrow tabindex="-1" @leave="visibility.save = false" placement="bottom-end">
-                        <favourites-adder @saved="visibility.save = false"/>
-                    </popper>
+                    <portal to="popups">
+                        <ui-dialog reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
+                            <favourites-adder @saved="visibility.save = false"/>
+                        </ui-dialog>
+                    </portal>
                 </section>
                 <section class="section picker">
                     <header class="section__title flex">
