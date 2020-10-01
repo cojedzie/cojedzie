@@ -7,11 +7,14 @@
   align-items: center;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  z-index: 10000;
 
   &::after {
-    height: 1rem;
+    height: $spacer;
     display: block;
     content: "";
+    width: 1px;
+    flex: 0 0 auto;
   }
 }
 
@@ -31,7 +34,7 @@ $dialog-sizes: (
   border-radius: 1px;
 
   @each $size, $width in $dialog-sizes {
-    .ui-modal--#{$size} {
+    &.ui-modal--#{$size} {
       width: $width;
     }
   }
@@ -55,4 +58,12 @@ $dialog-sizes: (
 .ui-modal__top-bar {
   display: flex;
   margin-bottom: $dialog-margin * 0.75;
+}
+
+@include media-breakpoint-down('sm') {
+  @each $size, $width in $dialog-sizes {
+    .ui-modal.ui-modal--#{$size} {
+      width: 100%;
+    }
+  }
 }

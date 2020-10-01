@@ -21,7 +21,7 @@
             <slot name="actions">
                 <button class="btn btn-action" ref="action-info" @click="details = !details">
                     <tooltip>dodatkowe informacje</tooltip>
-                    <ui-icon :icon="details ? 'info-hide' : 'info'"/>
+                    <ui-icon icon="info"/>
                 </button>
 
                 <button class="btn btn-action" ref="action-map" v-hover:map>
@@ -30,11 +30,16 @@
             </slot>
         </div>
     </div>
-    <fold :visible="details" class="stop__details-fold" lazy>
-        <stop-details :stop="stop"/>
-    </fold>
 
     <keep-alive>
+        <portal to="popups">
+            <ui-dialog v-if="details" @leave="details = false" behaviour="modal" class="ui-modal--medium" title="Szczegóły przystanku">
+                <stop-details :stop="stop"/>
+            </ui-dialog>
+        </portal>
+    </keep-alive>
+    <keep-alive>
+        <!-- FIXME: This should be in portal but it's not possible due to information loss, maybe in vue3 it will be better?-->
         <ui-dialog reference="action-map" v-if="showMap" arrow class="ui-popup--no-padding" style="width: 500px;" placement="right-start" v-hover:inMap>
             <stop-map :stop="stop" style="height: 300px"/>
         </ui-dialog>

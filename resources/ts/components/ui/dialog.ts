@@ -10,9 +10,31 @@ import { defaultBreakpoints } from "../../filters";
  */
 export type DialogBehaviour = "modal" | "popup";
 
+let openModalCounter: number = 0;
+
+function computeZIndexOfElement(element: HTMLElement): number {
+    let current = element;
+
+    while (true) {
+        const zIndex = window.getComputedStyle(current).zIndex;
+
+        if (zIndex !== "auto") {
+            return parseInt(zIndex);
+        }
+
+        if (!current.parentElement) {
+            break;
+        }
+
+        current = current.parentElement;
+    }
+
+    return 0;
+}
+
 @Component({
-    template: require('../../../components/ui/dialog.html'),
     inheritAttrs: false,
+    template: require('../../../components/ui/dialog.html'),
 })
 export default class UiDialog extends Vue {
     @Prop({ type: String, default: "popup" })
@@ -41,10 +63,22 @@ export default class UiDialog extends Vue {
 
     private isMobile: boolean = false;
 
+    /** Inherited class hack */
+    private staticClass: string[] = [];
+
+    private zIndex: number = 1000;
+
     private _focusOutEvent;
     private _resizeEvent;
 
     private _popper;
+
+    get attrs() {
+        return {
+            ...this.$attrs,
+            "class": this.staticClass
+        }
+    }
 
     get currentBehaviour(): DialogBehaviour {
         if (!this.mobileBehaviour) {
@@ -93,16 +127,60 @@ export default class UiDialog extends Vue {
     }
 
     mounted() {
+        this.zIndex = computeZIndexOfElement(this.getReferenceElement()) + 100;
+
         this.handleWindowResize();
 
         if (this.behaviour === 'popup') {
-            this.initPopper();
+            this.mountPopper();
         }
 
+        this.staticClass = Array.from(this.$el.classList).filter(cls => ["ui-backdrop", "ui-popup", "ui-popup--arrow"].indexOf(cls) === -1);
+
         window.addEventListener('resize', this._resizeEvent = this.handleWindowResize.bind(this));
+
+        this._activated();
     }
 
-    private initPopper() {
+    private _activated() {
+        if (this.behaviour === 'modal') {
+            this.mountModal();
+        }
+    }
+
+    private _deactivated() {
+        if (this.behaviour === 'modal') {
+            this.dismountModal();
+        }
+    }
+
+    private mountModal() {
+        if (openModalCounter === 0) {
+            document.body.style.paddingRight = `${window.screen.width - document.body.clientWidth}px`
+            document.body.classList.add('contains-modal');
+        }
+
+        openModalCounter++;
+    }
+
+    private dismountModal() {
+        openModalCounter--;
+
+        if (openModalCounter === 0) {
+            document.body.style.paddingRight = "";
+            document.body.classList.remove('contains-modal');
+        }
+    }
+
+    activated() {
+        this._activated();
+    }
+
+    deactivated() {
+        this._deactivated();
+    }
+
+    private mountPopper() {
         const reference = this.getReferenceElement();
 
         this._popper = new Popper(reference, this.$el, {
@@ -147,6 +225,8 @@ export default class UiDialog extends Vue {
 
     beforeDestroy() {
         this._focusOutEvent && document.removeEventListener('click', this._focusOutEvent, { capture: true });
+
+        this._deactivated()
     }
 
     removed() {
@@ -179,7 +259,15 @@ export default class UiDialog extends Vue {
         }
 
         if (newBehaviour === 'popup') {
-            this.$nextTick(() => this.initPopper());
+            this.$nextTick(() => this.mountPopper());
+        }
+
+        if (newBehaviour === 'modal') {
+            this.mountModal();
+        }
+
+        if (oldBehaviour === 'modal') {
+            this.dismountModal();
         }
     }
 }

@@ -105,11 +105,9 @@
                         </button>
                     </div>
 
-                    <portal to="popups">
-                        <ui-dialog reference="settings-messages" v-if="visibility.messages" arrow placement="left-start" @leave="visibility.messages = false">
-                            <favourites-adder @saved="visibility.save = false"/>
-                        </ui-dialog>
-                    </portal>
+                    <ui-dialog reference="save" v-if="visibility.save" arrow placement="bottom-end" @leave="visibility.save = false">
+                        <favourites-adder @saved="visibility.save = false"/>
+                    </ui-dialog>
                 </section>
                 <section class="section picker">
                     <header class="section__title flex">
