@@ -22,16 +22,6 @@
             </li>
         </ul>
     </section>
-
-    <section>
-        <strong>Na mapie:</strong>
-        <div style="height: 350px" tabindex="-1">
-            <l-map :center="stop.location" :zoom=17>
-                <l-tile-layer url="//{s}.tile.osm.org/{z}/{x}/{y}.png" attribution='&copy; <a href="//osm.org/copyright">OpenStreetMap</a> contributors'></l-tile-layer>
-                <l-marker :lat-lng="stop.location"></l-marker>
-            </l-map>
-        </div>
-    </section>
 </div>
 <div v-else class="text-center">
     <ui-icon icon="spinner"/>
