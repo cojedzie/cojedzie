@@ -105,7 +105,7 @@
                         </button>
                     </div>
 
-                    <ui-dialog reference="save" v-if="visibility.save" arrow placement="bottom-end" @leave="visibility.save = false">
+                    <ui-dialog reference="save" v-if="visibility.save" arrow placement="bottom-end" @leave="visibility.save = false" title="Dodaj do ulubionych">
                         <favourites-adder @saved="visibility.save = false"/>
                     </ui-dialog>
                 </section>

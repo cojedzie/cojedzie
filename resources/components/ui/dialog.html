@@ -1,9 +1,9 @@
-<div class="ui-backdrop" @click="handleBackdropClick" v-if="currentBehaviour === 'modal'">
+<div class="ui-backdrop" @click="handleBackdropClick" v-if="currentBehaviour === 'modal'" role="dialog">
     <div class="ui-modal" v-bind="attrs" v-on="$listeners">
         <div class="ui-modal__top-bar">
             <div class="ui-modal__header">
                 <slot name="header">
-                    <div class="ui-modal__title"><slot name="title">{{ title }}</slot></div>
+                    <div class="ui-modal__title" role="heading"><slot name="title">{{ title }}</slot></div>
                 </slot>
             </div>
             <button class="btn btn-action ui-modal__close" @click.prevent="handleCloseClick">
@@ -16,10 +16,12 @@
         </div>
     </div>
 </div>
-<div :class="[ 'ui-popup', arrow && 'ui-popup--arrow' ]" v-bind="attrs" :style="{ zIndex: zIndex }" v-on="$listeners" v-else>
+<div :class="[ 'ui-popup', arrow && 'ui-popup--arrow' ]" v-bind="attrs" :style="{ zIndex: zIndex }" v-on="$listeners" role="dialog" v-else>
     <div class="ui-popup__arrow" ref="arrow" v-if="arrow"></div>
-    <div class="ui-popup__header" v-if="hasHeader">
-        <slot name="header" />
+    <div class="ui-popup__header" v-if="hasHeader || title">
+        <slot name="header">
+            <div class="ui-popup__heading" role="heading"><slot name="title">{{ title }}</slot></div>
+        </slot>
     </div>
     <slot />
     <div class="ui-popup__footer" v-if="hasFooter">

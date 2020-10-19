@@ -5,9 +5,6 @@
             <input class="form-control form-control-sm" placeholder="np. Z pracy"
                    :class="{ 'is-invalid': errors.name.length > 0 }" id="favourite_add_name"
                    v-model="name" v-autofocus/>
-            <button class="btn btn-sm btn-dark" type="submit">
-                <ui-icon icon="add" />
-            </button>
             <div v-if="errors.name.length > 0" class="invalid-feedback">
                 <p v-for="error in errors.name">{{ error }}</p>
             </div>
@@ -18,4 +15,10 @@
             <stop :stop="stop"/>
         </li>
     </ul>
+    <div class="favourite-add-form__actions">
+        <button class="btn btn-sm btn-primary" type="submit">
+            <ui-icon icon="add" />
+            zapisz
+        </button>
+    </div>
 </form>

@@ -13,9 +13,20 @@
     }
   }
 
+  border-radius: 1.5px;
+
   display: inline-block;
 
   &.btn-outline-action {
     @extend .btn-outline-dark;
+  }
+
+  &.btn-primary {
+    background: $primary-gradient;
+    border-color: transparent;
+
+    &:hover {
+      border: 1px $primary solid;
+    }
   }
 }

@@ -1,4 +1,4 @@
-$border-radius: 0;
+$border-radius:    0;
 $border-radius-lg: $border-radius;
 $border-radius-sm: $border-radius;
 
@@ -7,6 +7,7 @@ $border-radius-sm: $border-radius;
 @import "~bootstrap/scss/variables";
 
 $primary: #005ea8;
+$primary-gradient: linear-gradient(120deg, #0083c5 10%, #005ea8 90%);
 
 $custom-control-indicator-checked-bg: $dark;
 $custom-control-indicator-active-bg: $dark;
