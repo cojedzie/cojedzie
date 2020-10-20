@@ -13,6 +13,12 @@
     }
   }
 
+  &.btn-xs {
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+  }
+
   border-radius: 1.5px;
 
   display: inline-block;
@@ -27,6 +33,15 @@
 
     &:hover {
       border: 1px $primary solid;
+    }
+  }
+
+  &.btn-danger {
+    background: $danger-gradient;
+    border-color: transparent;
+
+    &:hover {
+      border: 1px $danger solid;
     }
   }
 }

@@ -1,6 +1,7 @@
 import { RootState } from "./root";
 import { Module } from "vuex";
 import { Stop } from "../model";
+import { except } from "../utils";
 
 export interface Favourite {
     id: string;
@@ -19,7 +20,13 @@ const favourites: Module<FavouritesState, RootState> = {
     },
     mutations: {
         add(state, favourite: Favourite) {
-            state.favourites.push(favourite);
+            const existing = state.favourites.find((current: Favourite) => current.name === favourite.name);
+
+            if (!existing) {
+                state.favourites.push(favourite);
+            }
+
+            Object.assign(existing, except(favourite, ["id"]));
         },
         remove(state, favourite: Favourite) {
             state.favourites = state.favourites.filter(f => f != favourite);

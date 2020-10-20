@@ -38,6 +38,14 @@ export function filter<T, KT extends keyof T>(source: T, filter: (value: T[KT], 
     return result;
 }
 
+export function except<T>(source: T, keys: (keyof T)[]) {
+    return filter(source, (_, key) => !keys.includes(key))
+}
+
+export function only<T>(source: T, keys: (keyof T)[]) {
+    return filter(source, (_, key) => keys.includes(key))
+}
+
 export function signed(number: number): string {
     return number > 0 ? `+${number}` : number.toString();
 }

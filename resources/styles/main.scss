@@ -2,12 +2,14 @@ $border-radius:    0;
 $border-radius-lg: $border-radius;
 $border-radius-sm: $border-radius;
 
+$danger: #cd2e12;
 
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 
 $primary: #005ea8;
 $primary-gradient: linear-gradient(120deg, #0083c5 10%, #005ea8 90%);
+$danger-gradient: linear-gradient(120deg, $danger 10%, darken($danger, 10%) 90%);
 
 $custom-control-indicator-checked-bg: $dark;
 $custom-control-indicator-active-bg: $dark;

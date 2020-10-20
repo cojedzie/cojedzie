@@ -73,6 +73,7 @@ $dialog-sizes: (
   @each $size, $width in $dialog-sizes {
     .ui-modal.ui-modal--#{$size} {
       width: 100%;
+      box-sizing: border-box;
     }
   }
 }

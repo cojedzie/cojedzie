@@ -16,9 +16,19 @@
         </li>
     </ul>
     <div class="favourite-add-form__actions">
-        <button class="btn btn-sm btn-primary" type="submit">
-            <ui-icon icon="add" />
-            zapisz
-        </button>
+        <template v-if="confirmation">
+            <button class="btn btn-xs btn-danger" type="submit">
+                nadpisz
+            </button>
+            <button class="btn btn-xs btn-action" @click="$emit('close')">
+                anuluj
+            </button>
+        </template>
+        <template v-else>
+            <button class="btn btn-xs btn-primary" type="submit">
+                <ui-icon icon="add" />
+                zapisz
+            </button>
+        </template>
     </div>
 </form>

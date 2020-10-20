@@ -53,12 +53,12 @@ const simple = (icon: IconDefinition, props: any = {}): SimpleIcon => ({
     icon, ...props, type: "simple"
 });
 
-const stack = (icons: IconDescription[]): StackedIcon => ({type: "stacked", icons});
+const stack = (icons: IconDescription[]): StackedIcon => ({ type: "stacked", icons });
 
 const lineTypeIcons = Object
     .values(fac)
-    .map<[string, Icon]>(icon => [ `line-${icon.iconName}`, simple(icon) ])
-    .reduce((acc, [icon, definition]) => ({ ...acc, [icon]: definition}), {})
+    .map<[string, Icon]>(icon => [`line-${ icon.iconName }`, simple(icon)])
+    .reduce((acc, [icon, definition]) => ({ ...acc, [icon]: definition }), {})
 
 const messageTypeIcons: Dictionary<Icon> = {
     'message-breakdown': simple(faExclamationTriangle),
@@ -66,7 +66,7 @@ const messageTypeIcons: Dictionary<Icon> = {
     'message-unknown': simple(faQuestionCircle),
 };
 
-const definitions: Dictionary<Icon> = {
+const definitions = {
     'favourite': simple(faStar),
     'unknown': simple(faQuestionSquare),
     'add': simple(faCheck),
@@ -93,13 +93,15 @@ const definitions: Dictionary<Icon> = {
     'decrement': simple(faMinus, { "fixed-width": true }),
     'relative-time': simple(faHourglassHalf),
     'departure-warning': stack([
-        {icon: faClockBold},
-        {icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6"}
+        { icon: faClockBold },
+        { icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6" }
     ]),
     'close': simple(faTimes),
     ...lineTypeIcons,
     ...messageTypeIcons,
 };
+
+export type PredefinedIcon = keyof typeof definitions;
 
 const extractAllIcons = (icons: Icon[]) => icons.map(icon => {
     switch (icon.type) {
@@ -122,11 +124,11 @@ library.add(...extractAllIcons(Object.values(definitions)));
 })
 export class UiIcon extends Vue {
     @Prop({
-        type: [ String, Object ],
+        type: [String, Object],
         validator: value => typeof value === "object" || Object.keys(definitions).includes(value),
         required: true,
     })
-    icon: string | IconDefinition;
+    icon: PredefinedIcon | IconDefinition;
 
     get definition(): Icon {
         return typeof this.icon === "string"

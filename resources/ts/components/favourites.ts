@@ -1,8 +1,7 @@
 import Vue from 'vue'
-import { Component, Prop } from 'vue-property-decorator'
-import { namespace, State, Mutation } from "vuex-class";
+import { Component, Watch } from 'vue-property-decorator'
+import { Mutation, State } from "vuex-class";
 import { Favourite } from "../store/favourites";
-import { SavedState } from "../store/root";
 import { Stop } from "../model";
 import * as uuid from "uuid";
 import { Favourites } from "../store";
@@ -34,7 +33,14 @@ export class FavouritesAdderComponent extends Vue {
     private name = "";
     private errors = { name: [] };
 
+    private confirmation = false;
+
     @Favourites.Mutation add: (favourite: Favourite) => void;
+
+    @Watch('name')
+    handleNameChange() {
+        this.confirmation = false;
+    }
 
     async save() {
         const favourite: Favourite = createFavouriteEntry(this.name, this.stops);
@@ -54,8 +60,9 @@ export class FavouritesAdderComponent extends Vue {
             errors.name.push("Musisz podać nazwę.");
         }
 
-        if (this.$store.state.favourites.favourites.filter(other => other.name == favourite.name).length > 0) {
+        if (this.$store.state.favourites.favourites.filter(other => other.name == favourite.name).length > 0 && !this.confirmation) {
             errors.name.push("Istnieje już zapisana grupa przystanków o takiej nazwie.");
+            this.confirmation = true;
         }
 
         this.errors = errors;
