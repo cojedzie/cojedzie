@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="{{ asset('dist/main.css') }}" />
+        <link rel="stylesheet" href="dist/main.css" />
         <link rel="manifest" href="{% block manifest 'manifest.json' %}" />
 
         <!-- icons -->
@@ -51,18 +51,18 @@
         <footer class="container">
             {% block footer %}
                 <span>
-                    <img src="{{ asset('images/logo.png') }}" alt="co jedzie logo"/>
+                    <img src="images/logo.png" alt="co jedzie logo"/>
                     v. {{ version() }} &bullet;
                     <a href="{{ url('app.swagger_ui') }}">API</a>
                 </span>
                 <span class="copyright flex flex-space-left justify-content-end">
-                    <a href="https://kadet.net"><img src="{{ asset('images/kadet-net-logo.png') }}" alt="kadet.net logo" class="mx-1"/></a>
+                    <a href="https://kadet.net"><img src="images/kadet-net-logo.png" alt="kadet.net logo" class="mx-1"/></a>
                     &copy; {{ 'now'|date('Y') }}
                 </span>
             {% endblock %}
         </footer>
 
         {% block javascripts %}{% endblock %}
-        <script src="{{ asset('dist/main.js') }}"></script>
+        <script src="dist/main.js"></script>
     </body>
 </html>

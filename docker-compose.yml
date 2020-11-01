@@ -6,18 +6,17 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./:/var/www:cached
+      - ./front:/var/www/front:cached
+      - ./api:/var/www/api:cached
       - ./docker/nginx/czydojade:/etc/nginx/conf.d/czydojade.conf
 
-  php:
-    build: docker/php
+  api:
+    build: ./api
     env_file:
       - ./docker/php/.env
     volumes:
-      - ./:/var/www:cached
+      - ./api:/var/www:cached
       - ./docker/php/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
-
-
 
   blackfire:
     image: blackfire/blackfire

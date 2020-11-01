@@ -1,29 +1,35 @@
 server {
-	root /var/www/public/;
-	server_name czydojade.localhost;
+	root /var/www/front/public/;
+	server_name cojedzie.localhost;
 
 	index index.php;
 
-	location / {
-		try_files $uri $uri/ /index.php?$args;
+    location ~ \.(js|css)$ {
+        expires 1y;
+    }
 
-		location ~ \.(js|css)$ {
-			expires 1y;
-		}
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
 
-		location ~ ^/index\.php(/|$) {
-            fastcgi_pass php:9000;
-            fastcgi_split_path_info ^(.+\.php)(/.*)$;
+    location = / {
+        root /var/www/api/public/;
+    }
 
-            include fastcgi_params;
-            fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-            fastcgi_param DOCUMENT_ROOT $realpath_root;
+    location ~ (.+).php(/|$) {
+        root /var/www/api/public/;
 
-			fastcgi_param APP_ENV "dev";
-			fastcgi_param DATABASE_URL "sqlite:///%kernel.project_dir%/var/app.db";
-			fastcgi_param GTM_TAG "GTM-00000";
+        fastcgi_pass api:9000;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
 
-            internal;
-		}
-	}
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /var/www/public/$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT /var/www/public/;
+
+        fastcgi_param APP_ENV "dev";
+        fastcgi_param DATABASE_URL "sqlite:///%kernel.project_dir%/var/app.db";
+        fastcgi_param GTM_TAG "GTM-00000";
+
+        internal;
+    }
 }

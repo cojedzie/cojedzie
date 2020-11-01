@@ -1,19 +1,1 @@
-
-###> symfony/framework-bundle ###
-/.env
-/public/bundles/
-/var/
-/vendor/
-###< symfony/framework-bundle ###
-
-###> symfony/web-server-bundle ###
-/.web-server-pid
-###< symfony/web-server-bundle ###
-
-/node_modules/
 /.idea/
-/public/*
-!/public/index.php
-!/public/manifest.jso
-
-/yarn-error.log
