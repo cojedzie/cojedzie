@@ -86,8 +86,8 @@
                     </header>
 
                     <ul class="picker__stops list-underlined">
-                        <li v-for="stop in stops" :key="stop.id" class="d-flex align-items-center">
-                            <picker-stop :stop="stop" class="flex-grow-1">
+                        <li v-for="stop in stops" :key="stop.id" class="picker__stop">
+                            <picker-stop :stop="stop">
                                 <template v-slot:primary-action>
                                     <button @click="remove(stop)" class="btn btn-action">
                                         <tooltip>usuń przystanek</tooltip>

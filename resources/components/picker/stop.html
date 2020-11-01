@@ -1,23 +1,25 @@
-<div class="finder__stop">
+<div>
     <div class="d-flex">
-        <slot name="primary-action" />
-        <div class="overflow-hidden align-self-center">
-            <stop :stop="stop" />
-            <div class="stop__destinations" v-if="destinations && destinations.length > 0">
-                <ul class="ml-1">
-                    <li class="stop__destination destination" v-for="destination in destinations" :key="destination.stop.id">
-                        <ul class="destination__lines">
-                            <li v-for="line in destination.lines">
-                                <line-symbol :line="line" :key="line.symbol" simple/>
-                            </li>
-                        </ul>
-                        <span class="destination__name ml-1">{{ destination.stop.name }}</span>
-                    </li>
-                </ul>
+        <div class="d-flex position-relative" style="min-width: 0">
+            <slot name="primary-action" />
+            <div class="overflow-hidden align-self-center">
+                <stop :stop="stop" />
+                <div class="stop__destinations" v-if="destinations && destinations.length > 0">
+                    <ul>
+                        <li class="stop__destination destination" v-for="destination in destinations" :key="destination.stop.id">
+                            <ul class="destination__lines">
+                                <li v-for="line in destination.lines">
+                                    <line-symbol :line="line" :key="line.symbol" simple/>
+                                </li>
+                            </ul>
+                            <span class="destination__name ml-1">{{ destination.stop.name }}</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <div class="stop__actions flex-space-left">
+        <div class="stop__actions">
             <slot name="actions">
                 <button class="btn btn-action" ref="action-info" @click="details = !details">
                     <tooltip>dodatkowe informacje</tooltip>

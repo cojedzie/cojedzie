@@ -76,8 +76,12 @@
 .stop-group__header {
   @extend .section__title;
   display: flex;
-  padding: 0 !important;
   margin-bottom: 0 !important;
+
+  .actions {
+    margin: -.5rem -.75rem;
+    margin-left: auto;
+  }
 }
 
 .stop-group__name {

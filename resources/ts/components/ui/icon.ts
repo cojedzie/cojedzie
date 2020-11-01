@@ -12,6 +12,7 @@ import {
     faClock,
     faCog,
     faExclamationTriangle,
+    faHistory,
     faHourglassHalf,
     faInfoCircle,
     faMapMarkerAlt,
@@ -97,6 +98,7 @@ const definitions = {
         { icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6" }
     ]),
     'close': simple(faTimes),
+    'history': simple(faHistory),
     ...lineTypeIcons,
     ...messageTypeIcons,
 };

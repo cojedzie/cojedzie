@@ -1,10 +1,13 @@
 import Component from "vue-class-component";
 import Vue from "vue";
-import { Destination, Line, StopWithDestinations as Stop, StopGroup, StopGroups } from "../model";
+import { Line, StopGroup, StopGroups, StopWithDestinations as Stop } from "../model";
 import { Prop, Watch } from "vue-property-decorator";
 import { FetchingState, filter, map, match, unique } from "../utils";
 import { debounce } from "../decorators";
 import urls from '../urls';
+import { Mutation } from "vuex-class";
+import { HistoryEntry } from "../store/history";
+import { StopHistory } from "./history";
 
 @Component({ template: require('../../components/picker/stop.html') })
 export class PickerStopComponent extends Vue {
@@ -49,7 +52,8 @@ export class PickerStopComponent extends Vue {
 @Component({
     template: require('../../components/finder.html'),
     components: {
-        "PickerStop": PickerStopComponent
+        "PickerStop": PickerStopComponent,
+        "StopHistory": StopHistory,
     }
 })
 export class FinderComponent extends Vue {
@@ -60,6 +64,8 @@ export class FinderComponent extends Vue {
 
     @Prop({default: [], type: Array})
     public blacklist: Stop[];
+
+    @Mutation('history/push') pushToHistory: (entry: HistoryEntry) => void;
 
     get filtered(): StopGroups {
         const groups = map(
@@ -91,6 +97,11 @@ export class FinderComponent extends Vue {
     }
 
     private select(stop) {
+        this.pushToHistory({
+            date: this.$moment(),
+            stop: stop,
+        })
+
         this.$emit('select', stop);
     }
 }

@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import messages, { MessagesState } from './messages';
 import departures, { DeparturesState } from './departures'
 import favourites, { FavouritesState } from './favourites'
+import history, { HistoryState } from "./history";
 import departureSettings, { DeparturesSettingsState } from "./settings/departures";
 import messagesSettings, { MessagesSettingsState } from "./settings/messages";
 
@@ -14,12 +15,13 @@ export type State = {
     messages: MessagesState;
     departures: DeparturesState;
     favourites: FavouritesState;
-    "departures-settings": DeparturesSettingsState,
-    "messages-settings": MessagesSettingsState,
+    "departures-settings": DeparturesSettingsState;
+    "messages-settings": MessagesSettingsState;
+    history: HistoryState;
 } & RootState;
 
 const localStoragePersist = new VuexPersistence<State>({
-    modules: ['favourites', 'departures-settings', 'messages-settings'],
+    modules: ['favourites', 'departures-settings', 'messages-settings', 'history'],
 });
 
 const sessionStoragePersist = new VuexPersistence<State>({
@@ -35,6 +37,7 @@ const store = new Vuex.Store<RootState>({
         favourites,
         'departures-settings': departureSettings,
         'messages-settings': messagesSettings,
+        history,
     },
     plugins: [
         localStoragePersist.plugin,
@@ -49,3 +52,4 @@ export const DeparturesSettings = namespace('departures-settings');
 export const MessagesSettings = namespace('messages-settings');
 export const Departures = namespace('departures');
 export const Messages = namespace('messages');
+export const History = namespace('history');
