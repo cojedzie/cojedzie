@@ -1,7 +1,7 @@
 import { RootState } from "./root";
 import { Module } from "vuex";
-import { Stop } from "../model";
-import { except } from "../utils";
+import { Stop } from "@/model";
+import { except } from "@/utils";
 
 export interface Favourite {
     id: string;

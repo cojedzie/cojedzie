@@ -1,10 +1,10 @@
 import { Module } from "vuex";
 import { RootState } from "./root";
-import { Departure, Line, Stop } from "../model";
+import { Departure, Line } from "../model";
 import * as moment from 'moment'
 import common, { CommonState } from './common'
 import urls from "../urls";
-import { Jsonified } from "../utils";
+import { Jsonified } from "@/utils";
 
 export interface DeparturesState extends CommonState {
     departures: Departure[],

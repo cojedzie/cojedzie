@@ -2,14 +2,14 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { Line, StopGroup, StopGroups, StopWithDestinations as Stop } from "../model";
 import { Prop, Watch } from "vue-property-decorator";
-import { FetchingState, filter, map, match, unique } from "../utils";
-import { debounce } from "../decorators";
+import { FetchingState, filter, map, match, unique } from "@/utils";
+import { debounce } from "@/decorators";
 import urls from '../urls';
 import { Mutation } from "vuex-class";
-import { HistoryEntry } from "../store/history";
+import { HistoryEntry } from "@/store/history";
 import { StopHistory } from "./history";
 
-@Component({ template: require('../../templates/picker/stop.html') })
+@Component({ template: require('@templates/picker/stop.html') })
 export class PickerStopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -50,7 +50,7 @@ export class PickerStopComponent extends Vue {
 }
 
 @Component({
-    template: require('../../templates/finder.html'),
+    template: require('@templates/finder.html'),
     components: {
         "PickerStop": PickerStopComponent,
         "StopHistory": StopHistory,

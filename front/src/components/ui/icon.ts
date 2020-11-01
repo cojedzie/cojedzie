@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { Component, Prop } from 'vue-property-decorator'
 import { IconDefinition, library } from "@fortawesome/fontawesome-svg-core"
-import { Dictionary } from "../../utils";
+import { Dictionary } from "@/utils";
 import {
     faBullhorn,
     faCheck,
@@ -34,7 +34,7 @@ import {
     faSpinnerThird
 } from "@fortawesome/pro-regular-svg-icons";
 import { faExclamationTriangle as faSolidExclamationTriangle, faWalking } from "@fortawesome/pro-solid-svg-icons";
-import { fac } from "../../icons";
+import { fac } from "@/icons";
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from "@fortawesome/vue-fontawesome";
 
 type IconDescription = { icon: IconDefinition, [prop: string]: any }
@@ -117,7 +117,7 @@ const extractAllIcons = (icons: Icon[]) => icons.map(icon => {
 library.add(...extractAllIcons(Object.values(definitions)));
 
 @Component({
-    template: require('../../../templates/ui/icon.html'),
+    template: require('@templates/ui/icon.html'),
     components: {
         fa: FontAwesomeIcon,
         faLayers: FontAwesomeLayers,

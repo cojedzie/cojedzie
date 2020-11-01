@@ -10,7 +10,7 @@ type Trigger = "hover" | "focus" | "long-press";
 
 const longPressTimeout = 1000;
 
-@Component({ template: require('../../templates/tooltip.html') })
+@Component({ template: require('@templates/tooltip.html') })
 export class TooltipComponent extends Vue {
     @Prop({ type: String, default: "top" }) public placement: string;
     @Prop({ type: Number, default: 400 }) public delay: number;

@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { Component, Prop, Watch } from "vue-property-decorator";
 
 
-@Component({ template: require('../../templates/fold.html') })
+@Component({ template: require('@templates/fold.html') })
 export class FoldComponent extends Vue {
     private observer: MutationObserver;
 
@@ -34,7 +34,7 @@ export class FoldComponent extends Vue {
     }
 }
 
-@Component({ template: require("../../templates/lazy.html") })
+@Component({ template: require("@templates/lazy.html") })
 export class LazyComponent extends Vue {
     @Prop(Boolean)
     public    activate: boolean;

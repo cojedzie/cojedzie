@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
-import { defaultBreakpoints } from "../../filters";
+import { defaultBreakpoints } from "@/filters";
 
 /**
  * How popup will be presented to user:
@@ -34,7 +34,7 @@ function computeZIndexOfElement(element: HTMLElement): number {
 
 @Component({
     inheritAttrs: false,
-    template: require('../../../templates/ui/dialog.html'),
+    template: require('@templates/ui/dialog.html'),
 })
 export default class UiDialog extends Vue {
     @Prop({ type: String, default: "popup" })

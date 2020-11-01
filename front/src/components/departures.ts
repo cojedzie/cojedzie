@@ -1,18 +1,18 @@
 import Vue from 'vue'
-import { Departure } from "../model";
+import { Departure } from "@/model";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import store, { Departures, DeparturesSettings } from '../store'
-import { Trip } from "../model/trip";
+import { Trip } from "@/model/trip";
 import urls from "../urls";
-import { Jsonified } from "../utils";
+import { Jsonified } from "@/utils";
 import * as moment from "moment";
 
-@Component({ template: require("../../templates/departures.html"), store })
+@Component({ template: require("@templates/departures.html"), store })
 export class DeparturesComponent extends Vue {
     @Departures.State departures: Departure[];
 }
 
-@Component({ template: require("../../templates/departures/departure.html"), store })
+@Component({ template: require("@templates/departures/departure.html"), store })
 export class DepartureComponent extends Vue {
     @Prop(Object) departure: Departure;
     scheduledTrip: Trip = null;

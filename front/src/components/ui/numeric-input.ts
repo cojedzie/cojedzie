@@ -3,7 +3,7 @@ import { Component, Prop } from 'vue-property-decorator'
 import * as uuid from "uuid";
 
 @Component({
-    template: require('../../../templates/ui/numeric.html'),
+    template: require('@templates/ui/numeric.html'),
     inheritAttrs: false
 })
 export class UiNumericInput extends Vue {

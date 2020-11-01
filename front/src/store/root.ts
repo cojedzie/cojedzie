@@ -1,7 +1,7 @@
-import { Stop } from "../model";
+import { Stop } from "@/model";
 import { ActionTree, MutationTree } from "vuex";
 import urls from "../urls";
-import { ensureArray } from "../utils";
+import { ensureArray } from "@/utils";
 
 export interface RootState {
     stops: Stop[],

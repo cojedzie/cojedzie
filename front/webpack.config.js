@@ -24,7 +24,7 @@ const config = {
             "@templates": path.resolve(__dirname, "./templates"),
             "@resources": path.resolve(__dirname, "./resources"),
             "@styles": path.resolve(__dirname, "./styles"),
-            "@/": path.resolve(__dirname, "/src"),
+            "@": path.resolve(__dirname, "./src"),
         }
     },
     module: {

@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import { Component } from 'vue-property-decorator'
-import { Provider } from "../../model";
-import { Jsonified } from "../../utils";
+import { Provider } from "@/model";
+import { Jsonified } from "@/utils";
 import * as moment from 'moment';
 
 @Component({
-    template: require('../../../templates/page/providers.html'),
+    template: require('@templates/page/providers.html'),
 })
 export class PageProviderList extends Vue {
     private providers: Provider[] = [];

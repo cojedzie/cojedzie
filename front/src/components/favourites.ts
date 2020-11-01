@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import { Component, Watch } from 'vue-property-decorator'
 import { Mutation, State } from "vuex-class";
-import { Favourite } from "../store/favourites";
-import { Stop } from "../model";
+import { Favourite } from "@/store/favourites";
+import { Stop } from "@/model";
 import * as uuid from "uuid";
-import { Favourites } from "../store";
+import { Favourites } from "@/store";
 
 
-@Component({ template: require('../../templates/favourites.html' )})
+@Component({ template: require('@templates/favourites.html' )})
 export class FavouritesComponent extends Vue {
     @Favourites.State favourites: Favourite[];
     @Favourites.Mutation remove: (fav: Favourite) => void;
@@ -26,7 +26,7 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     }
 }
 
-@Component({ template: require('../../templates/favourites/save.html' )})
+@Component({ template: require('@templates/favourites/save.html' )})
 export class FavouritesAdderComponent extends Vue {
     @State stops: Stop[];
 

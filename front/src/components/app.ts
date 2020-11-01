@@ -2,9 +2,9 @@ import Vue from 'vue'
 import store from '../store'
 import { Component, Watch } from "vue-property-decorator";
 import { Action, Mutation } from 'vuex-class'
-import { Stop } from "../model";
-import { DeparturesSettingsState } from "../store/settings/departures";
-import { MessagesSettingsState } from "../store/settings/messages";
+import { Stop } from "@/model";
+import { DeparturesSettingsState } from "@/store/settings/departures";
+import { MessagesSettingsState } from "@/store/settings/messages";
 
 @Component({ store })
 export class Application extends Vue {

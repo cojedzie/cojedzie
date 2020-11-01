@@ -1,4 +1,4 @@
-import { distinct } from "../utils";
+import { distinct } from "@/utils";
 import urls from "../urls";
 import * as uuid from "uuid";
 

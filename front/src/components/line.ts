@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import { Component, Prop } from 'vue-property-decorator'
-import { Line } from "../model";
+import { Line } from "@/model";
 
-@Component({ template: require('../../templates/line.html' )})
+@Component({ template: require('@templates/line.html' )})
 export class LineComponent extends Vue {
     @Prop(Object)
     public line: Line;

@@ -1,9 +1,9 @@
 import { ActionContext, Module } from "vuex";
 import { RootState } from "./root";
-import { Message, MessageType } from "../model/message";
+import { Message, MessageType } from "@/model/message";
 import common, { CommonState } from "./common";
 import urls from "../urls";
-import { Jsonified } from "../utils";
+import { Jsonified } from "@/utils";
 import * as moment from 'moment';
 
 export interface MessagesState extends CommonState {
