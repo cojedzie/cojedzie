@@ -3,7 +3,7 @@ import { Line, Stop, Track } from "../model";
 import Vue from 'vue';
 import urls from "../urls";
 
-@Component({ template: require('../../components/stop/details.html') })
+@Component({ template: require('../../templates/stop/details.html') })
 class StopDetailsComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -35,13 +35,13 @@ class StopDetailsComponent extends Vue {
     }
 }
 
-@Component({ template: require('../../components/stop.html') })
+@Component({ template: require('../../templates/stop.html') })
 export class StopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
 
-@Component({ template: require('../../components/stop/map.html') })
+@Component({ template: require('../../templates/stop/map.html') })
 export class StopMapComponent extends Vue {
     @Prop(Object)
     public stop: Stop;

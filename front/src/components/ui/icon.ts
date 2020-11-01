@@ -117,7 +117,7 @@ const extractAllIcons = (icons: Icon[]) => icons.map(icon => {
 library.add(...extractAllIcons(Object.values(definitions)));
 
 @Component({
-    template: require('../../../components/ui/icon.html'),
+    template: require('../../../templates/ui/icon.html'),
     components: {
         fa: FontAwesomeIcon,
         faLayers: FontAwesomeLayers,

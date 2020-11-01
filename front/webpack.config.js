@@ -7,8 +7,8 @@ const { GenerateSW } = require('workbox-webpack-plugin');
 
 const config = {
     entry: {
-        main: ['./resources/ts/app.ts'],
-        api: ['./resources/styles/api.scss']
+        main: ['./src/app.ts'],
+        api: ['./styles/api.scss']
     },
     output: {
         path: path.resolve('./public/dist/'),
@@ -20,7 +20,11 @@ const config = {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-            'mapbox-gl$': 'mapbox-gl/dist/mapbox-gl-unminified'
+            'mapbox-gl$': 'mapbox-gl/dist/mapbox-gl-unminified',
+            "@templates": path.resolve(__dirname, "./templates"),
+            "@resources": path.resolve(__dirname, "./resources"),
+            "@styles": path.resolve(__dirname, "./styles"),
+            "@/": path.resolve(__dirname, "/src"),
         }
     },
     module: {

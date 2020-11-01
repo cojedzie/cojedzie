@@ -7,8 +7,16 @@
     "sourceMap": true,
     "noImplicitThis": true,
     "moduleResolution": "node",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "paths": {
+      "@templates/*": ["./templates/*"],
+      "@resources/*": ["./resources/*"],
+      "@styles/*": ["./styles/*"],
+      "@/*": ["./src/*"]
+    }
   },
-  "files": ["resources/ts/app.ts"],
-  "include": ["resources/ts/**/*.ts"]
+  "files": ["src/app.ts"],
+  "include": ["src/**/*.ts"]
 }

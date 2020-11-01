@@ -7,12 +7,12 @@ import urls from "../urls";
 import { Jsonified } from "../utils";
 import * as moment from "moment";
 
-@Component({ template: require("../../components/departures.html"), store })
+@Component({ template: require("../../templates/departures.html"), store })
 export class DeparturesComponent extends Vue {
     @Departures.State departures: Departure[];
 }
 
-@Component({ template: require("../../components/departures/departure.html"), store })
+@Component({ template: require("../../templates/departures/departure.html"), store })
 export class DepartureComponent extends Vue {
     @Prop(Object) departure: Departure;
     scheduledTrip: Trip = null;

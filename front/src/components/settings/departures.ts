@@ -1,9 +1,9 @@
-import { Component, Prop } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import store, { DeparturesSettings } from "../../store";
 import Vue from "vue";
 import { DeparturesSettingsState } from "../../store/settings/departures";
 
-@Component({ template: require("../../../components/settings/departures.html"), store })
+@Component({ template: require("../../../templates/settings/departures.html"), store })
 export class SettingsDepartures extends Vue {
     @DeparturesSettings.State
     public autorefresh: boolean;

@@ -5,7 +5,7 @@ import { Jsonified } from "../../utils";
 import * as moment from 'moment';
 
 @Component({
-    template: require('../../../components/page/providers.html'),
+    template: require('../../../templates/page/providers.html'),
 })
 export class PageProviderList extends Vue {
     private providers: Provider[] = [];

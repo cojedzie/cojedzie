@@ -5,7 +5,7 @@ import { HistoryEntry } from "../store/history";
 import { Mutation } from "vuex-class";
 import { Stop } from "../model";
 
-@Component({ template: require('../../components/stop/history.html' )})
+@Component({ template: require('../../templates/stop/history.html' )})
 export class StopHistory extends Vue {
     @History.Getter all: HistoryEntry[];
 

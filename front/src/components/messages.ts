@@ -3,7 +3,7 @@ import { Component } from "vue-property-decorator";
 import { Message } from "../model/message";
 import store, { Messages, MessagesSettings } from '../store'
 
-@Component({ template: require("../../components/messages.html"), store })
+@Component({ template: require("../../templates/messages.html"), store })
 export class MessagesComponent extends Vue {
     @Messages.State('messages')
     public allMessages: Message[];

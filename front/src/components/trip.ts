@@ -7,7 +7,7 @@ import * as moment from 'moment';
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean, current: boolean };
 
-@Component({ template: require("../../components/trip.html") })
+@Component({ template: require("../../templates/trip.html") })
 export class TripComponent extends Vue {
     @Prop(Array) public schedule: ScheduledStop[];
     @Prop(Object) public current: Stop;

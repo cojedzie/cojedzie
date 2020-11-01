@@ -9,7 +9,7 @@ import { Mutation } from "vuex-class";
 import { HistoryEntry } from "../store/history";
 import { StopHistory } from "./history";
 
-@Component({ template: require('../../components/picker/stop.html') })
+@Component({ template: require('../../templates/picker/stop.html') })
 export class PickerStopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -50,7 +50,7 @@ export class PickerStopComponent extends Vue {
 }
 
 @Component({
-    template: require('../../components/finder.html'),
+    template: require('../../templates/finder.html'),
     components: {
         "PickerStop": PickerStopComponent,
         "StopHistory": StopHistory,

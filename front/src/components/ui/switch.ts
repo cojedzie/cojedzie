@@ -3,7 +3,7 @@ import { Component, Prop } from 'vue-property-decorator'
 import * as uuid from "uuid";
 
 @Component({
-    template: require('../../../components/ui/switch.html'),
+    template: require('../../../templates/ui/switch.html'),
     inheritAttrs: false
 })
 export class UiSwitch extends Vue {

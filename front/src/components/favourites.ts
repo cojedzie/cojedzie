@@ -7,7 +7,7 @@ import * as uuid from "uuid";
 import { Favourites } from "../store";
 
 
-@Component({ template: require('../../components/favourites.html' )})
+@Component({ template: require('../../templates/favourites.html' )})
 export class FavouritesComponent extends Vue {
     @Favourites.State favourites: Favourite[];
     @Favourites.Mutation remove: (fav: Favourite) => void;
@@ -26,7 +26,7 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     }
 }
 
-@Component({ template: require('../../components/favourites/save.html' )})
+@Component({ template: require('../../templates/favourites/save.html' )})
 export class FavouritesAdderComponent extends Vue {
     @State stops: Stop[];
 
