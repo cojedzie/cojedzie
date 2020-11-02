@@ -51,7 +51,7 @@ export function prepare(url: string, params: UrlParams = { }) {
     return Object.keys(params).length > 0 ? `${url}?${query(params)}` : url;
 }
 
-const base = '/{provider}/api/v1';
+const base = '/api/v1/{provider}';
 
 export default {
     departures: `${base}/departures`,
@@ -62,6 +62,9 @@ export default {
         get:     `${base}/stops/{id}`,
         tracks:  `${base}/stops/{id}/tracks`
     },
+    providers: {
+        get: `/api/v1/providers/{provider}`,
+    },
     trip: `${base}/trips/{id}`,
-    prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: store.state.provider }, params))
+    prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: store.state.provider?.id }, params))
 }

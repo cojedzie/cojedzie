@@ -1,13 +1,12 @@
 import Vue from 'vue'
-import store from '../store'
 import { Component, Watch } from "vue-property-decorator";
-import { Action, Mutation } from 'vuex-class'
-import { Stop } from "@/model";
+import { Action, Mutation, State } from 'vuex-class'
+import { Provider, Stop } from "@/model";
 import { DeparturesSettingsState } from "@/store/settings/departures";
 import { MessagesSettingsState } from "@/store/settings/messages";
 
-@Component({ store })
-export class Application extends Vue {
+@Component({ template: require("@templates/main.html") })
+export class Main extends Vue {
     private sections = {
         messages: true
     };
@@ -20,6 +19,8 @@ export class Application extends Vue {
     };
 
     private intervals = { messages: null, departures: null };
+
+    @State private provider: Provider;
 
     get messages() {
         return {
@@ -47,9 +48,10 @@ export class Application extends Vue {
         this.$el.classList.remove('not-ready');
     }
 
-    created() {
+    async created() {
+        await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider });
         this.$store.dispatch('messages/update');
-        this.$store.dispatch('load', window['app'].state);
+        this.$store.dispatch('load', { });
 
         this.initDeparturesRefreshInterval();
         this.initMessagesRefreshInterval();

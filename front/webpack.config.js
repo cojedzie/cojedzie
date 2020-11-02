@@ -4,6 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const { GenerateSW } = require('workbox-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
     entry: {
@@ -59,11 +60,13 @@ const config = {
             use: 'file-loader'
         }, {
             test: /\.html?$/,
-            use: 'raw-loader'
+            use: 'raw-loader',
+            exclude: [
+                path.resolve('./resources/index.html')
+            ]
         }]
     },
     plugins: [
-        new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({ filename: '[name].css' }),
         new CopyWebpackPlugin([{ from: './resources/images/', to: '../images/', ignore: ['*.ai'] }]),
         new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
@@ -77,7 +80,7 @@ const config = {
                 handler: 'CacheFirst',
             }],
             swDest: '../service-worker.js'
-        })
+        }),
     ]
 };
 
@@ -85,6 +88,15 @@ module.exports = (env, argv) => {
     if (argv.mode === 'development') {
         config.devtool = 'inline-source-map';
     }
+
+    config.plugins.push(
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, "./resources/index.html"),
+            chunks: ['main'],
+            year: new Date().getFullYear(),
+            version: process.env.CZYDOJADE_VERSION || (argv.mode === 'development' ? '2020.11-dev' : '2020.11'),
+        })
+    )
 
     return config;
 };

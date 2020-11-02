@@ -7,7 +7,7 @@ import * as moment from 'moment';
 @Component({
     template: require('@templates/page/providers.html'),
 })
-export class PageProviderList extends Vue {
+export class ProviderChooser extends Vue {
     private providers: Provider[] = [];
 
     async created() {
@@ -23,4 +23,4 @@ export class PageProviderList extends Vue {
     }
 }
 
-Vue.component('PageProviderList', PageProviderList);
+Vue.component('ProviderChooser', ProviderChooser);

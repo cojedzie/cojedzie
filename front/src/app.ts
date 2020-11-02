@@ -18,6 +18,7 @@ import { Component } from "vue-property-decorator";
 import * as VueMoment from "vue-moment";
 import * as moment from 'moment';
 import 'moment/locale/pl'
+import VueRouter from "vue-router";
 
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
@@ -27,6 +28,7 @@ Vue.use(PortalVue);
 Vue.use(VueDragscroll);
 Vue.use(VueFragment);
 Vue.use(VueMoment, { moment });
+Vue.use(VueRouter);
 
 declare module 'vue/types/vue' {
     interface Vue {
@@ -55,20 +57,7 @@ Component.registerHooks(['removed']);
         import('bootstrap'),
     ] as const);
 
-    const appRoot = document.getElementById('app');
-
-    store.replaceState({
-        ...store.state,
-        provider: window['data']?.provider,
-    });
-
-    // here goes "public" API
-    window['app'] = Object.assign({
-        state: {}
-    }, window['app'], {
-        components,
-        application: appRoot ? new components.Application({ el: '#app' }) : new components.PageProviderList({ el: '#provider-picker' }),
-    });
+    const application = new components.Application().$mount("#root")
 
     if ('serviceWorker' in navigator) {
         const wb = new Workbox("/service-worker.js");

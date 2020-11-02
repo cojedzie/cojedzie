@@ -9,11 +9,8 @@ use App\Model\Track;
 use App\Modifier\IdFilter;
 use App\Modifier\RelatedFilter;
 use App\Provider\TrackRepository;
-use App\Service\IterableUtils;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use function App\Functions\encapsulate;
 use function Kadet\Functional\ref;
@@ -41,6 +38,10 @@ class TracksController extends Controller
     /**
      * @Route("/stops", methods={"GET"})
      * @Route("/{track}/stops", methods={"GET"})
+     *
+     * @SWG\Tag(name="Tracks")
+     *
+     * @SWG\Response(response=200, description="Stops related to specified query.")
      */
     public function stops(Request $request, TrackRepository $repository)
     {

@@ -3,7 +3,7 @@ import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 
 type Events = {
-    [evnet: string]: (...any) => void,
+    [event: string]: (...any) => void,
 }
 
 type Trigger = "hover" | "focus" | "long-press";

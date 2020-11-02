@@ -5,19 +5,10 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\Service\Converter;
 use App\Service\ProviderResolver;
-use Swagger\Annotations as SWG;
-use Symfony\Component\Routing\Annotation\Route;
 use function Kadet\Functional\ref;
 
-/**
- * @Route("/providers")
- * @SWG\Tag(name="Providers")
- */
 class ProviderController extends Controller
 {
-    /**
-     * @Route("/", methods={"GET"})
-     */
     public function index(ProviderResolver $resolver, Converter $converter)
     {
         $providers = $resolver
@@ -27,5 +18,12 @@ class ProviderController extends Controller
             ->toArray()
         ;
         return $this->json($providers);
+    }
+
+    public function one(ProviderResolver $resolver, Converter $converter, $id)
+    {
+        $provider = $resolver->resolve($id);
+
+        return $this->json($converter->convert($provider));
     }
 }
