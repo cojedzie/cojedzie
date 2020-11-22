@@ -6,13 +6,15 @@ const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const { GenerateSW } = require('workbox-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const output_dir = path.resolve('./build/')
+
 const config = {
     entry: {
         main: ['./src/app.ts'],
         api: ['./styles/api.scss']
     },
     output: {
-        path: path.resolve('./public/dist/'),
+        path: path.join(output_dir, './public/dist/'),
         publicPath: "/dist/",
         filename: "[name].js",
         chunkFilename: '[name].[chunkhash:8].js'

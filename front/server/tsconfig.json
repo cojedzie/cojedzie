@@ -10,6 +10,6 @@
     "outDir": "../build/",
     "skipLibCheck": true
   },
-  "files": ["./index.ts"],
+  "files": ["./server.ts"],
   "include": ["./**/*.ts"]
 }

@@ -1,21 +1,18 @@
 {
-  "name": "co-jedzie",
+  "name": "cojedzie",
   "version": "1.0.0",
   "author": "Kacper Donat <kadet1090@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.4",
-    "@fortawesome/pro-light-svg-icons": "^5.3.1",
-    "@fortawesome/pro-regular-svg-icons": "^5.3.1",
-    "@fortawesome/pro-solid-svg-icons": "^5.3.1",
     "@fortawesome/vue-fontawesome": "^0.1.1",
     "@types/bootstrap": "^4.3.1",
-    "@types/jquery": "^3.3.6",
-    "@types/moment": "^2.13.0",
-    "@types/popper.js": "^1.11.0",
     "@types/ejs": "^3.0.5",
     "@types/express": "^4.17.9",
+    "@types/jquery": "^3.3.6",
     "@types/mapbox-gl-leaflet": "^0.0.1",
+    "@types/moment": "^2.13.0",
+    "@types/popper.js": "^1.11.0",
     "@types/request": "^2.48.5",
     "@types/uuid": "^3.4.6",
     "@types/vue-moment": "^4.0.0",
@@ -38,20 +35,16 @@
     "webpack": "^4.17.0",
     "webpack-cli": "^3.1.0",
     "xmldom": "^0.1.27",
-    "xpath": "^0.0.27"
-  },
-  "dependencies": {
+    "xpath": "^0.0.27",
+    "yarn-add-no-save": "^1.0.3",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^4.5.2",
-    "ejs": "^3.1.5",
-    "express": "^4.17.1",
     "html-webpack-plugin": "^4.5.0",
     "imagemin-webpack-plugin": "^2.3.0",
     "mapbox-gl": "^1.6.1",
     "mapbox-gl-leaflet": "^0.0.11",
     "mini-css-extract-plugin": "^0.4.2",
     "portal-vue": "^2.1.7",
-    "request": "^2.88.2",
     "vue-dragscroll": "^1.10.2",
     "vue-fragment": "^1.5.1",
     "vue-moment": "^4.1.0",
@@ -63,5 +56,14 @@
     "vuex-persist": "^2.2.0",
     "workbox-webpack-plugin": "^4.3.1",
     "workbox-window": "^4.3.1"
+  },
+  "dependencies": {
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "request": "^2.88.2"
+  },
+  "scripts": {
+    "build:server": "tsc -p server",
+    "build:app": "webpack --config webpack.config.js --mode production --progress"
   }
 }

@@ -6,8 +6,8 @@ import request from "request";
 const server = express();
 
 const port = parseInt(process.env.APP_PORT) || 3000;
-const host = process.env.APP_HOST || 'localhost';
-const api  = process.env.APP_API || "https://cojedzie.pl/api/v1/";
+const host = process.env.APP_HOST || '0.0.0.0';
+const api  = process.env.APP_API || "https://cojedzie.pl/api";
 
 const gtm_tracking = process.env.APP_GTM || '';
 const version = "2020.11-dev";
@@ -30,7 +30,7 @@ function generateProviderManifest(provider: any) {
 server.set("views", path.join(__dirname, "../resources/views/"));
 server.set("view engine", "ejs");
 
-server.use(express.static(path.join(__dirname, "../public/")))
+server.use(express.static(path.join(__dirname, "../build/public/")))
 
 server.get("/:provider?/manifest.json", (req, res) => {
     const provider = req.params.provider;
@@ -47,7 +47,7 @@ server.get("/:provider?/manifest.json", (req, res) => {
 
     console.log(`No manifest entry for ${provider}, calling ${api}/providers/${provider}`);
 
-    request.get(`${api}/providers/${provider}`, (err, _, body) => {
+    request.get(`${api}/v1/providers/${provider}`, (err, _, body) => {
         try {
             const info = JSON.parse(body);
             provider_manifests[provider] = generateProviderManifest(info);
@@ -62,7 +62,7 @@ server.get("/:provider?/manifest.json", (req, res) => {
     })
 })
 
-server.get("/:provider?", (req, res) => {
+server.get("/:provider?/*", (req, res) => {
     const manifest_path = req.params.provider
         ? `/${req.params.provider}/manifest.json`
         : "/manifest.json";
@@ -79,4 +79,9 @@ server.get("/:provider?", (req, res) => {
 
 server.listen(port, host, () => {
     console.info(`Server started at ${host}:${port}`);
+});
+
+process.on('SIGINT', function() {
+    console.info("Terminating server...");
+    process.exit();
 });
