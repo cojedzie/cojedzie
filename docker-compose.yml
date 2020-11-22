@@ -8,7 +8,7 @@ services:
     volumes:
       - ./front:/var/www/front:cached
       - ./api:/var/www/api:cached
-      - ./docker/nginx/czydojade:/etc/nginx/conf.d/czydojade.conf
+      - ./docker/nginx/cojedzie.conf:/etc/nginx/conf.d/cojedzie.conf
 
   api:
     build: ./api
@@ -17,6 +17,15 @@ services:
     volumes:
       - ./api:/var/www:cached
       - ./docker/php/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+
+  frontend:
+    image: node:15.2.1
+    working_dir: /app
+    environment:
+      - APP_API=http://nginx/api
+    volumes:
+      - ./front:/app
+    command: ["node", "build/server.js"]
 
   blackfire:
     image: blackfire/blackfire
