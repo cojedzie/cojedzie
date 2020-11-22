@@ -42,13 +42,6 @@ services:
         resource: '../src/Handler'
         tags: [ app.handler ]
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-
-    #assets
-    assets.modified_time_version_strategy:
-        class: App\Asset\ModifiedTimeVersionStrategy
-
     #eerialziser
     jms_serializer.serialized_name_annotation_strategy:
         class: JMS\Serializer\Naming\SerializedNameAnnotationStrategy

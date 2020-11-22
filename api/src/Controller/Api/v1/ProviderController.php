@@ -3,8 +3,10 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Exception\NonExistentServiceException;
 use App\Service\Converter;
 use App\Service\ProviderResolver;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use function Kadet\Functional\ref;
 
 class ProviderController extends Controller
@@ -22,8 +24,11 @@ class ProviderController extends Controller
 
     public function one(ProviderResolver $resolver, Converter $converter, $id)
     {
-        $provider = $resolver->resolve($id);
-
-        return $this->json($converter->convert($provider));
+        try {
+            $provider = $resolver->resolve($id);
+            return $this->json($converter->convert($provider));
+        } catch (NonExistentServiceException $exception) {
+            throw new NotFoundHttpException($exception->getMessage());
+        }
     }
 }
