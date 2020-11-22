@@ -89,14 +89,5 @@ module.exports = (env, argv) => {
         config.devtool = 'inline-source-map';
     }
 
-    config.plugins.push(
-        new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "./resources/index.html"),
-            chunks: ['main'],
-            year: new Date().getFullYear(),
-            version: process.env.CZYDOJADE_VERSION || (argv.mode === 'development' ? '2020.11-dev' : '2020.11'),
-        })
-    )
-
     return config;
 };
