@@ -66,5 +66,9 @@ export default {
         get: `/api/v1/providers/{provider}`,
     },
     trip: `${base}/trips/{id}`,
+    manifest: {
+        main: '/manifest.json',
+        provider: '/{provider}/manifest.json',
+    },
     prepare: (url: string, params: UrlParams = { }) => prepare(url, Object.assign({}, { provider: store.state.provider?.id }, params))
 }
