@@ -1,4 +1,2 @@
 /vendor/
-/var/*.db
-/var/cache/*
-/var/log/
+/var/

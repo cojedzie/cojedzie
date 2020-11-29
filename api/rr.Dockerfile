@@ -1,5 +1,8 @@
 FROM php:7.4-alpine
 
+ENV APP_ENV=prod
+ENV DATABASE_URL="sqlite:///var/db/app.db"
+
 RUN apk add --no-cache autoconf openssl-dev g++ make pcre-dev icu-dev zlib-dev libzip-dev git && \
     docker-php-ext-install bcmath intl opcache zip sockets && \
     apk del --purge autoconf g++ make
@@ -11,9 +14,6 @@ COPY . .
 
 RUN composer install --no-dev --no-scripts --no-plugins --prefer-dist --no-progress --no-interaction
 RUN ./vendor/bin/rr get-binary --location /usr/local/bin
-
-ENV APP_ENV=prod
-ENV DATABASE_URL="sqlite:///var/db/app.db"
 
 RUN composer dump-autoload --optimize && \
     composer check-platform-reqs && \
