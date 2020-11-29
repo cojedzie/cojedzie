@@ -11,7 +11,9 @@ services:
       - ./docker/nginx/cojedzie.conf:/etc/nginx/conf.d/cojedzie.conf
 
   api:
-    build: ./api
+    build:
+      context: ./api
+      dockerfile: fpm.Dockerfile
     env_file:
       - ./docker/php/.env
     volumes:

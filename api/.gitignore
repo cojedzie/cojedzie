@@ -8,3 +8,6 @@
 /public/*
 !/public/index.php
 
+###> baldinof/roadrunner-bundle ###
+/bin/rr
+###< baldinof/roadrunner-bundle ###
