@@ -8,8 +8,8 @@ RUN apk add --no-cache autoconf openssl-dev g++ make pcre-dev icu-dev zlib-dev l
 
 # XDebug
 RUN pecl install xdebug-3.0.0 && docker-php-ext-enable xdebug
-RUN echo "xdebug.mode = develop,debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
-    echo "xdebug.discover_client_host = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini;
+RUN echo "xdebug.mode=debug" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini && \
+    echo "xdebug.discover_client_host=On" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini;
 
 RUN apk del --purge autoconf g++ make
 
@@ -26,7 +26,7 @@ RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Timezone
-RUN ln -snf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime &&
+RUN ln -snf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime && \
     echo "date.timezone = Europe/Warsaw" >> /usr/local/etc/php/conf.d/datetime.ini;
 
 WORKDIR /var/www

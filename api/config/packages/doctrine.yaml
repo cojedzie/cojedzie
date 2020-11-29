@@ -5,14 +5,13 @@ doctrine:
     dbal:
         driver: 'pdo_sqlite'
         url: '%env(resolve:DATABASE_URL)%'
-        logging: true
-        profiling: true
+        logging: '%kernel.debug%'
+        profiling: '%kernel.debug%'
         types:
             datetime: App\Doctrine\CarbonDateTimeType
-
     orm:
-        auto_generate_proxy_classes: '%kernel.debug%'
-        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true
         mappings:
             App:
@@ -20,4 +19,4 @@ doctrine:
                 type: annotation
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
-                alias: Entity
+                alias: App
