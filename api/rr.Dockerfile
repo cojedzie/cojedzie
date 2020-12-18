@@ -1,7 +1,8 @@
 FROM php:7.4-alpine
 
 ENV APP_ENV=prod
-ENV DATABASE_URL="sqlite:///var/db/app.db"
+ENV DATABASE_URL="sqlite:////var/db/app.db"
+ENV PATH=$PATH:/usr/src/app/bin
 
 RUN apk add --no-cache autoconf openssl-dev g++ make pcre-dev icu-dev zlib-dev libzip-dev git && \
     docker-php-ext-install bcmath intl opcache zip sockets && \
@@ -21,4 +22,4 @@ RUN composer dump-autoload --optimize && \
 
 EXPOSE 8080
 
-CMD ["rr", "serve"]
+CMD ["./bin/docker-init.sh", "rr", "serve"]

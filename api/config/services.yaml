@@ -53,7 +53,7 @@ services:
 
     #proxy configuration
     proxy.locator:
-        class: 'ProxyManager\FileLocator\FileLocator'
+        class: 'App\Service\Proxy\FileLocator'
         arguments: ['%kernel.cache_dir%/proxy']
 
     proxy.strategy:
@@ -67,7 +67,6 @@ services:
           - ['setProxiesTargetDir', ['%kernel.cache_dir%/proxy']]
 
     ProxyManager\Configuration: '@proxy.config'
-
 
     # converter
     App\Service\AggregateConverter:
