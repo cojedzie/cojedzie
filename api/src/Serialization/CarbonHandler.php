@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Serialization;
 
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\DateHandler;
@@ -12,7 +13,6 @@ use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Visitor\DeserializationVisitorInterface;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
-use Tightenco\Collect\Support\Collection;
 
 /**
  * Class LaravelCollectionHandler

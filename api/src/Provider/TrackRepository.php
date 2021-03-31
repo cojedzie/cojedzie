@@ -2,9 +2,8 @@
 
 namespace App\Provider;
 
-use App\Model\Track;
 use App\Modifier\Modifier;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 interface TrackRepository extends FluentRepository
 {

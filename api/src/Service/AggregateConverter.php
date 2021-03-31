@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use function Kadet\Functional\Predicates\instance;
 
 class AggregateConverter implements Converter, CacheableConverter

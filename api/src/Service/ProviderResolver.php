@@ -6,9 +6,9 @@ namespace App\Service;
 use App\Exception\NonExistentServiceException;
 use App\Provider\Dummy\DummyProvider;
 use App\Provider\Provider;
+use Illuminate\Support\Collection;
 use Kadet\Functional\Predicates as p;
 use Kadet\Functional\Transforms as t;
-use Tightenco\Collect\Support\Collection;
 
 class ProviderResolver
 {

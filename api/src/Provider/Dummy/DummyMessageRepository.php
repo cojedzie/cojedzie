@@ -6,7 +6,7 @@ use App\Model\Message;
 use App\Model\Stop;
 use App\Provider\MessageRepository;
 use Carbon\Carbon;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class DummyMessageRepository implements MessageRepository
 {

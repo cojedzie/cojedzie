@@ -4,7 +4,7 @@ namespace App\Provider;
 
 use App\Model\Stop;
 use Carbon\Carbon;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 interface ScheduleRepository extends FluentRepository
 {

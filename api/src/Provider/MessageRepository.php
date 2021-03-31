@@ -5,7 +5,7 @@ namespace App\Provider;
 
 
 use App\Model\Stop;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 interface MessageRepository
 {

@@ -6,7 +6,7 @@ use App\Entity\OperatorEntity;
 use App\Model\Operator;
 use App\Modifier\Modifier;
 use App\Provider\OperatorRepository;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class GenericOperatorRepository extends DatabaseRepository implements OperatorRepository
 {

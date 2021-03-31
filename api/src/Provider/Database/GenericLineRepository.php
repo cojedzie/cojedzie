@@ -3,17 +3,10 @@
 namespace App\Provider\Database;
 
 use App\Entity\LineEntity;
-use App\Event\HandleDatabaseModifierEvent;
-use App\Handler\Database\LimitDatabaseHandler;
-use App\Handler\Database\IdFilterDatabaseHandler;
-use App\Handler\ModifierHandler;
 use App\Model\Line;
-use App\Modifier\Limit;
-use App\Modifier\IdFilter;
-use App\Provider\LineRepository;
 use App\Modifier\Modifier;
-use Tightenco\Collect\Support\Collection;
-use Kadet\Functional as f;
+use App\Provider\LineRepository;
+use Illuminate\Support\Collection;
 
 class GenericLineRepository extends DatabaseRepository implements LineRepository
 {

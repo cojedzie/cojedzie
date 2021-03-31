@@ -6,7 +6,7 @@ use App\Model\Stop;
 use App\Modifier\Modifier;
 use App\Provider\StopRepository;
 use App\Service\Proxy\ReferenceFactory;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use Kadet\Functional as f;
 
 class DummyStopRepository implements StopRepository

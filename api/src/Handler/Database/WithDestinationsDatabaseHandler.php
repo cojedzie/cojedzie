@@ -11,9 +11,9 @@ use App\Service\CacheableConverter;
 use App\Service\Converter;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
+use Illuminate\Support\Collection;
 use Kadet\Functional as f;
 use Kadet\Functional\Transforms as t;
-use Tightenco\Collect\Support\Collection;
 
 class WithDestinationsDatabaseHandler implements PostProcessingHandler
 {

@@ -12,11 +12,11 @@ use App\Modifier\RelatedFilter;
 use App\Modifier\With;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
+use Illuminate\Support\Collection;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Tightenco\Collect\Support\Collection;
 
 /**
  * Class StopsController

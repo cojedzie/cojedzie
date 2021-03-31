@@ -12,7 +12,7 @@ use App\Model\Referable;
 use App\Model\Stop;
 use App\Model\Track;
 use Doctrine\ORM\EntityManagerInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 use function Kadet\Functional\partial;
 use function Kadet\Functional\ref;
 use const Kadet\Functional\_;

@@ -3,8 +3,8 @@
 namespace App\Model;
 
 use App\Serialization\SerializeAs;
+use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
-use Tightenco\Collect\Support\Collection;
 
 class Trip implements Referable, Fillable
 {

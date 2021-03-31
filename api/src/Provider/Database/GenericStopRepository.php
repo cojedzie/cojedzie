@@ -9,7 +9,7 @@ use App\Model\Stop;
 use App\Modifier\Modifier;
 use App\Modifier\With;
 use App\Provider\StopRepository;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class GenericStopRepository extends DatabaseRepository implements StopRepository
 {

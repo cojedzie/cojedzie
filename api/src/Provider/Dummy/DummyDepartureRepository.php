@@ -4,13 +4,11 @@ namespace App\Provider\Dummy;
 
 use App\Model\Departure;
 use App\Model\Line;
-use App\Model\Stop;
 use App\Model\Vehicle;
 use App\Modifier\Modifier;
 use App\Provider\DepartureRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
-use Tightenco\Collect\Support\Collection;
 
 class DummyDepartureRepository implements DepartureRepository
 {

@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 final class IterableUtils
 {

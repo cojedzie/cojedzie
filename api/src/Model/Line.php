@@ -2,10 +2,10 @@
 
 namespace App\Model;
 
+use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
-use Tightenco\Collect\Support\Collection;
 
 class Line implements Fillable, Referable
 {

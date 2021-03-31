@@ -3,7 +3,7 @@
 namespace App\Provider;
 
 use App\Modifier\Modifier;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 interface FluentRepository extends Repository
 {

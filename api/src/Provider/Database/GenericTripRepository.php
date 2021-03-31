@@ -6,7 +6,7 @@ use App\Entity\TripEntity;
 use App\Model\Trip;
 use App\Modifier\Modifier;
 use App\Provider\TripRepository;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class GenericTripRepository extends DatabaseRepository implements TripRepository
 {

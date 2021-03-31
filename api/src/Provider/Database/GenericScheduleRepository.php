@@ -3,20 +3,15 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
-use App\Entity\TrackStopEntity;
 use App\Entity\TrackEntity;
-use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
 use App\Model\Departure;
-use App\Model\Line;
 use App\Model\ScheduledStop;
 use App\Model\Stop;
-use App\Model\Vehicle;
 use App\Modifier\Modifier;
 use App\Provider\ScheduleRepository;
 use Carbon\Carbon;
-use Tightenco\Collect\Support\Collection;
-use function Kadet\Functional\ref;
+use Illuminate\Support\Collection;
 
 class GenericScheduleRepository extends DatabaseRepository implements ScheduleRepository
 {

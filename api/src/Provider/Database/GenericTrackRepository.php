@@ -2,13 +2,13 @@
 
 namespace App\Provider\Database;
 
-use App\Entity\TrackStopEntity;
 use App\Entity\TrackEntity;
+use App\Entity\TrackStopEntity;
+use App\Model\Track;
 use App\Model\TrackStop;
 use App\Modifier\Modifier;
-use App\Model\Track;
 use App\Provider\TrackRepository;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class GenericTrackRepository extends DatabaseRepository implements TrackRepository
 {
