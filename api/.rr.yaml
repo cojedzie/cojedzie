@@ -9,5 +9,5 @@ http:
     relay: "unix://var/roadrunner.sock"
 
 static:
-  dir:   "public"
+  dir: "public"
   forbid: [".php", ".htaccess"]

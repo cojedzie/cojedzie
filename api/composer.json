@@ -1,7 +1,8 @@
 {
     "name": "kadet/cojedzie",
+    "description": "Co Jedzie",
     "type": "project",
-    "license": "MIT",
+    "license": "MIT with Commons Clause",
     "require": {
         "php": "^7.1.3",
         "ext-ctype": "*",
