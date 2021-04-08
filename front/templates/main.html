@@ -7,7 +7,7 @@
                         <ui-icon icon="messages" fixed-width class="mr-2"></ui-icon>
                         Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ messages.count }}</span>
                     </h2>
-                    <button class="btn btn-action flex-space-left" ref="settings-messages"
+                    <button class="btn btn-action flex-space-left" ref="settings-messages" id="settings-messages"
                             @click="visibility.messages = !visibility.messages">
                         <tooltip>ustawienia</tooltip>
                         <ui-icon icon="settings" fixed-width></ui-icon>
@@ -25,7 +25,7 @@
                     </button>
 
                     <portal to="popups">
-                        <ui-dialog reference="settings-messages" v-if="visibility.messages" arrow placement="left-start"
+                        <ui-dialog reference="#settings-messages" v-if="visibility.messages" arrow placement="left-start"
                                    @leave="visibility.messages = false">
                             <settings-messages></settings-messages>
                         </ui-dialog>
@@ -42,7 +42,7 @@
                         <span class="text">Odjazdy</span>
                     </h2>
 
-                    <button class="btn btn-action flex-space-left" ref="settings-departures"
+                    <button class="btn btn-action flex-space-left" ref="settings-departures" id="settings-departures"
                             @click="visibility.departures = !visibility.departures">
                         <tooltip>ustawienia</tooltip>
                         <ui-icon icon="settings" fixed-width></ui-icon>
@@ -52,7 +52,7 @@
                         <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width></ui-icon>
                     </button>
                     <portal to="popups">
-                        <ui-dialog reference="settings-departures" v-if="visibility.departures"
+                        <ui-dialog reference="#settings-departures" v-if="visibility.departures"
                                    @leave="visibility.departures = false" arrow placement="left-start">
                             <settings-departures></settings-departures>
                         </ui-dialog>
