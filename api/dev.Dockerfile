@@ -1,6 +1,5 @@
 FROM php:7.4-fpm-alpine
 
-ENV APP_ENV=dev
 ENV DATABASE_URL="sqlite:///var/db/app.db"
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/

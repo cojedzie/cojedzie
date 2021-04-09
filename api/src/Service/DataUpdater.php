@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Event\DataUpdateEvent;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\ORM\EntityManagerInterface;
+use Kadet\Functional as f;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -18,11 +19,6 @@ class DataUpdater
     /** @var EntityManagerInterface */
     private $em;
 
-    /**
-     * DataUpdater constructor.
-     *
-     * @param EventDispatcherInterface $dispatcher
-     */
     public function __construct(EventDispatcherInterface $dispatcher, EntityManagerInterface $em)
     {
         $this->dispatcher = $dispatcher;
@@ -41,11 +37,13 @@ class DataUpdater
         copy($path, $backup);
 
         try {
-            collect($schema->listTables())->reject(function (Table $schema) {
-                return $schema->getName() === 'migration_versions';
-            })->each([$schema, 'dropAndCreateTable']);
+            collect($schema->listTables())
+                ->reject(f\ref([$this, 'shouldTableBePreserved']))
+                ->each(f\ref([$schema, 'dropAndCreateTable']))
+            ;
 
             $this->dispatcher->dispatch(new DataUpdateEvent($output), DataUpdateEvent::NAME);
+
             unlink($backup);
         } catch (\Throwable $exception) {
             $connection->close();
@@ -55,5 +53,10 @@ class DataUpdater
 
             throw $exception;
         }
+    }
+
+    private function shouldTableBePreserved(Table $schema)
+    {
+        return in_array($schema->getName(), ['migration_versions', 'messenger_messages']);
     }
 }
