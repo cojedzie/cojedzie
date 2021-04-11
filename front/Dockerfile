@@ -23,6 +23,8 @@ RUN yarn install --production
 
 FROM node:15.2.1-slim
 
+LABEL maintainer="Kacper Donat <kacper@kadet.net>"
+
 WORKDIR /app
 
 COPY --from=build /app/build/ build

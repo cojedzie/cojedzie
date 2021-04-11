@@ -13,12 +13,12 @@ services:
   api:
     build:
       context: ./api
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     env_file:
-      - ./docker/php/.env
+      - ./docker/api/.env
     volumes:
       - ./api:/var/www:cached
-      - ./docker/php/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+      - ./docker/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
   frontend:
     image: node:15.2.1

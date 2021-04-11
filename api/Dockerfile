@@ -3,8 +3,6 @@ FROM php:7.4-fpm-alpine
 ENV DATABASE_URL="sqlite:///var/db/app.db"
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-
-# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN install-php-extensions bcmath intl opcache zip sockets xdebug-^3.0;
