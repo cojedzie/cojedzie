@@ -8,17 +8,17 @@ services:
     volumes:
       - ./front:/var/www/front:cached
       - ./api:/var/www/api:cached
-      - ./docker/nginx/cojedzie.conf:/etc/nginx/conf.d/cojedzie.conf
+      - .docker-compose/nginx/cojedzie.conf:/etc/nginx/conf.d/cojedzie.conf
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
     env_file:
-      - ./docker/api/.env
+      - .docker-compose/api/.env
     volumes:
       - ./api:/var/www:cached
-      - ./docker/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+      - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
   frontend:
     image: node:15.2.1
