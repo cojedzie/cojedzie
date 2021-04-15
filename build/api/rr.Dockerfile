@@ -1,4 +1,4 @@
-FROM php:7.4-alpinpe
+FROM php:7.4-alpine
 
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 
