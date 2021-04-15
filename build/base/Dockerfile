@@ -1,0 +1,28 @@
+FROM php:7.4-alpine
+
+LABEL maintainer="Kacper Donat <kacper@kadet.net>"
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+RUN install-php-extensions bcmath intl opcache zip sockets;
+
+COPY composer.json composer.lock ./
+
+RUN apk add git && \
+    composer install --no-dev --no-scripts --no-plugins --prefer-dist --no-progress --no-interaction && \
+    composer dump-autoload --optimize && \
+    composer check-platform-reqs && \
+    composer clear-cache && \
+    apk del --purge git
+
+COPY . .
+
+ENV APP_ENV=prod
+
+RUN composer run-script post-install-cmd
+
+# This image is not meant to be run, just to prepare all required files
+CMD ["/bin/false"]

@@ -8,13 +8,14 @@ REGISTRY="docker.io"
 TAGS=()
 DRY=0
 PUSH=0
+BUILD_BASE=1
 
 BUILT_TAGS=()
 
 export DOCKER_BUILDKIT=1
 
 usage () {
-  echo "usage: $0 [-h|--help] [-d|--dry] [-r|--registry registry] [-t|--tag tag] [-p|--push] -- images...";
+  echo "usage: $0 [-h|--help] [-d|--dry] [--no-base|-B] [-p|--push] [-r|--registry registry] [-t|--tag tag] -- images...";
 }
 
 run () {
@@ -25,14 +26,15 @@ run () {
   fi
 }
 
-# usage: build [-d|--default] [-v|--variant variant] <image> <context>
+# usage: build [-d|--default] [-v|--variant variant] [-R|--no-register] <image> <context>
 build () {
   ARGS=()
   IS_DEFAULT=0
   SUFFIX=""
   VARIANT=""
+  REGISTER=1
 
-  options=$(getopt -l "default,variant:" -o "dv:" -- "$@")
+  options=$(getopt -l "default,variant:,no-register" -o "dv:R" -- "$@")
   eval set -- "$options"
 
   while true;
@@ -45,6 +47,10 @@ build () {
       -v|--variant)
         VARIANT="$2"
         shift 2
+        ;;
+      -R|--no-register)
+        REGISTER=0
+        shift
         ;;
       --)
         shift
@@ -70,18 +76,19 @@ build () {
 
   for TAG in "${TAGS[@]}"; do
     ARGS+=("-t" "$REGISTRY/cojedzie/$IMAGE:$TAG$SUFFIX")
-    BUILT_TAGS+=("$REGISTRY/cojedzie/$IMAGE:$TAG$SUFFIX")
+    [[ $REGISTER -eq 1 ]] && BUILT_TAGS+=("$REGISTRY/cojedzie/$IMAGE:$TAG$SUFFIX")
 
     if [[ $IS_DEFAULT == 1 ]]; then
       ARGS+=("-t" "$REGISTRY/cojedzie/$IMAGE:$TAG")
-      BUILT_TAGS+=("$REGISTRY/cojedzie/$IMAGE:$TAG")
+      [[ $REGISTER -eq 1 ]] && BUILT_TAGS+=("$REGISTRY/cojedzie/$IMAGE:$TAG")
     fi
   done
 
-  run docker build $CONTEXT "${ARGS[@]}" "$@"
+  echo "Building $IMAGE $VARIANT"
+  run docker build --build-arg "BASE_VERSION=${TAGS[0]}" --build-arg "REGISTRY=$REGISTRY" "$CONTEXT" "${ARGS[@]}" "$@"
 }
 
-options=$(getopt -l "help,dry,registry:,tag:,push" -o "hdr:t:p" -- "$@")
+options=$(getopt -l "help,dry,registry:,tag:,push,no-base" -o "hdr:t:pB" -- "$@")
 eval set -- "$options"
 
 while true;
@@ -97,6 +104,10 @@ do
       ;;
     -p|--push)
       PUSH=1
+      shift
+      ;;
+    -B|--no-base)
+      BUILD_BASE=0
       shift
       ;;
     -r|--registry)
@@ -122,21 +133,25 @@ if [ $# -eq 0 ]; then
   set -- api standalone worker front
 fi
 
+if [ $BUILD_BASE -eq 1 ]; then
+  build --no-register base $ROOT/api/ || exit 1
+fi
+
 while [ $# -gt 0 ]
 do
   case "$1" in
     api)
-      build api $ROOT/api/ --variant rr --default
-      build api $ROOT/api/ --variant fpm
+      build api $ROOT/api/ --variant rr --default || exit 1
+      build api $ROOT/api/ --variant fpm || exit 1
       ;;
     standalone)
-      build standalone $ROOT/api/ --variant rr --default
+      build standalone $ROOT/api/ --variant rr --default || exit 1
       ;;
     worker)
-      build worker $ROOT/api/
+      build worker $ROOT/api/ || exit 1
       ;;
     front)
-      build front $ROOT/front/
+      build front $ROOT/front/ || exit 1
       ;;
     *)
       >&2 echo "$1 is not a valid image to build"

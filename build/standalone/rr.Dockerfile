@@ -1,6 +1,7 @@
-ARG COJEDZIE_VER=latest
+ARG BASE_VERSION=latest
+ARG REGISTRY=docker.io
 
-FROM cojedzie/api:${COJEDZIE_VER}-rr
+FROM ${REGISTRY}/cojedzie/api:${BASE_VERSION}-rr
 
 RUN apk add supervisor && \
     { \
