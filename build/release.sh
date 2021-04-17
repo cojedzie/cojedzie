@@ -135,20 +135,22 @@ fi
 
 if [ $BUILD_BASE -eq 1 ]; then
   build --no-register base $ROOT/api/ || exit 1
+  build --no-register --variant fpm base $ROOT/api/ || exit 1
+  build --no-register --variant cli base $ROOT/api/ || exit 1
 fi
 
 while [ $# -gt 0 ]
 do
   case "$1" in
     api)
-      build api $ROOT/api/ --variant rr --default || exit 1
-      build api $ROOT/api/ --variant fpm || exit 1
+      build api $BUILD/api/ --variant rr --default || exit 1
+      build api $BUILD/api/ --variant fpm || exit 1
       ;;
     standalone)
-      build standalone $ROOT/api/ --variant rr --default || exit 1
+      build standalone $BUILD/standalone/ --variant rr --default || exit 1
       ;;
     worker)
-      build worker $ROOT/api/ || exit 1
+      build worker $BUILD/worker/ || exit 1
       ;;
     front)
       build front $ROOT/front/ || exit 1
