@@ -2,14 +2,12 @@
 
 namespace App\Service;
 
-use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity, TripStopEntity};
+use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
 use App\Model\{Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Proxy\Proxy;
-use Kadet\Functional as f;
 use Kadet\Functional\Transforms as t;
-use const Kadet\Functional\_;
 
 final class EntityConverter implements Converter, RecursiveConverter, CacheableConverter
 {
@@ -177,7 +175,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         return $entity instanceof Entity;
     }
 
-    public function flushCache()
+    public function reset()
     {
         $this->cache = [];
     }

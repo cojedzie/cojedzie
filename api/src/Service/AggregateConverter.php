@@ -45,7 +45,7 @@ class AggregateConverter implements Converter, CacheableConverter
         return clone $this->cachedConverters;
     }
 
-    public function flushCache()
+    public function reset()
     {
         $this->ensureCachedConverters();
 
@@ -53,7 +53,7 @@ class AggregateConverter implements Converter, CacheableConverter
             ->cachedConverters
             ->filter(instance(CacheableConverter::class))
             ->each(function (CacheableConverter $converter) {
-                $converter->flushCache();
+                $converter->reset();
             })
         ;
     }

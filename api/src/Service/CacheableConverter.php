@@ -2,7 +2,8 @@
 
 namespace App\Service;
 
-interface CacheableConverter extends Converter
+use Symfony\Contracts\Service\ResetInterface;
+
+interface CacheableConverter extends Converter, ResetInterface
 {
-    public function flushCache();
 }

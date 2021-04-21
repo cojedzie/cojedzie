@@ -28,10 +28,10 @@ class ZtmGdanskProvider implements Provider
     private $stops;
     private $tracks;
     private $messages;
-
-    /** @var ProviderEntity */
-    private $entity;
     private $trips;
+
+    private ProviderEntity $entity;
+    private EntityManagerInterface $em;
 
     public function getName(): string
     {
@@ -68,7 +68,9 @@ class ZtmGdanskProvider implements Provider
         ZtmGdanskMessageRepository $messages,
         ReferenceFactory $referenceFactory
     ) {
-        $provider = $em->getReference(ProviderEntity::class, $this->getIdentifier());
+        $this->em = $em;
+
+        $provider = $this->refreshProviderEntity();
 
         $lines    = $lines->withProvider($provider);
         $stops    = $stops->withProvider($provider);
@@ -117,6 +119,13 @@ class ZtmGdanskProvider implements Provider
 
     public function getLastUpdate(): ?Carbon
     {
+        $this->refreshProviderEntity();
+
         return $this->entity->getUpdateDate();
+    }
+
+    private function refreshProviderEntity(): ProviderEntity
+    {
+        return $this->entity = $this->em->getReference(ProviderEntity::class, $this->getIdentifier());
     }
 }

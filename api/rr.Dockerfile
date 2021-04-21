@@ -1,14 +1,15 @@
-FROM php:7.4-fpm-alpine
+FROM cojedzie/api:latest-rr
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN install-php-extensions bcmath intl opcache zip sockets xdebug-^3.0;
+RUN install-php-extensions xdebug-^3.0;
 RUN apk add git;
 
 # XDebug
 RUN echo "xdebug.mode=debug" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini && \
-    echo "xdebug.discover_client_host=On" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini;
+    echo "xdebug.client_host=172.17.0.1" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini && \
+    echo "xdebug.start_with_request=On" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini;
 
 # Blackfire
 RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \

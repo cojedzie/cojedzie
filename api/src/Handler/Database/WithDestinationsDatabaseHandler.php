@@ -29,7 +29,7 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
 
         if ($this->converter instanceof CacheableConverter) {
             $this->converter = clone $this->converter;
-            $this->converter->flushCache();
+            $this->converter->reset();
         }
     }
 
