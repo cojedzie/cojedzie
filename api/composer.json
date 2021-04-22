@@ -13,7 +13,7 @@
         "illuminate/collections": "^8.35",
         "jms/serializer-bundle": "^3.5",
         "kadet/functional": "dev-master",
-        "nelmio/api-doc-bundle": "^3.5",
+        "nelmio/api-doc-bundle": "^4.2",
         "nesbot/carbon": "^2.46.0",
         "ocramius/proxy-manager": "^2.0",
         "sensio/framework-extra-bundle": "^5.2",

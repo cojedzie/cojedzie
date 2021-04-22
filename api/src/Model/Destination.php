@@ -5,7 +5,7 @@ namespace App\Model;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 class Destination implements Fillable
 {
@@ -20,7 +20,7 @@ class Destination implements Fillable
 
     /**
      * @Serializer\Type("Collection")
-     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Line::class, groups={"Default"})))
+     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Line::class, groups={"Default"})))
      * @var Line[]|Collection<Line>
      */
     private $lines;

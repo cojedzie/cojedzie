@@ -5,35 +5,30 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Model\Departure;
-use App\Modifier\FieldFilter;
 use App\Modifier\IdFilter;
 use App\Modifier\Limit;
-use App\Modifier\With;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
-use App\Service\SerializerContextFactory;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use function Kadet\Functional\ref;
-use function Kadet\Functional\Transforms\property;
 
 /**
  * Class DeparturesController
  *
  * @Route("/departures")
- * @SWG\Tag(name="Departures")
- * @SWG\Parameter(ref="#/parameters/provider")
+ * @OA\Tag(name="Departures")
+ * @OA\Parameter(ref="#/components/parameters/provider")
  */
 class DeparturesController extends Controller
 {
     /**
      * @Route("/{stop}", methods={"GET"})
-     * @SWG\Response(
+     * @OA\Response(
      *     description="Gets departures from particular stop.",
      *     response=200,
-     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=Departure::class)))
+     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Departure::class)))
      * )
      */
     public function stop(DepartureRepository $departures, StopRepository $stops, $stop, Request $request)
@@ -45,24 +40,23 @@ class DeparturesController extends Controller
 
     /**
      * @Route("/", methods={"GET"})
-     * @SWG\Response(
+     * @OA\Response(
      *     description="Gets departures from given stops.",
      *     response=200,
-     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=Departure::class)))
+     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Departure::class)))
      * )
      *
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="stop",
      *     description="Stop identifiers.",
-     *     type="array",
      *     in="query",
-     *     @SWG\Items(type="string")
+     *     @OA\Schema(type="array", @OA\Items(type="string")),
      * )
      *
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="limit",
      *     description="Max departures count.",
-     *     type="integer",
+     *     @OA\Schema(type="integer"),
      *     in="query"
      * )
      */

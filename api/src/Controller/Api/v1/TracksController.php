@@ -9,7 +9,7 @@ use App\Model\Track;
 use App\Modifier\IdFilter;
 use App\Modifier\RelatedFilter;
 use App\Provider\TrackRepository;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use function App\Functions\encapsulate;
@@ -17,12 +17,12 @@ use function Kadet\Functional\ref;
 
 /**
  * @Route("/tracks")
- * @SWG\Tag(name="Tracks")
+ * @OA\Tag(name="Tracks")
  */
 class TracksController extends Controller
 {
     /**
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns all tracks for specific provider, e.g. ZTM Gdańsk.",
      * )
@@ -39,9 +39,9 @@ class TracksController extends Controller
      * @Route("/stops", methods={"GET"})
      * @Route("/{track}/stops", methods={"GET"})
      *
-     * @SWG\Tag(name="Tracks")
+     * @OA\Tag(name="Tracks")
      *
-     * @SWG\Response(response=200, description="Stops related to specified query.")
+     * @OA\Response(response=200, description="Stops related to specified query.")
      */
     public function stops(Request $request, TrackRepository $repository)
     {

@@ -6,7 +6,7 @@ use App\Serialization\SerializeAs;
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 class Departure implements Fillable
 {
@@ -24,7 +24,7 @@ class Departure implements Fillable
      * @var Line
      * @Serializer\Type(Line::class)
      * @SerializeAs({"Default": "Default"})
-     * @SWG\Property(ref=@Model(type=Line::class, groups={"Default"}))
+     * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      *
      */
     private $line;
@@ -34,7 +34,7 @@ class Departure implements Fillable
      * @var Track|null
      * @Serializer\Type(Track::class)
      * @SerializeAs({"Default": "Identity"})
-     * @SWG\Property(ref=@Model(type=Track::class, groups={"Identity"}))
+     * @OA\Property(ref=@Model(type=Track::class, groups={"Identity"}))
      */
     private $track;
 
@@ -43,7 +43,7 @@ class Departure implements Fillable
      * @var Trip|null
      * @Serializer\Type(Trip::class)
      * @SerializeAs({"Default": "Identity"})
-     * @SWG\Property(ref=@Model(type=Trip::class, groups={"Identity"}))
+     * @OA\Property(ref=@Model(type=Trip::class, groups={"Identity"}))
      */
     private $trip;
 
@@ -65,7 +65,7 @@ class Departure implements Fillable
      * Displayed destination.
      * @var string|null
      * @Serializer\Type("string")
-     * @SWG\Property(example="Łostowice Świętokrzyska")
+     * @OA\Property(example="Łostowice Świętokrzyska")
      */
     private $display;
 
@@ -73,7 +73,7 @@ class Departure implements Fillable
      * Estimated time of departure, null if case of no realtime data.
      * @var Carbon|null
      * @Serializer\Type("Carbon")
-     * @SWG\Property(type="string", format="date-time")
+     * @OA\Property(type="string", format="date-time")
      */
     private $estimated;
 
@@ -81,7 +81,7 @@ class Departure implements Fillable
      * Scheduled time of departure.
      * @var Carbon
      * @Serializer\Type("Carbon")
-     * @SWG\Property(type="string", format="date-time")
+     * @OA\Property(type="string", format="date-time")
      */
     private $scheduled;
 
@@ -183,7 +183,7 @@ class Departure implements Fillable
     /**
      * @Serializer\VirtualProperty()
      * @Serializer\Type("int")
-     * @SWG\Property(type="int")
+     * @OA\Property(type="int")
      */
     public function getDelay(): ?int
     {

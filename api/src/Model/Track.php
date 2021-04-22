@@ -5,7 +5,7 @@ namespace App\Model;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 class Track implements Referable, Fillable
 {
@@ -14,7 +14,7 @@ class Track implements Referable, Fillable
     /**
      * Line variant describing track, for example 'a'
      * @Serializer\Type("string")
-     * @SWG\Property(example="a")
+     * @OA\Property(example="a")
      * @var string|null
      *
      */
@@ -29,7 +29,7 @@ class Track implements Referable, Fillable
 
     /**
      * Line reference
-     * @SWG\Property(ref=@Model(type=Line::class, groups={"Default"}))
+     * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      * @var Line
      */
     private $line;
@@ -38,7 +38,7 @@ class Track implements Referable, Fillable
      * Stops in track
      * @var Stop[]|Collection
      * @Serializer\Type("Collection")
-     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Stop::class)))
+     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      */
     private $stops;
 
@@ -46,7 +46,7 @@ class Track implements Referable, Fillable
      * Destination stop of this track
      * @var Stop|null
      * @Serializer\Type(Stop::class)
-     * @SWG\Property(ref=@Model(type=Stop::class))
+     * @OA\Property(ref=@Model(type=Stop::class))
      */
     private $destination;
 

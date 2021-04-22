@@ -5,7 +5,7 @@ namespace App\Model;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 class Line implements Fillable, Referable
 {
@@ -21,7 +21,7 @@ class Line implements Fillable, Referable
     /**
      * Line symbol, for example '10', or 'A'
      * @Serializer\Type("string")
-     * @SWG\Property(example="10")
+     * @OA\Property(example="10")
      * @var string
      */
     private $symbol;
@@ -29,7 +29,7 @@ class Line implements Fillable, Referable
     /**
      * Line type tram, bus or whatever.
      * @Serializer\Type("string")
-     * @SWG\Property(type="string", enum={
+     * @OA\Property(type="string", enum={
      *     Line::TYPE_BUS,
      *     Line::TYPE_UNKNOWN,
      *     Line::TYPE_METRO,
@@ -58,7 +58,7 @@ class Line implements Fillable, Referable
     /**
      * Line operator
      * @Serializer\Type(Operator::class)
-     * @SWG\Property(ref=@Model(type=Operator::class, groups={"Identity"}))
+     * @OA\Property(ref=@Model(type=Operator::class, groups={"Identity"}))
      * @var Operator
      */
     private $operator;
@@ -66,7 +66,7 @@ class Line implements Fillable, Referable
     /**
      * Tracks for this line
      * @Serializer\Type("Collection")
-     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Track::class)))
+     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * @Serializer\Groups("Full")
      * @var Collection<Track>|Track[]
      */

@@ -3,7 +3,7 @@
 namespace App\Model;
 
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 class Location
 {
@@ -18,7 +18,7 @@ class Location
      * Locations latitude.
      * @Serializer\Type("float")
      * @Serializer\SerializedName("lat")
-     * @SWG\Property()
+     * @OA\Property()
      */
     private $latitude;
 

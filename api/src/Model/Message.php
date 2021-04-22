@@ -4,7 +4,7 @@ namespace App\Model;
 
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 class Message implements Fillable
 {
@@ -17,7 +17,7 @@ class Message implements Fillable
     /**
      * Message content.
      * @Serializer\Type("string")
-     * @SWG\Property(example="Tram accident on Haller alley, possible delays on lines: 2, 3, 4, 5.")
+     * @OA\Property(example="Tram accident on Haller alley, possible delays on lines: 2, 3, 4, 5.")
      * @var string
      */
     private $message;
@@ -25,7 +25,7 @@ class Message implements Fillable
     /**
      * Message type, see TYPE_* constants
      * @Serializer\Type("string")
-     * @SWG\Property(type="string", enum={ Message::TYPE_INFO, Message::TYPE_BREAKDOWN, Message::TYPE_UNKNOWN })
+     * @OA\Property(type="string", enum={ Message::TYPE_INFO, Message::TYPE_BREAKDOWN, Message::TYPE_UNKNOWN })
      * @var string
      */
     private $type = self::TYPE_UNKNOWN;
@@ -33,7 +33,7 @@ class Message implements Fillable
     /**
      * Message validity time span start
      * @Serializer\Type("Carbon")
-     * @SWG\Property(type="string", format="date-time")
+     * @OA\Property(type="string", format="date-time")
      * @var Carbon|null
      */
     private $validFrom;
@@ -42,7 +42,7 @@ class Message implements Fillable
      * Message validity time span end
      * @var Carbon|null
      * @Serializer\Type("Carbon")
-     * @SWG\Property(type="string", format="date-time")
+     * @OA\Property(type="string", format="date-time")
      */
     private $validTo;
 

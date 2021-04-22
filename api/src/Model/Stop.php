@@ -5,7 +5,7 @@ namespace App\Model;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 /**
  * Class Stop
@@ -20,7 +20,7 @@ class Stop implements Referable, Fillable
      * Stop name
      *
      * @var string
-     * @SWG\Property(example="Jasień PKM")
+     * @OA\Property(example="Jasień PKM")
      * @Serializer\Type("string")
      */
     private $name;
@@ -37,7 +37,7 @@ class Stop implements Referable, Fillable
      * Optional stop variant - for example number of shed.
      *
      * @var string|null
-     * @SWG\Property(example="01")
+     * @OA\Property(example="01")
      * @Serializer\Type("string")
      */
     private $variant;
@@ -55,7 +55,7 @@ class Stop implements Referable, Fillable
      *
      * @var bool
      * @Serializer\Type("bool")
-     * @SWG\Property(example=false)
+     * @OA\Property(example=false)
      */
     private $onDemand = false;
 
@@ -63,7 +63,7 @@ class Stop implements Referable, Fillable
      * Name of group that this stop is part of.
      *
      * @Serializer\Type("string")
-     * @SWG\Property(example="Jasień PKM")
+     * @OA\Property(example="Jasień PKM")
      * @var string|null
      */
     private $group;
@@ -73,7 +73,7 @@ class Stop implements Referable, Fillable
      *
      * @Serializer\Groups({"WithDestinations"})
      * @Serializer\Type("Collection")
-     * @SWG\Property(type="array", @SWG\Items(ref=@Model(type=Destination::class, groups={"Default"})))
+     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Destination::class, groups={"Default"})))
      *
      * @var Collection<Destination>
      */

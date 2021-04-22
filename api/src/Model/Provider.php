@@ -4,7 +4,7 @@ namespace App\Model;
 
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 class Provider implements Fillable, Referable
 {
@@ -12,7 +12,7 @@ class Provider implements Fillable, Referable
 
     /**
      * Short identifier of provider, ex. "trojmiasto"
-     * @SWG\Property(example="trojmiasto")
+     * @OA\Property(example="trojmiasto")
      * @Serializer\Type("string")
      * @var string
      */
@@ -20,7 +20,7 @@ class Provider implements Fillable, Referable
 
     /**
      * Full name of the provider, ex. "MZKZG Trójmiasto"
-     * @SWG\Property(example="MZKZG Trójmiasto")
+     * @OA\Property(example="MZKZG Trójmiasto")
      * @Serializer\Type("string")
      * @var string
      */
@@ -28,7 +28,7 @@ class Provider implements Fillable, Referable
 
     /**
      * Short name of the provider for easier identification, ex. "Trójmiasto" or "Warszawa"
-     * @SWG\Property(example="Trójmiasto")
+     * @OA\Property(example="Trójmiasto")
      * @Serializer\Type("string")
      * @var string
      */
@@ -36,7 +36,7 @@ class Provider implements Fillable, Referable
 
     /**
      * Attribution to be presented for this provider, can contain HTML tags.
-     * @SWG\Property(example="Copyright by XYZ inc.")
+     * @OA\Property(example="Copyright by XYZ inc.")
      * @Serializer\Type("string")
      * @var string|null
      */

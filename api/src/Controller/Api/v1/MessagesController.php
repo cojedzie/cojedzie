@@ -4,21 +4,26 @@ namespace App\Controller\Api\v1;
 
 
 use App\Controller\Controller;
+use App\Model\Message;
 use App\Provider\MessageRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\Message;
 
 /**
  * @Route("/messages")
- * @SWG\Tag(name="Messages")
- * @SWG\Parameter(ref="#/parameters/provider")
+ * @OA\Tag(name="Messages")
+ * @OA\Parameter(ref="#/components/parameters/provider")
  */
 class MessagesController extends Controller
 {
     /**
-     * @SWG\Response(response=200, description="Returns all messages from carrier at given moment.", @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=Message::class))))
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns all messages from carrier at given moment.",
+     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Message::class)))
+     * )
+     *
      * @Route("/", methods={"GET"})
      */
     public function all(MessageRepository $messages)

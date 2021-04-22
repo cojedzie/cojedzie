@@ -14,7 +14,7 @@ use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use Illuminate\Support\Collection;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,25 +24,23 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package App\Controller
  * @Route("/stops")
  *
- * @SWG\Tag(name="Stops")
- * @SWG\Parameter(ref="#/parameters/provider")
+ * @OA\Tag(name="Stops")
+ * @OA\Parameter(ref="#/components/parameters/provider")
  */
 class StopsController extends Controller
 {
     /**
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns all stops for specific provider, e.g. ZTM Gdańsk.",
-     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=Stop::class)))
+     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      * )
      *
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="id",
      *     in="query",
-     *     type="array",
-     *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will
-     *     return all data.",
-     *     @SWG\Items(type="string")
+     *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will return all data.",
+     *     @OA\Schema(type="array", @OA\Items(type="string"))
      * )
      *
      * @Route("/", methods={"GET"})
@@ -55,17 +53,17 @@ class StopsController extends Controller
     }
 
     /**
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns grouped stops for specific provider, e.g. ZTM Gdańsk.",
-     *     @SWG\Schema(type="array", @SWG\Items(ref=@Model(type=StopGroup::class)))
+     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=StopGroup::class)))
      * )
      *
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="name",
      *     in="query",
-     *     type="string",
      *     description="Part of the stop name to search for.",
+     *     @OA\Schema(type="string")
      * )
      *
      * @Route("/groups", methods={"GET"})
@@ -78,17 +76,17 @@ class StopsController extends Controller
     }
 
     /**
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
-     *     @SWG\Schema(ref=@Model(type=Stop::class))
+     *     @OA\Schema(ref=@Model(type=Stop::class))
      * )
      *
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="id",
      *     in="path",
-     *     type="string",
-     *     description="Stop identificator as provided by data provider."
+     *     description="Stop identificator as provided by data provider.",
+     *     @OA\Schema(type="string")
      * )
      *
      * @Route("/{id}", methods={"GET"})
@@ -101,10 +99,10 @@ class StopsController extends Controller
     /**
      * @Route("/{id}/tracks", methods={"GET"})
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
-     *     @SWG\Schema(ref=@Model(type=TrackStop::class))
+     *     @OA\Schema(ref=@Model(type=TrackStop::class))
      * )
      */
     public function tracks(TrackRepository $tracks, $id)
@@ -114,16 +112,20 @@ class StopsController extends Controller
 
     public static function group(Collection $stops)
     {
-        return $stops->groupBy(function (Stop $stop) {
-            return $stop->getGroup();
-        })->map(function ($stops, $key) {
-            $group = new StopGroup();
+        return $stops->groupBy(
+            function (Stop $stop) {
+                return $stop->getGroup();
+            }
+        )->map(
+            function ($stops, $key) {
+                $group = new StopGroup();
 
-            $group->setName($key);
-            $group->setStops($stops);
+                $group->setName($key);
+                $group->setStops($stops);
 
-            return $group;
-        })->values();
+                return $group;
+            }
+        )->values();
     }
 
     private function getModifiersFromRequest(Request $request)

@@ -5,7 +5,7 @@ namespace App\Model;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 
 /**
  * Class StopGroup
@@ -16,7 +16,7 @@ class StopGroup
 {
     /**
      * Name of stop group.
-     * @SWG\Property(example="Jasień PKM")
+     * @OA\Property(example="Jasień PKM")
      * @Serializer\Type("string")
      * @var string
      */
@@ -25,9 +25,9 @@ class StopGroup
     /**
      * All stops in group.
      * @var Collection|Stop[]
-     * @SWG\Property(
+     * @OA\Property(
      *     type="array",
-     *     @SWG\Items(ref=@Model(type=Stop::class, groups={"Default", "WithDestinations"}))
+     *     @OA\Items(ref=@Model(type=Stop::class, groups={"Default", "WithDestinations"}))
      * )
      */
     private $stops;
