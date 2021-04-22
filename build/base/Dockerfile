@@ -21,6 +21,8 @@ RUN apk add git && \
 COPY . .
 
 ENV APP_ENV=prod
+ENV DATABASE_URL="sqlite:////var/db/app.db"
+ENV PATH=$PATH:/var/www/bin
 
 RUN composer run-script post-install-cmd
 
