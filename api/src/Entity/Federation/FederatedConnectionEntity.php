@@ -2,39 +2,60 @@
 
 namespace App\Entity\Federation;
 
-use App\Entity\ReferableEntityTrait;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @ORM\Entity
+ * @ORM\Table("federated_connection")
  */
 class FederatedConnectionEntity implements Referable, Fillable
 {
-    use ReferableEntityTrait, FillTrait;
+    use FillTrait;
+
+    /**
+     * Connection is new and awaiting it's first check.
+     */
+    public const STATE_NEW = "new";
 
     /**
      * Connection is open and ready to accept connections.
      */
-    const STATE_READY = "ready";
+    public const STATE_READY = "ready";
+
+    /**
+     * Connection is open but is not accepting connections. It can happen when for example node is synchronising data.
+     */
+    public const STATE_PAUSE = "pause";
 
     /**
      * Connection has some problems and should be checked later.
      */
-    const STATE_BACKOFF = "backoff";
+    public const STATE_BACKOFF = "backoff";
 
     /**
      * Connection failed too many times and was closed.
      */
-    const STATE_ERROR = "error";
+    public const STATE_ERROR = "error";
 
     /**
      * Connection was closed by the server.
      */
-    const STATE_CLOSED = "closed";
+    public const STATE_CLOSED = "closed";
+
+    /**
+     * Unique identifier for this particular connection.
+     *
+     * @ORM\Column(type="uuid")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidV4Generator::class)
+     */
+    private Uuid $id;
 
     /**
      * Federated server associated with this connection. In principle server can have multiple connections, it's recommended though.
@@ -90,11 +111,101 @@ class FederatedConnectionEntity implements Referable, Fillable
      *
      * @ORM\Column(type="string")
      */
-    private string $state = self::STATE_READY;
+    private string $state = self::STATE_NEW;
 
-    public function __construct()
+    public function getId(): Uuid
     {
-        $this->id = Uuid::uuid4()->toString();
+        return $this->id;
+    }
+
+    public function getServer(): FederatedServerEntity
+    {
+        return $this->server;
+    }
+
+    public function setServer(FederatedServerEntity $server): void
+    {
+        $this->server = $server;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
+    public function getOpenTime(): \DateTimeInterface
+    {
+        return $this->openTime;
+    }
+
+    public function setOpenTime(\DateTimeInterface $openTime): void
+    {
+        $this->openTime = $openTime;
+    }
+
+    public function getCloseTime(): ?\DateTimeInterface
+    {
+        return $this->closeTime;
+    }
+
+    public function setCloseTime(?\DateTimeInterface $closeTime): void
+    {
+        $this->closeTime = $closeTime;
+    }
+
+    public function getLastCheck(): \DateTimeInterface
+    {
+        return $this->lastCheck;
+    }
+
+    public function setLastCheck(\DateTimeInterface $lastCheck): void
+    {
+        $this->lastCheck = $lastCheck;
+    }
+
+    public function getNextCheck(): \DateTimeInterface
+    {
+        return $this->nextCheck;
+    }
+
+    public function setNextCheck(\DateTimeInterface $nextCheck): void
+    {
+        $this->nextCheck = $nextCheck;
+    }
+
+    public function getFailures(): int
+    {
+        return $this->failures;
+    }
+
+    public function setFailures(int $failures): void
+    {
+        $this->failures = $failures;
+    }
+
+    public function getFailuresTotal(): int
+    {
+        return $this->failuresTotal;
+    }
+
+    public function setFailuresTotal(int $failuresTotal): void
+    {
+        $this->failuresTotal = $failuresTotal;
+    }
+
+    public function getState(): string
+    {
+        return $this->state;
+    }
+
+    public function setState(string $state): void
+    {
+        $this->state = $state;
     }
 
     public function isReady(): bool

@@ -2,21 +2,32 @@
 
 namespace App\Entity\Federation;
 
-use App\Entity\ReferableEntityTrait;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @ORM\Entity
+ * @ORM\Table("federated_server")
  */
 class FederatedServerEntity implements Referable, Fillable
 {
-    use FillTrait, ReferableEntityTrait;
+    use FillTrait;
+
+    /**
+     * Unique identifier for this particular connection.
+     *
+     * @ORM\Column(type="uuid")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidV4Generator::class)
+     */
+    private Uuid $id;
 
     /**
      * Contact email to person responsible for this federated server.
@@ -31,9 +42,10 @@ class FederatedServerEntity implements Referable, Fillable
     private ?string $maintainer;
 
     /**
-     * Base URL associated with this federated server, could be a regex pattern.
+     * Allowed URL associated with this federated server, could be a regex pattern.
+     * @ORM\Column(type="string")
      */
-    private string $baseUrl;
+    private string $allowedUrl;
 
     /**
      * All servers that are connected at the moment.
@@ -44,8 +56,12 @@ class FederatedServerEntity implements Referable, Fillable
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4()->toString();
         $this->connections = new ArrayCollection();
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
     }
 
     public function getEmail(): string
@@ -68,14 +84,14 @@ class FederatedServerEntity implements Referable, Fillable
         $this->maintainer = $maintainer;
     }
 
-    public function getBaseUrl(): string
+    public function getAllowedUrl(): string
     {
-        return $this->baseUrl;
+        return $this->allowedUrl;
     }
 
-    public function setBaseUrl(string $baseUrl): void
+    public function setAllowedUrl(string $allowedUrl): void
     {
-        $this->baseUrl = $baseUrl;
+        $this->allowedUrl = $allowedUrl;
     }
 
     public function getConnections(): Collection

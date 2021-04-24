@@ -16,7 +16,6 @@
         "nelmio/api-doc-bundle": "^4.2",
         "nesbot/carbon": "^2.46.0",
         "ocramius/proxy-manager": "^2.0",
-        "ramsey/uuid": "^4.1",
         "sensio/framework-extra-bundle": "^5.2",
         "spiral/roadrunner": "^1.8",
         "symfony/amqp-messenger": "5.2.*",
@@ -32,6 +31,7 @@
         "symfony/profiler-pack": "^1.0",
         "symfony/redis-messenger": "5.2.*",
         "symfony/twig-bundle": "^5.2",
+        "symfony/uid": "5.2.*",
         "symfony/yaml": "^5.2"
     },
     "config": {
