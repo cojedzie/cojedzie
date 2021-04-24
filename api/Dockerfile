@@ -26,3 +26,5 @@ RUN ln -snf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime && \
 WORKDIR /var/www
 
 EXPOSE 9001
+
+ENTRYPOINT ["./bin/docker-entrypoint.sh"]

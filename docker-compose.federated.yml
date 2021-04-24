@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  federated:
+    build:
+      context: ./api
+      dockerfile: rr.Dockerfile
+    env_file:
+      - .docker-compose/api/.env
+      - api/.env.local
+    environment:
+      - TRUSTED_PROXIES=172.0.0.0/8
+      - FEDERATION_SERVER_ID=a7cd192a-3dca-4fc8-b35d-91f2d6e10632
+      - FEDERATION_URL=http://cojedzie.localhost:8888/
+    ports:
+      - 8888:8080
+    volumes:
+      - ./api:/var/www:cached
+      - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+    command: ["./bin/docker-init.sh", "rr", "serve", "-c", ".rr.yaml"]

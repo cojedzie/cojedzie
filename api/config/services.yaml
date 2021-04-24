@@ -6,6 +6,10 @@
 parameters:
     locale: 'pl'
 
+    env(FEDERATION_HUB): 'https://cojedzie.pl'
+    env(FEDERATION_CONNECTION_ID): null
+    env(FEDERATION_SERVER_ID): null
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -88,3 +92,9 @@ services:
     App\Service\HandlerProvider:
         arguments: [!tagged_locator app.handler]
         shared: false
+
+    # Context Providers
+    App\Context\FederationContext:
+        arguments:
+            $serverId: '%env(FEDERATION_SERVER_ID)%'
+            $connectionId: '%env(FEDERATION_CONNECTION_ID)%'
