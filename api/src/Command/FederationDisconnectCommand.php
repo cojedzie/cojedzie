@@ -3,36 +3,34 @@
 namespace App\Command;
 
 use App\Context\FederationContext;
+use App\Service\FederatedConnectionService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class FederationDisconnectCommand extends Command
 {
-    const ENDPOINT_DISCONNECT = '/api/v1/federation/connections/{id}';
-
     protected static $defaultName = 'federation:disconnect';
     protected static $defaultDescription = 'Disconnect this node into the federation network.';
 
     private FederationContext $federationContext;
-    private HttpClientInterface $http;
+    private FederatedConnectionService $federatedConnectionService;
 
-    public function __construct(FederationContext $federationContext, HttpClientInterface $http)
+    public function __construct(FederationContext $federationContext, FederatedConnectionService $federatedConnectionService)
     {
         parent::__construct(self::$defaultName);
 
         $this->federationContext = $federationContext;
-        $this->http = $http;
+        $this->federatedConnectionService = $federatedConnectionService;
     }
 
     protected function configure()
     {
         $this
-            ->setDescription(self::$defaultDescription);
+            ->setDescription(self::$defaultDescription)
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,29 +44,7 @@ class FederationDisconnectCommand extends Command
         }
 
         try {
-            $url = str_replace(
-                '{id}',
-                $this->federationContext->getConnectionId()->toRfc4122(),
-                $this->federationContext->getHubBaseUrl().static::ENDPOINT_DISCONNECT
-            );
-
-            $io->write($url);
-
-            $response = $this->http->request(
-                'DELETE',
-                str_replace(
-                    '{id}',
-                    $this->federationContext->getConnectionId()->toRfc4122(),
-                    $this->federationContext->getHubBaseUrl().static::ENDPOINT_DISCONNECT
-                )
-            );
-
-
-            if ($response->getStatusCode() !== Response::HTTP_OK) {
-                $io->error($response->getContent());
-
-                return Command::FAILURE;
-            }
+            $this->federatedConnectionService->disconnect();
 
             $io->success(
                 sprintf(

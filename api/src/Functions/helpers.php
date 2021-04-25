@@ -19,3 +19,8 @@ function setup($value, $callback)
     $callback($value);
     return $value;
 }
+
+function class_name($object): string
+{
+    return (new \ReflectionObject($object))->getName();
+}
