@@ -3,6 +3,9 @@ version: '3.4'
 services:
   nginx:
     image: nginx:latest
+    depends_on:
+      - api
+      - frontend
     ports:
       - "8080:80"
     volumes:
@@ -17,7 +20,7 @@ services:
     env_file:
       - .docker-compose/api/.env
     volumes:
-      - ./api:/var/www:cached
+      - ./api:/var/www
       - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
   frontend:

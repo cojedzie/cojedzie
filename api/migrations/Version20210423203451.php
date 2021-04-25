@@ -23,7 +23,7 @@ final class Version20210423203451 extends AbstractMigration
 
         $this->addSql('CREATE TABLE federated_connection (id BLOB NOT NULL --(DC2Type:uuid)
         , server_id BLOB DEFAULT NULL --(DC2Type:uuid)
-        , url VARCHAR(255) NOT NULL, open_time DATETIME NOT NULL, close_time DATETIME DEFAULT NULL, last_check DATETIME NOT NULL, next_check DATETIME NOT NULL, failures INTEGER NOT NULL, failures_total INTEGER NOT NULL, state VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        , url VARCHAR(255) NOT NULL, open_time DATETIME NOT NULL, close_time DATETIME DEFAULT NULL, last_check DATETIME NOT NULL, next_check DATETIME NULL, failures INTEGER NOT NULL, failures_total INTEGER NOT NULL, state VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_D3AF7DF01844E6B7 ON federated_connection (server_id)');
         $this->addSql('CREATE TABLE federated_server (id BLOB NOT NULL --(DC2Type:uuid)
         , email VARCHAR(255) NOT NULL, maintainer VARCHAR(255) DEFAULT NULL, allowed_url VARCHAR(255) NOT NULL, PRIMARY KEY(id))');

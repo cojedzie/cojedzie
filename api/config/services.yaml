@@ -9,6 +9,7 @@ parameters:
     env(FEDERATION_HUB): 'https://cojedzie.pl'
     env(FEDERATION_CONNECTION_ID): null
     env(FEDERATION_SERVER_ID): null
+    env(FEDERATION_URL): null
 
 services:
     # default configuration for services in *this* file
@@ -98,3 +99,5 @@ services:
         arguments:
             $serverId: '%env(FEDERATION_SERVER_ID)%'
             $connectionId: '%env(FEDERATION_CONNECTION_ID)%'
+            $hubBaseUrl: '%env(FEDERATION_HUB)%'
+            $advertisedUrl: '%env(FEDERATION_URL)%'

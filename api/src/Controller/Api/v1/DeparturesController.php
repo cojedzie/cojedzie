@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class DeparturesController
  *
- * @Route("/departures")
+ * @Route("/{provider}/departures")
  * @OA\Tag(name="Departures")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */
@@ -40,6 +40,7 @@ class DeparturesController extends Controller
 
     /**
      * @Route("/", methods={"GET"})
+     *
      * @OA\Response(
      *     description="Gets departures from given stops.",
      *     response=200,

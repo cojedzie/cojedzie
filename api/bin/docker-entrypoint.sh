@@ -1,7 +1,6 @@
 #!/bin/sh
 
 cleanup() {
-    echo "Leaving the federation"
     ./bin/console federation:disconnect
     exit $?
 }

@@ -30,7 +30,7 @@ class FederatedConnectionEntity implements Referable, Fillable
     /**
      * Connection is open but is not accepting connections. It can happen when for example node is synchronising data.
      */
-    public const STATE_PAUSE = "pause";
+    public const STATE_SUSPENDED = "suspended";
 
     /**
      * Connection has some problems and should be checked later.
@@ -79,13 +79,13 @@ class FederatedConnectionEntity implements Referable, Fillable
      * Time when connection was closed.
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $closeTime;
+    private ?\DateTimeInterface $closeTime = null;
 
     /**
      * Time of the last connection check.
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    private \DateTimeInterface $lastCheck;
+    private ?\DateTimeInterface $lastCheck = null;
 
     /**
      * Time of the earliest next connection check.
@@ -158,12 +158,12 @@ class FederatedConnectionEntity implements Referable, Fillable
         $this->closeTime = $closeTime;
     }
 
-    public function getLastCheck(): \DateTimeInterface
+    public function getLastCheck(): ?\DateTimeInterface
     {
         return $this->lastCheck;
     }
 
-    public function setLastCheck(\DateTimeInterface $lastCheck): void
+    public function setLastCheck(?\DateTimeInterface $lastCheck): void
     {
         $this->lastCheck = $lastCheck;
     }

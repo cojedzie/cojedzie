@@ -11,7 +11,7 @@ use OpenApi\Annotations as OA;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/messages")
+ * @Route("/{provider}/messages")
  * @OA\Tag(name="Messages")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */

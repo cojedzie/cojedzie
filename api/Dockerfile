@@ -27,4 +27,4 @@ WORKDIR /var/www
 
 EXPOSE 9001
 
-ENTRYPOINT ["./bin/docker-entrypoint.sh"]
+#ENTRYPOINT ["./bin/docker-entrypoint.sh"]

@@ -7,20 +7,26 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class FederationConnectCommand extends Command
 {
+    const ENDPOINT_CONNECT = '/api/v1/federation/connections';
+
     protected static $defaultName = 'federation:connect';
     protected static $defaultDescription = 'Connect this node into the federation network.';
 
     private FederationContext $federationContext;
+    private HttpClientInterface $http;
 
-    public function __construct(FederationContext $federationContext)
+    public function __construct(FederationContext $federationContext, HttpClientInterface $http)
     {
         parent::__construct(self::$defaultName);
 
         $this->federationContext = $federationContext;
+        $this->http = $http;
     }
 
     protected function configure()
@@ -46,9 +52,28 @@ class FederationConnectCommand extends Command
             return Command::FAILURE;
         }
 
-        // todo: make api call to create connection
-        $output->writeln(Uuid::v4()->toRfc4122());
+        try {
+            $response = $this->http->request(
+                'POST',
+                $this->federationContext->getHubBaseUrl().static::ENDPOINT_CONNECT,
+                ['body' => [
+                    'server_id' => $this->federationContext->getServerId()->toRfc4122(),
+                    'url'       => $this->federationContext->getAdvertisedUrl(),
+                ]]
+            );
 
-        return Command::SUCCESS;
+            if ($response->getStatusCode() !== Response::HTTP_CREATED) {
+                $io->error($response->getContent());
+                return Command::FAILURE;
+            }
+
+            $connection = $response->toArray();
+            $output->writeln($connection['connection_id']);
+
+            return Command::SUCCESS;
+        } catch (HttpExceptionInterface $exception) {
+            $io->error("Transport Error: ".$exception->getMessage());
+            return Command::FAILURE;
+        }
     }
 }

@@ -1,16 +1,4 @@
 api_v1:
   resource: ../src/Controller/Api/v1
   type: annotation
-  prefix: /api/v1/{provider}
-
-api_v1_providers:
-  path: /api/v1/providers
-  methods: ["GET"]
-  defaults:
-    _controller: '\App\Controller\Api\v1\ProviderController::index'
-
-api_v1_providers_one:
-  path: /api/v1/providers/{id}
-  methods: ["GET"]
-  defaults:
-    _controller: '\App\Controller\Api\v1\ProviderController::one'
+  prefix: /api/v1

@@ -24,5 +24,9 @@ class JSONFormatSubscriber implements EventSubscriberInterface
         if (!$request->attributes->has('_format')) {
             $request->attributes->set('_format', 'json');
         }
+
+        if ($request->getContentType() === 'json') {
+            $request->request->replace(json_decode($request->getContent(), true));
+        }
     }
 }

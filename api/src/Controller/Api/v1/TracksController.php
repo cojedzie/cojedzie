@@ -16,7 +16,7 @@ use function App\Functions\encapsulate;
 use function Kadet\Functional\ref;
 
 /**
- * @Route("/tracks")
+ * @Route("/{provider}/tracks")
  * @OA\Tag(name="Tracks")
  */
 class TracksController extends Controller

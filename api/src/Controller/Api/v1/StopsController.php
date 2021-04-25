@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class StopsController
  *
  * @package App\Controller
- * @Route("/stops")
+ * @Route("/{provider}/stops")
  *
  * @OA\Tag(name="Stops")
  * @OA\Parameter(ref="#/components/parameters/provider")
