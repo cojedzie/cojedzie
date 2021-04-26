@@ -5,12 +5,14 @@ namespace App\Entity\Federation;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
+use App\Repository\FederatedConnectionEntityRepository;
+use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=FederatedConnectionEntityRepository::class)
  * @ORM\Table("federated_connection")
  */
 class FederatedConnectionEntity implements Referable, Fillable
@@ -47,6 +49,9 @@ class FederatedConnectionEntity implements Referable, Fillable
      */
     public const STATE_CLOSED = "closed";
 
+    public const OPEN_STATES   = [ self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF ];
+    public const CLOSED_STATES = [ self::STATE_ERROR, self::STATE_CLOSED ];
+
     /**
      * Unique identifier for this particular connection.
      *
@@ -73,25 +78,25 @@ class FederatedConnectionEntity implements Referable, Fillable
      * Time when connection was opened by the federated server.
      * @ORM\Column(type="datetime")
      */
-    private \DateTimeInterface $openTime;
+    private Carbon $openTime;
 
     /**
      * Time when connection was closed.
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $closeTime = null;
+    private ?Carbon $closeTime = null;
 
     /**
      * Time of the last connection check.
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $lastCheck = null;
+    private ?Carbon $lastCheck = null;
 
     /**
      * Time of the earliest next connection check.
      * @ORM\Column(type="datetime")
      */
-    private \DateTimeInterface $nextCheck;
+    private Carbon $nextCheck;
 
     /**
      * Number of failed checks, zeroed after successful check.
@@ -138,42 +143,42 @@ class FederatedConnectionEntity implements Referable, Fillable
         $this->url = $url;
     }
 
-    public function getOpenTime(): \DateTimeInterface
+    public function getOpenTime(): Carbon
     {
         return $this->openTime;
     }
 
-    public function setOpenTime(\DateTimeInterface $openTime): void
+    public function setOpenTime(Carbon $openTime): void
     {
         $this->openTime = $openTime;
     }
 
-    public function getCloseTime(): ?\DateTimeInterface
+    public function getCloseTime(): ?Carbon
     {
         return $this->closeTime;
     }
 
-    public function setCloseTime(?\DateTimeInterface $closeTime): void
+    public function setCloseTime(?Carbon $closeTime): void
     {
         $this->closeTime = $closeTime;
     }
 
-    public function getLastCheck(): ?\DateTimeInterface
+    public function getLastCheck(): ?Carbon
     {
         return $this->lastCheck;
     }
 
-    public function setLastCheck(?\DateTimeInterface $lastCheck): void
+    public function setLastCheck(?Carbon $lastCheck): void
     {
         $this->lastCheck = $lastCheck;
     }
 
-    public function getNextCheck(): \DateTimeInterface
+    public function getNextCheck(): Carbon
     {
         return $this->nextCheck;
     }
 
-    public function setNextCheck(\DateTimeInterface $nextCheck): void
+    public function setNextCheck(Carbon $nextCheck): void
     {
         $this->nextCheck = $nextCheck;
     }
@@ -213,13 +218,29 @@ class FederatedConnectionEntity implements Referable, Fillable
         return in_array($this->state, [ self::STATE_READY ]);
     }
 
+    public function isSuspended(): bool
+    {
+        return in_array($this->state, [ self::STATE_SUSPENDED ]);
+    }
+
     public function isOpen(): bool
     {
-        return in_array($this->state, [ self::STATE_READY, self::STATE_BACKOFF ]);
+        return in_array($this->state, self::OPEN_STATES);
     }
 
     public function isClosed(): bool
     {
         return !$this->isOpen();
+    }
+
+    public function increaseFailureCount()
+    {
+        $this->failures++;
+        $this->failuresTotal++;
+    }
+
+    public function resetFailureCount()
+    {
+        $this->failures = 0;
     }
 }
