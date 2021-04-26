@@ -31,4 +31,18 @@ class FederatedConnectionEntityRepository extends ServiceEntityRepository
             ])
         ;
     }
+
+    public function deleteClosedConnections()
+    {
+        return $this
+            ->getEntityManager()
+            ->createQueryBuilder()
+            ->delete(FederatedConnectionEntity::class,'fce')
+            ->where('fce.state in (:closed_states)')
+            ->getQuery()
+            ->execute([
+                'closed_states' => FederatedConnectionEntity::CLOSED_STATES,
+            ])
+        ;
+    }
 }
