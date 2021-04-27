@@ -96,6 +96,9 @@
     "doctrine/sql-formatter": {
         "version": "1.1.1"
     },
+    "dragonmantank/cron-expression": {
+        "version": "v2.3.1"
+    },
     "hoa/compiler": {
         "version": "3.17.08.08"
     },
@@ -549,6 +552,9 @@
     },
     "zendframework/zend-eventmanager": {
         "version": "3.2.1"
+    },
+    "zenstruck/schedule-bundle": {
+        "version": "v1.1.2"
     },
     "zircote/swagger-php": {
         "version": "2.0.14"

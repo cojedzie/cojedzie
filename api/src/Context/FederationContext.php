@@ -88,4 +88,9 @@ class FederationContext implements LoggerAwareInterface
     {
         return $this->advertisedUrl;
     }
+
+    public function isHub(): bool
+    {
+        return !$this->isFederated();
+    }
 }

@@ -8,6 +8,8 @@ RUN apk add supervisor gettext && \
     { \
         echo '[supervisord]'; \
         echo 'nodaemon=true'; \
+        echo 'logfile=/var/log/supervisord.log'; \
+        echo 'pidfile=/var/run/supervisord.sock'; \
         echo ; \
         echo '[program:roadrunner]'; \
         echo 'command=rr serve -v'; \

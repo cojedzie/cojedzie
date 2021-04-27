@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ec413d13a793969ca60ae8a820a34c17",
+    "content-hash": "339f4a9874d1eb9db37e33bac6e8c05f",
     "packages": [
         {
             "name": "baldinof/roadrunner-bundle",
@@ -1635,6 +1635,70 @@
                 "source": "https://github.com/doctrine/sql-formatter/tree/1.1.x"
             },
             "time": "2020-07-30T16:57:33+00:00"
+        },
+        {
+            "name": "dragonmantank/cron-expression",
+            "version": "v2.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dragonmantank/cron-expression.git",
+                "reference": "65b2d8ee1f10915efb3b55597da3404f096acba2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/65b2d8ee1f10915efb3b55597da3404f096acba2",
+                "reference": "65b2d8ee1f10915efb3b55597da3404f096acba2",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0|^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.4|^7.0|^8.0|^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cron\\": "src/Cron/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Dowling",
+                    "email": "mtdowling@gmail.com",
+                    "homepage": "https://github.com/mtdowling"
+                },
+                {
+                    "name": "Chris Tankersley",
+                    "email": "chris@ctankersley.com",
+                    "homepage": "https://github.com/dragonmantank"
+                }
+            ],
+            "description": "CRON for PHP: Calculate the next or previous run date and determine if a CRON expression is due",
+            "keywords": [
+                "cron",
+                "schedule"
+            ],
+            "support": {
+                "issues": "https://github.com/dragonmantank/cron-expression/issues",
+                "source": "https://github.com/dragonmantank/cron-expression/tree/v2.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/dragonmantank",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-10-13T00:52:37+00:00"
         },
         {
             "name": "illuminate/collections",
@@ -8413,6 +8477,83 @@
             },
             "abandoned": "laminas/laminas-eventmanager",
             "time": "2018-04-25T15:33:34+00:00"
+        },
+        {
+            "name": "zenstruck/schedule-bundle",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zenstruck/schedule-bundle.git",
+                "reference": "07fbffde7c48d7ebdabe9657b436af94bc769dcc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zenstruck/schedule-bundle/zipball/07fbffde7c48d7ebdabe9657b436af94bc769dcc",
+                "reference": "07fbffde7c48d7ebdabe9657b436af94bc769dcc",
+                "shasum": ""
+            },
+            "require": {
+                "dragonmantank/cron-expression": "^2.3",
+                "php": ">=7.2",
+                "symfony/console": "^4.0|^5.0",
+                "symfony/dependency-injection": "^4.0|^5.0",
+                "symfony/event-dispatcher": "^4.0|^5.0",
+                "symfony/http-kernel": "^4.0|^5.0",
+                "symfony/polyfill-php80": "^1.15"
+            },
+            "conflict": {
+                "symfony/symfony": "<4.0"
+            },
+            "require-dev": {
+                "lorisleiva/cron-translator": "^0.1.0",
+                "matthiasnoback/symfony-dependency-injection-test": "^4.1",
+                "psr/log": "^1.1",
+                "symfony/http-client": "^4.3|^5.0",
+                "symfony/lock": "^4.4|^5.0",
+                "symfony/mailer": "^4.4|^5.0",
+                "symfony/messenger": "^4.4|^5.0",
+                "symfony/phpunit-bridge": "^5.2",
+                "symfony/process": "^4.2|^5.0"
+            },
+            "suggest": {
+                "lorisleiva/cron-translator": "Displays human readable cron expression in schedule:list",
+                "symfony/http-client": "Allows usage of ping* extensions",
+                "symfony/lock": "Allows usage of withoutOverlapping and onSingleServer extensions (4.4+)",
+                "symfony/mailer": "Allows usage of email* extensions (4.4+)",
+                "symfony/process": "Allows usage of ProcessTask (4.2+)"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Zenstruck\\ScheduleBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kevin Bond",
+                    "email": "kevinbond@gmail.com"
+                }
+            ],
+            "description": "Schedule Cron jobs (commands/callbacks/bash scripts) within your Symfony application.",
+            "homepage": "https://github.com/zenstruck/schedule-bundle",
+            "keywords": [
+                "cron",
+                "schedule"
+            ],
+            "support": {
+                "issues": "https://github.com/zenstruck/schedule-bundle/issues",
+                "source": "https://github.com/zenstruck/schedule-bundle/tree/v1.1.2"
+            },
+            "time": "2021-04-14T13:11:33+00:00"
         },
         {
             "name": "zircote/swagger-php",

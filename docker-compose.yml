@@ -23,6 +23,25 @@ services:
       - ./api:/var/www
       - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
+  worker:
+    image: cojedzie/worker:latest
+    env_file:
+      - .docker-compose/api/.env
+      - api/.env.local
+    volumes:
+      - ./api:/var/www
+      - ./build/worker/supervisord-init.sh:/var/www/bin/supervisord-init.sh
+      - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+
+  cron:
+    image: cojedzie/cron:latest
+    env_file:
+      - .docker-compose/api/.env
+      - api/.env.local
+    volumes:
+      - ./api:/var/www
+      - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+
   frontend:
     image: node:15.2.1
     working_dir: /app

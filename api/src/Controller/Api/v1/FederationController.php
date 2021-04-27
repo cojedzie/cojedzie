@@ -52,7 +52,7 @@ class FederationController extends Controller
 
         /** @var FederatedConnectionEntity $connection */
         $connection = $form->getData();
-        $connection->setOpenTime(Carbon::now());
+        $connection->setOpenedAt(Carbon::now());
         // Give this connection some time to get initialized
         $connection->setNextCheck(Carbon::now()->addSeconds(10));
 
@@ -80,7 +80,7 @@ class FederationController extends Controller
     public function disconnect(Request $request, FederatedConnectionEntity $connection, EntityManagerInterface $manager)
     {
         $connection->setState(FederatedConnectionEntity::STATE_CLOSED);
-        $connection->setCloseTime(Carbon::now());
+        $connection->setClosedAt(Carbon::now());
 
         $manager->persist($connection);
         $manager->flush();

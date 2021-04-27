@@ -7,6 +7,8 @@ RUN apk add supervisor gettext && \
     { \
         echo '[supervisord]'; \
         echo 'nodaemon=true'; \
+        echo 'logfile=/var/log/supervisord.log'; \
+        echo 'pidfile=/var/run/supervisord.sock'; \
         echo ; \
         echo '[program:messenger-consumer]'; \
         echo 'command=php /var/www/bin/console messenger:consume $COJEDZIE_WORKER_OPTS $COJEDZIE_WORKER_QUEUES'; \
@@ -19,7 +21,7 @@ RUN apk add supervisor gettext && \
         echo 'stderr_logfile_maxbytes=0'; \
     } | tee /etc/supervisord.conf.tpl;
 
-COPY ./supervisord-init.sh ./bin/
+COPY ./supervisord-init.sh ./bin/supervisord-init.sh
 
 ENV COJEDZIE_WORKER_QUEUES=main
 ENV COJEDZIE_WORKER_OPTS="-vv --time-limit=86400 --limit=10 --memory-limit=128M"

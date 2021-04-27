@@ -130,7 +130,7 @@ if [ ${#TAGS[@]} -eq 0 ]; then
 fi
 
 if [ $# -eq 0 ]; then
-  set -- api standalone worker front
+  set -- api standalone worker front cron
 fi
 
 if [ $BUILD_BASE -eq 1 ]; then
@@ -151,6 +151,9 @@ do
       ;;
     worker)
       build worker $BUILD/worker/ || exit 1
+      ;;
+    cron)
+      build cron $BUILD/cron/ || exit 1
       ;;
     front)
       build front $ROOT/front/ || exit 1

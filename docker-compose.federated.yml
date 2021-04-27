@@ -12,7 +12,7 @@ services:
       - TRUSTED_PROXIES=172.0.0.0/8
       - FEDERATION_SERVER_ID=a7cd192a-3dca-4fc8-b35d-91f2d6e10632
       - FEDERATION_SERVER_SECRET=notarealsecretatall
-      - FEDERATION_URL=http://cojedzie.localhost:8888
+      - FEDERATION_URL=http://federated:8080
       - FEDERATION_HUB=http://nginx
     ports:
       - 8888:8080

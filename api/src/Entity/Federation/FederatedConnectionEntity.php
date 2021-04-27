@@ -78,13 +78,13 @@ class FederatedConnectionEntity implements Referable, Fillable
      * Time when connection was opened by the federated server.
      * @ORM\Column(type="datetime")
      */
-    private Carbon $openTime;
+    private Carbon $openedAt;
 
     /**
      * Time when connection was closed.
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private ?Carbon $closeTime = null;
+    private ?Carbon $closedAt = null;
 
     /**
      * Time of the last connection check.
@@ -143,24 +143,24 @@ class FederatedConnectionEntity implements Referable, Fillable
         $this->url = $url;
     }
 
-    public function getOpenTime(): Carbon
+    public function getOpenedAt(): Carbon
     {
-        return $this->openTime;
+        return $this->openedAt;
     }
 
-    public function setOpenTime(Carbon $openTime): void
+    public function setOpenedAt(Carbon $openedAt): void
     {
-        $this->openTime = $openTime;
+        $this->openedAt = $openedAt;
     }
 
-    public function getCloseTime(): ?Carbon
+    public function getClosedAt(): ?Carbon
     {
-        return $this->closeTime;
+        return $this->closedAt;
     }
 
-    public function setCloseTime(?Carbon $closeTime): void
+    public function setClosedAt(?Carbon $closedAt): void
     {
-        $this->closeTime = $closeTime;
+        $this->closedAt = $closedAt;
     }
 
     public function getLastCheck(): ?Carbon

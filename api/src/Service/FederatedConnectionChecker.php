@@ -101,7 +101,7 @@ class FederatedConnectionChecker
 
         if ($connection->getFailures() > self::FAILURE_THRESHOLD) {
             $connection->setState(FederatedConnectionEntity::STATE_ERROR);
-            $connection->setCloseTime(Carbon::now());
+            $connection->setClosedAt(Carbon::now());
         }
     }
 
