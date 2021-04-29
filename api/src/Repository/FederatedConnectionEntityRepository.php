@@ -32,6 +32,22 @@ class FederatedConnectionEntityRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return iterable<FederatedConnectionEntity>
+     */
+    public function findAllReadyConnections()
+    {
+        return $this
+            ->createQueryBuilder('fce')
+            ->select('fce')
+            ->where('fce.state = :ready')
+            ->getQuery()
+            ->execute([
+                'state' => FederatedConnectionEntity::STATE_READY,
+            ])
+            ;
+    }
+
     public function deleteClosedConnections()
     {
         return $this

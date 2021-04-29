@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\DataConverter;
 
 interface RecursiveConverter extends Converter
 {

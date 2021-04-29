@@ -2,13 +2,13 @@
 
 namespace App\Handler\Database;
 
+use App\DataConverter\CacheableConverter;
+use App\DataConverter\Converter;
 use App\Entity\TrackEntity;
 use App\Event\PostProcessEvent;
 use App\Handler\PostProcessingHandler;
 use App\Model\Destination;
 use App\Model\Stop;
-use App\Service\CacheableConverter;
-use App\Service\Converter;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\Collection;

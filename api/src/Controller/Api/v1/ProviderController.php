@@ -3,8 +3,8 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\DataConverter\Converter;
 use App\Exception\NonExistentServiceException;
-use App\Service\Converter;
 use App\Service\ProviderResolver;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

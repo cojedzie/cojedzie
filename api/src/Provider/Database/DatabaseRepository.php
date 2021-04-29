@@ -2,14 +2,15 @@
 
 namespace App\Provider\Database;
 
+use App\DataConverter\Converter;
 use App\Entity\ProviderEntity;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\PostProcessEvent;
 use App\Handler\Database\FieldFilterDatabaseHandler;
+use App\Handler\Database\GenericWithDatabaseHandler;
 use App\Handler\Database\IdFilterDatabaseHandler;
 use App\Handler\Database\LimitDatabaseHandler;
 use App\Handler\Database\RelatedFilterDatabaseGenericHandler;
-use App\Handler\Database\GenericWithDatabaseHandler;
 use App\Handler\ModifierHandler;
 use App\Handler\PostProcessingHandler;
 use App\Model\Referable;
@@ -20,7 +21,6 @@ use App\Modifier\Modifier;
 use App\Modifier\RelatedFilter;
 use App\Modifier\With;
 use App\Provider\Repository;
-use App\Service\Converter;
 use App\Service\HandlerProvider;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;

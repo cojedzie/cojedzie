@@ -2,7 +2,7 @@
 
 namespace App\Subscriber;
 
-use App\Service\Converter;
+use App\DataConverter\Converter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;

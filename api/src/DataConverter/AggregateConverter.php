@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Service;
+namespace App\DataConverter;
 
 use Illuminate\Support\Collection;
+use function collect;
 use function Kadet\Functional\Predicates\instance;
 
 class AggregateConverter implements Converter, CacheableConverter

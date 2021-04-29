@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Service;
+namespace App\DataConverter;
 
 use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
 use App\Model\{Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
+use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Proxy\Proxy;
 use Kadet\Functional\Transforms as t;
+use function collect;
 
 final class EntityConverter implements Converter, RecursiveConverter, CacheableConverter
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\DataConverter;
 
 use App\Entity\TrackStopEntity;
 use App\Entity\TripStopEntity;

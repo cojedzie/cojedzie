@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\DataConverter;
 
 use App\Model\Provider as ProviderDTO;
 use App\Provider\Provider;
