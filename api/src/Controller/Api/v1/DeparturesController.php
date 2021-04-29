@@ -17,14 +17,15 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class DeparturesController
  *
- * @Route("/{provider}/departures")
+ * @Route("/{provider}/departures", name="departures_")
+ *
  * @OA\Tag(name="Departures")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */
 class DeparturesController extends Controller
 {
     /**
-     * @Route("/{stop}", methods={"GET"})
+     * @Route("/{stop}", name="details", methods={"GET"}, options={"version": "1.0"})
      * @OA\Response(
      *     description="Gets departures from particular stop.",
      *     response=200,
@@ -39,7 +40,7 @@ class DeparturesController extends Controller
     }
 
     /**
-     * @Route("/", methods={"GET"})
+     * @Route("", name="list", methods={"GET"}, options={"version": "1.0"})
      *
      * @OA\Response(
      *     description="Gets departures from given stops.",

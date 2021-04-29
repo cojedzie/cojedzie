@@ -64,6 +64,8 @@ class FederatedConnectionChecker
             if (!$connection->isSuspended()) {
                 $connection->setState(FederatedConnectionEntity::STATE_READY);
             }
+
+            $connection->setLastStatus($response->getContent());
         } catch (HttpClientExceptionInterface|FederationException $exception) {
             $this->handleFailure($connection);
         } finally {

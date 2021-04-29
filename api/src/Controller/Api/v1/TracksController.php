@@ -16,17 +16,18 @@ use function App\Functions\encapsulate;
 use function Kadet\Functional\ref;
 
 /**
- * @Route("/{provider}/tracks")
+ * @Route("/{provider}/tracks", name="track_")
  * @OA\Tag(name="Tracks")
  */
 class TracksController extends Controller
 {
     /**
+     * @Route("", name="list", methods={"GET"}, options={"version"="1.0"})
+     *
      * @OA\Response(
      *     response=200,
      *     description="Returns all tracks for specific provider, e.g. ZTM Gdańsk.",
      * )
-     * @Route("/", methods={"GET"})
      */
     public function index(Request $request, TrackRepository $repository)
     {
@@ -36,8 +37,8 @@ class TracksController extends Controller
     }
 
     /**
-     * @Route("/stops", methods={"GET"})
-     * @Route("/{track}/stops", methods={"GET"})
+     * @Route("/stops", name="stops", methods={"GET"}, options={"version"="1.0"})
+     * @Route("/{track}/stops", name="stops_in_track", methods={"GET"}, options={"version"="1.0"})
      *
      * @OA\Tag(name="Tracks")
      *

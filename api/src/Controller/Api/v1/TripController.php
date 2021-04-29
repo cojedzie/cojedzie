@@ -11,12 +11,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/{provider}/trips")
+ * @Route("/{provider}/trips", name="trip_")
  */
 class TripController extends Controller
 {
     /**
-     * @Route("/{id}", methods={"GET"})
+     * @Route("/{id}", name="details", methods={"GET"}, options={"version": "1.0"})
      */
     public function one($id, TripRepository $repository)
     {

@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class StopsController
  *
  * @package App\Controller
- * @Route("/{provider}/stops")
+ * @Route("/{provider}/stops", name="stop_")
  *
  * @OA\Tag(name="Stops")
  * @OA\Parameter(ref="#/components/parameters/provider")
@@ -30,6 +30,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class StopsController extends Controller
 {
     /**
+     * @Route("", methods={"GET"}, name="list", options={"version": "1.0"})
+     *
      * @OA\Response(
      *     response=200,
      *     description="Returns all stops for specific provider, e.g. ZTM Gdańsk.",
@@ -42,8 +44,6 @@ class StopsController extends Controller
      *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will return all data.",
      *     @OA\Schema(type="array", @OA\Items(type="string"))
      * )
-     *
-     * @Route("/", methods={"GET"})
      */
     public function index(Request $request, StopRepository $stops)
     {
@@ -53,6 +53,8 @@ class StopsController extends Controller
     }
 
     /**
+     * @Route("/groups", name="groups", methods={"GET"}, options={"version"="1.0"})
+     *
      * @OA\Response(
      *     response=200,
      *     description="Returns grouped stops for specific provider, e.g. ZTM Gdańsk.",
@@ -65,8 +67,6 @@ class StopsController extends Controller
      *     description="Part of the stop name to search for.",
      *     @OA\Schema(type="string")
      * )
-     *
-     * @Route("/groups", methods={"GET"})
      */
     public function groups(Request $request, StopRepository $stops)
     {
@@ -76,6 +76,8 @@ class StopsController extends Controller
     }
 
     /**
+     * @Route("/{id}", name="details", methods={"GET"}, options={"version"="1.0"})
+     *
      * @OA\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
@@ -88,8 +90,6 @@ class StopsController extends Controller
      *     description="Stop identificator as provided by data provider.",
      *     @OA\Schema(type="string")
      * )
-     *
-     * @Route("/{id}", methods={"GET"})
      */
     public function one(Request $request, StopRepository $stops, $id)
     {
@@ -97,7 +97,7 @@ class StopsController extends Controller
     }
 
     /**
-     * @Route("/{id}/tracks", methods={"GET"})
+     * @Route("/{id}/tracks", name="tracks", methods={"GET"}, options={"version"="1.0"})
      *
      * @OA\Response(
      *     response=200,

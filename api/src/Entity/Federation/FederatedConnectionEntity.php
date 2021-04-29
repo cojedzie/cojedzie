@@ -118,6 +118,13 @@ class FederatedConnectionEntity implements Referable, Fillable
      */
     private string $state = self::STATE_NEW;
 
+    /**
+     * Last status received from the server.
+     *
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private ?string $lastStatus;
+
     public function getId(): Uuid
     {
         return $this->id;
@@ -242,5 +249,15 @@ class FederatedConnectionEntity implements Referable, Fillable
     public function resetFailureCount()
     {
         $this->failures = 0;
+    }
+
+    public function getLastStatus(): string
+    {
+        return $this->lastStatus;
+    }
+
+    public function setLastStatus(string $lastStatus): void
+    {
+        $this->lastStatus = $lastStatus;
     }
 }

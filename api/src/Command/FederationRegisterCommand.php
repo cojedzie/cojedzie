@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\String\ByteString;
 
 class FederationRegisterCommand extends Command
 {
@@ -39,16 +40,23 @@ class FederationRegisterCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        $secret = ByteString::fromRandom(24);
+
         $server = FederatedServerEntity::createFromArray([
             'email'      => $input->getArgument('email'),
             'allowedUrl' => $input->getArgument('allowed-url'),
             'maintainer' => $input->getOption('maintainer'),
+            'secret'     => password_hash($secret->toString(), PASSWORD_BCRYPT),
         ]);
 
         $this->manager->persist($server);
         $this->manager->flush();
 
-        $io->success('Server registered, Server ID: '.$server->getId()->toRfc4122());
+        $io->success(sprintf(
+            'Server registered, Server ID: %s, Server Secret: %s',
+            $server->getId()->toRfc4122(),
+            $secret->toString()
+        ));
 
         return Command::SUCCESS;
     }

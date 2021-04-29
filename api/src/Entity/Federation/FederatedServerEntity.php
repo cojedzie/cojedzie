@@ -54,6 +54,12 @@ class FederatedServerEntity implements Referable, Fillable
      */
     private Collection $connections;
 
+    /**
+     * Secret for that server required for authenticating some endpoints.
+     * @ORM\Column(type="string")
+     */
+    private string $secret;
+
     public function __construct()
     {
         $this->connections = new ArrayCollection();
@@ -97,5 +103,15 @@ class FederatedServerEntity implements Referable, Fillable
     public function getConnections(): Collection
     {
         return $this->connections;
+    }
+
+    public function getSecret(): string
+    {
+        return $this->secret;
+    }
+
+    public function setSecret(string $secret): void
+    {
+        $this->secret = $secret;
     }
 }
