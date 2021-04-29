@@ -25,7 +25,7 @@ class Aggregated implements Fillable
      * All endpoints defined for this node.
      *
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
-     * @Serializer\Type("Collection")
+     * @Serializer\Type("Collection<App\Model\Status\Endpoint>")
      *
      * @var Collection<Endpoint>
      */

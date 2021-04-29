@@ -24,7 +24,7 @@ services:
         App\Provider\Provider:
             tags: [ app.provider ]
 
-        App\Service\Converter:
+        App\DataConverter\Converter:
             tags: [ app.converter ]
 
     # makes classes in src/ available to be used as services
@@ -74,17 +74,16 @@ services:
     ProxyManager\Configuration: '@proxy.config'
 
     # converter
-    App\Service\AggregateConverter:
+    App\DataConverter\AggregateConverter:
         arguments:
             - !tagged_iterator app.converter
 
-    App\Service\Converter: '@App\Service\AggregateConverter'
+    App\DataConverter\Converter: '@App\DataConverter\AggregateConverter'
 
     # serializer configuration
     App\Service\SerializerContextFactory:
         arguments:
             $factory: '@jms_serializer.metadata_factory'
-
 
     # other servces
     App\Service\ProviderResolver:

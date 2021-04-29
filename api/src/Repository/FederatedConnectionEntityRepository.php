@@ -40,7 +40,7 @@ class FederatedConnectionEntityRepository extends ServiceEntityRepository
         return $this
             ->createQueryBuilder('fce')
             ->select('fce')
-            ->where('fce.state = :ready')
+            ->where('fce.state = :state')
             ->getQuery()
             ->execute([
                 'state' => FederatedConnectionEntity::STATE_READY,

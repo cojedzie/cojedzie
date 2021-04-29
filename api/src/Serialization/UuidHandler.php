@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Serialization;
 
-use Carbon\Carbon;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\GraphNavigatorInterface;
-use JMS\Serializer\Handler\DateHandler;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Visitor\DeserializationVisitorInterface;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Class LaravelCollectionHandler
@@ -20,15 +19,8 @@ use JMS\Serializer\Visitor\SerializationVisitorInterface;
  *
  * @package App\Serialization
  */
-final class CarbonHandler implements SubscribingHandlerInterface
+final class UuidHandler implements SubscribingHandlerInterface
 {
-    private $dateTimeHandler;
-
-    public function __construct(DateHandler $dateHandler)
-    {
-        $this->dateTimeHandler = $dateHandler;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -38,8 +30,8 @@ final class CarbonHandler implements SubscribingHandlerInterface
         $formats = ['json', 'xml', 'yml'];
 
         $collectionTypes = [
-            'Carbon',
-            Carbon::class,
+            'uuid',
+            Uuid::class,
         ];
 
         foreach ($collectionTypes as $type) {
@@ -64,26 +56,26 @@ final class CarbonHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @return array|\ArrayObject
+     * @return string
      */
     public function serialize(
         SerializationVisitorInterface $visitor,
-        Carbon $date,
+        Uuid $uuid,
         array $type,
         SerializationContext $context
     ) {
-        return $this->dateTimeHandler->serializeDateTime($visitor, $date->tz('Europe/Warsaw'), $type, $context);
+        return $uuid->toRfc4122();
     }
 
     /**
-     * @param mixed $data
+     * @param string $data
      */
     public function deserialize(
         DeserializationVisitorInterface $visitor,
         $data,
         array $type,
         DeserializationContext $context
-    ): Carbon {
-        return new Carbon($data);
+    ): Uuid {
+        return Uuid::fromString($data);
     }
 }

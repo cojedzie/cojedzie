@@ -7,6 +7,7 @@ use App\Model\FillTrait;
 use App\Model\Status\Endpoint;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Uid\Uuid;
 
@@ -39,4 +40,34 @@ class Node implements Fillable
      * @var Collection<Endpoint>
      */
     private Collection $endpoints;
+
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function setId(Uuid $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
+    public function getEndpoints(): Collection
+    {
+        return $this->endpoints;
+    }
+
+    public function setEndpoints(Collection $endpoints): void
+    {
+        $this->endpoints = $endpoints;
+    }
 }
