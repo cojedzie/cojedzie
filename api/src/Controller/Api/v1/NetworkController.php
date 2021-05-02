@@ -41,7 +41,7 @@ class NetworkController extends Controller
     }
 
     /**
-     * @Route("/nodes", name="nodes", options={"version": "1.0"})
+     * @Route("/nodes", name="nodes", methods={"GET"}, options={"version": "1.0"})
      */
     public function nodes(
         FederatedConnectionEntityRepository $connectionRepository,

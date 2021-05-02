@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class DeparturesController
  *
- * @Route("/{provider}/departures", name="departures_")
+ * @Route("/{provider}/departures", name="departure_")
  *
  * @OA\Tag(name="Departures")
  * @OA\Parameter(ref="#/components/parameters/provider")
@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DeparturesController extends Controller
 {
     /**
-     * @Route("/{stop}", name="details", methods={"GET"}, options={"version": "1.0"})
+     * @Route("/{stop}", name="stop", methods={"GET"}, options={"version": "1.0"})
      * @OA\Response(
      *     description="Gets departures from particular stop.",
      *     response=200,

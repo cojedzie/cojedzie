@@ -28,7 +28,7 @@ class StatusController extends Controller
     }
 
     /**
-     * @Route("", name="aggregated", options={"version": "1.0"})
+     * @Route("", name="aggregated", methods={"GET"}, options={"version": "1.0"})
      */
     public function aggregated()
     {
@@ -38,7 +38,7 @@ class StatusController extends Controller
     }
 
     /**
-     * @Route("/endpoints", name="endpoints", options={"version": "1.0"})
+     * @Route("/endpoints", name="endpoints", methods={"GET"}, options={"version": "1.0"})
      */
     public function endpoints()
     {
@@ -48,7 +48,7 @@ class StatusController extends Controller
     }
 
     /**
-     * @Route("/time", name="time", options={"version": "1.0"})
+     * @Route("/time", name="time", methods={"GET"}, options={"version": "1.0"})
      */
     public function time()
     {
