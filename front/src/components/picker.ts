@@ -4,10 +4,10 @@ import { Line, StopGroup, StopGroups, StopWithDestinations as Stop } from "../mo
 import { Prop, Watch } from "vue-property-decorator";
 import { FetchingState, filter, map, match, unique } from "@/utils";
 import { debounce } from "@/decorators";
-import urls from '../urls';
 import { Mutation } from "vuex-class";
 import { HistoryEntry } from "@/store/history";
 import { StopHistory } from "./history";
+import api from "@/api";
 
 @Component({ template: require('@templates/picker/stop.html') })
 export class PickerStopComponent extends Vue {
@@ -85,13 +85,18 @@ export class FinderComponent extends Vue {
         }
 
         this.state = 'fetching';
+        try {
+            const response = await api.get('v1_stop_groups', {
+                query: {
+                    name: this.filter,
+                    'include-destinations': true
+                },
+                version: "1.0",
+            });
 
-        const response = await fetch(urls.prepare(urls.stops.grouped, { name: this.filter, 'include-destinations': true }));
-
-        if (response.ok) {
-            this.found = (await response.json()).reduce((accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }), {});
+            this.found = response.data.reduce((accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }), {});
             this.state = 'ready';
-        } else {
+        } catch (error) {
             this.state = 'error';
         }
     }

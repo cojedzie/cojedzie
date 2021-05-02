@@ -1,6 +1,6 @@
 import { distinct } from "@/utils";
-import urls from "../urls";
 import * as uuid from "uuid";
+import api from "@/api";
 
 type Migration = {
     name: string,
@@ -27,7 +27,7 @@ const migrations: Migration[] = [
                 .filter(distinct)
             ;
 
-            const stops  = await (await fetch(urls.prepare(urls.stops.all, { id: ids }))).json();
+            const stops  = (await api.get("v1_stop_list", { query: { id: ids }, version: "1.0" })).data;
             const lookup = stops.reduce((lookup, stop) => ({ ...lookup, [stop.id]: stop }), {});
 
             return {

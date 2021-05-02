@@ -3,8 +3,7 @@ import { RootState } from "./root";
 import { Departure, Line } from "../model";
 import * as moment from 'moment'
 import common, { CommonState } from './common'
-import urls from "../urls";
-import { Jsonified } from "@/utils";
+import api from "@/api";
 
 export interface DeparturesState extends CommonState {
     departures: Departure[],
@@ -31,25 +30,27 @@ export const departures: Module<DeparturesState, RootState> = {
 
             commit('fetching');
 
-            const response = await fetch(urls.prepare(urls.departures, {
-                stop: stops.map(stop => stop.id),
-                limit: count || 8,
-            }));
+            try {
+                const response = await api.get('v1_departure_list', {
+                    version: "1.0",
+                    query: {
+                        stop:  stops.map(stop => stop.id),
+                        limit: count || 8,
+                    }
+                });
 
-            if (!response.ok) {
-                const error = await response.json() as Error;
+                const departures = response.data;
+
+                commit('update', departures.map((departure): Departure => ({
+                    ...departure,
+                    line: departure.line as Line,
+                    scheduled: moment.parseZone(departure.scheduled),
+                    estimated: departure.estimated && moment.parseZone(departure.estimated),
+                })));
+            } catch (response) {
+                const error = response.data as Error;
                 commit('error', error.message);
-
-                return;
             }
-
-            const departures = await response.json() as Jsonified<Departure>[];
-            commit('update', departures.map((departure): Departure => ({
-                ...departure,
-                line: departure.line as Line,
-                scheduled: moment.parseZone(departure.scheduled),
-                estimated: departure.estimated && moment.parseZone(departure.estimated),
-            })));
         }
     }
 };

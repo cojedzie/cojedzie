@@ -4,7 +4,7 @@ import { Action, Mutation, State } from 'vuex-class'
 import { Provider, Stop } from "@/model";
 import { DeparturesSettingsState } from "@/store/settings/departures";
 import { MessagesSettingsState } from "@/store/settings/messages";
-import urls from "@/urls";
+import { prepare } from "@/api/utils";
 
 @Component({ template: require("@templates/main.html") })
 export class Main extends Vue {
@@ -47,7 +47,10 @@ export class Main extends Vue {
 
     mounted() {
         this.$el.classList.remove('not-ready');
-        document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = urls.prepare(urls.manifest.provider, { provider: this.$route.params.provider });
+
+        document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = prepare("/{provider}/manifest.json", {
+            provider: this.$route.params.provider
+        });
     }
 
     async created() {

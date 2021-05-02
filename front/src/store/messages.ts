@@ -2,9 +2,8 @@ import { ActionContext, Module } from "vuex";
 import { RootState } from "./root";
 import { Message, MessageType } from "@/model/message";
 import common, { CommonState } from "./common";
-import urls from "../urls";
-import { Jsonified } from "@/utils";
 import * as moment from 'moment';
+import api from "@/api";
 
 export interface MessagesState extends CommonState {
     messages: Message[]
@@ -36,20 +35,19 @@ export const messages: Module<MessagesState, RootState> = {
         async update({ commit }: ActionContext<MessagesState, RootState>) {
             commit('fetching');
 
-            const response = await fetch(urls.prepare(urls.messages));
+            try {
+                const response = await api.get("v1_message_all", { version: "1.0" });
+                const messages = response.data;
 
-            if (!response.ok) {
-                const error = await response.json() as Error;
+                commit('update', messages.map(message => ({
+                    ...message,
+                    validFrom: moment(message.validFrom),
+                    validTo:   moment(message.validTo),
+                })));
+            } catch (response) {
+                const error = response.data as Error;
                 commit('error', error.message);
-                return;
             }
-
-            const messages = await response.json() as Jsonified<Message>[];
-            commit('update', messages.map(message => ({
-                ...message,
-                validFrom: moment(message.validFrom),
-                validTo:   moment(message.validTo),
-            })));
         }
     }
 };

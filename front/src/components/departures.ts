@@ -3,9 +3,9 @@ import { Departure } from "@/model";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import store, { Departures, DeparturesSettings } from '../store'
 import { Trip } from "@/model/trip";
-import urls from "../urls";
 import { Jsonified } from "@/utils";
 import * as moment from "moment";
+import api from "@/api";
 
 @Component({ template: require("@templates/departures.html"), store })
 export class DeparturesComponent extends Vue {
@@ -53,10 +53,13 @@ export class DepartureComponent extends Vue {
             return;
         }
 
-        const response = await fetch(urls.prepare(urls.trip, { id: this.departure.trip.id }));
+        const response = await api.get('v1_trip_details', {
+            params: { id: this.departure.trip?.id },
+            version: "1.0"
+        })
 
-        if (response.ok) {
-            this.scheduledTrip = this.processTrip(await response.json());
+        if (response.status === 200) {
+            this.scheduledTrip = this.processTrip(response.data);
         }
     }
 

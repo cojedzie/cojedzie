@@ -1,7 +1,7 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Line, Stop, Track } from "../model";
 import Vue from 'vue';
-import urls from "../urls";
+import api from "@/api";
 
 @Component({ template: require('@templates/stop/details.html') })
 class StopDetailsComponent extends Vue {
@@ -25,12 +25,13 @@ class StopDetailsComponent extends Vue {
     }
 
     async mounted() {
-        const response = await fetch(urls.prepare(urls.stops.tracks, { id: this.stop.id }));
+        const response = await api.get('v1_stop_tracks', {
+            params: { stop: this.stop.id },
+            version: "1.0",
+        });
 
-        if (response.ok) {
-            this.tracks = await response.json();
-        }
-
+        // fixme: this as any should not be needed
+        this.tracks = response.data as any;
         this.ready = true;
     }
 }

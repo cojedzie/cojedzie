@@ -10,7 +10,7 @@ export interface Stop {
     variant?: string;
 }
 
-export interface StopWithDestinations extends Stop{
+export interface StopWithDestinations extends Stop {
     destinations?: Destination[];
 }
 

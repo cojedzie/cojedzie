@@ -12,9 +12,12 @@ type Simplify<T> = string |
 export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> }
 export type Optionalify<T> = { [K in keyof T]?: T[K] }
 export type Dictionary<T> = { [key: string]: T };
+export type Supplier<T> = T | (() => T);
 
 export type Index = string | symbol | number;
 export type FetchingState = 'fetching' | 'ready' | 'error' | 'not-initialized';
+
+export type MakeOptional<T, K extends keyof T> = Optionalify<Pick<T, K>> & Omit<T, K>;
 
 export function map<T extends {}, KT extends keyof T, R extends { [KR in keyof T] }>(source: T, mapper: (value: T[KT], key: KT) => R[KT]): R {
     const result: R = {} as R;
@@ -122,3 +125,7 @@ export function match<TResult, TArgs extends any[]>(...patterns: Pattern<TResult
 }
 
 match.default = (...args: any[]) => true;
+
+export function resolve<T>(supplier: Supplier<T>): T {
+    return supplier instanceof Function ? supplier() : supplier;
+}

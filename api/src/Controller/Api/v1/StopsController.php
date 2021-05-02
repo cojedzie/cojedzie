@@ -76,7 +76,7 @@ class StopsController extends Controller
     }
 
     /**
-     * @Route("/{id}", name="details", methods={"GET"}, options={"version"="1.0"})
+     * @Route("/{stop}", name="details", methods={"GET"}, options={"version"="1.0"})
      *
      * @OA\Response(
      *     response=200,
@@ -91,13 +91,13 @@ class StopsController extends Controller
      *     @OA\Schema(type="string")
      * )
      */
-    public function one(Request $request, StopRepository $stops, $id)
+    public function one(Request $request, StopRepository $stops, $stop)
     {
-        return $this->json($stops->first(new IdFilter($id), new With("destinations")));
+        return $this->json($stops->first(new IdFilter($stop), new With("destinations")));
     }
 
     /**
-     * @Route("/{id}/tracks", name="tracks", methods={"GET"}, options={"version"="1.0"})
+     * @Route("/{stop}/tracks", name="tracks", methods={"GET"}, options={"version"="1.0"})
      *
      * @OA\Response(
      *     response=200,
@@ -105,9 +105,9 @@ class StopsController extends Controller
      *     @OA\Schema(ref=@Model(type=TrackStop::class))
      * )
      */
-    public function tracks(TrackRepository $tracks, $id)
+    public function tracks(TrackRepository $tracks, $stop)
     {
-        return $this->json($tracks->stops(new RelatedFilter(Stop::reference($id))));
+        return $this->json($tracks->stops(new RelatedFilter(Stop::reference($stop))));
     }
 
     public static function group(Collection $stops)

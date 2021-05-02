@@ -1,7 +1,7 @@
 import { Stop } from "@/model";
 import { ActionTree, MutationTree } from "vuex";
-import urls from "../urls";
 import { ensureArray } from "@/utils";
+import api from "@/api";
 
 export interface RootState {
     stops: Stop[],
@@ -32,19 +32,20 @@ export const mutations: MutationTree<RootState> = {
 
 export const actions: ActionTree<RootState, undefined> = {
     async loadProvider({ commit }, { provider }) {
-        const response = await fetch(urls.prepare(urls.providers.get, { provider }));
-
-        if (response.ok) {
-            commit('setProvider', await response.json());
-        }
+        const response = await api.get('v1_provider_details', {
+            params: { provider },
+            version: '1.0',
+        });
+        commit('setProvider', response.data);
     },
     async load({ commit }, { stops }: SavedState) {
         if (stops.length > 0) {
-            const response = await fetch(urls.prepare(urls.stops.all, { id: stops }));
+            const response = await api.get("v1_stop_list", {
+                query: { id: stops },
+                version: "1.0"
+            });
 
-            if (response.ok) {
-                commit('replace', await response.json());
-            }
+            commit('replace', response.data);
         }
     },
     save: async ({ state }): Promise<SavedState> => ({
