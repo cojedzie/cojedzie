@@ -29,7 +29,7 @@ class DeparturesController extends Controller
      * @OA\Response(
      *     description="Gets departures from particular stop.",
      *     response=200,
-     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Departure::class)))
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Departure::class)))
      * )
      */
     public function stop(DepartureRepository $departures, StopRepository $stops, $stop, Request $request)

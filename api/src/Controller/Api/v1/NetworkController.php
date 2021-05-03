@@ -9,6 +9,7 @@ use App\Repository\FederatedConnectionEntityRepository;
 use App\Service\SerializerContextFactory;
 use App\Service\StatusService;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -42,6 +43,12 @@ class NetworkController extends Controller
 
     /**
      * @Route("/nodes", name="nodes", methods={"GET"}, options={"version": "1.0"})
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Nodes that are currently available in the network.",
+     *     @OA\JsonContent(ref=@Model(type=Node::class))
+     * )
      */
     public function nodes(
         FederatedConnectionEntityRepository $connectionRepository,

@@ -35,7 +35,7 @@ class StopsController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="Returns all stops for specific provider, e.g. ZTM Gdańsk.",
-     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Stop::class)))
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      * )
      *
      * @OA\Parameter(
@@ -81,7 +81,7 @@ class StopsController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
-     *     @OA\Schema(ref=@Model(type=Stop::class))
+     *     @OA\JsonContent(ref=@Model(type=Stop::class))
      * )
      *
      * @OA\Parameter(
@@ -102,7 +102,7 @@ class StopsController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
-     *     @OA\Schema(ref=@Model(type=TrackStop::class))
+     *     @OA\JsonContent(ref=@Model(type=TrackStop::class))
      * )
      */
     public function tracks(TrackRepository $tracks, $stop)

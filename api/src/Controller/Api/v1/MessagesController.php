@@ -23,7 +23,7 @@ class MessagesController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="Returns all messages from carrier at given moment.",
-     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Message::class)))
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Message::class)))
      * )
      */
     public function all(MessageRepository $messages)
