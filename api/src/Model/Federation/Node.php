@@ -15,6 +15,11 @@ class Node implements Fillable
 {
     use FillTrait;
 
+    const TYPE_HUB       = 'hub';
+    const TYPE_FEDERATED = 'federated';
+
+    const TYPES = [ self::TYPE_HUB, self::TYPE_FEDERATED ];
+
     /**
      * Unique identifier for node.
      *
@@ -30,6 +35,14 @@ class Node implements Fillable
      *
      */
     private string $url;
+
+    /**
+     * Type of the node.
+     *
+     * @Serializer\Type("string")
+     * @OA\Property(type="string", format="url", example=Node::TYPE_HUB, enum=Node::TYPES)
+     */
+    private string $type;
 
     /**
      * All endpoints offered by this node.
@@ -69,5 +82,15 @@ class Node implements Fillable
     public function setEndpoints(Collection $endpoints): void
     {
         $this->endpoints = $endpoints;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 }

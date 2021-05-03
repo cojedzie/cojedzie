@@ -63,6 +63,7 @@ class NetworkController extends Controller
             'id'        => new NilUuid(),
             'endpoints' => $this->status->getEndpointsStatus(),
             'url'       => $baseUrl,
+            'type'      => Node::TYPE_HUB,
         ]);
     }
 }

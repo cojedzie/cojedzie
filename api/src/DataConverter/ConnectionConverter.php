@@ -26,6 +26,7 @@ class ConnectionConverter implements Converter
             'id'        => $entity->getId(),
             'url'       => $entity->getUrl(),
             'endpoints' => $status->getEndpoints(),
+            'type'      => Node::TYPE_FEDERATED,
         ]);
     }
 
