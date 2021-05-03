@@ -36,12 +36,12 @@ class ProviderController extends Controller
     }
 
     /**
-     * @Route("/{id}", name="info", methods={"GET"}, options={"version"="1.0"})
+     * @Route("/{provider}", name="details", methods={"GET"}, options={"version"="1.0"})
      */
-    public function one(ProviderResolver $resolver, Converter $converter, $id)
+    public function one(ProviderResolver $resolver, Converter $converter, $provider)
     {
         try {
-            $provider = $resolver->resolve($id);
+            $provider = $resolver->resolve($provider);
             return $this->json($converter->convert($provider));
         } catch (NonExistentServiceException $exception) {
             throw new NotFoundHttpException($exception->getMessage());

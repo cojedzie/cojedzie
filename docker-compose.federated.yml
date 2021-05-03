@@ -6,7 +6,6 @@ services:
       context: ./api
       dockerfile: rr.Dockerfile
     env_file:
-      - .docker-compose/api/.env
       - api/.env.local
     environment:
       - TRUSTED_PROXIES=172.0.0.0/8

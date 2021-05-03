@@ -8,6 +8,8 @@ export type Endpoint<TParams extends string, TResult = any> = {
     version: string,
 };
 
+export type EndpointCollection = { [name: string]: Endpoint<any> }
+
 export type Endpoints = {
     v1_trip_details: Endpoint<"provider" | "id", Jsonified<Trip>>,
     v1_departure_list: Endpoint<"provider", Jsonified<Departure>[]>,
@@ -19,10 +21,10 @@ export type Endpoints = {
     v1_stop_tracks: Endpoint<"provider" | "stop", Jsonified<{ order: number, track: Track }>[]>,
 }
 
-export type EndpointParams<TEndpoints extends { [name: string]: Endpoint<any> }, TEndpoint extends keyof TEndpoints> =
+export type EndpointParams<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> =
     TEndpoints[TEndpoint] extends Endpoint<infer TParams, any> ? { [name in TParams]: string }: never;
 
-export type EndpointResult<TEndpoints extends { [name: string]: Endpoint<any> }, TEndpoint extends keyof TEndpoints> =
+export type EndpointResult<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> =
     TEndpoints[TEndpoint] extends Endpoint<string, infer TResult> ? TResult : never;
 
 export const endpoints: Endpoints = {

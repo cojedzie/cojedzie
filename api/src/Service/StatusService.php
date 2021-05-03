@@ -40,6 +40,7 @@ class StatusService
                 'methods'  => $route->getMethods(),
                 'template' => $route->getPath(),
             ]))
+            ->values()
             ;
     }
 

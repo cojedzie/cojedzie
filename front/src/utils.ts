@@ -127,5 +127,13 @@ export function match<TResult, TArgs extends any[]>(...patterns: Pattern<TResult
 match.default = (...args: any[]) => true;
 
 export function resolve<T>(supplier: Supplier<T>): T {
+    if (typeof supplier === "undefined") {
+        return undefined;
+    }
+
     return supplier instanceof Function ? supplier() : supplier;
+}
+
+export function choice<T>(array: T[]): T {
+    return array[array.length * Math.random() | 0];
 }

@@ -64,7 +64,15 @@ class NetworkController extends Controller
     private function getSelfNode()
     {
         $context = $this->urlGenerator->getContext();
-        $baseUrl = sprintf("%s://%s%s", $context->getScheme(), $context->getHost(), $context->getBaseUrl());
+
+        $port = '';
+        if ($context->getScheme() === 'http' && $context->getHttpPort() !== 80) {
+            $port = sprintf(':%d', $context->getHttpPort());
+        } elseif ($context->getScheme() === 'https' && $context->getHttpsPort() !== 443) {
+            $port = sprintf(':%d', $context->getHttpsPort());
+        }
+
+        $baseUrl = sprintf("%s://%s%s%s", $context->getScheme(), $context->getHost(), $port, $context->getBaseUrl());
 
         return Node::createFromArray([
             'id'        => new NilUuid(),
