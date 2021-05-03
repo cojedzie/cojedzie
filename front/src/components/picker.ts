@@ -91,7 +91,7 @@ export class FinderComponent extends Vue {
                     name: this.filter,
                     'include-destinations': true
                 },
-                version: "1.0",
+                version: "^1.0",
             });
 
             this.found = response.data.reduce((accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }), {});

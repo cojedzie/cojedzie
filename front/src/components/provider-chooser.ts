@@ -15,9 +15,9 @@ export class ProviderChooser extends Vue {
     }
 
     async created() {
-        const response = await api.get('v1_provider_list', { version: "1.0" })
+        const response = await api.get('v1_provider_list', { version: "^1.0" })
 
-        this.providers = (response.data as Provider[]).map<Provider>(provider => {
+        this.providers = response.data.map<Provider>(provider => {
             return {
                 ...provider,
                 lastUpdate: provider.lastUpdate && moment(provider.lastUpdate)

@@ -34,7 +34,7 @@ export const actions: ActionTree<RootState, undefined> = {
     async loadProvider({ commit }, { provider }) {
         const response = await api.get('v1_provider_details', {
             params: { provider },
-            version: '1.0',
+            version: '^1.0',
         });
         commit('setProvider', response.data);
     },
@@ -42,7 +42,7 @@ export const actions: ActionTree<RootState, undefined> = {
         if (stops.length > 0) {
             const response = await api.get("v1_stop_list", {
                 query: { id: stops },
-                version: "1.0"
+                version: "^1.0"
             });
 
             commit('replace', response.data);

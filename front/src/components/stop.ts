@@ -27,7 +27,7 @@ class StopDetailsComponent extends Vue {
     async mounted() {
         const response = await api.get('v1_stop_tracks', {
             params: { stop: this.stop.id },
-            version: "1.0",
+            version: "^1.0",
         });
 
         // fixme: this as any should not be needed

@@ -27,7 +27,7 @@ const migrations: Migration[] = [
                 .filter(distinct)
             ;
 
-            const stops  = (await api.get("v1_stop_list", { query: { id: ids }, version: "1.0" })).data;
+            const stops  = (await api.get("v1_stop_list", { query: { id: ids }, version: "^1.0" })).data;
             const lookup = stops.reduce((lookup, stop) => ({ ...lookup, [stop.id]: stop }), {});
 
             return {

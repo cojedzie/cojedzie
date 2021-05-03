@@ -1,5 +1,5 @@
 import { choice, Jsonified, Optionalify } from "@/utils";
-import { Endpoint, EndpointCollection, Endpoints } from "@/api/endpoints";
+import endpoints, { Endpoint, EndpointCollection, Endpoints } from "@/api/endpoints";
 import { ApiNode } from "@/model/network";
 import { StaticClient } from "@/api/client/static";
 
@@ -10,11 +10,11 @@ export interface LoadBalancerNode<TEndpoints extends EndpointCollection> {
 }
 
 export type LoadBalancedEndpoint<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> = {
-    node: LoadBalancerNode<TEndpoints>;
+    node: LoadBalancerNode<TEndpoints> | null;
 } & TEndpoints[TEndpoint];
 
 export interface LoadBalanceOptions<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> {
-    requirements: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean,
+    require: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean,
 }
 
 export interface LoadBalancer<TEndpoints extends EndpointCollection> {
@@ -45,18 +45,17 @@ export const networkingClient = new StaticClient(networkingEndpoints)
 export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> implements LoadBalancer<TEndpoints> {
     private nodes: LoadBalancerNode<TEndpoints>[] = [];
     private updateNodesTimeout: number;
-    private ready: Promise<boolean>;
+    private fallback: TEndpoints;
 
-    constructor() {
-        this.ready = new Promise(async resolve => {
-            await this.updateNodes();
-            resolve();
-        })
+    constructor(fallback: TEndpoints) {
+        this.fallback = fallback;
+
+        this.updateNodes();
         this.updateNodesTimeout = window.setInterval(() => this.updateNodes(), 60000);
     }
 
     private async updateNodes() {
-        const response = await networkingClient.get("v1_network_nodes", { version: "1.0" });
+        const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
 
         this.nodes = response.data.map(node => ({
             ...node,
@@ -68,9 +67,7 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
         name: TEndpoint,
         options: LoadBalanceOptions<TEndpoints, TEndpoint>
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]> {
-        await this.ready;
-
-        const requirements = options.requirements || (endpoint => true)
+        const requirements = options.require || (endpoint => true)
 
         return this.nodes
             .filter(node => typeof node.endpoints[name as string] !== "undefined")
@@ -87,10 +84,14 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>> {
         const candidates = await this.candidates(name, options);
 
+        if (candidates.length === 0) {
+            return { ...this.fallback[name], node: null };
+        }
+
         return choice(candidates);
     }
 }
 
-export const loadbalancer = new LoadBalancerImplementation();
+export const loadbalancer = new LoadBalancerImplementation(endpoints);
 
 export default loadbalancer;

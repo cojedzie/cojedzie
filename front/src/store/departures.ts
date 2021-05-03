@@ -32,7 +32,7 @@ export const departures: Module<DeparturesState, RootState> = {
 
             try {
                 const response = await api.get('v1_departure_list', {
-                    version: "1.0",
+                    version: "^1.0",
                     query: {
                         stop:  stops.map(stop => stop.id),
                         limit: count || 8,

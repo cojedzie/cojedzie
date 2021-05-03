@@ -36,7 +36,7 @@ export const messages: Module<MessagesState, RootState> = {
             commit('fetching');
 
             try {
-                const response = await api.get("v1_message_all", { version: "1.0" });
+                const response = await api.get("v1_message_all", { version: "^1.0" });
                 const messages = response.data;
 
                 commit('update', messages.map(message => ({

@@ -59,10 +59,12 @@
   },
   "dependencies": {
     "@types/axios": "^0.14.0",
+    "@types/semver": "^7.3.5",
     "axios": "^0.21.1",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "semver": "^7.3.5"
   },
   "scripts": {
     "build:server": "tsc -p server",

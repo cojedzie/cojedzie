@@ -55,7 +55,7 @@ export class DepartureComponent extends Vue {
 
         const response = await api.get('v1_trip_details', {
             params: { id: this.departure.trip?.id },
-            version: "1.0"
+            version: "^1.0"
         })
 
         if (response.status === 200) {
