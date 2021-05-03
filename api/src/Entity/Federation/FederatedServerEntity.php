@@ -8,7 +8,6 @@ use App\Model\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -24,8 +23,6 @@ class FederatedServerEntity implements Referable, Fillable
      *
      * @ORM\Column(type="uuid")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=UuidV4Generator::class)
      */
     private Uuid $id;
 
@@ -68,6 +65,11 @@ class FederatedServerEntity implements Referable, Fillable
     public function getId(): Uuid
     {
         return $this->id;
+    }
+
+    public function setId(Uuid $id): void
+    {
+        $this->id = $id;
     }
 
     public function getEmail(): string

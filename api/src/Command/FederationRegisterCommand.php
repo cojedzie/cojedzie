@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\String\ByteString;
+use Symfony\Component\Uid\Uuid;
 
 class FederationRegisterCommand extends Command
 {
@@ -43,6 +44,7 @@ class FederationRegisterCommand extends Command
         $secret = ByteString::fromRandom(24);
 
         $server = FederatedServerEntity::createFromArray([
+            'id'         => Uuid::v4(),
             'email'      => $input->getArgument('email'),
             'allowedUrl' => $input->getArgument('allowed-url'),
             'maintainer' => $input->getOption('maintainer'),
