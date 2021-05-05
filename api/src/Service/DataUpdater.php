@@ -57,6 +57,7 @@ class DataUpdater
 
     private function shouldTableBePreserved(Table $schema)
     {
-        return in_array($schema->getName(), ['migration_versions', 'messenger_messages']);
+        return in_array($schema->getName(), ['migration_versions', 'messenger_messages'])
+            || fnmatch('federated_*', $schema->getName());
     }
 }
