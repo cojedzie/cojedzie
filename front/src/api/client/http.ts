@@ -3,4 +3,5 @@ import { query } from "@/api/utils";
 
 export const http = axios.create({
     paramsSerializer: query,
+    timeout: 3000,
 });

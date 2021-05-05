@@ -34,7 +34,7 @@ export const departures: Module<DeparturesState, RootState> = {
                 const response = await api.get('v1_departure_list', {
                     version: "^1.0",
                     query: {
-                        stop:  stops.map(stop => stop.id),
+                        stop: stops.map(stop => stop.id),
                         limit: count || 8,
                     }
                 });

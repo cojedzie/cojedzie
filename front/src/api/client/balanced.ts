@@ -6,6 +6,8 @@ import { AxiosResponse } from "axios";
 import { prepare } from "@/api/utils";
 import { http } from "@/api/client/http";
 import semver from "semver";
+import store from "@/store";
+import { NetworkActions } from "@/store/network";
 
 export type LoadBalancedRequestOptions<
     TEndpoints extends EndpointCollection,
@@ -28,24 +30,36 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
         endpoint: TEndpoint,
         options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
-        const definition = await this.balancer.get(endpoint, {
-            require: candidate =>
-                semver.satisfies(candidate.version, options.version) &&
-                (!options.require || options.require(candidate))
-        });
+        let retry = 0;
+        while (retry < 5) {
+            if (retry > 0) {
+                console.warn(`Retrying (${retry}) calling ${endpoint}.`)
+            }
 
-        const url = prepare(
-            definition.template,
-            {
-                ...(resolve(this.bound) || {}),
-                ...(resolve(options.params) || {})
-            },
-        );
+            const definition = await this.balancer.get(endpoint, {
+                require: candidate =>
+                    semver.satisfies(semver.coerce(candidate.version), options.version) &&
+                    (!options.require || options.require(candidate))
+            });
 
-        return await http.get(url, {
-            baseURL: definition.node?.url,
-            params: resolve(options.query),
-            headers: resolve(options.headers),
-        });
+            const url = prepare(
+                definition.template,
+                {
+                    ...(resolve(this.bound) || {}),
+                    ...(resolve(options.params) || {})
+                },
+            );
+
+            try {
+                return await http.get(url, {
+                    baseURL: definition.node?.url,
+                    params: resolve(options.query),
+                    headers: resolve(options.headers),
+                });
+            } catch (err) {
+                await store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
+                retry++;
+            }
+        }
     }
 }

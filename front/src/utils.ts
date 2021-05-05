@@ -19,6 +19,19 @@ export type FetchingState = 'fetching' | 'ready' | 'error' | 'not-initialized';
 
 export type MakeOptional<T, K extends keyof T> = Optionalify<Pick<T, K>> & Omit<T, K>;
 
+export interface Converter<T, U> {
+    convert: (value: T) => U;
+}
+
+export interface TwoWayConverter<T, U> extends Converter<T, U> {
+    convertBack: (value: U) => T;
+}
+
+export const identityConverter: TwoWayConverter<any, any> = {
+    convert: (value) => value,
+    convertBack: (value) => value,
+}
+
 export function map<T extends {}, KT extends keyof T, R extends { [KR in keyof T] }>(source: T, mapper: (value: T[KT], key: KT) => R[KT]): R {
     const result: R = {} as R;
 
@@ -136,4 +149,11 @@ export function resolve<T>(supplier: Supplier<T>): T {
 
 export function choice<T>(array: T[]): T {
     return array[array.length * Math.random() | 0];
+}
+
+export function createBackoff(timeout: number): (counter: number, callback: () => void) => number {
+    return (counter: number, callback: () => void): number => {
+        const k = Math.round(2**(counter - 1) + Math.random() * (2**counter - 2**(counter - 1)));
+        return window.setTimeout(callback, timeout * (Math.max(1, k)));
+    }
 }

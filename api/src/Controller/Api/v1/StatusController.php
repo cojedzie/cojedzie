@@ -56,4 +56,12 @@ class StatusController extends Controller
 
         return $this->json($endpoints);
     }
+
+    /**
+     * @Route("/health", name="health", methods={"GET"}, options={"version": "1.0"})
+     */
+    public function health()
+    {
+        return $this->json(['health' => 'alive']);
+    }
 }

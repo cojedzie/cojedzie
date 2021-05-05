@@ -10,6 +10,7 @@ import messagesSettings, { MessagesSettingsState } from "./settings/messages";
 import { actions, mutations, RootState, state } from "./root";
 import VuexPersistence from "vuex-persist";
 import { namespace } from "vuex-class";
+import network, { NetworkState } from "@/store/network";
 
 export type State = {
     messages: MessagesState;
@@ -18,6 +19,7 @@ export type State = {
     "departures-settings": DeparturesSettingsState;
     "messages-settings": MessagesSettingsState;
     history: HistoryState;
+    network: NetworkState;
 } & RootState;
 
 const localStoragePersist = new VuexPersistence<State>({
@@ -38,6 +40,7 @@ const store = new Vuex.Store<RootState>({
         'departures-settings': departureSettings,
         'messages-settings': messagesSettings,
         history,
+        network,
     },
     plugins: [
         localStoragePersist.plugin,
