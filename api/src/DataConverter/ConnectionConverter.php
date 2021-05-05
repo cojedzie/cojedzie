@@ -20,12 +20,14 @@ class ConnectionConverter implements Converter
     {
         /** @var FederatedConnectionEntity $entity */
 
-        $status = $this->serializer->deserialize($entity->getLastStatus(), Aggregated::class, 'json');
+        $status = $entity->getLastStatus() ?
+            $this->serializer->deserialize($entity->getLastStatus(), Aggregated::class, 'json')
+            : null;
 
         return Node::createFromArray([
             'id'        => $entity->getId(),
             'url'       => $entity->getUrl(),
-            'endpoints' => $status->getEndpoints(),
+            'endpoints' => $status ? $status->getEndpoints() : collect(),
             'type'      => Node::TYPE_FEDERATED,
         ]);
     }

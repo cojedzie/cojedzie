@@ -59,9 +59,26 @@ services:
     tty: true
     command: ["node", "node_modules/.bin/webpack", "--config", "./webpack.config.js", "--watch", "--mode", "development"]
 
+  mercure:
+    image: dunglas/mercure
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ':80'
+      USE_FORWARDED_HEADERS: 1
+      MERCURE_PUBLISHER_JWT_KEY: '!ChangeMe!'
+      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeMe!'
+    command: /usr/bin/caddy run -config /etc/caddy/Caddyfile.dev
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
   blackfire:
     image: blackfire/blackfire
     ports: ["8707"]
     environment:
       - BLACKFIRE_SERVER_ID
       - BLACKFIRE_SERVER_TOKEN
+
+volumes:
+  caddy_data:
+  caddy_config:

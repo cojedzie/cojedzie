@@ -251,12 +251,12 @@ class FederatedConnectionEntity implements Referable, Fillable
         $this->failures = 0;
     }
 
-    public function getLastStatus(): string
+    public function getLastStatus(): ?string
     {
         return $this->lastStatus;
     }
 
-    public function setLastStatus(string $lastStatus): void
+    public function setLastStatus(?string $lastStatus): void
     {
         $this->lastStatus = $lastStatus;
     }

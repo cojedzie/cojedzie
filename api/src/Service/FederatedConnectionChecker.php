@@ -7,6 +7,7 @@ use App\Exception\FederationException;
 use App\Subscriber\FederationHeadersSubscriber;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -31,11 +32,19 @@ class FederatedConnectionChecker
 
     private EntityManagerInterface $manager;
     private HttpClientInterface $http;
+    private HubInterface $hub;
+    private FederatedConnectionUpdateFactory $updateFactory;
 
-    public function __construct(EntityManagerInterface $manager, HttpClientInterface $http)
-    {
+    public function __construct(
+        EntityManagerInterface $manager,
+        HttpClientInterface $http,
+        HubInterface $hub,
+        FederatedConnectionUpdateFactory $updateFactory
+    ) {
         $this->manager = $manager;
         $this->http = $http;
+        $this->hub = $hub;
+        $this->updateFactory = $updateFactory;
     }
 
     public function check(FederatedConnectionEntity $connection)
@@ -61,11 +70,17 @@ class FederatedConnectionChecker
 
             $this->validateResponse($response, $connection);
 
+            $connection->setLastStatus($response->getContent());
+
+            if ($connection->getState() === FederatedConnectionEntity::STATE_NEW) {
+                $this->hub->publish($this->updateFactory->createNodeJoinedUpdate($connection));
+            } elseif ($connection->getState() === FederatedConnectionEntity::STATE_BACKOFF) {
+                $this->hub->publish($this->updateFactory->createNodeResumeUpdate($connection));
+            }
+
             if (!$connection->isSuspended()) {
                 $connection->setState(FederatedConnectionEntity::STATE_READY);
             }
-
-            $connection->setLastStatus($response->getContent());
         } catch (HttpClientExceptionInterface|FederationException $exception) {
             $this->handleFailure($connection);
         } finally {
@@ -99,12 +114,18 @@ class FederatedConnectionChecker
     private function handleFailure(FederatedConnectionEntity $connection)
     {
         $connection->increaseFailureCount();
-        $connection->setState(FederatedConnectionEntity::STATE_BACKOFF);
 
         if ($connection->getFailures() > self::FAILURE_THRESHOLD) {
             $connection->setState(FederatedConnectionEntity::STATE_ERROR);
             $connection->setClosedAt(Carbon::now());
+
+            $this->hub->publish($this->updateFactory->createNodeLeftUpdate($connection));
+            return;
         }
+
+        $connection->setState(FederatedConnectionEntity::STATE_BACKOFF);
+
+        $this->hub->publish($this->updateFactory->createNodeSuspendUpdate($connection));
     }
 
     private function calculateNextCheck(FederatedConnectionEntity $connection): Carbon
