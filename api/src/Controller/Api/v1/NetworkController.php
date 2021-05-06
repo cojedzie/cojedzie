@@ -11,6 +11,8 @@ use App\Service\StatusService;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mercure\Discovery;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Uid\NilUuid;
@@ -52,11 +54,14 @@ class NetworkController extends Controller
      */
     public function nodes(
         FederatedConnectionEntityRepository $connectionRepository,
-        Converter $converter
+        Converter $converter,
+        Discovery $discovery,
+        Request $request
     ) {
         $nodes = collect($connectionRepository->findAllReadyConnections())->map(ref([$converter, 'convert']));
-
         $nodes->prepend($this->getSelfNode());
+
+        $discovery->addLink($request);
 
         return $this->json($nodes);
     }

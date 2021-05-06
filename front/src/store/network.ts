@@ -2,10 +2,12 @@ import { Action, GetterTree, Module } from "vuex";
 import { RootState } from "@/store/root";
 import { Endpoint, EndpointCollection } from "@/api/endpoints";
 import { Converter, createBackoff, Dictionary, Jsonified } from "@/utils";
-import { ApiNode } from "@/model/network";
+import { ApiNode, ApiNodeUpdate } from "@/model/network";
 import { Mutation } from "@/store/types";
 import { LoadBalancerNode } from "@/api/loadbalancer";
 import { StaticClient } from "@/api/client/static";
+import { query } from "@/api/utils";
+import { AxiosResponse } from "axios";
 
 export type NetworkingEndpoints = {
     v1_network_nodes: Endpoint<never, Jsonified<ApiNode>[]>,
@@ -25,6 +27,7 @@ export const networkingEndpoints: NetworkingEndpoints = {
 
 export const networkingClient = new StaticClient(networkingEndpoints)
 export const nodeBackoff = createBackoff(5000);
+export const sseBackoff = createBackoff(1000);
 
 export enum NetworkMutations {
     NodeJoined = "nodeJoined",
@@ -156,9 +159,101 @@ const mutations: NetworkMutationTree = {
     },
 }
 
+class NetworkNodeUpdateListener {
+    sse: EventSource;
+
+    url: string;
+    handler: (ApiNodeUpdate) => void;
+
+    get connected(): boolean {
+        return !!this.sse;
+    }
+
+    initialize(url, handler: (ApiNodeUpdate) => void) {
+        if (this.sse) {
+            this.disconnect();
+        }
+
+        this.handler = handler;
+        this.url     = url;
+
+        this.connect();
+    }
+
+    disconnect() {
+        if (!this.connected) {
+            return;
+        }
+
+        this.sse.close();
+        this.sse = null;
+    }
+
+    connect() {
+        // if already connected this is no-op
+        if (this.sse) {
+            return;
+        }
+
+        this.sse = new EventSource(this.url + '?' + query({ topic: 'network/nodes' }));
+        this.sse.addEventListener('message', this.handleUpdateEvent.bind(this));
+        this.sse.addEventListener('error', this.handleConnectionError.bind(this));
+    }
+
+    handleUpdateEvent(event: MessageEvent) {
+        const update = JSON.parse(event.data) as ApiNodeUpdate;
+
+        this.handler?.(update);
+    }
+
+    handleConnectionError(_: Event) {
+        if (this.sse.readyState !== 2) {
+            return;
+        }
+
+        this.sse.close();
+        this.sse = null;
+
+        sseBackoff(1, () => this.connect());
+    }
+}
+
+let listener: NetworkNodeUpdateListener = new NetworkNodeUpdateListener();
+
+const getMercureHub = (response: AxiosResponse): string|undefined => {
+    const link = response.headers['link'];
+
+    if (typeof link === 'undefined') {
+        return undefined;
+    }
+
+    return link.match(/<([^>]+)>;\s+rel=(?:mercure|"[^"]*mercure[^"]*")/)[1];
+}
+
 const actions: NetworkActionTree = {
     [NetworkActions.Update]: async ({ commit }) => {
         const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
+
+        const hub = getMercureHub(response);
+
+        if (hub && !listener.connected) {
+            listener.initialize(hub, update => {
+                switch (update.event) {
+                    case "node-joined":
+                        commit(NetworkMutations.NodeJoined, update.node);
+                        break;
+                    case "node-left":
+                        commit(NetworkMutations.NodeLeft, update.node.id);
+                        break;
+                    case "node-suspended":
+                        commit(NetworkMutations.NodeSuspended, update.node.id);
+                        break;
+                    case "node-resumed":
+                        commit(NetworkMutations.NodeResumed, update.node.id);
+                        break;
+                }
+            });
+        }
 
         commit(NetworkMutations.NodeListUpdated, response.data)
     },

@@ -13,3 +13,10 @@ export interface ApiNode {
     type: ApiNodeType,
     endpoints: ApiEndpoint[],
 }
+
+export type ApiNodeUpdateEventType = "node-joined" | "node-left" | "node-suspended" | "node-resumed";
+
+export interface ApiNodeUpdate {
+    event: ApiNodeUpdateEventType,
+    node: ApiNode,
+}

@@ -32,19 +32,14 @@ export interface LoadBalancer<TEndpoints extends EndpointCollection> {
 export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> implements LoadBalancer<TEndpoints> {
     private updateNodesTimeout: number;
     private fallback: TEndpoints;
-    private sse: EventSource;
 
     constructor(fallback: TEndpoints) {
         this.fallback = fallback;
 
-        this.sse = new EventSource('http://cojedzie.localhost:8080/.well-known/mercure?topic=' + encodeURIComponent('network/nodes'))
-        this.sse.onmessage = event => {
-            console.log(JSON.parse(event.data));
-        }
-
         this.updateNodes();
         this.updateNodesTimeout = window.setInterval(() => this.updateNodes(), 60000);
     }
+
 
     private async updateNodes() {
         await store.dispatch({ type: `network/${NetworkActions.Update}` });
