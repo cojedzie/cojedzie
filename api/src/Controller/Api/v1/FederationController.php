@@ -5,6 +5,7 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\Entity\Federation\FederatedConnectionEntity;
 use App\Form\CreateFederatedConnectionCommandType;
+use App\Message\CheckConnectionMessage;
 use App\Service\FederatedConnectionUpdateFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -37,7 +40,8 @@ class FederationController extends Controller
      *     @OA\JsonContent(ref=@Model(type=CreateFederatedConnectionCommandType::class))
      * )
      */
-    public function connect(Request $request, EntityManagerInterface $manager) {
+    public function connect(Request $request, EntityManagerInterface $manager, MessageBusInterface $bus)
+    {
         $form = $this->createForm(
             CreateFederatedConnectionCommandType::class,
             new FederatedConnectionEntity()
@@ -60,10 +64,13 @@ class FederationController extends Controller
         $manager->persist($connection);
         $manager->flush();
 
+        $bus->dispatch(
+            new CheckConnectionMessage($connection->getId()),
+            [new DelayStamp(10000)]
+        );
+
         return $this->json(
-            [
-                'connection_id' => $connection->getId()->toRfc4122(),
-            ],
+            ['connection_id' => $connection->getId()->toRfc4122()],
             Response::HTTP_CREATED
         );
     }
@@ -88,10 +95,13 @@ class FederationController extends Controller
         HubInterface $hub,
         FederatedConnectionUpdateFactory $updateFactory
     ) {
-        if (in_array($connection->getState(), [
-            FederatedConnectionEntity::STATE_READY,
-            FederatedConnectionEntity::STATE_SUSPENDED,
-        ])) {
+        if (in_array(
+            $connection->getState(),
+            [
+                FederatedConnectionEntity::STATE_READY,
+                FederatedConnectionEntity::STATE_SUSPENDED,
+            ]
+        )) {
             $hub->publish($updateFactory->createNodeLeftUpdate($connection));
         }
 
@@ -101,8 +111,6 @@ class FederationController extends Controller
         $manager->persist($connection);
         $manager->flush();
 
-        return $this->json([
-            'connection_id' => $connection->getId()->toRfc4122()
-        ]);
+        return $this->json(['connection_id' => $connection->getId()->toRfc4122()]);
     }
 }

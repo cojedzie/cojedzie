@@ -8,4 +8,5 @@ framework:
       sync: 'sync://'
 
     routing:
-      'App\Message\UpdateDataMessage': main
+      App\Message\UpdateDataMessage: main
+      App\Message\CheckConnectionMessage: main
