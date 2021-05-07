@@ -13,6 +13,7 @@ use App\Handler\Database\LimitDatabaseHandler;
 use App\Handler\Database\RelatedFilterDatabaseGenericHandler;
 use App\Handler\ModifierHandler;
 use App\Handler\PostProcessingHandler;
+use App\Model\DTO;
 use App\Model\Referable;
 use App\Modifier\FieldFilter;
 use App\Modifier\IdFilter;
@@ -82,7 +83,7 @@ abstract class DatabaseRepository implements Repository
 
     protected function convert($entity)
     {
-        return $this->converter->convert($entity);
+        return $this->converter->convert($entity, DTO::class);
     }
 
     protected function reference($class, Referable $referable)

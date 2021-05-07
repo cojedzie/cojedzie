@@ -2,12 +2,13 @@
 
 namespace App\DataConverter;
 
+use App\Model\DTO;
 use App\Model\Provider as ProviderDTO;
 use App\Provider\Provider;
 
 class ProviderConverter implements Converter
 {
-    public function convert($entity)
+    public function convert($entity, string $type)
     {
         /** @var Provider $entity */
 
@@ -21,9 +22,10 @@ class ProviderConverter implements Converter
         ]);
     }
 
-    public function supports($entity)
+    public function supports($entity, string $type)
     {
-        return $entity instanceof Provider;
+        return $entity instanceof Provider
+            && ($type === DTO::class || is_subclass_of($type, DTO::class, true));
     }
 }
 

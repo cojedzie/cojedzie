@@ -12,7 +12,7 @@ use OpenApi\Annotations as OA;
  *
  * @package App\Model
  */
-class Stop implements Referable, Fillable
+class Stop implements Referable, Fillable, DTO
 {
     use FillTrait, ReferableTrait;
 

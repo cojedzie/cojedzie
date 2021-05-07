@@ -2,9 +2,7 @@
 
 namespace App\Model;
 
-use JMS\Serializer\Annotation as Serializer;
-
-class TrackStop implements Fillable
+class TrackStop implements Fillable, DTO
 {
     use FillTrait;
 

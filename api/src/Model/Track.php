@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class Track implements Referable, Fillable
+class Track implements Referable, Fillable, DTO
 {
     use ReferableTrait, FillTrait;
 

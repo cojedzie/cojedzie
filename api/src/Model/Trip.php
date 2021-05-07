@@ -6,7 +6,7 @@ use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 
-class Trip implements Referable, Fillable
+class Trip implements Referable, Fillable, DTO
 {
     use ReferableTrait, FillTrait;
 

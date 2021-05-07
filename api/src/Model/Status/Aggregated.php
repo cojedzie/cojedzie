@@ -2,6 +2,7 @@
 
 namespace App\Model\Status;
 
+use App\Model\DTO;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use Illuminate\Support\Collection;
@@ -9,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class Aggregated implements Fillable
+class Aggregated implements Fillable, DTO
 {
     use FillTrait;
 

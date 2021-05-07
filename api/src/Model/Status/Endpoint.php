@@ -2,12 +2,13 @@
 
 namespace App\Model\Status;
 
+use App\Model\DTO;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
-class Endpoint implements Fillable
+class Endpoint implements Fillable, DTO
 {
     use FillTrait;
 

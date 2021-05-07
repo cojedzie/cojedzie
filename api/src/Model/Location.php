@@ -5,7 +5,7 @@ namespace App\Model;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
-class Location
+class Location implements DTO
 {
     /**
      * Locations longitude.

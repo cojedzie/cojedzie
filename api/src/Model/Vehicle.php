@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-class Vehicle implements Referable, Fillable
+class Vehicle implements Referable, Fillable, DTO
 {
     use ReferableTrait, FillTrait;
 

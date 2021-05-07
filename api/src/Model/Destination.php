@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class Destination implements Fillable
+class Destination implements Fillable, DTO
 {
     use FillTrait;
 

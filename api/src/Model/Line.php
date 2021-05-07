@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class Line implements Fillable, Referable
+class Line implements Fillable, Referable, DTO
 {
     const TYPE_TRAM       = 'tram';
     const TYPE_BUS        = 'bus';

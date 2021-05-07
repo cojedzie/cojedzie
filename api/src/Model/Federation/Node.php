@@ -2,6 +2,7 @@
 
 namespace App\Model\Federation;
 
+use App\Model\DTO;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Status\Endpoint;
@@ -11,7 +12,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Uid\Uuid;
 
-class Node implements Fillable
+class Node implements Fillable, DTO
 {
     use FillTrait;
 

@@ -2,12 +2,13 @@
 
 namespace App\Model\Status;
 
+use App\Model\DTO;
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 use function App\Functions\setup;
 
-class Time
+class Time implements DTO
 {
     /**
      * Current date and time on node.

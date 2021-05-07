@@ -5,11 +5,12 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\DataConverter\Converter;
 use App\Exception\NonExistentServiceException;
+use App\Model\DTO;
 use App\Service\ProviderResolver;
+use Kadet\Functional as f;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use function Kadet\Functional\ref;
 
 /**
  * Class ProviderController
@@ -28,7 +29,7 @@ class ProviderController extends Controller
     {
         $providers = $resolver
             ->all()
-            ->map(ref([$converter, 'convert']))
+            ->map(f\partial(f\ref([$converter, 'convert']), f\_, DTO::class))
             ->values()
             ->toArray()
         ;
@@ -42,7 +43,7 @@ class ProviderController extends Controller
     {
         try {
             $provider = $resolver->resolve($provider);
-            return $this->json($converter->convert($provider));
+            return $this->json($converter->convert($provider, DTO::class));
         } catch (NonExistentServiceException $exception) {
             throw new NotFoundHttpException($exception->getMessage());
         }

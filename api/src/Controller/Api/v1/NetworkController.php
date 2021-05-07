@@ -4,11 +4,13 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\DataConverter\Converter;
+use App\Model\DTO;
 use App\Model\Federation\Node;
 use App\Repository\FederatedConnectionEntityRepository;
 use App\Service\SerializerContextFactory;
 use App\Service\StatusService;
 use JMS\Serializer\SerializerInterface;
+use Kadet\Functional as f;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +18,6 @@ use Symfony\Component\Mercure\Discovery;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Uid\NilUuid;
-use function Kadet\Functional\ref;
 
 /**
  * Controller used for managing resources related to the federation feature.
@@ -58,10 +59,12 @@ class NetworkController extends Controller
         Discovery $discovery,
         Request $request
     ) {
-        $nodes = collect($connectionRepository->findAllReadyConnections())->map(ref([$converter, 'convert']));
-        $nodes->prepend($this->getSelfNode());
-
         $discovery->addLink($request);
+
+        $nodes = collect($connectionRepository->findAllReadyConnections())
+            ->map(f\partial(f\ref([$converter, 'convert']), f\_, DTO::class))
+            ->prepend($this->getSelfNode())
+        ;
 
         return $this->json($nodes);
     }

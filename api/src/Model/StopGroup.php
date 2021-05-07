@@ -12,7 +12,7 @@ use OpenApi\Annotations as OA;
  *
  * @package App\Model
  */
-class StopGroup
+class StopGroup implements DTO
 {
     /**
      * Name of stop group.

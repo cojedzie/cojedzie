@@ -3,7 +3,7 @@
 namespace App\DataConverter;
 
 use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
-use App\Model\{Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
+use App\Model\{DTO, Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
 use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
@@ -28,11 +28,12 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
 
     /**
      * @param Entity $entity
+     * @param string $type
      * @param array  $cache
      *
      * @return Line|Track|Stop|Operator|Trip|ScheduledStop
      */
-    public function convert($entity)
+    public function convert($entity, string $type)
     {
         if (array_key_exists($key = get_class($entity) . ':' . $this->getId($entity), $this->cache)) {
             return $this->cache[$key];
@@ -45,10 +46,10 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         $result = $this->create($entity);
         $this->cache[$key] = $result;
 
-        $convert = function ($entity) {
-            return $this->supports($entity)
-                ? $this->convert($entity)
-                : $this->parent->convert($entity);
+        $convert = function ($entity) use ($type) {
+            return $this->supports($entity, $type)
+                ? $this->convert($entity, $type)
+                : $this->parent->convert($entity, $type);
         };
 
         switch (true) {
@@ -172,9 +173,10 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         return $this->reference->get($class, ['id' => $id]);
     }
 
-    public function supports($entity)
+    public function supports($entity, string $type)
     {
-        return $entity instanceof Entity;
+        return $entity instanceof Entity
+            && ($type === DTO::class || is_subclass_of($type, DTO::class, true));
     }
 
     public function reset()

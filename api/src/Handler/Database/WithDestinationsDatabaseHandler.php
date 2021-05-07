@@ -8,6 +8,7 @@ use App\Entity\TrackEntity;
 use App\Event\PostProcessEvent;
 use App\Handler\PostProcessingHandler;
 use App\Model\Destination;
+use App\Model\DTO;
 use App\Model\Stop;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,11 +66,11 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
                         return $track->getFinal()->getStop()->getId();
                     })->map(function (Collection $tracks, $id) {
                         return Destination::createFromArray([
-                            'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop()),
+                            'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
                             'lines' => $tracks
                                 ->map(t\property('line'))
                                 ->unique(t\property('id'))
-                                ->map(f\ref([$this->converter, 'convert']))
+                                ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
                                 ->values(),
                         ]);
                     })->values();

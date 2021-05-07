@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
-class Message implements Fillable
+class Message implements Fillable, DTO
 {
     use FillTrait;
 

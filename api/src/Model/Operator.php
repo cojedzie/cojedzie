@@ -4,7 +4,7 @@ namespace App\Model;
 
 use JMS\Serializer\Annotation as Serializer;
 
-class Operator implements Fillable, Referable
+class Operator implements Fillable, Referable, DTO
 {
     use FillTrait, ReferableTrait;
 

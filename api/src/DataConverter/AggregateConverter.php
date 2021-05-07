@@ -16,27 +16,28 @@ class AggregateConverter implements Converter, CacheableConverter
         $this->converters = $converters;
     }
 
-    public function convert($entity)
+    public function convert($entity, string $type)
     {
         $this->ensureCachedConverters();
 
         /** @var Converter $converter */
-        $converter = $this->cachedConverters->first(function (Converter $converter) use ($entity) {
-            return $converter->supports($entity);
-        });
+        $converter = $this->cachedConverters->first(fn (Converter $converter) => $converter->supports($entity, $type));
 
         if ($converter == null) {
             throw new \InvalidArgumentException(sprintf('Cannot convert entity of type %s.', is_object($entity) ? get_class($entity) : gettype($entity)));
         }
 
-        return $converter->convert($entity);
+        return $converter->convert($entity, $type);
     }
 
-    public function supports($entity)
+    public function supports($entity, string $type)
     {
-        return $this->converters->some(function (Converter $converter) use ($entity) {
-            return $converter->supports($entity);
-        });
+        $this->ensureCachedConverters();
+
+        return $this
+            ->cachedConverters
+            ->some(fn (Converter $converter) => $converter->supports($entity, $type))
+        ;
     }
 
     public function getConverters(): Collection
