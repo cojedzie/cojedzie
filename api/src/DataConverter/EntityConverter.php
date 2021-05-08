@@ -46,11 +46,9 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         $result = $this->create($entity);
         $this->cache[$key] = $result;
 
-        $convert = function ($entity) use ($type) {
-            return $this->supports($entity, $type)
-                ? $this->convert($entity, $type)
-                : $this->parent->convert($entity, $type);
-        };
+        $convert = fn ($entity) => $this->supports($entity, $type)
+            ? $this->convert($entity, $type)
+            : $this->parent->convert($entity, $type);
 
         switch (true) {
             case $entity instanceof OperatorEntity:
