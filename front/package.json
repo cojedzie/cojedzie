@@ -74,6 +74,10 @@
   },
   "scripts": {
     "build:server": "tsc -p server",
+    "build:loadtester": "tsc -p loadtester",
     "build:app": "webpack --config webpack.config.js --mode production --progress"
+  },
+  "_moduleAliases": {
+    "@": "loadtester/build/src"
   }
 }

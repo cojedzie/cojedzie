@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "experimentalDecorators": true,
+    "target": "ES6",
+    "module": "commonjs",
+    "sourceMap": true,
+    "noImplicitThis": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "skipLibCheck": true,
+    "outDir": "./build/",
+    "paths": {
+      "@/*": ["../src/*"]
+    }
+  },
+  "files": ["./test.ts"],
+  "include": ["./**/*.ts"],
+  "exclude": ["./build/**/*"]
+}

@@ -28,7 +28,7 @@ const server = express();
 
 const port = parseInt(process.env.APP_PORT) || 3000;
 const host = process.env.APP_HOST || '0.0.0.0';
-const api  = process.env.APP_API || "https://cojedzie.pl/api";
+const api  = process.env.APP_API || "https://cojedzie.pl";
 
 const gtm_tracking = process.env.APP_GTM || '';
 
@@ -67,7 +67,7 @@ server.get("/:provider?/manifest.json", (req, res) => {
 
     console.log(`No manifest entry for ${provider}, calling ${api}/providers/${provider}`);
 
-    request.get(`${api}/v1/providers/${provider}`, (err, _, body) => {
+    request.get(`${api}/api/v1/providers/${provider}`, (err, _, body) => {
         try {
             const info = JSON.parse(body);
             provider_manifests[provider] = generateProviderManifest(info);
@@ -94,6 +94,7 @@ server.get("/:provider?/*", (req, res) => {
         gtm_tracking,
         version,
         year,
+        config: { api },
     })
 })
 
