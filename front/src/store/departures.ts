@@ -22,7 +22,7 @@ import { RootState } from "./root";
 import { Departure, Line } from "../model";
 import moment from 'moment'
 import common, { CommonState } from './common'
-import api from "@/api";
+import { resolve } from "@/utils";
 
 export interface DeparturesState extends CommonState {
     departures: Departure[],
@@ -30,10 +30,10 @@ export interface DeparturesState extends CommonState {
 
 export const departures: Module<DeparturesState, RootState> = {
     namespaced: true,
-    state: {
+    state: () => ({
         departures: [ ],
-        ...common.state
-    },
+        ...resolve(common.state)
+    }),
     mutations: {
         update: (state, departures) => {
             state.departures = departures;
@@ -50,7 +50,7 @@ export const departures: Module<DeparturesState, RootState> = {
             commit('fetching');
 
             try {
-                const response = await api.get('v1_departure_list', {
+                const response = await this.$api.get('v1_departure_list', {
                     version: "^1.0",
                     query: {
                         stop: stops.map(stop => stop.id),
@@ -67,8 +67,7 @@ export const departures: Module<DeparturesState, RootState> = {
                     estimated: departure.estimated && moment.parseZone(departure.estimated),
                 })));
             } catch (response) {
-                const error = response.data as Error;
-                commit('error', error.message);
+                commit('error', JSON.stringify(response));
             }
         }
     }

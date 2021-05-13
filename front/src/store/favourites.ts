@@ -20,7 +20,7 @@
 import { RootState } from "./root";
 import { Module } from "vuex";
 import { Stop } from "@/model";
-import { except } from "@/utils";
+import { except, supply } from "@/utils";
 
 export interface Favourite {
     id: string;
@@ -34,9 +34,9 @@ export interface FavouritesState {
 
 const favourites: Module<FavouritesState, RootState> = {
     namespaced: true,
-    state: {
+    state: supply({
         favourites: []
-    },
+    }),
     mutations: {
         add(state, favourite: Favourite) {
             const existing = state.favourites.find((current: Favourite) => current.name === favourite.name);

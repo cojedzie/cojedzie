@@ -20,7 +20,7 @@
 import { Action, GetterTree, Module } from "vuex";
 import { RootState } from "@/store/root";
 import { Endpoint, EndpointCollection } from "@/api/endpoints";
-import { Converter, createBackoff, Dictionary, Jsonified } from "@/utils";
+import { Converter, createBackoff, Dictionary, Jsonified, supply } from "@/utils";
 import { ApiNode, ApiNodeUpdate } from "@/model/network";
 import { Mutation } from "@/store/types";
 import { LoadBalancerNode } from "@/api/loadbalancer";
@@ -254,37 +254,41 @@ const getMercureHub = (response: AxiosResponse): string|undefined => {
 }
 
 const actions: NetworkActionTree = {
-    [NetworkActions.Update]: async ({ commit }) => {
-        const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
+    async [NetworkActions.Update]({ commit }) {
+        try {
+            const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
 
-        if (response.headers.hasOwnProperty('Set-Cookie')) {
+            if (response.headers.hasOwnProperty('Set-Cookie')) {
             document.cookie = response.headers['Set-Cookie'];
         }
 
         const hub = getMercureHub(response);
 
-        if (hub && !listener.connected) {
-            listener.initialize(hub, update => {
-                switch (update.event) {
-                    case "node-joined":
-                        commit(NetworkMutations.NodeJoined, update.node);
-                        break;
-                    case "node-left":
-                        commit(NetworkMutations.NodeLeft, update.node.id);
-                        break;
-                    case "node-suspended":
-                        commit(NetworkMutations.NodeSuspended, update.node.id);
-                        break;
-                    case "node-resumed":
-                        commit(NetworkMutations.NodeResumed, update.node.id);
-                        break;
-                }
-            });
-        }
+            if (hub && !listener.connected) {
+                listener.initialize(hub, update => {
+                    switch (update.event) {
+                        case "node-joined":
+                            commit(NetworkMutations.NodeJoined, update.node);
+                            break;
+                        case "node-left":
+                            commit(NetworkMutations.NodeLeft, update.node.id);
+                            break;
+                        case "node-suspended":
+                            commit(NetworkMutations.NodeSuspended, update.node.id);
+                            break;
+                        case "node-resumed":
+                            commit(NetworkMutations.NodeResumed, update.node.id);
+                            break;
+                    }
+                });
+            }
 
-        commit(NetworkMutations.NodeListUpdated, response.data)
+            commit(NetworkMutations.NodeListUpdated, response.data)
+        } catch (err) {
+            console.log("Could not get network nodes");
+        }
     },
-    [NetworkActions.NodeFailed]: async ({ commit, state, dispatch }, id) => {
+    async [NetworkActions.NodeFailed]({ commit, state, dispatch }, id) {
         const node = state.nodes[id];
 
         // If node was already removed from node list this is no-op
@@ -295,7 +299,7 @@ const actions: NetworkActionTree = {
         commit(NetworkMutations.NodeFailed, id);
         nodeBackoff(node.failures, () => { dispatch(NetworkActions.NodeCheck, id); })
     },
-    [NetworkActions.NodeCheck]: async ({ commit, state, dispatch }, id) => {
+    async [NetworkActions.NodeCheck]({ commit, state, dispatch }, id) {
         const node = state.nodes[id];
 
         // If node was already removed from node list this is no-op
@@ -324,9 +328,9 @@ const getters: GetterTree<NetworkState, RootState> = {
 export const network: Module<NetworkState, RootState> = {
     namespaced: true,
     getters,
-    state: {
+    state: supply({
         nodes: {},
-    },
+    }),
     mutations,
     actions,
 }

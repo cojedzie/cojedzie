@@ -21,7 +21,7 @@ import { Stop } from "@/model";
 import { Module } from "vuex";
 import { RootState } from "./root";
 import moment, { Moment } from "moment";
-import { Jsonified } from "@/utils";
+import { Jsonified, supply } from "@/utils";
 
 export interface HistoryEntry {
     stop: Stop,
@@ -53,12 +53,12 @@ export function deserializeHistoryEntry(serialized: Jsonified<HistoryEntry>): Hi
 
 export const history: Module<HistoryState, RootState> = {
     namespaced: true,
-    state: {
+    state: supply({
         entries: [],
         settings: {
             maxEntries: 10,
         }
-    },
+    }),
     mutations: {
         clear(state: HistoryState) {
             state.entries = [];

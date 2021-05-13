@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FetchingState } from "@/utils";
+import { FetchingState, supply } from "@/utils";
 import moment, { Moment } from "moment";
 import { MutationTree } from "vuex";
 
@@ -41,4 +41,7 @@ export const mutations: MutationTree<CommonState> = {
     }
 };
 
-export default { state, mutations };
+export default {
+    state: supply(state),
+    mutations
+};

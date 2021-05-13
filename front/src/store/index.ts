@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vuex from 'vuex';
+import Vuex, { ModuleTree, Plugin } from 'vuex';
 
 import messages, { MessagesState } from './messages';
 import departures, { DeparturesState } from './departures'
@@ -30,6 +30,17 @@ import { actions, mutations, RootState, state } from "./root";
 import VuexPersistence from "vuex-persist";
 import { namespace } from "vuex-class";
 import network, { NetworkState } from "@/store/network";
+import { ApiClient } from "@/api/client";
+import { Endpoints } from "@/api";
+import { supply } from "@/utils";
+import { LoadBalancedClient } from "@/api/client/balanced";
+import loadbalancer from "@/api/loadbalancer";
+
+declare module 'vuex/types' {
+    interface Store<S> {
+        $api: ApiClient<Endpoints, "provider">
+    }
+}
 
 export type State = {
     messages: MessagesState;
@@ -41,30 +52,49 @@ export type State = {
     network: NetworkState;
 } & RootState;
 
-const localStoragePersist = new VuexPersistence<State>({
+const localStoragePersist = typeof window !== "undefined" && new VuexPersistence<State>({
     modules: ['favourites', 'departures-settings', 'messages-settings', 'history'],
 });
 
-const sessionStoragePersist = new VuexPersistence<State>({
+const sessionStoragePersist = typeof window !== "undefined" && new VuexPersistence<State>({
     reducer: state => ({ stops: state.stops }),
     storage: window.sessionStorage
 });
 
-const store = new Vuex.Store<RootState>({
-    state, mutations, actions,
-    modules: {
-        messages,
-        departures,
-        favourites,
-        'departures-settings': departureSettings,
-        'messages-settings': messagesSettings,
-        history,
-        network,
-    },
-    plugins: [
+export type StoreOptions = {
+    plugins?: Plugin<RootState>[],
+    state?: RootState,
+    modules?: ModuleTree<RootState>,
+}
+
+export function createStore(options?: StoreOptions) {
+    const store = new Vuex.Store<RootState>({
+        state: supply(options?.state || state),
+        mutations,
+        actions,
+        modules: {
+            messages,
+            departures,
+            favourites,
+            'departures-settings': departureSettings,
+            'messages-settings': messagesSettings,
+            history,
+            network,
+            ...(options?.modules || {})
+        },
+        plugins: options?.plugins || [],
+    })
+
+    store.$api = new LoadBalancedClient(loadbalancer, () => ({ provider: store.state.provider?.id }));
+
+    return store;
+}
+
+export const store = createStore({
+    plugins: typeof window !== "undefined" ? [
         localStoragePersist.plugin,
         sessionStoragePersist.plugin,
-    ]
+    ] : []
 });
 
 export default store;

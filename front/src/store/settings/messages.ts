@@ -19,6 +19,7 @@
 
 import { Module } from "vuex";
 import { RootState } from "../root";
+import { supply } from "@/utils";
 
 export type MessagesSettingsState = {
     autorefresh: boolean;
@@ -28,11 +29,11 @@ export type MessagesSettingsState = {
 
 const messagesSettings: Module<MessagesSettingsState, RootState> = {
     namespaced: true,
-    state: {
+    state: supply({
         autorefresh: true,
         autorefreshInterval: 60,
         displayedEntriesCount: 2
-    },
+    }),
     mutations: {
         update(state: MessagesSettingsState, patch: Partial<MessagesSettingsState>) {
             Object.assign(state, patch);

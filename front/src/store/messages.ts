@@ -21,8 +21,8 @@ import { ActionContext, Module } from "vuex";
 import { RootState } from "./root";
 import { Message, MessageType } from "@/model/message";
 import common, { CommonState } from "./common";
-import api from "@/api";
 import moment from 'moment';
+import { resolve, supply } from "@/utils";
 
 export interface MessagesState extends CommonState {
     messages: Message[]
@@ -30,10 +30,10 @@ export interface MessagesState extends CommonState {
 
 export const messages: Module<MessagesState, RootState> = {
     namespaced: true,
-    state: {
+    state: supply({
         messages: [],
-        ...common.state,
-    },
+        ...resolve(common.state),
+    }),
     getters: {
         count: state => state.messages.length,
         counts: (state: MessagesState): { [x in MessageType]: number } => ({
@@ -55,7 +55,7 @@ export const messages: Module<MessagesState, RootState> = {
             commit('fetching');
 
             try {
-                const response = await api.get("v1_message_all", { version: "^1.0" });
+                const response = await this.$api.get("v1_message_all", { version: "^1.0" });
                 const messages = response.data;
 
                 commit('update', messages.map(message => ({
@@ -64,8 +64,7 @@ export const messages: Module<MessagesState, RootState> = {
                     validTo:   moment(message.validTo),
                 })));
             } catch (response) {
-                const error = response.data as Error;
-                commit('error', error.message);
+                commit('error', JSON.stringify(response));
             }
         }
     }

@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ActionContext, Module } from "vuex";
+import { Module } from "vuex";
 import { RootState } from "../root";
+import { supply } from "@/utils";
 
 export type DeparturesSettingsState = {
     autorefresh: boolean;
@@ -29,12 +30,12 @@ export type DeparturesSettingsState = {
 
 const departureSettings: Module<DeparturesSettingsState, RootState> = {
     namespaced: true,
-    state: {
+    state: supply({
         autorefresh: true,
         relativeTimes: false,
         autorefreshInterval: 10,
         displayedEntriesCount: 10
-    },
+    }),
     mutations: {
         update(state: DeparturesSettingsState, patch: Partial<DeparturesSettingsState>) {
             Object.assign(state, patch);

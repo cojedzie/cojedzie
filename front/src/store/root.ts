@@ -20,7 +20,6 @@
 import { Stop } from "@/model";
 import { ActionTree, MutationTree } from "vuex";
 import { ensureArray } from "@/utils";
-import api from "@/api";
 
 export interface RootState {
     stops: Stop[],
@@ -51,7 +50,7 @@ export const mutations: MutationTree<RootState> = {
 
 export const actions: ActionTree<RootState, undefined> = {
     async loadProvider({ commit }, { provider }) {
-        const response = await api.get('v1_provider_details', {
+        const response = await this.$api.get('v1_provider_details', {
             params: { provider },
             version: '^1.0',
         });
@@ -59,7 +58,7 @@ export const actions: ActionTree<RootState, undefined> = {
     },
     async load({ commit }, { stops }: SavedState) {
         if (stops.length > 0) {
-            const response = await api.get("v1_stop_list", {
+            const response = await this.$api.get("v1_stop_list", {
                 query: { id: stops },
                 version: "^1.0"
             });

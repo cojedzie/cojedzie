@@ -20,7 +20,7 @@
 import { EndpointCollection, EndpointParams, EndpointResult } from "@/api/endpoints";
 import { ApiClient, BoundRequestOptions } from "@/api/client";
 import { LoadBalancedEndpoint, LoadBalancer } from "@/api/loadbalancer";
-import { resolve, Supplier } from "@/utils";
+import { delay, resolve, Supplier } from "@/utils";
 import { AxiosResponse } from "axios";
 import { prepare } from "@/api/utils";
 import { http } from "@/api/client/http";
@@ -76,8 +76,14 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                     headers: resolve(options.headers),
                 });
             } catch (err) {
-                await store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
+                if (definition.node) {
+                    await store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
+                } else {
+                    console.error(err.message);
+                }
                 retry++;
+
+                await delay(3000 * (retry - 1));
             }
         }
     }
