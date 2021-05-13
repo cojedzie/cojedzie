@@ -17,10 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { choice, Optionalify } from "@/utils";
+import { Optionalify } from "@/utils";
 import endpoints, { EndpointCollection, Endpoints } from "@/api/endpoints";
 import store from "@/store";
 import { NetworkActions } from "@/store/network";
+import { choice } from "@/utils/random";
 
 export interface LoadBalancerNode<TEndpoints extends EndpointCollection> {
     id: string;
@@ -49,16 +50,15 @@ export interface LoadBalancer<TEndpoints extends EndpointCollection> {
 }
 
 export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> implements LoadBalancer<TEndpoints> {
-    private updateNodesTimeout: number;
+    private updateNodesTimeout;
     private fallback: TEndpoints;
 
     constructor(fallback: TEndpoints) {
         this.fallback = fallback;
 
-        this.updateNodes();
-        this.updateNodesTimeout = window.setInterval(() => this.updateNodes(), 60000);
+        setTimeout(() => this.updateNodes(), 0);
+        this.updateNodesTimeout = setInterval(() => this.updateNodes(), 60000);
     }
-
 
     private async updateNodes() {
         await store.dispatch({ type: `network/${NetworkActions.Update}` });

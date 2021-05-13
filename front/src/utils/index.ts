@@ -18,6 +18,15 @@
  */
 
 import { Moment } from "moment";
+import { cloneDeep } from "lodash"
+
+let performance;
+
+try {
+    performance = (typeof window !== "undefined" && window.performance) || require("perf_hooks").performance;
+} catch {
+    console.log("no performance");
+}
 
 type Simplify<T> = string |
     T extends string   ? string :
@@ -139,6 +148,8 @@ export function unique<T, U>(array: T[], criterion: (item: T) => U = identity) {
     return result;
 }
 
+export const supply = x => () => cloneDeep(x);
+
 type Pattern<TResult, TArgs extends any[]> = [
     (...args: TArgs) => boolean,
     ((...args: TArgs) => TResult) | TResult,
@@ -166,13 +177,11 @@ export function resolve<T>(supplier: Supplier<T>): T {
     return supplier instanceof Function ? supplier() : supplier;
 }
 
-export function choice<T>(array: T[]): T {
-    return array[array.length * Math.random() | 0];
-}
+export const delay = (milliseconds: number): Promise<void> => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 export function createBackoff(timeout: number): (counter: number, callback: () => void) => number {
     return (counter: number, callback: () => void): number => {
         const k = Math.round(2**(counter - 1) + Math.random() * (2**counter - 2**(counter - 1)));
-        return window.setTimeout(callback, timeout * (Math.max(1, k)));
+        return setTimeout(callback, timeout * (Math.max(1, k))) as any;
     }
 }
