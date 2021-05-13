@@ -7,7 +7,7 @@ services:
       - api
       - frontend
     ports:
-      - "8080:80"
+      - "0.0.0.0:8080:80"
     volumes:
       - ./front:/var/www/front:cached
       - ./api:/var/www/api:cached
