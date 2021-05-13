@@ -21,8 +21,8 @@ import { ActionContext, Module } from "vuex";
 import { RootState } from "./root";
 import { Message, MessageType } from "@/model/message";
 import common, { CommonState } from "./common";
-import * as moment from 'moment';
 import api from "@/api";
+import moment from 'moment';
 
 export interface MessagesState extends CommonState {
     messages: Message[]

@@ -22,7 +22,7 @@ import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { ScheduledStop } from "@/model/trip";
 import { Stop } from "@/model";
-import * as moment from 'moment';
+import moment from 'moment';
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean, current: boolean };
 

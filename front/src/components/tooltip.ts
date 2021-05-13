@@ -75,11 +75,11 @@ export class TooltipComponent extends Vue {
             let timeout;
 
             this._events['mouseenter'] = () => {
-                timeout = window.setTimeout(() => { this.show = !blocked }, this.delay);
+                timeout = setTimeout(() => { this.show = !blocked }, this.delay);
             };
 
             this._events['mouseleave'] = () => {
-                window.clearTimeout(timeout);
+                clearTimeout(timeout);
                 this.show = false
             };
         }
@@ -106,7 +106,7 @@ export class TooltipComponent extends Vue {
             let timeout;
 
             this._events['touchstart'] = () => {
-                timeout = window.setTimeout(() => { this.show = true }, longPressTimeout);
+                timeout = setTimeout(() => { this.show = true }, longPressTimeout);
 
                 // this is to prevent showing tooltips after tap
                 blocked = true;
@@ -114,7 +114,7 @@ export class TooltipComponent extends Vue {
             };
 
             this._events['touchend'] = ev => {
-                window.clearTimeout(timeout);
+                clearTimeout(timeout);
 
                 if (this.show) {
                     ev.preventDefault();

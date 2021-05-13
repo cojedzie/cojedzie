@@ -20,7 +20,7 @@
 import { Module } from "vuex";
 import { RootState } from "./root";
 import { Departure, Line } from "../model";
-import * as moment from 'moment'
+import moment from 'moment'
 import common, { CommonState } from './common'
 import api from "@/api";
 

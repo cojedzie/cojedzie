@@ -27,6 +27,9 @@ import { LoadBalancerNode } from "@/api/loadbalancer";
 import { StaticClient } from "@/api/client/static";
 import { query } from "@/api/utils";
 import { AxiosResponse } from "axios";
+import EventSourcePolyfill from "eventsource";
+
+const EventSource = (typeof window !== "undefined" && window.EventSource) || EventSourcePolyfill;
 
 export type NetworkingEndpoints = {
     v1_network_nodes: Endpoint<never, Jsonified<ApiNode>[]>,
@@ -45,6 +48,7 @@ export const networkingEndpoints: NetworkingEndpoints = {
 }
 
 export const networkingClient = new StaticClient(networkingEndpoints)
+
 export const nodeBackoff = createBackoff(5000);
 export const sseBackoff = createBackoff(1000);
 

@@ -20,7 +20,7 @@
 import Vue from 'vue'
 import { Component } from 'vue-property-decorator'
 import { Provider } from "@/model";
-import * as moment from 'moment';
+import moment from 'moment';
 import api from "@/api";
 
 @Component({

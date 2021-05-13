@@ -18,8 +18,7 @@
  */
 
 import { FetchingState } from "@/utils";
-import * as moment from "moment";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 import { MutationTree } from "vuex";
 
 export interface CommonState {

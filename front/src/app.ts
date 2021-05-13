@@ -35,7 +35,7 @@ import { Workbox } from "workbox-window";
 
 import { Component } from "vue-property-decorator";
 import * as VueMoment from "vue-moment";
-import * as moment from 'moment';
+import moment from 'moment';
 import 'moment/locale/pl'
 import VueRouter from "vue-router";
 

@@ -23,7 +23,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import store, { Departures, DeparturesSettings } from '../store'
 import { Trip } from "@/model/trip";
 import { Jsonified } from "@/utils";
-import * as moment from "moment";
+import moment from "moment";
 import api from "@/api";
 
 @Component({ template: require("@templates/departures.html"), store })

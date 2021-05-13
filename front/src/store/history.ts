@@ -20,8 +20,7 @@
 import { Stop } from "@/model";
 import { Module } from "vuex";
 import { RootState } from "./root";
-import * as moment from "moment";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 import { Jsonified } from "@/utils";
 
 export interface HistoryEntry {

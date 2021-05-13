@@ -18,7 +18,8 @@
  */
 
 import Vue from 'vue';
-import getOwnPropertyDescriptor = Reflect.getOwnPropertyDescriptor;
+// decorators.js
+import { createDecorator } from 'vue-class-component'
 
 export interface Decorator<TArgs extends any[], FArgs extends any[], TRet extends any, FRet extends any> {
     decorate(f: (...farg: FArgs) => any, ...args: TArgs): (...farg: FArgs) => TRet;
@@ -44,7 +45,7 @@ export const throttle = decorator(function (decorated, time: number) {
     let timeout;
     return function (this: any, ...args) {
         if (typeof timeout === 'undefined') {
-            timeout = window.setTimeout(() => {
+            timeout = setTimeout(() => {
                 decorated.call(this, ...args);
                 timeout = undefined;
             }, time);
@@ -56,10 +57,10 @@ export const debounce = decorator(function (decorated, time: number, max: number
     let timeout;
     return function (this: any, ...args) {
         if (typeof timeout !== 'undefined') {
-            window.clearTimeout(timeout);
+            clearTimeout(timeout);
         }
 
-        timeout = window.setTimeout(() => {
+        timeout = setTimeout(() => {
             timeout = undefined;
             decorated.call(this, ...args);
         }, time);
@@ -73,9 +74,6 @@ export const condition = decorator(function <Args extends any[], Ret extends any
         }
     }
 });
-
-// decorators.js
-import { createDecorator } from 'vue-class-component'
 
 export const notify = (name?: string) => createDecorator((options, key) => {
     const symbol = Symbol(key);
