@@ -20,7 +20,7 @@
 import Vue from 'vue'
 import { Component, Watch } from 'vue-property-decorator'
 import { Mutation, State } from "vuex-class";
-import { Favourite } from "@/store/favourites";
+import { Favourite } from "@/store/modules/favourites";
 import { Stop } from "@/model";
 import * as uuid from "uuid";
 import { Favourites } from "@/store";

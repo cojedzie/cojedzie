@@ -20,7 +20,7 @@
 import { Component } from "vue-property-decorator";
 import store, { DeparturesSettings } from "../../store";
 import Vue from "vue";
-import { DeparturesSettingsState } from "@/store/settings/departures";
+import { DeparturesSettingsState } from "@/store/modules/settings/departures";
 
 @Component({ template: require("@templates/settings/departures.html"), store })
 export class SettingsDepartures extends Vue {

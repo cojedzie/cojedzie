@@ -25,8 +25,9 @@ import { AxiosResponse } from "axios";
 import { prepare } from "@/api/utils";
 import { http } from "@/api/client/http";
 import semver from "semver";
-import store from "@/store";
-import { NetworkActions } from "@/store/network";
+import { NetworkActions } from "@/store/modules/network";
+import { RootState } from "@/store/root";
+import { Store } from "vuex";
 
 export type LoadBalancedRequestOptions<
     TEndpoints extends EndpointCollection,
@@ -39,10 +40,16 @@ export type LoadBalancedRequestOptions<
 export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
+    private readonly store: Store<RootState>;
 
-    constructor(balancer: LoadBalancer<TEndpoints>, bound?: Supplier<{ [name in TBoundParams]: string }>) {
+    constructor(
+        balancer: LoadBalancer<TEndpoints>,
+        store: Store<RootState>,
+        bound?: Supplier<{ [name in TBoundParams]: string }>
+    ) {
         this.bound = bound;
         this.balancer = balancer;
+        this.store = store;
     }
 
     async get<TEndpoint extends keyof TEndpoints>(
@@ -77,7 +84,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                 });
             } catch (err) {
                 if (definition.node) {
-                    await store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
+                    await this.store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
                 } else {
                     console.error(err.message);
                 }

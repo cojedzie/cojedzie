@@ -19,7 +19,7 @@
 
 import { Stop } from "@/model";
 import { Module } from "vuex";
-import { RootState } from "./root";
+import { RootState } from "../root";
 import moment, { Moment } from "moment";
 import { Jsonified, supply } from "@/utils";
 

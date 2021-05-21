@@ -21,8 +21,8 @@ import Vue from 'vue'
 import { Component, Watch } from "vue-property-decorator";
 import { Action, Mutation, State } from 'vuex-class'
 import { Provider, Stop } from "@/model";
-import { DeparturesSettingsState } from "@/store/settings/departures";
-import { MessagesSettingsState } from "@/store/settings/messages";
+import { DeparturesSettingsState } from "@/store/modules/settings/departures";
+import { MessagesSettingsState } from "@/store/modules/settings/messages";
 import { prepare } from "@/api/utils";
 
 @Component({ template: require("@templates/main.html") })

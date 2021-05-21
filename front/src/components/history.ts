@@ -20,7 +20,7 @@
 import Component from "vue-class-component";
 import Vue from "vue";
 import { History } from "@/store";
-import { HistoryEntry } from "@/store/history";
+import { HistoryEntry } from "@/store/modules/history";
 import { Mutation } from "vuex-class";
 import { Stop } from "@/model";
 

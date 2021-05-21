@@ -17,40 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vuex, { ModuleTree, Plugin } from 'vuex';
-
-import messages, { MessagesState } from './messages';
-import departures, { DeparturesState } from './departures'
-import favourites, { FavouritesState } from './favourites'
-import history, { HistoryState } from "./history";
-import departureSettings, { DeparturesSettingsState } from "./settings/departures";
-import messagesSettings, { MessagesSettingsState } from "./settings/messages";
-
-import { actions, mutations, RootState, state } from "./root";
-import VuexPersistence from "vuex-persist";
+import messages from './modules/messages';
+import departures from './modules/departures'
+import favourites from './modules/favourites'
+import history from "./modules/history";
 import { namespace } from "vuex-class";
-import network, { NetworkState } from "@/store/network";
-import { ApiClient } from "@/api/client";
-import { Endpoints } from "@/api";
-import { supply } from "@/utils";
-import { LoadBalancedClient } from "@/api/client/balanced";
-import loadbalancer from "@/api/loadbalancer";
+import VuexPersistence from "vuex-persist";
+import { createStore, State } from "@/store/initializer";
 
-declare module 'vuex/types' {
-    interface Store<S> {
-        $api: ApiClient<Endpoints, "provider">
-    }
-}
-
-export type State = {
-    messages: MessagesState;
-    departures: DeparturesState;
-    favourites: FavouritesState;
-    "departures-settings": DeparturesSettingsState;
-    "messages-settings": MessagesSettingsState;
-    history: HistoryState;
-    network: NetworkState;
-} & RootState;
+export const Favourites = namespace('favourites');
+export const DeparturesSettings = namespace('departures-settings');
+export const MessagesSettings = namespace('messages-settings');
+export const Departures = namespace('departures');
+export const Messages = namespace('messages');
+export const History = namespace('history');
 
 const localStoragePersist = typeof window !== "undefined" && new VuexPersistence<State>({
     modules: ['favourites', 'departures-settings', 'messages-settings', 'history'],
@@ -61,35 +41,6 @@ const sessionStoragePersist = typeof window !== "undefined" && new VuexPersisten
     storage: window.sessionStorage
 });
 
-export type StoreOptions = {
-    plugins?: Plugin<RootState>[],
-    state?: RootState,
-    modules?: ModuleTree<RootState>,
-}
-
-export function createStore(options?: StoreOptions) {
-    const store = new Vuex.Store<RootState>({
-        state: supply(options?.state || state),
-        mutations,
-        actions,
-        modules: {
-            messages,
-            departures,
-            favourites,
-            'departures-settings': departureSettings,
-            'messages-settings': messagesSettings,
-            history,
-            network,
-            ...(options?.modules || {})
-        },
-        plugins: options?.plugins || [],
-    })
-
-    store.$api = new LoadBalancedClient(loadbalancer, () => ({ provider: store.state.provider?.id }));
-
-    return store;
-}
-
 export const store = createStore({
     plugins: typeof window !== "undefined" ? [
         localStoragePersist.plugin,
@@ -98,10 +49,3 @@ export const store = createStore({
 });
 
 export default store;
-
-export const Favourites = namespace('favourites');
-export const DeparturesSettings = namespace('departures-settings');
-export const MessagesSettings = namespace('messages-settings');
-export const Departures = namespace('departures');
-export const Messages = namespace('messages');
-export const History = namespace('history');

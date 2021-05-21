@@ -25,6 +25,7 @@ import { http } from "@/api/client/http";
 import { AxiosRequestConfig } from "axios";
 import moment, { Moment } from "moment";
 import yargs from "yargs";
+import { createStore } from "@/store/initializer";
 import { RootState } from "@/store/root";
 import { normal } from "@/utils/random";
 import { delay } from "@/utils";
@@ -94,15 +95,16 @@ async function scenario(store: Store<RootState>) {
     departuresUpdate();
 }
 
-console.log(`Starting ${argv.concurrency} clients on address ${argv.url}`)
-import('@/store').then(async ({ createStore }) => {
+console.log(`Starting ${argv.concurrency} clients on address ${argv.url}`);
+
+(async () => {
     for (let i = 0; i < argv.concurrency; i++) {
         const store = createStore();
         await scenario(store);
 
         await delay(normal(argv.delay, typeof argv.sigma === "undefined" ? argv.delay / 10 : argv.sigma));
     }
-})
+})();
 
 process.on('SIGINT', function() {
     console.info("Terminating clients...");

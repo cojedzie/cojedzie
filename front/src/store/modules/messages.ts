@@ -18,7 +18,7 @@
  */
 
 import { ActionContext, Module } from "vuex";
-import { RootState } from "./root";
+import { RootState } from "../root";
 import { Message, MessageType } from "@/model/message";
 import common, { CommonState } from "./common";
 import moment from 'moment';

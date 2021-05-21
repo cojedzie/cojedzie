@@ -19,9 +19,10 @@
 
 import { Optionalify } from "@/utils";
 import endpoints, { EndpointCollection, Endpoints } from "@/api/endpoints";
-import store from "@/store";
-import { NetworkActions } from "@/store/network";
+import { NetworkActions } from "@/store/modules/network";
 import { choice } from "@/utils/random";
+import { Store } from "vuex";
+import { RootState } from "@/store/root";
 
 export interface LoadBalancerNode<TEndpoints extends EndpointCollection> {
     id: string;
@@ -52,16 +53,18 @@ export interface LoadBalancer<TEndpoints extends EndpointCollection> {
 export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> implements LoadBalancer<TEndpoints> {
     private updateNodesTimeout;
     private fallback: TEndpoints;
+    private store: Store<RootState>;
 
-    constructor(fallback: TEndpoints) {
+    constructor(fallback: TEndpoints, store: Store<RootState>) {
         this.fallback = fallback;
+        this.store = store;
 
         setTimeout(() => this.updateNodes(), 0);
         this.updateNodesTimeout = setInterval(() => this.updateNodes(), 60000);
     }
 
     private async updateNodes() {
-        await store.dispatch({ type: `network/${NetworkActions.Update}` });
+        await this.store.dispatch({ type: `network/${NetworkActions.Update}` });
     }
 
     async candidates<TEndpoint extends keyof TEndpoints>(
@@ -70,7 +73,7 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]> {
         const requirements = options.require || (endpoint => true)
 
-        return (store.getters['network/available'] as LoadBalancerNode<TEndpoints>[])
+        return (this.store.getters['network/available'] as LoadBalancerNode<TEndpoints>[])
             .filter(node => typeof node.endpoints[name as string] !== "undefined")
             .map<LoadBalancedEndpoint<TEndpoints, TEndpoint>>(node => ({
                 node,
@@ -92,7 +95,3 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
         return choice(candidates);
     }
 }
-
-export const loadbalancer = new LoadBalancerImplementation(endpoints);
-
-export default loadbalancer;

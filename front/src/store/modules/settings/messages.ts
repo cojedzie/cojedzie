@@ -17,40 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { RootState } from "./root";
 import { Module } from "vuex";
-import { Stop } from "@/model";
-import { except, supply } from "@/utils";
+import { RootState } from "../../root";
+import { supply } from "@/utils";
 
-export interface Favourite {
-    id: string;
-    name: string;
-    stops: Stop[];
+export type MessagesSettingsState = {
+    autorefresh: boolean;
+    autorefreshInterval?: number;
+    displayedEntriesCount?: number;
 }
 
-export interface FavouritesState {
-    favourites: Favourite[];
-}
-
-const favourites: Module<FavouritesState, RootState> = {
+const messagesSettings: Module<MessagesSettingsState, RootState> = {
     namespaced: true,
     state: supply({
-        favourites: []
+        autorefresh: true,
+        autorefreshInterval: 60,
+        displayedEntriesCount: 2
     }),
     mutations: {
-        add(state, favourite: Favourite) {
-            const existing = state.favourites.find((current: Favourite) => current.name === favourite.name);
-
-            if (!existing) {
-                state.favourites.push(favourite);
-            }
-
-            Object.assign(existing, except(favourite, ["id"]));
-        },
-        remove(state, favourite: Favourite) {
-            state.favourites = state.favourites.filter(f => f != favourite);
+        update(state: MessagesSettingsState, patch: Partial<MessagesSettingsState>) {
+            Object.assign(state, patch);
         }
     }
 };
 
-export default favourites;
+export default messagesSettings;
