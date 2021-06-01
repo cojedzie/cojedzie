@@ -17,9 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Module } from "vuex";
-import { RootState } from "../../root";
 import { supply } from "@/utils";
+import { NamespacedVuexModule, VuexMutationHandler } from "vuex";
 
 export type MessagesSettingsState = {
     autorefresh: boolean;
@@ -27,7 +26,13 @@ export type MessagesSettingsState = {
     displayedEntriesCount?: number;
 }
 
-const messagesSettings: Module<MessagesSettingsState, RootState> = {
+export type MessagesSettingsMutationTree = {
+    update: VuexMutationHandler<MessagesSettingsState, Partial<MessagesSettingsState>>
+}
+
+export type MessagesSettingsModule = NamespacedVuexModule<MessagesSettingsState, MessagesSettingsMutationTree>
+
+const messagesSettings: MessagesSettingsModule = {
     namespaced: true,
     state: supply({
         autorefresh: true,

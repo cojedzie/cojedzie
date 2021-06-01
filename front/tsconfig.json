@@ -14,7 +14,8 @@
       "@templates/*": ["./templates/*"],
       "@resources/*": ["./resources/*"],
       "@styles/*": ["./styles/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "vuex": ["./src/types/vuex.d.ts"]
     }
   },
   "files": ["src/app.ts"],

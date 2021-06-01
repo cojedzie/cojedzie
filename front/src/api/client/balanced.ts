@@ -40,11 +40,11 @@ export type LoadBalancedRequestOptions<
 export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
-    private readonly store: Store<RootState>;
+    private readonly store: Store<any>;
 
     constructor(
         balancer: LoadBalancer<TEndpoints>,
-        store: Store<RootState>,
+        store: Store<any>,
         bound?: Supplier<{ [name in TBoundParams]: string }>
     ) {
         this.bound = bound;

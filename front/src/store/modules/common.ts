@@ -19,7 +19,7 @@
 
 import { FetchingState, supply } from "@/utils";
 import moment, { Moment } from "moment";
-import { MutationTree } from "vuex";
+import { VuexMutationHandler } from "vuex";
 
 export interface CommonState {
     state: FetchingState,
@@ -31,9 +31,14 @@ export const state: CommonState = {
     state: "not-initialized",
     error: "",
     lastUpdate: moment()
-};
+}
 
-export const mutations: MutationTree<CommonState> = {
+export type CommonMutationTree = {
+    fetching: VuexMutationHandler<CommonState>,
+    error: VuexMutationHandler<CommonState, string>,
+}
+
+export const mutations: CommonMutationTree = {
     fetching: (state) => state.state = 'fetching',
     error:    (state, error) => {
         state.state = 'error';

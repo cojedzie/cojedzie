@@ -17,18 +17,75 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ActionContext, Module } from "vuex";
-import { RootState } from "../root";
 import { Message, MessageType } from "@/model/message";
-import common, { CommonState } from "./common";
+import common, { CommonMutationTree, CommonState } from "./common";
 import moment from 'moment';
 import { resolve, supply } from "@/utils";
+import { NamespacedVuexModule, VuexActionHandler, VuexMutationHandler, VuexGetter } from "vuex";
+
+export enum MessagesActions {
+    Update = "update",
+}
+
+export enum MessagesMutations {
+    ListReceived = "listReceived",
+}
 
 export interface MessagesState extends CommonState {
     messages: Message[]
 }
 
-export const messages: Module<MessagesState, RootState> = {
+export type MessagesMutationTree = {
+    [MessagesMutations.ListReceived]: VuexMutationHandler<MessagesState, Message[]>,
+}
+
+export type MessagesActionTree = {
+    [MessagesActions.Update]: VuexActionHandler<MessagesModule>,
+}
+
+export type MessagesGettersTree = {
+    count: VuexGetter<MessagesModule, number>,
+    counts: VuexGetter<MessagesModule, Record<MessageType, number>>,
+}
+
+const mutations: MessagesMutationTree = {
+    [MessagesMutations.ListReceived]: (state: MessagesState, messages: Message[]) => {
+        state.messages   = messages;
+        state.lastUpdate = moment();
+        state.state      = 'ready';
+    }
+}
+
+const actions: MessagesActionTree = {
+    async [MessagesActions.Update]({ commit }) {
+        commit('fetching');
+
+        try {
+            const response = await this.$api.get("v1_message_all", { version: "^1.0" });
+            const messages = response.data;
+
+            commit(
+                MessagesMutations.ListReceived,
+                messages.map(message => ({
+                    ...message,
+                    validFrom: moment(message.validFrom),
+                    validTo:   moment(message.validTo),
+                })) as Message[]
+            );
+        } catch (response) {
+            commit('error', JSON.stringify(response));
+        }
+    }
+}
+
+export type MessagesModule = NamespacedVuexModule<
+    MessagesState & CommonState,
+    MessagesMutationTree & CommonMutationTree,
+    MessagesActionTree,
+    MessagesGettersTree
+>;
+
+export const messages: MessagesModule = {
     namespaced: true,
     state: supply({
         messages: [],
@@ -36,38 +93,17 @@ export const messages: Module<MessagesState, RootState> = {
     }),
     getters: {
         count: state => state.messages.length,
-        counts: (state: MessagesState): { [x in MessageType]: number } => ({
+        counts: state => ({
             info:      state.messages.filter(m => m.type === 'info').length,
             unknown:   state.messages.filter(m => m.type === 'unknown').length,
             breakdown: state.messages.filter(m => m.type === 'breakdown').length,
         })
     },
     mutations: {
-        update: (state: MessagesState, messages: Message[]) => {
-            state.messages   = messages;
-            state.lastUpdate = moment();
-            state.state      = 'ready';
-        },
-        ...common.mutations
+        ...mutations,
+        ...common.mutations,
     },
-    actions: {
-        async update({ commit }: ActionContext<MessagesState, RootState>) {
-            commit('fetching');
-
-            try {
-                const response = await this.$api.get("v1_message_all", { version: "^1.0" });
-                const messages = response.data;
-
-                commit('update', messages.map(message => ({
-                    ...message,
-                    validFrom: moment(message.validFrom),
-                    validTo:   moment(message.validTo),
-                })));
-            } catch (response) {
-                commit('error', JSON.stringify(response));
-            }
-        }
-    }
+    actions,
 };
 
 export default messages;

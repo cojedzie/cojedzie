@@ -24,6 +24,7 @@ import { Provider, Stop } from "@/model";
 import { DeparturesSettingsState } from "@/store/modules/settings/departures";
 import { MessagesSettingsState } from "@/store/modules/settings/messages";
 import { prepare } from "@/api/utils";
+import { MessagesActions } from "@/store/modules/messages";
 
 @Component({ template: require("@templates/main.html") })
 export class Main extends Vue {
@@ -74,7 +75,8 @@ export class Main extends Vue {
 
     async created() {
         await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider });
-        this.$store.dispatch('messages/update');
+
+        this.$store.dispatch(`messages/${MessagesActions.Update}`);
         this.$store.dispatch('load', { });
 
         this.initDeparturesRefreshInterval();
@@ -119,7 +121,7 @@ export class Main extends Vue {
         messagesAutorefreshCallback();
     }
 
-    @Action('messages/update')   updateMessages: () => void;
+    @Action(`messages/${MessagesActions.Update}`)   updateMessages: () => void;
     @Action('departures/update') updateDepartures: () => void;
 
     @Mutation add: (stops: Stop[]) => void;

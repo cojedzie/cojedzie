@@ -17,17 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Action, GetterTree, Module } from "vuex";
-import { RootState } from "@/store/root";
 import { Endpoint, EndpointCollection } from "@/api/endpoints";
 import { Converter, createBackoff, Dictionary, Jsonified, supply } from "@/utils";
 import { ApiNode, ApiNodeUpdate } from "@/model/network";
-import { Mutation } from "@/store/types";
 import { LoadBalancerNode } from "@/api/loadbalancer";
 import { StaticClient } from "@/api/client/static";
 import { query } from "@/api/utils";
 import { AxiosResponse } from "axios";
 import EventSourcePolyfill from "eventsource";
+import { NamespacedVuexModule, VuexActionHandler, VuexGetter, VuexMutationHandler } from "vuex";
 
 const EventSource = (typeof window !== "undefined" && window.EventSource) || EventSourcePolyfill;
 
@@ -84,20 +82,26 @@ export interface NetworkState {
 }
 
 export type NetworkMutationTree = {
-    [NetworkMutations.NodeJoined]: Mutation<NetworkState, ApiNode>
-    [NetworkMutations.NodeLeft]: Mutation<NetworkState, string>
-    [NetworkMutations.NodeSuspended]: Mutation<NetworkState, string>
-    [NetworkMutations.NodeResumed]: Mutation<NetworkState, string>
-    [NetworkMutations.NodeFailed]: Mutation<NetworkState, string>
-    [NetworkMutations.NodeRecovered]: Mutation<NetworkState, string>
-    [NetworkMutations.NodeListUpdated]: Mutation<NetworkState, ApiNode[]>
+    [NetworkMutations.NodeJoined]: VuexMutationHandler<NetworkState, ApiNode>
+    [NetworkMutations.NodeLeft]: VuexMutationHandler<NetworkState, string>
+    [NetworkMutations.NodeSuspended]: VuexMutationHandler<NetworkState, string>
+    [NetworkMutations.NodeResumed]: VuexMutationHandler<NetworkState, string>
+    [NetworkMutations.NodeFailed]: VuexMutationHandler<NetworkState, string>
+    [NetworkMutations.NodeRecovered]: VuexMutationHandler<NetworkState, string>
+    [NetworkMutations.NodeListUpdated]: VuexMutationHandler<NetworkState, ApiNode[]>
 }
 
 export type NetworkActionTree = {
-    [NetworkActions.Update]: Action<NetworkState, RootState>,
-    [NetworkActions.NodeFailed]: Action<NetworkState, RootState>,
-    [NetworkActions.NodeCheck]: Action<NetworkState, RootState>,
+    [NetworkActions.Update]: VuexActionHandler<NetworkModule>,
+    [NetworkActions.NodeFailed]: VuexActionHandler<NetworkModule, string>,
+    [NetworkActions.NodeCheck]: VuexActionHandler<NetworkModule, string>,
 }
+
+export type NetworkGetterTree = {
+    available: VuexGetter<NetworkModule, NetworkNode[]>
+}
+
+export type NetworkModule = NamespacedVuexModule<NetworkState, NetworkMutationTree, NetworkActionTree, NetworkGetterTree>;
 
 const emptyNetworkNode: NetworkNodeState = {
     id: "",
@@ -182,6 +186,78 @@ const mutations: NetworkMutationTree = {
     },
 }
 
+const actions: NetworkActionTree = {
+    async [NetworkActions.Update]({ commit }) {
+        try {
+            const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
+
+            if (response.headers.hasOwnProperty('Set-Cookie')) {
+            document.cookie = response.headers['Set-Cookie'];
+        }
+
+        const hub = getMercureHub(response);
+
+            if (hub && !listener.connected) {
+                listener.initialize(hub, update => {
+                    switch (update.event) {
+                        case "node-joined":
+                            commit(NetworkMutations.NodeJoined, update.node);
+                            break;
+                        case "node-left":
+                            commit(NetworkMutations.NodeLeft, update.node.id);
+                            break;
+                        case "node-suspended":
+                            commit(NetworkMutations.NodeSuspended, update.node.id);
+                            break;
+                        case "node-resumed":
+                            commit(NetworkMutations.NodeResumed, update.node.id);
+                            break;
+                    }
+                });
+            }
+
+            commit(NetworkMutations.NodeListUpdated, response.data as ApiNode[])
+        } catch (err) {
+            console.log("Could not get network nodes");
+        }
+    },
+    async [NetworkActions.NodeFailed]({ commit, state, dispatch }, id) {
+        const node = state.nodes[id];
+
+        // If node was already removed from node list this is no-op
+        if (typeof node === "undefined") {
+            return;
+        }
+
+        commit(NetworkMutations.NodeFailed, id);
+        nodeBackoff(node.failures, () => { dispatch(NetworkActions.NodeCheck, id); })
+    },
+    async [NetworkActions.NodeCheck]({ commit, state, dispatch }, id) {
+        const node = state.nodes[id];
+
+        // If node was already removed from node list this is no-op
+        if (typeof node === "undefined") {
+            return;
+        }
+
+        try {
+            const response = await networkingClient.get("v1_status_health", {
+                version: "^1.0",
+                base: node.url
+            })
+
+            commit(NetworkMutations.NodeRecovered, id);
+        } catch {
+            commit(NetworkMutations.NodeFailed, id);
+            nodeBackoff(node.failures, () => { dispatch(NetworkActions.NodeCheck, id); })
+        }
+    }
+}
+
+const getters: NetworkGetterTree = {
+    available: state => Object.values(state.nodes).filter(node => node.available && !node.suspended)
+}
+
 class NetworkNodeUpdateListener {
     sse: EventSource;
 
@@ -253,79 +329,7 @@ const getMercureHub = (response: AxiosResponse): string|undefined => {
     return link.match(/<([^>]+)>;\s+rel=(?:mercure|"[^"]*mercure[^"]*")/)[1];
 }
 
-const actions: NetworkActionTree = {
-    async [NetworkActions.Update]({ commit }) {
-        try {
-            const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
-
-            if (response.headers.hasOwnProperty('Set-Cookie')) {
-            document.cookie = response.headers['Set-Cookie'];
-        }
-
-        const hub = getMercureHub(response);
-
-            if (hub && !listener.connected) {
-                listener.initialize(hub, update => {
-                    switch (update.event) {
-                        case "node-joined":
-                            commit(NetworkMutations.NodeJoined, update.node);
-                            break;
-                        case "node-left":
-                            commit(NetworkMutations.NodeLeft, update.node.id);
-                            break;
-                        case "node-suspended":
-                            commit(NetworkMutations.NodeSuspended, update.node.id);
-                            break;
-                        case "node-resumed":
-                            commit(NetworkMutations.NodeResumed, update.node.id);
-                            break;
-                    }
-                });
-            }
-
-            commit(NetworkMutations.NodeListUpdated, response.data)
-        } catch (err) {
-            console.log("Could not get network nodes");
-        }
-    },
-    async [NetworkActions.NodeFailed]({ commit, state, dispatch }, id) {
-        const node = state.nodes[id];
-
-        // If node was already removed from node list this is no-op
-        if (typeof node === "undefined") {
-            return;
-        }
-
-        commit(NetworkMutations.NodeFailed, id);
-        nodeBackoff(node.failures, () => { dispatch(NetworkActions.NodeCheck, id); })
-    },
-    async [NetworkActions.NodeCheck]({ commit, state, dispatch }, id) {
-        const node = state.nodes[id];
-
-        // If node was already removed from node list this is no-op
-        if (typeof node === "undefined") {
-            return;
-        }
-
-        try {
-            const response = await networkingClient.get("v1_status_health", {
-                version: "^1.0",
-                base: node.url
-            })
-
-            commit(NetworkMutations.NodeRecovered, id);
-        } catch {
-            commit(NetworkMutations.NodeFailed, id);
-            nodeBackoff(node.failures, () => { dispatch(NetworkActions.NodeCheck, id); })
-        }
-    }
-}
-
-const getters: GetterTree<NetworkState, RootState> = {
-    available: state => Object.values(state.nodes).filter(node => node.available && !node.suspended)
-}
-
-export const network: Module<NetworkState, RootState> = {
+export const network: NetworkModule = {
     namespaced: true,
     getters,
     state: supply({

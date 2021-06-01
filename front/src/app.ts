@@ -27,7 +27,7 @@ import Popper from 'popper.js';
 import * as $ from "jquery";
 // dependencies
 import Vue from "vue";
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import PortalVue from 'portal-vue';
 import VueDragscroll from 'vue-dragscroll';
 import { Plugin as VueFragment } from 'vue-fragment';
@@ -38,6 +38,7 @@ import * as VueMoment from "vue-moment";
 import moment from 'moment';
 import 'moment/locale/pl'
 import VueRouter from "vue-router";
+import { StoreDefinition } from "@/store/initializer";
 
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;

@@ -17,10 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { RootState } from "../root";
-import { Module } from "vuex";
 import { Stop } from "@/model";
 import { except, supply } from "@/utils";
+import { NamespacedVuexModule, VuexMutationHandler } from "vuex";
 
 export interface Favourite {
     id: string;
@@ -32,7 +31,14 @@ export interface FavouritesState {
     favourites: Favourite[];
 }
 
-const favourites: Module<FavouritesState, RootState> = {
+export type FavouritesMutationTree = {
+    add: VuexMutationHandler<FavouritesState, Favourite>,
+    remove: VuexMutationHandler<FavouritesState, Favourite>,
+}
+
+export type FavouritesModule = NamespacedVuexModule<FavouritesState, FavouritesMutationTree>
+
+const favourites: FavouritesModule = {
     namespaced: true,
     state: supply({
         favourites: []

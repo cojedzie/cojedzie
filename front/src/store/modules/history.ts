@@ -18,10 +18,9 @@
  */
 
 import { Stop } from "@/model";
-import { Module } from "vuex";
-import { RootState } from "../root";
 import moment, { Moment } from "moment";
 import { Jsonified, supply } from "@/utils";
+import { NamespacedVuexModule, VuexGetter, VuexMutationHandler } from "vuex";
 
 export interface HistoryEntry {
     stop: Stop,
@@ -37,6 +36,19 @@ export interface HistoryState {
     settings: HistorySettings,
 }
 
+export type HistoryMutationTree = {
+    clear: VuexMutationHandler<HistoryState>,
+    push: VuexMutationHandler<HistoryState, HistoryEntry>,
+    saveSettings: VuexMutationHandler<HistoryState, Partial<HistorySettings>>,
+}
+
+export type HistoryGetterTree = {
+    all: VuexGetter<HistoryModule, HistoryEntry[]>,
+    latest: VuexGetter<HistoryModule, (count: number) => HistoryEntry[]>,
+}
+
+export type HistoryModule = NamespacedVuexModule<HistoryState, HistoryMutationTree, undefined, HistoryGetterTree>
+
 export function serializeHistoryEntry(entry: HistoryEntry): Jsonified<HistoryEntry> {
     return {
         ...entry,
@@ -51,7 +63,7 @@ export function deserializeHistoryEntry(serialized: Jsonified<HistoryEntry>): Hi
     }
 }
 
-export const history: Module<HistoryState, RootState> = {
+export const history: HistoryModule = {
     namespaced: true,
     state: supply({
         entries: [],

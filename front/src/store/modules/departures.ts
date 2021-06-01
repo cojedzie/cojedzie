@@ -17,60 +17,90 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Module } from "vuex";
-import { RootState } from "../root";
 import { Departure, Line } from "../../model";
 import moment from 'moment'
-import common, { CommonState } from './common'
+import common, { CommonMutationTree, CommonState } from './common'
 import { resolve } from "@/utils";
+import { NamespacedVuexModule, VuexActionHandler, VuexMutationHandler } from "vuex";
+
+export enum DeparturesActions {
+    Update = "update",
+}
+
+export enum DeparturesMutations {
+    ListReceived = "listReceived",
+}
 
 export interface DeparturesState extends CommonState {
     departures: Departure[],
 }
 
-export const departures: Module<DeparturesState, RootState> = {
+export type DeparturesMutationTree = {
+    [DeparturesMutations.ListReceived]: VuexMutationHandler<DeparturesState, Departure[]>,
+}
+
+export type DeparturesActionTree = {
+    [DeparturesActions.Update]: VuexActionHandler<DeparturesModule>,
+}
+
+const mutations: DeparturesMutationTree = {
+    [DeparturesMutations.ListReceived]: (state, departures) => {
+        state.departures = departures;
+        state.lastUpdate = moment();
+        state.state      = 'ready';
+    }
+}
+
+const actions: DeparturesActionTree = {
+    async update({ commit }) {
+        const count = this.state['departures-settings'].displayedEntriesCount;
+        const stops = this.state.stops;
+
+        commit('fetching');
+
+        try {
+            const response = await this.$api.get('v1_departure_list', {
+                version: "^1.0",
+                query: {
+                    stop: stops.map(stop => stop.id),
+                    limit: count || 8,
+                }
+            });
+
+            const departures = response.data;
+
+            commit(
+                DeparturesMutations.ListReceived,
+                departures.map((departure): Departure => ({
+                    ...departure,
+                    line: departure.line as Line,
+                    scheduled: moment.parseZone(departure.scheduled),
+                    estimated: departure.estimated && moment.parseZone(departure.estimated),
+                }))
+            );
+        } catch (response) {
+            commit('error', JSON.stringify(response));
+        }
+    }
+}
+
+export type DeparturesModule = NamespacedVuexModule<
+    DeparturesState & CommonState,
+    DeparturesMutationTree & CommonMutationTree,
+    DeparturesActionTree
+>
+
+export const departures: DeparturesModule = {
     namespaced: true,
     state: () => ({
         departures: [ ],
         ...resolve(common.state)
     }),
     mutations: {
-        update: (state, departures) => {
-            state.departures = departures;
-            state.lastUpdate = moment();
-            state.state      = 'ready';
-        },
+        ...mutations,
         ...common.mutations
     },
-    actions: {
-        async update({ commit }) {
-            const count = this.state['departures-settings'].displayedEntriesCount;
-            const stops = this.state.stops;
-
-            commit('fetching');
-
-            try {
-                const response = await this.$api.get('v1_departure_list', {
-                    version: "^1.0",
-                    query: {
-                        stop: stops.map(stop => stop.id),
-                        limit: count || 8,
-                    }
-                });
-
-                const departures = response.data;
-
-                commit('update', departures.map((departure): Departure => ({
-                    ...departure,
-                    line: departure.line as Line,
-                    scheduled: moment.parseZone(departure.scheduled),
-                    estimated: departure.estimated && moment.parseZone(departure.estimated),
-                })));
-            } catch (response) {
-                commit('error', JSON.stringify(response));
-            }
-        }
-    }
+    actions,
 };
 
 export default departures;

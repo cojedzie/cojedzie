@@ -17,9 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Stop } from "@/model";
-import { ActionTree, MutationTree } from "vuex";
+import { Provider, Stop } from "@/model";
 import { ensureArray } from "@/utils";
+import { VuexActionHandler, VuexMutationHandler } from "vuex";
+import { StoreDefinition } from "@/store/initializer";
 
 export interface RootState {
     stops: Stop[],
@@ -40,7 +41,21 @@ export const state: RootState = {
     provider: null,
 };
 
-export const mutations: MutationTree<RootState> = {
+export type RootActionTree = {
+    loadProvider: VuexActionHandler<StoreDefinition, LoadProviderActionPayload, void>,
+    load: VuexActionHandler<StoreDefinition, SavedState, void>,
+    save: VuexActionHandler<StoreDefinition, never, Promise<SavedState>>,
+}
+
+export type RootMutationTree = {
+    add: VuexMutationHandler<RootState, Stop[]>,
+    replace: VuexMutationHandler<RootState, Stop[]>,
+    remove: VuexMutationHandler<RootState, Stop>,
+    clear: VuexMutationHandler<RootState>,
+    setProvider: VuexMutationHandler<RootState, Provider>,
+}
+
+export const mutations: RootMutationTree = {
     add:     (state, stops) => state.stops = [...state.stops, ...ensureArray(stops)],
     replace: (state, stops) => state.stops = stops,
     remove:  (state, stop) => state.stops = state.stops.filter(s => s != stop),
@@ -48,13 +63,15 @@ export const mutations: MutationTree<RootState> = {
     setProvider: (state, provider) => state.provider = provider,
 };
 
-export const actions: ActionTree<RootState, undefined> = {
+export type RootMutationsTree = typeof mutations;
+
+export const actions: RootActionTree = {
     async loadProvider({ commit }, { provider }) {
         const response = await this.$api.get('v1_provider_details', {
             params: { provider },
             version: '^1.0',
         });
-        commit('setProvider', response.data);
+        commit('setProvider', response.data as any);
     },
     async load({ commit }, { stops }: SavedState) {
         if (stops.length > 0) {

@@ -53,9 +53,9 @@ export interface LoadBalancer<TEndpoints extends EndpointCollection> {
 export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> implements LoadBalancer<TEndpoints> {
     private updateNodesTimeout;
     private fallback: TEndpoints;
-    private store: Store<RootState>;
+    private store: Store<any>;
 
-    constructor(fallback: TEndpoints, store: Store<RootState>) {
+    constructor(fallback: TEndpoints, store: Store<any>) {
         this.fallback = fallback;
         this.store = store;
 

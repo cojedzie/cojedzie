@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vuex, { ModuleTree, Plugin } from "vuex";
-import { actions, mutations, RootState, state } from "@/store/root";
+import Vuex, { VuexPlugin, VuexStateProvider, VuexStoreDefinition } from "vuex";
+import { actions, mutations, RootActionTree, RootMutationsTree, RootState, state } from "@/store/root";
 import { supply } from "@/utils";
 import messages, { MessagesState } from "@/store/modules/messages";
 import departures, { DeparturesState } from "@/store/modules/departures";
@@ -31,9 +31,10 @@ import { LoadBalancedClient } from "@/api/client/balanced";
 import { LoadBalancerImplementation } from "@/api/loadbalancer";
 import { Endpoints, endpoints } from "@/api/endpoints";
 import { ApiClient } from "@/api/client";
+import Vue from "vue";
 
-declare module 'vuex/types' {
-    interface Store<S> {
+declare module 'vuex' {
+    interface Store<TDefinition extends VuexStoreDefinition> {
         $api: ApiClient<Endpoints, "provider">
     }
 }
@@ -49,14 +50,30 @@ export type State = {
 } & RootState;
 
 export type StoreOptions = {
-    plugins?: Plugin<RootState>[],
-    state?: RootState,
-    modules?: ModuleTree<RootState>,
+    plugins?: VuexPlugin<any>[],
+    state?: any,
+    modules?: any,
+}
+
+export type StoreDefinition = {
+    state: VuexStateProvider<RootState>,
+    actions: RootActionTree,
+    mutations: RootMutationsTree,
+    modules: {
+        messages: typeof messages,
+        departures: typeof departures,
+        favourites: typeof favourites,
+        'departures-settings': typeof departureSettings,
+        'messages-settings': typeof messagesSettings,
+        history: typeof history,
+        network: typeof network,
+    },
+    plugins: VuexPlugin<any>[],
 }
 
 export function createStore(options?: StoreOptions) {
-    const store = new Vuex.Store<RootState>({
-        state: supply(options?.state || state),
+    const store = new Vuex.Store<StoreDefinition>({
+        state: supply(options?.state || state) as any,
         mutations,
         actions,
         modules: {

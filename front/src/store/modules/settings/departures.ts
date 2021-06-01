@@ -17,9 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Module } from "vuex";
-import { RootState } from "../../root";
 import { supply } from "@/utils";
+import { NamespacedVuexModule, VuexMutationHandler } from "vuex";
 
 export type DeparturesSettingsState = {
     autorefresh: boolean;
@@ -28,7 +27,13 @@ export type DeparturesSettingsState = {
     relativeTimes: boolean,
 }
 
-const departureSettings: Module<DeparturesSettingsState, RootState> = {
+export type DeparturesSettingsMutationTree = {
+    update: VuexMutationHandler<DeparturesSettingsState, Partial<DeparturesSettingsState>>
+}
+
+export type DeparturesSettingsModule = NamespacedVuexModule<DeparturesSettingsState, DeparturesSettingsMutationTree>
+
+const departureSettings: DeparturesSettingsModule = {
     namespaced: true,
     state: supply({
         autorefresh: true,
