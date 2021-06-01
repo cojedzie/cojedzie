@@ -31,7 +31,6 @@ import { LoadBalancedClient } from "@/api/client/balanced";
 import { LoadBalancerImplementation } from "@/api/loadbalancer";
 import { Endpoints, endpoints } from "@/api/endpoints";
 import { ApiClient } from "@/api/client";
-import Vue from "vue";
 
 declare module 'vuex' {
     interface Store<TDefinition extends VuexStoreDefinition> {

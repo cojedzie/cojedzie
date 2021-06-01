@@ -26,8 +26,12 @@ export type MessagesSettingsState = {
     displayedEntriesCount?: number;
 }
 
+export enum MessagesSettingsMutations {
+    Update = "update",
+}
+
 export type MessagesSettingsMutationTree = {
-    update: VuexMutationHandler<MessagesSettingsState, Partial<MessagesSettingsState>>
+    [MessagesSettingsMutations.Update]: VuexMutationHandler<MessagesSettingsState, Partial<MessagesSettingsState>>
 }
 
 export type MessagesSettingsModule = NamespacedVuexModule<MessagesSettingsState, MessagesSettingsMutationTree>
@@ -40,7 +44,7 @@ const messagesSettings: MessagesSettingsModule = {
         displayedEntriesCount: 2
     }),
     mutations: {
-        update(state: MessagesSettingsState, patch: Partial<MessagesSettingsState>) {
+        [MessagesSettingsMutations.Update](state, patch) {
             Object.assign(state, patch);
         }
     }

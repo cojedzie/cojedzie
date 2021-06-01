@@ -19,7 +19,7 @@
 
 import { Departure, Line } from "../../model";
 import moment from 'moment'
-import common, { CommonMutationTree, CommonState } from './common'
+import common, { CommonMutations, CommonMutationTree, CommonState } from './common'
 import { resolve } from "@/utils";
 import { NamespacedVuexModule, VuexActionHandler, VuexMutationHandler } from "vuex";
 
@@ -56,7 +56,7 @@ const actions: DeparturesActionTree = {
         const count = this.state['departures-settings'].displayedEntriesCount;
         const stops = this.state.stops;
 
-        commit('fetching');
+        commit(CommonMutations.Fetching);
 
         try {
             const response = await this.$api.get('v1_departure_list', {
@@ -79,7 +79,7 @@ const actions: DeparturesActionTree = {
                 }))
             );
         } catch (response) {
-            commit('error', JSON.stringify(response));
+            commit(CommonMutations.Error, JSON.stringify(response));
         }
     }
 }

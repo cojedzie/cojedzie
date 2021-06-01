@@ -25,9 +25,13 @@ import { DeparturesSettingsState } from "@/store/modules/settings/departures";
 import { MessagesSettingsState } from "@/store/modules/settings/messages";
 import { prepare } from "@/api/utils";
 import { MessagesActions } from "@/store/modules/messages";
+import { StoreDefinition } from "@/store/initializer";
+import { Store } from "vuex";
 
 @Component({ template: require("@templates/main.html") })
 export class Main extends Vue {
+    $store: Store<StoreDefinition>;
+
     private sections = {
         messages: true
     };
@@ -62,7 +66,7 @@ export class Main extends Vue {
     }
 
     set stops(value) {
-        this.$store.commit('updateStops', value);
+        this.$store.commit('replace', value);
     }
 
     mounted() {
@@ -77,7 +81,7 @@ export class Main extends Vue {
         await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider });
 
         this.$store.dispatch(`messages/${MessagesActions.Update}`);
-        this.$store.dispatch('load', { });
+        this.$store.dispatch('load', { version: 1, stops: [] });
 
         this.initDeparturesRefreshInterval();
         this.initMessagesRefreshInterval();
@@ -121,7 +125,7 @@ export class Main extends Vue {
         messagesAutorefreshCallback();
     }
 
-    @Action(`messages/${MessagesActions.Update}`)   updateMessages: () => void;
+    @Action(`messages/${MessagesActions.Update}`) updateMessages: () => void;
     @Action('departures/update') updateDepartures: () => void;
 
     @Mutation add: (stops: Stop[]) => void;

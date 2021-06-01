@@ -24,7 +24,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import { FetchingState, filter, map, match, unique } from "@/utils";
 import { debounce } from "@/decorators";
 import { Mutation } from "vuex-class";
-import { HistoryEntry } from "@/store/modules/history";
+import { HistoryEntry, HistoryMutations } from "@/store/modules/history";
 import { StopHistory } from "./history";
 import api from "@/api";
 
@@ -84,7 +84,7 @@ export class FinderComponent extends Vue {
     @Prop({default: [], type: Array})
     public blacklist: Stop[];
 
-    @Mutation('history/push') pushToHistory: (entry: HistoryEntry) => void;
+    @Mutation(`history/${HistoryMutations.Push}`) pushToHistory: (entry: HistoryEntry) => void;
 
     get filtered(): StopGroups {
         const groups = map(

@@ -19,7 +19,7 @@
 
 import { Stop } from "@/model";
 import moment, { Moment } from "moment";
-import { Jsonified, supply } from "@/utils";
+import { Jsonified, supply, TwoWayConverter } from "@/utils";
 import { NamespacedVuexModule, VuexGetter, VuexMutationHandler } from "vuex";
 
 export interface HistoryEntry {
@@ -36,10 +36,16 @@ export interface HistoryState {
     settings: HistorySettings,
 }
 
+export enum HistoryMutations {
+    Clear = "clear",
+    Push = "push",
+    SaveSettings = "saveSettings"
+}
+
 export type HistoryMutationTree = {
-    clear: VuexMutationHandler<HistoryState>,
-    push: VuexMutationHandler<HistoryState, HistoryEntry>,
-    saveSettings: VuexMutationHandler<HistoryState, Partial<HistorySettings>>,
+    [HistoryMutations.Clear]: VuexMutationHandler<HistoryState>,
+    [HistoryMutations.Push]: VuexMutationHandler<HistoryState, HistoryEntry>,
+    [HistoryMutations.SaveSettings]: VuexMutationHandler<HistoryState, Partial<HistorySettings>>,
 }
 
 export type HistoryGetterTree = {
@@ -49,17 +55,18 @@ export type HistoryGetterTree = {
 
 export type HistoryModule = NamespacedVuexModule<HistoryState, HistoryMutationTree, undefined, HistoryGetterTree>
 
-export function serializeHistoryEntry(entry: HistoryEntry): Jsonified<HistoryEntry> {
-    return {
-        ...entry,
-        date: entry.date.toISOString(),
-    }
-}
-
-export function deserializeHistoryEntry(serialized: Jsonified<HistoryEntry>): HistoryEntry {
-    return {
-        ...serialized,
-        date: moment(serialized.date),
+export const historyEntrySerializer: TwoWayConverter<HistoryEntry, Jsonified<HistoryEntry>> = {
+    convert(entry: HistoryEntry): Jsonified<HistoryEntry> {
+        return {
+            ...entry,
+            date: entry.date.toISOString(),
+        }
+    },
+    convertBack(serialized: Jsonified<HistoryEntry>): HistoryEntry {
+        return {
+            ...serialized,
+            date: moment(serialized.date),
+        }
     }
 }
 
@@ -72,24 +79,24 @@ export const history: HistoryModule = {
         }
     }),
     mutations: {
-        clear(state: HistoryState) {
+        [HistoryMutations.Clear](state: HistoryState) {
             state.entries = [];
         },
-        push(state: HistoryState, entry: HistoryEntry) {
+        [HistoryMutations.Push](state: HistoryState, entry: HistoryEntry) {
             state.entries = state.entries.filter(cur => cur.stop.id != entry.stop.id);
-            state.entries.unshift(serializeHistoryEntry(entry));
+            state.entries.unshift(historyEntrySerializer.convert(entry));
 
             if (state.entries.length > state.settings.maxEntries) {
                 state.entries = state.entries.slice(0, state.settings.maxEntries);
             }
         },
-        saveSettings(state: HistoryState, settings: Partial<HistorySettings>) {
+        [HistoryMutations.SaveSettings](state: HistoryState, settings: Partial<HistorySettings>) {
             Object.assign(state.settings, settings);
         }
     },
     getters: {
-        all: ({ entries, settings }) => entries.slice(0, settings.maxEntries).map(deserializeHistoryEntry),
-        latest: ({ entries }) => n => entries.slice(0, n).map(deserializeHistoryEntry),
+        all: ({ entries, settings }) => entries.slice(0, settings.maxEntries).map(historyEntrySerializer.convertBack),
+        latest: ({ entries }) => n => entries.slice(0, n).map(historyEntrySerializer.convertBack),
     }
 }
 

@@ -18,7 +18,7 @@
  */
 
 import { Message, MessageType } from "@/model/message";
-import common, { CommonMutationTree, CommonState } from "./common";
+import common, { CommonMutations, CommonMutationTree, CommonState } from "./common";
 import moment from 'moment';
 import { resolve, supply } from "@/utils";
 import { NamespacedVuexModule, VuexActionHandler, VuexMutationHandler, VuexGetter } from "vuex";
@@ -58,7 +58,7 @@ const mutations: MessagesMutationTree = {
 
 const actions: MessagesActionTree = {
     async [MessagesActions.Update]({ commit }) {
-        commit('fetching');
+        commit(CommonMutations.Fetching);
 
         try {
             const response = await this.$api.get("v1_message_all", { version: "^1.0" });
@@ -73,7 +73,7 @@ const actions: MessagesActionTree = {
                 })) as Message[]
             );
         } catch (response) {
-            commit('error', JSON.stringify(response));
+            commit(CommonMutations.Error, JSON.stringify(response));
         }
     }
 }

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FetchingState, supply } from "@/utils";
+import { FetchingState } from "@/utils";
 import moment, { Moment } from "moment";
 import { VuexMutationHandler } from "vuex";
 
@@ -33,20 +33,27 @@ export const state: CommonState = {
     lastUpdate: moment()
 }
 
+export enum CommonMutations {
+    Fetching = "fetching",
+    Error = "error",
+}
+
 export type CommonMutationTree = {
-    fetching: VuexMutationHandler<CommonState>,
-    error: VuexMutationHandler<CommonState, string>,
+    [CommonMutations.Fetching]: VuexMutationHandler<CommonState>,
+    [CommonMutations.Error]: VuexMutationHandler<CommonState, string>,
 }
 
 export const mutations: CommonMutationTree = {
-    fetching: (state) => state.state = 'fetching',
-    error:    (state, error) => {
+    [CommonMutations.Fetching]: state => {
+        state.state = 'fetching'
+    },
+    [CommonMutations.Error]: (state, error) => {
         state.state = 'error';
         state.error = error;
     }
 };
 
 export default {
-    state: supply(state),
+    state,
     mutations
 };

@@ -27,8 +27,12 @@ export type DeparturesSettingsState = {
     relativeTimes: boolean,
 }
 
+export enum DeparturesSettingsMutations {
+    Update = "update",
+}
+
 export type DeparturesSettingsMutationTree = {
-    update: VuexMutationHandler<DeparturesSettingsState, Partial<DeparturesSettingsState>>
+    [DeparturesSettingsMutations.Update]: VuexMutationHandler<DeparturesSettingsState, Partial<DeparturesSettingsState>>
 }
 
 export type DeparturesSettingsModule = NamespacedVuexModule<DeparturesSettingsState, DeparturesSettingsMutationTree>
@@ -42,7 +46,7 @@ const departureSettings: DeparturesSettingsModule = {
         displayedEntriesCount: 10
     }),
     mutations: {
-        update(state: DeparturesSettingsState, patch: Partial<DeparturesSettingsState>) {
+        [DeparturesSettingsMutations.Update](state, patch) {
             Object.assign(state, patch);
         }
     }

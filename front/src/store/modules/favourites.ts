@@ -31,9 +31,14 @@ export interface FavouritesState {
     favourites: Favourite[];
 }
 
+export enum FavouritesMutations {
+    Add = "add",
+    Remove = "remove",
+}
+
 export type FavouritesMutationTree = {
-    add: VuexMutationHandler<FavouritesState, Favourite>,
-    remove: VuexMutationHandler<FavouritesState, Favourite>,
+    [FavouritesMutations.Add]: VuexMutationHandler<FavouritesState, Favourite>,
+    [FavouritesMutations.Remove]: VuexMutationHandler<FavouritesState, Favourite>,
 }
 
 export type FavouritesModule = NamespacedVuexModule<FavouritesState, FavouritesMutationTree>
@@ -44,7 +49,7 @@ const favourites: FavouritesModule = {
         favourites: []
     }),
     mutations: {
-        add(state, favourite: Favourite) {
+        [FavouritesMutations.Add](state, favourite: Favourite) {
             const existing = state.favourites.find((current: Favourite) => current.name === favourite.name);
 
             if (!existing) {
@@ -53,7 +58,7 @@ const favourites: FavouritesModule = {
 
             Object.assign(existing, except(favourite, ["id"]));
         },
-        remove(state, favourite: Favourite) {
+        [FavouritesMutations.Remove](state, favourite: Favourite) {
             state.favourites = state.favourites.filter(f => f != favourite);
         }
     }
