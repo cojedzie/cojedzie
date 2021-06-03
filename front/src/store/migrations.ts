@@ -41,13 +41,19 @@ const migrations: Migration[] = [
             const current = state.favourites.favourites;
 
             const ids = current
-                .map(favourite => favourite.state.stops)
-                .reduce((cur, acc) => [ ...cur, ...acc ])
+                .flatMap(favourite => favourite.state.stops)
                 .filter(distinct)
             ;
 
-            const stops  = (await api.get("v1_stop_list", { query: { id: ids }, version: "^1.0" })).data;
-            const lookup = stops.reduce((lookup, stop) => ({ ...lookup, [stop.id]: stop }), {});
+            const stops = await api.get("v1_stop_list", {
+                query: { id: ids },
+                version: "^1.0"
+            });
+
+            const lookup = stops.data.reduce(
+                (lookup, stop) => ({ ...lookup, [stop.id]: stop }),
+                {}
+            );
 
             return {
                 ...state,

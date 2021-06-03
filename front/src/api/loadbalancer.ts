@@ -71,7 +71,7 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
         name: TEndpoint,
         options: LoadBalanceOptions<TEndpoints, TEndpoint>
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]> {
-        const requirements = options.require || (endpoint => true)
+        const requirements = options.require || (_ => true)
 
         return (this.store.getters['network/available'] as LoadBalancerNode<TEndpoints>[])
             .filter(node => typeof node.endpoints[name as string] !== "undefined")
