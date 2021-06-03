@@ -10,6 +10,8 @@ type Trigger = "hover" | "focus" | "long-press";
 
 const longPressTimeout = 1000;
 
+const openedTooltips: Set<TooltipComponent> = new Set<TooltipComponent>();
+
 @Component({ template: require('@templates/tooltip.html') })
 export class TooltipComponent extends Vue {
     @Prop({ type: String, default: "top" }) public placement: string;
@@ -21,12 +23,24 @@ export class TooltipComponent extends Vue {
 
     private _events: Events = {};
 
+    @Watch('show')
+    updateOpenTooltipsList(show) {
+        if (show) {
+            openedTooltips.add(this);
+        } else {
+            openedTooltips.delete(this);
+        }
+
+        console.log(openedTooltips);
+    }
+
     mounted() {
         this.root = (this.$refs['root'] as HTMLSpanElement).parentElement;
         this.updateTriggers();
     }
 
     beforeDestroy() {
+        openedTooltips.delete(this);
         this._removeEventListeners();
     }
 
@@ -109,5 +123,11 @@ export class TooltipComponent extends Vue {
         }
     }
 }
+
+document.addEventListener('touchstart', () => {
+    for (let tooltip of openedTooltips.values()) {
+        tooltip.show = false;
+    }
+})
 
 Vue.component('Tooltip', TooltipComponent);
