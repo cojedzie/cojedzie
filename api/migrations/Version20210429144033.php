@@ -46,7 +46,7 @@ final class Version20210429144033 extends AbstractMigration
         $this->addSql('CREATE TABLE federated_connection (id BLOB NOT NULL --(DC2Type:uuid)
         , server_id BLOB DEFAULT NULL --(DC2Type:uuid)
         , url VARCHAR(255) NOT NULL COLLATE BINARY, opened_at DATETIME NOT NULL, closed_at DATETIME DEFAULT NULL, last_check DATETIME DEFAULT NULL, next_check DATETIME NOT NULL, failures INTEGER NOT NULL, failures_total INTEGER NOT NULL, state VARCHAR(255) NOT NULL COLLATE BINARY, last_status CLOB default NULL, PRIMARY KEY(id), CONSTRAINT FK_D3AF7DF01844E6B7 FOREIGN KEY (server_id) REFERENCES federated_server (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
-        $this->addSql('INSERT INTO federated_connection (id, server_id, url, opened_at, closed_at, last_check, next_check, failures, failures_total, state, last_status) SELECT id, server_id, url, opened_at, closed_at, last_check, next_check, failures, failures_total, state FROM __temp__federated_connection');
+        $this->addSql('INSERT INTO federated_connection (id, server_id, url, opened_at, closed_at, last_check, next_check, failures, failures_total, state) SELECT id, server_id, url, opened_at, closed_at, last_check, next_check, failures, failures_total, state FROM __temp__federated_connection');
         $this->addSql('DROP TABLE __temp__federated_connection');
         $this->addSql('CREATE INDEX IDX_D3AF7DF01844E6B7 ON federated_connection (server_id)');
         $this->addSql('ALTER TABLE federated_server ADD COLUMN secret VARCHAR(255) NOT NULL default \'\'');
