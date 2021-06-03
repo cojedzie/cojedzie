@@ -1,8 +1,8 @@
 {
   "name": "cojedzie",
-  "version": "2021.01",
+  "version": "2021.1.0",
   "author": "Kacper Donat <kadet1090@gmail.com>",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.4",
     "@fortawesome/vue-fontawesome": "^0.1.1",

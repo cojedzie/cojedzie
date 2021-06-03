@@ -2,7 +2,8 @@
     "name": "kadet/cojedzie",
     "description": "Co Jedzie",
     "type": "project",
-    "license": "MIT with Commons Clause",
+    "version": "2021.1.0",
+    "license": "AGPL-3.0-only",
     "require": {
         "php": "^7.4",
         "ext-ctype": "*",

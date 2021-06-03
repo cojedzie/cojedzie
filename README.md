@@ -17,12 +17,12 @@ problem. Issue management and discussion would be done on the github, but planni
 trello with linked issue.
 
 ## Contributing
-Wan't to contribute? Nice! Please see [CONTRIBUTING.md]
+Want to contribute? Nice! Please see [CONTRIBUTING.md]
 
 ## License
-This project is [fair-code](https://faircode.io/) licensed under [MIT with Commons Clause](./LICENSE.md). Basically, Co 
-Jedzie is free and code is available to everyone, but it's not allowed to make money directly with it without 
-authors permission.
+This project is licensed under the [GNU AGPLv3](https://opensource.org/licenses/AGPL-3.0) license that can be found in 
+the [`LICENSE.md`](./LICENSE.md) file. Basically you can use it for free but any changes made to the project must be 
+published under the same license in case of distribution (Network use is distribution).
 
 Note that data collected from available data sources is licensed by their respective owners, thus it may be 
 available under different terms than the project itself and may require additional permissions to use.
