@@ -52,7 +52,7 @@ const mutations: DeparturesMutationTree = {
 }
 
 const actions: DeparturesActionTree = {
-    async update({ commit }) {
+    async [DeparturesActions.Update]({ commit }) {
         const count = this.state['departures-settings'].displayedEntriesCount;
         const stops = this.state.stops;
 
