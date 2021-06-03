@@ -6,6 +6,17 @@ separately and adhere to the [Semantic Versioning].
 
 ## [Unreleased]
 
+## [2021.1.1] - 2021-06-03
+
+### Added
+ - `.utils/bump-version.sh` utility to change version in package meta files
+
+### Changed
+ - Front: Version in frontend server is now obtained from `package.json`
+
+### Fixed 
+ - API: Undefined column in migration `Version20210429144033`
+
 ## [2021.1.0] - 2021-06-03
 First tracked release of cojedzie
 
@@ -16,7 +27,8 @@ First tracked release of cojedzie
 ### Changed 
  - Project is now licensed under the AGPLv3 license terms
 
-[Unreleased]: https://github.com/cojedzie/cojedzie/compare/v2021.1.0...HEAD
+[Unreleased]: https://github.com/cojedzie/cojedzie/compare/v2021.1.1...HEAD
+[2021.1.1]: https://github.com/cojedzie/cojedzie/compare/v2021.1.0...v2021.1.1
 [2021.1.0]: https://github.com/cojedzie/cojedzie/tree/v2021.1.0
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
