@@ -22,6 +22,8 @@ import path from "path";
 import fs from "fs";
 import request from "request";
 
+const { version } = require("../package.json")
+
 const server = express();
 
 const port = parseInt(process.env.APP_PORT) || 3000;
@@ -29,7 +31,6 @@ const host = process.env.APP_HOST || '0.0.0.0';
 const api  = process.env.APP_API || "https://cojedzie.pl/api";
 
 const gtm_tracking = process.env.APP_GTM || '';
-const version = "2021.1.0";
 
 const manifest = JSON.parse(
     fs.readFileSync(path.join(__dirname, "../resources/manifest.json")).toString("utf-8")
