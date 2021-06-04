@@ -37,4 +37,5 @@ COPY ./supervisord-init.sh ./bin/
 ENV COJEDZIE_WORKER_QUEUES=main
 ENV COJEDZIE_WORKER_OPTS="-vv --time-limit=86400 --limit=10 --memory-limit=128M"
 
+ENTRYPOINT ["./bin/docker-entrypoint.sh"]
 CMD ["./bin/supervisord-init.sh", "supervisord", "-c", "/etc/supervisord.conf"]

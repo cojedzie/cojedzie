@@ -7,4 +7,5 @@ COPY --from=spiralscout/roadrunner:1.9.2 /usr/bin/rr /usr/bin/rr
 
 EXPOSE 8080
 
+ENTRYPOINT ["./bin/docker-entrypoint.sh"]
 CMD ["./bin/docker-init.sh", "rr", "serve", "-v"]

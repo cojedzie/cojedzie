@@ -6,6 +6,14 @@ separately and adhere to the [Semantic Versioning].
 
 ## [Unreleased]
 
+## [2021.1.2] - 2021-06-04
+
+### Added
+- API: `/api/v1/network/nodes` should return authorization cookie
+
+### Changed
+- Build: PHP docker image layers should be now more reusable
+
 ## [2021.1.1] - 2021-06-03
 
 ### Added
