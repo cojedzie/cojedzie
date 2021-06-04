@@ -253,6 +253,10 @@ const actions: NetworkActionTree = {
     [NetworkActions.Update]: async ({ commit }) => {
         const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
 
+        if (response.headers.hasOwnProperty('Set-Cookie')) {
+            document.cookie = response.headers['Set-Cookie'];
+        }
+
         const hub = getMercureHub(response);
 
         if (hub && !listener.connected) {

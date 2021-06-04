@@ -32,6 +32,7 @@ use Kadet\Functional as f;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mercure\Authorization;
 use Symfony\Component\Mercure\Discovery;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -75,6 +76,7 @@ class NetworkController extends Controller
         FederatedConnectionEntityRepository $connectionRepository,
         Converter $converter,
         Discovery $discovery,
+        Authorization $authorization,
         Request $request
     ) {
         $discovery->addLink($request);
@@ -84,7 +86,12 @@ class NetworkController extends Controller
             ->prepend($this->getSelfNode())
         ;
 
-        return $this->json($nodes);
+        $response = $this->json($nodes);
+        $response->headers->setCookie(
+            $authorization->createCookie($request, ['network/nodes'])
+        );
+
+        return $response;
     }
 
     private function getSelfNode()
