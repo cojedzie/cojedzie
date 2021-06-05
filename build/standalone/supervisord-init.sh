@@ -4,4 +4,4 @@ if [ -f /etc/supervisord.conf.tpl ]; then
   envsubst < /etc/supervisord.conf.tpl > /etc/supervisord.conf
 fi
 
-exec "$@"
+exec ./bin/docker-init.sh "$@"

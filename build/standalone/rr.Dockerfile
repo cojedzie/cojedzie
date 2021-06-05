@@ -30,7 +30,18 @@ RUN apk add supervisor gettext && \
         echo 'stderr_logfile=/dev/stderr'; \
         echo 'stdout_logfile_maxbytes=0'; \
         echo 'stderr_logfile_maxbytes=0'; \
-    } | tee /etc/supervisord.conf.tpl;
+        echo ; \
+        echo '[program:cron]'; \
+        echo 'command=crond -l 2 -f'; \
+        echo 'startsecs=0'; \
+        echo 'start=true'; \
+        echo 'autorestart=true'; \
+        echo 'stdout_logfile=/dev/stdout'; \
+        echo 'stderr_logfile=/dev/stderr'; \
+        echo 'stdout_logfile_maxbytes=0'; \
+        echo 'stderr_logfile_maxbytes=0'; \
+    } | tee /etc/supervisord.conf.tpl && \
+    echo "* * * * *     cd /var/www && ./bin/console schedule:run" >> /etc/crontabs/root;
 
 COPY ./supervisord-init.sh ./bin/
 
