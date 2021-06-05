@@ -6,6 +6,13 @@ separately and adhere to the [Semantic Versioning].
 
 ## [Unreleased]
 
+### Added
+ - API: `nelmio/cors-bundle` for CORS policy management
+ - API: `CORS_ALLOW_ORIGIN` environment variable, that controls allowed origins for CORS calls, `https://.+` by default
+ - API: Synchronization is now triggered by the scheduler daily at 2AM
+ - API: Synchronization is now automatically triggered after migrations
+ - Build: Scheduler (cron) is now available in the `cojedzie/standalone` image
+
 ## [2021.1.2] - 2021-06-04
 
 ### Added
