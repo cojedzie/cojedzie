@@ -36,6 +36,7 @@ First tracked release of cojedzie
  - Project is now licensed under the AGPLv3 license terms
 
 [Unreleased]: https://github.com/cojedzie/cojedzie/compare/v2021.1.1...HEAD
+[2021.1.2]: https://github.com/cojedzie/cojedzie/compare/v2021.1.1...v2021.1.2
 [2021.1.1]: https://github.com/cojedzie/cojedzie/compare/v2021.1.0...v2021.1.1
 [2021.1.0]: https://github.com/cojedzie/cojedzie/tree/v2021.1.0
 

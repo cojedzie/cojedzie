@@ -1,0 +1,10 @@
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin: ['%env(CORS_ALLOW_ORIGIN)%', '%env(FEDERATION_HUB)%']
+        allow_methods: ['GET', 'OPTIONS']
+        allow_headers: ['Content-Type', 'Authorization', 'X-CoJedzie-Connection-Id', 'X-CoJedzie-Server-Id']
+        expose_headers: ['Link', 'X-CoJedzie-Connection-Id', 'X-CoJedzie-Server-Id']
+        max_age: 3600
+    paths:
+        '^/': ~

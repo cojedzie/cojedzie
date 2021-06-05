@@ -11,6 +11,8 @@ parameters:
     env(FEDERATION_SERVER_ID): null
     env(FEDERATION_URL): null
 
+    env(CORS_ALLOW_ORIGIN): '^https?://.*'
+
 services:
     # default configuration for services in *this* file
     _defaults:
