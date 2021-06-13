@@ -31,7 +31,7 @@ class UpdateScheduleBuilder implements ScheduleBuilder
             ->addCommand('app:update', '--async')
             ->description('Synchronise data from external sources.')
             ->daily()
-            ->at(2)
+            ->at(4)
         ;
     }
 }
