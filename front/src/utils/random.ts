@@ -18,7 +18,24 @@
  */
 
 export function choice<T>(array: T[]): T {
-    return array[array.length * Math.random() | 0];
+    return array[(array.length * Math.random()) | 0];
+}
+
+export function choices<T>(array: T[], count: number): T[] {
+    const shuffled = shuffle(Array.from(array));
+    return shuffled.slice(0, count);
+}
+
+/**
+ * Copied from: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+ */
+export function shuffle<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
 }
 
 export function normal(mean?: number, sigma?: number) {

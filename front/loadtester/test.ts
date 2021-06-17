@@ -21,14 +21,16 @@ import "module-alias/register";
 
 import Vue from "vue";
 import Vuex, { Store } from "vuex";
-import { http } from "@/api/client/http";
+import { createHttpClient, http } from "@/api/client/http";
 import { AxiosRequestConfig } from "axios";
 import moment, { Moment } from "moment";
 import yargs from "yargs";
-import { createStore } from "@/store/initializer";
-import { RootState } from "@/store/root";
-import { normal } from "@/utils/random";
-import { delay } from "@/utils";
+import { createStore, StoreDefinition } from "@/store/initializer";
+import { choice, choices, normal } from "@/utils/random";
+import { delay, map } from "@/utils";
+
+import * as httpModule from "http";
+import * as httpsModule from "https";
 
 const { hideBin } = require('yargs/helpers')
 
@@ -54,6 +56,12 @@ const argv = yargs(hideBin(process.argv))
             description: "Mean delay between client initializations",
             alias: 'd',
         },
+        progress: {
+            type: "number",
+            default: 5000,
+            description: "Interval between reporting progress to output",
+            alias: 'p',
+        },
         verbose: {
             type: "boolean",
             default: false,
@@ -71,42 +79,188 @@ const argv = yargs(hideBin(process.argv))
 
 const requestStartTimes = new WeakMap<AxiosRequestConfig, Moment>()
 
-http.defaults.baseURL = argv.url;
-http.interceptors.request.use(req => {
+let requestCounts: Record<string, number> = {};
+let requestTimes: Record<string, number[]> = {};
+
+let totalRequestCounts: Record<string, number> = {};
+let totalRequestTimes: Record<string, number[]> = {};
+
+let runningClients = 0;
+
+const requestStartTimingInterceptor = req => {
     requestStartTimes.set(req, moment());
     return req;
-})
-http.interceptors.response.use(res => {
+}
+
+const requestEndTimingInterceptor = res => {
     const startTime = requestStartTimes.get(res.config);
     const endTime   = moment();
 
-    console.log(endTime.diff(startTime), res.config.url);
-    return res;
-})
+    const duration = endTime.diff(startTime, "milliseconds");
 
-async function scenario(store: Store<RootState>) {
+    const fullUrl = res.config.baseURL + res.config.url;
+
+    requestCounts[fullUrl] = (requestCounts[fullUrl] || 0) + 1;
+
+    if (typeof requestTimes[fullUrl] === "undefined") {
+        requestTimes[fullUrl] = [ duration ];
+    } else {
+        requestTimes[fullUrl].push(duration);
+    }
+
+    return res;
+}
+
+http.defaults.httpAgent = new httpModule.Agent({ keepAlive: true });
+http.defaults.httpsAgent = new httpsModule.Agent({ keepAlive: true });
+
+http.defaults.baseURL = argv.url;
+
+function objectMerge<T1 extends {}, T2 extends {}, TReturn extends { [K in (keyof T1 & keyof T2)]: any }>(
+    first: T1,
+    second: T2,
+    resolve: <TKey extends (keyof T1 & keyof T2)>(a: T1[TKey], b: T2[TKey], key: TKey) => any = <TKey extends (keyof T1 & keyof T2)>(a, b) => (a as TReturn[TKey])
+) {
+    const result = { ...first, ...second }
+
+    const keysOfFirst = Object.keys(first);
+    const keysOfSecond = Object.keys(second);
+
+    const keys = keysOfFirst.length < keysOfSecond.length ? keysOfFirst : keysOfSecond;
+
+    for (const key of keys) {
+        result[key] = resolve(first[key], second[key], key as any);
+    }
+
+    return result;
+}
+
+const possibleStopQueries = [
+    'Cieszy',
+    'Wilan',
+    'Plac Komo',
+    'Dworzec Gł',
+    'Łosto',
+    'Żabian',
+    'Uniwers',
+    'Kope',
+]
+
+async function scenario(store: Store<StoreDefinition>) {
     await store.dispatch('loadProvider', { provider: 'trojmiasto' });
+
+    const stops = await store.$api.get('v1_stop_list', {
+        version: '^1.0',
+        query: { name: choice(possibleStopQueries) }
+    })
+
+    store.commit('add', choices(stops.data, (Math.random() * 3) | 0))
 
     const departuresUpdate = async () => {
         await store.dispatch('departures/update');
-        setTimeout(departuresUpdate, 10000);
+        setTimeout(departuresUpdate, 20000);
+    }
+
+    const messagesUpdate = async () => {
+        await store.dispatch('messages/update');
+        setTimeout(messagesUpdate, 20000);
     }
 
     departuresUpdate();
+    messagesUpdate();
 }
+
+function mean(values: number[]): number {
+    return values.reduce((a, b) => a + b) / values.length
+}
+
+function quantile(values: number[], quantile: number) {
+    return values[(values.length * quantile) | 0];
+}
+
+function sorted(values: number[]) {
+    const result = Array.from(values);
+    result.sort((a, b) => a - b)
+
+    return result;
+}
+
+function reportProgress() {
+    const requestTimeAvgs = map(requestTimes, v => mean(v))
+    const requestTimeSorted = map(requestTimes, v => sorted(v))
+
+    const percentile80th = map(requestTimeSorted, v => quantile(v, .8))
+    const percentile50th = map(requestTimeSorted, v => quantile(v, .5))
+    const percentile95th = map(requestTimeSorted, v => quantile(v, .95))
+
+    console.log(`Running clients: ${runningClients}`)
+    console.log('Request count: ', requestCounts)
+    console.log('Request time avg: ', requestTimeAvgs)
+    console.log('50th percentile: ', percentile50th)
+    console.log('80th percentile: ', percentile80th)
+    console.log('95th percentile: ', percentile95th)
+
+    totalRequestCounts = objectMerge(totalRequestCounts, requestCounts, (tot, cur) => tot + cur);
+    totalRequestTimes = objectMerge(totalRequestTimes, map(requestTimeAvgs, v => [ v ]), (tot, cur) => [ ...(tot || []), ...(cur || []) ]);
+
+    const timestamp = moment().toISOString();
+    for (const [endpoint, count] of Object.entries(requestCounts)) {
+        const url = new URL(endpoint);
+
+        const elasticData = {
+            '@timestamp': timestamp,
+            'host': url.host,
+            'path': url.pathname,
+            'stats': {
+                'num_requests': count,
+                'num_failures': 0,
+                'total_response_time': requestTimes[endpoint].reduce((a, b) => a + b),
+                'max_response_time': Math.max(...requestTimes[endpoint]),
+                'min_response_time': Math.min(...requestTimes[endpoint]),
+                'response_times': requestTimes[endpoint],
+            }
+        }
+    }
+
+    requestTimes = {}
+    requestCounts = {}
+}
+
+http.interceptors.request.use(requestStartTimingInterceptor);
+http.interceptors.response.use(requestEndTimingInterceptor);
 
 console.log(`Starting ${argv.concurrency} clients on address ${argv.url}`);
 
+setInterval(reportProgress, argv.progress);
+
+const httpAgent = new httpModule.Agent({ keepAlive: true });
+const httpsAgent = new httpsModule.Agent({ keepAlive: true });
+
 (async () => {
     for (let i = 0; i < argv.concurrency; i++) {
-        const store = createStore();
-        await scenario(store);
+
+        const http = createHttpClient({
+            httpAgent,
+            httpsAgent,
+            baseURL: argv.url,
+            timeout: 30000,
+        })
+
+        http.interceptors.request.use(requestStartTimingInterceptor);
+        http.interceptors.response.use(requestEndTimingInterceptor);
+
+        runningClients++;
+
+        const store = createStore({ http });
+        scenario(store);
 
         await delay(normal(argv.delay, typeof argv.sigma === "undefined" ? argv.delay / 10 : argv.sigma));
     }
 })();
 
 process.on('SIGINT', function() {
+    console.log(totalRequestCounts);
+
     console.info("Terminating clients...");
     process.exit();
 });
