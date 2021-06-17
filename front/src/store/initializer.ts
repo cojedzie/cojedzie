@@ -54,6 +54,7 @@ export type StoreOptions = {
     plugins?: VuexPlugin<any>[],
     state?: any,
     modules?: any,
+    http?: AxiosInstance,
 }
 
 export type StoreDefinition = {
@@ -93,7 +94,8 @@ export function createStore(options?: StoreOptions) {
     store.$api = new LoadBalancedClient(
         new LoadBalancerImplementation(endpoints, store),
         store,
-        () => ({ provider: store.state.provider?.id })
+        () => ({ provider: store.state.provider?.id }),
+        options.http || http
     );
 
     return store;

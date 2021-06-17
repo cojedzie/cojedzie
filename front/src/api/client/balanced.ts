@@ -21,12 +21,11 @@ import { EndpointCollection, EndpointParams, EndpointResult } from "@/api/endpoi
 import { ApiClient, BoundRequestOptions } from "@/api/client";
 import { LoadBalancedEndpoint, LoadBalancer } from "@/api/loadbalancer";
 import { delay, resolve, Supplier } from "@/utils";
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { prepare } from "@/api/utils";
-import { http } from "@/api/client/http";
+import { http as globalHttpClient } from "@/api/client/http";
 import semver from "semver";
 import { NetworkActions } from "@/store/modules/network";
-import { RootState } from "@/store/root";
 import { Store } from "vuex";
 
 export type LoadBalancedRequestOptions<
@@ -41,15 +40,18 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
     private readonly store: Store<any>;
+    private readonly http: AxiosInstance;
 
     constructor(
         balancer: LoadBalancer<TEndpoints>,
         store: Store<any>,
-        bound?: Supplier<{ [name in TBoundParams]: string }>
+        bound?: Supplier<{ [name in TBoundParams]: string }>,
+        http: AxiosInstance = globalHttpClient,
     ) {
         this.bound = bound;
         this.balancer = balancer;
         this.store = store;
+        this.http = http;
     }
 
     async get<TEndpoint extends keyof TEndpoints>(
@@ -77,7 +79,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
             );
 
             try {
-                return await http.get(url, {
+                return await this.http.get(url, {
                     baseURL: definition.node?.url,
                     params: resolve(options.query),
                     headers: resolve(options.headers),

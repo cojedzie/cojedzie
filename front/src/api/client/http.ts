@@ -17,10 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { query } from "@/api/utils";
 
-export const http = axios.create({
-    paramsSerializer: query,
-    timeout: 3000,
-});
+export function createHttpClient(options: AxiosRequestConfig = {}) {
+    return axios.create({
+        paramsSerializer: query,
+        timeout: 3000,
+        ...options
+    })
+}
+
+export const http = createHttpClient();
