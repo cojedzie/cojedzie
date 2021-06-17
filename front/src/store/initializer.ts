@@ -31,9 +31,11 @@ import { LoadBalancedClient } from "@/api/client/balanced";
 import { LoadBalancerImplementation } from "@/api/loadbalancer";
 import { Endpoints, endpoints } from "@/api/endpoints";
 import { ApiClient } from "@/api/client";
+import { AxiosInstance } from "axios";
+import { http } from "@/api/client/http";
 
 declare module 'vuex' {
-    interface Store<TDefinition extends VuexStoreDefinition> {
+    interface VuexStore<TDefinition extends VuexStoreDefinition> {
         $api: ApiClient<Endpoints, "provider">
     }
 }

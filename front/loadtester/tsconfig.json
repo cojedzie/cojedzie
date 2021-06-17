@@ -13,7 +13,8 @@
     "skipLibCheck": true,
     "outDir": "./build/",
     "paths": {
-      "@/*": ["../src/*"]
+      "@/*": ["../src/*"],
+      "vuex": ["../src/types/vuex.d.ts"],
     }
   },
   "files": ["./test.ts"],

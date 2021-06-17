@@ -18,6 +18,7 @@
  */
 
 /// <reference path="types/webpack.d.ts"/>
+/// <reference path="types/vue.d.ts"/>
 
 import '../styles/main.scss'
 
