@@ -27,7 +27,7 @@ import moment, { Moment } from "moment";
 import yargs from "yargs";
 import { createStore, StoreDefinition } from "@/store/initializer";
 import { choice, choices, normal } from "@/utils/random";
-import { delay } from "@/utils";
+import { delay, distinct } from "@/utils";
 import * as es from "@elastic/elasticsearch"
 
 import * as httpModule from "http";
@@ -106,9 +106,13 @@ const argv = yargs(hideBin(process.argv))
 const requestStartTimes = new WeakMap<AxiosRequestConfig, Moment>()
 
 let requestCounts: Record<string, number> = {};
+let requestErrors: Record<string, number> = {};
+let requestFailures: Record<string, number> = {};
 let requestTimes: Record<string, number[]> = {};
 
 let totalRequestCounts: Record<string, number> = {};
+let totalRequestErrors: Record<string, number> = {};
+let totalRequestFailures: Record<string, number> = {};
 let totalRequestTimes: Record<string, number[]> = {};
 
 let runningClients = 0;
@@ -178,7 +182,7 @@ async function scenario(store: Store<StoreDefinition>) {
 }
 
 function mean(values: number[]): number {
-    return values.reduce((a, b) => a + b) / values.length
+    return values.reduce((a, b) => a + b, 0) / values.length
 }
 
 function quantile(values: number[], quantile: number) {
@@ -206,19 +210,33 @@ function reportProgress() {
     const percentile50th = map(requestTimeSorted, v => quantile(v, .5))
     const percentile95th = map(requestTimeSorted, v => quantile(v, .95))
 
-    console.log(`Current clients: ${runningClients} / ${argv.concurrency}`)
-    argv.verbose && console.log(`Avg: ${Math.round(mean(allTimes))}; percentiles: 50th - ${quantile(allTimes, .5)}, 80th - ${quantile(allTimes, .8)}, 95th - ${quantile(allTimes, .95)}`)
-    argv.verbose > 2 && console.log('Request count: ', requestCounts)
-    argv.verbose > 2 && console.log('Request time avg: ', requestTimeAvgs)
-    argv.verbose > 2 && console.log('50th percentile: ', percentile50th)
-    argv.verbose > 2 && console.log('80th percentile: ', percentile80th)
-    argv.verbose > 2 && console.log('95th percentile: ', percentile95th)
+    const errorCount = Object.values(requestErrors).reduce((a, b) => a + b, 0);
+    const failCount = Object.values(requestFailures).reduce((a, b) => a + b, 0);
 
-    totalRequestCounts = merge(totalRequestCounts, requestCounts, (tot, cur) => tot + cur);
+    console.log(`Current clients: ${runningClients} / ${argv.concurrency}`)
+    argv.verbose && console.log(`Avg: ${Math.round(mean(allTimes))}; Err: ${errorCount}; Fail: ${failCount}; percentiles: 50th - ${quantile(allTimes, .5)}, 80th - ${quantile(allTimes, .8)}, 95th - ${quantile(allTimes, .95)}`)
+    argv.verbose >= 2 && console.log('Request count: ', requestCounts)
+    argv.verbose >= 2 && console.log('Request time avg: ', requestTimeAvgs)
+    argv.verbose >= 2 && console.log('Request errors: ', requestErrors)
+    argv.verbose >= 2 && console.log('50th percentile: ', percentile50th)
+    argv.verbose >= 2 && console.log('80th percentile: ', percentile80th)
+    argv.verbose >= 2 && console.log('95th percentile: ', percentile95th)
+
     totalRequestTimes = merge(totalRequestTimes, map(requestTimeAvgs, v => [ v ]), (tot, cur) => [ ...(tot || []), ...(cur || []) ]);
+    totalRequestCounts = merge(totalRequestCounts, requestCounts, (tot, cur) => tot + cur);
+    totalRequestErrors = merge(totalRequestErrors, requestErrors, (tot, cur) => tot + cur);
+    totalRequestFailures = merge(totalRequestFailures, requestFailures, (tot, cur) => tot + cur);
 
     const timestamp = moment().toISOString();
-    for (const [endpoint, count] of Object.entries(requestCounts)) {
+
+    const urls = [
+        ...Object.keys(requestCounts),
+        ...Object.keys(requestTimes),
+        ...Object.keys(requestErrors),
+        ...Object.keys(requestFailures),
+    ].filter(distinct)
+
+    for (const endpoint of urls) {
         const url = new URL(endpoint);
 
         const elasticData = {
@@ -227,12 +245,13 @@ function reportProgress() {
             'host': url.host,
             'path': url.pathname,
             'stats': {
-                'num_requests': count,
-                'num_failures': 0,
-                'total_response_time': requestTimes[endpoint].reduce((a, b) => a + b),
-                'max_response_time': Math.max(...requestTimes[endpoint]),
-                'min_response_time': Math.min(...requestTimes[endpoint]),
-                'response_times': requestTimes[endpoint],
+                'num_requests': requestCounts[endpoint] || 0,
+                'num_errors': requestErrors[endpoint] || 0,
+                'num_failures': requestFailures[endpoint] || 0,
+                'total_response_time': (requestTimes[endpoint] || []).reduce((a, b) => a + b, 0),
+                'max_response_time': Math.max(...(requestTimes[endpoint] || [])),
+                'min_response_time': Math.min(...(requestTimes[endpoint] || [])),
+                'response_times': requestTimes[endpoint] || [],
                 'client_count': runningClients,
             }
         }
@@ -245,6 +264,8 @@ function reportProgress() {
 
     requestTimes = {}
     requestCounts = {}
+    requestErrors = {}
+    requestFailures = {}
 }
 
 http.interceptors.request.use(requestStartTimingInterceptor);
@@ -264,7 +285,6 @@ const httpsAgent = new httpsModule.Agent({ keepAlive: true });
             httpAgent,
             httpsAgent,
             baseURL: argv.url,
-            timeout: 30000,
         })
 
         http.interceptors.request.use(requestStartTimingInterceptor);
@@ -272,7 +292,14 @@ const httpsAgent = new httpsModule.Agent({ keepAlive: true });
 
         runningClients++;
 
-        const store = createStore({ http });
+        const store = createStore({
+            apiClientOptions: {
+                http,
+                onRequestError: req => requestErrors[req.url] = ((requestErrors[req.url] || 0) + 1),
+                onRequestFailure: (_, req) => (requestErrors[req.url] = (requestErrors[req.url] || 0) + 1)
+            }
+        });
+
         scenario(store);
 
         await delay(normal(argv.delay, typeof argv.sigma === "undefined" ? argv.delay / 10 : argv.sigma));

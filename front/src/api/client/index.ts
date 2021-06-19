@@ -39,9 +39,26 @@ export interface ApiClient<TEndpoints extends EndpointCollection, TBoundParams e
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>>;
 }
 
+export interface ApiClientRequestInfo<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints = keyof TEndpoints> {
+    endpoint: TEndpoint,
+    url: string,
+    options: RequestOptions<EndpointParams<TEndpoints, TEndpoint>>
+}
+
+export type ApiClientStartRequestEventHandler<TEndpoints extends EndpointCollection>
+    = (request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>) => void
+
+export type ApiClientResponseEventHandler<TEndpoints extends EndpointCollection>
+    = (response: any, request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>) => void
+
 export interface ApiClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never> {
     bound?: Supplier<{ [name in TBoundParams]: string }>
     http?: AxiosInstance
+
+    onRequestStart?: ApiClientStartRequestEventHandler<TEndpoints>;
+    onRequestEnd?: ApiClientResponseEventHandler<TEndpoints>;
+    onRequestSuccess?: ApiClientResponseEventHandler<TEndpoints>;
+    onRequestFailure?: ApiClientResponseEventHandler<TEndpoints>;
 }
 
 export const client: ApiClient<Endpoints, "provider"> = store.$api;

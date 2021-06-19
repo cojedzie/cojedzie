@@ -19,7 +19,7 @@
 
 import Vuex, { VuexPlugin, VuexStateProvider, VuexStoreDefinition } from "vuex";
 import { actions, mutations, RootActionTree, RootMutationsTree, RootState, state } from "@/store/root";
-import { supply } from "@/utils";
+import { Optionalify, supply } from "@/utils";
 import messages, { MessagesState } from "@/store/modules/messages";
 import departures, { DeparturesState } from "@/store/modules/departures";
 import favourites, { FavouritesState } from "@/store/modules/favourites";
@@ -27,7 +27,7 @@ import departureSettings, { DeparturesSettingsState } from "@/store/modules/sett
 import messagesSettings, { MessagesSettingsState } from "@/store/modules/settings/messages";
 import history, { HistoryState } from "@/store/modules/history";
 import network, { NetworkState } from "@/store/modules/network";
-import { LoadBalancedClient } from "@/api/client/balanced";
+import { LoadBalancedClient, LoadBalancedClientOptions } from "@/api/client/balanced";
 import { LoadBalancerImplementation } from "@/api/loadbalancer";
 import { Endpoints, endpoints } from "@/api/endpoints";
 import { ApiClient } from "@/api/client";
@@ -54,7 +54,7 @@ export type StoreOptions = {
     plugins?: VuexPlugin<any>[],
     state?: any,
     modules?: any,
-    http?: AxiosInstance,
+    apiClientOptions?: Partial<LoadBalancedClientOptions<Endpoints>>
 }
 
 export type StoreDefinition = {
@@ -92,10 +92,10 @@ export function createStore(options?: StoreOptions) {
     })
 
     store.$api = new LoadBalancedClient({
+        ...options.apiClientOptions,
         balancer: new LoadBalancerImplementation(endpoints, store),
         store: store,
         bound: () => ({ provider: store.state.provider?.id }),
-        http: options.http || http
     });
 
     return store;

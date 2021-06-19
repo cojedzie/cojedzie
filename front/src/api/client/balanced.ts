@@ -18,7 +18,13 @@
  */
 
 import { EndpointCollection, EndpointParams, EndpointResult } from "@/api/endpoints";
-import { ApiClient, ApiClientOptions, BoundRequestOptions } from "@/api/client";
+import {
+    ApiClient,
+    ApiClientOptions,
+    ApiClientRequestInfo,
+    ApiClientStartRequestEventHandler,
+    BoundRequestOptions
+} from "@/api/client";
 import { LoadBalancedEndpoint, LoadBalancer } from "@/api/loadbalancer";
 import { delay, resolve, Supplier } from "@/utils";
 import { AxiosInstance, AxiosResponse } from "axios";
@@ -42,6 +48,8 @@ export interface LoadBalancedClientOptions<
 > extends ApiClientOptions<TEndpoints, TBoundParams> {
     balancer: LoadBalancer<TEndpoints>
     store: Store<any>
+
+    onRequestError?: ApiClientStartRequestEventHandler<TEndpoints>
 }
 
 export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
@@ -49,12 +57,15 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
     private readonly store: Store<any>;
     private readonly http: AxiosInstance;
+    private readonly options: LoadBalancedClientOptions<TEndpoints, TBoundParams>;
 
-    constructor({ bound, balancer, store, http = globalHttpClient }: LoadBalancedClientOptions<TEndpoints, TBoundParams>) {
-        this.bound = bound;
-        this.balancer = balancer;
-        this.store = store;
-        this.http = http;
+    constructor(options: LoadBalancedClientOptions<TEndpoints, TBoundParams>) {
+        this.options = options;
+
+        this.bound = options.bound;
+        this.balancer = options.balancer;
+        this.store = options.store;
+        this.http = options.http || globalHttpClient;
     }
 
     async get<TEndpoint extends keyof TEndpoints>(
@@ -62,40 +73,60 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
         options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
         let retry = 0;
-        while (retry < 5) {
-            if (retry > 0) {
-                console.warn(`Retrying (${retry}) calling ${endpoint}.`)
-            }
-
+        while (true) {
             const definition = await this.balancer.get(endpoint, {
                 require: candidate =>
                     semver.satisfies(semver.coerce(candidate.version), options.version) &&
                     (!options.require || options.require(candidate))
             });
 
+            const params = {
+                ...(resolve(this.bound) || {}),
+                ...(resolve(options.params) || {})
+            }
+
             const url = prepare(
                 definition.template,
-                {
-                    ...(resolve(this.bound) || {}),
-                    ...(resolve(options.params) || {})
-                },
+                params,
             );
 
+            const requestInfo: ApiClientRequestInfo<TEndpoints, TEndpoint> = {
+                endpoint: endpoint,
+                url: definition.node?.url + url,
+                options: {
+                    ...options,
+                    params
+                } as any
+            };
+
             try {
-                return await this.http.get(url, {
+                this.options.onRequestStart?.(requestInfo as any);
+
+                const result = await this.http.get(url, {
                     baseURL: definition.node?.url,
                     params: resolve(options.query),
                     headers: resolve(options.headers),
                 });
+
+                this.options.onRequestSuccess?.(result, requestInfo as any);
+                this.options.onRequestEnd?.(result, requestInfo as any);
+
+                return result;
             } catch (err) {
                 if (definition.node) {
                     await this.store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
                 } else {
                     console.error(err.message);
                 }
-                retry++;
 
-                await delay(3000 * (retry - 1));
+                this.options.onRequestError?.(requestInfo as any);
+
+                if (retry++ < 5) {
+                    await delay(3000 * (retry - 1));
+                } else {
+                    this.options.onRequestFailure?.(err, requestInfo as any);
+                    this.options.onRequestEnd?.(err, requestInfo as any);
+                }
             }
         }
     }
