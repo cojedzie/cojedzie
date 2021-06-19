@@ -20,7 +20,7 @@
 import { MakeOptional, Supplier } from "@/utils";
 import { UrlParams } from "@/api/utils";
 import { EndpointCollection, EndpointParams, EndpointResult, Endpoints } from "@/api/endpoints";
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import store from "@/store";
 
 export type RequestOptions<TParams extends {}> = {
@@ -37,6 +37,11 @@ export interface ApiClient<TEndpoints extends EndpointCollection, TBoundParams e
         endpoint: TEndpoint,
         options: BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>>;
+}
+
+export interface ApiClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never> {
+    bound?: Supplier<{ [name in TBoundParams]: string }>
+    http?: AxiosInstance
 }
 
 export const client: ApiClient<Endpoints, "provider"> = store.$api;

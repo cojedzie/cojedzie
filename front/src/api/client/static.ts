@@ -18,11 +18,11 @@
  */
 
 import { EndpointCollection, EndpointParams, EndpointResult } from "@/api/endpoints";
-import { ApiClient, BoundRequestOptions } from "@/api/client";
+import { ApiClient, ApiClientOptions, BoundRequestOptions } from "@/api/client";
 import { resolve, Supplier } from "@/utils";
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { prepare } from "@/api/utils";
-import { http } from "@/api/client/http";
+import { http as globalHttpClient } from "@/api/client/http";
 
 export type StaticRequestOptions<
     TEndpoints extends EndpointCollection,
@@ -32,13 +32,22 @@ export type StaticRequestOptions<
     base?: Supplier<string>
 };
 
+export interface StaticClientOptions<
+    TEndpoints extends EndpointCollection,
+    TBoundParams extends string = never
+> extends ApiClientOptions<TEndpoints, TBoundParams> {
+    endpoints: TEndpoints
+}
+
 export class StaticClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
     private readonly endpoints: TEndpoints;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
+    private readonly http: AxiosInstance
 
-    constructor(endpoints: TEndpoints, bound?: Supplier<{ [name in TBoundParams]: string }>) {
+    constructor({ endpoints, bound, http = globalHttpClient }: StaticClientOptions<TEndpoints, TBoundParams>) {
         this.endpoints = endpoints;
-        this.bound = bound;
+        this.bound     = bound;
+        this.http      = http;
     }
 
     async get<TEndpoint extends keyof TEndpoints>(
@@ -53,7 +62,7 @@ export class StaticClient<TEndpoints extends EndpointCollection, TBoundParams ex
             },
         );
 
-        return await http.get(url, {
+        return await this.http.get(url, {
             baseURL: resolve(options.base),
             params: resolve(options.query),
             headers: resolve(options.headers),

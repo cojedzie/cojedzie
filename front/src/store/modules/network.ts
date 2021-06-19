@@ -45,7 +45,7 @@ export const networkingEndpoints: NetworkingEndpoints = {
     }
 }
 
-export const networkingClient = new StaticClient(networkingEndpoints)
+export const networkingClient = new StaticClient({ endpoints: networkingEndpoints })
 
 export const nodeBackoff = createBackoff(5000);
 export const sseBackoff = createBackoff(1000);

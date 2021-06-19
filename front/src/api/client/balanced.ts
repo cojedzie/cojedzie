@@ -18,7 +18,7 @@
  */
 
 import { EndpointCollection, EndpointParams, EndpointResult } from "@/api/endpoints";
-import { ApiClient, BoundRequestOptions } from "@/api/client";
+import { ApiClient, ApiClientOptions, BoundRequestOptions } from "@/api/client";
 import { LoadBalancedEndpoint, LoadBalancer } from "@/api/loadbalancer";
 import { delay, resolve, Supplier } from "@/utils";
 import { AxiosInstance, AxiosResponse } from "axios";
@@ -36,18 +36,21 @@ export type LoadBalancedRequestOptions<
     require?: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean
 };
 
+export interface LoadBalancedClientOptions<
+    TEndpoints extends EndpointCollection,
+    TBoundParams extends string = never
+> extends ApiClientOptions<TEndpoints, TBoundParams> {
+    balancer: LoadBalancer<TEndpoints>
+    store: Store<any>
+}
+
 export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
     private readonly store: Store<any>;
     private readonly http: AxiosInstance;
 
-    constructor(
-        balancer: LoadBalancer<TEndpoints>,
-        store: Store<any>,
-        bound?: Supplier<{ [name in TBoundParams]: string }>,
-        http: AxiosInstance = globalHttpClient,
-    ) {
+    constructor({ bound, balancer, store, http = globalHttpClient }: LoadBalancedClientOptions<TEndpoints, TBoundParams>) {
         this.bound = bound;
         this.balancer = balancer;
         this.store = store;

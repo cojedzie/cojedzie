@@ -91,12 +91,12 @@ export function createStore(options?: StoreOptions) {
         plugins: options?.plugins || [],
     })
 
-    store.$api = new LoadBalancedClient(
-        new LoadBalancerImplementation(endpoints, store),
-        store,
-        () => ({ provider: store.state.provider?.id }),
-        options.http || http
-    );
+    store.$api = new LoadBalancedClient({
+        balancer: new LoadBalancerImplementation(endpoints, store),
+        store: store,
+        bound: () => ({ provider: store.state.provider?.id }),
+        http: options.http || http
+    });
 
     return store;
 }
