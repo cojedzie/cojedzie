@@ -38,6 +38,17 @@ const { hideBin } = require('yargs/helpers')
 
 Vue.use(Vuex)
 
+type LoadtesterArgv = {
+    url: string;
+    concurrency: number;
+    delay: number;
+    progress: number;
+    verbose: boolean | number;
+    sigma: number;
+    duration: number;
+    elasticsearch: es.Client;
+}
+
 const argv = yargs(hideBin(process.argv))
     .option({
         url: {
@@ -65,7 +76,7 @@ const argv = yargs(hideBin(process.argv))
             alias: 'p',
         },
         verbose: {
-            type: "boolean",
+            type: "count",
             default: false,
             description: "Verbose logging",
             alias: 'v',
@@ -75,9 +86,22 @@ const argv = yargs(hideBin(process.argv))
             description: "Standard Deviation for delay (by default 1/10 of delay)",
             alias: 's',
             default: undefined,
+        },
+        duration: {
+            type: "number",
+            description: "Maximum duration for the loadtests in seconds",
+            alias: 'l',
+            default: undefined
+        },
+        elasticsearch: {
+            type: "string",
+            description: "Address for elasticsearch cluster",
+            alias: 'e',
+            default: 'http://elasticsearch:9200',
+            coerce: hostname => new es.Client({ node: hostname })
         }
     })
-    .argv
+    .argv as LoadtesterArgv
 
 const requestStartTimes = new WeakMap<AxiosRequestConfig, Moment>()
 
@@ -168,20 +192,27 @@ function sorted(values: number[]) {
     return result;
 }
 
+const elastic = argv.elasticsearch;
+
+const runIdentifier: string = moment().toISOString();
+
 function reportProgress() {
     const requestTimeAvgs = map(requestTimes, v => mean(v))
     const requestTimeSorted = map(requestTimes, v => sorted(v))
+
+    const allTimes = sorted(Object.values(requestTimes).flat())
 
     const percentile80th = map(requestTimeSorted, v => quantile(v, .8))
     const percentile50th = map(requestTimeSorted, v => quantile(v, .5))
     const percentile95th = map(requestTimeSorted, v => quantile(v, .95))
 
-    console.log(`Running clients: ${runningClients}`)
-    console.log('Request count: ', requestCounts)
-    console.log('Request time avg: ', requestTimeAvgs)
-    console.log('50th percentile: ', percentile50th)
-    console.log('80th percentile: ', percentile80th)
-    console.log('95th percentile: ', percentile95th)
+    console.log(`Current clients: ${runningClients} / ${argv.concurrency}`)
+    argv.verbose && console.log(`Avg: ${Math.round(mean(allTimes))}; percentiles: 50th - ${quantile(allTimes, .5)}, 80th - ${quantile(allTimes, .8)}, 95th - ${quantile(allTimes, .95)}`)
+    argv.verbose > 2 && console.log('Request count: ', requestCounts)
+    argv.verbose > 2 && console.log('Request time avg: ', requestTimeAvgs)
+    argv.verbose > 2 && console.log('50th percentile: ', percentile50th)
+    argv.verbose > 2 && console.log('80th percentile: ', percentile80th)
+    argv.verbose > 2 && console.log('95th percentile: ', percentile95th)
 
     totalRequestCounts = merge(totalRequestCounts, requestCounts, (tot, cur) => tot + cur);
     totalRequestTimes = merge(totalRequestTimes, map(requestTimeAvgs, v => [ v ]), (tot, cur) => [ ...(tot || []), ...(cur || []) ]);
@@ -192,6 +223,7 @@ function reportProgress() {
 
         const elasticData = {
             '@timestamp': timestamp,
+            'run_identifier': runIdentifier,
             'host': url.host,
             'path': url.pathname,
             'stats': {
@@ -201,8 +233,14 @@ function reportProgress() {
                 'max_response_time': Math.max(...requestTimes[endpoint]),
                 'min_response_time': Math.min(...requestTimes[endpoint]),
                 'response_times': requestTimes[endpoint],
+                'client_count': runningClients,
             }
         }
+
+        elastic.index({
+            index: `loadtest${moment().format("YYYYMMDD")}`,
+            body: elasticData
+        })
     }
 
     requestTimes = {}
@@ -241,9 +279,21 @@ const httpsAgent = new httpsModule.Agent({ keepAlive: true });
     }
 })();
 
-process.on('SIGINT', function() {
-    console.log(totalRequestCounts);
+if (argv.duration) {
+    setTimeout(() => {
+        console.log("Time is over, ending!")
+        process.exit();
+    }, argv.duration * 1000)
+}
 
+function summary() {
+    console.log("Total requests made:")
+    console.log(totalRequestCounts);
+}
+
+process.on('exit', summary)
+
+process.on('SIGINT', function () {
     console.info("Terminating clients...");
     process.exit();
 });
