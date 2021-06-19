@@ -27,10 +27,12 @@ import moment, { Moment } from "moment";
 import yargs from "yargs";
 import { createStore, StoreDefinition } from "@/store/initializer";
 import { choice, choices, normal } from "@/utils/random";
-import { delay, map } from "@/utils";
+import { delay } from "@/utils";
+import * as es from "@elastic/elasticsearch"
 
 import * as httpModule from "http";
 import * as httpsModule from "https";
+import { map, merge } from "@/utils/object";
 
 const { hideBin } = require('yargs/helpers')
 
@@ -116,25 +118,6 @@ http.defaults.httpsAgent = new httpsModule.Agent({ keepAlive: true });
 
 http.defaults.baseURL = argv.url;
 
-function objectMerge<T1 extends {}, T2 extends {}, TReturn extends { [K in (keyof T1 & keyof T2)]: any }>(
-    first: T1,
-    second: T2,
-    resolve: <TKey extends (keyof T1 & keyof T2)>(a: T1[TKey], b: T2[TKey], key: TKey) => any = <TKey extends (keyof T1 & keyof T2)>(a, b) => (a as TReturn[TKey])
-) {
-    const result = { ...first, ...second }
-
-    const keysOfFirst = Object.keys(first);
-    const keysOfSecond = Object.keys(second);
-
-    const keys = keysOfFirst.length < keysOfSecond.length ? keysOfFirst : keysOfSecond;
-
-    for (const key of keys) {
-        result[key] = resolve(first[key], second[key], key as any);
-    }
-
-    return result;
-}
-
 const possibleStopQueries = [
     'Cieszy',
     'Wilan',
@@ -200,8 +183,8 @@ function reportProgress() {
     console.log('80th percentile: ', percentile80th)
     console.log('95th percentile: ', percentile95th)
 
-    totalRequestCounts = objectMerge(totalRequestCounts, requestCounts, (tot, cur) => tot + cur);
-    totalRequestTimes = objectMerge(totalRequestTimes, map(requestTimeAvgs, v => [ v ]), (tot, cur) => [ ...(tot || []), ...(cur || []) ]);
+    totalRequestCounts = merge(totalRequestCounts, requestCounts, (tot, cur) => tot + cur);
+    totalRequestTimes = merge(totalRequestTimes, map(requestTimeAvgs, v => [ v ]), (tot, cur) => [ ...(tot || []), ...(cur || []) ]);
 
     const timestamp = moment().toISOString();
     for (const [endpoint, count] of Object.entries(requestCounts)) {

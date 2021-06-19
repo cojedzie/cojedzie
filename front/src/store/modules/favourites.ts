@@ -18,8 +18,9 @@
  */
 
 import { Stop } from "@/model";
-import { except, supply } from "@/utils";
+import { supply } from "@/utils";
 import { NamespacedVuexModule, VuexMutationHandler } from "vuex";
+import { except } from "@/utils/object";
 
 export interface Favourite {
     id: string;

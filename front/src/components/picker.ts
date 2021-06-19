@@ -21,12 +21,13 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import { Line, StopGroup, StopGroups, StopWithDestinations as Stop } from "../model";
 import { Prop, Watch } from "vue-property-decorator";
-import { FetchingState, filter, map, match, unique } from "@/utils";
+import { FetchingState, match, unique } from "@/utils";
 import { debounce } from "@/decorators";
 import { Mutation } from "vuex-class";
 import { HistoryEntry, HistoryMutations } from "@/store/modules/history";
 import { StopHistory } from "./history";
 import api from "@/api";
+import { filter, map } from "@/utils/object";
 
 @Component({ template: require('@templates/picker/stop.html') })
 export class PickerStopComponent extends Vue {

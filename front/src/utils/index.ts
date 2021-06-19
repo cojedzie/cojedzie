@@ -20,6 +20,8 @@
 import { Moment } from "moment";
 import { cloneDeep } from "lodash"
 
+export * from "./object"
+
 let performance;
 
 try {
@@ -58,36 +60,6 @@ export interface TwoWayConverter<T, U> extends Converter<T, U> {
 export const identityConverter: TwoWayConverter<any, any> = {
     convert: (value) => value,
     convertBack: (value) => value,
-}
-
-export function map<T extends {}, KT extends keyof T, R extends { [KR in keyof T] }>(source: T, mapper: (value: T[KT], key: KT) => R[KT]): R {
-    const result: R = {} as R;
-
-    for (const [key, value] of Object.entries(source)) {
-        result[key] = mapper(value as T[KT], key as KT);
-    }
-
-    return result;
-}
-
-export function filter<T, KT extends keyof T>(source: T, filter: (value: T[KT], key: KT) => boolean): Optionalify<T> {
-    const result: Optionalify<T> = {};
-
-    for (const [key, value] of Object.entries(source)) {
-        if (filter(value as T[KT], key as KT)) {
-            result[key] = value;
-        }
-    }
-
-    return result;
-}
-
-export function except<T>(source: T, keys: (keyof T)[]) {
-    return filter(source, (_, key) => !keys.includes(key))
-}
-
-export function only<T>(source: T, keys: (keyof T)[]) {
-    return filter(source, (_, key) => keys.includes(key))
 }
 
 export function signed(number: number): string {
