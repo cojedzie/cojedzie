@@ -92,7 +92,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
 
             const requestInfo: ApiClientRequestInfo<TEndpoints, TEndpoint> = {
                 endpoint: endpoint,
-                url: definition.node?.url + url,
+                url: (definition.node?.url || this.http.defaults.baseURL) + url,
                 options: {
                     ...options,
                     params
@@ -103,7 +103,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                 this.options.onRequestStart?.(requestInfo as any);
 
                 const result = await this.http.get(url, {
-                    baseURL: definition.node?.url,
+                    baseURL: definition.node?.url || this.http.defaults.baseURL,
                     params: resolve(options.query),
                     headers: resolve(options.headers),
                 });
@@ -117,6 +117,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                     await this.store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
                 } else {
                     console.error(err.message);
+                    this.options.onRequestFailure?.(err, requestInfo as any);
                 }
 
                 this.options.onRequestError?.(requestInfo as any);
