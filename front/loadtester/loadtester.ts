@@ -20,19 +20,20 @@
 import "module-alias/register";
 
 import Vue from "vue";
-import Vuex, { Store } from "vuex";
+import Vuex from "vuex";
 import { createHttpClient, http } from "@/api/client/http";
 import { AxiosRequestConfig } from "axios";
 import moment, { Moment } from "moment";
 import yargs from "yargs";
-import { createStore, StoreDefinition } from "@/store/initializer";
-import { choice, choices, normal } from "@/utils/random";
+import { createStore } from "@/store/initializer";
+import { normal } from "@/utils/random";
 import { delay, distinct } from "@/utils";
 import * as es from "@elastic/elasticsearch"
 
 import * as httpModule from "http";
 import * as httpsModule from "https";
 import { map, merge } from "@/utils/object";
+import scenario from "./scenarios/basic";
 
 const { hideBin } = require('yargs/helpers')
 
@@ -145,41 +146,6 @@ http.defaults.httpAgent = new httpModule.Agent({ keepAlive: true });
 http.defaults.httpsAgent = new httpsModule.Agent({ keepAlive: true });
 
 http.defaults.baseURL = argv.url;
-
-const possibleStopQueries = [
-    'Cieszy',
-    'Wilan',
-    'Plac Komo',
-    'Dworzec Gł',
-    'Łosto',
-    'Żabian',
-    'Uniwers',
-    'Kope',
-]
-
-async function scenario(store: Store<StoreDefinition>) {
-    await store.dispatch('loadProvider', { provider: 'trojmiasto' });
-
-    const stops = await store.$api.get('v1_stop_list', {
-        version: '^1.0',
-        query: { name: choice(possibleStopQueries) }
-    })
-
-    store.commit('add', choices(stops.data, (Math.random() * 3) | 0))
-
-    const departuresUpdate = async () => {
-        await store.dispatch('departures/update');
-        setTimeout(departuresUpdate, 20000);
-    }
-
-    const messagesUpdate = async () => {
-        await store.dispatch('messages/update');
-        setTimeout(messagesUpdate, 20000);
-    }
-
-    departuresUpdate();
-    messagesUpdate();
-}
 
 function mean(values: number[]): number {
     return values.reduce((a, b) => a + b, 0) / values.length
@@ -296,7 +262,7 @@ const httpsAgent = new httpsModule.Agent({ keepAlive: true });
             apiClientOptions: {
                 http,
                 onRequestError: req => requestErrors[req.url] = ((requestErrors[req.url] || 0) + 1),
-                onRequestFailure: (_, req) => (requestErrors[req.url] = (requestErrors[req.url] || 0) + 1)
+                onRequestFailure: (_, req) => (requestFailures[req.url] = (requestFailures[req.url] || 0) + 1)
             }
         });
 
@@ -314,6 +280,8 @@ if (argv.duration) {
 }
 
 function summary() {
+    console.log("Run Identifier: ", runIdentifier)
+
     console.log("Total requests made:")
     console.log(totalRequestCounts);
 }
