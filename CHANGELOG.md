@@ -12,6 +12,7 @@ separately and adhere to the [Semantic Versioning].
  - API: Synchronization is now triggered by the scheduler daily at 2AM
  - API: Synchronization is now automatically triggered after migrations
  - Build: Scheduler (cron) is now available in the `cojedzie/standalone` image
+ - Load Tester: Utility to stress test servers
 
 ## [2021.1.2] - 2021-06-04
 
