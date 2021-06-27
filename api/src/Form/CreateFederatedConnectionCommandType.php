@@ -43,6 +43,7 @@ class CreateFederatedConnectionCommandType extends AbstractType
             ->add('server_id', EntityType::class, [
                 'class' => FederatedServerEntity::class,
                 'property_path' => 'server',
+                'invalid_message' => '{{ value }} is not a valid server identifier.',
                 'documentation' => [
                     'type' => 'text',
                     'format' => 'uuid',

@@ -14,6 +14,10 @@ separately and adhere to the [Semantic Versioning].
  - Build: Scheduler (cron) is now available in the `cojedzie/standalone` image
  - Load Tester: Utility to stress test servers
 
+### Fixed 
+ - API: Errors are now properly reported respecting [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807)
+ - API: Validation of `server_id` in `api_v1_federation_connect` endpoint.
+
 ## [2021.1.2] - 2021-06-04
 
 ### Added

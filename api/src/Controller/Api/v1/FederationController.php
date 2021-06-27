@@ -22,6 +22,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Entity\Federation\FederatedConnectionEntity;
+use App\Exception\InvalidFormException;
 use App\Form\CreateFederatedConnectionCommandType;
 use App\Message\CheckConnectionMessage;
 use App\Service\FederatedConnectionUpdateFactory;
@@ -71,7 +72,9 @@ class FederationController extends Controller
             throw new BadRequestException();
         }
 
-        // fixme: add validation
+        if (!$form->isValid()) {
+            throw new InvalidFormException($form);
+        }
 
         /** @var FederatedConnectionEntity $connection */
         $connection = $form->getData();
