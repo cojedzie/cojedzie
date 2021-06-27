@@ -21,17 +21,50 @@
 namespace App\Subscriber;
 
 
+use App\Exception\InvalidFormException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class JSONFormatSubscriber implements EventSubscriberInterface
 {
+    private SerializerInterface $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::REQUEST => "onRequest",
+            KernelEvents::REQUEST   => "onRequest",
+            KernelEvents::EXCEPTION => "onException",
         ];
+    }
+
+    public function onException(ExceptionEvent $event)
+    {
+        $exception = $event->getThrowable();
+
+        if (!$exception instanceof InvalidFormException) {
+            return;
+        }
+
+        $event->setResponse(
+            new JsonResponse(
+                $this->serializer->serialize($exception, 'json'),
+                $exception->getStatusCode(),
+                array_merge(
+                    ['Content-Type' => 'application/problem+json'],
+                    $exception->getHeaders()
+                ),
+                true,
+            )
+        );
     }
 
     public function onRequest(RequestEvent $event)
