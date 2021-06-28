@@ -40,7 +40,6 @@ class FederationServersCommand extends Command
         $this->manager = $manager;
     }
 
-
     protected function configure()
     {
         $this->setDescription(self::$defaultDescription);
