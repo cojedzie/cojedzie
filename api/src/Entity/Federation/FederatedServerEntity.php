@@ -26,6 +26,7 @@ use App\Model\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -41,6 +42,8 @@ class FederatedServerEntity implements Referable, Fillable
      *
      * @ORM\Column(type="uuid")
      * @ORM\Id
+     *
+     * @Serializer\Type("uuid")
      */
     private Uuid $id;
 
@@ -66,12 +69,16 @@ class FederatedServerEntity implements Referable, Fillable
      * All servers that are connected at the moment.
      * @ORM\OneToMany(targetEntity=FederatedConnectionEntity::class, cascade="persist", mappedBy="server", orphanRemoval=true)
      * @var Collection|FederatedConnectionEntity[]
+     *
+     * @Serializer\Groups({"Connections", "All"})
      */
     private Collection $connections;
 
     /**
      * Secret for that server required for authenticating some endpoints.
      * @ORM\Column(type="string")
+     *
+     * @Serializer\Exclude()
      */
     private string $secret;
 

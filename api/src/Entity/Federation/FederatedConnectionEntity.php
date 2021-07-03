@@ -24,8 +24,10 @@ use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
 use App\Repository\FederatedConnectionEntityRepository;
+use App\Serialization\SerializeAs;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
 use Symfony\Component\Uid\Uuid;
 
@@ -77,12 +79,16 @@ class FederatedConnectionEntity implements Referable, Fillable
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class=UuidV4Generator::class)
+     *
+     * @Serializer\Type("uuid")
      */
     private Uuid $id;
 
     /**
      * Federated server associated with this connection. In principle server can have multiple connections, it's recommended though.
      * @ORM\ManyToOne(targetEntity=FederatedServerEntity::class, inversedBy="connections")
+     *
+     * @SerializeAs({"Default": "Basic"})
      */
     private FederatedServerEntity $server;
 
