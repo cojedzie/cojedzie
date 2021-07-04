@@ -65,7 +65,7 @@ class FederatedConnectionChecker
         $this->updateFactory = $updateFactory;
     }
 
-    public function check(FederatedConnectionEntity $connection)
+    public function check(FederatedConnectionEntity $connection, bool $force = false)
     {
         $now = Carbon::now();
 
@@ -74,7 +74,7 @@ class FederatedConnectionChecker
             return;
         }
 
-        if ($connection->getNextCheck()->isAfter($now)) {
+        if (!$force && $connection->getNextCheck()->isAfter($now)) {
             return;
         }
 

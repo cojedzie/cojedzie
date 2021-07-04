@@ -25,9 +25,12 @@ use App\Repository\FederatedConnectionEntityRepository;
 use App\Service\FederatedConnectionChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Uid\Uuid;
 
 class FederationCheckCommand extends Command
 {
@@ -47,19 +50,27 @@ class FederationCheckCommand extends Command
     protected function configure()
     {
         $this->setDescription(self::$defaultDescription);
+
+        $this->addArgument('connection', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Connections to check');
+        $this->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'Check even if before next check time');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
+        $ids = array_map([Uuid::class, 'fromString'], $input->getArgument('connection'));
+        $force = (bool)$input->getOption('force');
+
         /** @var FederatedConnectionEntityRepository $repository */
         $repository = $this->manager->getRepository(FederatedConnectionEntity::class);
-        $connections = $repository->findAllConnectionsToCheck();
+        $connections = !empty($ids)
+            ? $repository->findConnectionsById($ids)
+            : $repository->findAllConnectionsToCheck();
 
         foreach ($connections as $connection) {
             $io->writeln(sprintf("Checking connection id %s", $connection->getId()->toRfc4122()));
-            $this->checker->check($connection);
+            $this->checker->check($connection, $force);
         }
 
         return Command::SUCCESS;

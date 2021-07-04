@@ -24,12 +24,22 @@ use App\Entity\Federation\FederatedConnectionEntity;
 use Carbon\Carbon;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Uuid;
 
 class FederatedConnectionEntityRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, FederatedConnectionEntity::class);
+    }
+
+    /**
+     * @return iterable<FederatedConnectionEntity>
+     */
+    public function findConnectionsById(array $id)
+    {
+        // This has to stay that way because Doctrine does not work well with querying UUID columns
+        return array_map(fn (Uuid $id) => $this->find($id), $id);
     }
 
     /**

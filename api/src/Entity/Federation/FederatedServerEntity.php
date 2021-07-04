@@ -67,7 +67,7 @@ class FederatedServerEntity implements Referable, Fillable
 
     /**
      * All servers that are connected at the moment.
-     * @ORM\OneToMany(targetEntity=FederatedConnectionEntity::class, cascade="persist", mappedBy="server", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=FederatedConnectionEntity::class, cascade={"persist"}, mappedBy="server", orphanRemoval=true)
      * @var Collection|FederatedConnectionEntity[]
      *
      * @Serializer\Groups({"Connections", "All"})
