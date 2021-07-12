@@ -263,7 +263,7 @@ class ZtmGdanskDataUpdateSubscriber implements EventSubscriberInterface
         $trips = new Collection();
 
         $schedule->each(function ($stop) use ($provider, $line, &$trips, &$ids) {
-            $id     = sprintf('%s-%s-%d', $stop['busServiceName'], $stop['tripId'], $stop['order']);
+            $id     = sprintf('%s-%s-%s-%d', $stop['routeId'], $stop['busServiceName'], $stop['tripId'], $stop['order']);
             $trip   = $trips[$id] ?? $trips[$id] = (function () use ($stop, $id, $provider) {
                 $trip = TripEntity::createFromArray([
                     'id'       => $this->ids->generate($provider, $id),

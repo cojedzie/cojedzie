@@ -18,6 +18,12 @@ separately and adhere to the [Semantic Versioning].
  - API: Errors are now properly reported respecting [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807)
  - API: Validation of `server_id` in `api_v1_federation_connect` endpoint.
 
+## [2021.1.3] - 2021-07-12
+
+### Fixed
+- API: Fixed duplicated entry error due to non-unique `busServiceName` (ZTM Gdańsk)
+
+
 ## [2021.1.2] - 2021-06-04
 
 ### Added
@@ -47,7 +53,8 @@ First tracked release of cojedzie
 ### Changed 
  - Project is now licensed under the AGPLv3 license terms
 
-[Unreleased]: https://github.com/cojedzie/cojedzie/compare/v2021.1.1...HEAD
+[Unreleased]: https://github.com/cojedzie/cojedzie/compare/v2021.1.3...HEAD
+[2021.1.3]: https://github.com/cojedzie/cojedzie/compare/v2021.1.2...v2021.1.3
 [2021.1.2]: https://github.com/cojedzie/cojedzie/compare/v2021.1.1...v2021.1.2
 [2021.1.1]: https://github.com/cojedzie/cojedzie/compare/v2021.1.0...v2021.1.1
 [2021.1.0]: https://github.com/cojedzie/cojedzie/tree/v2021.1.0
