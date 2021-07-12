@@ -4,7 +4,10 @@ Changelog]. As this project is considered to be a final product, it **does not**
 scheme - instead version numbers are based on `<year>.<release>.<patch>` scheme. Public APIs however are versioned 
 separately and adhere to the [Semantic Versioning].  
 
-## [Unreleased]
+## [2021.1.3] - 2021-07-12
+
+### Fixed
+- API: Fixed duplicated entry error due to non-unique `busServiceName` (ZTM Gdańsk)
 
 ## [2021.1.2] - 2021-06-04
 
@@ -35,7 +38,8 @@ First tracked release of cojedzie
 ### Changed 
  - Project is now licensed under the AGPLv3 license terms
 
-[Unreleased]: https://github.com/cojedzie/cojedzie/compare/v2021.1.1...HEAD
+[2021.1.3]: https://github.com/cojedzie/cojedzie/compare/v2021.1.2...v2021.1.3
+[2021.1.2]: https://github.com/cojedzie/cojedzie/compare/v2021.1.1...v2021.1.2
 [2021.1.1]: https://github.com/cojedzie/cojedzie/compare/v2021.1.0...v2021.1.1
 [2021.1.0]: https://github.com/cojedzie/cojedzie/tree/v2021.1.0
 
