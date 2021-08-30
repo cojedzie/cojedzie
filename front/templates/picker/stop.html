@@ -34,11 +34,11 @@
     </div>
 
     <keep-alive>
-        <portal to="popups">
+        <teleport to="#popups">
             <ui-dialog v-if="details" @leave="details = false" behaviour="modal" class="ui-modal--medium" title="Szczegóły przystanku">
                 <stop-details :stop="stop"/>
             </ui-dialog>
-        </portal>
+        </teleport>
     </keep-alive>
     <keep-alive>
         <ui-dialog reference="action-map" v-if="showMap" arrow class="ui-popup--no-padding" style="width: 500px;" placement="right-start" v-hover:inMap>

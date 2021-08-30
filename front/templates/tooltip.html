@@ -1,8 +1,8 @@
-<portal to="popups">
+<teleport to="#popups">
     <transition name="tooltip">
         <ui-dialog class="ui-popup--tooltip" aria-hidden="true" arrow :reference="root" :placement="placement" v-if="show" :responsive="false">
             <slot />
         </ui-dialog>
     </transition>
-</portal>
+</teleport>
 <span ref="root" class="sr-only"><slot /></span>

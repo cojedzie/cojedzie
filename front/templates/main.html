@@ -24,12 +24,12 @@
                         <ui-icon :icon="sections.messages ? 'chevron-up' : 'chevron-down'" fixed-width></ui-icon>
                     </button>
 
-                    <portal to="popups">
+                    <teleport to="#popups">
                         <ui-dialog reference="#settings-messages" v-if="visibility.messages" arrow placement="left-start"
                                    @leave="visibility.messages = false">
                             <settings-messages></settings-messages>
                         </ui-dialog>
-                    </portal>
+                    </teleport>
                 </header>
                 <fold :visible="sections.messages">
                     <messages></messages>
@@ -51,12 +51,12 @@
                         <tooltip>odśwież</tooltip>
                         <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width></ui-icon>
                     </button>
-                    <portal to="popups">
+                    <teleport to="#popups">
                         <ui-dialog reference="#settings-departures" v-if="visibility.departures"
                                    @leave="visibility.departures = false" arrow placement="left-start">
                             <settings-departures></settings-departures>
                         </ui-dialog>
-                    </portal>
+                    </teleport>
                 </header>
                 <departures :stops="stops" v-if="stops.length > 0"></departures>
                 <div class="alert alert-info" v-else>
