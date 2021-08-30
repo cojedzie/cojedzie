@@ -1,10 +1,9 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
-const { GenerateSW } = require('workbox-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const {GenerateSW} = require('workbox-webpack-plugin');
+const {VueLoaderPlugin} = require('vue-loader')
 
 const output_dir = path.resolve('./build/')
 
@@ -22,8 +21,6 @@ const config = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
-            'vue$': 'vue/dist/vue.esm-bundler.js',
-            'mapbox-gl$': 'mapbox-gl/dist/mapbox-gl-unminified',
             "@templates": path.resolve(__dirname, "./templates"),
             "@resources": path.resolve(__dirname, "./resources"),
             "@styles": path.resolve(__dirname, "./styles"),
@@ -62,13 +59,22 @@ const config = {
             use: 'file-loader'
         }, {
             test: /\.html?$/,
-            use: 'raw-loader',
+            loader: require.resolve('vue-loader/dist/templateLoader'),
+            options: {
+                compilerOptions: {
+                    whitespace: "preserve",
+                }
+            },
             exclude: [
                 path.resolve('./resources/index.html')
             ]
+        }, {
+            test: /\.vue$/,
+            use: "vue-loader"
         }]
     },
     plugins: [
+        new VueLoaderPlugin(),
         new MiniCssExtractPlugin({ filename: '[name].css' }),
         new CopyWebpackPlugin([{ from: './resources/images/', to: '../images/', ignore: ['*.ai'] }]),
         new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),

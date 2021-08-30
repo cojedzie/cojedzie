@@ -27,7 +27,7 @@ import { app } from "@/components/application";
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean, current: boolean };
 
-@Options({ template: require("@templates/trip.html") })
+@Options({ render: require("@templates/trip.html").render })
 export class TripComponent extends Vue {
     @Prop(Array) public schedule: ScheduledStop[];
     @Prop(Object) public current: Stop;

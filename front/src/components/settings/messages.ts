@@ -21,8 +21,9 @@ import { Options, Vue } from "vue-class-component";
 import store, { MessagesSettings } from "../../store";
 import { MessagesSettingsState } from "@/store/modules/settings/messages";
 import { app } from "@/components";
+import { render } from "@templates/settings/messages.html";
 
-@Options({template: require("@templates/settings/messages.html"), store})
+@Options({ render, store })
 export class SettingsMessages extends Vue {
     @MessagesSettings.State
     public autorefresh: boolean;

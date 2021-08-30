@@ -27,12 +27,12 @@ import moment from "moment";
 import api from "@/api";
 import { app } from "@/components/application";
 
-@Options({ template: require("@templates/departures.html"), store })
+@Options({ render: require("@templates/departures.html").render, store })
 export class DeparturesComponent extends Vue {
     @Departures.State departures: Departure[];
 }
 
-@Options({ template: require("@templates/departures/departure.html"), store })
+@Options({ render: require("@templates/departures/departure.html").render, store })
 export class DepartureComponent extends Vue {
     @Prop(Object) departure: Departure;
     scheduledTrip: Trip = null;

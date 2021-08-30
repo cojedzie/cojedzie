@@ -23,7 +23,7 @@ import { Line, Stop, Track } from "../model";
 import api from "@/api";
 import { app } from "@/components/application";
 
-@Options({ template: require('@templates/stop/details.html') })
+@Options({ render: require('@templates/stop/details.html').render })
 class StopDetailsComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -56,13 +56,13 @@ class StopDetailsComponent extends Vue {
     }
 }
 
-@Options({ template: require('@templates/stop.html') })
+@Options({ render: require('@templates/stop.html').render })
 export class StopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
 
-@Options({ template: require('@templates/stop/map.html') })
+@Options({ render: require('@templates/stop/map.html').render })
 export class StopMapComponent extends Vue {
     @Prop(Object)
     public stop: Stop;

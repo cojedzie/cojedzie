@@ -23,7 +23,7 @@ import { Mutation } from "vuex-class";
 import { Stop } from "@/model";
 import { Options, Vue } from "vue-class-component";
 
-@Options({ template: require('@templates/stop/history.html' )})
+@Options({ render: require('@templates/stop/history.html').render })
 export class StopHistory extends Vue {
     @History.Getter all: HistoryEntry[];
 

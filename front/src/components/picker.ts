@@ -29,7 +29,7 @@ import { filter, map } from "@/utils/object";
 import { Options, Vue } from "vue-class-component";
 import { app } from "@/components/application";
 
-@Options({ template: require('@templates/picker/stop.html') })
+@Options({ render: require('@templates/picker/stop.html').render })
 export class PickerStopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -70,7 +70,7 @@ export class PickerStopComponent extends Vue {
 }
 
 @Options({
-    template: require('@templates/finder.html'),
+    render: require('@templates/finder.html').render,
     components: {
         "PickerStop": PickerStopComponent,
         "StopHistory": StopHistory,

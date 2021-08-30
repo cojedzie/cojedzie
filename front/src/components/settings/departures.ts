@@ -21,8 +21,9 @@ import { Options, Vue } from "vue-class-component";
 import store, { DeparturesSettings } from "../../store";
 import { DeparturesSettingsState } from "@/store/modules/settings/departures";
 import { app } from "@/components";
+import { render } from "@templates/settings/departures.html";
 
-@Options({ template: require("@templates/settings/departures.html"), store })
+@Options({ render, store })
 export class SettingsDepartures extends Vue {
     @DeparturesSettings.State
     public autorefresh: boolean;

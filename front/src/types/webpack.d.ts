@@ -18,8 +18,9 @@
  */
 
 declare module "*.html" {
-    const content: string;
-    export = content;
+    import { RenderFunction } from "vue";
+
+    export const render: RenderFunction
 }
 
 declare module "*.svg" {

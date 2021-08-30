@@ -15,7 +15,7 @@
                             <div class="provider__short-name">{{ provider.shortName }}</div>
                             <div class="provider__name">{{ provider.name }}</div>
                         </div>
-                        <tooltip v-if="provider.lastUpdate != null">Ostatnia akutalizacja: {{ provider.lastUpdate?.format('YYYY-MM-DD HH:mm') }}</tooltip>
+                        <tooltip v-if="provider.lastUpdate != null">Ostatnia akutalizacja: {{ provider.lastUpdate.format('YYYY-MM-DD HH:mm') }}</tooltip>
                     </a>
                 </li>
             </ul>

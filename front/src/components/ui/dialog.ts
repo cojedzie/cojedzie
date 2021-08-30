@@ -54,7 +54,7 @@ function computeZIndexOfElement(element: HTMLElement): number {
 
 @Options({
     inheritAttrs: false,
-    template: require('@templates/ui/dialog.html'),
+    render: require('@templates/ui/dialog.html').render,
 })
 export default class UiDialog extends Vue {
     @Prop({ type: String, default: "popup" })
