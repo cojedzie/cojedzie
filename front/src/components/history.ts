@@ -17,14 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Component from "vue-class-component";
-import Vue from "vue";
 import { History } from "@/store";
 import { HistoryEntry } from "@/store/modules/history";
 import { Mutation } from "vuex-class";
 import { Stop } from "@/model";
+import { Options, Vue } from "vue-class-component";
 
-@Component({ template: require('@templates/stop/history.html' )})
+@Options({ template: require('@templates/stop/history.html' )})
 export class StopHistory extends Vue {
     @History.Getter all: HistoryEntry[];
 

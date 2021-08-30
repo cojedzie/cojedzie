@@ -3,7 +3,7 @@
         <div class="d-flex position-relative" style="min-width: 0; flex: 1 1 auto;">
             <slot name="primary-action" />
             <div class="overflow-hidden align-self-center">
-                <stop :stop="stop" />
+                <app-stop :stop="stop" />
                 <div class="stop__destinations" v-if="destinations && destinations.length > 0">
                     <ul>
                         <li class="stop__destination destination" v-for="destination in destinations" :key="destination.stop.id">
@@ -41,7 +41,6 @@
         </portal>
     </keep-alive>
     <keep-alive>
-        <!-- FIXME: This should be in portal but it's not possible due to information loss, maybe in vue3 it will be better?-->
         <ui-dialog reference="action-map" v-if="showMap" arrow class="ui-popup--no-padding" style="width: 500px;" placement="right-start" v-hover:inMap>
             <stop-map :stop="stop" style="height: 300px"/>
         </ui-dialog>

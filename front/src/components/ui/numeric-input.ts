@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
-import { Component, Prop } from 'vue-property-decorator'
+import { Prop } from 'vue-property-decorator'
+import { Options, Vue } from "vue-class-component";
 import * as uuid from "uuid";
+import { app } from "@/components";
 
-@Component({
+@Options({
     template: require('@templates/ui/numeric.html'),
     inheritAttrs: false
 })
@@ -69,4 +70,4 @@ export class UiNumericInput extends Vue {
     }
 }
 
-Vue.component('UiNumericInput', UiNumericInput);
+app.component('UiNumericInput', UiNumericInput);

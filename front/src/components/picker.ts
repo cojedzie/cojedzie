@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Component from "vue-class-component";
-import Vue from "vue";
 import { Line, StopGroup, StopGroups, StopWithDestinations as Stop } from "../model";
 import { Prop, Watch } from "vue-property-decorator";
 import { FetchingState, match, unique } from "@/utils";
@@ -28,8 +26,10 @@ import { HistoryEntry, HistoryMutations } from "@/store/modules/history";
 import { StopHistory } from "./history";
 import api from "@/api";
 import { filter, map } from "@/utils/object";
+import { Options, Vue } from "vue-class-component";
+import { app } from "@/components/application";
 
-@Component({ template: require('@templates/picker/stop.html') })
+@Options({ template: require('@templates/picker/stop.html') })
 export class PickerStopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -69,7 +69,7 @@ export class PickerStopComponent extends Vue {
     }
 }
 
-@Component({
+@Options({
     template: require('@templates/finder.html'),
     components: {
         "PickerStop": PickerStopComponent,
@@ -131,5 +131,5 @@ export class FinderComponent extends Vue {
     }
 }
 
-Vue.component('StopFinder', FinderComponent);
-Vue.component('PickerStop', PickerStopComponent);
+app.component('StopFinder', FinderComponent);
+app.component('PickerStop', PickerStopComponent);

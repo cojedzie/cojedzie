@@ -17,10 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
+import { Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
 import { defaultBreakpoints } from "@/filters";
+import { app } from "@/components";
 
 /**
  * How popup will be presented to user:
@@ -51,7 +52,7 @@ function computeZIndexOfElement(element: HTMLElement): number {
     return 0;
 }
 
-@Component({
+@Options({
     inheritAttrs: false,
     template: require('@templates/ui/dialog.html'),
 })
@@ -158,7 +159,7 @@ export default class UiDialog extends Vue {
             this.mountPopper();
         }
 
-        this.staticClass = Array.from(this.$el.classList).filter(cls => ["ui-backdrop", "ui-popup", "ui-popup--arrow"].indexOf(cls) === -1);
+        this.staticClass = Array.from((this.$el as HTMLElement).classList).filter(cls => ["ui-backdrop", "ui-popup", "ui-popup--arrow"].indexOf(cls) === -1);
 
         window.addEventListener('resize', this._resizeEvent = this.handleWindowResize.bind(this));
 
@@ -295,4 +296,4 @@ export default class UiDialog extends Vue {
     }
 }
 
-Vue.component("ui-dialog", UiDialog);
+app.component("ui-dialog", UiDialog);

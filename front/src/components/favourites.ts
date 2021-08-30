@@ -17,16 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
-import { Component, Watch } from 'vue-property-decorator'
+import { Vue, Options } from "vue-class-component";
+import { Watch } from 'vue-property-decorator'
 import { Mutation, State } from "vuex-class";
 import { Favourite } from "@/store/modules/favourites";
 import { Stop } from "@/model";
 import * as uuid from "uuid";
 import { Favourites } from "@/store";
+import { app } from "@/components/application";
 
 
-@Component({ template: require('@templates/favourites.html' )})
+@Options({ template: require('@templates/favourites.html' )})
 export class FavouritesComponent extends Vue {
     @Favourites.State favourites: Favourite[];
     @Favourites.Mutation remove: (fav: Favourite) => void;
@@ -45,7 +46,7 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     }
 }
 
-@Component({ template: require('@templates/favourites/save.html' )})
+@Options({ template: require('@templates/favourites/save.html' )})
 export class FavouritesAdderComponent extends Vue {
     @State stops: Stop[];
 
@@ -90,5 +91,5 @@ export class FavouritesAdderComponent extends Vue {
     }
 }
 
-Vue.component('Favourites', FavouritesComponent);
-Vue.component('FavouritesAdder', FavouritesAdderComponent);
+app.component('Favourites', FavouritesComponent);
+app.component('FavouritesAdder', FavouritesAdderComponent);

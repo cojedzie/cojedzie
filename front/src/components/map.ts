@@ -18,7 +18,7 @@
  */
 
 import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer } from 'vue2-leaflet';
-import Vue from 'vue';
+import Vue, { defineComponent } from 'vue';
 
 import * as L from 'leaflet'
 import 'mapbox-gl-leaflet'
@@ -27,12 +27,13 @@ import 'leaflet/dist/leaflet.css'
 import * as iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import * as iconUrl from 'leaflet/dist/images/marker-icon.png';
 import * as shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import { app } from "@/components/application";
 
 delete L.Icon.Default.prototype['_getIconUrl'];
 
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 
-export const LVectorLayer = Vue.extend({
+export const LVectorLayer = defineComponent({
     props: {
         url: {
             type: String,
@@ -63,12 +64,12 @@ export const LVectorLayer = Vue.extend({
     render: () => null,
 });
 
-Vue.component('LMap', LMap);
-Vue.component('LTileLayer', LTileLayer);
-Vue.component('LVectorLayer', LVectorLayer);
-Vue.component('LMarker', LMarker);
-Vue.component('LControl', LControl);
-Vue.component('LPopup', LPopup)
-Vue.component('LIcon', LIcon);
+app.component('LMap', LMap);
+app.component('LTileLayer', LTileLayer);
+app.component('LVectorLayer', LVectorLayer);
+app.component('LMarker', LMarker);
+app.component('LControl', LControl);
+app.component('LPopup', LPopup)
+app.component('LIcon', LIcon);
 
 export { LMap, LTileLayer, LMarker, LIcon, LControl, LPopup } from 'vue2-leaflet';

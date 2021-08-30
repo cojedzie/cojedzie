@@ -17,9 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue';
-import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
+import { app } from "@/components/application";
 
 type Events = {
     [event: string]: (...any) => void,
@@ -31,7 +31,7 @@ const longPressTimeout = 1000;
 
 const openedTooltips: Set<TooltipComponent> = new Set<TooltipComponent>();
 
-@Component({ template: require('@templates/tooltip.html') })
+@Options({ template: require('@templates/tooltip.html') })
 export class TooltipComponent extends Vue {
     @Prop({ type: String, default: "top" }) public placement: string;
     @Prop({ type: Number, default: 400 }) public delay: number;
@@ -149,4 +149,4 @@ document.addEventListener('touchstart', () => {
     }
 })
 
-Vue.component('Tooltip', TooltipComponent);
+app.component('Tooltip', TooltipComponent);

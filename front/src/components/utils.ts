@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue';
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
+import { app } from "@/components/application";
 
 
-@Component({ template: require('@templates/fold.html') })
+@Options({ template: require('@templates/fold.html') })
 export class FoldComponent extends Vue {
     private observer: MutationObserver;
 
@@ -53,7 +54,7 @@ export class FoldComponent extends Vue {
     }
 }
 
-@Component({ template: require("@templates/lazy.html") })
+@Options({ template: require("@templates/lazy.html") })
 export class LazyComponent extends Vue {
     @Prop(Boolean)
     public    activate: boolean;
@@ -65,11 +66,11 @@ export class LazyComponent extends Vue {
     }
 }
 
-Vue.component('Fold', FoldComponent);
-Vue.component('Lazy', LazyComponent);
+app.component('Fold', FoldComponent);
+app.component('Lazy', LazyComponent);
 
 // https://github.com/vuejs/vue/issues/7829
-Vue.component('Empty', {
+app.component('Empty', {
     functional: true,
     render: (h, { data }) => h('template', data, '')
 });

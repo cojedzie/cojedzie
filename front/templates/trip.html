@@ -3,7 +3,7 @@
         <li v-for="stop in stops" class="trip__stop" :class="[ stop.current && 'trip__stop--current', stop.visited && 'trip__stop--visited' ]">
             <div class="trip__marker"/>
             <div class="trip__description">
-                <stop :stop="stop.stop"/>
+                <app-stop :stop="stop.stop"/>
             </div>
             <div class="trip__departure">
                 {{ stop.departure.format('HH:mm') }}

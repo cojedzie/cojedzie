@@ -17,16 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
-import { Component } from 'vue-property-decorator'
+import { Vue, Options } from 'vue-class-component'
 import { Provider } from "@/model";
 import moment from 'moment';
 import api from "@/api";
 
-@Component({
-    template: require('@templates/page/providers.html'),
-})
-export class ProviderChooser extends Vue {
+@Options({ template: require('@templates/page/providers.html') })
+export default class ProviderChooser extends Vue {
     providers: Provider[] = [];
 
     mounted() {
@@ -44,5 +41,3 @@ export class ProviderChooser extends Vue {
         });
     }
 }
-
-Vue.component('ProviderChooser', ProviderChooser);

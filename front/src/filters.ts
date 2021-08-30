@@ -18,8 +18,8 @@
  */
 
 import { set, signed } from "./utils";
-import Vue from 'vue';
 import { condition } from "./decorators";
+import { app } from "@/components";
 
 export const defaultBreakpoints = {
     'xs': 0,
@@ -29,21 +29,22 @@ export const defaultBreakpoints = {
     'xl': 1200,
 }
 
-Vue.filter('signed', signed);
+app.filter('signed', signed);
 
-Vue.directive('hover',  {
-    bind(el, binding, node) {
+app.directive('hover',  {
+    beforeMount(el, binding, node) {
         const update = (hovered: boolean, e: Event) => {
             if (typeof binding.value === 'function') {
                 binding.value(hovered, e);
             }
 
-            if (typeof binding.value === 'boolean') {
-                set(node.context, binding.expression, hovered);
-            }
+            // fixme, vue3 removed expression
+            // if (typeof binding.value === 'boolean') {
+            //     set(binding.instance, binding.expression, hovered);
+            // }
 
             if (typeof binding.arg !== 'undefined') {
-                set(node.context, binding.arg, hovered);
+                set(binding.instance, binding.arg, hovered);
             }
         };
 
@@ -59,7 +60,7 @@ Vue.directive('hover',  {
         el.addEventListener('mouseleave', deactivate);
         // el.addEventListener('focusout', deactivate);
     },
-    unbind(el, binding) {
+    unmounted(el, binding) {
         if (typeof binding['events'] !== 'undefined') {
             const { activate, deactivate, keyboard } = binding['events'];
 
@@ -72,8 +73,8 @@ Vue.directive('hover',  {
     }
 });
 
-Vue.directive('autofocus', {
-   inserted(el, binding) {
+app.directive('autofocus', {
+   mounted(el, binding) {
        if (binding.value !== undefined) {
            const value = binding.value;
 
@@ -86,8 +87,8 @@ Vue.directive('autofocus', {
    }
 });
 
-Vue.directive('responsive', {
-    inserted(el, binding) {
+app.directive('responsive', {
+    mounted(el, binding) {
         const breakpoints = typeof binding.value === 'object' ? binding.value : defaultBreakpoints;
 
         const resize = binding['resize'] = () => {
@@ -108,7 +109,7 @@ Vue.directive('responsive', {
             window.addEventListener('resize', resize);
         }
     },
-    unbind(el, binding) {
+    unmounted(el, binding) {
         if (typeof binding['resize'] !== 'undefined') {
             window.removeEventListener('resize', binding['resize']);
         }

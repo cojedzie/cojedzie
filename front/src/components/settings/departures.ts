@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Component } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
 import store, { DeparturesSettings } from "../../store";
-import Vue from "vue";
 import { DeparturesSettingsState } from "@/store/modules/settings/departures";
+import { app } from "@/components";
 
-@Component({ template: require("@templates/settings/departures.html"), store })
+@Options({ template: require("@templates/settings/departures.html"), store })
 export class SettingsDepartures extends Vue {
     @DeparturesSettings.State
     public autorefresh: boolean;
@@ -40,4 +40,4 @@ export class SettingsDepartures extends Vue {
     public update: (state: Partial<DeparturesSettingsState>) => void;
 }
 
-Vue.component('SettingsDepartures', SettingsDepartures);
+app.component('SettingsDepartures', SettingsDepartures);

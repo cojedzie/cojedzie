@@ -17,8 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
-import { Component, Watch } from "vue-property-decorator";
+import { Watch } from "vue-property-decorator";
 import { Action, Mutation, State } from 'vuex-class'
 import { Provider, Stop } from "@/model";
 import { DeparturesSettingsState } from "@/store/modules/settings/departures";
@@ -27,9 +26,10 @@ import { prepare } from "@/api/utils";
 import { MessagesActions } from "@/store/modules/messages";
 import { StoreDefinition } from "@/store/initializer";
 import { Store } from "vuex";
+import { Options, Vue } from "vue-class-component";
 
-@Component({ template: require("@templates/main.html") })
-export class Main extends Vue {
+@Options({ template: require("@templates/main.html") })
+export default class Main extends Vue {
     $store: Store<StoreDefinition>;
 
     private sections = {
@@ -70,15 +70,15 @@ export class Main extends Vue {
     }
 
     mounted() {
-        this.$el.classList.remove('not-ready');
+        this.$el.parentElement.classList.remove('not-ready');
 
         document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = prepare("/{provider}/manifest.json", {
-            provider: this.$route.params.provider
+            provider: this.$route.params.provider as string
         });
     }
 
     async created() {
-        await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider });
+        await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider as any });
 
         this.$store.dispatch(`messages/${MessagesActions.Update}`);
         this.$store.dispatch('load', { version: 1, stops: [] });

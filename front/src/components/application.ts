@@ -17,23 +17,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import Component from "vue-class-component";
-import VueRouter, { RouteConfig } from "vue-router";
-import { Main, ProviderChooser } from "@/components";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import store from "@/store";
+import { Options, Vue } from "vue-class-component";
+import { createApp } from "vue";
 
-const routes: RouteConfig[] = [
-    { path: "/:provider", component: Main },
-    { path: "/", component: ProviderChooser },
+
+const routes: RouteRecordRaw[] = [
+    { path: "/:provider", component: () => import ("@/components/main") },
+    { path: "/", component: () => import ("@/components/provider-chooser") },
 ]
 
-export const router = new VueRouter({
+export const router = createRouter({
     routes,
-    mode: 'history',
+    history: createWebHistory(),
 });
 
-@Component({ template: require("@templates/app.html"), router, store })
+@Options({ template: require("@templates/app.html"), router, store })
 export class Application extends Vue {
 
 }
+
+export const app = createApp(Application);
+
+app.use(router);

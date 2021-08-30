@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+export * from "./application"
 export * from './tooltip';
 export * from './utils'
 export * from './line'
@@ -31,7 +32,6 @@ export * from './trip'
 export * from './ui'
 export * from './settings'
 export * from "./provider-chooser"
-export * from "./application"
 
 export { Departures } from "../store";
 export { Messages } from "../store";

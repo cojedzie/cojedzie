@@ -17,16 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import Component from "vue-class-component";
+import { Options, Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { ScheduledStop } from "@/model/trip";
 import { Stop } from "@/model";
 import moment from 'moment';
+import { application } from "express";
+import { app } from "@/components/application";
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean, current: boolean };
 
-@Component({ template: require("@templates/trip.html") })
+@Options({ template: require("@templates/trip.html") })
 export class TripComponent extends Vue {
     @Prop(Array) public schedule: ScheduledStop[];
     @Prop(Object) public current: Stop;
@@ -49,4 +50,4 @@ export class TripComponent extends Vue {
     }
 }
 
-Vue.component('Trip', TripComponent);
+app.component('Trip', TripComponent);

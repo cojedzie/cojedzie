@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Component } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
 import store, { MessagesSettings } from "../../store";
-import Vue from "vue";
 import { MessagesSettingsState } from "@/store/modules/settings/messages";
+import { app } from "@/components";
 
-@Component({template: require("@templates/settings/messages.html"), store})
+@Options({template: require("@templates/settings/messages.html"), store})
 export class SettingsMessages extends Vue {
     @MessagesSettings.State
     public autorefresh: boolean;
@@ -37,4 +37,4 @@ export class SettingsMessages extends Vue {
     public update: (state: Partial<MessagesSettingsState>) => void;
 }
 
-Vue.component('SettingsMessages', SettingsMessages);
+app.component('SettingsMessages', SettingsMessages);

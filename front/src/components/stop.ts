@@ -17,12 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Component, Prop } from "vue-property-decorator";
+import { Vue, Options } from "vue-class-component";
+import { Prop } from "vue-property-decorator";
 import { Line, Stop, Track } from "../model";
-import Vue from 'vue';
 import api from "@/api";
+import { app } from "@/components/application";
 
-@Component({ template: require('@templates/stop/details.html') })
+@Options({ template: require('@templates/stop/details.html') })
 class StopDetailsComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
@@ -55,18 +56,18 @@ class StopDetailsComponent extends Vue {
     }
 }
 
-@Component({ template: require('@templates/stop.html') })
+@Options({ template: require('@templates/stop.html') })
 export class StopComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
 
-@Component({ template: require('@templates/stop/map.html') })
+@Options({ template: require('@templates/stop/map.html') })
 export class StopMapComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
 
-Vue.component('Stop', StopComponent);
-Vue.component('StopDetails', StopDetailsComponent);
-Vue.component('StopMap', StopMapComponent);
+app.component('AppStop', StopComponent);
+app.component('StopDetails', StopDetailsComponent);
+app.component('StopMap', StopMapComponent);

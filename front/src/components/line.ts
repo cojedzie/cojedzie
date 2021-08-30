@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
-import { Component, Prop } from 'vue-property-decorator'
+import { Prop } from 'vue-property-decorator'
 import { Line } from "@/model";
+import { Options, Vue } from "vue-class-component";
+import { app } from "@/components/application";
 
-@Component({ template: require('@templates/line.html' )})
+@Options({ template: require('@templates/line.html' )})
 export class LineComponent extends Vue {
     @Prop(Object)
     public line: Line;
@@ -30,4 +31,4 @@ export class LineComponent extends Vue {
     public simple: boolean;
 }
 
-Vue.component('LineSymbol', LineComponent);
+app.component('LineSymbol', LineComponent);

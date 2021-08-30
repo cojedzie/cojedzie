@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue';
-import { Component } from "vue-property-decorator";
 import { Message } from "@/model/message";
 import store, { Messages, MessagesSettings } from '../store'
+import { Options, Vue } from "vue-class-component";
+import { app } from "@/components/application";
 
-@Component({ template: require("@templates/messages.html"), store })
+@Options({ template: require("@templates/messages.html"), store })
 export class MessagesComponent extends Vue {
     @Messages.State('messages')
     public allMessages: Message[];
@@ -51,4 +51,4 @@ export class MessagesComponent extends Vue {
     }
 }
 
-Vue.component('Messages', MessagesComponent);
+app.component('Messages', MessagesComponent);
