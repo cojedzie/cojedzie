@@ -22,7 +22,7 @@ import { Options, Vue } from "vue-class-component";
 import { app } from "@/components/application";
 
 
-@Options({ template: require('@templates/fold.html') })
+@Options({ render: require('@templates/fold.html').render })
 export class FoldComponent extends Vue {
     private observer: MutationObserver;
 
@@ -54,7 +54,7 @@ export class FoldComponent extends Vue {
     }
 }
 
-@Options({ template: require("@templates/lazy.html") })
+@Options({ render: require("@templates/lazy.html").render })
 export class LazyComponent extends Vue {
     @Prop(Boolean)
     public    activate: boolean;

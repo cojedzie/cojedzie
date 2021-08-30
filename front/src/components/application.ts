@@ -21,7 +21,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import store from "@/store";
 import { Options, Vue } from "vue-class-component";
 import { createApp } from "vue";
-
+import { render } from "@templates/app.html";
 
 const routes: RouteRecordRaw[] = [
     { path: "/:provider", component: () => import ("@/components/main") },
@@ -33,7 +33,8 @@ export const router = createRouter({
     history: createWebHistory(),
 });
 
-@Options({ template: require("@templates/app.html"), router, store })
+
+@Options({ render, router, store })
 export class Application extends Vue {
     mounted() {
         this.$el.classList.remove('not-ready');

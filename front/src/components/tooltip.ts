@@ -31,7 +31,7 @@ const longPressTimeout = 1000;
 
 const openedTooltips: Set<TooltipComponent> = new Set<TooltipComponent>();
 
-@Options({ template: require('@templates/tooltip.html') })
+@Options({ render: require('@templates/tooltip.html').render })
 export class TooltipComponent extends Vue {
     @Prop({ type: String, default: "top" }) public placement: string;
     @Prop({ type: Number, default: 400 }) public delay: number;

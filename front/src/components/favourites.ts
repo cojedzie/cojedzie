@@ -27,7 +27,7 @@ import { Favourites } from "@/store";
 import { app } from "@/components/application";
 
 
-@Options({ template: require('@templates/favourites.html' )})
+@Options({ render: require('@templates/favourites.html').render })
 export class FavouritesComponent extends Vue {
     @Favourites.State favourites: Favourite[];
     @Favourites.Mutation remove: (fav: Favourite) => void;
@@ -46,7 +46,7 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     }
 }
 
-@Options({ template: require('@templates/favourites/save.html' )})
+@Options({ render: require('@templates/favourites/save.html').render })
 export class FavouritesAdderComponent extends Vue {
     @State stops: Stop[];
 

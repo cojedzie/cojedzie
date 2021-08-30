@@ -23,7 +23,7 @@ import * as uuid from "uuid";
 import { app } from "@/components";
 
 @Options({
-    template: require('@templates/ui/numeric.html'),
+    render: require('@templates/ui/numeric.html').render,
     inheritAttrs: false
 })
 export class UiNumericInput extends Vue {

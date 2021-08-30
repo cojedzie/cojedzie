@@ -18,7 +18,6 @@
  */
 
 /// <reference path="types/webpack.d.ts"/>
-/// <reference path="types/vue.d.ts"/>
 
 import '../styles/main.scss'
 
@@ -56,6 +55,7 @@ app.config.globalProperties.$hasSlot = function (this: Vue, slot: string): boole
     return !!this.$slots[slot];
 }
 app.config.globalProperties.$moment = moment;
+app.config.compilerOptions.whitespace = "preserve";
 
 Vue.registerHooks(['removed']);
 

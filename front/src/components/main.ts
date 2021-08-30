@@ -28,7 +28,7 @@ import { StoreDefinition } from "@/store/initializer";
 import { Store } from "vuex";
 import { Options, Vue } from "vue-class-component";
 
-@Options({ template: require("@templates/main.html") })
+@Options({ render: require("@templates/main.html").render })
 export default class Main extends Vue {
     $store: Store<StoreDefinition>;
 

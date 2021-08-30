@@ -23,7 +23,7 @@ import { Options, Vue } from "vue-class-component";
 import { app } from "@/components";
 
 @Options({
-    template: require('@templates/ui/switch.html'),
+    render: require('@templates/ui/switch.html').render,
     inheritAttrs: false
 })
 export class UiSwitch extends Vue {
