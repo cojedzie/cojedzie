@@ -13,17 +13,17 @@
 
             <template v-if="!relativeTimes">
                 <span :class="[ 'departure__time', 'departure__time--delayed']" v-if="timeDiffers">
-                    {{ departure.scheduled|moment('HH:mm') }}
+                    {{ departure.scheduled?.format('HH:mm') }}
                 </span>
                 <span class="badge" :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
                       v-if="departure.delay < 0 || departure.delay > 30">
-                    {{ departure.delay|signed }}s
+                    {{ $f.signed(departure.delay) }}s
                 </span>
 
-                <span class="departure__time">{{ time|moment('HH:mm') }}</span>
+                <span class="departure__time">{{ time?.format('HH:mm') }}</span>
             </template>
             <template v-else>
-                {{ timeLeft|duration('humanize', true) }}
+                {{ $f.duration(timeLeft).humanize(true) }}
             </template>
         </div>
 

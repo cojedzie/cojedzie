@@ -20,6 +20,7 @@
 import { set, signed } from "./utils";
 import { condition } from "./decorators";
 import { app } from "@/components";
+import moment from "moment";
 
 export const defaultBreakpoints = {
     'xs': 0,
@@ -29,7 +30,10 @@ export const defaultBreakpoints = {
     'xl': 1200,
 }
 
-app.filter('signed', signed);
+app.config.globalProperties.$f = {
+    signed,
+    duration: (...args) => moment.duration(...args)
+}
 
 app.directive('hover',  {
     beforeMount(el, binding, node) {
@@ -103,7 +107,7 @@ app.directive('responsive', {
                 el.classList.add(`size-${breakpoint}`);
             }
         };
-        resize();
+        setTimeout(() => resize());
 
         if (!binding.modifiers['once']) {
             window.addEventListener('resize', resize);

@@ -117,7 +117,6 @@ export default class UiDialog extends Vue {
     }
 
     private getReferenceElement() {
-
         const isInWrapper = this.$parent.$options.name == 'portalTarget';
 
         if (typeof this.reference === 'string') {
@@ -152,19 +151,21 @@ export default class UiDialog extends Vue {
     }
 
     mounted() {
-        this.zIndex = computeZIndexOfElement(this.getReferenceElement()) + 100;
+        this.$nextTick(() => {
+            this.zIndex = computeZIndexOfElement(this.getReferenceElement()) + 100;
 
-        this.handleWindowResize();
+            this.handleWindowResize();
 
-        if (this.behaviour === 'popup') {
-            this.mountPopper();
-        }
+            if (this.behaviour === 'popup') {
+                this.mountPopper();
+            }
 
-        this.staticClass = Array.from((this.$el as HTMLElement).classList).filter(cls => ["ui-backdrop", "ui-popup", "ui-popup--arrow"].indexOf(cls) === -1);
+            this.staticClass = Array.from((this.$el as HTMLElement).classList).filter(cls => ["ui-backdrop", "ui-popup", "ui-popup--arrow"].indexOf(cls) === -1);
 
-        window.addEventListener('resize', this._resizeEvent = this.handleWindowResize.bind(this));
+            window.addEventListener('resize', this._resizeEvent = this.handleWindowResize.bind(this));
 
-        this._activated();
+            this._activated();
+        })
     }
 
     private _activated() {

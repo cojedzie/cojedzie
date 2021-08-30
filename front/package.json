@@ -32,7 +32,6 @@
     "moment": "^2.22.2",
     "node-sass": "^4.9.3",
     "popper.js": "^1.14.4",
-    "portal-vue": "^2.1.7",
     "raw-loader": "^0.5.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.22.1",

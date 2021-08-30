@@ -28,7 +28,6 @@ import Popper from 'popper.js';
 import * as $ from "jquery";
 // dependencies
 import { Store } from 'vuex';
-import PortalVue from 'portal-vue';
 import { dragscrollNext } from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
 
@@ -38,23 +37,20 @@ import 'moment/locale/pl'
 import { app } from "@/components";
 import moment, { Moment } from "moment";
 import { StoreDefinition } from "@/store/initializer";
-import * as VueMoment from "vue-moment";
 
 configureCompat({ WATCH_ARRAY: false })
 
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
 
-app.use(PortalVue);
 app.directive("dragscroll", dragscrollNext);
-app.use(VueMoment as any, { moment })
 
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
         $isTouch: boolean;
         $hasSlot: (slot: string) => string;
         $moment: typeof moment;
-        $store: Store<StoreDefinition>
+        $store: Store<StoreDefinition>;
     }
 }
 
@@ -62,6 +58,7 @@ app.config.globalProperties.$isTouch = 'ontouchstart' in window || navigator.msM
 app.config.globalProperties.$hasSlot = function (this: Vue, slot: string): boolean {
     return !!this.$slots[slot];
 }
+app.config.globalProperties.$moment = moment;
 
 Vue.registerHooks(['removed']);
 
