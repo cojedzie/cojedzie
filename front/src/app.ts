@@ -32,13 +32,10 @@ import { dragscrollNext } from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
 
 import { Vue } from "vue-class-component"
-import { configureCompat } from "vue";
 import 'moment/locale/pl'
 import { app } from "@/components";
 import moment, { Moment } from "moment";
 import { StoreDefinition } from "@/store/initializer";
-
-configureCompat({ WATCH_ARRAY: false })
 
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;

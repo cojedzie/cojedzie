@@ -17,11 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer } from 'vue2-leaflet';
-import Vue, { defineComponent } from 'vue';
+import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer } from '@vue-leaflet/vue-leaflet';
+import { defineComponent } from 'vue';
 
-import * as L from 'leaflet'
 import 'mapbox-gl-leaflet'
+import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import * as iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -46,6 +46,7 @@ export const LVectorLayer = defineComponent({
         attribution: String,
     },
     mounted(): void {
+        // @ts-ignore
         this['mapObject'] = L.mapboxGL({
             style: this.url,
             accessToken: this.token,
@@ -53,13 +54,13 @@ export const LVectorLayer = defineComponent({
         } as any);
 
         this.$nextTick(() => {
-            const map = this.$parent['mapObject'];
+            const map = this.$parent['leafletObject'];
 
             this['mapObject'].addTo(map);
         })
     },
-    beforeDestroy(): void {
-        this.$parent['mapObject'].removeLayer(this['mapObject'])
+    beforeUmount(): void {
+        this.$parent['leafletObject'].removeLayer(this['mapObject'])
     },
     render: () => null,
 });
@@ -72,4 +73,4 @@ app.component('LControl', LControl);
 app.component('LPopup', LPopup)
 app.component('LIcon', LIcon);
 
-export { LMap, LTileLayer, LMarker, LIcon, LControl, LPopup } from 'vue2-leaflet';
+export { LMap, LTileLayer, LMarker, LIcon, LControl, LPopup } from '@vue-leaflet/vue-leaflet';
