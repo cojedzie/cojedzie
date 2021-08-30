@@ -70,8 +70,6 @@ export default class Main extends Vue {
     }
 
     mounted() {
-        this.$el.parentElement.classList.remove('not-ready');
-
         document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = prepare("/{provider}/manifest.json", {
             provider: this.$route.params.provider as string
         });
@@ -132,7 +130,7 @@ export default class Main extends Vue {
     @Mutation remove: (stop: Stop) => void;
     @Mutation clear: () => void;
 
-    @Watch('stops')
+    @Watch('stops', { deep: true })
     onStopUpdate() {
         this.updateDepartures();
     }

@@ -117,6 +117,7 @@ export default class UiDialog extends Vue {
     }
 
     private getReferenceElement() {
+
         const isInWrapper = this.$parent.$options.name == 'portalTarget';
 
         if (typeof this.reference === 'string') {
