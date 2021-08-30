@@ -1,5 +1,5 @@
 <div class="fold" :aria-expanded="visible ? 'true' : 'false'">
-    <div class="fold__inner" ref="inner" :tabindex="visible ? false : -1">
+    <div class="fold__inner" ref="inner" :tabindex="visible ? null : -1">
         <lazy v-if="lazy" :activate="visible">
             <slot></slot>
         </lazy>

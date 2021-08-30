@@ -49,8 +49,6 @@ export class TooltipComponent extends Vue {
         } else {
             openedTooltips.delete(this);
         }
-
-        console.log(openedTooltips);
     }
 
     mounted() {
@@ -63,7 +61,7 @@ export class TooltipComponent extends Vue {
         this._removeEventListeners();
     }
 
-    @Watch('triggers')
+    @Watch('triggers', { deep: true })
     updateTriggers() {
         this._removeEventListeners();
 

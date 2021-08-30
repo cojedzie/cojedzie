@@ -18,7 +18,6 @@
  */
 
 import { Store } from "vuex";
-import { Vue } from "vue/types/vue";
 import { DefaultComputed, DefaultData, DefaultMethods, DefaultProps, PropsDefinition } from "vue/types/options";
 
 declare module "vue/types/vue" {

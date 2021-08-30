@@ -35,7 +35,9 @@ export const router = createRouter({
 
 @Options({ template: require("@templates/app.html"), router, store })
 export class Application extends Vue {
-
+    mounted() {
+        this.$el.classList.remove('not-ready');
+    }
 }
 
 export const app = createApp(Application);

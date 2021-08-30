@@ -27,26 +27,26 @@ import "leaflet/dist/leaflet.css";
 import Popper from 'popper.js';
 import * as $ from "jquery";
 // dependencies
-import Vuex, { Store } from 'vuex';
+import { Store } from 'vuex';
 import PortalVue from 'portal-vue';
-import VueDragscroll from 'vue-dragscroll';
-import { Plugin as VueFragment } from 'vue-fragment';
+import { dragscrollNext } from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
 
 import { Vue } from "vue-class-component"
+import { configureCompat } from "vue";
 import 'moment/locale/pl'
 import { app } from "@/components";
 import moment, { Moment } from "moment";
 import { StoreDefinition } from "@/store/initializer";
 import * as VueMoment from "vue-moment";
 
+configureCompat({ WATCH_ARRAY: false })
+
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
 
-// app.use(Vuex);
 app.use(PortalVue);
-app.use(VueDragscroll);
-app.use(VueFragment);
+app.directive("dragscroll", dragscrollNext);
 app.use(VueMoment as any, { moment })
 
 declare module '@vue/runtime-core' {
@@ -79,7 +79,12 @@ Vue.registerHooks(['removed']);
     ] as const);
 
     app.use(store);
-    app.mount("#root", true)
+
+    // todo figure out better way
+    const fragment = document.createDocumentFragment();
+    const root = document.getElementById('root');
+    app.mount(fragment as any);
+    root.parentNode.replaceChild(fragment, root);
 
     if ('serviceWorker' in navigator) {
         const wb = new Workbox("/service-worker.js");

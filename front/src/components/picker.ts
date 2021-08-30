@@ -82,7 +82,7 @@ export class FinderComponent extends Vue {
     public state: FetchingState = 'ready';
     public filter: string = "";
 
-    @Prop({default: [], type: Array})
+    @Prop({ default: [], type: Array })
     public blacklist: Stop[];
 
     @Mutation(`history/${HistoryMutations.Push}`) pushToHistory: (entry: HistoryEntry) => void;
