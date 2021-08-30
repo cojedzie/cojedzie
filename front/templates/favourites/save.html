@@ -12,7 +12,7 @@
     </div>
     <ul class="favourite__stops">
         <li class="favourite__stop" v-for="stop in stops" :key="stop.id">
-            <stop :stop="stop"/>
+            <app-stop :stop="stop"/>
         </li>
     </ul>
     <div class="favourite-add-form__actions">

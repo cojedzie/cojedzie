@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
-import { Component, Prop } from 'vue-property-decorator'
+import { Options, Vue } from "vue-class-component";
+import { Prop } from 'vue-property-decorator'
 import { IconDefinition, library } from "@fortawesome/fontawesome-svg-core"
 import { Dictionary } from "@/utils";
 import {
@@ -55,6 +55,7 @@ import {
 import { faExclamationTriangle as faSolidExclamationTriangle, faWalking } from "@fortawesome/pro-solid-svg-icons";
 import { fac } from "@/icons";
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from "@fortawesome/vue-fontawesome";
+import { app } from "@/components";
 
 type IconDescription = { icon: IconDefinition, [prop: string]: any }
 
@@ -135,7 +136,7 @@ const extractAllIcons = (icons: Icon[]) => icons.map(icon => {
 
 library.add(...extractAllIcons(Object.values(definitions)));
 
-@Component({
+@Options({
     template: require('@templates/ui/icon.html'),
     components: {
         fa: FontAwesomeIcon,
@@ -146,7 +147,7 @@ library.add(...extractAllIcons(Object.values(definitions)));
 export class UiIcon extends Vue {
     @Prop({
         type: [String, Object],
-        validator: value => typeof value === "object" || Object.keys(definitions).includes(value),
+        validator: (value: string|object) => typeof value === "object" || Object.keys(definitions).includes(value),
         required: true,
     })
     icon: PredefinedIcon | IconDefinition;
@@ -166,4 +167,4 @@ export class UiIcon extends Vue {
     }
 }
 
-Vue.component('UiIcon', UiIcon);
+app.component('UiIcon', UiIcon);

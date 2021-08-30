@@ -269,12 +269,14 @@ declare module "vuex" {
         subscribeAction(mutation: VuexActionSubscriber<TDefinition>, options?: VuexSubscribeOptions): VuexUnsubscribeFunction;
     }
 
-    export function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;
+    export function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): Store<TDefinition>;
 
     export function install(...args: any[]): any;
 
     export class Store<TDefinition extends VuexStoreDefinition> {
         constructor(definition: TDefinition);
+
+        install(...args: any[]): any
     }
 
     export interface Store<TDefinition extends VuexStoreDefinition> extends VuexStore<TDefinition> {

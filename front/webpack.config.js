@@ -22,7 +22,7 @@ const config = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
-            'vue$': 'vue/dist/vue.esm.js',
+            'vue$': '@vue/compat/dist/vue.esm-bundler.js',
             'mapbox-gl$': 'mapbox-gl/dist/mapbox-gl-unminified',
             "@templates": path.resolve(__dirname, "./templates"),
             "@resources": path.resolve(__dirname, "./resources"),

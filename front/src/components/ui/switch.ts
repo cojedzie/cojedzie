@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
-import { Component, Prop } from 'vue-property-decorator'
+import { Prop } from 'vue-property-decorator'
 import * as uuid from "uuid";
+import { Options, Vue } from "vue-class-component";
+import { app } from "@/components";
 
-@Component({
+@Options({
     template: require('@templates/ui/switch.html'),
     inheritAttrs: false
 })
@@ -40,4 +41,4 @@ export class UiSwitch extends Vue {
     }
 }
 
-Vue.component('UiSwitch', UiSwitch);
+app.component('UiSwitch', UiSwitch);

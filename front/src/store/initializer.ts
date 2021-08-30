@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vuex, { VuexPlugin, VuexStateProvider, VuexStoreDefinition } from "vuex";
+import Vuex, { Store, VuexPlugin, VuexStateProvider, VuexStoreDefinition, createStore as createVuexStore } from "vuex";
 import { actions, mutations, RootActionTree, RootMutationsTree, RootState, state } from "@/store/root";
 import { Optionalify, supply } from "@/utils";
 import messages, { MessagesState } from "@/store/modules/messages";
@@ -74,7 +74,7 @@ export type StoreDefinition = {
 }
 
 export function createStore(options?: StoreOptions) {
-    const store = new Vuex.Store<StoreDefinition>({
+    const store = createVuexStore<StoreDefinition>({
         state: supply(options?.state || state) as any,
         mutations,
         actions,
@@ -89,7 +89,7 @@ export function createStore(options?: StoreOptions) {
             ...(options?.modules || {})
         },
         plugins: options?.plugins || [],
-    })
+    }) as Store<StoreDefinition>;
 
     store.$api = new LoadBalancedClient({
         ...options.apiClientOptions,

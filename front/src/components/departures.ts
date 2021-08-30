@@ -17,21 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue'
 import { Departure } from "@/model";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Options } from "vue-class-component";
+import { Prop, Watch } from "vue-property-decorator";
 import store, { Departures, DeparturesSettings } from '../store'
 import { Trip } from "@/model/trip";
 import { Jsonified } from "@/utils";
 import moment from "moment";
 import api from "@/api";
+import { app } from "@/components/application";
 
-@Component({ template: require("@templates/departures.html"), store })
+@Options({ template: require("@templates/departures.html"), store })
 export class DeparturesComponent extends Vue {
     @Departures.State departures: Departure[];
 }
 
-@Component({ template: require("@templates/departures/departure.html"), store })
+@Options({ template: require("@templates/departures/departure.html"), store })
 export class DepartureComponent extends Vue {
     @Prop(Object) departure: Departure;
     scheduledTrip: Trip = null;
@@ -95,5 +96,5 @@ export class DepartureComponent extends Vue {
     }
 }
 
-Vue.component('Departures', DeparturesComponent);
-Vue.component('Departure', DepartureComponent);
+app.component('Departures', DeparturesComponent);
+app.component('Departure', DepartureComponent);

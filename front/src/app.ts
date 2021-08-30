@@ -27,43 +27,43 @@ import "leaflet/dist/leaflet.css";
 import Popper from 'popper.js';
 import * as $ from "jquery";
 // dependencies
-import Vue from "vue";
 import Vuex, { Store } from 'vuex';
 import PortalVue from 'portal-vue';
 import VueDragscroll from 'vue-dragscroll';
 import { Plugin as VueFragment } from 'vue-fragment';
 import { Workbox } from "workbox-window";
 
-import { Component } from "vue-property-decorator";
-import * as VueMoment from "vue-moment";
-import moment from 'moment';
+import { Vue } from "vue-class-component"
 import 'moment/locale/pl'
-import VueRouter from "vue-router";
+import { app } from "@/components";
+import moment, { Moment } from "moment";
 import { StoreDefinition } from "@/store/initializer";
+import * as VueMoment from "vue-moment";
 
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
 
-Vue.use(Vuex);
-Vue.use(PortalVue);
-Vue.use(VueDragscroll);
-Vue.use(VueFragment);
-Vue.use(VueMoment, { moment });
-Vue.use(VueRouter);
+// app.use(Vuex);
+app.use(PortalVue);
+app.use(VueDragscroll);
+app.use(VueFragment);
+app.use(VueMoment as any, { moment })
 
-declare module 'vue/types/vue' {
-    interface Vue {
+declare module '@vue/runtime-core' {
+    interface ComponentCustomProperties {
         $isTouch: boolean;
         $hasSlot: (slot: string) => string;
+        $moment: typeof moment;
+        $store: Store<StoreDefinition>
     }
 }
 
-Vue.prototype.$isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
-Vue.prototype.$hasSlot = function (this: Vue, slot: string): boolean {
-    return !!this.$slots[slot] || !!this.$scopedSlots[slot];
+app.config.globalProperties.$isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
+app.config.globalProperties.$hasSlot = function (this: Vue, slot: string): boolean {
+    return !!this.$slots[slot];
 }
 
-Component.registerHooks(['removed']);
+Vue.registerHooks(['removed']);
 
 // async dependencies
 (async function () {
@@ -78,7 +78,8 @@ Component.registerHooks(['removed']);
         import('bootstrap'),
     ] as const);
 
-    const application = new components.Application().$mount("#root")
+    app.use(store);
+    app.mount("#root", true)
 
     if ('serviceWorker' in navigator) {
         const wb = new Workbox("/service-worker.js");
