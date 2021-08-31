@@ -19,8 +19,6 @@
 
 /// <reference path="types/webpack.d.ts"/>
 
-import '../styles/main.scss'
-
 import "leaflet/dist/leaflet.css";
 
 import Popper from 'popper.js';
@@ -29,15 +27,21 @@ import * as $ from "jquery";
 import { Store } from 'vuex';
 import { dragscrollNext } from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
-
-import { Vue } from "vue-class-component"
-import 'moment/locale/pl'
-import { app } from "@/components";
-import moment, { Moment } from "moment";
 import { StoreDefinition } from "@/store/initializer";
+import { Vue } from "vue-class-component"
+
+import 'moment/locale/pl'
+import moment from "moment";
+
+import components, { app } from "@/components";
+import filters from '@/filters'
+import 'bootstrap'
 
 window['$'] = window['jQuery'] = $;
 window['Popper'] = Popper;
+
+app.use(filters);
+app.use(components);
 
 app.directive("dragscroll", dragscrollNext);
 
@@ -55,22 +59,14 @@ app.config.globalProperties.$hasSlot = function (this: Vue, slot: string): boole
     return !!this.$slots[slot];
 }
 app.config.globalProperties.$moment = moment;
-app.config.compilerOptions.whitespace = "preserve";
 
 Vue.registerHooks(['removed']);
 
 // async dependencies
 (async function () {
     const { migrate } = await import('./store/migrations');
-
     await migrate("vuex");
-
-    const [ components, { default: store } ] = await Promise.all([
-        import('./components'),
-        import('./store'),
-        import('./filters'),
-        import('bootstrap'),
-    ] as const);
+    const { default: store } = await import('./store');
 
     app.use(store);
 

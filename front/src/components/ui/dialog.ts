@@ -21,7 +21,6 @@ import { Options, Vue } from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
 import { defaultBreakpoints } from "@/filters";
-import { app } from "@/components";
 
 /**
  * How popup will be presented to user:
@@ -297,5 +296,3 @@ export default class UiDialog extends Vue {
         }
     }
 }
-
-app.component("ui-dialog", UiDialog);

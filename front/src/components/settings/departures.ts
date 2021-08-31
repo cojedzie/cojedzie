@@ -20,7 +20,6 @@
 import { Options, Vue } from "vue-class-component";
 import store, { DeparturesSettings } from "../../store";
 import { DeparturesSettingsState } from "@/store/modules/settings/departures";
-import { app } from "@/components";
 import { render } from "@templates/settings/departures.html";
 
 @Options({ render, store })
@@ -40,5 +39,3 @@ export class SettingsDepartures extends Vue {
     @DeparturesSettings.Mutation
     public update: (state: Partial<DeparturesSettingsState>) => void;
 }
-
-app.component('SettingsDepartures', SettingsDepartures);

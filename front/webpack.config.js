@@ -5,15 +5,15 @@ const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const {GenerateSW} = require('workbox-webpack-plugin');
 const {VueLoaderPlugin} = require('vue-loader')
 
-const output_dir = path.resolve('./build/')
+const outputDir = path.resolve('./build/')
 
 const config = {
     entry: {
-        main: ['./src/app.ts'],
+        main: ['./src/app.ts', './styles/main.scss'],
         api: ['./styles/api.scss']
     },
     output: {
-        path: path.join(output_dir, './public/dist/'),
+        path: path.join(outputDir, './public/dist/'),
         publicPath: "/dist/",
         filename: "[name].js",
         chunkFilename: '[name].[chunkhash:8].js'

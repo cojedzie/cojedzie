@@ -27,7 +27,6 @@ import { StopHistory } from "./history";
 import api from "@/api";
 import { filter, map } from "@/utils/object";
 import { Options, Vue } from "vue-class-component";
-import { app } from "@/components/application";
 
 @Options({ render: require('@templates/picker/stop.html').render })
 export class PickerStopComponent extends Vue {
@@ -130,6 +129,3 @@ export class FinderComponent extends Vue {
         this.$emit('select', stop);
     }
 }
-
-app.component('StopFinder', FinderComponent);
-app.component('PickerStop', PickerStopComponent);

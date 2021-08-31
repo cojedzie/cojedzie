@@ -20,7 +20,6 @@
 import { Message } from "@/model/message";
 import store, { Messages, MessagesSettings } from '../store'
 import { Options, Vue } from "vue-class-component";
-import { app } from "@/components/application";
 
 @Options({ render: require("@templates/messages.html").render, store })
 export class MessagesComponent extends Vue {
@@ -50,5 +49,3 @@ export class MessagesComponent extends Vue {
         }
     }
 }
-
-app.component('Messages', MessagesComponent);

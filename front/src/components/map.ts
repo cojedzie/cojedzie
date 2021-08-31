@@ -65,12 +65,4 @@ export const LVectorLayer = defineComponent({
     render: () => null,
 });
 
-app.component('LMap', LMap);
-app.component('LTileLayer', LTileLayer);
-app.component('LVectorLayer', LVectorLayer);
-app.component('LMarker', LMarker);
-app.component('LControl', LControl);
-app.component('LPopup', LPopup)
-app.component('LIcon', LIcon);
-
 export { LMap, LTileLayer, LMarker, LIcon, LControl, LPopup } from '@vue-leaflet/vue-leaflet';

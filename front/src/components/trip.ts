@@ -22,8 +22,6 @@ import { Prop } from "vue-property-decorator";
 import { ScheduledStop } from "@/model/trip";
 import { Stop } from "@/model";
 import moment from 'moment';
-import { application } from "express";
-import { app } from "@/components/application";
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean, current: boolean };
 
@@ -49,5 +47,3 @@ export class TripComponent extends Vue {
         list.scrollLeft = current.offsetLeft - (list.clientWidth + current.clientWidth) / 2;
     }
 }
-
-app.component('Trip', TripComponent);

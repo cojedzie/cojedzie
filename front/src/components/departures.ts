@@ -25,7 +25,6 @@ import { Trip } from "@/model/trip";
 import { Jsonified } from "@/utils";
 import moment from "moment";
 import api from "@/api";
-import { app } from "@/components/application";
 
 @Options({ render: require("@templates/departures.html").render, store })
 export class DeparturesComponent extends Vue {
@@ -95,6 +94,3 @@ export class DepartureComponent extends Vue {
         };
     }
 }
-
-app.component('Departures', DeparturesComponent);
-app.component('Departure', DepartureComponent);

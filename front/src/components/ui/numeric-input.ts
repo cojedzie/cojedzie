@@ -20,7 +20,6 @@
 import { Prop } from 'vue-property-decorator'
 import { Options, Vue } from "vue-class-component";
 import * as uuid from "uuid";
-import { app } from "@/components";
 
 @Options({
     render: require('@templates/ui/numeric.html').render,
@@ -69,5 +68,3 @@ export class UiNumericInput extends Vue {
         return this.value - this.min > Number.EPSILON * 2;
     }
 }
-
-app.component('UiNumericInput', UiNumericInput);

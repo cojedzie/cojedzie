@@ -50,12 +50,11 @@ import {
     faCodeCommit,
     faMinus,
     faPlus,
-    faSpinnerThird
+    faSpinnerThird,
 } from "@fortawesome/pro-regular-svg-icons";
 import { faExclamationTriangle as faSolidExclamationTriangle, faWalking } from "@fortawesome/pro-solid-svg-icons";
 import { fac } from "@/icons";
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from "@fortawesome/vue-fontawesome";
-import { app } from "@/components";
 
 type IconDescription = { icon: IconDefinition, [prop: string]: any }
 
@@ -166,5 +165,3 @@ export class UiIcon extends Vue {
         return this.definition.type;
     }
 }
-
-app.component('UiIcon', UiIcon);

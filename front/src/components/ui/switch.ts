@@ -20,7 +20,6 @@
 import { Prop } from 'vue-property-decorator'
 import * as uuid from "uuid";
 import { Options, Vue } from "vue-class-component";
-import { app } from "@/components";
 
 @Options({
     render: require('@templates/ui/switch.html').render,
@@ -40,5 +39,3 @@ export class UiSwitch extends Vue {
         this.$emit('input', !this.value);
     }
 }
-
-app.component('UiSwitch', UiSwitch);
