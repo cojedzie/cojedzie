@@ -19,8 +19,8 @@
 
 import { set, signed } from "./utils";
 import { condition } from "./decorators";
-import { app } from "@/components";
 import moment from "moment";
+import { App } from "vue";
 
 export const defaultBreakpoints = {
     'xs': 0,
@@ -30,92 +30,87 @@ export const defaultBreakpoints = {
     'xl': 1200,
 }
 
-app.config.globalProperties.$f = {
-    signed,
-    duration: (...args) => moment.duration(...args)
-}
-
-app.directive('hover',  {
-    beforeMount(el, binding, node) {
-        const update = (hovered: boolean, e: Event) => {
-            if (typeof binding.value === 'function') {
-                binding.value(hovered, e);
-            }
-
-            // fixme, vue3 removed expression
-            // if (typeof binding.value === 'boolean') {
-            //     set(binding.instance, binding.expression, hovered);
-            // }
-
-            if (typeof binding.arg !== 'undefined') {
-                set(binding.instance, binding.arg, hovered);
-            }
-        };
-
-        const activate   = event => update(true, event);
-        const deactivate = event => update(false, event);
-        const keyboard   = condition.decorate(deactivate, e => e.keyCode == 27);
-
-        binding['events'] = { activate, deactivate, keyboard };
-
-        el.addEventListener('mouseenter', activate);
-        el.addEventListener('click', activate);
-        el.addEventListener('keydown', keyboard);
-        el.addEventListener('mouseleave', deactivate);
-        // el.addEventListener('focusout', deactivate);
-    },
-    unmounted(el, binding) {
-        if (typeof binding['events'] !== 'undefined') {
-            const { activate, deactivate, keyboard } = binding['events'];
-
-            el.removeEventListener('mouseenter', activate);
-            el.removeEventListener('click', activate);
-            el.removeEventListener('keydown', keyboard);
-            el.removeEventListener('mouseleave', deactivate);
-            // el.removeEventListener('focusout', deactivate);
-        }
+export default function install(app: App) {
+    app.config.globalProperties.$f = {
+        signed,
+        duration: (...args) => moment.duration(...args)
     }
-});
 
-app.directive('autofocus', {
-   mounted(el, binding) {
-       if (binding.value !== undefined) {
-           const value = binding.value;
-
-           if ((typeof value === "boolean" && !value) || (typeof value === "function" && !value(el))) {
-               return;
-           }
-       }
-
-       el.focus();
-   }
-});
-
-app.directive('responsive', {
-    mounted(el, binding) {
-        const breakpoints = typeof binding.value === 'object' ? binding.value : defaultBreakpoints;
-
-        const resize = binding['resize'] = () => {
-            const width = el.scrollWidth;
-            el.classList.remove(...Object.keys(breakpoints).map(breakpoint => `size-${breakpoint}`));
-
-            for (let [ breakpoint, size ] of Object.entries(breakpoints)) {
-                if (width < size) {
-                    break;
+    app.directive('hover',  {
+        beforeMount(el, binding, node) {
+            const update = (hovered: boolean, e: Event) => {
+                if (typeof binding.value === 'function') {
+                    binding.value(hovered, e);
                 }
 
-                el.classList.add(`size-${breakpoint}`);
-            }
-        };
-        setTimeout(() => resize());
+                if (typeof binding.arg !== 'undefined') {
+                    set(binding.instance, binding.arg, hovered);
+                }
+            };
 
-        if (!binding.modifiers['once']) {
-            window.addEventListener('resize', resize);
+            const activate   = event => update(true, event);
+            const deactivate = event => update(false, event);
+            const keyboard   = condition.decorate(deactivate, e => e.keyCode == 27);
+
+            binding['events'] = { activate, deactivate, keyboard };
+
+            el.addEventListener('mouseenter', activate);
+            el.addEventListener('click', activate);
+            el.addEventListener('keydown', keyboard);
+            el.addEventListener('mouseleave', deactivate);
+        },
+        unmounted(el, binding) {
+            if (typeof binding['events'] !== 'undefined') {
+                const { activate, deactivate, keyboard } = binding['events'];
+
+                el.removeEventListener('mouseenter', activate);
+                el.removeEventListener('click', activate);
+                el.removeEventListener('keydown', keyboard);
+                el.removeEventListener('mouseleave', deactivate);
+            }
         }
-    },
-    unmounted(el, binding) {
-        if (typeof binding['resize'] !== 'undefined') {
-            window.removeEventListener('resize', binding['resize']);
+    });
+
+    app.directive('autofocus', {
+        mounted(el, binding) {
+            if (binding.value !== undefined) {
+                const value = binding.value;
+
+                if ((typeof value === "boolean" && !value) || (typeof value === "function" && !value(el))) {
+                    return;
+                }
+            }
+
+            el.focus();
         }
-    }
-});
+    });
+
+    app.directive('responsive', {
+        mounted(el, binding) {
+            const breakpoints = typeof binding.value === 'object' ? binding.value : defaultBreakpoints;
+
+            const resize = binding['resize'] = () => {
+                const width = el.scrollWidth;
+                el.classList.remove(...Object.keys(breakpoints).map(breakpoint => `size-${breakpoint}`));
+
+                for (let [ breakpoint, size ] of Object.entries(breakpoints)) {
+                    if (width < size) {
+                        break;
+                    }
+
+                    el.classList.add(`size-${breakpoint}`);
+                }
+            };
+            setTimeout(() => resize());
+
+            if (!binding.modifiers['once']) {
+                window.addEventListener('resize', resize);
+            }
+        },
+        unmounted(el, binding) {
+            if (typeof binding['resize'] !== 'undefined') {
+                window.removeEventListener('resize', binding['resize']);
+            }
+        }
+    });
+}

@@ -19,8 +19,6 @@
 
 import { Prop, Watch } from "vue-property-decorator";
 import { Options, Vue } from "vue-class-component";
-import { app } from "@/components/application";
-
 
 @Options({ render: require('@templates/fold.html').render })
 export class FoldComponent extends Vue {
@@ -65,12 +63,3 @@ export class LazyComponent extends Vue {
         this.visible = value || old;
     }
 }
-
-app.component('Fold', FoldComponent);
-app.component('Lazy', LazyComponent);
-
-// https://github.com/vuejs/vue/issues/7829
-app.component('Empty', {
-    functional: true,
-    render: (h, { data }) => h('template', data, '')
-});

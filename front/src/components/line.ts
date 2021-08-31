@@ -20,7 +20,6 @@
 import { Prop } from 'vue-property-decorator'
 import { Line } from "@/model";
 import { Options, Vue } from "vue-class-component";
-import { app } from "@/components/application";
 
 @Options({ render: require('@templates/line.html').render })
 export class LineComponent extends Vue {
@@ -30,5 +29,3 @@ export class LineComponent extends Vue {
     @Prop(Boolean)
     public simple: boolean;
 }
-
-app.component('LineSymbol', LineComponent);

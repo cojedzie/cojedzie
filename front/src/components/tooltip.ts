@@ -19,7 +19,6 @@
 
 import { Prop, Watch } from "vue-property-decorator";
 import { Options, Vue } from "vue-class-component";
-import { app } from "@/components/application";
 
 type Events = {
     [event: string]: (...any) => void,
@@ -146,5 +145,3 @@ document.addEventListener('touchstart', () => {
         tooltip.show = false;
     }
 })
-
-app.component('Tooltip', TooltipComponent);

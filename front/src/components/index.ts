@@ -17,6 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { App } from "vue";
+import { SettingsDepartures, SettingsMessages } from "@/components/settings";
+import UiDialog from "@/components/ui/dialog";
+import { UiIcon, UiNumericInput, UiSwitch } from "@/components/ui";
+import { DepartureComponent, DeparturesComponent } from "@/components/departures";
+import { FavouritesAdderComponent, FavouritesComponent } from "@/components/favourites";
+import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer, LVectorLayer } from "@/components/map";
+import { MessagesComponent } from "@/components/messages";
+import { FinderComponent, PickerStopComponent } from "@/components/picker";
+import { StopComponent, StopDetailsComponent, StopMapComponent } from "@/components/stop";
+import { LineComponent } from "@/components/line";
+import { TooltipComponent } from "@/components/tooltip";
+import { TripComponent } from "@/components/trip";
+import { FoldComponent, LazyComponent } from "@/components/utils";
+
 export * from "./application"
 export * from './tooltip';
 export * from './utils'
@@ -35,3 +50,49 @@ export * from "./provider-chooser"
 
 export { Departures } from "../store";
 export { Messages } from "../store";
+
+export default function install(app: App) {
+    app.component('SettingsDepartures', SettingsDepartures);
+    app.component('SettingsMessages', SettingsMessages);
+
+    app.component('UiDialog', UiDialog);
+    app.component('UiIcon', UiIcon);
+    app.component('UiNumericInput', UiNumericInput);
+    app.component('UiSwitch', UiSwitch);
+
+    app.component('Departures', DeparturesComponent);
+    app.component('Departure', DepartureComponent);
+
+    app.component('Favourites', FavouritesComponent);
+    app.component('FavouritesAdder', FavouritesAdderComponent);
+
+    app.component('LMap', LMap);
+    app.component('LTileLayer', LTileLayer);
+    app.component('LVectorLayer', LVectorLayer);
+    app.component('LMarker', LMarker);
+    app.component('LControl', LControl);
+    app.component('LPopup', LPopup)
+    app.component('LIcon', LIcon);
+
+    app.component('Messages', MessagesComponent);
+
+    app.component('StopFinder', FinderComponent);
+    app.component('PickerStop', PickerStopComponent);
+
+    app.component('AppStop', StopComponent);
+    app.component('StopDetails', StopDetailsComponent);
+    app.component('StopMap', StopMapComponent);
+    app.component('LineSymbol', LineComponent);
+    app.component('Tooltip', TooltipComponent);
+
+    app.component('Trip', TripComponent);
+
+    app.component('Fold', FoldComponent);
+    app.component('Lazy', LazyComponent);
+
+    // https://github.com/vuejs/vue/issues/7829
+    app.component('Empty', {
+        functional: true,
+        render: (h, { data }) => h('template', data, '')
+    });
+}

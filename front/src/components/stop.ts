@@ -17,14 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Vue, Options } from "vue-class-component";
+import { Options, Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { Line, Stop, Track } from "../model";
 import api from "@/api";
-import { app } from "@/components/application";
 
 @Options({ render: require('@templates/stop/details.html').render })
-class StopDetailsComponent extends Vue {
+export class StopDetailsComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
 
@@ -67,7 +66,3 @@ export class StopMapComponent extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
-
-app.component('AppStop', StopComponent);
-app.component('StopDetails', StopDetailsComponent);
-app.component('StopMap', StopMapComponent);
