@@ -21,6 +21,8 @@ import { Options, Vue } from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import Popper, { Placement } from "popper.js";
 import { defaultBreakpoints } from "@/filters";
+import { ComponentPublicInstance } from "vue";
+import removedHookMixin from "@/mixins/removed";
 
 /**
  * How popup will be presented to user:
@@ -51,9 +53,30 @@ function computeZIndexOfElement(element: HTMLElement): number {
     return 0;
 }
 
+function findClosestRef(component: ComponentPublicInstance, ref: string): HTMLElement | null {
+    for (let current = component; current !== null; current = current.$parent) {
+        if (current.$refs.hasOwnProperty(ref)) {
+            return current.$refs[ref] as HTMLElement;
+        }
+    }
+
+    return null;
+}
+
+function findClosestNonWrapperParent(component: ComponentPublicInstance): ComponentPublicInstance | null {
+    let parent = component.$parent
+
+    while (parent && parent.$el === component.$el) {
+          parent = parent.$parent;
+    }
+
+    return parent;
+}
+
 @Options({
     inheritAttrs: false,
     render: require('@templates/ui/dialog.html').render,
+    mixins: [ removedHookMixin ]
 })
 export default class UiDialog extends Vue {
     @Prop({ type: String, default: "popup" })
@@ -81,23 +104,12 @@ export default class UiDialog extends Vue {
     public title: string;
 
     private isMobile: boolean = false;
-
-    /** Inherited class hack */
-    private staticClass: string[] = [];
-
     private zIndex: number = 1000;
 
     private _focusOutEvent;
     private _resizeEvent;
 
     private _popper;
-
-    get attrs() {
-        return {
-            ...this.$attrs,
-            "class": this.staticClass
-        }
-    }
 
     get currentBehaviour(): DialogBehaviour {
         if (!this.mobileBehaviour) {
@@ -116,8 +128,6 @@ export default class UiDialog extends Vue {
     }
 
     private getReferenceElement() {
-        const isInWrapper = this.$parent.$options.name == 'portalTarget';
-
         if (typeof this.reference === 'string') {
             if (this.reference[0] === '#') {
                 return document.getElementById(this.reference.substr(1));
@@ -127,18 +137,16 @@ export default class UiDialog extends Vue {
                 return this.refs[this.reference];
             }
 
-            if (isInWrapper) {
-                return this.$parent.$parent.$refs[this.reference];
-            }
-
-            return this.$parent.$refs[this.reference];
+            return findClosestRef(this, this.reference);
         }
 
         if (this.reference instanceof HTMLElement) {
             return this.reference;
         }
 
-        return isInWrapper ? this.$parent.$el : this.$el.parentElement;
+        const parent = findClosestNonWrapperParent(this);
+
+        return parent && parent.$el;
     }
 
     focusOut(event: MouseEvent) {
@@ -150,21 +158,17 @@ export default class UiDialog extends Vue {
     }
 
     mounted() {
-        this.$nextTick(() => {
-            this.zIndex = computeZIndexOfElement(this.getReferenceElement()) + 100;
+        this.zIndex = computeZIndexOfElement(this.getReferenceElement()) + 100;
 
-            this.handleWindowResize();
+        this.handleWindowResize();
 
-            if (this.behaviour === 'popup') {
-                this.mountPopper();
-            }
+        if (this.behaviour === 'popup') {
+            this.mountPopper();
+        }
 
-            this.staticClass = Array.from((this.$el as HTMLElement).classList).filter(cls => ["ui-backdrop", "ui-popup", "ui-popup--arrow"].indexOf(cls) === -1);
+        window.addEventListener('resize', this._resizeEvent = this.handleWindowResize.bind(this));
 
-            window.addEventListener('resize', this._resizeEvent = this.handleWindowResize.bind(this));
-
-            this._activated();
-        })
+        this._activated();
     }
 
     private _activated() {
@@ -248,7 +252,7 @@ export default class UiDialog extends Vue {
         }
     }
 
-    beforeDestroy() {
+    beforeUnmount() {
         this._focusOutEvent && document.removeEventListener('click', this._focusOutEvent, { capture: true });
 
         this._deactivated()
