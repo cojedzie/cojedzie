@@ -85,8 +85,5 @@ export default function install(Vue: App) {
     Vue.component('Lazy', Lazy);
 
     // https://github.com/vuejs/vue/issues/7829
-    Vue.component('Empty', {
-        functional: true,
-        render: (h, { data }) => h('template', data, '')
-    });
+    Vue.component('Empty', (props, context) => h('template', context.attrs, ''));
 }
