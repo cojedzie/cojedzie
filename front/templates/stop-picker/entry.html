@@ -3,7 +3,7 @@
         <div class="d-flex position-relative" style="min-width: 0; flex: 1 1 auto;">
             <slot name="primary-action" />
             <div class="overflow-hidden align-self-center">
-                <app-stop :stop="stop" />
+                <stop-label :stop="stop" />
                 <div class="stop__destinations" v-if="destinations && destinations.length > 0">
                     <ul>
                         <li class="stop__destination destination" v-for="destination in destinations" :key="destination.stop.id">
@@ -22,7 +22,7 @@
         <div class="stop__actions">
             <slot name="actions">
                 <button class="btn btn-action" ref="action-info" @click="details = !details">
-                    <tooltip>dodatkowe informacje</tooltip>
+                    <ui-tooltip>dodatkowe informacje</ui-tooltip>
                     <ui-icon icon="info"/>
                 </button>
 

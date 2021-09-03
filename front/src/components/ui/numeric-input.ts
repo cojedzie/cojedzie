@@ -20,9 +20,11 @@
 import { Prop } from 'vue-property-decorator'
 import { Options, Vue } from "vue-class-component";
 import * as uuid from "uuid";
+import WithRender from "@templates/ui/numeric.html";
 
+@WithRender
 @Options({
-    render: require('@templates/ui/numeric.html').render,
+    name: "UiNumericInput",
     inheritAttrs: false
 })
 export class UiNumericInput extends Vue {

@@ -17,24 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Prop, Watch } from "vue-property-decorator";
 import { Options, Vue } from "vue-class-component";
+import { Prop, Watch } from "vue-property-decorator";
+import WithRender from "@templates/ui/tooltip.html";
 
 type Events = {
     [event: string]: (...any) => void,
 }
-
 type Trigger = "hover" | "focus" | "long-press";
-
 const longPressTimeout = 1000;
+export const openedTooltips: Set<UiTooltip> = new Set<UiTooltip>();
 
-const openedTooltips: Set<TooltipComponent> = new Set<TooltipComponent>();
-
-@Options({ render: require('@templates/tooltip.html').render })
-export class TooltipComponent extends Vue {
+@WithRender
+@Options({ name: "UiTooltip" })
+export class UiTooltip extends Vue {
     @Prop({ type: String, default: "top" }) public placement: string;
     @Prop({ type: Number, default: 400 }) public delay: number;
-    @Prop({ type: Array, default: () => ["hover", "focus", "long-press"]}) public triggers: Trigger[];
+    @Prop({ type: Array, default: () => ["hover", "focus", "long-press"] }) public triggers: Trigger[];
 
     public show: boolean = false;
     public root: HTMLElement = null;
@@ -72,7 +71,9 @@ export class TooltipComponent extends Vue {
             let timeout;
 
             this._events['mouseenter'] = () => {
-                timeout = setTimeout(() => { this.show = !blocked }, this.delay);
+                timeout = setTimeout(() => {
+                    this.show = !blocked
+                }, this.delay);
             };
 
             this._events['mouseleave'] = () => {
@@ -103,7 +104,9 @@ export class TooltipComponent extends Vue {
             let timeout;
 
             this._events['touchstart'] = () => {
-                timeout = setTimeout(() => { this.show = true }, longPressTimeout);
+                timeout = setTimeout(() => {
+                    this.show = true
+                }, longPressTimeout);
 
                 // this is to prevent showing tooltips after tap
                 blocked = true;

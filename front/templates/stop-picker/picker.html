@@ -2,8 +2,8 @@
     <input class="form-control form-control--framed" :value="filter" @input="filter = $event.target.value" placeholder="Zacznij pisać nazwę aby szukać..."/>
 
     <div v-if="filter.length < 3" class="mt-2">
-        <favourites />
-        <stop-history />
+        <favourites-list />
+        <stop-picker-history />
     </div>
 
     <div v-if="state === 'fetching'" class="text-center p-4">
@@ -16,21 +16,21 @@
 
                 <div class="actions flex-space-left">
                     <button class="btn btn-action" @click="select(group)">
-                        <tooltip>wybierz wszystkie</tooltip>
+                        <ui-tooltip>wybierz wszystkie</ui-tooltip>
                         <ui-icon icon="add-all"/>
                     </button>
                 </div>
             </div>
             <ul class="stop-group__stops list-underlined">
                 <li v-for="stop in group" :key="stop.id" class="d-flex">
-                    <picker-stop :stop="stop" class="flex-grow-1 finder__stop">
+                    <stop-picker-entry :stop="stop" class="flex-grow-1 finder__stop">
                         <template v-slot:primary-action>
                             <button @click="select(stop, $event)" class="btn btn-action stretched-link">
-                                <tooltip>dodaj przystanek</tooltip>
+                                <ui-tooltip>dodaj przystanek</ui-tooltip>
                                 <ui-icon icon="add" />
                             </button>
                         </template>
-                    </picker-stop>
+                    </stop-picker-entry>
                 </li>
             </ul>
         </div>

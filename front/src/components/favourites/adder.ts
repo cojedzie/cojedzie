@@ -17,26 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Vue, Options } from "vue-class-component";
-import { Watch } from 'vue-property-decorator'
-import { Mutation, State } from "vuex-class";
-import { Favourite } from "@/store/modules/favourites";
 import { Stop } from "@/model";
+import { Favourite } from "@/store/modules/favourites";
 import * as uuid from "uuid";
+import { Options, Vue } from "vue-class-component";
+import { State } from "vuex-class";
 import { Favourites } from "@/store";
-import { app } from "@/components/application";
-
-
-@Options({ render: require('@templates/favourites.html').render })
-export class FavouritesComponent extends Vue {
-    @Favourites.State favourites: Favourite[];
-    @Favourites.Mutation remove: (fav: Favourite) => void;
-    @Mutation('replace') setStops: (stops: Stop[]) => void;
-
-    choose(favourite: Favourite) {
-        this.setStops(favourite.stops);
-    }
-}
+import { Watch } from "vue-property-decorator";
+import WithRender from "@templates/favourites/save.html"
 
 function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     return {
@@ -46,8 +34,9 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     }
 }
 
-@Options({ render: require('@templates/favourites/save.html').render })
-export class FavouritesAdderComponent extends Vue {
+@WithRender
+@Options({ name: "FavouritesAdder" })
+export class FavouritesAdder extends Vue {
     @State stops: Stop[];
 
     private name = "";
@@ -87,6 +76,6 @@ export class FavouritesAdderComponent extends Vue {
 
         this.errors = errors;
 
-        return Object.entries(errors).map(a => a[1]).reduce((acc, cur) => [ ...acc, ...cur ]).length == 0;
+        return Object.entries(errors).map(a => a[1]).reduce((acc, cur) => [...acc, ...cur]).length == 0;
     }
 }

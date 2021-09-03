@@ -21,3 +21,5 @@ export * from './switch';
 export * from './icon';
 export * from './numeric-input'
 export * from './dialog'
+export * from './fold';
+export * from './tooltip';

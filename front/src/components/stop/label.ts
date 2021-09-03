@@ -18,26 +18,13 @@
  */
 
 import { Options, Vue } from "vue-class-component";
-import store, { MessagesSettings } from "../../store";
-import { MessagesSettingsState } from "@/store/modules/settings/messages";
-import WithRender from "@templates/settings/messages.html";
+import { Prop } from "vue-property-decorator";
+import { Stop } from "@/model";
+import WithRender from "@templates/stop/label.html";
 
 @WithRender
-@Options({
-    name: "SettingsMessages",
-    store
-})
-export class SettingsMessages extends Vue {
-    @MessagesSettings.State
-    public autorefresh: boolean;
-
-    @MessagesSettings.State
-    public autorefreshInterval: number;
-
-    @MessagesSettings.State
-    public displayedEntriesCount: number;
-
-    @MessagesSettings.Mutation
-    public update: (state: Partial<MessagesSettingsState>) => void;
+@Options({ name: "StopLabel" })
+export class StopLabel extends Vue {
+    @Prop(Object)
+    public stop: Stop;
 }
-

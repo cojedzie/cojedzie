@@ -8,12 +8,14 @@
                 <div class="overflow-hidden">
                     <span class="text flex-grow-1">{{ favourite.name }}</span>
                     <ul class="favourite__stops">
-                        <li class="favourite__stop" v-for="stop in favourite.stops" :key="stop.id"><stop :stop="stop"/></li>
+                        <li class="favourite__stop" v-for="stop in favourite.stops" :key="stop.id">
+                            <stop-label :stop="stop"/>
+                        </li>
                     </ul>
                 </div>
             </button>
             <button class="btn btn-action" @click="remove(favourite)">
-                <tooltip placement="left">usuń</tooltip>
+                <ui-tooltip placement="left">usuń</ui-tooltip>
                 <ui-icon icon="delete"/>
             </button>
         </li>

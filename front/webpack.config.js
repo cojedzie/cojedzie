@@ -59,12 +59,17 @@ const config = {
             use: 'file-loader'
         }, {
             test: /\.html?$/,
-            loader: require.resolve('vue-loader/dist/templateLoader'),
-            options: {
-                compilerOptions: {
-                    whitespace: "preserve",
-                }
-            },
+            use: [
+                { loader: path.resolve('./resources/vue-template-loader.js') },
+                {
+                    loader: require.resolve('vue-loader/dist/templateLoader'),
+                    options: {
+                        compilerOptions: {
+                            whitespace: "preserve",
+                        }
+                    }
+                },
+            ],
             exclude: [
                 path.resolve('./resources/index.html')
             ]

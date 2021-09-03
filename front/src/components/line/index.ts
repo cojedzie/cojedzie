@@ -17,27 +17,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Options, Vue } from "vue-class-component";
-import store, { MessagesSettings } from "../../store";
-import { MessagesSettingsState } from "@/store/modules/settings/messages";
-import WithRender from "@templates/settings/messages.html";
-
-@WithRender
-@Options({
-    name: "SettingsMessages",
-    store
-})
-export class SettingsMessages extends Vue {
-    @MessagesSettings.State
-    public autorefresh: boolean;
-
-    @MessagesSettings.State
-    public autorefreshInterval: number;
-
-    @MessagesSettings.State
-    public displayedEntriesCount: number;
-
-    @MessagesSettings.Mutation
-    public update: (state: Partial<MessagesSettingsState>) => void;
-}
-
+export * from "./symbol"
+export * from "./trip"

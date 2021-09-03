@@ -21,6 +21,7 @@ declare module "*.html" {
     import { RenderFunction } from "vue";
 
     export const render: RenderFunction
+    export default function WithRender(decorated: Function | Object): void;
 }
 
 declare module "*.svg" {

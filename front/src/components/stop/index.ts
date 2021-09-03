@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2021 Kacper Donat
  *
@@ -17,15 +18,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { History } from "@/store";
-import { HistoryEntry } from "@/store/modules/history";
-import { Mutation } from "vuex-class";
-import { Stop } from "@/model";
-import { Options, Vue } from "vue-class-component";
-
-@Options({ render: require('@templates/stop/history.html').render })
-export class StopHistory extends Vue {
-    @History.Getter all: HistoryEntry[];
-
-    @Mutation("add") select: (stops: Stop[]) => void;
-}
+export * from "./details"
+export * from "./label"
+export * from "./map"

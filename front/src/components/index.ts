@@ -20,78 +20,74 @@
 import { App } from "vue";
 import { SettingsDepartures, SettingsMessages } from "@/components/settings";
 import UiDialog from "@/components/ui/dialog";
-import { UiIcon, UiNumericInput, UiSwitch } from "@/components/ui";
-import { DepartureComponent, DeparturesComponent } from "@/components/departures";
-import { FavouritesAdderComponent, FavouritesComponent } from "@/components/favourites";
+import { UiFold, UiTooltip, UiIcon, UiNumericInput, UiSwitch } from "@/components/ui";
 import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer, LVectorLayer } from "@/components/map";
-import { MessagesComponent } from "@/components/messages";
-import { FinderComponent, PickerStopComponent } from "@/components/picker";
-import { StopComponent, StopDetailsComponent, StopMapComponent } from "@/components/stop";
-import { LineComponent } from "@/components/line";
-import { TooltipComponent } from "@/components/tooltip";
-import { TripComponent } from "@/components/trip";
-import { FoldComponent, LazyComponent } from "@/components/utils";
+import { Lazy } from "@/components/utils";
+import { DeparturesList } from "@/components/departures/list";
+import { FavouritesList } from "@/components/favourites/list";
+import { FavouritesAdder } from "@/components/favourites/adder";
+import { StopPickerEntry } from "@/components/stop-picker/entry";
+import { StopPicker } from "@/components/stop-picker/picker";
+import { StopLabel } from "@/components/stop/label";
+import { StopDetails } from "@/components/stop/details";
+import { StopMap } from "@/components/stop/map";
+import { MessagesList } from "@/components/messages/list";
+import { LineTrip } from "@/components/line/trip";
+import { LineSymbol } from "@/components/line/symbol";
 
 export * from "./application"
-export * from './tooltip';
 export * from './utils'
-export * from './line'
-export * from './picker'
-export * from './departures'
-export * from './stop'
-export * from './messages'
 export * from './map'
 export * from './main'
-export * from './favourites'
-export * from './trip'
 export * from './ui'
 export * from './settings'
 export * from "./provider-chooser"
+export * from "./departures"
+export * from "./favourites"
+export * from "./line"
+export * from './messages'
+export * from './stop'
+export * from './stop-picker'
 
-export { Departures } from "../store";
-export { Messages } from "../store";
+export default function install(Vue: App) {
+    Vue.component('SettingsDepartures', SettingsDepartures);
+    Vue.component('SettingsMessages', SettingsMessages);
 
-export default function install(app: App) {
-    app.component('SettingsDepartures', SettingsDepartures);
-    app.component('SettingsMessages', SettingsMessages);
+    Vue.component('UiDialog', UiDialog);
+    Vue.component('UiIcon', UiIcon);
+    Vue.component('UiNumericInput', UiNumericInput);
+    Vue.component('UiSwitch', UiSwitch);
+    Vue.component('UiFold', UiFold);
+    Vue.component('UiTooltip', UiTooltip);
 
-    app.component('UiDialog', UiDialog);
-    app.component('UiIcon', UiIcon);
-    app.component('UiNumericInput', UiNumericInput);
-    app.component('UiSwitch', UiSwitch);
+    Vue.component('DeparturesList', DeparturesList);
 
-    app.component('Departures', DeparturesComponent);
-    app.component('Departure', DepartureComponent);
+    Vue.component('FavouritesList', FavouritesList);
+    Vue.component('FavouritesAdder', FavouritesAdder);
 
-    app.component('Favourites', FavouritesComponent);
-    app.component('FavouritesAdder', FavouritesAdderComponent);
+    Vue.component('LMap', LMap);
+    Vue.component('LTileLayer', LTileLayer);
+    Vue.component('LVectorLayer', LVectorLayer);
+    Vue.component('LMarker', LMarker);
+    Vue.component('LControl', LControl);
+    Vue.component('LPopup', LPopup)
+    Vue.component('LIcon', LIcon);
 
-    app.component('LMap', LMap);
-    app.component('LTileLayer', LTileLayer);
-    app.component('LVectorLayer', LVectorLayer);
-    app.component('LMarker', LMarker);
-    app.component('LControl', LControl);
-    app.component('LPopup', LPopup)
-    app.component('LIcon', LIcon);
+    Vue.component('MessagesList', MessagesList);
 
-    app.component('Messages', MessagesComponent);
+    Vue.component('StopPicker', StopPicker);
+    Vue.component('StopLabel', StopLabel);
+    Vue.component('StopDetails', StopDetails);
+    Vue.component('StopMap', StopMap);
 
-    app.component('StopFinder', FinderComponent);
-    app.component('PickerStop', PickerStopComponent);
+    Vue.component('LineSymbol', LineSymbol);
 
-    app.component('AppStop', StopComponent);
-    app.component('StopDetails', StopDetailsComponent);
-    app.component('StopMap', StopMapComponent);
-    app.component('LineSymbol', LineComponent);
-    app.component('Tooltip', TooltipComponent);
+    Vue.component('Trip', LineTrip);
 
-    app.component('Trip', TripComponent);
-
-    app.component('Fold', FoldComponent);
-    app.component('Lazy', LazyComponent);
+    Vue.component('Lazy', Lazy);
 
     // https://github.com/vuejs/vue/issues/7829
-    app.component('Empty', {
+    Vue.component('Empty', {
         functional: true,
         render: (h, { data }) => h('template', data, '')
     });

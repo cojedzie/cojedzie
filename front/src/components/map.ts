@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer } from '@vue-leaflet/vue-leaflet';
 import { defineComponent } from 'vue';
 
 import 'mapbox-gl-leaflet'
@@ -27,7 +26,6 @@ import 'leaflet/dist/leaflet.css'
 import * as iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import * as iconUrl from 'leaflet/dist/images/marker-icon.png';
 import * as shadowUrl from 'leaflet/dist/images/marker-shadow.png';
-import { app } from "@/components/application";
 
 delete L.Icon.Default.prototype['_getIconUrl'];
 

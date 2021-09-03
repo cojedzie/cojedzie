@@ -19,11 +19,13 @@
 
 import { Options, Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
-import { Line, Stop, Track } from "../model";
+import { Line, Stop, Track } from "@/model";
 import api from "@/api";
+import WithRender from "@templates/stop/details.html"
 
-@Options({ render: require('@templates/stop/details.html').render })
-export class StopDetailsComponent extends Vue {
+@WithRender
+@Options({ name: "StopDetails" })
+export class StopDetails extends Vue {
     @Prop(Object)
     public stop: Stop;
 
@@ -53,16 +55,4 @@ export class StopDetailsComponent extends Vue {
         this.tracks = response.data as any;
         this.ready = true;
     }
-}
-
-@Options({ render: require('@templates/stop.html').render })
-export class StopComponent extends Vue {
-    @Prop(Object)
-    public stop: Stop;
-}
-
-@Options({ render: require('@templates/stop/map.html').render })
-export class StopMapComponent extends Vue {
-    @Prop(Object)
-    public stop: Stop;
 }

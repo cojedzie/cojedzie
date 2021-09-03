@@ -17,27 +17,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Prop } from 'vue-property-decorator'
-import * as uuid from "uuid";
 import { Options, Vue } from "vue-class-component";
-import WithRender from "@templates/ui/switch.html";
+import { Prop, Watch } from "vue-property-decorator";
+import WithRender from "@templates/ui/fold.html"
 
 @WithRender
-@Options({
-    name: "UiSwitch",
-    inheritAttrs: false
-})
-export class UiSwitch extends Vue {
-    @Prop({
-        type: String,
-        default: () => `uuid-${uuid.v4()}`
-    })
-    id: string;
+@Options({ name: "UiFold" })
+export class UiFold extends Vue {
+    private observer: MutationObserver;
 
     @Prop(Boolean)
-    value: boolean;
+    public visible: boolean;
 
-    update(ev) {
-        this.$emit('input', !this.value);
+    @Prop(Boolean)
+    public lazy: boolean;
+
+    mounted() {
+        this.resize();
+
+        this.observer = new MutationObserver(() => this.resize());
+        this.observer.observe(this.$refs['inner'] as Node, {
+            characterData: true,
+            subtree: true,
+            childList: true
+        });
+    }
+
+    beforeDestroy() {
+        this.observer.disconnect();
+    }
+
+    @Watch('visible')
+    private resize() {
+        const inner = this.$refs['inner'] as HTMLDivElement;
+        (this.$el as HTMLElement).style.height = `${ (this.visible && inner) ? inner.clientHeight : 0 }px`;
     }
 }

@@ -23,6 +23,7 @@ import Popper, { Placement } from "popper.js";
 import { defaultBreakpoints } from "@/filters";
 import { ComponentPublicInstance } from "vue";
 import removedHookMixin from "@/mixins/removed";
+import WithRenderer from "@templates/ui/dialog.html"
 
 /**
  * How popup will be presented to user:
@@ -66,16 +67,17 @@ function findClosestRef(component: ComponentPublicInstance, ref: string): HTMLEl
 function findClosestNonWrapperParent(component: ComponentPublicInstance): ComponentPublicInstance | null {
     let parent = component.$parent
 
-    while (parent && parent.$el === component.$el) {
+    while (parent && (parent.$el === component.$el || !(parent.$el instanceof HTMLElement))) {
           parent = parent.$parent;
     }
 
     return parent;
 }
 
+@WithRenderer
 @Options({
+    name: "UiDialog",
     inheritAttrs: false,
-    render: require('@templates/ui/dialog.html').render,
     mixins: [ removedHookMixin ]
 })
 export default class UiDialog extends Vue {

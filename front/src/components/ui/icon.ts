@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Options, Vue } from "vue-class-component";
+import { Options, Vue } from "vue-class-component"
 import { Prop } from 'vue-property-decorator'
 import { IconDefinition, library } from "@fortawesome/fontawesome-svg-core"
 import { Dictionary } from "@/utils";
@@ -55,6 +55,7 @@ import {
 import { faExclamationTriangle as faSolidExclamationTriangle, faWalking } from "@fortawesome/pro-solid-svg-icons";
 import { fac } from "@/icons";
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from "@fortawesome/vue-fontawesome";
+import WithRender from '@templates/ui/icon.html'
 
 type IconDescription = { icon: IconDefinition, [prop: string]: any }
 
@@ -135,8 +136,9 @@ const extractAllIcons = (icons: Icon[]) => icons.map(icon => {
 
 library.add(...extractAllIcons(Object.values(definitions)));
 
+@WithRender
 @Options({
-    render: require('@templates/ui/icon.html').render,
+    name: "UiIcon",
     components: {
         fa: FontAwesomeIcon,
         faLayers: FontAwesomeLayers,

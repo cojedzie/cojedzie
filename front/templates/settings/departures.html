@@ -6,7 +6,7 @@
         </label>
         <ui-switch id="departures-auto-refresh" :value="autorefresh" @input="update({ autorefresh: $event })" class="flex-space-left"/>
     </div>
-    <div class="flex " v-if="autorefresh">
+    <div class="flex" v-if="autorefresh">
         <label for="departures-auto-refresh-interval" class="text">
             <span class="sr-only">częstotliwość odświeżania</span>
             co
