@@ -26,14 +26,13 @@ import { Lazy } from "@/components/utils";
 import { DeparturesList } from "@/components/departures/list";
 import { FavouritesList } from "@/components/favourites/list";
 import { FavouritesAdder } from "@/components/favourites/adder";
-import { StopPickerEntry } from "@/components/stop-picker/entry";
 import { StopPicker } from "@/components/stop-picker/picker";
 import { StopLabel } from "@/components/stop/label";
 import { StopDetails } from "@/components/stop/details";
 import { StopMap } from "@/components/stop/map";
 import { MessagesList } from "@/components/messages/list";
-import { LineTrip } from "@/components/line/trip";
 import { LineSymbol } from "@/components/line/symbol";
+import { TripSchedule } from "@/components/trip/schedule";
 
 export * from "./application"
 export * from './utils'
@@ -82,7 +81,7 @@ export default function install(Vue: App) {
 
     Vue.component('LineSymbol', LineSymbol);
 
-    Vue.component('Trip', LineTrip);
+    Vue.component('TripSchedule', TripSchedule);
 
     Vue.component('Lazy', Lazy);
 

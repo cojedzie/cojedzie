@@ -17,18 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ScheduledStop } from "@/model/trip";
 import { Options, Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
+import { ScheduledStop } from "@/model/trip";
 import { Stop } from "@/model";
 import moment from "moment";
-import WithRender from "@templates/line/trip.html";
+import WithRender from "@templates/trip/schedule.html";
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean, current: boolean };
 
 @WithRender
-@Options({ name: "LineTrip" })
-export class LineTrip extends Vue {
+@Options({ name: "TripSchedule" })
+export class TripSchedule extends Vue {
     @Prop(Array) public schedule: ScheduledStop[];
     @Prop(Object) public current: Stop;
 

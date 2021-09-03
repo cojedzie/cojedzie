@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (C) 2021 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
@@ -17,10 +17,4 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.drag-scroll {
-  cursor : grab;
-  user-select: none;
-  &:active {
-    cursor : grabbing;
-  }
-}
+export * from "./schedule"
