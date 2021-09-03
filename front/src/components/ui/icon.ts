@@ -167,3 +167,5 @@ export class UiIcon extends Vue {
         return this.definition.type;
     }
 }
+
+export default UiIcon;

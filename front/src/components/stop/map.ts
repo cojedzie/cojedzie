@@ -28,3 +28,5 @@ export class StopMap extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
+
+export default StopMap;

@@ -35,3 +35,5 @@ export class StopPickerHistory extends Vue {
 
     @Mutation("add") select: (stops: Stop[]) => void;
 }
+
+export default StopPickerHistory;

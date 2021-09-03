@@ -35,3 +35,5 @@ export class FavouritesList extends Vue {
         this.setStops(favourite.stops);
     }
 }
+
+export default FavouritesList;

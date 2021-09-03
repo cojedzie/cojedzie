@@ -63,3 +63,5 @@ export class StopPickerEntry extends Vue {
         return unique(this.stop.destinations || [], destination => destination.stop && destination.stop.name).map(compactLines);
     }
 }
+
+export default StopPickerEntry;

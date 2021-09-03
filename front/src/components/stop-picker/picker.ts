@@ -91,3 +91,5 @@ export class StopPicker extends Vue {
         this.$emit('select', stop);
     }
 }
+
+export default StopPicker;

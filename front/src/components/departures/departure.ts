@@ -94,3 +94,5 @@ export class DeparturesDeparture extends Vue {
         };
     }
 }
+
+export default DeparturesDeparture;

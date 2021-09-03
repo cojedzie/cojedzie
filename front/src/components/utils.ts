@@ -33,3 +33,5 @@ export class Lazy extends Vue {
         this.visible = value || old;
     }
 }
+
+export default Lazy;

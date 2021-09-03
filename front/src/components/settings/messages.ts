@@ -41,3 +41,4 @@ export class SettingsMessages extends Vue {
     public update: (state: Partial<MessagesSettingsState>) => void;
 }
 
+export default SettingsMessages;

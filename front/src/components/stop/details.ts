@@ -56,3 +56,5 @@ export class StopDetails extends Vue {
         this.ready = true;
     }
 }
+
+export default StopDetails;

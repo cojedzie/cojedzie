@@ -80,7 +80,7 @@ function findClosestNonWrapperParent(component: ComponentPublicInstance): Compon
     inheritAttrs: false,
     mixins: [ removedHookMixin ]
 })
-export default class UiDialog extends Vue {
+export class UiDialog extends Vue {
     @Prop({ type: String, default: "popup" })
     private behaviour: DialogBehaviour;
 
@@ -302,3 +302,5 @@ export default class UiDialog extends Vue {
         }
     }
 }
+
+export default UiDialog;

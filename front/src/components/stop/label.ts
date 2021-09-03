@@ -28,3 +28,5 @@ export class StopLabel extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
+
+export default StopLabel;

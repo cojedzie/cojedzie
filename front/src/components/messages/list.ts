@@ -57,3 +57,5 @@ export class MessagesList extends Vue {
         }
     }
 }
+
+export default MessagesList;

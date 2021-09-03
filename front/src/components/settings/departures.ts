@@ -43,3 +43,5 @@ export class SettingsDepartures extends Vue {
     @DeparturesSettings.Mutation
     public update: (state: Partial<DeparturesSettingsState>) => void;
 }
+
+export default SettingsDepartures;
