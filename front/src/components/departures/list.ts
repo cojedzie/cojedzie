@@ -18,26 +18,17 @@
  */
 
 import { Options, Vue } from "vue-class-component";
-import store, { MessagesSettings } from "../../store";
-import { MessagesSettingsState } from "@/store/modules/settings/messages";
-import WithRender from "@templates/settings/messages.html";
+import store, { Departures } from "@/store";
+import { Departure } from "@/model";
+import { DeparturesDeparture } from "./departure";
+import WithRender from "@templates/departures/list.html";
 
 @WithRender
 @Options({
-    name: "SettingsMessages",
-    store
+    name: "DeparturesList",
+    components: { DeparturesDeparture },
+    store,
 })
-export class SettingsMessages extends Vue {
-    @MessagesSettings.State
-    public autorefresh: boolean;
-
-    @MessagesSettings.State
-    public autorefreshInterval: number;
-
-    @MessagesSettings.State
-    public displayedEntriesCount: number;
-
-    @MessagesSettings.Mutation
-    public update: (state: Partial<MessagesSettingsState>) => void;
+export class DeparturesList extends Vue {
+    @Departures.State departures: Departure[];
 }
-

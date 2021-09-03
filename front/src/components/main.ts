@@ -27,8 +27,14 @@ import { MessagesActions } from "@/store/modules/messages";
 import { StoreDefinition } from "@/store/initializer";
 import { Store } from "vuex";
 import { Options, Vue } from "vue-class-component";
+import WithRender from "@templates/page/main.html";
+import { StopPickerEntry } from "@/components/stop-picker";
 
-@Options({ render: require("@templates/main.html").render })
+@WithRender
+@Options({
+    name: "Main",
+    components: { StopPickerEntry }
+})
 export default class Main extends Vue {
     $store: Store<StoreDefinition>;
 

@@ -30,13 +30,13 @@ export const defaultBreakpoints = {
     'xl': 1200,
 }
 
-export default function install(app: App) {
-    app.config.globalProperties.$f = {
+export default function install(Vue: App) {
+    Vue.config.globalProperties.$f = {
         signed,
         duration: (...args) => moment.duration(...args)
     }
 
-    app.directive('hover',  {
+    Vue.directive('hover',  {
         beforeMount(el, binding, node) {
             const update = (hovered: boolean, e: Event) => {
                 if (typeof binding.value === 'function') {
@@ -71,7 +71,7 @@ export default function install(app: App) {
         }
     });
 
-    app.directive('autofocus', {
+    Vue.directive('autofocus', {
         mounted(el, binding) {
             if (binding.value !== undefined) {
                 const value = binding.value;
@@ -85,7 +85,7 @@ export default function install(app: App) {
         }
     });
 
-    app.directive('responsive', {
+    Vue.directive('responsive', {
         mounted(el, binding) {
             const breakpoints = typeof binding.value === 'object' ? binding.value : defaultBreakpoints;
 

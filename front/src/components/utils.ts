@@ -19,41 +19,11 @@
 
 import { Prop, Watch } from "vue-property-decorator";
 import { Options, Vue } from "vue-class-component";
+import WithRender from "@templates/lazy.html";
 
-@Options({ render: require('@templates/fold.html').render })
-export class FoldComponent extends Vue {
-    private observer: MutationObserver;
-
-    @Prop(Boolean)
-    public visible: boolean;
-
-    @Prop(Boolean)
-    public lazy: boolean;
-
-    mounted() {
-        this.resize();
-
-        this.observer = new MutationObserver(() => this.resize());
-        this.observer.observe(this.$refs['inner'] as Node, {
-            characterData: true,
-            subtree: true,
-            childList: true
-        });
-    }
-
-    beforeDestroy() {
-        this.observer.disconnect();
-    }
-
-    @Watch('visible')
-    private resize() {
-        const inner = this.$refs['inner'] as HTMLDivElement;
-        (this.$el as HTMLElement).style.height = `${(this.visible && inner) ? inner.clientHeight : 0}px`;
-    }
-}
-
-@Options({ render: require("@templates/lazy.html").render })
-export class LazyComponent extends Vue {
+@WithRender
+@Options({ name: "Lazy" })
+export class Lazy extends Vue {
     @Prop(Boolean)
     public    activate: boolean;
     protected visible:  boolean = false;

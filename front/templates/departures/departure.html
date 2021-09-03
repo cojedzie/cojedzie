@@ -7,7 +7,7 @@
 
         <div class="departure__time">
             <template v-if="!departure.estimated">
-                <tooltip placement="top-end">Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej.</tooltip>
+                <ui-tooltip placement="top-end">Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej.</ui-tooltip>
                 <ui-icon icon="departure-warning" class="mr-1"/>
             </template>
 
@@ -29,20 +29,20 @@
 
         <div class="departure__stop">
             <ui-icon icon="stop" fixed-width class="mr-1 flex-shrink-0"/>
-            <app-stop :stop="departure.stop"/>
+            <stop-label :stop="departure.stop"/>
 
             <div class="stop__actions flex-space-left">
                 <button class="btn btn-action" @click="showTrip = !showTrip">
-                    <tooltip>pokaż/ukryj trasę</tooltip>
+                    <ui-tooltip>pokaż/ukryj trasę</ui-tooltip>
                     <ui-icon icon="track" />
                 </button>
             </div>
         </div>
     </div>
-    <fold :visible="showTrip">
-        <trip :schedule="trip.schedule" :current="departure.stop" v-if="trip" :class="[ `trip--${departure.line.type}` ]"/>
+    <ui-fold :visible="showTrip">
+        <line-trip :schedule="trip.schedule" :current="departure.stop" v-if="trip" :class="[ `trip--${departure.line.type}` ]"/>
         <div v-else class="text-center">
             <ui-icon icon="spinner"/>
         </div>
-    </fold>
+    </ui-fold>
 </li>

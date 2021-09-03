@@ -20,9 +20,13 @@
 import { Options, Vue } from "vue-class-component";
 import store, { DeparturesSettings } from "../../store";
 import { DeparturesSettingsState } from "@/store/modules/settings/departures";
-import { render } from "@templates/settings/departures.html";
+import WithRender from "@templates/settings/departures.html";
 
-@Options({ render, store })
+@WithRender
+@Options({
+    name: "SettingsDepartures",
+    store
+})
 export class SettingsDepartures extends Vue {
     @DeparturesSettings.State
     public autorefresh: boolean;

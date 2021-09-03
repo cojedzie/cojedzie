@@ -17,12 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Message } from "@/model/message";
-import store, { Messages, MessagesSettings } from '../store'
 import { Options, Vue } from "vue-class-component";
+import store, { Messages, MessagesSettings } from "@/store";
+import { Message } from "@/model/message";
+import WithRender from "@templates/messages/list.html";
 
-@Options({ render: require("@templates/messages.html").render, store })
-export class MessagesComponent extends Vue {
+@WithRender
+@Options({
+    name: "MessagesList",
+    store
+})
+export class MessagesList extends Vue {
     @Messages.State('messages')
     public allMessages: Message[];
 
@@ -43,9 +48,12 @@ export class MessagesComponent extends Vue {
 
     public type(message: Message) {
         switch (message.type) {
-            case "breakdown": return "danger";
-            case "info": return "info";
-            case "unknown": return "warning";
+            case "breakdown":
+                return "danger";
+            case "info":
+                return "info";
+            case "unknown":
+                return "warning";
         }
     }
 }

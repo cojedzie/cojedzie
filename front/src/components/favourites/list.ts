@@ -18,26 +18,20 @@
  */
 
 import { Options, Vue } from "vue-class-component";
-import store, { MessagesSettings } from "../../store";
-import { MessagesSettingsState } from "@/store/modules/settings/messages";
-import WithRender from "@templates/settings/messages.html";
+import { Favourites } from "@/store";
+import { Favourite } from "@/store/modules/favourites";
+import { Mutation } from "vuex-class";
+import { Stop } from "@/model";
+import WithRender from "@templates/favourites/list.html"
 
 @WithRender
-@Options({
-    name: "SettingsMessages",
-    store
-})
-export class SettingsMessages extends Vue {
-    @MessagesSettings.State
-    public autorefresh: boolean;
+@Options({ name: "FavouritesList" })
+export class FavouritesList extends Vue {
+    @Favourites.State favourites: Favourite[];
+    @Favourites.Mutation remove: (fav: Favourite) => void;
+    @Mutation('replace') setStops: (stops: Stop[]) => void;
 
-    @MessagesSettings.State
-    public autorefreshInterval: number;
-
-    @MessagesSettings.State
-    public displayedEntriesCount: number;
-
-    @MessagesSettings.Mutation
-    public update: (state: Partial<MessagesSettingsState>) => void;
+    choose(favourite: Favourite) {
+        this.setStops(favourite.stops);
+    }
 }
-

@@ -18,26 +18,16 @@
  */
 
 import { Options, Vue } from "vue-class-component";
-import store, { MessagesSettings } from "../../store";
-import { MessagesSettingsState } from "@/store/modules/settings/messages";
-import WithRender from "@templates/settings/messages.html";
+import { Prop } from "vue-property-decorator";
+import { Line } from "@/model";
+import WithRender from "@templates/line/symbol.html";
 
 @WithRender
-@Options({
-    name: "SettingsMessages",
-    store
-})
-export class SettingsMessages extends Vue {
-    @MessagesSettings.State
-    public autorefresh: boolean;
+@Options({ name: "LineSymbol" })
+export class LineSymbol extends Vue {
+    @Prop(Object)
+    public line: Line;
 
-    @MessagesSettings.State
-    public autorefreshInterval: number;
-
-    @MessagesSettings.State
-    public displayedEntriesCount: number;
-
-    @MessagesSettings.Mutation
-    public update: (state: Partial<MessagesSettingsState>) => void;
+    @Prop(Boolean)
+    public simple: boolean;
 }
-

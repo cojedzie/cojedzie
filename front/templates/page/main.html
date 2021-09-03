@@ -9,18 +9,18 @@
                     </h2>
                     <button class="btn btn-action flex-space-left" ref="settings-messages" id="settings-messages"
                             @click="visibility.messages = !visibility.messages">
-                        <tooltip>ustawienia</tooltip>
+                        <ui-tooltip>ustawienia</ui-tooltip>
                         <ui-icon icon="settings" fixed-width></ui-icon>
                     </button>
                     <button class="btn btn-action" @click="updateMessages" ref="btn-messages-refresh">
-                        <tooltip>odśwież</tooltip>
+                        <ui-tooltip>odśwież</ui-tooltip>
                         <ui-icon icon="refresh" :spin="messages.state === 'fetching'" fixed-width></ui-icon>
                     </button>
                     <button class="btn btn-action" @click="sections.messages = !sections.messages">
-                        <tooltip>
+                        <ui-tooltip>
                             {{ sections.messages ? 'zwiń' : 'rozwiń' }}
                             <span class="sr-only">sekcję komunikatów</span>
-                        </tooltip>
+                        </ui-tooltip>
                         <ui-icon :icon="sections.messages ? 'chevron-up' : 'chevron-down'" fixed-width></ui-icon>
                     </button>
 
@@ -31,9 +31,9 @@
                         </ui-dialog>
                     </teleport>
                 </header>
-                <fold :visible="sections.messages">
-                    <messages></messages>
-                </fold>
+                <ui-fold :visible="sections.messages">
+                    <messages-list></messages-list>
+                </ui-fold>
             </section>
             <section class="section">
                 <header class="section__title flex">
@@ -44,11 +44,11 @@
 
                     <button class="btn btn-action flex-space-left" ref="settings-departures" id="settings-departures"
                             @click="visibility.departures = !visibility.departures">
-                        <tooltip>ustawienia</tooltip>
+                        <ui-tooltip>ustawienia</ui-tooltip>
                         <ui-icon icon="settings" fixed-width></ui-icon>
                     </button>
                     <button class="btn btn-action" @click="updateDepartures({ stops })">
-                        <tooltip>odśwież</tooltip>
+                        <ui-tooltip>odśwież</ui-tooltip>
                         <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width></ui-icon>
                     </button>
                     <teleport to="#popups">
@@ -58,7 +58,7 @@
                         </ui-dialog>
                     </teleport>
                 </header>
-                <departures :stops="stops" v-if="stops.length > 0"></departures>
+                <departures-list :stops="stops" v-if="stops.length > 0"/>
                 <div class="alert alert-info" v-else>
                     <ui-icon icon="info"></ui-icon>
                     Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
@@ -77,21 +77,21 @@
                         <span class="text">Przystanki</span>
                     </h2>
                     <button class="btn btn-action flex-space-left" @click="clear">
-                        <tooltip>usuń wszystkie</tooltip>
+                        <ui-tooltip>usuń wszystkie</ui-tooltip>
                         <ui-icon icon="delete" fixed-width></ui-icon>
                     </button>
                 </header>
 
                 <ul class="picker__stops list-underlined">
                     <li v-for="stop in stops" :key="stop.id" class="picker__stop">
-                        <picker-stop :stop="stop">
+                        <stop-picker-entry :stop="stop">
                             <template v-slot:primary-action>
                                 <button @click="remove(stop)" class="btn btn-action">
-                                    <tooltip>usuń przystanek</tooltip>
+                                    <ui-tooltip>usuń przystanek</ui-tooltip>
                                     <ui-icon icon="remove-stop"></ui-icon>
                                 </button>
                             </template>
-                        </picker-stop>
+                        </stop-picker-entry>
                     </li>
                 </ul>
 
@@ -115,7 +115,7 @@
                             Wybierz przystanki
                         </h2>
                         <button class="btn btn-action" @click="visibility.picker = 'favourites'">
-                            <tooltip>Zapisane</tooltip>
+                            <ui-tooltip>Zapisane</ui-tooltip>
                             <ui-icon icon="favourite" fixed-witdth></ui-icon>
                         </button>
                     </template>
@@ -125,15 +125,15 @@
                             Zapisane
                         </h2>
                         <button class="btn btn-action" @click="visibility.picker = 'search'">
-                            <tooltip>Wybierz przystanki</tooltip>
+                            <ui-tooltip>Wybierz przystanki</ui-tooltip>
                             <ui-icon icon="search" fixed-witdth></ui-icon>
                         </button>
                     </template>
                 </header>
                 <div class="transition-box">
                     <transition name="fade">
-                        <stop-finder @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-finder>
-                        <favourites v-else-if="visibility.picker === 'favourites'"></favourites>
+                        <stop-picker @select="add" :blacklist="stops" v-if="visibility.picker === 'search'"></stop-picker>
+                        <favourites-list v-else-if="visibility.picker === 'favourites'"></favourites-list>
                     </transition>
                 </div>
             </section>

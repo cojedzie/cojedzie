@@ -17,15 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Prop } from 'vue-property-decorator'
-import { Line } from "@/model";
 import { Options, Vue } from "vue-class-component";
+import { History } from "@/store";
+import { HistoryEntry } from "@/store/modules/history";
+import { Mutation } from "vuex-class";
+import { Stop } from "@/model";
+import { StopPickerEntry } from "@/components/stop-picker/entry";
+import WithRender from "@templates/stop-picker/history.html";
 
-@Options({ render: require('@templates/line.html').render })
-export class LineComponent extends Vue {
-    @Prop(Object)
-    public line: Line;
+@WithRender
+@Options({
+    name: "StopPickerHistory",
+    components: { StopPickerEntry }
+})
+export class StopPickerHistory extends Vue {
+    @History.Getter all: HistoryEntry[];
 
-    @Prop(Boolean)
-    public simple: boolean;
+    @Mutation("add") select: (stops: Stop[]) => void;
 }

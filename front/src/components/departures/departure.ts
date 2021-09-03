@@ -17,22 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Departure } from "@/model";
-import { Vue, Options } from "vue-class-component";
+import WithRender from "@templates/departures/departure.html";
+import { Options, Vue } from "vue-class-component";
+import store, { DeparturesSettings } from "@/store";
 import { Prop, Watch } from "vue-property-decorator";
-import store, { Departures, DeparturesSettings } from '../store'
+import { Departure } from "@/model";
 import { Trip } from "@/model/trip";
 import { Jsonified } from "@/utils";
 import moment from "moment";
 import api from "@/api";
 
-@Options({ render: require("@templates/departures.html").render, store })
-export class DeparturesComponent extends Vue {
-    @Departures.State departures: Departure[];
-}
-
-@Options({ render: require("@templates/departures/departure.html").render, store })
-export class DepartureComponent extends Vue {
+@WithRender
+@Options({
+    name: 'DeparturesDeparture',
+    store
+})
+export class DeparturesDeparture extends Vue {
     @Prop(Object) departure: Departure;
     scheduledTrip: Trip = null;
 
@@ -44,10 +44,10 @@ export class DepartureComponent extends Vue {
     processTrip(trip: Jsonified<Trip>): Trip {
         return {
             ...trip,
-            schedule: trip.schedule.map(s => ({
-                ...s,
-                arrival: moment.parseZone(s.arrival),
-                departure: moment.parseZone(s.departure),
+            schedule: trip.schedule.map(scheduled => ({
+                ...scheduled,
+                arrival: moment.parseZone(scheduled.arrival),
+                departure: moment.parseZone(scheduled.departure),
             }))
         };
     };

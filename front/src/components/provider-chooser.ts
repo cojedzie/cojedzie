@@ -21,8 +21,10 @@ import { Vue, Options } from 'vue-class-component'
 import { Provider } from "@/model";
 import moment from 'moment';
 import api from "@/api";
+import WithRender from "@templates/page/provider-chooser.html"
 
-@Options({ render: require('@templates/page/providers.html').render })
+@WithRender
+@Options({ name: "ProviderChooser" })
 export default class ProviderChooser extends Vue {
     providers: Provider[] = [];
 
