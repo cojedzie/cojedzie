@@ -40,7 +40,7 @@
         </div>
     </div>
     <ui-fold :visible="showTrip">
-        <line-trip :schedule="trip.schedule" :current="departure.stop" v-if="trip" :class="[ `trip--${departure.line.type}` ]"/>
+        <trip-schedule :schedule="trip.schedule" :current="departure.stop" v-if="trip" :class="[ `trip--${departure.line.type}` ]"/>
         <div v-else class="text-center">
             <ui-icon icon="spinner"/>
         </div>
