@@ -85,7 +85,7 @@
                 <ul class="picker__stops list-underlined">
                     <li v-for="stop in stops" :key="stop.id" class="picker__stop">
                         <stop-picker-entry :stop="stop">
-                            <template v-slot:primary-action>
+                            <template #primary-action>
                                 <button @click="remove(stop)" class="btn btn-action">
                                     <ui-tooltip>usuń przystanek</ui-tooltip>
                                     <ui-icon icon="remove-stop"></ui-icon>
