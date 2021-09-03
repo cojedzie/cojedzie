@@ -79,3 +79,5 @@ export class FavouritesAdder extends Vue {
         return Object.entries(errors).map(a => a[1]).reduce((acc, cur) => [...acc, ...cur]).length == 0;
     }
 }
+
+export default FavouritesAdder;

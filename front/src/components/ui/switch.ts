@@ -41,3 +41,5 @@ export class UiSwitch extends Vue {
         this.$emit('input', !this.value);
     }
 }
+
+export default UiSwitch;

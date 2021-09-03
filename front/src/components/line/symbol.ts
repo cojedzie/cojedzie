@@ -31,3 +31,5 @@ export class LineSymbol extends Vue {
     @Prop(Boolean)
     public simple: boolean;
 }
+
+export default LineSymbol;

@@ -32,3 +32,5 @@ import WithRender from "@templates/departures/list.html";
 export class DeparturesList extends Vue {
     @Departures.State departures: Departure[];
 }
+
+export default DeparturesList;

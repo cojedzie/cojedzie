@@ -70,3 +70,5 @@ export class UiNumericInput extends Vue {
         return this.value - this.min > Number.EPSILON * 2;
     }
 }
+
+export default UiNumericInput;

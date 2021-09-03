@@ -53,3 +53,5 @@ export class UiFold extends Vue {
         (this.$el as HTMLElement).style.height = `${ (this.visible && inner) ? inner.clientHeight : 0 }px`;
     }
 }
+
+export default UiFold;

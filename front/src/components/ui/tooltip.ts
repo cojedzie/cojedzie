@@ -148,3 +148,5 @@ document.addEventListener('touchstart', () => {
         tooltip.show = false;
     }
 })
+
+export default UiTooltip;

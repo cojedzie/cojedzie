@@ -17,22 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App } from "vue";
+import { App, h } from "vue";
 import { SettingsDepartures, SettingsMessages } from "@/components/settings";
-import UiDialog from "@/components/ui/dialog";
-import { UiFold, UiTooltip, UiIcon, UiNumericInput, UiSwitch } from "@/components/ui";
+import { UiFold, UiTooltip, UiIcon, UiNumericInput, UiSwitch, UiDialog } from "@/components/ui";
 import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer, LVectorLayer } from "@/components/map";
-import { Lazy } from "@/components/utils";
-import { DeparturesList } from "@/components/departures/list";
-import { FavouritesList } from "@/components/favourites/list";
-import { FavouritesAdder } from "@/components/favourites/adder";
-import { StopPicker } from "@/components/stop-picker/picker";
-import { StopLabel } from "@/components/stop/label";
-import { StopDetails } from "@/components/stop/details";
-import { StopMap } from "@/components/stop/map";
-import { MessagesList } from "@/components/messages/list";
-import { LineSymbol } from "@/components/line/symbol";
-import { TripSchedule } from "@/components/trip/schedule";
+import Lazy from "@/components/utils";
+import DeparturesList from "@/components/departures/list";
+import FavouritesList from "@/components/favourites/list";
+import FavouritesAdder from "@/components/favourites/adder";
+import StopPicker from "@/components/stop-picker/picker";
+import StopLabel from "@/components/stop/label";
+import StopDetails from "@/components/stop/details";
+import StopMap from "@/components/stop/map";
+import MessagesList from "@/components/messages/list";
+import LineSymbol from "@/components/line/symbol";
+import TripSchedule from "@/components/trip/schedule";
 
 export * from "./application"
 export * from './utils'

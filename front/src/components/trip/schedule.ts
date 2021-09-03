@@ -49,3 +49,5 @@ export class TripSchedule extends Vue {
         list.scrollLeft = current.offsetLeft - (list.clientWidth + current.clientWidth) / 2;
     }
 }
+
+export default TripSchedule;
