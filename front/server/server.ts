@@ -29,6 +29,7 @@ const server = express();
 const port = parseInt(process.env.APP_PORT) || 3000;
 const host = process.env.APP_HOST || '0.0.0.0';
 const api  = process.env.APP_API || "https://cojedzie.pl";
+const dev  = process.env.APP_MODE === 'development';
 
 const gtm_tracking = process.env.APP_GTM || '';
 
@@ -52,18 +53,23 @@ server.set("view engine", "ejs");
 
 server.use(express.static(path.join(__dirname, "../build/public/")))
 
-const env = server.get('env')
-
-if (env == 'development') {
+if (dev) {
   const webpack = require('webpack')
   const webpackDevMiddleware = require('webpack-dev-middleware')
   const webpackHotMiddleware = require('webpack-hot-middleware')
 
-  const config = require('../webpack.config.js')(env, { mode: 'development' });
-  const compiler = webpack(config)
+  const config = require('../webpack.config.js')('development', { mode: 'development' });
+  const compiler = webpack(config);
+  const instance = webpackDevMiddleware(compiler);
 
-  server.use(webpackDevMiddleware(compiler, { outputPath: path.join(__dirname, '../build/public/dist/') }))
-  server.use(webpackHotMiddleware(compiler))
+  server.use(instance);
+  server.use(webpackHotMiddleware(compiler));
+
+  server.get('/service-worker.js', (req, res) => {
+      const content = instance.context.outputFileSystem.readFileSync(path.join(__dirname, '../build/public/service-worker.js'));
+      res.set('Content-Type', 'application/javascript');
+      res.send(content);
+  })
 }
 
 server.get("/:provider?/manifest.json", (req, res) => {

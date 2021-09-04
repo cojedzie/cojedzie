@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 
 # install dependencies
-RUN yarn install
+RUN yarn install --frozen-lockfile
 RUN find resources/fontawesome -type f -name '*.tgz' | sed s/^/file:/ | xargs yarn add-no-save
 
 # build stuff
@@ -19,7 +19,7 @@ WORKDIR /app
 COPY . .
 
 # install dependencies
-RUN yarn install --production
+RUN yarn install --production --frozen-lockfile
 
 FROM node:15.2.1-slim
 

@@ -11,14 +11,14 @@ const outputDir = path.resolve('./build/')
 module.exports = (env, argv) => {
     const config = {
         entry: {
-            main: ['./src/app.ts', './styles/main.scss', 'webpack-hot-middleware/client'],
+            main: ['./src/app.ts', './styles/main.scss'],
             api: ['./styles/api.scss'],
         },
         output: {
             path: path.join(outputDir, './public/dist/'),
             publicPath: "/dist/",
             filename: "[name].js",
-            // chunkFilename: '[name].[chunkhash:8].js'
+            chunkFilename: '[name].[chunkhash:8].js'
         },
         resolve: {
             extensions: ['.tsx', '.ts', '.js'],
@@ -82,7 +82,6 @@ module.exports = (env, argv) => {
             }]
         },
         plugins: [
-            new webpack.HotModuleReplacementPlugin(),
             new VueLoaderPlugin(),
             new MiniCssExtractPlugin({ filename: '[name].css' }),
             new CopyWebpackPlugin([{ from: './resources/images/', to: '../images/', ignore: ['*.ai'] }]),
@@ -96,7 +95,7 @@ module.exports = (env, argv) => {
                     urlPattern: /^https?:\/\/api\.maptiler\.com\//,
                     handler: 'CacheFirst',
                 }],
-                swDest: 'service-worker.js'
+                swDest: '../service-worker.js'
             }),
         ]
     };
@@ -104,6 +103,9 @@ module.exports = (env, argv) => {
     if (argv.mode === 'development') {
         config.mode    = 'development';
         config.devtool = 'inline-source-map';
+
+        config.entry.main.push('webpack-hot-middleware/client')
+        config.plugins.push(new webpack.HotModuleReplacementPlugin())
     }
 
     return config;
