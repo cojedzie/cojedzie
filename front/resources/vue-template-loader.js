@@ -17,8 +17,66 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const WithRender = `export default function WithRender(decorated) { decorated.render = render; }`;
+const loaderUtils = require('loader-utils');
+const crypto = require('crypto');
+const path = require('path');
+const templateLoader = require.resolve('vue-loader/dist/templateLoader');
 
-module.exports = function vueTemplateLoader(source) {
-    return source + "\n" + WithRender;
+const hashes = new Map();
+
+const exportWithRender = ({ id, hmr }) => `
+export default function WithRender(decorated) { 
+    decorated.render = render;
+    ${hmr ? hotReloadRegister({ id }) : '/* hmr disabled */'}
+}
+`;
+
+const hotReloadRegister = ({ id }) => `
+    decorated.__hmrId = '${id}';
+    __VUE_HMR_RUNTIME__.createRecord('${id}', decorated);
+`
+
+const hotReloadRerender = ({ id }) => `
+    if (module.hot) {
+        module.hot.accept();
+        __VUE_HMR_RUNTIME__.rerender('${id}', render);
+    }
+`
+
+const importRenderer = renderFunctionResource => `import { render } from ${renderFunctionResource};`;
+
+const generateTemplateId = context => {
+    const filename = path.relative(process.cwd(), context.resourcePath);
+
+    if (!hashes.has(filename)) {
+        const hash = crypto
+            .createHash('sha256')
+            .update(filename, "utf-8")
+            .digest("hex")
+            .substr(0, 12)
+
+        hashes.set(filename, hash);
+    }
+
+    return hashes.get(filename);
+}
+
+module.exports = function vueTemplateLoader(source, map) {
+    const context = this;
+    const options = loaderUtils.getOptions(context);
+
+    const isServer = options.isServerBuild ?? context.target === 'node'
+    const isProduction = context.mode === 'production' || process.env.NODE_ENV === 'production'
+
+    const hmr = !isServer && !isProduction && options.hotReload !== false;
+
+    const id = `data-v-${generateTemplateId(context)}`;
+
+    const renderFunctionResource = loaderUtils.stringifyRequest(context, `!${templateLoader}?${JSON.stringify(options)}!${context.resourcePath}?id=${id}`);
+
+    return [
+        importRenderer(renderFunctionResource),
+        exportWithRender({ id, hmr }),
+        hmr ? hotReloadRerender({ id }) : '/* hmr disabled */',
+    ].join("\n");
 };
