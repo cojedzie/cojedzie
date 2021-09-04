@@ -78,7 +78,7 @@ Vue.registerHooks(['removed']);
 })();
 
 if ('serviceWorker' in navigator) {
-    const wb = new Workbox("/dist/service-worker.js");
+    const wb = new Workbox("/service-worker.js");
 
     wb.addEventListener('waiting', event => {
         if (window.confirm("Dostępna jest nowa wersja, przeładować?")) {

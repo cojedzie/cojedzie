@@ -47,6 +47,7 @@ services:
     working_dir: /app
     environment:
       - APP_API=http://nginx/api
+      - APP_MODE=development
     volumes:
       - ./front:/app
     command: ["node", "build/server.js"]
