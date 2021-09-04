@@ -64,9 +64,8 @@ module.exports = (env, argv) => {
             }, {
                 test: /\.html?$/,
                 use: [
-                    { loader: path.resolve('./resources/vue-template-loader.js') },
                     {
-                        loader: require.resolve('vue-loader/dist/templateLoader'),
+                        loader: path.resolve('./resources/vue-template-loader.js'),
                         options: {
                             compilerOptions: {
                                 whitespace: "preserve",

@@ -10,7 +10,8 @@ export const removedHookMixin: ComponentOptionsMixin = {
     unmounted(this: ComponentPublicInstance) {
         const removed = () => {
             // quick and dirty version of Vue's lifecycle callHook method
-            this.$options.removed.call(this)
+            const hook = this['removed'] || this.$options.removed;
+            hook.call(this)
         }
 
         // element was immediately detached from DOM (no transition)
