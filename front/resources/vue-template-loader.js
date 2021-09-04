@@ -33,7 +33,14 @@ export default function WithRender(decorated) {
 
 const hotReloadRegister = ({ id }) => `
     decorated.__hmrId = '${id}';
-    __VUE_HMR_RUNTIME__.createRecord('${id}', decorated);
+    
+    const componentModule = require.cache[module.parents[0]];
+    if (componentModule.hot) {
+        componentModule.hot.accept();
+        if (!__VUE_HMR_RUNTIME__.createRecord('${id}', decorated)) {
+            __VUE_HMR_RUNTIME__.reload('${id}', decorated);
+        }
+    }
 `
 
 const hotReloadRerender = ({ id }) => `
