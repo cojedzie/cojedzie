@@ -55,9 +55,9 @@ const favourites: FavouritesModule = {
 
             if (!existing) {
                 state.favourites.push(favourite);
+            } else {
+                Object.assign(existing, except(favourite, ["id"]));
             }
-
-            Object.assign(existing, except(favourite, ["id"]));
         },
         [FavouritesMutations.Remove](state, favourite: Favourite) {
             state.favourites = state.favourites.filter(f => f != favourite);
