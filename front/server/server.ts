@@ -52,6 +52,20 @@ server.set("view engine", "ejs");
 
 server.use(express.static(path.join(__dirname, "../build/public/")))
 
+const env = server.get('env')
+
+if (env == 'development') {
+  const webpack = require('webpack')
+  const webpackDevMiddleware = require('webpack-dev-middleware')
+  const webpackHotMiddleware = require('webpack-hot-middleware')
+
+  const config = require('../webpack.config.js')(env, { mode: 'development' });
+  const compiler = webpack(config)
+
+  server.use(webpackDevMiddleware(compiler, { outputPath: path.join(__dirname, '../build/public/dist/') }))
+  server.use(webpackHotMiddleware(compiler))
+}
+
 server.get("/:provider?/manifest.json", (req, res) => {
     const provider = req.params.provider;
 

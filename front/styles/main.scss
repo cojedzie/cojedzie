@@ -136,7 +136,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: url("../images/background.png") repeat-x center bottom 63px;
+  background: url("../resources/images/background.png") repeat-x center bottom 63px;
 
   &.contains-modal {
     overflow-y: hidden;
@@ -160,7 +160,7 @@ body {
     left: 2rem;
     content: "";
     opacity: 0;
-    background: url("../images/logo.png") center center no-repeat;
+    background: url("../resources/images/logo.png") center center no-repeat;
     background-size: contain;
     display: none;
   }
