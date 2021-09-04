@@ -51,14 +51,6 @@ services:
       - ./front:/app
     command: ["node", "build/server.js"]
 
-  assets:
-    image: node:15.2.1
-    working_dir: /app
-    volumes:
-      - ./front:/app
-    tty: true
-    command: ["node", "node_modules/.bin/webpack", "--config", "./webpack.config.js", "--watch", "--mode", "development"]
-
   mercure:
     image: dunglas/mercure
     restart: unless-stopped

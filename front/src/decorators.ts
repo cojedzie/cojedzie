@@ -17,9 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vue from 'vue';
-// decorators.js
-import { createDecorator } from 'vue-class-component'
+import { createDecorator, Vue } from 'vue-class-component'
 
 export interface Decorator<TArgs extends any[], FArgs extends any[], TRet extends any, FRet extends any> {
     decorate(f: (...farg: FArgs) => any, ...args: TArgs): (...farg: FArgs) => TRet;

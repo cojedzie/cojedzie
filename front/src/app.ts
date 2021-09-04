@@ -75,20 +75,20 @@ Vue.registerHooks(['removed']);
     const root = document.getElementById('root');
     app.mount(fragment as any);
     root.parentNode.replaceChild(fragment, root);
-
-    if ('serviceWorker' in navigator) {
-        const wb = new Workbox("/service-worker.js");
-
-        wb.addEventListener('waiting', event => {
-            if (window.confirm("Dostępna jest nowa wersja, przeładować?")) {
-                wb.addEventListener('controlling', event => {
-                    window.location.reload();
-                });
-
-                wb.messageSW({type: 'SKIP_WAITING'});
-            }
-        });
-
-        wb.register();
-    }
 })();
+
+if ('serviceWorker' in navigator) {
+    const wb = new Workbox("/dist/service-worker.js");
+
+    wb.addEventListener('waiting', event => {
+        if (window.confirm("Dostępna jest nowa wersja, przeładować?")) {
+            wb.addEventListener('controlling', event => {
+                window.location.reload();
+            });
+
+            wb.messageSW({type: 'SKIP_WAITING'});
+        }
+    });
+
+    wb.register();
+}
