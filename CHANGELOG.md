@@ -13,6 +13,13 @@ separately and adhere to the [Semantic Versioning].
  - API: Synchronization is now automatically triggered after migrations
  - Build: Scheduler (cron) is now available in the `cojedzie/standalone` image
  - Load Tester: Utility to stress test servers
+ - Front: Support for hot reload for development
+ - Front: Templates are now precompiled to render function using `vue-loader`
+
+### Changed
+ - Front: Updated vue framework to version 3.x from 2.x
+ - Front: Components have now at least two word names, as per vue [style guide](https://v3.vuejs.org/style-guide/)
+ - Build: Front now uses yarn with `--frozen-lockfile` flag
 
 ### Fixed 
  - API: Errors are now properly reported respecting [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807)
