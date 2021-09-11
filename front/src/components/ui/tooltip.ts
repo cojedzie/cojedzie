@@ -38,7 +38,7 @@ export class UiTooltip extends Vue {
     public show: boolean = false;
     public root: HTMLElement = null;
 
-    private _events: Events = {};
+    private registeredEvents: Events = {};
 
     @Watch('show')
     updateOpenTooltipsList(show) {
@@ -63,20 +63,20 @@ export class UiTooltip extends Vue {
     updateTriggers() {
         this._removeEventListeners();
 
-        this._events = {};
+        this.registeredEvents = {};
 
         let blocked: boolean = false;
 
         if (this.triggers.includes("hover") && !this.$isTouch) {
             let timeout;
 
-            this._events['mouseenter'] = () => {
+            this.registeredEvents['mouseenter'] = () => {
                 timeout = setTimeout(() => {
                     this.show = !blocked
                 }, this.delay);
             };
 
-            this._events['mouseleave'] = () => {
+            this.registeredEvents['mouseleave'] = () => {
                 clearTimeout(timeout);
                 this.show = false
             };
@@ -84,18 +84,18 @@ export class UiTooltip extends Vue {
 
         if (this.triggers.includes("focus") || (this.triggers.includes("hover") && this.$isTouch)) {
             if (this.$isTouch) {
-                this._events['touchstart'] = () => {
+                this.registeredEvents['touchstart'] = () => {
                     // this is to prevent showing tooltips after tap
                     blocked = true;
                     setTimeout(() => blocked = false, longPressTimeout - 50);
                 }
             }
 
-            this._events['focus'] = () => {
+            this.registeredEvents['focus'] = () => {
                 this.show = !blocked;
             };
 
-            this._events['blur'] = () => {
+            this.registeredEvents['blur'] = () => {
                 this.show = false
             };
         }
@@ -103,7 +103,7 @@ export class UiTooltip extends Vue {
         if (this.triggers.includes("long-press") && this.$isTouch) {
             let timeout;
 
-            this._events['touchstart'] = () => {
+            this.registeredEvents['touchstart'] = () => {
                 timeout = setTimeout(() => {
                     this.show = true
                 }, longPressTimeout);
@@ -113,7 +113,7 @@ export class UiTooltip extends Vue {
                 setTimeout(() => blocked = false, longPressTimeout - 50);
             };
 
-            this._events['touchend'] = ev => {
+            this.registeredEvents['touchend'] = ev => {
                 clearTimeout(timeout);
 
                 if (this.show) {
@@ -122,7 +122,7 @@ export class UiTooltip extends Vue {
                 }
             };
 
-            this._events['blur'] = () => {
+            this.registeredEvents['blur'] = () => {
                 this.show = false
             };
         }
@@ -131,13 +131,13 @@ export class UiTooltip extends Vue {
     }
 
     private _registerEventListeners() {
-        for (const [event, handler] of Object.entries(this._events)) {
+        for (const [event, handler] of Object.entries(this.registeredEvents)) {
             this.root.addEventListener(event, handler);
         }
     }
 
     private _removeEventListeners() {
-        for (const [event, handler] of Object.entries(this._events)) {
+        for (const [event, handler] of Object.entries(this.registeredEvents)) {
             this.root.removeEventListener(event, handler);
         }
     }
