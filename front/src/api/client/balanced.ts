@@ -48,8 +48,13 @@ export interface LoadBalancedClientOptions<
 > extends ApiClientOptions<TEndpoints, TBoundParams> {
     balancer: LoadBalancer<TEndpoints>
     store: Store<any>
+    maxRetries?: number
 
     onRequestError?: ApiClientStartRequestEventHandler<TEndpoints>
+}
+
+const loadBalancedClientDefaultOptions = {
+    maxRetries: 5,
 }
 
 export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
@@ -60,6 +65,8 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
     private readonly options: LoadBalancedClientOptions<TEndpoints, TBoundParams>;
 
     constructor(options: LoadBalancedClientOptions<TEndpoints, TBoundParams>) {
+        options = { ...loadBalancedClientDefaultOptions, ...options}
+
         this.options = options;
 
         this.bound = options.bound;
@@ -73,7 +80,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
         options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
         let retry = 0;
-        while (true) {
+        while (retry < this.options.maxRetries) {
             const definition = await this.balancer.get(endpoint, {
                 require: candidate =>
                     semver.satisfies(semver.coerce(candidate.version), options.version) &&
@@ -122,7 +129,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
 
                 this.options.onRequestError?.(requestInfo as any);
 
-                if (retry++ < 5) {
+                if (retry++ < this.options.maxRetries) {
                     await delay(3000 * (retry - 1));
                 } else {
                     this.options.onRequestFailure?.(err, requestInfo as any);
