@@ -120,7 +120,7 @@ export function unique<T, U>(array: T[], criterion: (item: T) => U = identity) {
     return result;
 }
 
-export const supply = x => () => cloneDeep(x);
+export const supply: <T>(x: T) => () => T = x => () => cloneDeep(x);
 
 type Pattern<TResult, TArgs extends any[]> = [
     (...args: TArgs) => boolean,
