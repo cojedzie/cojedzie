@@ -28,5 +28,9 @@
         <ui-icon icon="messages" fixed-width/>
         wyświetlanych komunikatów
     </label>
-    <ui-numeric-input id="departures-count" :value="displayedEntriesCount" @input="update({ displayedEntriesCount: $event })" :min="1" />
+    <ui-numeric-input id="departures-count"
+                      :min="1"
+                      :value="displayedEntriesCount"
+                      @update:value="update({ displayedEntriesCount: $event })"
+    />
 </div>

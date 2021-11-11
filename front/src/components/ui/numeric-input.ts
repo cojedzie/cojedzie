@@ -25,7 +25,8 @@ import WithRender from "@templates/ui/numeric.html";
 @WithRender
 @Options({
     name: "UiNumericInput",
-    inheritAttrs: false
+    inheritAttrs: false,
+    emits: ['update:value'],
 })
 export class UiNumericInput extends Vue {
     @Prop({
@@ -47,15 +48,15 @@ export class UiNumericInput extends Vue {
     max: number;
 
     update(ev) {
-        this.$emit('input', this.clamp(Number.parseInt(ev.target.value)));
+        this.$emit('update:value', this.clamp(Number.parseInt(ev.target.value)));
     }
 
     increment() {
-        this.$emit('input', this.clamp(this.value + this.step));
+        this.$emit('update:value', this.clamp(this.value + this.step));
     }
 
     decrement() {
-        this.$emit('input', this.clamp(this.value - this.step));
+        this.$emit('update:value', this.clamp(this.value - this.step));
     }
 
     clamp(value: number) {
