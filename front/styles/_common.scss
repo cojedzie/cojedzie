@@ -52,11 +52,21 @@
 }
 
 .fold {
-  overflow-y: hidden;
-  overflow-x: hidden;
-
   transition: height 250ms ease;
   will-change: height;
+  overflow: hidden;
+
+  &--folded {
+    height: 0;
+
+    .fold__inner {
+      overflow: auto;
+    }
+  }
+
+  &--expanded {
+    overflow: visible;
+  }
 }
 
 .flex {
