@@ -25,7 +25,8 @@ import WithRender from "@templates/ui/switch.html";
 @WithRender
 @Options({
     name: "UiSwitch",
-    inheritAttrs: false
+    inheritAttrs: false,
+    emits: ["update:value"],
 })
 export class UiSwitch extends Vue {
     @Prop({
@@ -37,8 +38,12 @@ export class UiSwitch extends Vue {
     @Prop(Boolean)
     value: boolean;
 
-    update(ev) {
-        this.$emit('input', !this.value);
+    handleSwitchClick(ev: MouseEvent) {
+        this.$emit('update:value', !this.value);
+    }
+
+    handleCheckboxChange(ev: Event) {
+        this.$emit('update:value', (ev.target as HTMLInputElement).checked);
     }
 }
 

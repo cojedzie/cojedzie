@@ -4,7 +4,10 @@
             <ui-icon icon="refresh" fixed-width/>
             autoodświeżanie
         </label>
-        <ui-switch id="departures-auto-refresh" :value="autorefresh" @input="update({ autorefresh: $event })" class="flex-space-left"/>
+        <ui-switch id="departures-auto-refresh" class="flex-space-left"
+                   :value="autorefresh"
+                   @update:value="update({ autorefresh: $event })"
+        />
     </div>
     <div class="flex " v-if="autorefresh">
         <label for="departures-auto-refresh-interval" class="text">
