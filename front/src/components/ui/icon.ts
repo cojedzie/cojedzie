@@ -20,7 +20,6 @@
 import { Options, Vue } from "vue-class-component"
 import { Prop } from 'vue-property-decorator'
 import { IconDefinition, library } from "@fortawesome/fontawesome-svg-core"
-import { Dictionary } from "@/utils";
 import {
     faBullhorn,
     faCheck,
@@ -28,7 +27,6 @@ import {
     faChevronCircleUp,
     faChevronDown,
     faChevronUp,
-    faClock,
     faCog,
     faExclamationTriangle,
     faHistory,
@@ -43,7 +41,7 @@ import {
     faStar,
     faSync,
     faTimes,
-    faTrashAlt
+    faTrashAlt,
 } from "@fortawesome/pro-light-svg-icons";
 import {
     faClock as faClockBold,
@@ -51,11 +49,20 @@ import {
     faMinus,
     faPlus,
     faSpinnerThird,
+    faClock,
+    faLessThan,
 } from "@fortawesome/pro-regular-svg-icons";
-import { faExclamationTriangle as faSolidExclamationTriangle, faWalking } from "@fortawesome/pro-solid-svg-icons";
-import { fac } from "@/icons";
+import {
+    faExclamationTriangle as faSolidExclamationTriangle,
+    faWalking,
+    faClock as faSolidClock,
+} from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from "@fortawesome/vue-fontawesome";
 import WithRender from '@templates/ui/icon.html'
+import { PropType } from "vue";
+import { MessageType } from "@/model/message";
+import { LineType } from "@/model";
+import { faBus, faMetro, faTrain, faTram, faTrolleybus, faUnknown } from "@/icons";
 
 type IconDescription = { icon: IconDefinition, [prop: string]: any }
 
@@ -76,12 +83,19 @@ const simple = (icon: IconDefinition, props: any = {}): SimpleIcon => ({
 
 const stack = (icons: IconDescription[]): StackedIcon => ({ type: "stacked", icons });
 
-const lineTypeIcons = Object
-    .values(fac)
-    .map<[string, Icon]>(icon => [`line-${ icon.iconName }`, simple(icon)])
-    .reduce((acc, [icon, definition]) => ({ ...acc, [icon]: definition }), {})
+const lineTypeIcons: Record<`line-${LineType}`, Icon> = Object
+    .values({
+        tram: faTram,
+        train: faTrain,
+        bus: faBus,
+        trolleybus: faTrolleybus,
+        metro: faMetro,
+        other: faUnknown,
+    })
+    .map<[`line-${LineType}`, Icon]>(icon => [`line-${ icon.iconName as LineType }`, simple(icon)])
+    .reduce((acc, [icon, definition]) => ({ ...acc, [icon]: definition }), {}) as Record<`line-${ LineType }`, Icon>
 
-const messageTypeIcons: Dictionary<Icon> = {
+const messageTypeIcons: Record<`message-${MessageType}`, Icon> = {
     'message-breakdown': simple(faExclamationTriangle),
     'message-info': simple(faInfoCircle),
     'message-unknown': simple(faQuestionCircle),
@@ -143,15 +157,18 @@ library.add(...extractAllIcons(Object.values(definitions)));
         fa: FontAwesomeIcon,
         faLayers: FontAwesomeLayers,
         faText: FontAwesomeLayersText,
+    },
+    props: {
+        icon: {
+            type: [String, Object] as PropType<PredefinedIcon | IconDefinition>,
+            validator: (value: PredefinedIcon | IconDefinition) => typeof value === "object" || Object.keys(definitions).includes(value),
+            required: true,
+        }
     }
 })
 export class UiIcon extends Vue {
-    @Prop({
-        type: [String, Object],
-        validator: (value: string|object) => typeof value === "object" || Object.keys(definitions).includes(value),
-        required: true,
-    })
-    icon: PredefinedIcon | IconDefinition;
+    @Prop()
+    private icon: PredefinedIcon | IconDefinition;
 
     get definition(): Icon {
         return typeof this.icon === "string"
