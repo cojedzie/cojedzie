@@ -17,6 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+.btn-unstyled {
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  display: block;
+}
+
 .list-underlined {
   @extend .list-unstyled;
   margin-bottom: 0;
@@ -127,14 +135,6 @@ $section-safe-margin: 0.5rem;
       margin-bottom: -.5rem;
     }
   }
-}
-
-.btn-unstyled {
-  padding: 0;
-  margin: 0;
-  background: none;
-  border: none;
-  display: block;
 }
 
 .icon {

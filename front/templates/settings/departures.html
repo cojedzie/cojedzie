@@ -1,5 +1,5 @@
 <div class="form-group">
-    <div class="flex">
+    <div class="label flex">
         <label class="text" for="departures-auto-refresh">
             <ui-icon icon="refresh" fixed-width/>
             autoodświeżanie
@@ -9,11 +9,7 @@
                    @update:value="update({ autorefresh: $event })"
         />
     </div>
-    <div class="flex" v-if="autorefresh">
-        <label for="departures-auto-refresh-interval" class="text">
-            <span class="sr-only">częstotliwość odświeżania</span>
-            co
-        </label>
+    <div v-if="autorefresh">
         <div class="input-group input-group-sm">
             <input type="text" class="form-control form-control-sm form-control-simple" id="departures-auto-refresh-interval"
                    :value="autorefreshInterval" @input="update({ autorefreshInterval: Number.parseInt($event.target.value) })" />
@@ -21,23 +17,74 @@
                 <span class="input-group-text" aria-label="sekund">s</span>
             </div>
         </div>
+        <label for="departures-auto-refresh-interval" class="text mt-1 label--secondary">
+            częstotliwość odświeżania
+        </label>
     </div>
 </div>
 <div class="form-group">
-    <label class="text" for="departures-count">
-        <ui-icon icon="line-bus" fixed-width/>
-        liczba wpisów
-    </label>
+    <div class="label flex">
+        <label class="text" for="departures-count">
+            <ui-icon icon="line-bus" fixed-width/>
+            liczba wpisów
+        </label>
+    </div>
     <ui-numeric-input id="departures-count"
                       :min="1" :max="20"
                       :value="displayedEntriesCount"
                       @update:value="update({ displayedEntriesCount: $event })"
     />
 </div>
-<div class="form-group flex">
-    <label class="text" for="departures-relative-times">
-        <ui-icon icon="relative-time" fixed-width/>
-        czas do odjazdu
-    </label>
-    <ui-switch id="departures-relative-times" :value="relativeTimes" @input="update({ relativeTimes: $event })" class="flex-space-left"/>
+<div class="form-group">
+    <div class="label flex">
+        <label class="text mr-1" for="departures-relative-times">
+            <ui-icon icon="relative-time" fixed-width/>
+            pokazuj czas do odjazdu
+        </label>
+        <button type="button" class="label__button mr-1 flex-space-left"
+                :class="[ relativeTimesShowAdvancedOptions && 'label__button--pressed' ]"
+                :disabled="!relativeTimes"
+                @click="relativeTimesShowAdvancedOptions = !relativeTimesShowAdvancedOptions"
+        >
+            <ui-icon icon="settings" fixed-width/>
+        </button>
+
+        <ui-switch id="departures-relative-times"
+                   :value="relativeTimes"
+                   @update:value="update({ relativeTimes: $event })"
+        />
+    </div>
+    <ui-fold :visible="relativeTimes && relativeTimesShowAdvancedOptions" style="margin-left: 7px; border-left: 1px solid lightgray; padding-left: 10px;">
+        <div class="label flex">
+            <label class="text label--secondary" for="departures-relative-times-for-scheduled">
+                <ui-icon icon="departure-warning" fixed-width/>
+                również dla czasu rozkładowego
+            </label>
+            <ui-switch id="departures-relative-times-for-scheduled" class="flex-space-left"
+                       :value="relativeTimesForScheduled"
+                       @update:value="update({ relativeTimesForScheduled: $event })"
+            />
+        </div>
+        <div class="flex">
+            <label class="text label--secondary" for="departures-has-relative-time-limit">
+                <ui-icon icon="relative-time-limit" fixed-width/>
+                tylko dla odjazdów szybciej niż
+            </label>
+            <ui-switch id="departures-has-relative-time-limit" v-model:value="relativeTimesHasLimit" class="flex-space-left"/>
+        </div>
+        <div class="flex">
+            <label for="departures-max-relative-time" class="text">
+                <span class="sr-only">maksymalny czas do odjazdu</span>
+            </label>
+            <div class="input-group input-group-sm" v-if="relativeTimesHasLimit">
+                <input type="text"
+                       class="form-control form-control-sm form-control-simple"
+                       id="departures-max-relative-time"
+                       v-model="relativeTimesLimit" />
+                <div class="input-group-append">
+                    <span class="input-group-text" aria-label="minut">min</span>
+                </div>
+            </div>
+        </div>
+    </ui-fold>
 </div>

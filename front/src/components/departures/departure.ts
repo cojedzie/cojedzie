@@ -38,6 +38,13 @@ export class DeparturesDeparture extends Vue {
 
     @DeparturesSettings.State
     relativeTimes: boolean;
+    @DeparturesSettings.State
+    relativeTimesLimit: number;
+    @DeparturesSettings.State
+    relativeTimesLimitEnabled: boolean;
+    @DeparturesSettings.State
+    relativeTimesForScheduled: boolean;
+
 
     showTrip: boolean = false;
 
@@ -51,6 +58,24 @@ export class DeparturesDeparture extends Vue {
             }))
         };
     };
+
+    get showRelativeTime(): boolean {
+        if (!this.relativeTimes) {
+            return false;
+        }
+
+        const departure = this.departure;
+        if (!departure.estimated && !this.relativeTimesForScheduled) {
+            return false;
+        }
+
+        const now = moment();
+        if (this.relativeTimesLimitEnabled && this.time.diff(now, "minutes") > this.relativeTimesLimit) {
+            return false;
+        }
+
+        return true;
+    }
 
     get timeDiffers() {
         const departure = this.departure;

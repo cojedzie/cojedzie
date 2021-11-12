@@ -11,7 +11,7 @@
                 <ui-icon icon="departure-warning" class="mr-1"/>
             </template>
 
-            <template v-if="!relativeTimes">
+            <template v-if="!showRelativeTime">
                 <span :class="[ 'departure__time', 'departure__time--delayed']" v-if="timeDiffers">
                     {{ departure.scheduled.format('HH:mm') }}
                 </span>

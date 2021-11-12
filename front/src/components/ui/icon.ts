@@ -127,6 +127,10 @@ const definitions = {
     'increment': simple(faPlus, { "fixed-width": true }),
     'decrement': simple(faMinus, { "fixed-width": true }),
     'relative-time': simple(faHourglassHalf),
+    'relative-time-limit': stack([
+        { icon: faLessThan },
+        { icon: faSolidClock, transform: "shrink-5 down-6 left-5" }
+    ]),
     'departure-warning': stack([
         { icon: faClockBold },
         { icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6" }

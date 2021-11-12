@@ -30,18 +30,37 @@ import WithRender from "@templates/settings/departures.html";
 export class SettingsDepartures extends Vue {
     @DeparturesSettings.State
     public autorefresh: boolean;
-
     @DeparturesSettings.State
     public relativeTimes: boolean;
-
+    @DeparturesSettings.State
+    public relativeTimesForScheduled: boolean;
     @DeparturesSettings.State
     public autorefreshInterval: number;
-
     @DeparturesSettings.State
     public displayedEntriesCount: number;
 
+    public get relativeTimesLimit(): number {
+        return this.$store.state["departures-settings"].relativeTimesLimit;
+    }
+
+    public set relativeTimesLimit(relativeTimesLimit: number | string) {
+        this.update({
+            relativeTimesLimit: typeof relativeTimesLimit === "string" ? Number.parseInt(relativeTimesLimit) : relativeTimesLimit
+        })
+    }
+
+    public get relativeTimesHasLimit(): boolean {
+        return this.$store.state["departures-settings"].relativeTimesLimitEnabled;
+    }
+
+    public set relativeTimesHasLimit(relativeTimesLimitEnabled: boolean) {
+        this.update({ relativeTimesLimitEnabled })
+    }
+
     @DeparturesSettings.Mutation
     public update: (state: Partial<DeparturesSettingsState>) => void;
+
+    public relativeTimesShowAdvancedOptions: boolean = false;
 }
 
 export default SettingsDepartures;

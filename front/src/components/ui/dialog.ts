@@ -37,7 +37,7 @@ let openModalCounter: number = 0;
 function computeZIndexOfElement(element: HTMLElement): number {
     let current = element;
 
-    while (true) {
+    while (current instanceof Element) {
         const zIndex = window.getComputedStyle(current).zIndex;
 
         if (zIndex !== "auto") {
@@ -54,10 +54,18 @@ function computeZIndexOfElement(element: HTMLElement): number {
     return 0;
 }
 
+function getRootElementOfComponent(component: ComponentPublicInstance | HTMLElement): HTMLElement {
+    if (component instanceof HTMLElement) {
+        return component;
+    } else {
+        return component.$el;
+    }
+}
+
 function findClosestRef(component: ComponentPublicInstance, ref: string): HTMLElement | null {
     for (let current = component; current !== null; current = current.$parent) {
         if (current.$refs.hasOwnProperty(ref)) {
-            return current.$refs[ref] as HTMLElement;
+            return getRootElementOfComponent(current.$refs[ref] as ComponentPublicInstance | HTMLElement);
         }
     }
 

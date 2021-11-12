@@ -17,16 +17,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-label {
+label, .label {
   font-weight: bold;
   margin-bottom: 0;
-  margin-top: -0.2rem;
-  display: block;
   font-size: .8rem;
 }
 
-.label-sm {
+.label--small {
   font-size: .6rem;
+}
+
+.label--secondary {
+  font-weight: normal;
+}
+
+.label__button {
+  display: flex;
+  align-items: center;
+  padding: 4px 5px;
+  font-size: 1rem;
+  border-radius: 3px;
+  color: $dark;
+
+  &--pressed {
+    background: $dark;
+    color: $light;
+  }
+
+  &:disabled {
+    background: none;
+    color: $text-muted;
+  }
 }
 
 .form-group:last-child {

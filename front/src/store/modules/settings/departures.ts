@@ -24,7 +24,10 @@ export type DeparturesSettingsState = {
     autorefresh: boolean;
     autorefreshInterval?: number;
     displayedEntriesCount?: number;
-    relativeTimes: boolean,
+    relativeTimes: boolean;
+    relativeTimesForScheduled: boolean;
+    relativeTimesLimit: number;
+    relativeTimesLimitEnabled: boolean;
 }
 
 export enum DeparturesSettingsMutations {
@@ -41,9 +44,12 @@ const departureSettings: DeparturesSettingsModule = {
     namespaced: true,
     state: supply({
         autorefresh: true,
-        relativeTimes: false,
         autorefreshInterval: 10,
-        displayedEntriesCount: 10
+        displayedEntriesCount: 10,
+        relativeTimes: false,
+        relativeTimesForScheduled: true,
+        relativeTimesLimit: 60,
+        relativeTimesLimitEnabled: true
     }),
     mutations: {
         [DeparturesSettingsMutations.Update](state, patch) {
