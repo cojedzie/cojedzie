@@ -1,5 +1,5 @@
 <div class="form-group">
-    <div class="flex">
+    <div class="label flex">
         <label class="text" for="departures-auto-refresh-interval">
             <ui-icon icon="refresh" fixed-width/>
             autoodświeżanie
@@ -8,8 +8,18 @@
                    :value="autorefresh"
                    @update:value="update({ autorefresh: $event })"
         />
+        <ui-help class="label__button">
+            <template #title>
+                <ui-icon icon="refresh" fixed-width/>
+                autoodświeżanie
+            </template>
+
+            <p>Automatyczne odświeżanie listy komunikatów z zadaną częstotliwością.</p>
+            <p>Zbyt częste odświeżanie listy komunikatów może prowadzić do większego zużycia energii bez zwiększenia
+                dokładności informacji.</p>
+        </ui-help>
     </div>
-    <div class="flex " v-if="autorefresh">
+    <div class="flex" v-if="autorefresh">
         <label for="departures-auto-refresh-interval" class="text">
             <span class="sr-only">częstotliwość odświeżania</span>
             co
@@ -24,10 +34,20 @@
     </div>
 </div>
 <div class="form-group">
-    <label class="text" for="departures-count">
-        <ui-icon icon="messages" fixed-width/>
-        wyświetlanych komunikatów
-    </label>
+    <div class="label flex">
+        <label class="text" for="departures-count">
+            <ui-icon icon="messages" fixed-width/>
+            wyświetlanych komunikatów
+        </label>
+        <ui-help class="flex-space-left label__button">
+            <template #title>
+                <ui-icon icon="line-bus" fixed-width/>
+                liczba wpisów
+            </template>
+
+            <p>Kontroluje liczbę wyświetlanych komunikatów.</p>
+        </ui-help>
+    </div>
     <ui-numeric-input id="departures-count"
                       :min="1"
                       :value="displayedEntriesCount"
