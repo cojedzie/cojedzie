@@ -48,7 +48,7 @@ const departureSettings: DeparturesSettingsModule = {
         displayedEntriesCount: 10,
         relativeTimes: false,
         relativeTimesForScheduled: true,
-        relativeTimesLimit: 60,
+        relativeTimesLimit: 40,
         relativeTimesLimitEnabled: true
     }),
     mutations: {
