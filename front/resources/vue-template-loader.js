@@ -28,6 +28,7 @@ const exportWithRender = ({ id, hmr }) => `
 export default function WithRender(decorated) { 
     decorated.render = render;
     ${hmr ? hotReloadRegister({ id }) : '/* hmr disabled */'}
+    return decorated;
 }
 `;
 
@@ -51,6 +52,7 @@ const hotReloadRerender = ({ id }) => `
 `
 
 const importRenderer = renderFunctionResource => `import { render } from ${renderFunctionResource};`;
+const exportRenderer = renderFunctionResource => `export { render } from ${renderFunctionResource};`;
 
 const generateTemplateId = context => {
     const filename = path.relative(process.cwd(), context.resourcePath);
@@ -83,6 +85,7 @@ module.exports = function vueTemplateLoader(source, map) {
 
     return [
         importRenderer(renderFunctionResource),
+        exportRenderer(renderFunctionResource),
         exportWithRender({ id, hmr }),
         hmr ? hotReloadRerender({ id }) : '/* hmr disabled */',
     ].join("\n");

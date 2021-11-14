@@ -21,7 +21,7 @@ declare module "*.html" {
     import { RenderFunction } from "vue";
 
     export const render: RenderFunction
-    export default function WithRender<T>(decorated: T): T;
+    export default function WithRender<T>(decorated: T): T & { render: CallableFunction };
 }
 
 declare module "*.svg" {
@@ -30,6 +30,12 @@ declare module "*.svg" {
 }
 
 declare module "*.png" {}
+
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}
 
 // @ts-ignore
 declare function require(path: string): any;

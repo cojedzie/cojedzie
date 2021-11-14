@@ -21,7 +21,7 @@ module.exports = (env, argv) => {
             chunkFilename: '[name].[chunkhash:8].js'
         },
         resolve: {
-            extensions: ['.tsx', '.ts', '.js'],
+            extensions: ['.tsx', '.ts', '.js', '.vue'],
             alias: {
                 "@templates": path.resolve(__dirname, "./templates"),
                 "@resources": path.resolve(__dirname, "./resources"),
@@ -50,8 +50,11 @@ module.exports = (env, argv) => {
                 use: ["style-loader", "css-loader"]
             }, {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
+                loader: "ts-loader",
+                options: {
+                    appendTsSuffixTo: [/\.vue$/],
+                },
+                exclude: /node_modules/,
             }, {
                 test: /\.(png|svg|jpg|gif)$/,
                 use: 'file-loader',

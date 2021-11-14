@@ -110,6 +110,9 @@ export class UiDialog extends Vue {
     @Prop({ type: Boolean, default: true })
     public responsive: boolean;
 
+    @Prop({ type: String, default: null })
+    public offset: string | null;
+
     @Prop(String)
     public title: string;
 
@@ -134,7 +137,7 @@ export class UiDialog extends Vue {
     }
 
     get hasHeader() {
-        return this.$hasSlot('header')
+        return this.$hasSlot('header') || this.$hasSlot('title') || this.title;
     }
 
     private getReferenceElement() {
@@ -226,6 +229,10 @@ export class UiDialog extends Vue {
             placement: this.placement,
             modifiers: {
                 arrow: { enabled: this.arrow, element: this.$refs['arrow'] as Element },
+                offset: {
+                    enabled: !!this.offset,
+                    offset: this.offset,
+                },
                 responsive: {
                     enabled: this.responsive,
                     order: 890,

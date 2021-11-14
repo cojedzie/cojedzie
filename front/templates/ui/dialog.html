@@ -18,7 +18,7 @@
 </div>
 <div v-bind="$attrs" :class="[ 'ui-popup', arrow && 'ui-popup--arrow', $attrs.class ]" :style="{ zIndex: zIndex }" role="dialog" v-else>
     <div class="ui-popup__arrow" ref="arrow" v-if="arrow"></div>
-    <div class="ui-popup__header" v-if="hasHeader || title">
+    <div class="ui-popup__header" v-if="hasHeader">
         <slot name="header">
             <div class="ui-popup__heading" role="heading"><slot name="title">{{ title }}</slot></div>
         </slot>

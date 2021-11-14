@@ -19,7 +19,7 @@
 
 import { App, h } from "vue";
 import { SettingsDepartures, SettingsMessages } from "@/components/settings";
-import { UiFold, UiTooltip, UiIcon, UiNumericInput, UiSwitch, UiDialog } from "@/components/ui";
+import { UiFold, UiTooltip, UiIcon, UiNumericInput, UiSwitch, UiDialog, UiHelp } from "@/components/ui";
 import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer, LVectorLayer } from "@/components/map";
 import Lazy from "@/components/utils";
 import DeparturesList from "@/components/departures/list";
@@ -57,6 +57,7 @@ export default function install(Vue: App) {
     Vue.component('UiSwitch', UiSwitch);
     Vue.component('UiFold', UiFold);
     Vue.component('UiTooltip', UiTooltip);
+    Vue.component('UiHelp', UiHelp);
 
     Vue.component('DeparturesList', DeparturesList);
 

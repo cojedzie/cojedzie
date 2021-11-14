@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (C) 2021 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
@@ -17,11 +17,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from './switch';
-export * from './icon';
-export * from './numeric-input'
-export * from './dialog'
-export * from './fold';
-export * from './tooltip';
+.help {
+  box-sizing: content-box;
+  width: 300px;
+  font-size: 0.8rem;
+}
 
-export * from './UiHelp.vue';
+.help__image {
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+  margin-bottom: 0.5rem;
+  margin-top: 0.25rem;
+  aspect-ratio: 2 / 1;
+  box-shadow: 0 0 1px black;
+}
+
+.help__figure {
+  .help__image {
+    margin-bottom: 0.125rem;
+  }
+
+  figcaption {
+    color: $text-muted;
+  }
+
+  margin-bottom: 0.5rem;
+}
