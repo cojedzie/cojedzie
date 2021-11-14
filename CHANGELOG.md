@@ -15,6 +15,9 @@ separately and adhere to the [Semantic Versioning].
  - Load Tester: Utility to stress test servers
  - Front: Support for hot reload for development
  - Front: Templates are now precompiled to render function using `vue-loader`
+ - Front: Add ability to independently control relative time display for non realtime departures
+ - Front: Add ability to limit relative time display only for closest departures
+ - Front: Add help boxes for all settings
 
 ### Changed
  - Front: Updated vue framework to version 3.x from 2.x
