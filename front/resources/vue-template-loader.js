@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const loaderUtils = require('loader-utils');
 const crypto = require('crypto');
 const path = require('path');
 const templateLoader = require.resolve('vue-loader/dist/templateLoader');
@@ -72,7 +71,7 @@ const generateTemplateId = context => {
 
 module.exports = function vueTemplateLoader(source, map) {
     const context = this;
-    const options = loaderUtils.getOptions(context);
+    const options = this.getOptions();
 
     const isServer = options.isServerBuild ?? context.target === 'node'
     const isProduction = context.mode === 'production' || process.env.NODE_ENV === 'production'
@@ -81,7 +80,8 @@ module.exports = function vueTemplateLoader(source, map) {
 
     const id = `data-v-${generateTemplateId(context)}`;
 
-    const renderFunctionResource = loaderUtils.stringifyRequest(context, `!${templateLoader}?${JSON.stringify(options)}!${context.resourcePath}?id=${id}`);
+    const renderFunctionUrl = `!${templateLoader}?${JSON.stringify(options)}!${context.resourcePath}?id=${id}`;
+    const renderFunctionResource = JSON.stringify(context.utils.contextify(context.context || context.rootContext, renderFunctionUrl));
 
     return [
         importRenderer(renderFunctionResource),

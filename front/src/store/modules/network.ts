@@ -24,10 +24,10 @@ import { LoadBalancerNode } from "@/api/loadbalancer";
 import { StaticClient } from "@/api/client/static";
 import { query } from "@/api/utils";
 import { AxiosResponse } from "axios";
-import EventSourcePolyfill from "eventsource";
+// import EventSourcePolyfill from "eventsource";
 import { NamespacedVuexModule, VuexActionHandler, VuexGetter, VuexMutationHandler } from "vuex";
 
-const EventSource = (typeof window !== "undefined" && window.EventSource) || EventSourcePolyfill;
+const EventSource = (typeof window !== "undefined" && window.EventSource);
 
 export type NetworkingEndpoints = {
     v1_network_nodes: Endpoint<never, Jsonified<ApiNode>[]>,

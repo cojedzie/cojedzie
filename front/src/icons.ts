@@ -19,12 +19,12 @@
 
 import { IconDefinition, IconPack } from '@fortawesome/fontawesome-svg-core';
 
-import * as bus from "@resources/icons/light/bus.svg";
-import * as tram from "@resources/icons/light/tram.svg";
-import * as trolleybus from "@resources/icons/light/trolleybus.svg";
-import * as metro from "@resources/icons/light/metro.svg";
-import * as train from "@resources/icons/light/train.svg";
-import * as unknown from "@resources/icons/light/unknown.svg";
+import bus from "@resources/icons/light/bus.svg";
+import tram from "@resources/icons/light/tram.svg";
+import trolleybus from "@resources/icons/light/trolleybus.svg";
+import metro from "@resources/icons/light/metro.svg";
+import train from "@resources/icons/light/train.svg";
+import unknown from "@resources/icons/light/unknown.svg";
 
 export const faBus: IconDefinition = <any>{
     prefix:   'fac',

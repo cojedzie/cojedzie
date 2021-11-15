@@ -21,7 +21,7 @@ module.exports = (env, argv) => {
             chunkFilename: '[name].[chunkhash:8].js'
         },
         resolve: {
-            extensions: ['.tsx', '.ts', '.js', '.vue'],
+            extensions: ['.tsx', '.ts', '.js'],
             alias: {
                 "@templates": path.resolve(__dirname, "./templates"),
                 "@resources": path.resolve(__dirname, "./resources"),
@@ -35,19 +35,23 @@ module.exports = (env, argv) => {
                 include: [
                     path.resolve('./resources/icons')
                 ],
-                use: ['raw-loader', {
-                    loader: path.resolve('./resources/svg-icon-loader.js')
-                }]
+                use: [
+                    { loader: path.resolve('./resources/svg-icon-loader.js') }
+                ],
+                type: 'asset/source'
             }, {
                 test: /\.s[ac]ss$/,
                 use: [
                     argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
-                    "css-loader?sourceMap",
-                    "sass-loader?sourceMap"
+                    "css-loader",
+                    "sass-loader"
                 ]
             }, {
                 test: /\.css$/,
                 use: ["style-loader", "css-loader"]
+            }, {
+                test: /\.vue$/,
+                loader: "vue-loader"
             }, {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
@@ -57,13 +61,13 @@ module.exports = (env, argv) => {
                 exclude: /node_modules/,
             }, {
                 test: /\.(png|svg|jpg|gif)$/,
-                use: 'file-loader',
+                type: 'asset/resource',
                 exclude: [
                     path.resolve('./resources/icons')
                 ]
             }, {
                 test: /\.(woff|woff2|eot|ttf|otf)$/,
-                use: 'file-loader'
+                type: 'asset/resource',
             }, {
                 test: /\.html?$/,
                 use: [
@@ -76,19 +80,31 @@ module.exports = (env, argv) => {
                         }
                     },
                 ],
-                exclude: [
-                    path.resolve('./resources/index.html')
+                include: [
+                    path.resolve('./templates')
                 ]
-            }, {
-                test: /\.vue$/,
-                use: "vue-loader"
             }]
         },
         plugins: [
             new VueLoaderPlugin(),
             new MiniCssExtractPlugin({ filename: '[name].css' }),
-            new CopyWebpackPlugin([{ from: './resources/images/', to: '../images/', ignore: ['*.ai'] }]),
+            new CopyWebpackPlugin({ patterns: [
+                {
+                    from: './resources/images/**/*',
+                    to: '../images/',
+                    globOptions: {
+                        dot: true,
+                        gitignore: true,
+                        ignore: ["**/*.kra", "**.ai"]
+                    }
+                }
+            ] }),
             new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
+            new webpack.DefinePlugin({
+              __IS_SSR__: false,
+              __VUE_OPTIONS_API__: true,
+              __VUE_PROD_DEVTOOLS__: false,
+            }),
             new GenerateSW({
                 navigationPreload: true,
                 runtimeCaching: [{

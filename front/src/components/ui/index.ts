@@ -24,4 +24,4 @@ export * from './dialog'
 export * from './fold';
 export * from './tooltip';
 
-export * from './UiHelp.vue';
+export { default as UiHelp } from './UiHelp.vue';
