@@ -109,6 +109,7 @@ module.exports = (env, argv) => {
                 __VUE_OPTIONS_API__: true,
                 __VUE_PROD_DEVTOOLS__: false,
             }),
+            new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /pl/),
             new GenerateSW({
                 navigationPreload: true,
                 runtimeCaching: [{

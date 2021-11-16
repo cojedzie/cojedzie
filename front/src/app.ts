@@ -19,24 +19,16 @@
 
 /// <reference path="types/webpack.d.ts"/>
 
-import Popper from 'popper.js';
-import * as $ from "jquery";
-// dependencies
 import { Store } from 'vuex';
 import { dragscrollNext } from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
 import { StoreDefinition } from "@/store/initializer";
 import { Vue } from "vue-class-component"
 
-import 'moment/locale/pl'
 import moment from "moment";
 
 import components, { app } from "@/components";
 import filters from '@/filters'
-import 'bootstrap'
-
-window['$'] = window['jQuery'] = $;
-window['Popper'] = Popper;
 
 app.use(filters);
 app.use(components);
