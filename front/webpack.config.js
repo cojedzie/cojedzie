@@ -2,8 +2,8 @@ const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
-const {GenerateSW} = require('workbox-webpack-plugin');
-const {VueLoaderPlugin} = require('vue-loader')
+const { GenerateSW } = require('workbox-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader')
 const webpack = require("webpack");
 
 const outputDir = path.resolve('./build/')
@@ -88,22 +88,23 @@ module.exports = (env, argv) => {
         plugins: [
             new VueLoaderPlugin(),
             new MiniCssExtractPlugin({ filename: '[name].css' }),
-            new CopyWebpackPlugin({ patterns: [
-                {
-                    from: './resources/images/**/*',
-                    to: '../images/',
-                    globOptions: {
-                        dot: true,
-                        gitignore: true,
-                        ignore: ["**/*.kra", "**.ai"]
+            new CopyWebpackPlugin({
+                patterns: [
+                    {
+                        from: path.resolve('./resources/images/**/*'),
+                        to: '../images/[name][ext]',
+                        globOptions: {
+                            gitignore: true,
+                            ignore: ["**/*.kra", "**/*.ai", "**/*~"]
+                        }
                     }
-                }
-            ] }),
+                ]
+            }),
             new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
             new webpack.DefinePlugin({
-              __IS_SSR__: false,
-              __VUE_OPTIONS_API__: true,
-              __VUE_PROD_DEVTOOLS__: false,
+                __IS_SSR__: false,
+                __VUE_OPTIONS_API__: true,
+                __VUE_PROD_DEVTOOLS__: false,
             }),
             new GenerateSW({
                 navigationPreload: true,
@@ -120,7 +121,7 @@ module.exports = (env, argv) => {
     };
 
     if (argv.mode === 'development') {
-        config.mode    = 'development';
+        config.mode = 'development';
         config.devtool = 'inline-source-map';
 
         config.entry.main.push('webpack-hot-middleware/client')
