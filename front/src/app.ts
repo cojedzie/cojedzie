@@ -19,8 +19,6 @@
 
 /// <reference path="types/webpack.d.ts"/>
 
-import "leaflet/dist/leaflet.css";
-
 import Popper from 'popper.js';
 import * as $ from "jquery";
 // dependencies

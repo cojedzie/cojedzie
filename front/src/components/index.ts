@@ -17,10 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, h } from "vue";
+import { App, defineAsyncComponent, h } from "vue";
 import { SettingsDepartures, SettingsMessages } from "@/components/settings";
 import { UiFold, UiTooltip, UiIcon, UiNumericInput, UiSwitch, UiDialog, UiHelp } from "@/components/ui";
-import { LControl, LIcon, LMap, LMarker, LPopup, LTileLayer, LVectorLayer } from "@/components/map";
 import Lazy from "@/components/utils";
 import DeparturesList from "@/components/departures/list";
 import FavouritesList from "@/components/favourites/list";
@@ -64,13 +63,12 @@ export default function install(Vue: App) {
     Vue.component('FavouritesList', FavouritesList);
     Vue.component('FavouritesAdder', FavouritesAdder);
 
-    Vue.component('LMap', LMap);
-    Vue.component('LTileLayer', LTileLayer);
-    Vue.component('LVectorLayer', LVectorLayer);
-    Vue.component('LMarker', LMarker);
-    Vue.component('LControl', LControl);
-    Vue.component('LPopup', LPopup)
-    Vue.component('LIcon', LIcon);
+    Vue.component('UiMap', defineAsyncComponent(() => import("@/components/ui/UiMap.vue")))
+
+    Vue.component('LMarker', defineAsyncComponent(() => import("@/components/map").then(module => module.LMarker)));
+    Vue.component('LControl', defineAsyncComponent(() => import("@/components/map").then(module => module.LControl)));
+    Vue.component('LPopup', defineAsyncComponent(() => import("@/components/map").then(module => module.LPopup)));
+    Vue.component('LIcon', defineAsyncComponent(() => import("@/components/map").then(module => module.LIcon)));
 
     Vue.component('MessagesList', MessagesList);
 

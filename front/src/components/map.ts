@@ -23,9 +23,9 @@ import 'mapbox-gl-leaflet'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-import * as iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import * as iconUrl from 'leaflet/dist/images/marker-icon.png';
-import * as shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 delete L.Icon.Default.prototype['_getIconUrl'];
 

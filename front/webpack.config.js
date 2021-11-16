@@ -51,7 +51,10 @@ module.exports = (env, argv) => {
                 use: ["style-loader", "css-loader"]
             }, {
                 test: /\.vue$/,
-                loader: "vue-loader"
+                loader: "vue-loader",
+                options: {
+                    enableTsInTemplate: false,
+                }
             }, {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
