@@ -85,7 +85,7 @@ class Line implements Fillable, Referable, DTO
      * Tracks for this line
      * @Serializer\Type("Collection")
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Track::class)))
-     * @Serializer\Groups("Full")
+     * @Serializer\Groups({"Full"})
      * @var Collection<Track>|Track[]
      */
     private $tracks;

@@ -23,7 +23,7 @@ namespace App\Service\Proxy;
 use App\Model\JustReference;
 use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
 use ReflectionClass;
-use Zend\Code\Generator\ClassGenerator;
+use Laminas\Code\Generator\ClassGenerator;
 
 class ReferenceObjectGenerator implements ProxyGeneratorInterface
 {
