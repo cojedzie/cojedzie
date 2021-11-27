@@ -32,6 +32,8 @@
             })(window,document,'script','dataLayer','<%= gtm_tracking %>');</script>
         <!-- End Google Tag Manager -->
         <% } %>
+
+        <script>window.CoJedzie = Object.freeze(<%- JSON.stringify(config) %>);</script>
     </head>
     <body>
         <noscript>

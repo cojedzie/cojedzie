@@ -114,7 +114,10 @@ server.get("/:provider?/*", (req, res) => {
         gtm_tracking,
         version,
         year,
-        config: { api },
+        config: {
+            version,
+            api,
+        },
     })
 })
 
