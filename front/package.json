@@ -1,6 +1,6 @@
 {
   "name": "cojedzie",
-  "version": "2021.2.0-dev",
+  "version": "2021.2.0",
   "author": "Kacper Donat <kadet1090@gmail.com>",
   "license": "AGPL-3.0-only",
   "sideEffects": [

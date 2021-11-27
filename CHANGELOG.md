@@ -6,6 +6,8 @@ separately and adhere to the [Semantic Versioning].
 
 ## [Unreleased]
 
+## [2021.2.0] - 2021-11-27
+
 ### Added
  - API: `nelmio/cors-bundle` for CORS policy management
  - API: `CORS_ALLOW_ORIGIN` environment variable, that controls allowed origins for CORS calls, `https://.+` by default
