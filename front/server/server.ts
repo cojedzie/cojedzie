@@ -32,6 +32,7 @@ const api  = process.env.APP_API || "https://cojedzie.pl";
 const dev  = process.env.APP_MODE === 'development';
 
 const gtm_tracking = process.env.APP_GTM || '';
+const maptiler_key = process.env.APP_MAPTILER_KEY || "unknown";
 
 const manifest = JSON.parse(
     fs.readFileSync(path.join(__dirname, "../resources/manifest.json")).toString("utf-8")
@@ -117,6 +118,9 @@ server.get("/:provider?/*", (req, res) => {
         config: {
             version,
             api,
+            maptiler: {
+                key: maptiler_key
+            }
         },
     })
 })

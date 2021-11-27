@@ -48,6 +48,7 @@ services:
     environment:
       - APP_API=http://nginx/api
       - APP_MODE=development
+      - APP_MAPTILER_KEY
     volumes:
       - ./front:/app
     command: ["node", "build/server.js"]

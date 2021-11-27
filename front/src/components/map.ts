@@ -37,17 +37,12 @@ export const LVectorLayer = defineComponent({
             type: String,
             required: true,
         },
-        token: {
-            type: String,
-            default: ""
-        },
         attribution: String,
     },
     mounted(): void {
         // @ts-ignore
         this['mapObject'] = L.mapboxGL({
             style: this.url,
-            accessToken: this.token,
             attribution: this.attribution
         } as any);
 
