@@ -27,10 +27,14 @@ class IdUtils
 {
     const DELIMITER = '::';
 
-    public function generate(ProviderEntity $provider, $id)
+    /**
+     * @param ProviderEntity|string $provider
+     */
+    public function generate($provider, $id)
     {
         // todo: use array cache if not fast enough
-        return sprintf('%s%s%s', $provider->getId(), self::DELIMITER, $id);
+        $providerId = $provider instanceof ProviderEntity ? $provider->getId() : $provider;
+        return sprintf('%s%s%s', $providerId, self::DELIMITER, $id);
     }
 
     public function strip($id)

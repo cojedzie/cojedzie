@@ -43,4 +43,20 @@ final class IterableUtils
     {
         return collect($iterable);
     }
+
+    public static function batch(iterable $iterable, int $size): \Generator
+    {
+        $batch = [];
+
+        foreach ($iterable as $key => $item) {
+            $batch[$key] = $item;
+
+            if (count($batch) >= $size) {
+                yield $batch;
+                $batch = [];
+            }
+        }
+
+        yield $batch;
+    }
 }

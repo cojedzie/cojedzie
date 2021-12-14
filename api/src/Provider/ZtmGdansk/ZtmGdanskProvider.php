@@ -40,6 +40,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ZtmGdanskProvider implements Provider
 {
+    const BASE_URL = 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource';
+    const IDENTIFIER = 'trojmiasto';
+
     private $lines;
     private $departures;
     private $stops;
@@ -62,7 +65,7 @@ class ZtmGdanskProvider implements Provider
 
     public function getIdentifier(): string
     {
-        return 'trojmiasto';
+        return self::IDENTIFIER;
     }
 
     public function getAttribution(): string
