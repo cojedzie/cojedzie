@@ -4,105 +4,116 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: 'pl'
+  locale: 'pl'
 
-    env(FEDERATION_HUB): 'https://cojedzie.pl'
-    env(FEDERATION_CONNECTION_ID): null
-    env(FEDERATION_SERVER_ID): null
-    env(FEDERATION_URL): null
+  env(FEDERATION_HUB): 'https://cojedzie.pl'
+  env(FEDERATION_CONNECTION_ID): null
+  env(FEDERATION_SERVER_ID): null
+  env(FEDERATION_URL): null
 
-    env(CORS_ALLOW_ORIGIN): '^https?://.*'
+  env(CORS_ALLOW_ORIGIN): '^https?://.*'
 
-    env(MERCURE_JWT_SECRET): ''
-    env(MERCURE_URL): ''
-    env(MERCURE_PUBLIC_URL): ''
+  env(MERCURE_JWT_SECRET): ''
+  env(MERCURE_URL): ''
+  env(MERCURE_PUBLIC_URL): ''
 
 services:
-    # default configuration for services in *this* file
-    _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-        public: false       # Allows optimizing the container by removing unused services; this also means
-                            # fetching services directly from the container via $container->get() won't work.
-                            # The best practice is to be explicit about your dependencies anyway.
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    public: false       # Allows optimizing the container by removing unused services; this also means
+      # fetching services directly from the container via $container->get() won't work.
+    # The best practice is to be explicit about your dependencies anyway.
 
-    _instanceof:
-        App\Provider\Provider:
-            tags: [ app.provider ]
+  _instanceof:
+    App\Provider\Provider:
+      tags: [ app.provider ]
 
-        App\DataConverter\Converter:
-            tags: [ app.converter ]
+    App\Service\DataImporter:
+      tags: [ app.data_importer ]
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    App\:
-        resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Exception,Modifier,Entity,Message,Model,Migrations,Tests,Functions,Handler,Kernel.php}'
+    App\DataConverter\Converter:
+      tags: [ app.converter ]
 
-    # controllers are imported separately to make sure services can be injected
-    # as action arguments even if you don't extend any base controller class
-    App\Controller\:
-        resource: '../src/Controller'
-        tags: ['controller.service_arguments']
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  App\:
+    resource: '../src/*'
+    exclude: '../src/{DependencyInjection,Exception,Modifier,Entity,Message,Model,Migrations,Tests,Functions,Handler,Kernel.php}'
 
-    App\Provider\:
-        resource: '../src/Provider'
-        public: true
+  # controllers are imported separately to make sure services can be injected
+  # as action arguments even if you don't extend any base controller class
+  App\Controller\:
+    resource: '../src/Controller'
+    tags: [ 'controller.service_arguments' ]
 
-    App\Handler\:
-        resource: '../src/Handler'
-        tags: [ app.handler ]
+  App\Provider\:
+    resource: '../src/Provider'
+    public: true
 
-    #eerialziser
-    jms_serializer.serialized_name_annotation_strategy:
-        class: JMS\Serializer\Naming\SerializedNameAnnotationStrategy
-        arguments:
-            - '@jms_serializer.identical_property_naming_strategy'
+  App\Handler\:
+    resource: '../src/Handler'
+    tags: [ app.handler ]
 
-    App\Serialization\CarbonHandler:
-        arguments: ['@jms_serializer.datetime_handler']
+  #eerialziser
+  jms_serializer.serialized_name_annotation_strategy:
+    class: JMS\Serializer\Naming\SerializedNameAnnotationStrategy
+    arguments:
+      - '@jms_serializer.identical_property_naming_strategy'
 
-    #proxy configuration
-    proxy.locator:
-        class: 'App\Service\Proxy\FileLocator'
-        arguments: ['%kernel.cache_dir%/proxy']
+  App\Serialization\CarbonHandler:
+    arguments: [ '@jms_serializer.datetime_handler' ]
 
-    proxy.strategy:
-        class: 'ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy'
-        arguments: ['@proxy.locator']
+  #proxy configuration
+  proxy.locator:
+    class: 'App\Service\Proxy\FileLocator'
+    arguments: [ '%kernel.cache_dir%/proxy' ]
 
-    proxy.config:
-        class: 'ProxyManager\Configuration'
-        calls:
-          - ['setGeneratorStrategy', ['@proxy.strategy']]
-          - ['setProxiesTargetDir', ['%kernel.cache_dir%/proxy']]
+  proxy.strategy:
+    class: 'ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy'
+    arguments: [ '@proxy.locator' ]
 
-    ProxyManager\Configuration: '@proxy.config'
+  proxy.config:
+    class: 'ProxyManager\Configuration'
+    calls:
+      - [ 'setGeneratorStrategy', [ '@proxy.strategy' ] ]
+      - [ 'setProxiesTargetDir', [ '%kernel.cache_dir%/proxy' ] ]
 
-    # converter
-    App\DataConverter\AggregateConverter:
-        arguments:
-            - !tagged_iterator app.converter
+  ProxyManager\Configuration: '@proxy.config'
 
-    App\DataConverter\Converter: '@App\DataConverter\AggregateConverter'
+  # converter
+  App\DataConverter\AggregateConverter:
+    arguments:
+      - !tagged_iterator app.converter
 
-    # serializer configuration
-    App\Service\SerializerContextFactory:
-        arguments:
-            $factory: '@jms_serializer.metadata_factory'
+  App\DataConverter\Converter: '@App\DataConverter\AggregateConverter'
 
-    # other servces
-    App\Service\ProviderResolver:
-        arguments: [!tagged app.provider, '%kernel.debug%']
+  # serializer configuration
+  App\Service\SerializerContextFactory:
+    arguments:
+      $factory: '@jms_serializer.metadata_factory'
 
-    App\Service\HandlerProvider:
-        arguments: [!tagged_locator app.handler]
-        shared: false
+  # other servces
+  App\Service\ProviderResolver:
+    arguments: [ !tagged app.provider, '%kernel.debug%' ]
 
-    # Context Providers
-    App\Context\FederationContext:
-        arguments:
-            $serverId: '%env(FEDERATION_SERVER_ID)%'
-            $connectionId: '%env(FEDERATION_CONNECTION_ID)%'
-            $hubBaseUrl: '%env(FEDERATION_HUB)%'
-            $advertisedUrl: '%env(FEDERATION_URL)%'
+  App\Service\HandlerProvider:
+    arguments: [ !tagged_locator app.handler ]
+    shared: false
+
+  App\Service\DataUpdater:
+    arguments:
+      $importers: !tagged_iterator app.data_importer
+
+  App\Service\ProviderDataImporter:
+    arguments:
+      $providers: !tagged_iterator app.provider
+
+  # Context Providers
+  App\Context\FederationContext:
+    arguments:
+      $serverId: '%env(FEDERATION_SERVER_ID)%'
+      $connectionId: '%env(FEDERATION_CONNECTION_ID)%'
+      $hubBaseUrl: '%env(FEDERATION_HUB)%'
+      $advertisedUrl: '%env(FEDERATION_URL)%'

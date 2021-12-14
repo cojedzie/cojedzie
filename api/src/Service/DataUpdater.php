@@ -20,62 +20,76 @@
 
 namespace App\Service;
 
-use App\Event\DataUpdateEvent;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\ORM\EntityManagerInterface;
 use Kadet\Functional as f;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DataUpdater
 {
     const UPDATE_EVENT = 'app.data_update';
 
-    /** @var EventDispatcherInterface */
-    private $dispatcher;
+    private EntityManagerInterface $em;
 
-    /** @var EntityManagerInterface */
-    private $em;
+    /** @var iterable<DataImporter> */
+    private iterable $importers;
 
-    public function __construct(EventDispatcherInterface $dispatcher, EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, iterable $importers)
     {
-        $this->dispatcher = $dispatcher;
         $this->em = $em;
+        $this->importers = $importers;
     }
 
-    public function update(OutputInterface $output = null)
+    public function update()
     {
+        ini_set('memory_limit', '1G');
+
         $connection = $this->em->getConnection();
         $connection->getConfiguration()->setSQLLogger(null);
-        $schema     = $connection->getSchemaManager();
 
-        $path   = preg_replace("~sqlite:///~si", '', $connection->getParams()['path']);
-        $backup = "$path.backup";
-
-        copy($path, $backup);
-
-        try {
-            collect($schema->listTables())
-                ->reject(f\ref([$this, 'shouldTableBePreserved']))
-                ->each(f\ref([$schema, 'dropAndCreateTable']))
-            ;
-
-            $this->dispatcher->dispatch(new DataUpdateEvent($output), DataUpdateEvent::NAME);
-
-            unlink($backup);
-        } catch (\Throwable $exception) {
-            $connection->close();
-
-            unlink($path);
-            rename($backup, $path);
-
-            throw $exception;
+        /** @var DataImporter $updater */
+        foreach ($this->getDataUpdatersInTopologicalOrder() as $updater) {
+            $updater->import();
+            gc_collect_cycles();
+            echo "Memory usage: ".memory_get_usage(true).", peak: ".memory_get_peak_usage(true).PHP_EOL;
         }
     }
 
-    private function shouldTableBePreserved(Table $schema)
+    /** @return \Generator<DataImporter> */
+    private function getDataUpdatersInTopologicalOrder()
     {
-        return in_array($schema->getName(), ['migration_versions', 'messenger_messages'])
-            || fnmatch('federated_*', $schema->getName());
+        $nodes = [];
+        $dependants = [];
+
+        foreach ($this->importers as $importer) {
+            $nodes[get_class($importer)] = [
+                'value' => $importer,
+                'dependencies' => $importer->getDependencies(),
+            ];
+
+            foreach ($importer->getDependencies() as $dependency) {
+                if (!array_key_exists($dependency, $dependants)) {
+                    $dependants[$dependency] = [];
+                }
+
+                $dependants[$dependency][] = get_class($importer);
+            }
+        }
+
+        while (!empty($nodes)) {
+            $next = $nodes;
+            foreach ($nodes as $name => $node) {
+                if (empty($node['dependencies'])) {
+                    yield $node['value'];
+
+                    foreach ($dependants[$name] ?? [] as $dependant) {
+                        $next[$dependant]['dependencies'] = array_filter($nodes[$dependant]['dependencies'], fn ($item) => $item !== $name);
+                    }
+
+                    unset($next[$name]);
+                }
+            }
+            $nodes = $next;
+        }
     }
 }
+
