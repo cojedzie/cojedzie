@@ -53,6 +53,18 @@ services:
       - ./front:/app
     command: ["node", "build/server.js"]
 
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=cojedzie
+      - POSTGRES_PASSWORD=cojedzie
+      - POSTGRES_DB=cojedzie
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
   mercure:
     image: dunglas/mercure
     restart: unless-stopped
@@ -76,3 +88,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  postgres_data:

@@ -10,3 +10,6 @@ max_line_length = 160
 tab_width = 4
 ij_visual_guides = 80,120,160
 ij_wrap_on_typing = false
+
+[*.{yaml,yml}]
+indent_size = 2
