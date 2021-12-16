@@ -65,6 +65,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  mysql:
+    image: mariadb:10.7
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_USER=cojedzie
+      - MYSQL_PASSWORD=cojedzie
+      - MYSQL_DATABASE=cojedzie
+      - MARIADB_RANDOM_ROOT_PASSWORD=1
+    volumes:
+      - mysql_data:/var/lib/mysql
+
   mercure:
     image: dunglas/mercure
     restart: unless-stopped
@@ -89,3 +102,4 @@ volumes:
   caddy_data:
   caddy_config:
   postgres_data:
+  mysql_data:

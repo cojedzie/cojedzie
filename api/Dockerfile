@@ -3,7 +3,7 @@ FROM php:7.4-fpm-alpine
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql xdebug-^3.0;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql xdebug-^3.0;
 RUN apk add git;
 
 # XDebug
