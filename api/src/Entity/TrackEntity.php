@@ -58,6 +58,7 @@ class TrackEntity implements Entity, Fillable
      * @var LineEntity
      *
      * @ORM\ManyToOne(targetEntity=LineEntity::class, fetch="EAGER", inversedBy="tracks")
+     * @ORM\JoinColumn(name="line_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $line;
 

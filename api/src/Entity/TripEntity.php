@@ -47,6 +47,7 @@ class TripEntity implements Entity, Fillable
      *
      * @var TrackEntity
      * @ORM\ManyToOne(targetEntity=TrackEntity::class)
+     * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $track;
 

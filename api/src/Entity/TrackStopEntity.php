@@ -41,17 +41,19 @@ class TrackStopEntity implements Fillable, Referable
      *
      * @ORM\Column(type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
+     * @ORM\JoinColumn(name="stop_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $stop;
 
     /**
      * @ORM\ManyToOne(targetEntity=TrackEntity::class, fetch="EAGER", inversedBy="stopsInTrack")
+     * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $track;
 

@@ -42,19 +42,21 @@ class TripStopEntity implements Fillable, Referable
      *
      * @ORM\Column(type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
      * @var StopEntity
      * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
+     * @ORM\JoinColumn(name="stop_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $stop;
 
     /**
      * @var TripEntity
      * @ORM\ManyToOne(targetEntity=TripEntity::class, fetch="EAGER", inversedBy="stops")
+     * @ORM\JoinColumn(name="trip_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $trip;
 
