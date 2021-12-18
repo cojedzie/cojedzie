@@ -7,7 +7,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-RUN install-php-extensions bcmath intl opcache zip sockets;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql;
 
 COPY composer.json composer.lock ./
 
