@@ -1,0 +1,34 @@
+# https://taskfile.dev
+version: '3'
+
+vars:
+  SQLITE_DSN: sqlite:///%kernel.project_dir%/var/db/app.db
+  POSTGRES_DSN: postgres://cojedzie:cojedzie@postgres/cojedzie?serverVersion=14
+  MYSQL_DSN: mysql://cojedzie:cojedzie@mysql/cojedzie?serverVersion=mariadb-10.7.1
+  USER:
+    sh: id -u
+
+tasks:
+  exec:
+    desc: Execute command on one of available containers
+    cmds:
+      - docker-compose exec {{.FLAGS}} -u {{.USER}} {{.SERVICE}} {{.CLI_ARGS}}
+
+  api:console:
+    desc: Execute command in the symfony console
+    cmds:
+      - task: exec
+        vars:
+          SERVICE: api
+          FLAGS: '{{.FLAGS}}'
+          CLI_ARGS: ./bin/console {{.CLI_ARGS}}
+
+  api:migrations:generate:
+    desc: Generate migrations for all database engines
+    cmds:
+      - cmd: docker-compose exec -e DATABASE_URL="{{.SQLITE_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+        ignore_error: true
+      - cmd: docker-compose exec -e DATABASE_URL="{{.MYSQL_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+        ignore_error: true
+      - cmd: docker-compose exec -e DATABASE_URL="{{.POSTGRES_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+        ignore_error: true

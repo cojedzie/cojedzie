@@ -22,20 +22,22 @@ namespace App\Modifier;
 
 class FieldFilter implements Modifier
 {
-    private $field;
+    private string $field;
     private $value;
-    private $operator;
+    private string $operator;
+    private bool $caseSensitive;
 
-    public function __construct(string $field, $value, string $operator = '=')
+    public function __construct(string $field, $value, string $operator = '=', bool $caseSensitive = true)
     {
         $this->field    = $field;
         $this->value    = $value;
         $this->operator = $operator;
+        $this->caseSensitive = $caseSensitive;
     }
 
-    public static function contains(string $field, string $value)
+    public static function contains(string $field, string $value, bool $caseSensitive = false)
     {
-        return new static($field, "%$value%", 'LIKE');
+        return new static($field, "%$value%", 'LIKE', $caseSensitive);
     }
 
     public function getField(): string
@@ -51,5 +53,10 @@ class FieldFilter implements Modifier
     public function getOperator(): string
     {
         return $this->operator;
+    }
+
+    public function isCaseSensitive(): bool
+    {
+        return $this->caseSensitive;
     }
 }

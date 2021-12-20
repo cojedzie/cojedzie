@@ -62,8 +62,15 @@ class FieldFilterDatabaseHandler implements ModifierHandler
             $value     = encapsulate($value);
         }
 
+        $where = "{$alias}.{$field}";
+
+        if (!$modifier->isCaseSensitive()) {
+            $where = sprintf('LOWER(%s)', $where);
+            $value = is_array($value) ? array_map(fn ($x) => mb_strtolower($x), $value) : mb_strtolower($value);
+        }
+
         $builder
-            ->andWhere(sprintf("%s.%s %s %s", $alias, $field, $operator, $parameter))
+            ->andWhere(sprintf("%s %s %s", $where, $operator, $parameter))
             ->setParameter($parameter, $value)
         ;
     }
