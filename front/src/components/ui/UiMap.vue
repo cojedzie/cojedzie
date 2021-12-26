@@ -1,10 +1,11 @@
 <template>
     <l-map v-bind="{ ...$attrs, ...$props }">
-        <l-vector-layer :url="`https://api.maptiler.com/maps/bright/style.json?key=${ key }`"
-                        attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>'
+        <l-vector-layer
+            :url="`https://api.maptiler.com/maps/bright/style.json?key=${ key }`"
+            attribution="<a href=&quot;https://www.maptiler.com/copyright/&quot; target=&quot;_blank&quot;>© MapTiler</a> <a href=&quot;https://www.openstreetmap.org/copyright&quot; target=&quot;_blank&quot;>© OpenStreetMap contributors</a>"
         />
 
-        <slot/>
+        <slot />
     </l-map>
 </template>
 
