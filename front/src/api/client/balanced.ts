@@ -23,7 +23,8 @@ import {
     ApiClientOptions,
     ApiClientRequestInfo,
     ApiClientStartRequestEventHandler,
-    BoundRequestOptions
+    BoundRequestOptions,
+    RequestOptions
 } from "@/api/client";
 import { LoadBalancedEndpoint, LoadBalancer } from "@/api/loadbalancer";
 import { delay, resolve, Supplier } from "@/utils";
@@ -47,7 +48,7 @@ export interface LoadBalancedClientOptions<
     TBoundParams extends string = never
 > extends ApiClientOptions<TEndpoints, TBoundParams> {
     balancer: LoadBalancer<TEndpoints>
-    store: Store<any>
+    store: Store<any> // eslint-disable-line @typescript-eslint/no-explicit-any
     maxRetries?: number
 
     onRequestError?: ApiClientStartRequestEventHandler<TEndpoints>
@@ -60,7 +61,7 @@ const loadBalancedClientDefaultOptions = {
 export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
-    private readonly store: Store<any>;
+    private readonly store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     private readonly http: AxiosInstance;
     private readonly options: LoadBalancedClientOptions<TEndpoints, TBoundParams>;
 
@@ -87,7 +88,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                     (!options.require || options.require(candidate))
             });
 
-            const params = {
+            const params  = {
                 ...(resolve(this.bound) || {}),
                 ...(resolve(options.params) || {})
             }
@@ -97,17 +98,17 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                 params,
             );
 
-            const requestInfo: ApiClientRequestInfo<TEndpoints, TEndpoint> = {
+            const requestInfo: ApiClientRequestInfo<TEndpoints, keyof TEndpoints> = {
                 endpoint: endpoint,
                 url: (definition.node?.url || this.http.defaults.baseURL) + url,
                 options: {
                     ...options,
                     params
-                } as any
+                } as RequestOptions<EndpointParams<TEndpoints, keyof TEndpoints>>
             };
 
             try {
-                this.options.onRequestStart?.(requestInfo as any);
+                this.options.onRequestStart?.(requestInfo);
 
                 const result = await this.http.get(url, {
                     baseURL: definition.node?.url || this.http.defaults.baseURL,
@@ -115,8 +116,8 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                     headers: resolve(options.headers),
                 });
 
-                this.options.onRequestSuccess?.(result, requestInfo as any);
-                this.options.onRequestEnd?.(result, requestInfo as any);
+                this.options.onRequestSuccess?.(result, requestInfo);
+                this.options.onRequestEnd?.(result, requestInfo);
 
                 return result;
             } catch (err) {
@@ -124,16 +125,16 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                     await this.store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
                 } else {
                     console.error(err.message);
-                    this.options.onRequestFailure?.(err, requestInfo as any);
+                    this.options.onRequestFailure?.(err, requestInfo);
                 }
 
-                this.options.onRequestError?.(requestInfo as any);
+                this.options.onRequestError?.(requestInfo);
 
                 if (retry++ < this.options.maxRetries) {
                     await delay(3000 * (retry - 1));
                 } else {
-                    this.options.onRequestFailure?.(err, requestInfo as any);
-                    this.options.onRequestEnd?.(err, requestInfo as any);
+                    this.options.onRequestFailure?.(err, requestInfo);
+                    this.options.onRequestEnd?.(err, requestInfo);
                 }
             }
         }

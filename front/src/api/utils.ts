@@ -19,13 +19,14 @@
 
 import { Dictionary } from "@/utils";
 
-export type UrlParams = {
-    [name: string]: any
-}
+export type UrlParamSimpleValue = string | boolean | number;
+export type UrlParamValue = UrlParamSimpleValue | UrlParamSimpleValue[] | Record<string, UrlParamSimpleValue>;
+export type UrlParams = Record<string, UrlParamValue>;
+
 type ParamValuePair = [string, string];
 
 export function query(params: UrlParams = {}) {
-    function* simplify(name: string, param: any): IterableIterator<ParamValuePair> {
+    function* simplify(name: string, param: UrlParamValue): IterableIterator<ParamValuePair> {
         if (typeof param === 'string') {
             yield [name, param];
         } else if (typeof param === 'boolean') {
@@ -35,17 +36,17 @@ export function query(params: UrlParams = {}) {
         } else if (typeof param === 'number') {
             yield [name, param.toString()];
         } else if (param instanceof Array) {
-            for (let entry of param) {
+            for (const entry of param) {
                 yield* simplify(`${ name }[]`, entry);
             }
         } else if (typeof param === "object") {
-            for (let [key, entry] of Object.entries(param)) {
+            for (const [key, entry] of Object.entries(param)) {
                 yield* simplify(`${ name }[${ key }]`, entry);
             }
         }
     }
 
-    let simplified: ParamValuePair[] = [];
+    const simplified: ParamValuePair[] = [];
     for (const [key, entry] of Object.entries(params)) {
         for (const pair of simplify(key, entry)) {
             simplified.push(pair);
@@ -58,11 +59,11 @@ export function query(params: UrlParams = {}) {
 export function prepare(url: string, params: Dictionary<string> = {}) {
     const regex = /\{([\w-]+)\}/gi;
 
-    let group;
-    while (group = regex.exec(url)) {
+    let group: RegExpExecArray;
+    while ((group = regex.exec(url))) {
         const name = group[1];
 
-        url = url.replace(new RegExp(`\{${ name }\}`, 'gi'), params[name]);
+        url = url.replace(new RegExp(`\\{${ name }\\}`, 'gi'), params[name]);
         delete params[name];
     }
 

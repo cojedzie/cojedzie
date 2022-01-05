@@ -22,12 +22,14 @@ import { Departure, Provider, Stop, Track } from "@/model";
 import { Trip } from "@/model/trip";
 import { Message } from "@/model/message";
 
-export type Endpoint<TParams extends string, TResult = any> = {
+// TParams and tResult are used for type storage
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+export type Endpoint<TParams extends string, TResult = unknown> = {
     template: string,
     version: string,
 };
 
-export type EndpointCollection = { [name: string]: Endpoint<any> }
+export type EndpointCollection = { [name: string]: Endpoint<string> }
 
 export type Endpoints = {
     v1_trip_details: Endpoint<"provider" | "id", Jsonified<Trip>>,
@@ -41,7 +43,7 @@ export type Endpoints = {
 }
 
 export type EndpointParams<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> =
-    TEndpoints[TEndpoint] extends Endpoint<infer TParams, any> ? { [name in TParams]: string }: never;
+    TEndpoints[TEndpoint] extends Endpoint<infer TParams, unknown> ? { [name in TParams]: string } : never;
 
 export type EndpointResult<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> =
     TEndpoints[TEndpoint] extends Endpoint<string, infer TResult> ? TResult : never;
