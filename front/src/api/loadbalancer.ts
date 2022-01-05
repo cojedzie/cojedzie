@@ -18,16 +18,15 @@
  */
 
 import { Optionalify } from "@/utils";
-import endpoints, { EndpointCollection, Endpoints } from "@/api/endpoints";
+import { EndpointCollection } from "@/api/endpoints";
 import { NetworkActions } from "@/store/modules/network";
 import { choice } from "@/utils/random";
 import { Store } from "vuex";
-import { RootState } from "@/store/root";
 
 export interface LoadBalancerNode<TEndpoints extends EndpointCollection> {
     id: string;
     url: string;
-    endpoints: Optionalify<Endpoints>,
+    endpoints: Optionalify<TEndpoints>,
 }
 
 export type LoadBalancedEndpoint<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> = {
@@ -74,10 +73,10 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
         const requirements = options.require || (_ => true)
 
         return (this.store.getters['network/available'] as LoadBalancerNode<TEndpoints>[])
-            .filter(node => typeof node.endpoints[name as string] !== "undefined")
+            .filter(node => typeof node.endpoints[name] !== "undefined")
             .map<LoadBalancedEndpoint<TEndpoints, TEndpoint>>(node => ({
                 node,
-                ...node.endpoints[name as string],
+                ...node.endpoints[name],
             }))
             .filter(endpoint => requirements(endpoint))
     }

@@ -17,7 +17,9 @@ module.exports = {
     "rules": {
         "vue/html-indent": [1, 4],
         "vue/max-attributes-per-line": [1, { singleline: 5, multiline: 1 }],
-        "@typescript-eslint/no-var-requires": [ 0 ]
+        "@typescript-eslint/no-var-requires": [ 0 ],
+        "@typescript-eslint/no-unused-vars": [1, { argsIgnorePattern: "^_" }],
+        "no-unused-vars": [1, { argsIgnorePattern: "^_" }]
     },
     "ignorePatterns": [".eslintrc.js", "webpack.config.js", "**/build/**", "resources/**/*"]
 }
