@@ -20,20 +20,10 @@
 
 namespace App\DataImport;
 
-interface ProgressReporterInterface
+enum MilestoneType
 {
-    /**
-     * Updates progress of the whole task.
-     */
-    public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void;
-
-    /**
-     * Marks milestone in the process.
-     */
-    public function milestone(string $comment, MilestoneType $type = MilestoneType::Info): void;
-
-    /**
-     * Allows creating subtasks
-     */
-    public function subtask(string $name): ProgressReporterInterface;
+    case Info;
+    case Success;
+    case Warning;
+    case Error;
 }

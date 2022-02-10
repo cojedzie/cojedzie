@@ -37,6 +37,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     private Connection $connection;
     private HttpClientInterface $httpClient;
     private IdUtils $idUtils;
+    private int $trackCount;
 
     public function __construct(Connection $connection, HttpClientInterface $httpClient, IdUtils $idUtils)
     {
@@ -99,6 +100,8 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
         $reporter->progress($count, comment: 'OK', finished: true);
         $this->connection->commit();
+
+        $this->trackCount = $count;
     }
 
     private function importStopsInTracksFromZtmApi(ProgressReporterInterface $reporter)
@@ -128,7 +131,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 $this->connection->insert('track_stop', $stop);
             }
 
-            $reporter->progress($count += 1, comment: sprintf('Importing stops in track %s', $trackId));
+            $reporter->progress($count += 1, max: $this->trackCount, comment: sprintf('Importing stops in track %s', $trackId));
 
             // set final id on track to last stop
             $updateFinalStopInTrackPreparedQuery->executeQuery([
@@ -191,5 +194,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 ->map(fn ($stop, $i) => array_merge($stop, ['sequence' => $i]))
                 ->all();
         }
+    }
+
+    public function getDescription(): string
+    {
+        return "[ZTM Gdańsk] Import tracks";
     }
 }

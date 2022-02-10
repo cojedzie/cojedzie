@@ -58,15 +58,30 @@ class ConsoleProgressReporter implements ProgressReporterInterface
         }
     }
 
-    public function milestone(string $comment): void
+    public function milestone(string $comment, MilestoneType $type = MilestoneType::Info): void
     {
-        $this->output->section()->writeln($this->indentation().' '.$comment);
+        [ $icon, $color ] = match ($type) {
+            MilestoneType::Warning => ['⚠️', 'yellow'],
+            MilestoneType::Success => ['✔', 'bright-green'],
+            MilestoneType::Error   => ['✖', 'red'],
+            default => [ '•', null ],
+        };
+
+        $comment = sprintf('%s %s', $icon, $comment);
+
+        $message = sprintf(
+            '%s %s',
+            $this->indentation(),
+            $color ? sprintf('<fg=%s>%s</>', $color, $comment) : $comment,
+        );
+
+        $this->output->section()->writeln($message);
     }
 
     public function subtask(string $name): ProgressReporterInterface
     {
         $section = $this->output->section();
-        $section->writeln(sprintf('<fg=%s>%s</>', $this->getSectionColor(), $this->depth ? $this->indentation().' '.$name : $name));
+        $section->writeln(sprintf('<fg=%s>%s</>', $this->getSectionColor(), $this->depth ? $this->indentation().'• '.$name : $name));
 
         return new ConsoleProgressReporter(
             $this->input,
@@ -80,9 +95,9 @@ class ConsoleProgressReporter implements ProgressReporterInterface
         $format = $this->indentation();
 
         if ($this->progressBar->getMaxSteps()) {
-            $format .= ' [%bar%] %current%/%max% %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%';
+            $format .= '[%bar%] %current%/%max% %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%';
         } else {
-            $format .= ' [%bar%] %current% %elapsed:6s% %memory:6s%';
+            $format .= '[%bar%] %current% %elapsed:6s% %memory:6s%';
         }
 
         if (@$this->progressBar->getMessage()) {
@@ -94,7 +109,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
 
     private function indentation()
     {
-        return ' '.str_repeat('-', $this->depth);
+        return str_repeat('  ', $this->depth);
     }
 
     private function getSectionColor()

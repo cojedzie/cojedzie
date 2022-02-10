@@ -136,4 +136,9 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     {
         return self::ZTM_TYPE_MAPPING[$line['agencyId']] ?? LineModel::TYPE_BUS;
     }
+
+    public function getDescription(): string
+    {
+        return "[ZTM Gdańsk] Import lines";
+    }
 }

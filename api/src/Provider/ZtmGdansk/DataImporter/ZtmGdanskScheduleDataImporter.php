@@ -20,6 +20,7 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
@@ -71,7 +72,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
                 $this->connection->commit();
             } catch (JsonObjectsException $exception) {
                 $this->connection->rollBack();
-                $reporter->milestone("Failed to import line ".$lineId.": ".$exception->getMessage());
+                $reporter->milestone("Failed to import line ".$lineId.": ".$exception->getMessage(), MilestoneType::Warning);
             }
             $reporter->progress($count++, max: $existingLineCount, comment: sprintf("Imported line %s", $lineId));
         }
@@ -171,5 +172,10 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ZtmGdanskLineDataImporter::class,
             ZtmGdanskTrackDataImporter::class,
         ];
+    }
+
+    public function getDescription(): string
+    {
+        return "[ZTM Gdańsk] Import schedule";
     }
 }

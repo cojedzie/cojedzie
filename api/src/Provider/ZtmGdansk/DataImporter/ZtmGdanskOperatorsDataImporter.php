@@ -88,4 +88,9 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
             ];
         }
     }
+
+    public function getDescription(): string
+    {
+        return "[ZTM Gdańsk] Import operators";
+    }
 }
