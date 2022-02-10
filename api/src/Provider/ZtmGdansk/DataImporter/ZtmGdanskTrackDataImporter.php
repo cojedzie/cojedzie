@@ -20,6 +20,7 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\ProgressReporterInterface;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -27,7 +28,6 @@ use App\Service\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Illuminate\Support\Collection;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\Service\ResetInterface;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
@@ -45,10 +45,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $this->idUtils = $idUtils;
     }
 
-    public function import()
+    public function import(ProgressReporterInterface $reporter)
     {
-        $this->importTracksFromZtmApi();
-        $this->importStopsInTracksFromZtmApi();
+        $this->importTracksFromZtmApi($reporter->subtask('Import tracks'));
+        $this->importStopsInTracksFromZtmApi($reporter->subtask('Import stops in tracks'));
     }
 
     public function getDependencies(): array
@@ -59,7 +59,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         ];
     }
 
-    private function importTracksFromZtmApi()
+    private function importTracksFromZtmApi(ProgressReporterInterface $reporter)
     {
         $this->connection->beginTransaction();
 
@@ -70,6 +70,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             ->andWhere('t.id IN (:ids)')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER);
 
+        $count = 0;
         foreach (IterableUtils::batch($this->getTracksFromZtmApi(), 100) as $batch) {
             $ids = array_keys($batch);
             $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
@@ -92,12 +93,15 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                     );
                 }
             }
+
+            $reporter->progress($count += count($batch));
         }
 
+        $reporter->progress($count, comment: 'OK', finished: true);
         $this->connection->commit();
     }
 
-    private function importStopsInTracksFromZtmApi()
+    private function importStopsInTracksFromZtmApi(ProgressReporterInterface $reporter)
     {
         $this->connection->beginTransaction();
 
@@ -115,6 +119,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $deleteStopsPreparedQuery = $this->connection->prepare($deleteStopsSql);
         $updateFinalStopInTrackPreparedQuery = $this->connection->prepare($updateFinalStopInTrackSql);
 
+        $count = 0;
         foreach ($this->getTrackStopsFromZtmApi() as $trackId => $stops) {
             // clean all stops related with this track
             $deleteStopsPreparedQuery->executeQuery(['tid' => $trackId]);
@@ -123,12 +128,16 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 $this->connection->insert('track_stop', $stop);
             }
 
+            $reporter->progress($count += 1, comment: sprintf('Importing stops in track %s', $trackId));
+
             // set final id on track to last stop
             $updateFinalStopInTrackPreparedQuery->executeQuery([
                 'tid' => $trackId,
                 'sid' => $this->connection->lastInsertId(),
             ]);
         }
+
+        $reporter->progress($count, comment: 'Imported stops for all tracks', finished: true);
 
         $this->connection->commit();
     }

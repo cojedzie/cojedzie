@@ -20,6 +20,7 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\ProgressReporterInterface;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -41,7 +42,7 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
         $this->idUtils = $idUtils;
     }
 
-    public function import()
+    public function import(ProgressReporterInterface $reporter)
     {
         $this->connection->beginTransaction();
 

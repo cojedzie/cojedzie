@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,12 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Service;
+namespace App\DataImport;
 
-interface DataImporter
+interface ProgressReporterInterface
 {
-    public function import();
-    public function isOutdated(): bool;
-    public function getDependencies(): array;
-    public function getPriority(): int;
+    /**
+     * Updates progress of the whole task.
+     */
+    public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void;
+
+    /**
+     * Marks milestone in the process.
+     */
+    public function milestone(string $comment): void;
+
+    /**
+     * Allows creating subtasks
+     */
+    public function subtask(string $name): ProgressReporterInterface;
 }

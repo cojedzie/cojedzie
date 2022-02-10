@@ -20,6 +20,7 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\ProgressReporterInterface;
 use App\Model\Line as LineModel;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
@@ -47,7 +48,8 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         $this->httpClient = $httpClient;
         $this->idUtils = $idUtils;
     }
-    public function import()
+
+    public function import(ProgressReporterInterface $reporter)
     {
         $this->connection->beginTransaction();
 
@@ -58,8 +60,8 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
             ->andWhere('l.id IN (:ids)')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER);
 
-        foreach (IterableUtils::batch($this->getLinesFromZtmApi(), 100) as $batch)
-        {
+        $count = 0;
+        foreach (IterableUtils::batch($this->getLinesFromZtmApi(), 100) as $batch) {
             $ids = array_keys($batch);
             $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
             $existing = $query->execute()->fetchFirstColumn();
@@ -81,8 +83,11 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                     );
                 }
             }
+
+            $reporter->progress($count += count($batch));
         }
 
+        $reporter->progress($count, comment: 'OK', finished: true);
         $this->connection->commit();
     }
 

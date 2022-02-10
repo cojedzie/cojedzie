@@ -30,7 +30,7 @@ services:
     App\Provider\Provider:
       tags: [ app.provider ]
 
-    App\Service\DataImporter:
+    App\DataImport\DataImporter:
       tags: [ app.data_importer ]
 
     App\DataConverter\Converter:

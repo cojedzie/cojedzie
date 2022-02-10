@@ -20,22 +20,24 @@
 
 namespace App\Service;
 
-use Doctrine\DBAL\Schema\Table;
+use App\DataImport\DataImporter;
+use App\DataImport\ProgressReporterFactory;
+use App\DataImport\SectionalProgressReporterInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Kadet\Functional as f;
 
 class DataUpdater
 {
     const UPDATE_EVENT = 'app.data_update';
 
     private EntityManagerInterface $em;
-
+    private ProgressReporterFactory $progressReporterFactory;
     /** @var iterable<DataImporter> */
     private iterable $importers;
 
-    public function __construct(EntityManagerInterface $em, iterable $importers)
+    public function __construct(EntityManagerInterface $em, ProgressReporterFactory $progressReporterFactory, iterable $importers)
     {
         $this->em = $em;
+        $this->progressReporterFactory = $progressReporterFactory;
         $this->importers = $importers;
     }
 
@@ -45,12 +47,12 @@ class DataUpdater
 
         $connection = $this->em->getConnection();
         $connection->getConfiguration()->setSQLLogger(null);
+        $reporter = $this->progressReporterFactory->create();
 
         /** @var DataImporter $updater */
         foreach ($this->getDataUpdatersInTopologicalOrder() as $updater) {
-            $updater->import();
+            $updater->import($reporter->subtask($updater->getDescription()));
             gc_collect_cycles();
-            echo "Memory usage: ".memory_get_usage(true).", peak: ".memory_get_peak_usage(true).PHP_EOL;
         }
     }
 
@@ -62,7 +64,7 @@ class DataUpdater
 
         foreach ($this->importers as $importer) {
             $nodes[get_class($importer)] = [
-                'value' => $importer,
+                'value'        => $importer,
                 'dependencies' => $importer->getDependencies(),
             ];
 
