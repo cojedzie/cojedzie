@@ -111,4 +111,9 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
             ];
         }
     }
+
+    public function getDescription(): string
+    {
+        return "[ZTM Gdańsk] Import stops";
+    }
 }

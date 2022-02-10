@@ -21,6 +21,7 @@
 namespace App\Service;
 
 use App\DataImport\DataImporter;
+use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Provider\Provider;
 use Doctrine\DBAL\Connection;
@@ -60,7 +61,7 @@ class ProviderDataImporter implements DataImporter
                 $this->connection->insert('provider', array_merge($data, ['id' => $id]));
             }
 
-            $reporter->milestone($provider->getName());
+            $reporter->milestone($provider->getName(), type: MilestoneType::Success);
         }
     }
 
