@@ -20,6 +20,7 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\ProgressReporterInterface;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -27,6 +28,7 @@ use Carbon\Carbon;
 use Cerbero\JsonObjects\JsonObjects;
 use Cerbero\JsonObjects\JsonObjectsException;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\Query\Expr;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
@@ -41,15 +43,17 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $this->idUtils = $idUtils;
     }
 
-    public function import()
+    public function import(ProgressReporterInterface $reporter)
     {
-        $existingLineIds = $this->connection->createQueryBuilder()
+        $existingLineIdsQueryResult = $this->connection->createQueryBuilder()
             ->from('line', 'l')
             ->select('id')
             ->where('l.provider_id = :provider_id')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-            ->execute()
-            ->iterateColumn();
+            ->execute();
+
+        $existingLineIds = $existingLineIdsQueryResult->iterateColumn();
+        $existingLineCount = $existingLineIdsQueryResult->rowCount();
 
         $existingStopIds = $this->connection->createQueryBuilder()
             ->from('stop', 's')
@@ -59,17 +63,19 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->execute()
             ->fetchFirstColumn();
 
+        $count = 0;
         foreach ($existingLineIds as $lineId) {
-            echo "Importing line ".$lineId.PHP_EOL;
             try {
                 $this->connection->beginTransaction();
                 $this->importScheduleOfLine($lineId, $existingStopIds);
                 $this->connection->commit();
             } catch (JsonObjectsException $exception) {
                 $this->connection->rollBack();
-                echo "Failed to import line ".$lineId.": ".$exception->getMessage().PHP_EOL;
+                $reporter->milestone("Failed to import line ".$lineId.": ".$exception->getMessage());
             }
+            $reporter->progress($count++, max: $existingLineCount, comment: sprintf("Imported line %s", $lineId));
         }
+        $reporter->progress($count, comment: 'Imported all lines', finished: true);
     }
 
     private function importScheduleOfLine(string $lineId, array $existingStopIds)

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,29 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Service;
+namespace App\DataImport;
 
-use App\DataImport\DataImporter;
-
-abstract class AbstractDataImporter implements DataImporter
+interface DataImporter
 {
-    public function isOutdated(): bool
-    {
-        return true;
-    }
-
-    public function getDependencies(): array
-    {
-        return [ ProviderDataImporter::class ];
-    }
-
-    public function getPriority(): int
-    {
-        return 0;
-    }
-
-    public function getDescription(): string
-    {
-        return get_class($this);
-    }
+    public function import(ProgressReporterInterface $reporter);
+    public function isOutdated(): bool;
+    public function getDependencies(): array;
+    public function getPriority(): int;
+    public function getDescription(): string;
 }

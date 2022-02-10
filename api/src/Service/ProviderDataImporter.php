@@ -20,10 +20,10 @@
 
 namespace App\Service;
 
+use App\DataImport\DataImporter;
+use App\DataImport\ProgressReporterInterface;
 use App\Provider\Provider;
-use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use Doctrine\DBAL\Connection;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ProviderDataImporter implements DataImporter
 {
@@ -37,7 +37,7 @@ class ProviderDataImporter implements DataImporter
         $this->providers = $providers;
     }
 
-    public function import()
+    public function import(ProgressReporterInterface $reporter)
     {
         $existing = $this->connection->createQueryBuilder()
             ->from('provider', 'p')
@@ -59,6 +59,8 @@ class ProviderDataImporter implements DataImporter
             } else {
                 $this->connection->insert('provider', array_merge($data, ['id' => $id]));
             }
+
+            $reporter->milestone($provider->getName());
         }
     }
 
@@ -75,5 +77,10 @@ class ProviderDataImporter implements DataImporter
     public function getPriority(): int
     {
         return 1024;
+    }
+
+    public function getDescription(): string
+    {
+        return 'Synchronise provider entities';
     }
 }

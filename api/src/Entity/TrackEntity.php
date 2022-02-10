@@ -76,6 +76,7 @@ class TrackEntity implements Entity, Fillable
      *
      * @var TrackStopEntity
      * @ORM\OneToOne(targetEntity=TrackStopEntity::class, fetch="LAZY")
+     * @ORM\JoinColumn(name="final_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $final;
 
