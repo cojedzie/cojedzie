@@ -20,21 +20,35 @@
 
 namespace App\DataImport;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProgressReporterFactory implements EventSubscriberInterface
 {
-    private InputInterface $input;
-    private ConsoleOutputInterface $output;
+    private ?InputInterface $input = null;
+    private ?ConsoleOutputInterface $output = null;
+    private LoggerInterface $logger;
+
+    private bool $isMessageConsumer = false;
+    private bool $isConsole;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->isConsole = php_sapi_name() === 'cli';
+        $this->logger = $logger;
+    }
 
     public function create(): ProgressReporterInterface
     {
-        return new ConsoleProgressReporter($this->input, $this->output);
+        if ($this->isConsole && !$this->isMessageConsumer) {
+            return new ConsoleProgressReporter($this->input, $this->output);
+        }
+
+        return new LoggerProgressReporter($this->logger);
     }
 
     public static function getSubscribedEvents()
@@ -49,5 +63,7 @@ class ProgressReporterFactory implements EventSubscriberInterface
         $this->input = $event->getInput();
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->output = $event->getOutput();
+
+        $this->isMessageConsumer = str_starts_with($event->getCommand()->getName(), 'messenger:');
     }
 }

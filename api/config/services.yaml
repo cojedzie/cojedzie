@@ -110,6 +110,15 @@ services:
     arguments:
       $providers: !tagged_iterator app.provider
 
+  app.import.logger: '@monolog.logger.import'
+
+  app.import.progress_reporter_factory:
+    class: App\DataImport\ProgressReporterFactory
+    arguments:
+      $logger: '@app.import.logger'
+
+  App\DataImport\ProgressReporterFactory: '@app.import.progress_reporter_factory'
+
   # Context Providers
   App\Context\FederationContext:
     arguments:
