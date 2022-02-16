@@ -60,11 +60,11 @@ class ConsoleProgressReporter implements ProgressReporterInterface
 
     public function milestone(string $comment, MilestoneType $type = MilestoneType::Info): void
     {
-        [ $icon, $color ] = match ($type) {
+        [$icon, $color] = match ($type) {
             MilestoneType::Warning => ['⚠️', 'yellow'],
             MilestoneType::Success => ['✔', 'bright-green'],
-            MilestoneType::Error   => ['✖', 'red'],
-            default => [ '•', null ],
+            MilestoneType::Error => ['✖', 'red'],
+            default => ['•', null],
         };
 
         $comment = sprintf('%s %s', $icon, $comment);
@@ -92,7 +92,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
 
     private function updateProgressBarMessage()
     {
-        $format = $this->indentation();
+        $format = $this->indentation();;
 
         if ($this->progressBar->getMaxSteps()) {
             $format .= '[%bar%] %current%/%max% %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%';
@@ -118,7 +118,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
             $this->depth === 0 => 'green',
             $this->depth === 1 => 'bright-green',
             $this->depth === 2 => 'bright-yellow',
-            $this->depth >= 3  => 'yellow'
+            $this->depth >= 3 => 'yellow'
         };
     }
 }
