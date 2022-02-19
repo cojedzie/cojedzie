@@ -31,15 +31,12 @@ class ProgressReporterFactory implements EventSubscriberInterface
 {
     private ?InputInterface $input = null;
     private ?ConsoleOutputInterface $output = null;
-    private LoggerInterface $logger;
 
     private bool $isMessageConsumer = false;
-    private bool $isConsole;
+    private bool $isConsole = false;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
-        $this->isConsole = php_sapi_name() === 'cli';
-        $this->logger = $logger;
     }
 
     public function create(): ProgressReporterInterface
@@ -60,9 +57,12 @@ class ProgressReporterFactory implements EventSubscriberInterface
 
     public function handleConsoleCommandEvent(ConsoleCommandEvent $event)
     {
-        $this->input = $event->getInput();
-        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        $this->output = $event->getOutput();
+        if ($event->getOutput() instanceof ConsoleOutputInterface) {
+            $this->input = $event->getInput();
+            /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
+            $this->output = $event->getOutput();
+            $this->isConsole = true;
+        }
 
         $this->isMessageConsumer = str_starts_with($event->getCommand()->getName(), 'messenger:');
     }
