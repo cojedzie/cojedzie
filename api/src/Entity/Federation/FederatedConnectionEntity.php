@@ -28,7 +28,7 @@ use App\Serialization\SerializeAs;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -78,7 +78,7 @@ class FederatedConnectionEntity implements Referable, Fillable
      * @ORM\Column(type="uuid")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=UuidV4Generator::class)
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
      *
      * @Serializer\Type("uuid")
      */
