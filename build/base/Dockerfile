@@ -2,14 +2,14 @@ FROM php:8.1-alpine
 
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
 WORKDIR /var/www
 
+COPY composer.json composer.lock ./
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql;
 
-COPY composer.json composer.lock ./
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN apk add git && \
     composer install --no-dev --no-scripts --no-plugins --prefer-dist --no-progress --no-interaction && \
