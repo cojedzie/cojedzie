@@ -39,57 +39,55 @@ class Stop implements Referable, Fillable, DTO
      *
      * @var string
      * @OA\Property(example="Jasień PKM")
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private string $name;
 
     /**
      * Optional stop description, should not be longer than 255 chars.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $description = null;
 
     /**
      * Optional stop variant - for example number of shed.
      *
      * @OA\Property(example="01")
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $variant = null;
 
     /**
      * Optional stop location in form of latitude and longitude
-     *
-     * @Serializer\Type(Location::class)
      */
+    #[Serializer\Type(Location::class)]
     private ?Location $location = null;
 
     /**
      * True if stop is available only on demand
      *
-     * @Serializer\Type("bool")
      * @OA\Property(example=false)
      */
+    #[Serializer\Type('bool')]
     private bool $onDemand = false;
 
     /**
      * Name of group that this stop is part of.
      *
-     * @Serializer\Type("string")
      * @OA\Property(example="Jasień PKM")
      */
+    #[Serializer\Type('string')]
     private ?string $group = null;
 
     /**
      * Collection of possible destination stops.
      *
-     * @Serializer\Groups({"WithDestinations"})
-     * @Serializer\Type("Collection")
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Destination::class, groups={"Default"})))
      *
      * @var Collection<Destination>
      */
+    #[Serializer\Groups(['WithDestinations'])]
+    #[Serializer\Type('Collection')]
     private Collection $destinations;
 
     public function __construct()

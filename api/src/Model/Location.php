@@ -27,17 +27,17 @@ class Location implements DTO
 {
     /**
      * Locations longitude.
-     * @Serializer\Type("float")
-     * @Serializer\SerializedName("lng")
      */
+    #[Serializer\Type('float')]
+    #[Serializer\SerializedName('lng')]
     private $longitude;
 
     /**
      * Locations latitude.
-     * @Serializer\Type("float")
-     * @Serializer\SerializedName("lat")
      * @OA\Property()
      */
+    #[Serializer\Type('float')]
+    #[Serializer\SerializedName('lat')]
     private $latitude;
 
     public function __construct(float $longitude = 0.0, float $latitude = 0.0)

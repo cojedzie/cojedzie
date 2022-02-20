@@ -36,18 +36,18 @@ class Aggregated implements Fillable, DTO
      * Time status for this node.
      *
      * @OA\Property(ref=@Model(type=Time::class))
-     * @Serializer\Type(Time::class)
      */
+    #[Serializer\Type(Time::class)]
     private Time $time;
 
     /**
      * All endpoints defined for this node.
      *
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
-     * @Serializer\Type("Collection<App\Model\Status\Endpoint>")
      *
      * @var Collection<Endpoint>
      */
+    #[Serializer\Type('Collection<App\Model\Status\Endpoint>')]
     private Collection $endpoints;
 
     public function getEndpoints(): Collection

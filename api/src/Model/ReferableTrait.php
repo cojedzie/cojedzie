@@ -27,11 +27,11 @@ trait ReferableTrait
 {
     /**
      * Identifier coming from provider service
-     * @Serializer\Type("string")
-     * @Serializer\Groups({"Default", "Identity", "Minimal"})
      *
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
+    #[Serializer\Type('string')]
+    #[Serializer\Groups(['Default', 'Identity', 'Minimal'])]
     private string $id;
 
     public function getId(): string

@@ -37,11 +37,10 @@ class FederatedServerEntity implements Referable, Fillable
 
     /**
      * Unique identifier for this particular connection.
-     *
-     * @Serializer\Type("uuid")
      */
     #[ORM\Column(type: 'uuid')]
     #[ORM\Id]
+    #[Serializer\Type('uuid')]
     private Uuid $id;
 
     /**
@@ -65,17 +64,16 @@ class FederatedServerEntity implements Referable, Fillable
     /**
      * All servers that are connected at the moment.
      * @var Collection<FederatedConnectionEntity>
-     * @Serializer\Groups({"Connections", "All"})
      */
     #[ORM\OneToMany(targetEntity: FederatedConnectionEntity::class, cascade: ['persist'], mappedBy: 'server', orphanRemoval: true)]
+    #[Serializer\Groups(['Connections', 'All'])]
     private readonly Collection $connections;
 
     /**
      * Secret for that server required for authenticating some endpoints.
-     *
-     * @Serializer\Exclude()
      */
     #[ORM\Column(type: 'string')]
+    #[Serializer\Exclude]
     private string $secret;
 
     public function __construct()

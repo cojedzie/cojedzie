@@ -33,36 +33,36 @@ class Endpoint implements Fillable, DTO
     /**
      * Name of the endpoint, machine readable
      *
-     * @Serializer\Type("string")
      * @OA\Property(type="string", example="v1_provider_list")
      */
+    #[Serializer\Type('string')]
     private string $name;
 
     /**
      * Route template for that endpoint.
      *
-     * @Serializer\Type("string")
      * @OA\Property(type="string", example="/api/v1/providers")
      */
+    #[Serializer\Type('string')]
     private string $template;
 
     /**
      * Maximum version supported for that endpoint.
      *
-     * @Serializer\Type("string")
      * @OA\Property(type="string", format="version", example="1.0")
      */
+    #[Serializer\Type('string')]
     private string $version;
 
     /**
      * Methods supported for that endpoint.
      *
-     * @Serializer\Type("array<string>")
      * @OA\Property(
      *     type="array",
      *     @OA\Items(type="string", enum={"GET", "POST", "DELETE", "PUT", "PATCH"})
      * )
      */
+    #[Serializer\Type('array<string>')]
     private array $methods;
 
     public function getName(): string

@@ -31,16 +31,16 @@ class Track implements Referable, Fillable, DTO
 
     /**
      * Line variant describing track, for example 'a'
-     * @Serializer\Type("string")
      * @OA\Property(example="a")
      *
      */
+    #[Serializer\Type('string')]
     private ?string $variant = null;
 
     /**
      * Track description
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $description = null;
 
     /**
@@ -52,16 +52,16 @@ class Track implements Referable, Fillable, DTO
     /**
      * Stops in track
      * @var Collection<Stop>
-     * @Serializer\Type("Collection")
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      */
+    #[Serializer\Type('Collection')]
     private Collection $stops;
 
     /**
      * Destination stop of this track
-     * @Serializer\Type(Stop::class)
      * @OA\Property(ref=@Model(type=Stop::class))
      */
+    #[Serializer\Type(Stop::class)]
     private ?Stop $destination = null;
 
     /**

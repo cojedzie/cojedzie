@@ -72,13 +72,12 @@ class FederatedConnectionEntity implements Referable, Fillable
 
     /**
      * Unique identifier for this particular connection.
-     *
-     * @Serializer\Type("uuid")
      */
     #[ORM\Column(type: 'uuid')]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    #[Serializer\Type('uuid')]
     private readonly Uuid $id;
 
     /**

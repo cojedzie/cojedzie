@@ -30,29 +30,29 @@ class Trip implements Referable, Fillable, DTO
 
     /**
      * Line variant describing trip, for example 'a'
-     * @Serializer\Type("string")
      *
      */
+    #[Serializer\Type('string')]
     private ?string $variant = null;
 
     /**
      * Trip description
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $description = null;
 
     /**
      * Line reference
-     * @Serializer\Type("App\Model\Track")
      * @SerializeAs({"Default": "Identity"})
      */
+    #[Serializer\Type(Track::class)]
     private ?Track $track = null;
 
     /**
      * Stops in track
-     * @Serializer\Type("Collection<App\Model\ScheduledStop>")
      * @var Collection<ScheduledStop>
      */
+    #[Serializer\Type('Collection<App\Model\ScheduledStop>')]
     private Collection $schedule;
 
     /**

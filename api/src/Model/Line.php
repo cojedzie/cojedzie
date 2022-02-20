@@ -38,14 +38,13 @@ class Line implements Fillable, Referable, DTO
 
     /**
      * Line symbol, for example '10', or 'A'
-     * @Serializer\Type("string")
      * @OA\Property(example="10")
      */
+    #[Serializer\Type('string')]
     private string $symbol;
 
     /**
      * Line type tram, bus or whatever.
-     * @Serializer\Type("string")
      * @OA\Property(type="string", enum={
      *     Line::TYPE_BUS,
      *     Line::TYPE_UNKNOWN,
@@ -55,34 +54,35 @@ class Line implements Fillable, Referable, DTO
      *     Line::TYPE_TROLLEYBUS
      * })
      */
+    #[Serializer\Type('string')]
     private string $type;
 
     /**
      * Is line considered as fast line?
-     * @Serializer\Type("bool")
      */
+    #[Serializer\Type('bool')]
     private bool $fast = false;
 
     /**
      * Is line considered as night line?
-     * @Serializer\Type("bool")
      */
+    #[Serializer\Type('bool')]
     private bool $night = false;
 
     /**
      * Line operator
-     * @Serializer\Type(Operator::class)
      * @OA\Property(ref=@Model(type=Operator::class, groups={"Identity"}))
      */
+    #[Serializer\Type(Operator::class)]
     private Operator $operator;
 
     /**
      * Tracks for this line
-     * @Serializer\Type("Collection")
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Track::class)))
-     * @Serializer\Groups({"Full"})
      * @var Collection<Track>
      */
+    #[Serializer\Type('Collection')]
+    #[Serializer\Groups(['Full'])]
     private Collection $tracks;
 
 

@@ -31,17 +31,17 @@ class Time implements DTO
     /**
      * Current date and time on node.
      *
-     * @Serializer\Type("Carbon")
      * @OA\Property(type="string", format="date-time")
      */
+    #[Serializer\Type('Carbon')]
     private Carbon $current;
 
     /**
      * Timezone for this node.
      *
-     * @Serializer\Type("string")
      * @OA\Property(type="string", format="timezone", example="Europe/Warsaw")
      */
+    #[Serializer\Type('string')]
     private string $timezone;
 
     public static function createFromDateTime(Carbon $now)

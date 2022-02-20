@@ -42,35 +42,34 @@ class Node implements Fillable, DTO
     /**
      * Unique identifier for node.
      *
-     * @Serializer\Type("uuid")
      * @OA\Property(type="string", example="a022a57b-866c-4f59-a3cf-2271d958552c")
      */
+    #[Serializer\Type('uuid')]
     private Uuid $id;
 
     /**
      * Base URL address for this particular connection.
-     * @Serializer\Type("string")
      * @OA\Property(type="string", format="url", example="https://cojedzie.pl")
      *
      */
+    #[Serializer\Type('string')]
     private string $url;
 
     /**
      * Type of the node.
      *
-     * @Serializer\Type("string")
      * @OA\Property(type="string", format="url", example=Node::TYPE_HUB, enum=Node::TYPES)
      */
+    #[Serializer\Type('string')]
     private string $type;
 
     /**
      * All endpoints offered by this node.
      *
-     * @Serializer\Type("Collection")
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
-     *
      * @var Collection<Endpoint>
      */
+    #[Serializer\Type('Collection')]
     private Collection $endpoints;
 
     public function getId(): Uuid

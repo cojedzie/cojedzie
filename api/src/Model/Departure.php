@@ -32,66 +32,66 @@ class Departure implements Fillable, DTO
 
     /**
      * Unique identifier of departure, can be meaningless.
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $key = null;
 
     /**
      * Information about line.
-     * @Serializer\Type(Line::class)
      * @SerializeAs({"Default": "Default"})
      * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      *
      */
+    #[Serializer\Type(Line::class)]
     private Line $line;
 
     /**
      * Information about line.
-     * @Serializer\Type(Track::class)
      * @SerializeAs({"Default": "Identity"})
      * @OA\Property(ref=@Model(type=Track::class, groups={"Identity"}))
      */
+    #[Serializer\Type(Track::class)]
     private ?Track $track = null;
 
     /**
      * Information about line.
-     * @Serializer\Type(Trip::class)
      * @SerializeAs({"Default": "Identity"})
      * @OA\Property(ref=@Model(type=Trip::class, groups={"Identity"}))
      */
+    #[Serializer\Type(Trip::class)]
     private ?Trip $trip = null;
 
     /**
      * Information about stop.
-     * @Serializer\Type(Stop::class)
      */
+    #[Serializer\Type(Stop::class)]
     private Stop $stop;
 
     /**
      * Vehicle identification.
-     * @Serializer\Type(Vehicle::class)
      */
+    #[Serializer\Type(Vehicle::class)]
     private ?Vehicle $vehicle = null;
 
     /**
      * Displayed destination.
-     * @Serializer\Type("string")
      * @OA\Property(example="Łostowice Świętokrzyska")
      */
+    #[Serializer\Type('string')]
     private ?string $display = null;
 
     /**
      * Estimated time of departure, null if case of no realtime data.
-     * @Serializer\Type("Carbon")
      * @OA\Property(type="string", format="date-time")
      */
+    #[Serializer\Type('Carbon')]
     private ?Carbon $estimated = null;
 
     /**
      * Scheduled time of departure.
-     * @Serializer\Type("Carbon")
      * @OA\Property(type="string", format="date-time")
      */
+    #[Serializer\Type('Carbon')]
     private Carbon $scheduled;
 
     public function getKey(): ?string
@@ -190,11 +190,11 @@ class Departure implements Fillable, DTO
     }
 
     /**
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("int")
      * @OA\Property(type="int")
      */
-    public function getDelay(): ?int
+    #[Serializer\VirtualProperty]
+    #[Serializer\Type('int')]
+    public function getDelay() : ?int
     {
         return $this->getEstimated()
             ? $this->getScheduled()->diffInSeconds($this->getEstimated(), false)

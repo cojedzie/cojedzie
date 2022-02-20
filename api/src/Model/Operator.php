@@ -28,26 +28,26 @@ class Operator implements Fillable, Referable, DTO
 
     /**
      * Describes operator name
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $name = null;
 
     /**
      * Contact email to operator
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $email = null;
 
     /**
      * URL of operators page
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $url = null;
 
     /**
      * Contact phone to operator
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     private ?string $phone = null;
 
     public function getName(): ?string
