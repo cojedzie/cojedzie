@@ -42,23 +42,22 @@ use Symfony\Component\Routing\Annotation\Route;
  * Controller used for managing resources related to the federation feature.
  *
  * @package App\Controller
- * @Route("/federation", name="federation_")
  *
  * @OA\Tag(name="Federation")
  */
+#[Route(path: '/federation', name: 'federation_')]
 class FederationController extends Controller
 {
     // fixme: add access control
-
     /**
      * Create new connection under some server.
      *
-     * @Route("/connections", name="connect", methods={"POST"}, options={"version"="1.0"})
      *
      * @OA\RequestBody(
      *     @OA\JsonContent(ref=@Model(type=CreateFederatedConnectionCommandType::class))
      * )
      */
+    #[Route(path: '/connections', name: 'connect', methods: ['POST'], options: ['version' => '1.0'])]
     public function connect(Request $request, EntityManagerInterface $manager, MessageBusInterface $bus)
     {
         $form = $this->createForm(
@@ -99,8 +98,6 @@ class FederationController extends Controller
     /**
      * Mark specified connection as closed.
      *
-     * @Route("/connections/{connection}", name="disconnect", methods={"DELETE"}, options={"version"="1.0"})
-     *
      * @OA\Parameter(
      *     name="connection",
      *     description="Identifier of connection to be closed",
@@ -109,6 +106,7 @@ class FederationController extends Controller
      *     @OA\Schema(type="string", format="uuid")
      * )
      */
+    #[Route(path: '/connections/{connection}', name: 'disconnect', methods: ['DELETE'], options: ['version' => '1.0'])]
     public function disconnect(
         Request $request,
         FederatedConnectionEntity $connection,

@@ -34,21 +34,21 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class DeparturesController
  *
- * @Route("/{provider}/departures", name="departure_")
  *
  * @OA\Tag(name="Departures")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */
+#[Route(path: '/{provider}/departures', name: 'departure_')]
 class DeparturesController extends Controller
 {
     /**
-     * @Route("/{stop}", name="stop", methods={"GET"}, options={"version": "1.0"})
      * @OA\Response(
      *     description="Gets departures from particular stop.",
      *     response=200,
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Departure::class)))
      * )
      */
+    #[Route(path: '/{stop}', name: 'stop', methods: ['GET'], options: ['version' => '1.0'])]
     public function stop(DepartureRepository $departures, StopRepository $stops, $stop, Request $request)
     {
         $stop = $stops->first(new IdFilter($stop));
@@ -57,7 +57,6 @@ class DeparturesController extends Controller
     }
 
     /**
-     * @Route("", name="list", methods={"GET"}, options={"version": "1.0"})
      *
      * @OA\Response(
      *     description="Gets departures from given stops.",
@@ -79,6 +78,7 @@ class DeparturesController extends Controller
      *     in="query"
      * )
      */
+    #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {
         $stops  = $stops->all(new IdFilter($request->query->get('stop', [])));

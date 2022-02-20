@@ -42,10 +42,10 @@ use Symfony\Component\Uid\NilUuid;
  * Controller used for managing resources related to the federation feature.
  *
  * @package App\Controller
- * @Route("/network", name="network_")
  *
  * @OA\Tag(name="Network")
  */
+#[Route(path: '/network', name: 'network_')]
 class NetworkController extends Controller
 {
     public function __construct(
@@ -58,21 +58,15 @@ class NetworkController extends Controller
     }
 
     /**
-     * @Route("/nodes", name="nodes", methods={"GET"}, options={"version": "1.0"})
-     *
      * @OA\Response(
      *     response=200,
      *     description="Nodes that are currently available in the network.",
      *     @OA\JsonContent(ref=@Model(type=Node::class))
      * )
      */
-    public function nodes(
-        FederatedConnectionEntityRepository $connectionRepository,
-        Converter $converter,
-        Discovery $discovery,
-        Authorization $authorization,
-        Request $request
-    ) {
+    #[Route(path: '/nodes', name: 'nodes', methods: ['GET'], options: ['version' => '1.0'])]
+    public function nodes(FederatedConnectionEntityRepository $connectionRepository, Converter $converter, Discovery $discovery, Authorization $authorization, Request $request)
+    {
         $discovery->addLink($request);
 
         $nodes = collect($connectionRepository->findAllReadyConnections())

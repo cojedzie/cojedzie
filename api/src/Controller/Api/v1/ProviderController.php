@@ -34,15 +34,12 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class ProviderController
  * @package App\Controller\Api\v1
  *
- * @Route("/providers", name="provider_")
- *
  * @OA\Tag(name="Providers")
  */
+#[Route(path: '/providers', name: 'provider_')]
 class ProviderController extends Controller
 {
-    /**
-     * @Route("", name="list", methods={"GET"}, options={"version"="1.0"})
-     */
+    #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     public function index(ProviderResolver $resolver, Converter $converter)
     {
         $providers = $resolver
@@ -54,9 +51,7 @@ class ProviderController extends Controller
         return $this->json($providers);
     }
 
-    /**
-     * @Route("/{provider}", name="details", methods={"GET"}, options={"version"="1.0"})
-     */
+    #[Route(path: '/{provider}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
     public function one(ProviderResolver $resolver, Converter $converter, $provider)
     {
         try {

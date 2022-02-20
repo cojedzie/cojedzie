@@ -40,16 +40,14 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class StopsController
  *
  * @package App\Controller
- * @Route("/{provider}/stops", name="stop_")
  *
  * @OA\Tag(name="Stops")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */
+#[Route(path: '/{provider}/stops', name: 'stop_')]
 class StopsController extends Controller
 {
     /**
-     * @Route("", methods={"GET"}, name="list", options={"version": "1.0"})
-     *
      * @OA\Response(
      *     response=200,
      *     description="Returns all stops for specific provider, e.g. ZTM Gdańsk.",
@@ -63,6 +61,7 @@ class StopsController extends Controller
      *     @OA\Schema(type="array", @OA\Items(type="string"))
      * )
      */
+    #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.0'])]
     public function index(Request $request, StopRepository $stops)
     {
         $modifiers = $this->getModifiersFromRequest($request);
@@ -71,7 +70,6 @@ class StopsController extends Controller
     }
 
     /**
-     * @Route("/groups", name="groups", methods={"GET"}, options={"version"="1.0"})
      *
      * @OA\Response(
      *     response=200,
@@ -86,15 +84,14 @@ class StopsController extends Controller
      *     @OA\Schema(type="string")
      * )
      */
+    #[Route(path: '/groups', name: 'groups', methods: ['GET'], options: ['version' => '1.0'])]
     public function groups(Request $request, StopRepository $stops)
     {
         $modifiers = $this->getModifiersFromRequest($request);
-
         return $this->json(static::group($stops->all(...$modifiers))->toArray());
     }
 
     /**
-     * @Route("/{stop}", name="details", methods={"GET"}, options={"version"="1.0"})
      *
      * @OA\Response(
      *     response=200,
@@ -109,20 +106,20 @@ class StopsController extends Controller
      *     @OA\Schema(type="string")
      * )
      */
+    #[Route(path: '/{stop}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
     public function one(Request $request, StopRepository $stops, $stop)
     {
         return $this->json($stops->first(new IdFilter($stop), new With("destinations")));
     }
 
     /**
-     * @Route("/{stop}/tracks", name="tracks", methods={"GET"}, options={"version"="1.0"})
-     *
      * @OA\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
      *     @OA\JsonContent(ref=@Model(type=TrackStop::class))
      * )
      */
+    #[Route(path: '/{stop}/tracks', name: 'tracks', methods: ['GET'], options: ['version' => '1.0'])]
     public function tracks(TrackRepository $tracks, $stop)
     {
         return $this->json($tracks->stops(new RelatedFilter(Stop::reference($stop))));
