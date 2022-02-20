@@ -38,27 +38,27 @@ class Departure implements Fillable, DTO
 
     /**
      * Information about line.
-     * @SerializeAs({"Default": "Default"})
      * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      *
      */
     #[Serializer\Type(Line::class)]
+    #[SerializeAs(['Default' => 'Default'])]
     private Line $line;
 
     /**
      * Information about line.
-     * @SerializeAs({"Default": "Identity"})
      * @OA\Property(ref=@Model(type=Track::class, groups={"Identity"}))
      */
     #[Serializer\Type(Track::class)]
+    #[SerializeAs(['Default' => 'Identity'])]
     private ?Track $track = null;
 
     /**
      * Information about line.
-     * @SerializeAs({"Default": "Identity"})
      * @OA\Property(ref=@Model(type=Trip::class, groups={"Identity"}))
      */
     #[Serializer\Type(Trip::class)]
+    #[SerializeAs(['Default' => 'Identity'])]
     private ?Trip $trip = null;
 
     /**

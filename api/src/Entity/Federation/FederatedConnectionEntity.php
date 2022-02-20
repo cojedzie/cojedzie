@@ -82,10 +82,9 @@ class FederatedConnectionEntity implements Referable, Fillable
 
     /**
      * Federated server associated with this connection. In principle server can have multiple connections, it's recommended though.
-     *
-     * @SerializeAs({"Default": "Basic"})
      */
     #[ORM\ManyToOne(targetEntity: FederatedServerEntity::class, inversedBy: 'connections')]
+    #[SerializeAs(['Default' => 'Basic'])]
     private FederatedServerEntity $server;
 
     /**

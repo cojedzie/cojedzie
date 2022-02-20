@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Rector\Core\Configuration\Option;
 use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
+use Rector\Php80\Rector\Class_\DoctrineAnnotationClassToAttributeRector;
 use Rector\Php80\ValueObject\AnnotationToAttribute;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Symfony\Set\SensiolabsSetList;
@@ -27,11 +28,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->import(SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES);
     $containerConfigurator->import(SensiolabsSetList::FRAMEWORK_EXTRA_61);
 
-    $services->set(AnnotationToAttributeRector::class)->configure([
-        new AnnotationToAttribute(\JMS\Serializer\Annotation\Type::class),
-        new AnnotationToAttribute(\JMS\Serializer\Annotation\Groups::class),
-        new AnnotationToAttribute(\JMS\Serializer\Annotation\Exclude::class),
-        new AnnotationToAttribute(\JMS\Serializer\Annotation\VirtualProperty::class),
-        new AnnotationToAttribute(\JMS\Serializer\Annotation\SerializedName::class),
-    ]);
+    $services
+        ->set(DoctrineAnnotationClassToAttributeRector::class)
+        ->configure([
+            DoctrineAnnotationClassToAttributeRector::REMOVE_ANNOTATIONS => false,
+        ]);
+
+    $services
+        ->set(AnnotationToAttributeRector::class)
+        ->configure([
+            new AnnotationToAttribute(\JMS\Serializer\Annotation\Type::class),
+            new AnnotationToAttribute(\JMS\Serializer\Annotation\Groups::class),
+            new AnnotationToAttribute(\JMS\Serializer\Annotation\Exclude::class),
+            new AnnotationToAttribute(\JMS\Serializer\Annotation\VirtualProperty::class),
+            new AnnotationToAttribute(\JMS\Serializer\Annotation\SerializedName::class),
+
+            new AnnotationToAttribute(\App\Serialization\SerializeAs::class),
+        ]);
 };

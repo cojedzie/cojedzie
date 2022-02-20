@@ -20,6 +20,7 @@
 
 namespace App\Model;
 
+use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -74,6 +75,7 @@ class Line implements Fillable, Referable, DTO
      * @OA\Property(ref=@Model(type=Operator::class, groups={"Identity"}))
      */
     #[Serializer\Type(Operator::class)]
+    #[SerializeAs(['Default' => 'Identity'])]
     private Operator $operator;
 
     /**

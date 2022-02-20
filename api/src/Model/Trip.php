@@ -43,9 +43,9 @@ class Trip implements Referable, Fillable, DTO
 
     /**
      * Line reference
-     * @SerializeAs({"Default": "Identity"})
      */
     #[Serializer\Type(Track::class)]
+    #[SerializeAs(['Default' => 'Identity'])]
     private ?Track $track = null;
 
     /**

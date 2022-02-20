@@ -20,14 +20,14 @@
 
 namespace App\Serialization;
 
-use Doctrine\Common\Annotations\Annotation\Required;
-
 /**
  * @Annotation
  * @Target({"PROPERTY","METHOD","ANNOTATION"})
  */
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY | \Attribute::TARGET_CLASS)]
 class SerializeAs
 {
-    /** @var array<string, string> @Required() */
-    public $map;
+    public function __construct(public array $map)
+    {
+    }
 }

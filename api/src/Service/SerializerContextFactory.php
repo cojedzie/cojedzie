@@ -26,11 +26,12 @@ use JMS\Serializer\Metadata\PropertyMetadata;
 use JMS\Serializer\SerializationContext;
 use Metadata\AdvancedMetadataFactoryInterface;
 use Metadata\ClassHierarchyMetadata;
+use ReflectionAttribute;
 use function Kadet\Functional\Transforms\property;
 
 final class SerializerContextFactory
 {
-    public function __construct(private readonly AdvancedMetadataFactoryInterface $factory, private readonly Reader $reader)
+    public function __construct(private readonly AdvancedMetadataFactoryInterface $factory)
     {
     }
 
@@ -69,12 +70,29 @@ final class SerializerContextFactory
 
         try {
             $property = $reflection->getProperty($metadata->name);
-            /** @var SerializeAs $annotation */
-            return $this->reader->getPropertyAnnotation($property, SerializeAs::class);
+            $attributes = $property->getAttributes(SerializeAs::class, \ReflectionAttribute::IS_INSTANCEOF);
         } catch (\ReflectionException) {
             $method = $reflection->getMethod($metadata->getter);
-            return $this->reader->getMethodAnnotation($method, SerializeAs::class);
+            $attributes = $method->getAttributes(SerializeAs::class, \ReflectionAttribute::IS_INSTANCEOF);
         }
+
+        if (!isset($attributes)) {
+            return null;
+        }
+
+        /** @var SerializeAs[] $attributes */
+        $attributes = array_map(fn (ReflectionAttribute $attribute) => $attribute->newInstance(), $attributes);
+
+        if (count($attributes) === 1) {
+            return reset($attributes);
+        }
+
+        $map = [];
+        foreach ($attributes as $attribute) {
+            $map = [ ...$map, ...$attribute->map ];
+        }
+
+        return new SerializeAs(map: $map);
     }
 
     private function map(SerializeAs $annotation, array $groups)
@@ -85,7 +103,7 @@ final class SerializerContextFactory
             if (array_key_exists($group, $annotation->map)) {
                 $result[] = $annotation->map[$group];
             } else {
-                $result[] = $groups;
+                $result = [ ...$result, ...$groups ];
             }
         }
 
