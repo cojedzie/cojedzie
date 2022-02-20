@@ -57,7 +57,7 @@ final class SerializerContextFactory
 
                     $fields[$property->name] = $this->groups($class, $fieldGroups);
                 }
-            } catch (\ReflectionException $e) { }
+            } catch (\ReflectionException) { }
         }
 
         return array_merge($groups, $fields);
@@ -71,7 +71,7 @@ final class SerializerContextFactory
             $property = $reflection->getProperty($metadata->name);
             /** @var SerializeAs $annotation */
             return $this->reader->getPropertyAnnotation($property, SerializeAs::class);
-        } catch (\ReflectionException $exception) {
+        } catch (\ReflectionException) {
             $method = $reflection->getMethod($metadata->getter);
             return $this->reader->getMethodAnnotation($method, SerializeAs::class);
         }
