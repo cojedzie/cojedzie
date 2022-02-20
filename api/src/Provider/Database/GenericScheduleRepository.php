@@ -62,9 +62,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ->where('t.id in (:tracks)')
             ->getQuery()
             ->execute([
-                ':tracks' => $schedule->map(function (TripStopEntity $stop) {
-                    return $stop->getTrip()->getTrack()->getId();
-                })->all()
+                ':tracks' => $schedule->map(fn(TripStopEntity $stop) => $stop->getTrip()->getTrack()->getId())->all()
             ]);
 
         return $schedule->map(function (TripStopEntity $entity) use ($stop) {

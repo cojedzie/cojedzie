@@ -144,25 +144,14 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
 
     private function getModelClassForEntity(Entity $entity)
     {
-        switch (true) {
-            case $entity instanceof OperatorEntity:
-                return Operator::class;
-
-            case $entity instanceof LineEntity:
-                return Line::class;
-
-            case $entity instanceof TrackEntity:
-                return Track::class;
-
-            case $entity instanceof StopEntity:
-                return Stop::class;
-
-            case $entity instanceof TripEntity:
-                return Trip::class;
-
-            default:
-                return false;
-        }
+        return match (true) {
+            $entity instanceof OperatorEntity => Operator::class,
+            $entity instanceof LineEntity => Line::class,
+            $entity instanceof TrackEntity => Track::class,
+            $entity instanceof StopEntity => Stop::class,
+            $entity instanceof TripEntity => Trip::class,
+            default => false,
+        };
     }
 
     private function create(Entity $entity)

@@ -131,9 +131,7 @@ class StopsController extends Controller
     public static function group(Collection $stops)
     {
         return $stops->groupBy(
-            function (Stop $stop) {
-                return $stop->getGroup();
-            }
+            fn(Stop $stop) => $stop->getGroup()
         )->map(
             function ($stops, $key) {
                 $group = new StopGroup();

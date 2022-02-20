@@ -34,14 +34,12 @@ class DummyMessageRepository implements MessageRepository
             Message::TYPE_INFO,
             Message::TYPE_UNKNOWN,
             Message::TYPE_BREAKDOWN
-        ])->map(function ($type) {
-            return Message::createFromArray([
-                'message'   => 'Lorem ipsum dolor sit amet.',
-                'type'      => $type,
-                'validFrom' => Carbon::now(),
-                'validTo'   => Carbon::now()->addHour()
-            ]);
-        });
+        ])->map(fn($type) => Message::createFromArray([
+            'message'   => 'Lorem ipsum dolor sit amet.',
+            'type'      => $type,
+            'validFrom' => Carbon::now(),
+            'validTo'   => Carbon::now()->addHour()
+        ]));
     }
 
     public function getForStop(Stop $stop): Collection

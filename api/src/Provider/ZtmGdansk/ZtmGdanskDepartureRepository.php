@@ -62,9 +62,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
         $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractModifiers($modifiers));
 
-        $result = $this->pair($scheduled, $real)->filter(function (Departure $departure) use ($now) {
-            return $departure->getDeparture() > $now;
-        });
+        $result = $this->pair($scheduled, $real)->filter(fn(Departure $departure) => $departure->getDeparture() > $now);
 
         return $this->processResultWithModifiers($result, $modifiers);
     }
@@ -73,16 +71,14 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     {
         try {
             $estimates = file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId());
-            $estimates = json_decode($estimates, true)['delay'];
-        } catch (\Error $e) {
+            $estimates = json_decode($estimates, true, 512, JSON_THROW_ON_ERROR)['delay'];
+        } catch (\Error) {
             return collect();
         }
 
         $estimates = collect($estimates);
 
-        $lines = $estimates->map(function ($delay) {
-            return $delay['routeId'];
-        })->unique();
+        $lines = $estimates->map(fn($delay) => $delay['routeId'])->unique();
 
         $lines = $this->lines->all(new IdFilter($lines))->keyBy(t\property('id'));
 
@@ -151,14 +147,10 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 'estimated' => $real,
                 'scheduled' => $scheduled,
             ];
-        })->merge(collect($schedule)->map(function (ScheduledStop $scheduled) {
-            return [
-                'estimated' => null,
-                'scheduled' => $scheduled,
-            ];
-        }))->map(function ($pair) {
-            return $this->merge($pair['estimated'], $pair['scheduled']);
-        })->sortBy(function (Departure $departure) {
+        })->merge(collect($schedule)->map(fn(ScheduledStop $scheduled) => [
+            'estimated' => null,
+            'scheduled' => $scheduled,
+        ]))->map(fn($pair) => $this->merge($pair['estimated'], $pair['scheduled']))->sortBy(function (Departure $departure) {
             $time = $departure->getEstimated() ?? $departure->getScheduled();
             return $time->getTimestamp();
         });

@@ -26,15 +26,10 @@ class ZtmGdanskMessageTypeClassifier
 {
     public function classify(Message $message): string
     {
-        switch (true) {
-            case preg_match('/(awari|opóźnie)/i', $message->getMessage()):
-                return Message::TYPE_BREAKDOWN;
-
-            case preg_match('#gdansk.pl/powietrze#i', $message->getMessage()):
-                return false; // spam
-
-            default:
-                return Message::TYPE_INFO;
-        }
+        return match (true) {
+            preg_match('/(awari|opóźnie)/i', $message->getMessage()) => Message::TYPE_BREAKDOWN,
+            preg_match('#gdansk.pl/powietrze#i', $message->getMessage()) => false,
+            default => Message::TYPE_INFO,
+        };
     }
 }

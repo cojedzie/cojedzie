@@ -49,11 +49,9 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
     protected static function getHandlers()
     {
         return array_merge(parent::getHandlers(), [
-            With::class => function (With $modifier) {
-                return $modifier->getRelationship() === 'destinations'
-                    ? WithDestinationsDatabaseHandler::class
-                    : GenericWithDatabaseHandler::class;
-            },
+            With::class => fn(With $modifier) => $modifier->getRelationship() === 'destinations'
+                ? WithDestinationsDatabaseHandler::class
+                : GenericWithDatabaseHandler::class,
         ]);
     }
 }

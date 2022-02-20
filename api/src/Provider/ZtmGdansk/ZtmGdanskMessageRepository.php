@@ -42,9 +42,7 @@ class ZtmGdanskMessageRepository implements MessageRepository
 
     public function getAll(): Collection
     {
-        return collect($this->queryZtmApi())->unique(function ($message) {
-             return $message['messagePart1'] . $message['messagePart2'];
-        })->map(function ($message) {
+        return collect($this->queryZtmApi())->unique(fn($message) => $message['messagePart1'] . $message['messagePart2'])->map(function ($message) {
             $message = Message::createFromArray([
                 'message'   => trim($message['messagePart1'] . $message['messagePart2']),
                 'validFrom' => new Carbon($message['startDate']),

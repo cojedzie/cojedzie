@@ -70,21 +70,15 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
 
                 return $grouped;
             }, collect())
-            ->map(function (Collection $tracks) {
-                return $tracks
-                    ->groupBy(function (TrackEntity $track) {
-                        return $track->getFinal()->getStop()->getId();
-                    })->map(function (Collection $tracks, $id) {
-                        return Destination::createFromArray([
-                            'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
-                            'lines' => $tracks
-                                ->map(t\property('line'))
-                                ->unique(t\property('id'))
-                                ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
-                                ->values(),
-                        ]);
-                    })->values();
-            });
+            ->map(fn(Collection $tracks) => $tracks
+                ->groupBy(fn(TrackEntity $track) => $track->getFinal()->getStop()->getId())->map(fn(Collection $tracks, $id) => Destination::createFromArray([
+                    'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
+                    'lines' => $tracks
+                        ->map(t\property('line'))
+                        ->unique(t\property('id'))
+                        ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
+                        ->values(),
+                ]))->values());
 
         $event->getData()->each(function (Stop $stop) use ($provider, $destinations) {
             $stop->setDestinations($destinations[$this->id->generate($provider, $stop->getId())]);
