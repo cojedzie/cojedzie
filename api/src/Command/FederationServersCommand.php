@@ -29,11 +29,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class FederationServersCommand extends Command
 {
-    protected static $defaultName = 'federation:servers';
+    protected static $defaultName        = 'federation:servers';
     protected static $defaultDescription = 'Get list of all federated servers.';
 
-    public function __construct(private readonly EntityManagerInterface $manager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $manager
+    ) {
         parent::__construct(self::$defaultName);
     }
 

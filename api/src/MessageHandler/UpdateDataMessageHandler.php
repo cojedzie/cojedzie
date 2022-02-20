@@ -31,8 +31,9 @@ final class UpdateDataMessageHandler implements MessageHandlerInterface, LoggerA
 {
     use LoggerAwareTrait;
 
-    public function __construct(private readonly DataUpdater $updater)
-    {
+    public function __construct(
+        private readonly DataUpdater $updater
+    ) {
     }
 
     public function __invoke(UpdateDataMessage $message)
@@ -41,7 +42,7 @@ final class UpdateDataMessageHandler implements MessageHandlerInterface, LoggerA
             $this->updater->update();
         } catch (\Exception $exception) {
             $this->logger->critical($exception->getMessage(), [
-                'backtrace' => $exception->getTraceAsString()
+                'backtrace' => $exception->getTraceAsString(),
             ]);
         }
     }

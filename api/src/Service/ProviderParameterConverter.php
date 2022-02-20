@@ -20,7 +20,6 @@
 
 namespace App\Service;
 
-
 use App\Exception\NonExistentServiceException;
 use App\Provider\Provider;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -35,8 +34,9 @@ class ProviderParameterConverter implements ParamConverterInterface
      *
      * @param $resolver
      */
-    public function __construct(private readonly ProviderResolver $resolver)
-    {
+    public function __construct(
+        private readonly ProviderResolver $resolver
+    ) {
     }
 
     public function apply(Request $request, ParamConverter $configuration)

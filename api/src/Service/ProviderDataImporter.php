@@ -31,8 +31,10 @@ class ProviderDataImporter implements DataImporter
     /**
      * @param Provider[] $providers
      */
-    public function __construct(private readonly Connection $connection, private readonly iterable $providers)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly iterable $providers
+    ) {
     }
 
     public function import(ProgressReporterInterface $reporter)

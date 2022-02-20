@@ -22,8 +22,9 @@ namespace App\Modifier;
 
 class With implements Modifier
 {
-    public function __construct(private readonly string $relationship)
-    {
+    public function __construct(
+        private readonly string $relationship
+    ) {
     }
 
     public function getRelationship(): string

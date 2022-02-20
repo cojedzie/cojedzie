@@ -27,10 +27,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class DataUpdateEvent extends Event
 {
-    final const NAME = DataUpdater::UPDATE_EVENT;
+    final public const NAME = DataUpdater::UPDATE_EVENT;
 
-    public function __construct(private readonly OutputInterface $output = new NullOutput())
-    {
+    public function __construct(
+        private readonly OutputInterface $output = new NullOutput()
+    ) {
     }
 
     public function getOutput(): OutputInterface

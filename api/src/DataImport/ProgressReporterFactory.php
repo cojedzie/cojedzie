@@ -29,14 +29,14 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProgressReporterFactory implements EventSubscriberInterface
 {
-    private ?InputInterface $input = null;
+    private ?InputInterface $input          = null;
     private ?ConsoleOutputInterface $output = null;
+    private bool $isMessageConsumer         = false;
+    private bool $isConsole                 = false;
 
-    private bool $isMessageConsumer = false;
-    private bool $isConsole = false;
-
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function create(): ProgressReporterInterface
@@ -51,7 +51,7 @@ class ProgressReporterFactory implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ConsoleEvents::COMMAND => 'handleConsoleCommandEvent'
+            ConsoleEvents::COMMAND => 'handleConsoleCommandEvent',
         ];
     }
 
@@ -60,7 +60,7 @@ class ProgressReporterFactory implements EventSubscriberInterface
         if ($event->getOutput() instanceof ConsoleOutputInterface) {
             $this->input = $event->getInput();
             /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-            $this->output = $event->getOutput();
+            $this->output    = $event->getOutput();
             $this->isConsole = true;
         }
 

@@ -53,7 +53,6 @@ class TracksController extends Controller
     }
 
     /**
-     *
      * @OA\Tag(name="Tracks")
      *
      * @OA\Response(response=200, description="Stops related to specified query.")

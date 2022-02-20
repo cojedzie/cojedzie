@@ -46,4 +46,3 @@ class ProviderConverter implements Converter
             && ($type === DTO::class || is_subclass_of($type, DTO::class, true));
     }
 }
-

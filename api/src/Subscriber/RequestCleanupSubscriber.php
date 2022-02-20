@@ -29,14 +29,16 @@ use Symfony\Contracts\Service\ResetInterface;
 
 class RequestCleanupSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly ContainerInterface $container, private readonly Converter $converter)
-    {
+    public function __construct(
+        private readonly ContainerInterface $container,
+        private readonly Converter $converter
+    ) {
     }
 
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::TERMINATE => ['onTerminate']
+            KernelEvents::TERMINATE => ['onTerminate'],
         ];
     }
 

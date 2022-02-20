@@ -55,7 +55,7 @@ class FederatedConnectionEntityRepository extends ServiceEntityRepository
             ->getQuery()
             ->execute([
                 'open_states' => FederatedConnectionEntity::OPEN_STATES,
-                'now' => Carbon::now()
+                'now'         => Carbon::now(),
             ])
         ;
     }
@@ -81,7 +81,7 @@ class FederatedConnectionEntityRepository extends ServiceEntityRepository
         return $this
             ->getEntityManager()
             ->createQueryBuilder()
-            ->delete(FederatedConnectionEntity::class,'fce')
+            ->delete(FederatedConnectionEntity::class, 'fce')
             ->where('fce.state in (:closed_states)')
             ->getQuery()
             ->execute([

@@ -31,8 +31,9 @@ use function Kadet\Functional\Transforms\property;
 
 final class SerializerContextFactory
 {
-    public function __construct(private readonly AdvancedMetadataFactoryInterface $factory)
-    {
+    public function __construct(
+        private readonly AdvancedMetadataFactoryInterface $factory
+    ) {
     }
 
     public function create($subject, array $groups = ['Default'])
@@ -42,7 +43,7 @@ final class SerializerContextFactory
 
     private function groups($subject, array $groups)
     {
-        $metadata = $this->factory->getMetadataForClass(is_object($subject) ? $subject::class : $subject);
+        $metadata   = $this->factory->getMetadataForClass(is_object($subject) ? $subject::class : $subject);
         $properties = $metadata instanceof ClassHierarchyMetadata
             ? collect($metadata->classMetadata)->flatMap(property('propertyMetadata'))
             : $metadata->propertyMetadata;
@@ -58,7 +59,8 @@ final class SerializerContextFactory
 
                     $fields[$property->name] = $this->groups($class, $fieldGroups);
                 }
-            } catch (\ReflectionException) { }
+            } catch (\ReflectionException) {
+            }
         }
 
         return array_merge($groups, $fields);
@@ -69,10 +71,10 @@ final class SerializerContextFactory
         $reflection = new \ReflectionClass($metadata->class);
 
         try {
-            $property = $reflection->getProperty($metadata->name);
+            $property   = $reflection->getProperty($metadata->name);
             $attributes = $property->getAttributes(SerializeAs::class, \ReflectionAttribute::IS_INSTANCEOF);
         } catch (\ReflectionException) {
-            $method = $reflection->getMethod($metadata->getter);
+            $method     = $reflection->getMethod($metadata->getter);
             $attributes = $method->getAttributes(SerializeAs::class, \ReflectionAttribute::IS_INSTANCEOF);
         }
 
@@ -89,7 +91,7 @@ final class SerializerContextFactory
 
         $map = [];
         foreach ($attributes as $attribute) {
-            $map = [ ...$map, ...$attribute->map ];
+            $map = [...$map, ...$attribute->map];
         }
 
         return new SerializeAs(map: $map);
@@ -103,7 +105,7 @@ final class SerializerContextFactory
             if (array_key_exists($group, $annotation->map)) {
                 $result[] = $annotation->map[$group];
             } else {
-                $result = [ ...$result, ...$groups ];
+                $result = [...$result, ...$groups];
             }
         }
 

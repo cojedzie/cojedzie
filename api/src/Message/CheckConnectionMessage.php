@@ -24,8 +24,9 @@ use Symfony\Component\Uid\Uuid;
 
 final class CheckConnectionMessage
 {
-    public function __construct(private readonly Uuid $connectionId)
-    {
+    public function __construct(
+        private readonly Uuid $connectionId
+    ) {
     }
 
     public function getConnectionId(): Uuid

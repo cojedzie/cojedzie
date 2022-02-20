@@ -33,14 +33,14 @@ use Symfony\Component\Uid\Uuid;
 
 class FederationRegisterCommand extends Command
 {
-    protected static $defaultName = 'federation:register';
+    protected static $defaultName        = 'federation:register';
     protected static $defaultDescription = 'Register new federated server';
 
-    public function __construct(private readonly EntityManagerInterface $manager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $manager
+    ) {
         parent::__construct(self::$defaultName);
     }
-
 
     protected function configure()
     {

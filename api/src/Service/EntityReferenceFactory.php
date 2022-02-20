@@ -43,17 +43,19 @@ final class EntityReferenceFactory
         Track::class => TrackEntity::class,
     ];
 
-    public function __construct(private readonly EntityManagerInterface $em, private readonly IdUtils $id)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly IdUtils $id
+    ) {
     }
 
     public function create($object, ProviderEntity $provider)
     {
         return match (true) {
-            $object instanceof Referable => $this->createEntityReference($object, $provider),
-            is_array($object) => array_map(partial(ref([$this, 'createEntityReference']), _, $provider), $object),
+            $object instanceof Referable  => $this->createEntityReference($object, $provider),
+            is_array($object)             => array_map(partial(ref([$this, 'createEntityReference']), _, $provider), $object),
             $object instanceof Collection => $object->map(partial(ref([$this, 'createEntityReference']), _, $provider)),
-            default => throw InvalidArgumentException::invalidType(
+            default                       => throw InvalidArgumentException::invalidType(
                 'object',
                 $object,
                 [Referable::class, Collection::class, 'array']

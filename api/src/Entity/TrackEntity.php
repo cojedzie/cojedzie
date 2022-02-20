@@ -67,9 +67,6 @@ class TrackEntity implements Entity, Fillable
     #[ORM\JoinColumn(name: 'final_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private TrackStopEntity $final;
 
-    /**
-     * Track constructor.
-     */
     public function __construct()
     {
         $this->setStopsInTrack([]);

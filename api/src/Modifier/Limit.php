@@ -22,8 +22,10 @@ namespace App\Modifier;
 
 class Limit implements Modifier
 {
-    public function __construct(private readonly int $offset = 0, private readonly ?int $count = null)
-    {
+    public function __construct(
+        private readonly int $offset = 0,
+        private readonly ?int $count = null
+    ) {
     }
 
     public function getOffset()

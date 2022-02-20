@@ -36,20 +36,24 @@ class FederatedConnectionChecker
     /**
      * Minimum interval between consecutive checks.
      */
-    final const CHECK_INTERVAL = 60;
+    final public const CHECK_INTERVAL = 60;
 
     /**
      * Maximum failures in-line to assume that this connection is dead.
      */
-    final const FAILURE_THRESHOLD = 5;
+    final public const FAILURE_THRESHOLD = 5;
 
     /**
      * Health endpoint to check on the federated nodes.
      */
-    final const STATUS_ENDPOINT = "/api/v1/status";
+    final public const STATUS_ENDPOINT = "/api/v1/status";
 
-    public function __construct(private readonly EntityManagerInterface $manager, private readonly HttpClientInterface $http, private readonly HubInterface $hub, private readonly FederatedConnectionUpdateFactory $updateFactory)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $manager,
+        private readonly HttpClientInterface $http,
+        private readonly HubInterface $hub,
+        private readonly FederatedConnectionUpdateFactory $updateFactory
+    ) {
     }
 
     public function check(FederatedConnectionEntity $connection, bool $force = false)
@@ -70,7 +74,7 @@ class FederatedConnectionChecker
         try {
             $response = $this->http->request(
                 'GET',
-                $connection->getUrl().self::STATUS_ENDPOINT,
+                $connection->getUrl() . self::STATUS_ENDPOINT,
             );
 
             $this->validateResponse($response, $connection);

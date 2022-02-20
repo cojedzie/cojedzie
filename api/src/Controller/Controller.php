@@ -20,7 +20,6 @@
 
 namespace App\Controller;
 
-
 use App\Service\SerializerContextFactory;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,8 +27,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 abstract class Controller extends AbstractController
 {
-    public function __construct(protected SerializerInterface $serializer, protected SerializerContextFactory $serializerContextFactory)
-    {
+    public function __construct(
+        protected SerializerInterface $serializer,
+        protected SerializerContextFactory $serializerContextFactory
+    ) {
     }
 
     protected function json($data, int $status = 200, array $headers = [], $context = null): JsonResponse

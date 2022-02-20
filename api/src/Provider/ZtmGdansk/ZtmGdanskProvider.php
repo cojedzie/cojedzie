@@ -40,15 +40,13 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ZtmGdanskProvider implements Provider
 {
-    final const BASE_URL = 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource';
-    final const IDENTIFIER = 'trojmiasto';
-
+    final public const BASE_URL   = 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource';
+    final public const IDENTIFIER = 'trojmiasto';
     private $lines;
     private $departures;
     private $stops;
     private $tracks;
     private $trips;
-
     private ProviderEntity $entity;
 
     public function getName(): string

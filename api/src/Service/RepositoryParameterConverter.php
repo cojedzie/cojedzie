@@ -20,7 +20,6 @@
 
 namespace App\Service;
 
-
 use App\Exception\NonExistentServiceException;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
@@ -28,13 +27,13 @@ use App\Provider\MessageRepository;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
-use const Kadet\Functional\_;
-use function Kadet\Functional\any;
-use function Kadet\Functional\curry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use function Kadet\Functional\any;
+use function Kadet\Functional\curry;
+use const Kadet\Functional\_;
 
 class RepositoryParameterConverter implements ParamConverterInterface
 {
@@ -43,8 +42,9 @@ class RepositoryParameterConverter implements ParamConverterInterface
      *
      * @param $resolver
      */
-    public function __construct(private readonly ProviderResolver $resolver)
-    {
+    public function __construct(
+        private readonly ProviderResolver $resolver
+    ) {
     }
 
     public function apply(Request $request, ParamConverter $configuration)

@@ -28,8 +28,9 @@ class HandlerProvider
 {
     private array $configuration = [];
 
-    public function __construct(private readonly ServiceLocator $handlerLocator)
-    {
+    public function __construct(
+        private readonly ServiceLocator $handlerLocator
+    ) {
     }
 
     public function loadConfiguration(array $providers)

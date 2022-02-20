@@ -45,15 +45,18 @@ use function Kadet\Functional\ref;
 
 class ZtmGdanskDepartureRepository implements DepartureRepository
 {
-    final const ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
+    final public const ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
 
-    public function __construct(private readonly LineRepository $lines, private readonly ScheduleRepository $schedule, private readonly ReferenceFactory $reference)
-    {
+    public function __construct(
+        private readonly LineRepository $lines,
+        private readonly ScheduleRepository $schedule,
+        private readonly ReferenceFactory $reference
+    ) {
     }
 
     public function current(iterable $stops, Modifier ...$modifiers)
     {
-        $real      = IterableUtils::toCollection($stops)
+        $real = IterableUtils::toCollection($stops)
             ->flatMap(ref([$this, 'getRealDepartures']))
             ->sortBy(t\property('estimated'))
         ;
@@ -62,7 +65,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
         $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractModifiers($modifiers));
 
-        $result = $this->pair($scheduled, $real)->filter(fn(Departure $departure) => $departure->getDeparture() > $now);
+        $result = $this->pair($scheduled, $real)->filter(fn (Departure $departure) => $departure->getDeparture() > $now);
 
         return $this->processResultWithModifiers($result, $modifiers);
     }
@@ -78,7 +81,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
         $estimates = collect($estimates);
 
-        $lines = $estimates->map(fn($delay) => $delay['routeId'])->unique();
+        $lines = $estimates->map(fn ($delay) => $delay['routeId'])->unique();
 
         $lines = $this->lines->all(new IdFilter($lines))->keyBy(t\property('id'));
 
@@ -147,10 +150,14 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 'estimated' => $real,
                 'scheduled' => $scheduled,
             ];
-        })->merge(collect($schedule)->map(fn(ScheduledStop $scheduled) => [
-            'estimated' => null,
-            'scheduled' => $scheduled,
-        ]))->map(fn($pair) => $this->merge($pair['estimated'], $pair['scheduled']))->sortBy(function (Departure $departure) {
+        })->merge(
+            collect($schedule)->map(fn (ScheduledStop $scheduled) => [
+                'estimated' => null,
+                'scheduled' => $scheduled,
+            ])
+        )->map(
+            fn ($pair) => $this->merge($pair['estimated'], $pair['scheduled'])
+        )->sortBy(function (Departure $departure) {
             $time = $departure->getEstimated() ?? $departure->getScheduled();
             return $time->getTimestamp();
         });

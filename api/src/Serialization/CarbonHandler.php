@@ -40,13 +40,11 @@ use JMS\Serializer\Visitor\SerializationVisitorInterface;
  */
 final class CarbonHandler implements SubscribingHandlerInterface
 {
-    public function __construct(private readonly DateHandler $dateTimeHandler)
-    {
+    public function __construct(
+        private readonly DateHandler $dateTimeHandler
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribingMethods()
     {
         $methods = [];

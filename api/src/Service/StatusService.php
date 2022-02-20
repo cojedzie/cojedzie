@@ -30,8 +30,9 @@ use Symfony\Component\Routing\RouterInterface;
 
 class StatusService
 {
-    public function __construct(private readonly RouterInterface $router)
-    {
+    public function __construct(
+        private readonly RouterInterface $router
+    ) {
     }
 
     public function getAggregatedStatus(): Aggregated

@@ -54,9 +54,9 @@ class FederationContext implements LoggerAwareInterface
     public function __construct(?string $connectionId, ?string $serverId, string $hubBaseUrl, ?string $advertisedUrl)
     {
         $this->connectionId = $connectionId ? Uuid::fromString($connectionId) : null;
-        $this->serverId = $serverId ? Uuid::fromString($serverId) : null;
+        $this->serverId     = $serverId ? Uuid::fromString($serverId) : null;
 
-        $this->hubBaseUrl = $hubBaseUrl;
+        $this->hubBaseUrl    = $hubBaseUrl;
         $this->advertisedUrl = $advertisedUrl;
     }
 
@@ -77,7 +77,9 @@ class FederationContext implements LoggerAwareInterface
                 sprintf(
                     "%s::%s get called when server ID is not available. " .
                     "You first should call %s::isFederated method to check if this instance is working in federation.",
-                    self::class, __METHOD__, self::class
+                    self::class,
+                    __METHOD__,
+                    self::class
                 )
             );
         }
@@ -92,7 +94,9 @@ class FederationContext implements LoggerAwareInterface
                 sprintf(
                     "%s::%s get called when connection ID is not available. " .
                     "You first should call %s::isConnected method to check if this instance is working in federation and is connected.",
-                    self::class, __METHOD__, self::class
+                    self::class,
+                    __METHOD__,
+                    self::class
                 )
             );
         }

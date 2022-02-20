@@ -34,10 +34,10 @@ class Node implements Fillable, DTO
 {
     use FillTrait;
 
-    final const TYPE_HUB       = 'hub';
-    final const TYPE_FEDERATED = 'federated';
+    final public const TYPE_HUB       = 'hub';
+    final public const TYPE_FEDERATED = 'federated';
 
-    final const TYPES = [ self::TYPE_HUB, self::TYPE_FEDERATED ];
+    final public const TYPES = [self::TYPE_HUB, self::TYPE_FEDERATED];
 
     /**
      * Unique identifier for node.
@@ -50,7 +50,6 @@ class Node implements Fillable, DTO
     /**
      * Base URL address for this particular connection.
      * @OA\Property(type="string", format="url", example="https://cojedzie.pl")
-     *
      */
     #[Serializer\Type('string')]
     private string $url;

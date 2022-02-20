@@ -31,11 +31,13 @@ use function App\Functions\class_name;
 
 class FederationConnectCommand extends Command
 {
-    protected static $defaultName = 'federation:connect';
+    protected static $defaultName        = 'federation:connect';
     protected static $defaultDescription = 'Connect this node into the federation network.';
 
-    public function __construct(private readonly FederationContext $federationContext, private readonly FederatedConnectionService $federatedConnectionService)
-    {
+    public function __construct(
+        private readonly FederationContext $federationContext,
+        private readonly FederatedConnectionService $federatedConnectionService
+    ) {
         parent::__construct(self::$defaultName);
     }
 

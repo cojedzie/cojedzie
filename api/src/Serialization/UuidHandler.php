@@ -39,9 +39,6 @@ use Symfony\Component\Uid\Uuid;
  */
 final class UuidHandler implements SubscribingHandlerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribingMethods()
     {
         $methods = [];

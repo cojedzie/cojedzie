@@ -31,12 +31,15 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
-    final const TRACKS_URL         = ZtmGdanskProvider::BASE_URL."/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
-    final const STOPS_IN_TRACK_URL = ZtmGdanskProvider::BASE_URL."/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
+    final public const TRACKS_URL         = ZtmGdanskProvider::BASE_URL . "/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
+    final public const STOPS_IN_TRACK_URL = ZtmGdanskProvider::BASE_URL . "/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
     private int $trackCount;
 
-    public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly HttpClientInterface $httpClient,
+        private readonly IdUtils $idUtils
+    ) {
     }
 
     public function import(ProgressReporterInterface $reporter)
@@ -75,13 +78,19 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                     $this->connection->update(
                         'track',
                         $track,
-                        ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER]
+                        [
+                            'id'          => $id,
+                            'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                        ]
                     );
                 } else {
                     $this->connection->insert(
                         'track',
                         array_merge(
-                            ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER],
+                            [
+                                'id'          => $id,
+                                'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                            ],
                             $track
                         )
                     );
@@ -112,7 +121,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             ->where('id = :tid')
             ->getSQL();
 
-        $deleteStopsPreparedQuery = $this->connection->prepare($deleteStopsSql);
+        $deleteStopsPreparedQuery            = $this->connection->prepare($deleteStopsSql);
         $updateFinalStopInTrackPreparedQuery = $this->connection->prepare($updateFinalStopInTrackSql);
 
         $count = 0;
@@ -141,7 +150,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     private function getTracksFromZtmApi()
     {
         $response = $this->httpClient->request('GET', self::TRACKS_URL);
-        $tracks = $response->toArray()[date('Y-m-d')]['trips'];
+        $tracks   = $response->toArray()[date('Y-m-d')]['trips'];
 
         foreach ($tracks as $track) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['id']) => [
@@ -154,8 +163,8 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     private function getTrackStopsFromZtmApi()
     {
         $response = $this->httpClient->request('GET', self::STOPS_IN_TRACK_URL);
-        $all = $response->toArray()[date('Y-m-d')]['stopsInTrip'];
-        $all = collect($all)->groupBy(
+        $all      = $response->toArray()[date('Y-m-d')]['stopsInTrip'];
+        $all      = collect($all)->groupBy(
             fn ($stop) => $this->idUtils->generate(
                 ZtmGdanskProvider::IDENTIFIER,
                 sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
@@ -175,12 +184,12 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
          * @var Collection<array> $stops
          */
         foreach ($all as $trackId => $stops) {
-            yield $trackId => $stops
+            yield $trackId       => $stops
                 ->map(fn ($stop) => [
                     'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
                     'track_id' => $trackId,
                     // HACK! Gdynia has 0 based sequence
-                    'sequence' => $stop['stopSequence'] + (int)($stop['stopId'] > 30000),
+                    'sequence' => $stop['stopSequence'] + (int) ($stop['stopId'] > 30000),
                 ])
                 ->filter(fn ($stop) => in_array($stop['stop_id'], $existingStopIds, true))
                 ->sortBy(fn ($stop) => $stop['sequence'])

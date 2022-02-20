@@ -27,16 +27,18 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class FederationHeadersSubscriber implements EventSubscriberInterface
 {
-    final const CONNECTION_ID_HEADER = 'X-CoJedzie-Connection-Id';
-    final const SERVER_ID_HEADER = 'X-CoJedzie-Server-Id';
+    final public const CONNECTION_ID_HEADER = 'X-CoJedzie-Connection-Id';
+    final public const SERVER_ID_HEADER     = 'X-CoJedzie-Server-Id';
 
-    public function __construct(private readonly FederationContext $federationContext)
-    {
+    public function __construct(
+        private readonly FederationContext $federationContext
+    ) {
     }
+
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::RESPONSE => 'onResponse'
+            KernelEvents::RESPONSE => 'onResponse',
         ];
     }
 

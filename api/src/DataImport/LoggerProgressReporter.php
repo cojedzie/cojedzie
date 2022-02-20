@@ -26,11 +26,12 @@ use Psr\Log\LogLevel;
 class LoggerProgressReporter implements ProgressReporterInterface
 {
     private const PROGRESS_REPORT_MINIMAL_INTERVAL = 5;
+    private float $lastProgressReported            = 0;
 
-    private float $lastProgressReported = 0;
-
-    public function __construct(private readonly LoggerInterface $logger, private readonly string $name = "")
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly string $name = ""
+    ) {
     }
 
     public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
@@ -59,9 +60,9 @@ class LoggerProgressReporter implements ProgressReporterInterface
         $this->logger->log(
             match ($type) {
                 MilestoneType::Warning => LogLevel::WARNING,
-                MilestoneType::Error => LogLevel::ERROR,
+                MilestoneType::Error   => LogLevel::ERROR,
                 MilestoneType::Success => LogLevel::INFO,
-                MilestoneType::Info => LogLevel::DEBUG,
+                MilestoneType::Info    => LogLevel::DEBUG,
             },
             sprintf("%s: %s", $this->name, $comment)
         );

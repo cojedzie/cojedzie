@@ -28,8 +28,9 @@ use JMS\Serializer\SerializerInterface;
 
 class ConnectionConverter implements Converter
 {
-    public function __construct(private readonly SerializerInterface $serializer)
-    {
+    public function __construct(
+        private readonly SerializerInterface $serializer
+    ) {
     }
 
     public function convert($entity, string $type)

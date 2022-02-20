@@ -39,7 +39,6 @@ class Departure implements Fillable, DTO
     /**
      * Information about line.
      * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
-     *
      */
     #[Serializer\Type(Line::class)]
     #[SerializeAs(['Default' => 'Default'])]
@@ -194,7 +193,7 @@ class Departure implements Fillable, DTO
      */
     #[Serializer\VirtualProperty]
     #[Serializer\Type('int')]
-    public function getDelay() : ?int
+    public function getDelay(): ?int
     {
         return $this->getEstimated()
             ? $this->getScheduled()->diffInSeconds($this->getEstimated(), false)

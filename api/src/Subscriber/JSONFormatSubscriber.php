@@ -20,7 +20,6 @@
 
 namespace App\Subscriber;
 
-
 use App\Exception\InvalidFormException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,8 +30,9 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class JSONFormatSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly SerializerInterface $serializer)
-    {
+    public function __construct(
+        private readonly SerializerInterface $serializer
+    ) {
     }
 
     public static function getSubscribedEvents()

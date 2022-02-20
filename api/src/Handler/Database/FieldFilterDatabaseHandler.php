@@ -37,7 +37,7 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         ScheduledStop::class => [
             'departure' => 'departure',
             'arrival'   => 'arrival',
-        ]
+        ],
     ];
 
     public function process(HandleModifierEvent $event)

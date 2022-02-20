@@ -50,9 +50,6 @@ class ProviderEntity implements Fillable, Referable
     #[ORM\Column(type: 'datetime', nullable: false)]
     private $updateDate;
 
-    /**
-     * ProviderEntity constructor.
-     */
     public function __construct()
     {
         $this->updateDate = Carbon::now();

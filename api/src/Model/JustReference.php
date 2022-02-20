@@ -22,5 +22,4 @@ namespace App\Model;
 
 interface JustReference
 {
-
 }

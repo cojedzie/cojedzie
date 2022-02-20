@@ -27,7 +27,8 @@ namespace App\Serialization;
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY | \Attribute::TARGET_CLASS)]
 class SerializeAs
 {
-    public function __construct(public array $map)
-    {
+    public function __construct(
+        public array $map
+    ) {
     }
 }

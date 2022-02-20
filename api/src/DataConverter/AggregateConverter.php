@@ -28,8 +28,9 @@ class AggregateConverter implements Converter, CacheableConverter
 {
     private $cachedConverters;
 
-    public function __construct(private readonly iterable $converters)
-    {
+    public function __construct(
+        private readonly iterable $converters
+    ) {
     }
 
     public function convert($entity, string $type)

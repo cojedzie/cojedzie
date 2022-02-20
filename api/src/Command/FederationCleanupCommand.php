@@ -31,11 +31,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class FederationCleanupCommand extends Command
 {
-    protected static $defaultName = 'federation:cleanup';
+    protected static $defaultName        = 'federation:cleanup';
     protected static $defaultDescription = 'Cleanup closed connections from database.';
 
-    public function __construct(private readonly EntityManagerInterface $manager, private readonly FederatedConnectionChecker $checker)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $manager,
+    ) {
         parent::__construct(self::$defaultName);
     }
 
@@ -50,7 +51,7 @@ class FederationCleanupCommand extends Command
 
         /** @var FederatedConnectionEntityRepository $repository */
         $repository = $this->manager->getRepository(FederatedConnectionEntity::class);
-        $count = $repository->deleteClosedConnections();
+        $count      = $repository->deleteClosedConnections();
 
         $io->success(sprintf("Removed %d closed connections.", $count));
 

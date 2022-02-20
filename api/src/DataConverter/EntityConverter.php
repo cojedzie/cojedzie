@@ -34,14 +34,15 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     use RecursiveConverterTrait;
     private $cache;
 
-    public function __construct(private readonly IdUtils $id, private readonly ReferenceFactory $reference)
-    {
-        $this->cache     = [];
+    public function __construct(
+        private readonly IdUtils $id,
+        private readonly ReferenceFactory $reference
+    ) {
+        $this->cache = [];
     }
 
     /**
      * @param Entity $entity
-     * @param array  $cache
      */
     public function convert($entity, string $type)
     {
@@ -53,7 +54,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
             return $this->reference($entity);
         }
 
-        $result = $this->create($entity);
+        $result            = $this->create($entity);
         $this->cache[$key] = $result;
 
         $convert = fn ($entity) => $this->supports($entity, $type)
@@ -146,11 +147,11 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     {
         return match (true) {
             $entity instanceof OperatorEntity => Operator::class,
-            $entity instanceof LineEntity => Line::class,
-            $entity instanceof TrackEntity => Track::class,
-            $entity instanceof StopEntity => Stop::class,
-            $entity instanceof TripEntity => Trip::class,
-            default => false,
+            $entity instanceof LineEntity     => Line::class,
+            $entity instanceof TrackEntity    => Track::class,
+            $entity instanceof StopEntity     => Stop::class,
+            $entity instanceof TripEntity     => Trip::class,
+            default                           => false,
         };
     }
 

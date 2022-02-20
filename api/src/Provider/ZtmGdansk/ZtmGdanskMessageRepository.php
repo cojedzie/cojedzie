@@ -20,7 +20,6 @@
 
 namespace App\Provider\ZtmGdansk;
 
-
 use App\Model\Message;
 use App\Model\Stop;
 use App\Provider\MessageRepository;
@@ -30,18 +29,17 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class ZtmGdanskMessageRepository implements MessageRepository
 {
-    final const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
+    final public const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
 
-    /**
-     * ZtmGdanskStopRepository constructor.
-     */
-    public function __construct(private readonly AdapterInterface $cache, private readonly ZtmGdanskMessageTypeClassifier $classifier)
-    {
+    public function __construct(
+        private readonly AdapterInterface $cache,
+        private readonly ZtmGdanskMessageTypeClassifier $classifier
+    ) {
     }
 
     public function getAll(): Collection
     {
-        return collect($this->queryZtmApi())->unique(fn($message) => $message['messagePart1'] . $message['messagePart2'])->map(function ($message) {
+        return collect($this->queryZtmApi())->unique(fn ($message) => $message['messagePart1'] . $message['messagePart2'])->map(function ($message) {
             $message = Message::createFromArray([
                 'message'   => trim($message['messagePart1'] . $message['messagePart2']),
                 'validFrom' => new Carbon($message['startDate']),

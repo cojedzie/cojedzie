@@ -32,11 +32,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class FederatedConnectionService
 {
-    public final const ENDPOINT_CONNECT    = '/api/v1/federation/connections';
-    public final const ENDPOINT_DISCONNECT = '/api/v1/federation/connections/{id}';
+    final public const ENDPOINT_CONNECT    = '/api/v1/federation/connections';
+    final public const ENDPOINT_DISCONNECT = '/api/v1/federation/connections/{id}';
 
-    public function __construct(private readonly FederationContext $context, private readonly HttpClientInterface $http)
-    {
+    public function __construct(
+        private readonly FederationContext $context,
+        private readonly HttpClientInterface $http
+    ) {
     }
 
     /**
@@ -54,7 +56,7 @@ class FederatedConnectionService
     {
         $response = $this->http->request(
             'POST',
-            $this->context->getHubBaseUrl().static::ENDPOINT_CONNECT,
+            $this->context->getHubBaseUrl() . static::ENDPOINT_CONNECT,
             [
                 'body' => [
                     'server_id' => $this->context->getServerId()->toRfc4122(),
@@ -76,7 +78,7 @@ class FederatedConnectionService
         $url = str_replace(
             '{id}',
             $this->context->getConnectionId()->toRfc4122(),
-            $this->context->getHubBaseUrl().FederatedConnectionService::ENDPOINT_DISCONNECT
+            $this->context->getHubBaseUrl() . FederatedConnectionService::ENDPOINT_DISCONNECT
         );
 
         $response = $this->http->request(

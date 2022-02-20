@@ -36,14 +36,14 @@ use function Kadet\Functional\Transforms\property;
 class GenericWithDatabaseHandler implements ModifierHandler
 {
     protected $mapping = [
-        Track::class         => [
+        Track::class => [
             'line'  => 'line',
             'stops' => 'stopsInTrack',
         ],
-        Trip::class          => [
+        Trip::class => [
             'schedule' => 'stops.stop',
         ],
-        TrackStop::class     => [
+        TrackStop::class => [
             'track' => 'track',
         ],
         ScheduledStop::class => [
@@ -53,8 +53,11 @@ class GenericWithDatabaseHandler implements ModifierHandler
         ],
     ];
 
-    public function __construct(private readonly EntityManagerInterface $em, private readonly IdUtils $id, private readonly EntityReferenceFactory $references)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly IdUtils $id,
+        private readonly EntityReferenceFactory $references
+    ) {
     }
 
     public function process(HandleModifierEvent $event)
@@ -90,9 +93,6 @@ class GenericWithDatabaseHandler implements ModifierHandler
         }
     }
 
-    /**
-     * @inheritDoc
-     */
     public static function getSubscribedServices()
     {
         return [

@@ -39,13 +39,10 @@ use JMS\Serializer\Visitor\SerializationVisitorInterface;
  */
 final class LaravelCollectionHandler implements SubscribingHandlerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribingMethods()
     {
-        $methods = [];
-        $formats = ['json', 'xml', 'yml'];
+        $methods         = [];
+        $formats         = ['json', 'xml', 'yml'];
         $collectionTypes = [
             'Collection',
             Collection::class,
@@ -80,9 +77,8 @@ final class LaravelCollectionHandler implements SubscribingHandlerInterface
     ): array|\ArrayObject {
         // We change the base type, and pass through possible parameters.
         $type['name'] = 'array';
-        $result = $visitor->visitArray($collection->all(), $type);
 
-        return $result;
+        return $visitor->visitArray($collection->all(), $type);
     }
 
     public function deserializeCollection(

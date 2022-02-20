@@ -21,9 +21,9 @@
 namespace App\Service\Proxy;
 
 use App\Model\JustReference;
+use Laminas\Code\Generator\ClassGenerator;
 use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
 use ReflectionClass;
-use Laminas\Code\Generator\ClassGenerator;
 
 class ReferenceObjectGenerator implements ProxyGeneratorInterface
 {
@@ -31,7 +31,7 @@ class ReferenceObjectGenerator implements ProxyGeneratorInterface
     {
         $interfaces = [
             ...$originalClass->getInterfaceNames(),
-            JustReference::class
+            JustReference::class,
         ];
 
         $classGenerator->setExtendedClass($originalClass->getName());

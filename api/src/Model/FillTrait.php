@@ -20,7 +20,6 @@
 
 namespace App\Model;
 
-
 trait FillTrait
 {
     public function fill(array $vars = [])
@@ -42,7 +41,6 @@ trait FillTrait
     {
         $reflection  = new \ReflectionClass(static::class);
         $constructor = $reflection->getConstructor();
-
 
         $object = empty($args) && ($constructor && $constructor->getNumberOfRequiredParameters() > 0)
             ? $reflection->newInstanceWithoutConstructor()

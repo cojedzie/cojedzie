@@ -31,15 +31,18 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskLineDataImporter extends AbstractDataImporter
 {
-    final const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
+    final public const RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
 
-    final const ZTM_TYPE_MAPPING = [
+    final public const ZTM_TYPE_MAPPING = [
         2 => LineModel::TYPE_TRAM,
         5 => LineModel::TYPE_TROLLEYBUS,
     ];
 
-    public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly HttpClientInterface $httpClient,
+        private readonly IdUtils $idUtils
+    ) {
     }
 
     public function import(ProgressReporterInterface $reporter)
@@ -64,13 +67,19 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                     $this->connection->update(
                         'line',
                         $line,
-                        ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER]
+                        [
+                            'id'          => $id,
+                            'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                        ]
                     );
                 } else {
                     $this->connection->insert(
                         'line',
                         array_merge(
-                            ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER],
+                            [
+                                'id'          => $id,
+                                'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                            ],
                             $line
                         )
                     );
@@ -87,14 +96,14 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     public function getDependencies(): array
     {
         return [
-            ZtmGdanskOperatorsDataImporter::class
+            ZtmGdanskOperatorsDataImporter::class,
         ];
     }
 
     private function getLinesFromZtmApi()
     {
         $response = $this->httpClient->request('GET', self::RESOURCE_URL);
-        $lines = $response->toArray()[date('Y-m-d')]['routes'];
+        $lines    = $response->toArray()[date('Y-m-d')]['routes'];
 
         $operators = $this->connection->createQueryBuilder()
             ->from('operator', 'o')
@@ -106,7 +115,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
             ;
 
         foreach ($lines as $line) {
-            $symbol = $line['routeShortName'];
+            $symbol   = $line['routeShortName'];
             $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
 
             // skip unknown operators
@@ -121,7 +130,6 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 'fast'        => preg_match('/^[A-MO-Z]$/', (string) $symbol),
                 'operator_id' => $operator,
             ];
-
         }
     }
 

@@ -27,13 +27,16 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class DataUpdater
 {
-    final const UPDATE_EVENT = 'app.data_update';
+    final public const UPDATE_EVENT = 'app.data_update';
 
     /**
      * @param DataImporter[] $importers
      */
-    public function __construct(private readonly EntityManagerInterface $em, private readonly ProgressReporterFactory $progressReporterFactory, private readonly iterable $importers)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly ProgressReporterFactory $progressReporterFactory,
+        private readonly iterable $importers
+    ) {
     }
 
     public function update()
@@ -51,10 +54,12 @@ class DataUpdater
         }
     }
 
-    /** @return \Generator<DataImporter> */
+    /**
+     * @return \Generator<DataImporter>
+     */
     private function getDataUpdatersInTopologicalOrder()
     {
-        $nodes = [];
+        $nodes      = [];
         $dependants = [];
 
         foreach ($this->importers as $importer) {
@@ -89,4 +94,3 @@ class DataUpdater
         }
     }
 }
-

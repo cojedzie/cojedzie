@@ -33,12 +33,12 @@ class DummyMessageRepository implements MessageRepository
         return collect([
             Message::TYPE_INFO,
             Message::TYPE_UNKNOWN,
-            Message::TYPE_BREAKDOWN
-        ])->map(fn($type) => Message::createFromArray([
+            Message::TYPE_BREAKDOWN,
+        ])->map(fn ($type) => Message::createFromArray([
             'message'   => 'Lorem ipsum dolor sit amet.',
             'type'      => $type,
             'validFrom' => Carbon::now(),
-            'validTo'   => Carbon::now()->addHour()
+            'validTo'   => Carbon::now()->addHour(),
         ]));
     }
 

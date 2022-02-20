@@ -28,13 +28,16 @@ class ConsoleProgressReporter implements ProgressReporterInterface
 {
     private ?ProgressBar $progressBar = null;
 
-    public function __construct(private readonly InputInterface $input, private readonly ConsoleOutputInterface $output, private readonly int $depth = 0)
-    {
+    public function __construct(
+        private readonly InputInterface $input,
+        private readonly ConsoleOutputInterface $output,
+        private readonly int $depth = 0
+    ) {
     }
 
     public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
     {
-        $max = (int)$max;
+        $max = (int) $max;
 
         if (!isset($this->progressBar)) {
             $this->progressBar = new ProgressBar($this->output->section(), $max);
@@ -63,8 +66,8 @@ class ConsoleProgressReporter implements ProgressReporterInterface
         [$icon, $color] = match ($type) {
             MilestoneType::Warning => ['⚠️', 'yellow'],
             MilestoneType::Success => ['✔', 'bright-green'],
-            MilestoneType::Error => ['✖', 'red'],
-            default => ['•', null],
+            MilestoneType::Error   => ['✖', 'red'],
+            default                => ['•', null],
         };
 
         $comment = sprintf('%s %s', $icon, $comment);
@@ -81,7 +84,13 @@ class ConsoleProgressReporter implements ProgressReporterInterface
     public function subtask(string $name): ProgressReporterInterface
     {
         $section = $this->output->section();
-        $section->writeln(sprintf('<fg=%s>%s</>', $this->getSectionColor(), $this->depth ? $this->indentation().'• '.$name : $name));
+        $section->writeln(
+            sprintf(
+                '<fg=%s>%s</>',
+                $this->getSectionColor(),
+                $this->depth ? $this->indentation() . '• ' . $name : $name
+            )
+        );
 
         return new ConsoleProgressReporter(
             $this->input,
@@ -92,7 +101,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
 
     private function updateProgressBarMessage()
     {
-        $format = $this->indentation();;
+        $format = $this->indentation();
 
         if ($this->progressBar->getMaxSteps()) {
             $format .= '[%bar%] %current%/%max% %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%';
@@ -118,7 +127,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
             $this->depth === 0 => 'green',
             $this->depth === 1 => 'bright-green',
             $this->depth === 2 => 'bright-yellow',
-            $this->depth >= 3 => 'yellow'
+            $this->depth >= 3  => 'yellow'
         };
     }
 }

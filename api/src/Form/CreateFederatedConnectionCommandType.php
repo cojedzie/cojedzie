@@ -35,21 +35,21 @@ class CreateFederatedConnectionCommandType extends AbstractType
         $builder
             ->add('url', TextType::class, [
                 'documentation' => [
-                    'type' => 'text',
+                    'type'        => 'text',
                     'description' => 'Base URL for this connection.',
-                    'example' => 'https://cojedzie.pl',
-                ]
+                    'example'     => 'https://cojedzie.pl',
+                ],
             ])
             ->add('server_id', EntityType::class, [
-                'class' => FederatedServerEntity::class,
-                'property_path' => 'server',
+                'class'           => FederatedServerEntity::class,
+                'property_path'   => 'server',
                 'invalid_message' => '{{ value }} is not a valid server identifier.',
-                'documentation' => [
-                    'type' => 'text',
-                    'format' => 'uuid',
+                'documentation'   => [
+                    'type'        => 'text',
+                    'format'      => 'uuid',
                     'description' => 'Server Id associated with this connection.',
-                    'example' => 'a7cd192a-3dca-4fc8-b35d-91f2d6e10632',
-                ]
+                    'example'     => 'a7cd192a-3dca-4fc8-b35d-91f2d6e10632',
+                ],
             ])
         ;
     }

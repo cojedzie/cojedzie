@@ -35,7 +35,6 @@ class JustReferenceNormalizer implements NormalizerInterface
      * @param string $format  Format the normalization result will be encoded as
      * @param array  $context Context options for the normalizer
      *
-     *
      * @throws InvalidArgumentException   Occurs when the object given is not an attempted type for the normalizer
      * @throws CircularReferenceException Occurs when the normalizer detects a circular reference when no circular
      *                                    reference handler can fix it
@@ -43,7 +42,10 @@ class JustReferenceNormalizer implements NormalizerInterface
      */
     public function normalize($object, $format = null, array $context = []): array|bool|float|int|string
     {
-        return [ 'id' => $object->getId(), 'href' => '#' ];
+        return [
+            'id'   => $object->getId(),
+            'href' => '#',
+        ];
     }
 
     /**

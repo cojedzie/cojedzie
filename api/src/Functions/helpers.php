@@ -23,9 +23,9 @@ namespace App\Functions;
 function encapsulate($value)
 {
     return match (true) {
-        is_array($value) => $value,
+        is_array($value)    => $value,
         is_iterable($value) => iterator_to_array($value),
-        default => [ $value ],
+        default             => [$value],
     };
 }
 

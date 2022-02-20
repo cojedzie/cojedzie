@@ -39,8 +39,11 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
     /**
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
-    public function __construct(private readonly EntityManagerInterface $em, private Converter $converter, private readonly IdUtils $id)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private Converter $converter,
+        private readonly IdUtils $id
+    ) {
         if ($this->converter instanceof CacheableConverter) {
             $this->converter = clone $this->converter;
             $this->converter->reset();
@@ -50,41 +53,50 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
     public function postProcess(PostProcessEvent $event)
     {
         $provider = $event->getMeta()['provider'];
-        $stops = $event
+        $stops    = $event
             ->getData()
             ->map(t\property('id'))
             ->map(f\apply([$this->id, 'generate'], $provider))
             ->all();
 
-        $destinations = collect($this->em->createQueryBuilder()
-            ->select('t', 'tl', 'f', 'fs', 'ts')
-            ->from(TrackEntity::class, 't')
-            ->join('t.stopsInTrack', 'ts')
-            ->join('t.line', 'tl')
-            ->where('ts.stop IN (:stops)')
-            ->join('t.final', 'f')
-            ->join('f.stop', 'fs')
-            ->getQuery()
-            ->execute(['stops' => $stops]))
-            ->reduce(function ($grouped, TrackEntity $track) {
+        $destinations = collect(
+            $this->em->createQueryBuilder()
+                ->select('t', 'tl', 'f', 'fs', 'ts')
+                ->from(TrackEntity::class, 't')
+                ->join('t.stopsInTrack', 'ts')
+                ->join('t.line', 'tl')
+                ->where('ts.stop IN (:stops)')
+                ->join('t.final', 'f')
+                ->join('f.stop', 'fs')
+                ->getQuery()
+                ->execute(['stops' => $stops])
+        )->reduce(
+            function ($grouped, TrackEntity $track) {
                 foreach ($track->getStopsInTrack()->map(t\property('stop'))->map(t\property('id')) as $stop) {
                     $grouped[$stop] = ($grouped[$stop] ?? collect())->add($track);
                 }
 
                 return $grouped;
-            }, collect())
-            ->map(fn(Collection $tracks) => $tracks
-                ->groupBy(fn(TrackEntity $track) => $track->getFinal()->getStop()->getId())->map(fn(Collection $tracks, $id) => Destination::createFromArray([
-                    'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
-                    'lines' => $tracks
-                        ->map(t\property('line'))
-                        ->unique(t\property('id'))
-                        ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
-                        ->values(),
-                ]))->values());
+            },
+            collect()
+        )->map(
+            fn (Collection $tracks) =>
+                $tracks
+                    ->groupBy(fn (TrackEntity $track) => $track->getFinal()->getStop()->getId())
+                    ->map(
+                        fn (Collection $tracks, $id) => Destination::createFromArray([
+                            'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
+                            'lines' => $tracks
+                                ->map(t\property('line'))
+                                ->unique(t\property('id'))
+                                ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
+                                ->values(),
+                        ])
+                    )->values()
+        );
 
-        $event->getData()->each(function (Stop $stop) use ($provider, $destinations) {
+        foreach ($event->getData() as $stop) {
             $stop->setDestinations($destinations[$this->id->generate($provider, $stop->getId())]);
-        });
+        }
     }
 }

@@ -31,10 +31,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
-    final const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
+    final public const RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
 
-    public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly HttpClientInterface $httpClient,
+        private readonly IdUtils $idUtils
+    ) {
     }
 
     public function import(ProgressReporterInterface $reporter)
@@ -49,8 +52,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER);
 
         $count = 0;
-        foreach (IterableUtils::batch($this->getStopsFromZtmApi(), 100) as $batch)
-        {
+        foreach (IterableUtils::batch($this->getStopsFromZtmApi(), 100) as $batch) {
             $ids = array_keys($batch);
             $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
             $existing = $query->execute()->fetchFirstColumn();
@@ -60,17 +62,23 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                     $this->connection->update(
                         'stop',
                         $stop,
-                        ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER],
-                        [ 4 => ParameterType::BOOLEAN ]
+                        [
+                            'id'          => $id,
+                            'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                        ],
+                        [4 => ParameterType::BOOLEAN]
                     );
                 } else {
                     $this->connection->insert(
                         'stop',
                         array_merge(
-                            ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER],
+                            [
+                                'id'          => $id,
+                                'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                            ],
                             $stop
                         ),
-                        [ 6 => ParameterType::BOOLEAN ]
+                        [6 => ParameterType::BOOLEAN]
                     );
                 }
             }
@@ -85,7 +93,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     private function getStopsFromZtmApi()
     {
         $response = $this->httpClient->request('GET', self::RESOURCE_URL);
-        $stops = $response->toArray()[date('Y-m-d')]['stops'];
+        $stops    = $response->toArray()[date('Y-m-d')]['stops'];
 
         foreach ($stops as $stop) {
             // skip stops that are technical
@@ -99,7 +107,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                 'variant'    => trim($stop['zoneName'] == 'Gdańsk' ? $stop['stopCode'] ?? $stop['subName'] : ''),
                 'latitude'   => $stop['stopLat'],
                 'longitude'  => $stop['stopLon'],
-                'on_demand'  => (bool)$stop['onDemand'],
+                'on_demand'  => (bool) $stop['onDemand'],
                 'group_name' => $name,
             ];
         }

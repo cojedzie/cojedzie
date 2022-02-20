@@ -28,8 +28,10 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class CheckConnectionMessageHandler implements MessageHandlerInterface
 {
-    public function __construct(private readonly FederatedConnectionChecker $checker, private readonly EntityManagerInterface $manager)
-    {
+    public function __construct(
+        private readonly FederatedConnectionChecker $checker,
+        private readonly EntityManagerInterface $manager
+    ) {
     }
 
     public function __invoke(CheckConnectionMessage $message)

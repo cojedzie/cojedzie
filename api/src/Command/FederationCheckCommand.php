@@ -34,11 +34,13 @@ use Symfony\Component\Uid\Uuid;
 
 class FederationCheckCommand extends Command
 {
-    protected static $defaultName = 'federation:check';
+    protected static $defaultName        = 'federation:check';
     protected static $defaultDescription = 'Get list of all federated servers.';
 
-    public function __construct(private readonly EntityManagerInterface $manager, private readonly FederatedConnectionChecker $checker)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $manager,
+        private readonly FederatedConnectionChecker $checker
+    ) {
         parent::__construct(self::$defaultName);
     }
 
@@ -54,11 +56,11 @@ class FederationCheckCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $ids = array_map([Uuid::class, 'fromString'], $input->getArgument('connection'));
-        $force = (bool)$input->getOption('force');
+        $ids   = array_map([Uuid::class, 'fromString'], $input->getArgument('connection'));
+        $force = (bool) $input->getOption('force');
 
         /** @var FederatedConnectionEntityRepository $repository */
-        $repository = $this->manager->getRepository(FederatedConnectionEntity::class);
+        $repository  = $this->manager->getRepository(FederatedConnectionEntity::class);
         $connections = !empty($ids)
             ? $repository->findConnectionsById($ids)
             : $repository->findAllConnectionsToCheck();

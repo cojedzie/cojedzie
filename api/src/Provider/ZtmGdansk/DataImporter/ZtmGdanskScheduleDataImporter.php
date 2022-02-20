@@ -33,10 +33,12 @@ use Doctrine\ORM\Query\Expr;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
-    final const SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
+    final public const SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
 
-    public function __construct(private readonly Connection $connection, private readonly IdUtils $idUtils)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly IdUtils $idUtils
+    ) {
     }
 
     public function import(ProgressReporterInterface $reporter)
@@ -48,7 +50,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
             ->execute();
 
-        $existingLineIds = $existingLineIdsQueryResult->iterateColumn();
+        $existingLineIds   = $existingLineIdsQueryResult->iterateColumn();
         $existingLineCount = $existingLineIdsQueryResult->rowCount();
 
         $existingStopIds = $this->connection->createQueryBuilder()
@@ -67,7 +69,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
                 $this->connection->commit();
             } catch (JsonObjectsException $exception) {
                 $this->connection->rollBack();
-                $reporter->milestone("Failed to import line ".$lineId.": ".$exception->getMessage(), MilestoneType::Warning);
+                $reporter->milestone("Failed to import line " . $lineId . ": " . $exception->getMessage(), MilestoneType::Warning);
             }
             $reporter->progress($count++, max: $existingLineCount, comment: sprintf("Imported line %s", $lineId));
         }
@@ -101,7 +103,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         );
 
         $schedule = JsonObjects::from($url, 'stopTimes.*');
-        $trips = [];
+        $trips    = [];
 
         $saveStop = function (array $columns) use (&$existingStopIds) {
             if (!in_array($columns['stop_id'], $existingStopIds, true)) {
@@ -111,7 +113,10 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             $this->connection->insert(
                 'trip_stop',
                 $columns,
-                ['arrival' => 'datetime', 'departure' => 'datetime']
+                [
+                    'arrival'   => 'datetime',
+                    'departure' => 'datetime',
+                ]
             );
         };
 
@@ -119,7 +124,8 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             $this->connection->insert(
                 'trip',
                 array_merge(
-                    $columns, [
+                    $columns,
+                    [
                         'id'          => $tripId,
                         'provider_id' => ZtmGdanskProvider::IDENTIFIER,
                     ]

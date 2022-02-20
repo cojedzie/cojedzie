@@ -40,35 +40,35 @@ class FederatedConnectionEntity implements Referable, Fillable
     /**
      * Connection is new and awaiting it's first check.
      */
-    public final const STATE_NEW = "new";
+    final public const STATE_NEW = "new";
 
     /**
      * Connection is open and ready to accept connections.
      */
-    public final const STATE_READY = "ready";
+    final public const STATE_READY = "ready";
 
     /**
      * Connection is open but is not accepting connections. It can happen when for example node is synchronising data.
      */
-    public final const STATE_SUSPENDED = "suspended";
+    final public const STATE_SUSPENDED = "suspended";
 
     /**
      * Connection has some problems and should be checked later.
      */
-    public final const STATE_BACKOFF = "backoff";
+    final public const STATE_BACKOFF = "backoff";
 
     /**
      * Connection failed too many times and was closed.
      */
-    public final const STATE_ERROR = "error";
+    final public const STATE_ERROR = "error";
 
     /**
      * Connection was closed by the server.
      */
-    public final const STATE_CLOSED = "closed";
+    final public const STATE_CLOSED = "closed";
 
-    public final const OPEN_STATES   = [ self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF ];
-    public final const CLOSED_STATES = [ self::STATE_ERROR, self::STATE_CLOSED ];
+    final public const OPEN_STATES   = [self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF];
+    final public const CLOSED_STATES = [self::STATE_ERROR, self::STATE_CLOSED];
 
     /**
      * Unique identifier for this particular connection.
@@ -239,12 +239,12 @@ class FederatedConnectionEntity implements Referable, Fillable
 
     public function isReady(): bool
     {
-        return in_array($this->state, [ self::STATE_READY ]);
+        return in_array($this->state, [self::STATE_READY]);
     }
 
     public function isSuspended(): bool
     {
-        return in_array($this->state, [ self::STATE_SUSPENDED ]);
+        return in_array($this->state, [self::STATE_SUSPENDED]);
     }
 
     public function isOpen(): bool

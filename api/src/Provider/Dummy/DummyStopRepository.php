@@ -34,8 +34,9 @@ class DummyStopRepository implements StopRepository
      *
      * @param $reference
      */
-    public function __construct(private readonly ReferenceFactory $reference)
-    {
+    public function __construct(
+        private readonly ReferenceFactory $reference
+    ) {
     }
 
     public function getAll(): Collection
@@ -45,12 +46,15 @@ class DummyStopRepository implements StopRepository
 
     public function getById($id): ?Stop
     {
-        return Stop::createFromArray(['id' => $id, 'name' => 'lorem']);
+        return Stop::createFromArray([
+            'id'   => $id,
+            'name' => 'lorem',
+        ]);
     }
 
     public function getManyById($ids): Collection
     {
-        return collect($ids)->map(f\ref([ $this, 'getById' ]));
+        return collect($ids)->map(f\ref([$this, 'getById']));
     }
 
     public function findByName(string $name): Collection
@@ -60,11 +64,9 @@ class DummyStopRepository implements StopRepository
 
     public function first(Modifier ...$modifiers)
     {
-        // TODO: Implement first() method.
     }
 
     public function all(Modifier ...$modifiers): Collection
     {
-        // TODO: Implement all() method.
     }
 }

@@ -52,7 +52,6 @@ class FederationController extends Controller
     /**
      * Create new connection under some server.
      *
-     *
      * @OA\RequestBody(
      *     @OA\JsonContent(ref=@Model(type=CreateFederatedConnectionCommandType::class))
      * )

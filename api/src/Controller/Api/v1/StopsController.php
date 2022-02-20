@@ -70,7 +70,6 @@ class StopsController extends Controller
     }
 
     /**
-     *
      * @OA\Response(
      *     response=200,
      *     description="Returns grouped stops for specific provider, e.g. ZTM Gdańsk.",
@@ -92,7 +91,6 @@ class StopsController extends Controller
     }
 
     /**
-     *
      * @OA\Response(
      *     response=200,
      *     description="Returns specific stop referenced via identificator.",
@@ -128,7 +126,7 @@ class StopsController extends Controller
     public static function group(Collection $stops)
     {
         return $stops->groupBy(
-            fn(Stop $stop) => $stop->getGroup()
+            fn (Stop $stop) => $stop->getGroup()
         )->map(
             function ($stops, $key) {
                 $group = new StopGroup();

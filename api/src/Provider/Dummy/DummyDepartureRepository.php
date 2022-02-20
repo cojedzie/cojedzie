@@ -30,13 +30,9 @@ use Carbon\Carbon;
 
 class DummyDepartureRepository implements DepartureRepository
 {
-    /**
-     * DummyDepartureProviderRepository constructor.
-     *
-     * @param $reference
-     */
-    public function __construct(private readonly ReferenceFactory $reference)
-    {
+    public function __construct(
+        private readonly ReferenceFactory $reference
+    ) {
     }
 
     public function current(iterable $stops, Modifier ...$modifiers)
@@ -52,7 +48,7 @@ class DummyDepartureRepository implements DepartureRepository
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
-        ])->map(function ($departure) use ($stop) {
+        ])->map(function ($departure) {
             [$symbol, $type, $display, $vehicle] = $departure;
             $scheduled = new Carbon();
             $estimated = (clone $scheduled)->addSeconds(40);
@@ -60,10 +56,11 @@ class DummyDepartureRepository implements DepartureRepository
             return Departure::createFromArray([
                 'scheduled' => $scheduled,
                 'estimated' => $estimated,
-                'stop'      => $stop,
                 'display'   => $display,
                 'vehicle'   => $this->reference->get(Vehicle::class, $vehicle),
-                'line'      => Line::createFromArray(['symbol' => $symbol, 'type' => $type]),
+                'line'      => Line::createFromArray(['symbol' => $symbol,
+                    'type'                                     => $type,
+                ]),
             ]);
         });
     }

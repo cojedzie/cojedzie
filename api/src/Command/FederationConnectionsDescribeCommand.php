@@ -15,7 +15,7 @@ use Symfony\Component\Uid\Uuid;
 
 class FederationConnectionsDescribeCommand extends Command
 {
-    protected static $defaultName = 'federation:connections:describe';
+    protected static $defaultName        = 'federation:connections:describe';
     protected static $defaultDescription = 'Describe federation connection';
 
     public function __construct(
@@ -24,7 +24,6 @@ class FederationConnectionsDescribeCommand extends Command
     ) {
         parent::__construct();
     }
-
 
     protected function configure()
     {
@@ -38,7 +37,7 @@ class FederationConnectionsDescribeCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $id = Uuid::fromString($input->getArgument('id'));
+        $id         = Uuid::fromString($input->getArgument('id'));
         $connection = $this->federatedConnectionRepository->find($id);
 
         if (!$connection) {

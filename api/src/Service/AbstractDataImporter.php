@@ -31,7 +31,7 @@ abstract class AbstractDataImporter implements DataImporter
 
     public function getDependencies(): array
     {
-        return [ ProviderDataImporter::class ];
+        return [ProviderDataImporter::class];
     }
 
     public function getPriority(): int

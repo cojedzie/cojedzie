@@ -59,7 +59,9 @@ class ProviderResolver
         return $this->providers->get($name);
     }
 
-    /** @return Provider[] */
+    /**
+     * @return Provider[]
+     */
     public function all(): Collection
     {
         return clone $this->providers;

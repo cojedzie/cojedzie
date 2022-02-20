@@ -34,7 +34,6 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class DeparturesController
  *
- *
  * @OA\Tag(name="Departures")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */
@@ -57,7 +56,6 @@ class DeparturesController extends Controller
     }
 
     /**
-     *
      * @OA\Response(
      *     description="Gets departures from given stops.",
      *     response=200,
@@ -85,7 +83,7 @@ class DeparturesController extends Controller
         $result = $departures->current($stops, ...$this->getModifiersFromRequest($request));
 
         return $this->json(
-            $result->values()->slice(0, (int)$request->query->get('limit', 8)),
+            $result->values()->slice(0, (int) $request->query->get('limit', 8)),
             200,
             [],
             $this->serializerContextFactory->create(Departure::class, ['Default'])

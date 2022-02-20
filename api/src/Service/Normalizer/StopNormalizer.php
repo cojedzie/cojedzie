@@ -21,14 +21,15 @@
 namespace App\Service\Normalizer;
 
 use App\Model\Stop;
+use Illuminate\Support\Arr;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Tightenco\Collect\Support\Arr;
 
 class StopNormalizer implements NormalizerInterface
 {
-    public function __construct(private readonly ObjectNormalizer $normalizer)
-    {
+    public function __construct(
+        private readonly ObjectNormalizer $normalizer
+    ) {
     }
 
     public function normalize($object, $format = null, array $context = [])

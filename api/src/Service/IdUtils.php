@@ -25,7 +25,7 @@ use App\Entity\ProviderEntity;
 
 class IdUtils
 {
-    final const DELIMITER = '::';
+    final public const DELIMITER = '::';
 
     public function generate(ProviderEntity|string $provider, $id)
     {

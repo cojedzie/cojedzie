@@ -46,7 +46,7 @@ class Time implements DTO
 
     public static function createFromDateTime(Carbon $now)
     {
-        return setup(new static, function (Time $time) use ($now) {
+        return setup(new static(), function (Time $time) use ($now) {
             $time->setCurrent($now);
             $time->setTimezone($now->timezoneName);
         });

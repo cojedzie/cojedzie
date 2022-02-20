@@ -22,8 +22,12 @@ namespace App\Modifier;
 
 class FieldFilter implements Modifier
 {
-    public function __construct(private readonly string $field, private $value, private readonly string $operator = '=', private readonly bool $caseSensitive = true)
-    {
+    public function __construct(
+        private readonly string $field,
+        private $value,
+        private readonly string $operator = '=',
+        private readonly bool $caseSensitive = true
+    ) {
     }
 
     public static function contains(string $field, string $value, bool $caseSensitive = false)

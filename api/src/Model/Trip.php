@@ -30,7 +30,6 @@ class Trip implements Referable, Fillable, DTO
 
     /**
      * Line variant describing trip, for example 'a'
-     *
      */
     #[Serializer\Type('string')]
     private ?string $variant = null;
@@ -60,9 +59,6 @@ class Trip implements Referable, Fillable, DTO
      */
     private ?Stop $destination = null;
 
-    /**
-     * Track constructor.
-     */
     public function __construct()
     {
         $this->setSchedule([]);

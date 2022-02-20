@@ -30,15 +30,18 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class UpdateCommand extends Command
 {
-    public function __construct(private readonly DataUpdater $updater, private readonly MessageBusInterface $bus)
-    {
+    public function __construct(
+        private readonly DataUpdater $updater,
+        private readonly MessageBusInterface $bus
+    ) {
         parent::__construct('app:update');
     }
 
     protected function configure()
     {
         $this->addOption(
-            'async', 'a',
+            'async',
+            'a',
             InputOption::VALUE_NONE,
             'Run in worker process via message queue.'
         );

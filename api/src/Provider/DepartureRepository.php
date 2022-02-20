@@ -20,7 +20,6 @@
 
 namespace App\Provider;
 
-
 use App\Modifier\Modifier;
 
 interface DepartureRepository extends Repository

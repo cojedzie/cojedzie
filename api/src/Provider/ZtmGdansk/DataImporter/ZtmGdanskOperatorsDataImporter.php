@@ -29,10 +29,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 {
-    final const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json";
+    final public const RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json";
 
-    public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly HttpClientInterface $httpClient,
+        private readonly IdUtils $idUtils
+    ) {
     }
 
     public function import(ProgressReporterInterface $reporter)
@@ -52,13 +55,19 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
                 $this->connection->update(
                     'operator',
                     $operator,
-                    ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER]
+                    [
+                        'id'          => $id,
+                        'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                    ]
                 );
             } else {
                 $this->connection->insert(
                     'operator',
                     array_merge(
-                        ['id' => $id, 'provider_id' => ZtmGdanskProvider::IDENTIFIER],
+                        [
+                            'id'          => $id,
+                            'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                        ],
                         $operator
                     )
                 );

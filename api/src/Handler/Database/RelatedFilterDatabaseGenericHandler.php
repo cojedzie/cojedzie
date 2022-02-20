@@ -30,8 +30,8 @@ use App\Model\Track;
 use App\Model\TrackStop;
 use App\Model\Trip;
 use App\Modifier\RelatedFilter;
-use App\Service\IdUtils;
 use App\Service\EntityReferenceFactory;
+use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
@@ -39,7 +39,7 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSubscriberInterface
 {
     protected $mapping = [
-        Track::class     => [
+        Track::class => [
             Line::class => 'line',
             Stop::class => TrackByStopDatabaseHandler::class,
         ],
@@ -53,8 +53,12 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         ],
     ];
 
-    public function __construct(private readonly ContainerInterface $inner, private readonly EntityManagerInterface $em, private readonly IdUtils $id, private readonly EntityReferenceFactory $references)
-    {
+    public function __construct(
+        private readonly ContainerInterface $inner,
+        private readonly EntityManagerInterface $em,
+        private readonly IdUtils $id,
+        private readonly EntityReferenceFactory $references
+    ) {
     }
 
     public function process(HandleModifierEvent $event)
@@ -100,9 +104,6 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
             ->setParameter($parameter, $reference);
     }
 
-    /**
-     * @inheritDoc
-     */
     public static function getSubscribedServices()
     {
         return [

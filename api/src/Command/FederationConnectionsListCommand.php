@@ -35,11 +35,12 @@ use function App\Functions\class_name;
 
 class FederationConnectionsListCommand extends Command
 {
-    protected static $defaultName = 'federation:connections:list';
+    protected static $defaultName        = 'federation:connections:list';
     protected static $defaultDescription = 'List federated connections';
 
-    public function __construct(private readonly EntityManagerInterface $manager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $manager
+    ) {
         parent::__construct(self::$defaultName);
     }
 
@@ -56,8 +57,7 @@ class FederationConnectionsListCommand extends Command
 
         $repository = $this->manager->getRepository(FederatedConnectionEntity::class);
 
-        $connectionsByServer =
-            collect($repository->findAll())
+        $connectionsByServer = collect($repository->findAll())
             ->groupBy(fn (FederatedConnectionEntity $connection) => $connection->getServer()->getId()->toRfc4122());
 
         foreach ($connectionsByServer as $serverId => $connections) {

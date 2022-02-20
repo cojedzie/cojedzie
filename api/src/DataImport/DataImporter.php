@@ -23,8 +23,12 @@ namespace App\DataImport;
 interface DataImporter
 {
     public function import(ProgressReporterInterface $reporter);
+
     public function isOutdated(): bool;
+
     public function getDependencies(): array;
+
     public function getPriority(): int;
+
     public function getDescription(): string;
 }

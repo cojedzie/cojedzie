@@ -22,5 +22,4 @@ namespace App\Modifier;
 
 interface Modifier
 {
-
 }

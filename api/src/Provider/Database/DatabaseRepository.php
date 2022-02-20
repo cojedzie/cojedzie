@@ -48,14 +48,13 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 abstract class DatabaseRepository implements Repository
 {
-    final const DEFAULT_LIMIT = 100;
-
-    /** @var ProviderEntity */
-    protected $provider;
+    final public const DEFAULT_LIMIT = 100;
 
     /**
-     * DatabaseRepository constructor.
+     * @var ProviderEntity
      */
+    protected $provider;
+
     public function __construct(
         protected EntityManagerInterface $em,
         protected IdUtils $id,
@@ -71,7 +70,9 @@ abstract class DatabaseRepository implements Repository
         ], static::getHandlers()));
     }
 
-    /** @return static */
+    /**
+     * @return static
+     */
     public function withProvider(ProviderEntity $provider)
     {
         $result           = clone $this;
@@ -118,7 +119,6 @@ abstract class DatabaseRepository implements Repository
                     return $event->getData();
                 };
             }
-
         }
 
         return collect($reducers);
@@ -134,7 +134,7 @@ abstract class DatabaseRepository implements Repository
         $paginator = new Paginator($query);
         $result    = collect($paginator)->map(\Closure::fromCallable([$this, 'convert']));
 
-        return $reducers->reduce(fn($result, $reducer) => $reducer($result), $result);
+        return $reducers->reduce(fn ($result, $reducer) => $reducer($result), $result);
     }
 
     public function first(Modifier ...$modifiers)

@@ -30,11 +30,13 @@ use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionIn
 
 class FederationDisconnectCommand extends Command
 {
-    protected static $defaultName = 'federation:disconnect';
+    protected static $defaultName        = 'federation:disconnect';
     protected static $defaultDescription = 'Disconnect this node into the federation network.';
 
-    public function __construct(private readonly FederationContext $federationContext, private readonly FederatedConnectionService $federatedConnectionService)
-    {
+    public function __construct(
+        private readonly FederationContext $federationContext,
+        private readonly FederatedConnectionService $federatedConnectionService
+    ) {
         parent::__construct(self::$defaultName);
     }
 
@@ -67,7 +69,7 @@ class FederationDisconnectCommand extends Command
 
             return Command::SUCCESS;
         } catch (HttpExceptionInterface $exception) {
-            $io->error("Transport Error: ".$exception->getMessage());
+            $io->error("Transport Error: " . $exception->getMessage());
 
             return Command::FAILURE;
         }
