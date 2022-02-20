@@ -37,7 +37,7 @@ class StopNormalizer implements NormalizerInterface
         return Arr::except($this->normalizer->normalize($object), ['latitude', 'longitude']);
     }
 
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof Stop;
     }

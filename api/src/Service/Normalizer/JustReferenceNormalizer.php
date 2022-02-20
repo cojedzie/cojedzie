@@ -40,7 +40,7 @@ class JustReferenceNormalizer implements NormalizerInterface
      *                                    reference handler can fix it
      * @throws LogicException             Occurs when the normalizer is not called in an expected context
      */
-    public function normalize($object, $format = null, array $context = []): array|bool|float|int|string
+    public function normalize($object, $format = null, array $context = [])
     {
         return [
             'id'   => $object->getId(),
@@ -53,10 +53,8 @@ class JustReferenceNormalizer implements NormalizerInterface
      *
      * @param mixed  $data   Data to normalize
      * @param string $format The format being (de-)serialized from or into
-     *
-     * @return bool
      */
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof JustReference;
     }

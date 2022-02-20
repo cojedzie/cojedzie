@@ -21,6 +21,8 @@
 namespace App\Subscriber;
 
 use App\DataConverter\Converter;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
@@ -30,12 +32,12 @@ use Symfony\Contracts\Service\ResetInterface;
 class RequestCleanupSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ContainerInterface $container,
+        private readonly ManagerRegistry $registry,
         private readonly Converter $converter
     ) {
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::TERMINATE => ['onTerminate'],
@@ -44,7 +46,7 @@ class RequestCleanupSubscriber implements EventSubscriberInterface
 
     public function onTerminate(TerminateEvent $event)
     {
-        $this->container->get('doctrine')->reset();
+        $this->registry->reset();
 
         if ($this->converter instanceof ResetInterface) {
             $this->converter->reset();

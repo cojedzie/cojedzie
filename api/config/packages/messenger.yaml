@@ -3,6 +3,8 @@ parameters:
 
 framework:
   messenger:
+    reset_on_message: true
+
     transports:
       main: '%env(resolve:APP_EVENT_QUEUE)%'
       sync: 'sync://'

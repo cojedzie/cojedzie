@@ -25,14 +25,14 @@ use App\Model\Stop;
 use App\Provider\MessageRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 class ZtmGdanskMessageRepository implements MessageRepository
 {
     final public const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
 
     public function __construct(
-        private readonly AdapterInterface $cache,
+        private readonly CacheItemPoolInterface $cache,
         private readonly ZtmGdanskMessageTypeClassifier $classifier
     ) {
     }

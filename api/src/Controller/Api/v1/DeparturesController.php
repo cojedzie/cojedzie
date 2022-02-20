@@ -79,7 +79,7 @@ class DeparturesController extends Controller
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {
-        $stops  = $stops->all(new IdFilter($request->query->get('stop', [])));
+        $stops  = $stops->all(new IdFilter($request->query->all('stop')));
         $result = $departures->current($stops, ...$this->getModifiersFromRequest($request));
 
         return $this->json(

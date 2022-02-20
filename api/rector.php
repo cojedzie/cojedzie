@@ -8,6 +8,7 @@ use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
 use Rector\Php80\Rector\Class_\DoctrineAnnotationClassToAttributeRector;
 use Rector\Php80\ValueObject\AnnotationToAttribute;
 use Rector\Set\ValueObject\LevelSetList;
+use Rector\Set\ValueObject\SetList;
 use Rector\Symfony\Set\SensiolabsSetList;
 use Rector\Symfony\Set\SymfonySetList;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -26,6 +27,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $containerConfigurator->import(DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES);
     $containerConfigurator->import(SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES);
+    $containerConfigurator->import(SymfonySetList::SYMFONY_CODE_QUALITY);
+    $containerConfigurator->import(SymfonySetList::SYMFONY_60);
     $containerConfigurator->import(SensiolabsSetList::FRAMEWORK_EXTRA_61);
 
     $services

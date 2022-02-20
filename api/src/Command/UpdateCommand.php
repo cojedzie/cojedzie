@@ -30,11 +30,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class UpdateCommand extends Command
 {
+    protected static $defaultName = 'app:update';
     public function __construct(
         private readonly DataUpdater $updater,
         private readonly MessageBusInterface $bus
     ) {
-        parent::__construct('app:update');
+        parent::__construct();
     }
 
     protected function configure()
@@ -47,7 +48,7 @@ class UpdateCommand extends Command
         );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('async')) {
             $this->bus->dispatch(new UpdateDataMessage());
