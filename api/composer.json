@@ -62,7 +62,6 @@
       "App\\": "src/"
     },
     "files": [
-      "vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php",
       "./src/Functions/index.php"
     ]
   },
@@ -107,6 +106,7 @@
   ],
   "require-dev": {
     "doctrine/doctrine-fixtures-bundle": "^3.4",
+    "rector/rector": "^0.12.16",
     "symfony/maker-bundle": "^1.30",
     "symfony/stopwatch": "5.4.*",
     "symfony/web-profiler-bundle": "5.4.*"
