@@ -1,18 +1,28 @@
+# config/packages/baldinof_road_runner.yaml
 baldinof_road_runner:
-    # The kernel is preserved between requests. Change this to `true`
-    # if you want to reboot it, and use a fresh container on each request.
-    should_reboot_kernel: false
+  # When the kernel should be rebooted.
+  # See https://github.com/baldinof/roadrunner-bundle#kernel-reboots
+  kernel_reboot:
+    # if you want to use a fresh container on each request, use the `always` strategy
+    strategy: on_exception
+    # Exceptions you KNOW that do not put your app in an errored state
+    allowed_exceptions:
+      - Symfony\Component\HttpKernel\Exception\HttpExceptionInterface
+      - Symfony\Component\Serializer\Exception\ExceptionInterface
+      - Symfony\Contracts\HttpClient\Exception\ExceptionInterface
 
-    # Integrations are automatically detected, depending on installed bundle & current configuration
-    # See https://github.com/baldinof/roadrunner-bundle#integrations
-    default_integrations: true
+  # Allow to send prometheus metrics to the main RoadRunner process,
+  # via a `Spiral\RoadRunner\MetricsInterface` service.
+  # See https://github.com/baldinof/roadrunner-bundle#metrics
+  metrics:
+    enabled: false
+    # collect:
+    #     my_counter:
+    #         type: counter
+    #         help: Some help
 
-    # Allow to send prometheus metrics to the master RoadRunner process,
-    # via a `Spiral\RoadRunner\MetricsInterface` service.
-    # See https://github.com/baldinof/roadrunner-bundle#metrics
-    metrics_enabled: false
 
-    # You can use middlewares to manipulate PSR requests & responses.
-    # See https://github.com/baldinof/roadrunner-bundle#middlewares
-    # middlewares:
-    #     - App\Middleware\YourMiddleware
+  # You can use middlewares to manipulate Symfony requests & responses.
+  # See https://github.com/baldinof/roadrunner-bundle#middlewares
+  # middlewares:
+  #     - App\Middleware\YourMiddleware

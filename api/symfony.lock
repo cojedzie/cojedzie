@@ -17,8 +17,8 @@
     "composer/package-versions-deprecated": {
         "version": "1.11.99.1"
     },
-    "dflydev/fig-cookies": {
-        "version": "v2.0.1"
+    "composer/semver": {
+        "version": "3.2.9"
     },
     "doctrine/annotations": {
         "version": "1.0",
@@ -126,9 +126,6 @@
     "illuminate/macroable": {
         "version": "v8.35.1"
     },
-    "jean85/pretty-package-versions": {
-        "version": "2.0.3"
-    },
     "jms/metadata": {
         "version": "1.7.0"
     },
@@ -154,9 +151,6 @@
     },
     "laminas/laminas-code": {
         "version": "4.5.1"
-    },
-    "laminas/laminas-diactoros": {
-        "version": "2.5.0"
     },
     "lcobucci/clock": {
         "version": "2.0.0"
@@ -194,8 +188,20 @@
     "nikic/php-parser": {
         "version": "v4.10.4"
     },
-    "php-http/discovery": {
-        "version": "1.13.0"
+    "nyholm/psr7": {
+        "version": "1.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "0cd4d2d0e7f646fda75f9944f747a56e6ed13d4c"
+        },
+        "files": [
+            "config/packages/nyholm_psr7.yaml"
+        ]
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
     },
     "phpdocumentor/reflection-common": {
         "version": "1.0.1"
@@ -227,12 +233,6 @@
     "psr/http-message": {
         "version": "1.0.1"
     },
-    "psr/http-server-handler": {
-        "version": "1.0.1"
-    },
-    "psr/http-server-middleware": {
-        "version": "1.0.1"
-    },
     "psr/link": {
         "version": "1.0.0"
     },
@@ -262,6 +262,15 @@
     },
     "spiral/roadrunner": {
         "version": "v1.8.4"
+    },
+    "spiral/roadrunner-cli": {
+        "version": "v2.1.0"
+    },
+    "spiral/roadrunner-http": {
+        "version": "v2.0.4"
+    },
+    "spiral/roadrunner-worker": {
+        "version": "v2.1.5"
     },
     "symfony/amqp-messenger": {
         "version": "v5.2.4"
