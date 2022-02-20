@@ -27,11 +27,14 @@ use Laminas\Code\Generator\ClassGenerator;
 
 class ReferenceObjectGenerator implements ProxyGeneratorInterface
 {
-    public function generate(ReflectionClass $class, ClassGenerator $generator)
+    public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator)
     {
-        $interfaces = array_merge($class->getInterfaceNames(), [ JustReference::class ]);
+        $interfaces = [
+            ...$originalClass->getInterfaceNames(),
+            JustReference::class
+        ];
 
-        $generator->setExtendedClass($class->getName());
-        $generator->setImplementedInterfaces($interfaces);
+        $classGenerator->setExtendedClass($originalClass->getName());
+        $classGenerator->setImplementedInterfaces($interfaces);
     }
 }
