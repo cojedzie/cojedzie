@@ -24,6 +24,9 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Uid\Uuid;
 
+/**
+ * @noRector Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector
+ */
 class FederationContext implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
@@ -31,22 +34,22 @@ class FederationContext implements LoggerAwareInterface
     /**
      * Connection ID associated with this instance.
      */
-    private ?Uuid $connectionId;
+    private readonly ?Uuid $connectionId;
 
     /**
      * Server ID associated with this instance.
      */
-    private ?Uuid $serverId;
+    private readonly ?Uuid $serverId;
 
     /**
      * Base URL for hub managing federated servers.
      */
-    private string $hubBaseUrl;
+    private readonly string $hubBaseUrl;
 
     /**
      * Base URL for this specific connection.
      */
-    private ?string $advertisedUrl;
+    private readonly ?string $advertisedUrl;
 
     public function __construct(?string $connectionId, ?string $serverId, string $hubBaseUrl, ?string $advertisedUrl)
     {

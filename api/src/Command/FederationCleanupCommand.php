@@ -34,14 +34,9 @@ class FederationCleanupCommand extends Command
     protected static $defaultName = 'federation:cleanup';
     protected static $defaultDescription = 'Cleanup closed connections from database.';
 
-    private EntityManagerInterface $manager;
-    private FederatedConnectionChecker $checker;
-
-    public function __construct(EntityManagerInterface $manager, FederatedConnectionChecker $checker)
+    public function __construct(private readonly EntityManagerInterface $manager, private readonly FederatedConnectionChecker $checker)
     {
         parent::__construct(self::$defaultName);
-        $this->manager = $manager;
-        $this->checker = $checker;
     }
 
     protected function configure()

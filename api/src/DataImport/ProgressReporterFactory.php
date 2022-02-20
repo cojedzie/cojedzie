@@ -35,7 +35,7 @@ class ProgressReporterFactory implements EventSubscriberInterface
     private bool $isMessageConsumer = false;
     private bool $isConsole = false;
 
-    public function __construct(private LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
     }
 

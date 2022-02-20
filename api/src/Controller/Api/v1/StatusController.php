@@ -37,12 +37,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class StatusController extends Controller
 {
-    private StatusService $service;
-
-    public function __construct(SerializerInterface $serializer, SerializerContextFactory $serializerContextFactory, StatusService $service)
+    public function __construct(SerializerInterface $serializer, SerializerContextFactory $serializerContextFactory, private readonly StatusService $service)
     {
         parent::__construct($serializer, $serializerContextFactory);
-        $this->service = $service;
     }
 
     /**

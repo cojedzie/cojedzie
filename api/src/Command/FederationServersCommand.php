@@ -32,12 +32,9 @@ class FederationServersCommand extends Command
     protected static $defaultName = 'federation:servers';
     protected static $defaultDescription = 'Get list of all federated servers.';
 
-    private EntityManagerInterface $manager;
-
-    public function __construct(EntityManagerInterface $manager)
+    public function __construct(private readonly EntityManagerInterface $manager)
     {
         parent::__construct(self::$defaultName);
-        $this->manager = $manager;
     }
 
     protected function configure()

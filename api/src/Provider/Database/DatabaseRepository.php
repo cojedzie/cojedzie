@@ -48,39 +48,20 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 abstract class DatabaseRepository implements Repository
 {
-    const DEFAULT_LIMIT = 100;
-
-    /** @var EntityManagerInterface */
-    protected $em;
+    final const DEFAULT_LIMIT = 100;
 
     /** @var ProviderEntity */
     protected $provider;
 
-    /** @var IdUtils */
-    protected $id;
-
-    /** @var Converter */
-    protected $converter;
-
-    /** @var HandlerProvider */
-    protected $handlers;
-
     /**
      * DatabaseRepository constructor.
-     *
-     * @param EntityManagerInterface $em
      */
     public function __construct(
-        EntityManagerInterface $em,
-        IdUtils $id,
-        Converter $converter,
-        HandlerProvider $handlers
+        protected EntityManagerInterface $em,
+        protected IdUtils $id,
+        protected Converter $converter,
+        protected HandlerProvider $handlers
     ) {
-        $this->em        = $em;
-        $this->id        = $id;
-        $this->converter = $converter;
-        $this->handlers  = $handlers;
-
         $this->handlers->loadConfiguration(array_merge([
             IdFilter::class      => IdFilterDatabaseHandler::class,
             Limit::class         => LimitDatabaseHandler::class,

@@ -47,11 +47,9 @@ class ZtmGdanskProvider implements Provider
     private $departures;
     private $stops;
     private $tracks;
-    private $messages;
     private $trips;
 
     private ProviderEntity $entity;
-    private EntityManagerInterface $em;
 
     public function getName(): string
     {
@@ -79,17 +77,15 @@ class ZtmGdanskProvider implements Provider
     }
 
     public function __construct(
-        EntityManagerInterface $em,
+        private readonly EntityManagerInterface $em,
         GenericLineRepository $lines,
         GenericStopRepository $stops,
         GenericTrackRepository $tracks,
         GenericScheduleRepository $schedule,
         GenericTripRepository $trips,
-        ZtmGdanskMessageRepository $messages,
+        private readonly ZtmGdanskMessageRepository $messages,
         ReferenceFactory $referenceFactory
     ) {
-        $this->em = $em;
-
         $provider = $this->refreshProviderEntity();
 
         $lines    = $lines->withProvider($provider);
@@ -101,7 +97,6 @@ class ZtmGdanskProvider implements Provider
         $this->lines      = $lines;
         $this->departures = new ZtmGdanskDepartureRepository($lines, $schedule, $referenceFactory);
         $this->stops      = $stops;
-        $this->messages   = $messages;
         $this->tracks     = $tracks;
         $this->entity     = $provider;
         $this->trips      = $trips;

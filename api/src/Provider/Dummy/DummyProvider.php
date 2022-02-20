@@ -33,18 +33,13 @@ use Carbon\Carbon;
 
 class DummyProvider implements Provider
 {
-    private $departures;
-    private $stops;
-
     /**
      * DummyProvider constructor.
      *
      * @param $departures
      */
-    public function __construct(DummyDepartureRepository $departures, DummyStopRepository $stops)
+    public function __construct(private readonly DummyDepartureRepository $departures, private readonly DummyStopRepository $stops)
     {
-        $this->departures = $departures;
-        $this->stops      = $stops;
     }
 
     public function getDepartureRepository(): DepartureRepository

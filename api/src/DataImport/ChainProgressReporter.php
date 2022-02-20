@@ -22,7 +22,7 @@ namespace App\DataImport;
 
 class ChainProgressReporter implements ProgressReporterInterface
 {
-    private array $reporters;
+    private readonly array $reporters;
 
     public function __construct(ProgressReporterInterface ...$reporters)
     {

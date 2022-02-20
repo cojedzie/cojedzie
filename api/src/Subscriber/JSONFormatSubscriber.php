@@ -31,11 +31,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class JSONFormatSubscriber implements EventSubscriberInterface
 {
-    private SerializerInterface $serializer;
-
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(private readonly SerializerInterface $serializer)
     {
-        $this->serializer = $serializer;
     }
 
     public static function getSubscribedEvents()

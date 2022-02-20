@@ -28,13 +28,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 abstract class Controller extends AbstractController
 {
-    protected $serializer;
-    protected $serializerContextFactory;
-
-    public function __construct(SerializerInterface $serializer, SerializerContextFactory $serializerContextFactory)
+    public function __construct(protected SerializerInterface $serializer, protected SerializerContextFactory $serializerContextFactory)
     {
-        $this->serializer = $serializer;
-        $this->serializerContextFactory = $serializerContextFactory;
     }
 
     protected function json($data, int $status = 200, array $headers = [], $context = null): JsonResponse

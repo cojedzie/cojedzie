@@ -26,11 +26,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class InvalidFormException extends HttpException
 {
-    /** @var FormInterface */
-    private $form;
-
     public function __construct(
-        FormInterface $form,
+        private readonly FormInterface $form,
         int $statusCode = Response::HTTP_BAD_REQUEST,
         string $message = 'Submitted form contains invalid parameters.',
         \Throwable $previous = null,
@@ -38,8 +35,6 @@ class InvalidFormException extends HttpException
         ?int $code = 0
     ) {
         parent::__construct($statusCode, $message, $previous, $headers, $code);
-
-        $this->form = $form;
     }
 
     public function getForm(): FormInterface

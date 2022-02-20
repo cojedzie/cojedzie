@@ -26,11 +26,8 @@ use Zenstruck\ScheduleBundle\Schedule\ScheduleBuilder;
 
 class HubScheduleBuilder implements ScheduleBuilder
 {
-    private FederationContext $federationContext;
-
-    public function __construct(FederationContext $federationContext)
+    public function __construct(private readonly FederationContext $federationContext)
     {
-        $this->federationContext = $federationContext;
     }
 
     public function buildSchedule(Schedule $schedule): void

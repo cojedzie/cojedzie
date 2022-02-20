@@ -30,17 +30,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class UpdateCommand extends Command
 {
-    /** @var DataUpdater */
-    private $updater;
-    /** @var MessageBusInterface */
-    private $bus;
-
-    public function __construct(DataUpdater $updater, MessageBusInterface $bus)
+    public function __construct(private readonly DataUpdater $updater, private readonly MessageBusInterface $bus)
     {
         parent::__construct('app:update');
-
-        $this->updater = $updater;
-        $this->bus = $bus;
     }
 
     protected function configure()

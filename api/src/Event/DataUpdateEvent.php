@@ -29,11 +29,8 @@ class DataUpdateEvent extends Event
 {
     const NAME = DataUpdater::UPDATE_EVENT;
 
-    private $output;
-
-    public function __construct(?OutputInterface $output = null)
+    public function __construct(private readonly OutputInterface $output = new NullOutput())
     {
-        $this->output = $output ?? new NullOutput();
     }
 
     public function getOutput(): OutputInterface

@@ -33,15 +33,9 @@ class FederationDisconnectCommand extends Command
     protected static $defaultName = 'federation:disconnect';
     protected static $defaultDescription = 'Disconnect this node into the federation network.';
 
-    private FederationContext $federationContext;
-    private FederatedConnectionService $federatedConnectionService;
-
-    public function __construct(FederationContext $federationContext, FederatedConnectionService $federatedConnectionService)
+    public function __construct(private readonly FederationContext $federationContext, private readonly FederatedConnectionService $federatedConnectionService)
     {
         parent::__construct(self::$defaultName);
-
-        $this->federationContext = $federationContext;
-        $this->federatedConnectionService = $federatedConnectionService;
     }
 
     protected function configure()

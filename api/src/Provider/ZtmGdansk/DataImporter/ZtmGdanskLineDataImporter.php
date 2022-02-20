@@ -38,15 +38,8 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         5 => LineModel::TYPE_TROLLEYBUS,
     ];
 
-    private Connection $connection;
-    private HttpClientInterface $httpClient;
-    private IdUtils $idUtils;
-
-    public function __construct(Connection $connection, HttpClientInterface $httpClient, IdUtils $idUtils)
+    public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
     {
-        $this->connection = $connection;
-        $this->httpClient = $httpClient;
-        $this->idUtils = $idUtils;
     }
 
     public function import(ProgressReporterInterface $reporter)

@@ -30,16 +30,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ProviderParameterConverter implements ParamConverterInterface
 {
-    private $resolver;
-
     /**
      * ProviderParameterConverter constructor.
      *
      * @param $resolver
      */
-    public function __construct(ProviderResolver $resolver)
+    public function __construct(private readonly ProviderResolver $resolver)
     {
-        $this->resolver = $resolver;
     }
 
     public function apply(Request $request, ParamConverter $configuration)

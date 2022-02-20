@@ -33,15 +33,8 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
     const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
 
-    private Connection $connection;
-    private HttpClientInterface $httpClient;
-    private IdUtils $idUtils;
-
-    public function __construct(Connection $connection, HttpClientInterface $httpClient, IdUtils $idUtils)
+    public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
     {
-        $this->connection = $connection;
-        $this->httpClient = $httpClient;
-        $this->idUtils = $idUtils;
     }
 
     public function import(ProgressReporterInterface $reporter)

@@ -36,12 +36,9 @@ class FederationRegisterCommand extends Command
     protected static $defaultName = 'federation:register';
     protected static $defaultDescription = 'Register new federated server';
 
-    private EntityManagerInterface $manager;
-
-    public function __construct(EntityManagerInterface $manager)
+    public function __construct(private readonly EntityManagerInterface $manager)
     {
         parent::__construct(self::$defaultName);
-        $this->manager = $manager;
     }
 
 

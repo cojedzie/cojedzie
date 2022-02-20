@@ -18,17 +18,11 @@ class FederationConnectionsDescribeCommand extends Command
     protected static $defaultName = 'federation:connections:describe';
     protected static $defaultDescription = 'Describe federation connection';
 
-    private FederatedConnectionEntityRepository $federatedConnectionRepository;
-    private SerializerInterface $serializer;
-
     public function __construct(
-        FederatedConnectionEntityRepository $federatedConnectionRepository,
-        SerializerInterface $serializer
+        private readonly FederatedConnectionEntityRepository $federatedConnectionRepository,
+        private readonly SerializerInterface $serializer
     ) {
         parent::__construct();
-
-        $this->federatedConnectionRepository = $federatedConnectionRepository;
-        $this->serializer = $serializer;
     }
 
 

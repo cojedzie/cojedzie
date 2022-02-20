@@ -48,19 +48,13 @@ use Symfony\Component\Uid\NilUuid;
  */
 class NetworkController extends Controller
 {
-    private StatusService $status;
-    private UrlGeneratorInterface $urlGenerator;
-
     public function __construct(
         SerializerInterface $serializer,
         SerializerContextFactory $serializerContextFactory,
-        StatusService $status,
-        UrlGeneratorInterface $urlGenerator
+        private readonly StatusService $status,
+        private readonly UrlGeneratorInterface $urlGenerator
     ) {
         parent::__construct($serializer, $serializerContextFactory);
-
-        $this->status = $status;
-        $this->urlGenerator = $urlGenerator;
     }
 
     /**

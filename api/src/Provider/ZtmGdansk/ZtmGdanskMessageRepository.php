@@ -32,16 +32,12 @@ class ZtmGdanskMessageRepository implements MessageRepository
 {
     const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
 
-    private $cache;
-    private $classifier;
 
     /**
      * ZtmGdanskStopRepository constructor.
      */
-    public function __construct(AdapterInterface $cache, ZtmGdanskMessageTypeClassifier $classifier)
+    public function __construct(private readonly AdapterInterface $cache, private readonly ZtmGdanskMessageTypeClassifier $classifier)
     {
-        $this->cache      = $cache;
-        $this->classifier = $classifier;
     }
 
     public function getAll(): Collection

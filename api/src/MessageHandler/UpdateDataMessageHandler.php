@@ -31,12 +31,8 @@ final class UpdateDataMessageHandler implements MessageHandlerInterface, LoggerA
 {
     use LoggerAwareTrait;
 
-    /** @var DataUpdater */
-    private $updater;
-
-    public function __construct(DataUpdater $updater)
+    public function __construct(private readonly DataUpdater $updater)
     {
-        $this->updater = $updater;
     }
 
     public function __invoke(UpdateDataMessage $message)

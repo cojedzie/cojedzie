@@ -29,16 +29,13 @@ use Kadet\Functional as f;
 
 class DummyStopRepository implements StopRepository
 {
-    private $reference;
-
     /**
      * DummyDepartureProviderRepository constructor.
      *
      * @param $reference
      */
-    public function __construct(ReferenceFactory $reference)
+    public function __construct(private readonly ReferenceFactory $reference)
     {
-        $this->reference = $reference;
     }
 
     public function getAll(): Collection

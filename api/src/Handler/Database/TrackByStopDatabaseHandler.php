@@ -29,11 +29,8 @@ use App\Service\EntityReferenceFactory;
 
 class TrackByStopDatabaseHandler implements ModifierHandler
 {
-    private $references;
-
-    public function __construct(EntityReferenceFactory $references)
+    public function __construct(private readonly EntityReferenceFactory $references)
     {
-        $this->references = $references;
     }
 
     public function process(HandleModifierEvent $event)

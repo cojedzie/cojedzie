@@ -27,17 +27,13 @@ use Doctrine\ORM\QueryBuilder;
 
 class HandleDatabaseModifierEvent extends HandleModifierEvent
 {
-    private $builder;
-
     public function __construct(
         Modifier $modifier,
         Repository $repository,
-        QueryBuilder $builder,
+        private QueryBuilder $builder,
         array $meta = []
     ) {
         parent::__construct($modifier, $repository, $meta);
-
-        $this->builder = $builder;
     }
 
     public function getBuilder(): QueryBuilder

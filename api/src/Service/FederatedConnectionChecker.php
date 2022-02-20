@@ -48,21 +48,8 @@ class FederatedConnectionChecker
      */
     const STATUS_ENDPOINT = "/api/v1/status";
 
-    private EntityManagerInterface $manager;
-    private HttpClientInterface $http;
-    private HubInterface $hub;
-    private FederatedConnectionUpdateFactory $updateFactory;
-
-    public function __construct(
-        EntityManagerInterface $manager,
-        HttpClientInterface $http,
-        HubInterface $hub,
-        FederatedConnectionUpdateFactory $updateFactory
-    ) {
-        $this->manager = $manager;
-        $this->http = $http;
-        $this->hub = $hub;
-        $this->updateFactory = $updateFactory;
+    public function __construct(private readonly EntityManagerInterface $manager, private readonly HttpClientInterface $http, private readonly HubInterface $hub, private readonly FederatedConnectionUpdateFactory $updateFactory)
+    {
     }
 
     public function check(FederatedConnectionEntity $connection, bool $force = false)

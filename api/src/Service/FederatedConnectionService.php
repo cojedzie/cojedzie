@@ -35,13 +35,8 @@ class FederatedConnectionService
     public const ENDPOINT_CONNECT    = '/api/v1/federation/connections';
     public const ENDPOINT_DISCONNECT = '/api/v1/federation/connections/{id}';
 
-    private FederationContext $context;
-    private HttpClientInterface $http;
-
-    public function __construct(FederationContext $context, HttpClientInterface $http)
+    public function __construct(private readonly FederationContext $context, private readonly HttpClientInterface $http)
     {
-        $this->context = $context;
-        $this->http = $http;
     }
 
     /**

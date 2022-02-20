@@ -35,13 +35,8 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
     const SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
 
-    private Connection $connection;
-    private IdUtils $idUtils;
-
-    public function __construct(Connection $connection, IdUtils $idUtils)
+    public function __construct(private readonly Connection $connection, private readonly IdUtils $idUtils)
     {
-        $this->connection = $connection;
-        $this->idUtils = $idUtils;
     }
 
     public function import(ProgressReporterInterface $reporter)

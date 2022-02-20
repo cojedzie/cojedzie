@@ -30,11 +30,8 @@ class FederationHeadersSubscriber implements EventSubscriberInterface
     const CONNECTION_ID_HEADER = 'X-CoJedzie-Connection-Id';
     const SERVER_ID_HEADER = 'X-CoJedzie-Server-Id';
 
-    private FederationContext $federationContext;
-
-    public function __construct(FederationContext $federationContext)
+    public function __construct(private readonly FederationContext $federationContext)
     {
-        $this->federationContext = $federationContext;
     }
     public static function getSubscribedEvents()
     {

@@ -26,18 +26,13 @@ use Symfony\Component\Console\Output\Output;
 
 class LoggerOutput extends Output
 {
-    /** @var LoggerInterface */
-    private $logger;
-
     public function __construct(
-        LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
         ?int $verbosity = self::VERBOSITY_NORMAL,
         bool $decorated = false,
         OutputFormatterInterface $formatter = null
     ) {
         parent::__construct($verbosity, $decorated, $formatter);
-
-        $this->logger = $logger;
     }
 
     protected function doWrite(string $message, bool $newline)

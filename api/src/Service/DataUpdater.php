@@ -29,16 +29,11 @@ class DataUpdater
 {
     const UPDATE_EVENT = 'app.data_update';
 
-    private EntityManagerInterface $em;
-    private ProgressReporterFactory $progressReporterFactory;
-    /** @var iterable<DataImporter> */
-    private iterable $importers;
-
-    public function __construct(EntityManagerInterface $em, ProgressReporterFactory $progressReporterFactory, iterable $importers)
+    /**
+     * @param \App\DataImport\DataImporter[] $importers
+     */
+    public function __construct(private readonly EntityManagerInterface $em, private readonly ProgressReporterFactory $progressReporterFactory, private readonly iterable $importers)
     {
-        $this->em = $em;
-        $this->progressReporterFactory = $progressReporterFactory;
-        $this->importers = $importers;
     }
 
     public function update()

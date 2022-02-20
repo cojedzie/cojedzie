@@ -28,14 +28,11 @@ use Doctrine\DBAL\Connection;
 
 class ProviderDataImporter implements DataImporter
 {
-    private Connection $connection;
-    /** @var iterable<Provider> */
-    private iterable $providers;
-
-    public function __construct(Connection $connection, iterable $providers)
+    /**
+     * @param \App\Provider\Provider[] $providers
+     */
+    public function __construct(private readonly Connection $connection, private readonly iterable $providers)
     {
-        $this->connection = $connection;
-        $this->providers = $providers;
     }
 
     public function import(ProgressReporterInterface $reporter)

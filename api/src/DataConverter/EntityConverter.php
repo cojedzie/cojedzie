@@ -32,15 +32,10 @@ use function collect;
 final class EntityConverter implements Converter, RecursiveConverter, CacheableConverter
 {
     use RecursiveConverterTrait;
-
-    private $id;
-    private $reference;
     private $cache;
 
-    public function __construct(IdUtils $id, ReferenceFactory $reference)
+    public function __construct(private readonly IdUtils $id, private readonly ReferenceFactory $reference)
     {
-        $this->id        = $id;
-        $this->reference = $reference;
         $this->cache     = [];
     }
 

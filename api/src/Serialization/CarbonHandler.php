@@ -40,11 +40,8 @@ use JMS\Serializer\Visitor\SerializationVisitorInterface;
  */
 final class CarbonHandler implements SubscribingHandlerInterface
 {
-    private $dateTimeHandler;
-
-    public function __construct(DateHandler $dateHandler)
+    public function __construct(private readonly DateHandler $dateTimeHandler)
     {
-        $this->dateTimeHandler = $dateHandler;
     }
 
     /**

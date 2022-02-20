@@ -27,11 +27,8 @@ use Tightenco\Collect\Support\Arr;
 
 class StopNormalizer implements NormalizerInterface
 {
-    private $normalizer;
-
-    public function __construct(ObjectNormalizer $normalizer)
+    public function __construct(private readonly ObjectNormalizer $normalizer)
     {
-        $this->normalizer = $normalizer;
     }
 
     public function normalize($object, $format = null, array $context = [])

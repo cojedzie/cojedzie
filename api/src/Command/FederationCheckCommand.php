@@ -37,14 +37,9 @@ class FederationCheckCommand extends Command
     protected static $defaultName = 'federation:check';
     protected static $defaultDescription = 'Get list of all federated servers.';
 
-    private EntityManagerInterface $manager;
-    private FederatedConnectionChecker $checker;
-
-    public function __construct(EntityManagerInterface $manager, FederatedConnectionChecker $checker)
+    public function __construct(private readonly EntityManagerInterface $manager, private readonly FederatedConnectionChecker $checker)
     {
         parent::__construct(self::$defaultName);
-        $this->manager = $manager;
-        $this->checker = $checker;
     }
 
     protected function configure()

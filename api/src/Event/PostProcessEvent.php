@@ -25,12 +25,9 @@ use App\Provider\Repository;
 
 class PostProcessEvent extends HandleModifierEvent
 {
-    private $data;
-
-    public function __construct($data, Modifier $modifier, Repository $repository, array $meta = [])
+    public function __construct(private $data, Modifier $modifier, Repository $repository, array $meta = [])
     {
         parent::__construct($modifier, $repository, $meta);
-        $this->data = $data;
     }
 
     public function getData()

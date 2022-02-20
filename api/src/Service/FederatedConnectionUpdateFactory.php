@@ -35,13 +35,8 @@ class FederatedConnectionUpdateFactory
     const EVENT_NODE_SUSPEND = 'node-suspend';
     const EVENT_NODE_RESUME  = 'node-resume';
 
-    private SerializerInterface $serializer;
-    private Converter $converter;
-
-    public function __construct(SerializerInterface $serializer, Converter $converter)
+    public function __construct(private readonly SerializerInterface $serializer, private readonly Converter $converter)
     {
-        $this->serializer = $serializer;
-        $this->converter = $converter;
     }
 
     public function createNodeJoinedUpdate(FederatedConnectionEntity $connection)

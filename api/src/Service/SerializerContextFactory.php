@@ -30,13 +30,8 @@ use function Kadet\Functional\Transforms\property;
 
 final class SerializerContextFactory
 {
-    private $factory;
-    private $reader;
-
-    public function __construct(AdvancedMetadataFactoryInterface $factory, Reader $reader)
+    public function __construct(private readonly AdvancedMetadataFactoryInterface $factory, private readonly Reader $reader)
     {
-        $this->factory = $factory;
-        $this->reader = $reader;
     }
 
     public function create($subject, array $groups = ['Default'])

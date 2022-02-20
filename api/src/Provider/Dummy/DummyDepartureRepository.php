@@ -30,16 +30,13 @@ use Carbon\Carbon;
 
 class DummyDepartureRepository implements DepartureRepository
 {
-    private $reference;
-
     /**
      * DummyDepartureProviderRepository constructor.
      *
      * @param $reference
      */
-    public function __construct(ReferenceFactory $reference)
+    public function __construct(private readonly ReferenceFactory $reference)
     {
-        $this->reference = $reference;
     }
 
     public function current(iterable $stops, Modifier ...$modifiers)

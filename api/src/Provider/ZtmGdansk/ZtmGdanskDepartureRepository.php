@@ -47,23 +47,8 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 {
     const ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
 
-    /** @var LineRepository */
-    private $lines;
-
-    /** @var ReferenceFactory */
-    private $reference;
-
-    /** @var ScheduleRepository */
-    private $schedule;
-
-    /**
-     * @param LineRepository $lines
-     */
-    public function __construct(LineRepository $lines, ScheduleRepository $schedule, ReferenceFactory $reference)
+    public function __construct(private readonly LineRepository $lines, private readonly ScheduleRepository $schedule, private readonly ReferenceFactory $reference)
     {
-        $this->lines = $lines;
-        $this->reference = $reference;
-        $this->schedule = $schedule;
     }
 
     public function current(iterable $stops, Modifier ...$modifiers)

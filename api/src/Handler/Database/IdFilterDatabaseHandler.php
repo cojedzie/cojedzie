@@ -29,14 +29,8 @@ use function Kadet\Functional\apply;
 
 class IdFilterDatabaseHandler implements ModifierHandler
 {
-    /**
-     * @var IdUtils
-     */
-    private $id;
-
-    public function __construct(IdUtils $id)
+    public function __construct(private readonly IdUtils $id)
     {
-        $this->id = $id;
     }
 
     public function process(HandleModifierEvent $event)

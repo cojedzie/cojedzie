@@ -38,12 +38,9 @@ class FederationConnectionsListCommand extends Command
     protected static $defaultName = 'federation:connections:list';
     protected static $defaultDescription = 'List federated connections';
 
-    private EntityManagerInterface $manager;
-
-    public function __construct(EntityManagerInterface $manager)
+    public function __construct(private readonly EntityManagerInterface $manager)
     {
         parent::__construct(self::$defaultName);
-        $this->manager = $manager;
     }
 
     protected function configure()

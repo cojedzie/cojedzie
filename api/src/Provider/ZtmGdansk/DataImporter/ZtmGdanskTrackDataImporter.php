@@ -34,16 +34,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     const TRACKS_URL         = ZtmGdanskProvider::BASE_URL."/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
     const STOPS_IN_TRACK_URL = ZtmGdanskProvider::BASE_URL."/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
 
-    private Connection $connection;
-    private HttpClientInterface $httpClient;
-    private IdUtils $idUtils;
     private int $trackCount;
 
-    public function __construct(Connection $connection, HttpClientInterface $httpClient, IdUtils $idUtils)
+    public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
     {
-        $this->connection = $connection;
-        $this->httpClient = $httpClient;
-        $this->idUtils = $idUtils;
     }
 
     public function import(ProgressReporterInterface $reporter)

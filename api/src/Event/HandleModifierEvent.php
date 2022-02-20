@@ -25,15 +25,8 @@ use App\Provider\Repository;
 
 class HandleModifierEvent
 {
-    private $repository;
-    private $modifier;
-    private $meta = [];
-
-    public function __construct(Modifier $modifier, Repository $repository, array $meta = [])
+    public function __construct(private readonly Modifier $modifier, private readonly Repository $repository, private readonly array $meta = [])
     {
-        $this->repository = $repository;
-        $this->modifier   = $modifier;
-        $this->meta       = $meta;
     }
 
     public function getModifier(): Modifier

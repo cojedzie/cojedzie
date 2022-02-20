@@ -26,12 +26,10 @@ use function Kadet\Functional\Predicates\instance;
 
 class AggregateConverter implements Converter, CacheableConverter
 {
-    private $converters;
     private $cachedConverters;
 
-    public function __construct(iterable $converters)
+    public function __construct(private readonly iterable $converters)
     {
-        $this->converters = $converters;
     }
 
     public function convert($entity, string $type)

@@ -29,7 +29,7 @@ class LoggerProgressReporter implements ProgressReporterInterface
 
     private float $lastProgressReported = 0;
 
-    public function __construct(private LoggerInterface $logger, private string $name = "")
+    public function __construct(private readonly LoggerInterface $logger, private readonly string $name = "")
     {
     }
 

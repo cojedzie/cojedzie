@@ -36,16 +36,8 @@ use Kadet\Functional\Transforms as t;
 
 class WithDestinationsDatabaseHandler implements PostProcessingHandler
 {
-    private $em;
-    private $converter;
-    private $id;
-
-    public function __construct(EntityManagerInterface $entityManager, Converter $converter, IdUtils $id)
+    public function __construct(private readonly EntityManagerInterface $em, private Converter $converter, private readonly IdUtils $id)
     {
-        $this->em = $entityManager;
-        $this->converter = $converter;
-        $this->id = $id;
-
         if ($this->converter instanceof CacheableConverter) {
             $this->converter = clone $this->converter;
             $this->converter->reset();

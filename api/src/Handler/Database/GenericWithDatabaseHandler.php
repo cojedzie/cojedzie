@@ -53,18 +53,8 @@ class GenericWithDatabaseHandler implements ModifierHandler
         ],
     ];
 
-    private $em;
-    private $id;
-    private $references;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        IdUtils $idUtils,
-        EntityReferenceFactory $references
-    ) {
-        $this->em         = $em;
-        $this->id         = $idUtils;
-        $this->references = $references;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IdUtils $id, private readonly EntityReferenceFactory $references)
+    {
     }
 
     public function process(HandleModifierEvent $event)

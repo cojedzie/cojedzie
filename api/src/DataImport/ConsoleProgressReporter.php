@@ -28,7 +28,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
 {
     private ?ProgressBar $progressBar = null;
 
-    public function __construct(private InputInterface $input, private ConsoleOutputInterface $output, private int $depth = 0)
+    public function __construct(private readonly InputInterface $input, private readonly ConsoleOutputInterface $output, private readonly int $depth = 0)
     {
     }
 
