@@ -50,7 +50,7 @@ class UpdateCommand extends Command
             $this->bus->dispatch(new UpdateDataMessage());
             $output->writeln("Update request sent to message queue.");
         } else {
-            $this->updater->update($output);
+            $this->updater->update();
         }
 
         return Command::SUCCESS;

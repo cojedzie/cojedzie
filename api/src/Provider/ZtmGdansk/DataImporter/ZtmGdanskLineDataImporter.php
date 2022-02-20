@@ -77,7 +77,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 }
             }
 
-            $reporter->progress($count += count($batch));
+            $reporter->progress($count += is_countable($batch) ? count($batch) : 0);
         }
 
         $reporter->progress($count, comment: 'OK', finished: true);
@@ -117,8 +117,8 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['routeId']) => [
                 'symbol'      => $symbol,
                 'type'        => $this->getLineType($line),
-                'night'       => preg_match('/^N\d{1,3}$/', $symbol),
-                'fast'        => preg_match('/^[A-MO-Z]$/', $symbol),
+                'night'       => preg_match('/^N\d{1,3}$/', (string) $symbol),
+                'fast'        => preg_match('/^[A-MO-Z]$/', (string) $symbol),
                 'operator_id' => $operator,
             ];
 

@@ -75,7 +75,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                 }
             }
 
-            $reporter->progress($count += count($batch));
+            $reporter->progress($count += is_countable($batch) ? count($batch) : 0);
         }
 
         $reporter->progress($count, comment: 'OK', finished: true);

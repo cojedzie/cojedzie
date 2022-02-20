@@ -138,7 +138,7 @@ class FederatedConnectionChecker
         // k is multiplier of check interval.
         // We pick random number between consecutive powers of 2, for example, if we failed 4 times in row we pick
         // random number between 2^3 = 8 and 2^4 = 16
-        $k = rand(
+        $k = random_int(
             2 ** ($connection->getFailures() - 1),
             2 ** $connection->getFailures()
         );

@@ -68,7 +68,7 @@ class ZtmGdanskMessageRepository implements MessageRepository
         $item = $this->cache->getItem('ztm-gdansk.messages');
 
         if (!$item->isHit()) {
-            $messages = json_decode(file_get_contents(static::MESSAGES_URL), true);
+            $messages = json_decode(file_get_contents(static::MESSAGES_URL), true, 512, JSON_THROW_ON_ERROR);
 
             $item->expiresAfter(60);
             $item->set($messages['displaysMsg']);

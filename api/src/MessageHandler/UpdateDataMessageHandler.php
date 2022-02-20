@@ -38,7 +38,7 @@ final class UpdateDataMessageHandler implements MessageHandlerInterface, LoggerA
     public function __invoke(UpdateDataMessage $message)
     {
         try {
-            $this->updater->update(new LoggerOutput($this->logger));
+            $this->updater->update();
         } catch (\Exception $exception) {
             $this->logger->critical($exception->getMessage(), [
                 'backtrace' => $exception->getTraceAsString()

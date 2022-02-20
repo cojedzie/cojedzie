@@ -39,7 +39,7 @@ class IdUtils
 
     public function strip($id)
     {
-        return explode(self::DELIMITER, $id)[1];
+        return explode(self::DELIMITER, (string) $id)[1];
     }
 
     public function of(Entity $entity)
