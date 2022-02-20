@@ -27,10 +27,7 @@ class IdUtils
 {
     final const DELIMITER = '::';
 
-    /**
-     * @param ProviderEntity|string $provider
-     */
-    public function generate($provider, $id)
+    public function generate(ProviderEntity|string $provider, $id)
     {
         // todo: use array cache if not fast enough
         $providerId = $provider instanceof ProviderEntity ? $provider->getId() : $provider;

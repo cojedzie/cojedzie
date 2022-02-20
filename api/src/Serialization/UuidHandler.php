@@ -73,24 +73,18 @@ final class UuidHandler implements SubscribingHandlerInterface
         return $methods;
     }
 
-    /**
-     * @return string
-     */
     public function serialize(
         SerializationVisitorInterface $visitor,
         Uuid $uuid,
         array $type,
         SerializationContext $context
-    ) {
+    ): string {
         return $uuid->toRfc4122();
     }
 
-    /**
-     * @param string $data
-     */
     public function deserialize(
         DeserializationVisitorInterface $visitor,
-        $data,
+        string $data,
         array $type,
         DeserializationContext $context
     ): Uuid {

@@ -78,24 +78,18 @@ final class CarbonHandler implements SubscribingHandlerInterface
         return $methods;
     }
 
-    /**
-     * @return array|\ArrayObject
-     */
     public function serialize(
         SerializationVisitorInterface $visitor,
         Carbon $date,
         array $type,
         SerializationContext $context
-    ) {
+    ): string {
         return $this->dateTimeHandler->serializeDateTime($visitor, $date->tz('Europe/Warsaw'), $type, $context);
     }
 
-    /**
-     * @param mixed $data
-     */
     public function deserialize(
         DeserializationVisitorInterface $visitor,
-        $data,
+        string $data,
         array $type,
         DeserializationContext $context
     ): Carbon {

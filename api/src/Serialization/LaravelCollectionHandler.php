@@ -72,15 +72,12 @@ final class LaravelCollectionHandler implements SubscribingHandlerInterface
         return $methods;
     }
 
-    /**
-     * @return array|\ArrayObject
-     */
     public function serializeCollection(
         SerializationVisitorInterface $visitor,
         Collection $collection,
         array $type,
         SerializationContext $context
-    ) {
+    ): array|\ArrayObject {
         // We change the base type, and pass through possible parameters.
         $type['name'] = 'array';
         $result = $visitor->visitArray($collection->all(), $type);
@@ -88,12 +85,9 @@ final class LaravelCollectionHandler implements SubscribingHandlerInterface
         return $result;
     }
 
-    /**
-     * @param mixed $data
-     */
     public function deserializeCollection(
         DeserializationVisitorInterface $visitor,
-        $data,
+        mixed $data,
         array $type,
         DeserializationContext $context
     ): Collection {
