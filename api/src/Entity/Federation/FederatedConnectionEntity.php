@@ -31,10 +31,8 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Uid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=FederatedConnectionEntityRepository::class)
- * @ORM\Table("federated_connection")
- */
+#[ORM\Entity(repositoryClass: FederatedConnectionEntityRepository::class)]
+#[ORM\Table('federated_connection')]
 class FederatedConnectionEntity implements Referable, Fillable
 {
     use FillTrait;
@@ -75,78 +73,75 @@ class FederatedConnectionEntity implements Referable, Fillable
     /**
      * Unique identifier for this particular connection.
      *
-     * @ORM\Column(type="uuid")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     *
      * @Serializer\Type("uuid")
      */
-    private Uuid $id;
+    #[ORM\Column(type: 'uuid')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    private readonly Uuid $id;
 
     /**
      * Federated server associated with this connection. In principle server can have multiple connections, it's recommended though.
-     * @ORM\ManyToOne(targetEntity=FederatedServerEntity::class, inversedBy="connections")
      *
      * @SerializeAs({"Default": "Basic"})
      */
+    #[ORM\ManyToOne(targetEntity: FederatedServerEntity::class, inversedBy: 'connections')]
     private FederatedServerEntity $server;
 
     /**
      * Base URL address for this particular connection.
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: 'string')]
     private string $url;
 
     /**
      * Time when connection was opened by the federated server.
-     * @ORM\Column(type="datetime")
      */
+    #[ORM\Column(type: 'datetime')]
     private Carbon $openedAt;
 
     /**
      * Time when connection was closed.
-     * @ORM\Column(type="datetime", nullable=true)
      */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?Carbon $closedAt = null;
 
     /**
      * Time of the last connection check.
-     * @ORM\Column(type="datetime", nullable=true)
      */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?Carbon $lastCheck = null;
 
     /**
      * Time of the earliest next connection check.
-     * @ORM\Column(type="datetime")
      */
+    #[ORM\Column(type: 'datetime')]
     private Carbon $nextCheck;
 
     /**
      * Number of failed checks, zeroed after successful check.
-     * @ORM\Column(type="integer")
      */
+    #[ORM\Column(type: 'integer')]
     private int $failures = 0;
 
     /**
      * Number of failed checks
-     * @ORM\Column(type="integer")
      */
+    #[ORM\Column(type: 'integer')]
     private int $failuresTotal = 0;
 
     /**
      * Current state of the connection.
      * @see self::STATE_*
-     *
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: 'string')]
     private string $state = self::STATE_NEW;
 
     /**
      * Last status received from the server.
-     *
-     * @ORM\Column(type="text", nullable=true)
      */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $lastStatus = null;
 
     public function getId(): Uuid

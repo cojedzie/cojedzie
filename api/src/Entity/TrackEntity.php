@@ -23,57 +23,48 @@ namespace App\Entity;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Service\IterableUtils;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Kadet\Functional\Transforms as t;
 
-/**
- * @ORM\Entity
- * @ORM\Table("track")
- */
+#[ORM\Entity]
+#[ORM\Table('track')]
 class TrackEntity implements Entity, Fillable
 {
     use ReferableEntityTrait, FillTrait, ProviderReferenceTrait;
 
     /**
      * Line variant describing track, for example 'a'
-     *
-     * @ORM\Column(type="string", length=16, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 16, nullable: true)]
     private ?string $variant = null;
 
     /**
      * Track description
-     *
-     * @ORM\Column(type="string", length=256, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 256, nullable: true)]
     private ?string $description = null;
 
     /**
      * Line reference
-     *
-     *
-     * @ORM\ManyToOne(targetEntity=LineEntity::class, fetch="EAGER", inversedBy="tracks")
-     * @ORM\JoinColumn(name="line_id", referencedColumnName="id", onDelete="CASCADE")
      */
+    #[ORM\ManyToOne(targetEntity: LineEntity::class, fetch: 'EAGER', inversedBy: 'tracks')]
+    #[ORM\JoinColumn(name: 'line_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private LineEntity $line;
 
     /**
      * Stops in track
      *
      * @var Collection<TrackStopEntity>
-     * @ORM\OneToMany(targetEntity=TrackStopEntity::class, fetch="LAZY", mappedBy="track", cascade={"persist"})
-     * @ORM\OrderBy({"order": "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: TrackStopEntity::class, fetch: 'LAZY', mappedBy: 'track', cascade: ['persist'])]
+    #[ORM\OrderBy(['order' => 'ASC'])]
     private Collection $stopsInTrack;
 
     /**
      * Final stop in this track.
-     *
-     * @ORM\OneToOne(targetEntity=TrackStopEntity::class, fetch="LAZY")
-     * @ORM\JoinColumn(name="final_id", referencedColumnName="id", onDelete="SET NULL")
      */
+    #[ORM\OneToOne(targetEntity: TrackStopEntity::class, fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'final_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private TrackStopEntity $final;
 
     /**

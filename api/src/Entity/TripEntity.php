@@ -26,54 +26,44 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table("trip")
- */
+#[ORM\Entity]
+#[ORM\Table('trip')]
 class TripEntity implements Entity, Fillable
 {
     use ReferableEntityTrait, ProviderReferenceTrait, FillTrait;
 
     /**
      * Operator of the trip
-     *
-     * @ORM\ManyToOne(targetEntity=OperatorEntity::class)
      */
+    #[ORM\ManyToOne(targetEntity: OperatorEntity::class)]
     private OperatorEntity $operator;
 
     /**
      * Track of the trip
-     *
-     * @ORM\ManyToOne(targetEntity=TrackEntity::class)
-     * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
      */
+    #[ORM\ManyToOne(targetEntity: TrackEntity::class)]
+    #[ORM\JoinColumn(name: 'track_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private TrackEntity $track;
 
     /**
      * Variant of track, for example some alternative route
-     *
-     * @ORM\Column("variant", nullable=true)
      */
+    #[ORM\Column(nullable: true)]
     private ?string $variant = null;
 
     /**
      * Description of variant
-     *
-     * @ORM\Column("note", nullable=true)
      */
+    #[ORM\Column(nullable: true)]
     private ?string $note = null;
 
     /**
      * @var Collection<TripStopEntity>
-     *
-     * @ORM\OneToMany(targetEntity=TripStopEntity::class, fetch="EXTRA_LAZY", mappedBy="trip", cascade={"persist"})
-     * @ORM\OrderBy({"order": "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: TripStopEntity::class, fetch: 'EXTRA_LAZY', mappedBy: 'trip', cascade: ['persist'])]
+    #[ORM\OrderBy(['order' => 'ASC'])]
     private Collection $stops;
 
-    /**
-     * TripEntity constructor.
-     */
     public function __construct()
     {
         $this->setStops([]);

@@ -23,44 +23,34 @@ namespace App\Entity;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
-use App\Model\ReferableTrait;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table("track_stop", uniqueConstraints={
- *     @ORM\UniqueConstraint(name="stop_in_track_idx", columns={"stop_id", "track_id", "sequence"})
- * })
- */
+#[ORM\Entity]
+#[ORM\Table('track_stop')]
 class TrackStopEntity implements Fillable, Referable
 {
     use FillTrait;
 
     /**
      * Identifier for stop coming from provider
-     *
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
-     * @ORM\JoinColumn(name="stop_id", referencedColumnName="id", onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: StopEntity::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(name: 'stop_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private StopEntity $stop;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=TrackEntity::class, fetch="EAGER", inversedBy="stopsInTrack")
-     * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: TrackEntity::class, fetch: 'EAGER', inversedBy: 'stopsInTrack')]
+    #[ORM\JoinColumn(name: 'track_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private TrackEntity $track;
 
     /**
      * Order in track
-     * @ORM\Column(name="sequence", type="integer")
      */
+    #[ORM\Column(name: 'sequence', type: 'integer')]
     private int $order;
 
     public function getId(): ?int

@@ -22,58 +22,48 @@ namespace App\Entity;
 
 use App\Model\Fillable;
 use App\Model\FillTrait;
-use App\Model\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table("line")
- */
+#[ORM\Entity]
+#[ORM\Table('line')]
 class LineEntity implements Fillable, Entity
 {
     use FillTrait, ReferableEntityTrait, ProviderReferenceTrait;
 
     /**
      * Line symbol, for example '10', or 'A'
-     *
-     * @ORM\Column(type="string", length=16)
      */
+    #[ORM\Column(type: 'string', length: 16)]
     private string $symbol;
 
     /**
      * Line type tram, bus or whatever.
-     *
-     * @ORM\Column(type="string", length=20)
      */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $type;
 
     /**
      * Is line considered as fast line?
-     *
-     * @ORM\Column(type="boolean")
      */
+    #[ORM\Column(type: 'boolean')]
     private bool $fast = false;
 
     /**
      * Is line considered as night line?
-     *
-     * @ORM\Column(type="boolean")
      */
+    #[ORM\Column(type: 'boolean')]
     private bool $night = false;
 
     /**
      * Line operator
-     *
-     * @ORM\ManyToOne(targetEntity=OperatorEntity::class)
      */
+    #[ORM\ManyToOne(targetEntity: OperatorEntity::class)]
     private OperatorEntity $operator;
 
-    /**
-     * @ORM\OneToMany(targetEntity=TrackEntity::class, mappedBy="line")
-     */
-    private Collection $tracks;
+    #[ORM\OneToMany(targetEntity: TrackEntity::class, mappedBy: 'line')]
+    private readonly Collection $tracks;
 
     public function __construct()
     {

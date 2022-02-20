@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use Rector\Core\Configuration\Option;
-use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
-use Rector\Php80\ValueObject\AnnotationToAttribute;
+use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Set\ValueObject\LevelSetList;
+use Rector\Symfony\Set\SensiolabsSetList;
+use Rector\Symfony\Set\SymfonySetList;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -20,9 +21,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Define what rule sets will be applied
     $containerConfigurator->import(LevelSetList::UP_TO_PHP_81);
 
-    $services
-        ->set(AnnotationToAttributeRector::class)
-        ->configure([
-            new AnnotationToAttribute('Symfony\Component\Routing\Annotation\Route')
-        ]);
+    $containerConfigurator->import(DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES);
+    $containerConfigurator->import(SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES);
+    $containerConfigurator->import(SensiolabsSetList::FRAMEWORK_EXTRA_61);
 };

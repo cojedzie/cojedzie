@@ -24,9 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait ProviderReferenceTrait
 {
-    /**
-     * @ORM\ManyToOne(targetEntity=ProviderEntity::class, cascade={"persist", "remove"})
-     */
+    #[ORM\ManyToOne(targetEntity: ProviderEntity::class, cascade: ['persist', 'remove'])]
     private ?ProviderEntity $provider = null;
 
     public function getProvider(): ProviderEntity

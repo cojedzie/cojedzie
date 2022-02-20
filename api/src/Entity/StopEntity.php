@@ -22,75 +22,62 @@ namespace App\Entity;
 
 use App\Model\Fillable;
 use App\Model\FillTrait;
-use App\Model\Referable;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(readOnly=true)
- * @ORM\Table("stop", indexes={
- *     @ORM\Index(name="group_idx", columns={"group_name"})
- * })
- */
+#[ORM\Entity(readOnly: true)]
+#[ORM\Table('stop', indexes: [new ORM\Index(name: 'group_idx', columns: ['group_name'])])]
 class StopEntity implements Entity, Fillable
 {
     use FillTrait, ReferableEntityTrait, ProviderReferenceTrait;
 
     /**
      * Identifier for stop coming from provider
-     *
-     * @ORM\Column(type="string")
-     * @ORM\Id
      */
+    #[ORM\Column(type: 'string')]
+    #[ORM\Id]
     private string $id;
 
     /**
      * Stop name
      * @var string
-     *
-     * @ORM\Column(type="string", length=255)
      */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
     /**
      * Stop group name
-     *
-     * @ORM\Column(type="string", length=255, nullable=true, name="group_name")
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true, name: 'group_name')]
     private ?string $group = null;
 
     /**
      * Optional stop description, should not be longer than 255 chars
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $description = null;
 
     /**
      * Optional stop variant - for example number of shed
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $variant = null;
 
     /**
      * Latitude of stop
-     *
-     * @ORM\Column(type="float", nullable=true)
      */
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?float $latitude = null;
 
     /**
      * Longitude of stop
-     *
-     * @ORM\Column(type="float", nullable=true)
      */
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?float $longitude = null;
 
     /**
      * True if stop is available only on demand
-     *
-     * @ORM\Column(type="boolean")
      */
+    #[ORM\Column(type: 'boolean')]
     private bool $onDemand = false;
 
     public function getName(): string

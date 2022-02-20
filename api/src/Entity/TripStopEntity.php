@@ -23,60 +23,47 @@ namespace App\Entity;
 use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
-use App\Model\Trip;
-use App\Service\IdUtils;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
 
-/**
- * @ORM\Entity
- * @ORM\Table("trip_stop")
- */
+#[ORM\Entity]
+#[ORM\Table('trip_stop')]
 class TripStopEntity implements Fillable, Referable
 {
     use FillTrait;
 
     /**
      * Identifier for stop coming from provider
-     *
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
-     * @ORM\JoinColumn(name="stop_id", referencedColumnName="id", onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: StopEntity::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(name: 'stop_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private StopEntity $stop;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=TripEntity::class, fetch="EAGER", inversedBy="stops")
-     * @ORM\JoinColumn(name="trip_id", referencedColumnName="id", onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: TripEntity::class, fetch: 'EAGER', inversedBy: 'stops')]
+    #[ORM\JoinColumn(name: 'trip_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private TripEntity $trip;
 
     /**
      * Order in trip
-     *
-     * @ORM\Column(name="sequence", type="integer")
      */
+    #[ORM\Column(name: 'sequence', type: 'integer')]
     private int $order;
 
     /**
      * Arrival time
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private Carbon $arrival;
 
     /**
      * Departure time
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private Carbon $departure;
 
     public function getId(): ?int

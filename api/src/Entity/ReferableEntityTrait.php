@@ -27,11 +27,10 @@ trait ReferableEntityTrait
     /**
      * Identifier for stop coming from provider
      *
-     * @ORM\Column(type="string")
-     * @ORM\Id
-     *
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
+    #[ORM\Column(type: 'string')]
+    #[ORM\Id]
     private string $id;
 
     public function getId(): string

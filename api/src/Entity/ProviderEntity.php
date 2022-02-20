@@ -26,33 +26,28 @@ use App\Model\Referable;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table("provider")
- */
+#[ORM\Entity]
+#[ORM\Table('provider')]
 class ProviderEntity implements Fillable, Referable
 {
     use ReferableEntityTrait, FillTrait;
 
     /**
      * Provider short name, for example. ZTM Gdańsk
-     *
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: 'string')]
     private $name;
 
     /**
      * Class that handles that provider
-     *
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: 'string')]
     private $class;
 
     /**
      * Time and date of last data update
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $updateDate;
 
     /**

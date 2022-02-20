@@ -24,40 +24,34 @@ use App\Model\Fillable;
 use App\Model\FillTrait;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table("operator")
- */
+#[ORM\Entity]
+#[ORM\Table('operator')]
 class OperatorEntity implements Fillable, Entity
 {
     use ProviderReferenceTrait, FillTrait, ReferableEntityTrait;
 
     /**
      * Describes operator name
-     *
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: 'string')]
     private string $name;
 
     /**
      * Contact email to operator
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $email = null;
 
     /**
      * URL of operators page
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $url = null;
 
     /**
      * Contact phone to operator
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $phone = null;
 
     public function getName(): string
