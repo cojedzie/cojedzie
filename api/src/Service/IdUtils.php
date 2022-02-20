@@ -25,7 +25,7 @@ use App\Entity\ProviderEntity;
 
 class IdUtils
 {
-    const DELIMITER = '::';
+    final const DELIMITER = '::';
 
     /**
      * @param ProviderEntity|string $provider

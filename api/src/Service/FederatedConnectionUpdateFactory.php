@@ -28,12 +28,12 @@ use Symfony\Component\Mercure\Update;
 
 class FederatedConnectionUpdateFactory
 {
-    const TOPIC = 'network/nodes';
+    final const TOPIC = 'network/nodes';
 
-    const EVENT_NODE_JOINED  = 'node-joined';
-    const EVENT_NODE_LEFT    = 'node-left';
-    const EVENT_NODE_SUSPEND = 'node-suspend';
-    const EVENT_NODE_RESUME  = 'node-resume';
+    final const EVENT_NODE_JOINED  = 'node-joined';
+    final const EVENT_NODE_LEFT    = 'node-left';
+    final const EVENT_NODE_SUSPEND = 'node-suspend';
+    final const EVENT_NODE_RESUME  = 'node-resume';
 
     public function __construct(private readonly SerializerInterface $serializer, private readonly Converter $converter)
     {

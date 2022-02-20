@@ -27,8 +27,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class FederationHeadersSubscriber implements EventSubscriberInterface
 {
-    const CONNECTION_ID_HEADER = 'X-CoJedzie-Connection-Id';
-    const SERVER_ID_HEADER = 'X-CoJedzie-Server-Id';
+    final const CONNECTION_ID_HEADER = 'X-CoJedzie-Connection-Id';
+    final const SERVER_ID_HEADER = 'X-CoJedzie-Server-Id';
 
     public function __construct(private readonly FederationContext $federationContext)
     {

@@ -45,7 +45,7 @@ use function Kadet\Functional\ref;
 
 class ZtmGdanskDepartureRepository implements DepartureRepository
 {
-    const ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
+    final const ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
 
     public function __construct(private readonly LineRepository $lines, private readonly ScheduleRepository $schedule, private readonly ReferenceFactory $reference)
     {

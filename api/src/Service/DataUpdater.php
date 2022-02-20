@@ -27,7 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class DataUpdater
 {
-    const UPDATE_EVENT = 'app.data_update';
+    final const UPDATE_EVENT = 'app.data_update';
 
     /**
      * @param DataImporter[] $importers

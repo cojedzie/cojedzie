@@ -29,7 +29,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 {
-    const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json";
+    final const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json";
 
     public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
     {

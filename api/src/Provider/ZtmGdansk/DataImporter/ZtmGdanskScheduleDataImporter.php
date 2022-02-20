@@ -33,7 +33,7 @@ use Doctrine\ORM\Query\Expr;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
-    const SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
+    final const SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
 
     public function __construct(private readonly Connection $connection, private readonly IdUtils $idUtils)
     {

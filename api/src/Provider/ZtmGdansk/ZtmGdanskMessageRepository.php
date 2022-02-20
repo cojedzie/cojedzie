@@ -30,8 +30,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class ZtmGdanskMessageRepository implements MessageRepository
 {
-    const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
-
+    final const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
 
     /**
      * ZtmGdanskStopRepository constructor.

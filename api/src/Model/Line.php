@@ -27,12 +27,12 @@ use OpenApi\Annotations as OA;
 
 class Line implements Fillable, Referable, DTO
 {
-    const TYPE_TRAM       = 'tram';
-    const TYPE_BUS        = 'bus';
-    const TYPE_TRAIN      = 'train';
-    const TYPE_METRO      = 'metro';
-    const TYPE_TROLLEYBUS = 'trolleybus';
-    const TYPE_UNKNOWN    = 'unknown';
+    final const TYPE_TRAM       = 'tram';
+    final const TYPE_BUS        = 'bus';
+    final const TYPE_TRAIN      = 'train';
+    final const TYPE_METRO      = 'metro';
+    final const TYPE_TROLLEYBUS = 'trolleybus';
+    final const TYPE_UNKNOWN    = 'unknown';
 
     use FillTrait, ReferableTrait;
 

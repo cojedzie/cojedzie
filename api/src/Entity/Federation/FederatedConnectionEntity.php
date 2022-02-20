@@ -42,35 +42,35 @@ class FederatedConnectionEntity implements Referable, Fillable
     /**
      * Connection is new and awaiting it's first check.
      */
-    public const STATE_NEW = "new";
+    public final const STATE_NEW = "new";
 
     /**
      * Connection is open and ready to accept connections.
      */
-    public const STATE_READY = "ready";
+    public final const STATE_READY = "ready";
 
     /**
      * Connection is open but is not accepting connections. It can happen when for example node is synchronising data.
      */
-    public const STATE_SUSPENDED = "suspended";
+    public final const STATE_SUSPENDED = "suspended";
 
     /**
      * Connection has some problems and should be checked later.
      */
-    public const STATE_BACKOFF = "backoff";
+    public final const STATE_BACKOFF = "backoff";
 
     /**
      * Connection failed too many times and was closed.
      */
-    public const STATE_ERROR = "error";
+    public final const STATE_ERROR = "error";
 
     /**
      * Connection was closed by the server.
      */
-    public const STATE_CLOSED = "closed";
+    public final const STATE_CLOSED = "closed";
 
-    public const OPEN_STATES   = [ self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF ];
-    public const CLOSED_STATES = [ self::STATE_ERROR, self::STATE_CLOSED ];
+    public final const OPEN_STATES   = [ self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF ];
+    public final const CLOSED_STATES = [ self::STATE_ERROR, self::STATE_CLOSED ];
 
     /**
      * Unique identifier for this particular connection.

@@ -34,10 +34,10 @@ class Node implements Fillable, DTO
 {
     use FillTrait;
 
-    const TYPE_HUB       = 'hub';
-    const TYPE_FEDERATED = 'federated';
+    final const TYPE_HUB       = 'hub';
+    final const TYPE_FEDERATED = 'federated';
 
-    const TYPES = [ self::TYPE_HUB, self::TYPE_FEDERATED ];
+    final const TYPES = [ self::TYPE_HUB, self::TYPE_FEDERATED ];
 
     /**
      * Unique identifier for node.

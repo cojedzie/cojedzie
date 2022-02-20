@@ -26,7 +26,7 @@ use Illuminate\Support\Collection;
 
 interface ScheduleRepository extends FluentRepository
 {
-    const DEFAULT_DEPARTURES_COUNT = 16;
+    public const DEFAULT_DEPARTURES_COUNT = 16;
 
     public function getDeparturesForStop(
         Stop $stop,

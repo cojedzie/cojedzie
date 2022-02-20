@@ -31,9 +31,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskLineDataImporter extends AbstractDataImporter
 {
-    const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
+    final const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
 
-    const ZTM_TYPE_MAPPING = [
+    final const ZTM_TYPE_MAPPING = [
         2 => LineModel::TYPE_TRAM,
         5 => LineModel::TYPE_TROLLEYBUS,
     ];

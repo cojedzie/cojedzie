@@ -36,17 +36,17 @@ class FederatedConnectionChecker
     /**
      * Minimum interval between consecutive checks.
      */
-    const CHECK_INTERVAL = 60;
+    final const CHECK_INTERVAL = 60;
 
     /**
      * Maximum failures in-line to assume that this connection is dead.
      */
-    const FAILURE_THRESHOLD = 5;
+    final const FAILURE_THRESHOLD = 5;
 
     /**
      * Health endpoint to check on the federated nodes.
      */
-    const STATUS_ENDPOINT = "/api/v1/status";
+    final const STATUS_ENDPOINT = "/api/v1/status";
 
     public function __construct(private readonly EntityManagerInterface $manager, private readonly HttpClientInterface $http, private readonly HubInterface $hub, private readonly FederatedConnectionUpdateFactory $updateFactory)
     {

@@ -28,9 +28,9 @@ class Message implements Fillable, DTO
 {
     use FillTrait;
 
-    const TYPE_INFO      = 'info';
-    const TYPE_BREAKDOWN = 'breakdown';
-    const TYPE_UNKNOWN   = 'unknown';
+    final const TYPE_INFO      = 'info';
+    final const TYPE_BREAKDOWN = 'breakdown';
+    final const TYPE_UNKNOWN   = 'unknown';
 
     /**
      * Message content.

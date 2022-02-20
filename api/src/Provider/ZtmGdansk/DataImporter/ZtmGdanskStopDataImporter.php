@@ -31,7 +31,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
-    const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
+    final const RESOURCE_URL = ZtmGdanskProvider::BASE_URL."/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
 
     public function __construct(private readonly Connection $connection, private readonly HttpClientInterface $httpClient, private readonly IdUtils $idUtils)
     {
