@@ -42,7 +42,7 @@ class AggregateConverter implements Converter, CacheableConverter
         if ($converter == null) {
             throw new \InvalidArgumentException(sprintf(
                 'Cannot convert entity of type %s into %s.',
-                is_object($entity) ? get_class($entity) : gettype($entity),
+                get_debug_type($entity),
                 $type,
             ));
         }

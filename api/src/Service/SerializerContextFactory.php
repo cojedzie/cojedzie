@@ -41,7 +41,7 @@ final class SerializerContextFactory
 
     private function groups($subject, array $groups)
     {
-        $metadata = $this->factory->getMetadataForClass(is_object($subject) ? get_class($subject) : $subject);
+        $metadata = $this->factory->getMetadataForClass(is_object($subject) ? $subject::class : $subject);
         $properties = $metadata instanceof ClassHierarchyMetadata
             ? collect($metadata->classMetadata)->flatMap(property('propertyMetadata'))
             : $metadata->propertyMetadata;

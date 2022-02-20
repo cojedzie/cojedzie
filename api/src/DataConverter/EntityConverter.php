@@ -41,14 +41,11 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
 
     /**
      * @param Entity $entity
-     * @param string $type
      * @param array  $cache
-     *
-     * @return Line|Track|Stop|Operator|Trip|ScheduledStop
      */
     public function convert($entity, string $type)
     {
-        if (array_key_exists($key = get_class($entity) . ':' . $this->getId($entity), $this->cache)) {
+        if (array_key_exists($key = $entity::class . ':' . $this->getId($entity), $this->cache)) {
             return $this->cache[$key];
         }
 

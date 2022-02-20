@@ -102,7 +102,7 @@ class GenericWithDatabaseHandler implements ModifierHandler
 
     private function getRelationships($relationship, $alias)
     {
-        $relationships = explode('.', $relationship);
+        $relationships = explode('.', (string) $relationship);
 
         foreach ($relationships as $current) {
             yield [sprintf("%s.%s", $alias, $current), $alias = sprintf('%s_%s', $alias, $current)];

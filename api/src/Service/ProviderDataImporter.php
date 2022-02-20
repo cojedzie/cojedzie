@@ -46,7 +46,7 @@ class ProviderDataImporter implements DataImporter
         foreach ($this->providers as $provider) {
             $data = [
                 'name'        => $provider->getName(),
-                'class'       => get_class($provider),
+                'class'       => $provider::class,
                 'update_date' => date('Y-m-d H:i:s'),
             ];
 

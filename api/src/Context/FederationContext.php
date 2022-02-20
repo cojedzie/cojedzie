@@ -77,7 +77,7 @@ class FederationContext implements LoggerAwareInterface
                 sprintf(
                     "%s::%s get called when server ID is not available. " .
                     "You first should call %s::isFederated method to check if this instance is working in federation.",
-                    __CLASS__, __METHOD__, __CLASS__
+                    self::class, __METHOD__, self::class
                 )
             );
         }
@@ -92,7 +92,7 @@ class FederationContext implements LoggerAwareInterface
                 sprintf(
                     "%s::%s get called when connection ID is not available. " .
                     "You first should call %s::isConnected method to check if this instance is working in federation and is connected.",
-                    __CLASS__, __METHOD__, __CLASS__
+                    self::class, __METHOD__, self::class
                 )
             );
         }

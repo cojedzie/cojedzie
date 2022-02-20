@@ -36,7 +36,7 @@ class RelatedFilter implements Modifier
         }
 
         $this->reference    = is_iterable($reference) ? IterableUtils::toArray($reference) : $reference;
-        $this->relationship = $relation ?: get_class($reference);
+        $this->relationship = $relation ?: $reference::class;
     }
 
     public function getRelationship(): string

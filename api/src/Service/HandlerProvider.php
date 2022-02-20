@@ -39,7 +39,7 @@ class HandlerProvider
 
     public function get(Modifier $modifier)
     {
-        $class = get_class($modifier);
+        $class = $modifier::class;
 
         if (!array_key_exists($class, $this->configuration)) {
             throw UnsupportedModifierException::createFromModifier($modifier);

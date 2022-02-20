@@ -58,7 +58,7 @@ class DataUpdater
         $dependants = [];
 
         foreach ($this->importers as $importer) {
-            $nodes[get_class($importer)] = [
+            $nodes[$importer::class] = [
                 'value'        => $importer,
                 'dependencies' => $importer->getDependencies(),
             ];
@@ -68,7 +68,7 @@ class DataUpdater
                     $dependants[$dependency] = [];
                 }
 
-                $dependants[$dependency][] = get_class($importer);
+                $dependants[$dependency][] = $importer::class;
             }
         }
 

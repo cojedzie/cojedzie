@@ -37,42 +37,33 @@ use const Kadet\Functional\_;
 
 final class EntityReferenceFactory
 {
-    protected $mapping = [
+    protected array $mapping = [
         Line::class  => LineEntity::class,
         Stop::class  => StopEntity::class,
         Track::class => TrackEntity::class,
     ];
 
-    private $em;
-    private $id;
-
-    public function __construct(EntityManagerInterface $em, IdUtils $id)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IdUtils $id)
     {
-        $this->em = $em;
-        $this->id = $id;
     }
 
     public function create($object, ProviderEntity $provider)
     {
-        switch (true) {
-            case $object instanceof Referable:
-                return $this->createEntityReference($object, $provider);
-            case is_array($object):
-                return array_map(partial(ref([$this, 'createEntityReference']), _, $provider), $object);
-            case $object instanceof Collection:
-                return $object->map(partial(ref([$this, 'createEntityReference']), _, $provider));
-            default:
-                throw InvalidArgumentException::invalidType(
-                    'object',
-                    $object,
-                    [Referable::class, Collection::class, 'array']
-                );
-        }
+        return match (true) {
+            $object instanceof Referable => $this->createEntityReference($object, $provider),
+            is_array($object) => array_map(partial(ref([$this, 'createEntityReference']), _, $provider), $object),
+            $object instanceof Collection => $object->map(partial(ref([$this, 'createEntityReference']), _, $provider)),
+            default => throw InvalidArgumentException::invalidType(
+                'object',
+                $object,
+                [Referable::class, Collection::class, 'array']
+            ),
+        };
     }
 
     private function createEntityReference(Referable $object, ProviderEntity $provider)
     {
-        $class = get_class($object);
+        $class = $object::class;
 
         if (!array_key_exists($class, $this->mapping)) {
             throw new \InvalidArgumentException(sprintf("Cannot make entity reference of %s.", $class));
