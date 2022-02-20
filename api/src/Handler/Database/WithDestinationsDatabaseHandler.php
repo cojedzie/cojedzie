@@ -36,6 +36,9 @@ use Kadet\Functional\Transforms as t;
 
 class WithDestinationsDatabaseHandler implements PostProcessingHandler
 {
+    /**
+     * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
+     */
     public function __construct(private readonly EntityManagerInterface $em, private Converter $converter, private readonly IdUtils $id)
     {
         if ($this->converter instanceof CacheableConverter) {

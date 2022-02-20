@@ -38,9 +38,6 @@ trait FillTrait
         }
     }
 
-    /**
-     * @return static
-     */
     public static function createFromArray(array $vars = [], ...$args): self
     {
         $reflection  = new \ReflectionClass(static::class);
@@ -53,6 +50,7 @@ trait FillTrait
 
         $object->fill($vars);
 
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $object;
     }
 }

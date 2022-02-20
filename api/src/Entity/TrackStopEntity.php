@@ -34,7 +34,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TrackStopEntity implements Fillable, Referable
 {
-    use FillTrait, ReferableEntityTrait;
+    use FillTrait;
 
     /**
      * Identifier for stop coming from provider
@@ -43,26 +43,30 @@ class TrackStopEntity implements Fillable, Referable
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    private ?int $id = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
      * @ORM\JoinColumn(name="stop_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $stop;
+    private StopEntity $stop;
 
     /**
      * @ORM\ManyToOne(targetEntity=TrackEntity::class, fetch="EAGER", inversedBy="stopsInTrack")
      * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $track;
+    private TrackEntity $track;
 
     /**
      * Order in track
-     * @var int
      * @ORM\Column(name="sequence", type="integer")
      */
-    private $order;
+    private int $order;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     public function getStop(): StopEntity
     {

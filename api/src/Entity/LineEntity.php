@@ -24,6 +24,7 @@ use App\Model\Fillable;
 use App\Model\FillTrait;
 use App\Model\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -36,48 +37,43 @@ class LineEntity implements Fillable, Entity
 
     /**
      * Line symbol, for example '10', or 'A'
-     * @var string
      *
      * @ORM\Column(type="string", length=16)
      */
-    private $symbol;
+    private string $symbol;
 
     /**
      * Line type tram, bus or whatever.
-     * @var string
      *
      * @ORM\Column(type="string", length=20)
      */
-    private $type;
+    private string $type;
 
     /**
      * Is line considered as fast line?
-     * @var boolean
      *
      * @ORM\Column(type="boolean")
      */
-    private $fast = false;
+    private bool $fast = false;
 
     /**
      * Is line considered as night line?
-     * @var boolean
      *
      * @ORM\Column(type="boolean")
      */
-    private $night = false;
+    private bool $night = false;
 
     /**
      * Line operator
      *
-     * @var OperatorEntity
      * @ORM\ManyToOne(targetEntity=OperatorEntity::class)
      */
-    private $operator;
+    private OperatorEntity $operator;
 
     /**
      * @ORM\OneToMany(targetEntity=TrackEntity::class, mappedBy="line")
      */
-    private $tracks;
+    private Collection $tracks;
 
     public function __construct()
     {
@@ -137,9 +133,6 @@ class LineEntity implements Fillable, Entity
         return $this->operator;
     }
 
-    /**
-     * @param OperatorEntity $operator
-     */
     public function setOperator(OperatorEntity $operator): void
     {
         $this->operator = $operator;

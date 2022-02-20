@@ -37,35 +37,31 @@ class TripEntity implements Entity, Fillable
     /**
      * Operator of the trip
      *
-     * @var OperatorEntity
      * @ORM\ManyToOne(targetEntity=OperatorEntity::class)
      */
-    private $operator;
+    private OperatorEntity $operator;
 
     /**
      * Track of the trip
      *
-     * @var TrackEntity
      * @ORM\ManyToOne(targetEntity=TrackEntity::class)
      * @ORM\JoinColumn(name="track_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $track;
+    private TrackEntity $track;
 
     /**
      * Variant of track, for example some alternative route
      *
-     * @var ?string
      * @ORM\Column("variant", nullable=true)
      */
-    private $variant;
+    private ?string $variant = null;
 
     /**
      * Description of variant
      *
-     * @var ?string
      * @ORM\Column("note", nullable=true)
      */
-    private $note;
+    private ?string $note = null;
 
     /**
      * @var Collection<TripStopEntity>
@@ -73,7 +69,7 @@ class TripEntity implements Entity, Fillable
      * @ORM\OneToMany(targetEntity=TripStopEntity::class, fetch="EXTRA_LAZY", mappedBy="trip", cascade={"persist"})
      * @ORM\OrderBy({"order": "ASC"})
      */
-    private $stops;
+    private Collection $stops;
 
     /**
      * TripEntity constructor.

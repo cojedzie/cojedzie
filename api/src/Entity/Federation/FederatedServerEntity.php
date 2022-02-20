@@ -57,7 +57,7 @@ class FederatedServerEntity implements Referable, Fillable
      * The name of federated server maintainer, could be full name but nicknames are allowed also.
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $maintainer;
+    private ?string $maintainer = null;
 
     /**
      * Allowed URL associated with this federated server, could be a regex pattern.
@@ -68,7 +68,7 @@ class FederatedServerEntity implements Referable, Fillable
     /**
      * All servers that are connected at the moment.
      * @ORM\OneToMany(targetEntity=FederatedConnectionEntity::class, cascade={"persist"}, mappedBy="server", orphanRemoval=true)
-     * @var Collection|FederatedConnectionEntity[]
+     * @var Collection<FederatedConnectionEntity>
      *
      * @Serializer\Groups({"Connections", "All"})
      */

@@ -26,23 +26,20 @@ class TrackStop implements Fillable, DTO
 
     /**
      * Order in trip
-     * @var int
      */
-    private $order;
+    private int $order;
 
     /**
      * Stop (as a place) related to that scheduled bus stop
-     * @var Stop
      */
-    private $stop;
+    private Stop $stop;
 
     /**
      * Track that this stop is part of.
-     * @var Track|null
      */
-    private $track;
+    private ?Track $track = null;
 
-    public function getStop()
+    public function getStop(): Stop
     {
         return $this->stop;
     }

@@ -41,7 +41,7 @@ class StopEntity implements Entity, Fillable
      * @ORM\Column(type="string")
      * @ORM\Id
      */
-    private $id;
+    private string $id;
 
     /**
      * Stop name
@@ -49,55 +49,49 @@ class StopEntity implements Entity, Fillable
      *
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * Stop group name
-     * @var string|null
      *
      * @ORM\Column(type="string", length=255, nullable=true, name="group_name")
      */
-    private $group;
+    private ?string $group = null;
 
     /**
      * Optional stop description, should not be longer than 255 chars
-     * @var string|null
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * Optional stop variant - for example number of shed
-     * @var string|null
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $variant;
+    private ?string $variant = null;
 
     /**
      * Latitude of stop
      *
-     * @var float|null
      * @ORM\Column(type="float", nullable=true)
      */
-    private $latitude;
+    private ?float $latitude = null;
 
     /**
      * Longitude of stop
      *
-     * @var float|null
      * @ORM\Column(type="float", nullable=true)
      */
-    private $longitude;
+    private ?float $longitude = null;
 
     /**
      * True if stop is available only on demand
-     * @var bool
      *
      * @ORM\Column(type="boolean")
      */
-    private $onDemand = false;
+    private bool $onDemand = false;
 
     public function getName(): string
     {

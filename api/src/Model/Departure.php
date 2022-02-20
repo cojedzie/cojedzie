@@ -32,83 +32,74 @@ class Departure implements Fillable, DTO
 
     /**
      * Unique identifier of departure, can be meaningless.
-     * @var string
      * @Serializer\Type("string")
      */
-    private $key;
+    private ?string $key = null;
 
     /**
      * Information about line.
-     * @var Line
      * @Serializer\Type(Line::class)
      * @SerializeAs({"Default": "Default"})
      * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      *
      */
-    private $line;
+    private Line $line;
 
     /**
      * Information about line.
-     * @var Track|null
      * @Serializer\Type(Track::class)
      * @SerializeAs({"Default": "Identity"})
      * @OA\Property(ref=@Model(type=Track::class, groups={"Identity"}))
      */
-    private $track;
+    private ?Track $track = null;
 
     /**
      * Information about line.
-     * @var Trip|null
      * @Serializer\Type(Trip::class)
      * @SerializeAs({"Default": "Identity"})
      * @OA\Property(ref=@Model(type=Trip::class, groups={"Identity"}))
      */
-    private $trip;
+    private ?Trip $trip = null;
 
     /**
      * Information about stop.
-     * @var Stop
      * @Serializer\Type(Stop::class)
      */
-    private $stop;
+    private Stop $stop;
 
     /**
      * Vehicle identification.
-     * @var Vehicle|null
      * @Serializer\Type(Vehicle::class)
      */
-    private $vehicle;
+    private ?Vehicle $vehicle = null;
 
     /**
      * Displayed destination.
-     * @var string|null
      * @Serializer\Type("string")
      * @OA\Property(example="Łostowice Świętokrzyska")
      */
-    private $display;
+    private ?string $display = null;
 
     /**
      * Estimated time of departure, null if case of no realtime data.
-     * @var Carbon|null
      * @Serializer\Type("Carbon")
      * @OA\Property(type="string", format="date-time")
      */
-    private $estimated;
+    private ?Carbon $estimated = null;
 
     /**
      * Scheduled time of departure.
-     * @var Carbon
      * @Serializer\Type("Carbon")
      * @OA\Property(type="string", format="date-time")
      */
-    private $scheduled;
+    private Carbon $scheduled;
 
-    public function getKey(): string
+    public function getKey(): ?string
     {
         return $this->key;
     }
 
-    public function setKey(string $key): void
+    public function setKey(?string $key): void
     {
         $this->key = $key;
     }

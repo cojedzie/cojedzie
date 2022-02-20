@@ -26,8 +26,7 @@ use App\Service\IterableUtils;
 
 class IdFilter implements Modifier
 {
-    /** @var string|array */
-    private $id;
+    private readonly array|string $id;
 
     public function __construct($id)
     {

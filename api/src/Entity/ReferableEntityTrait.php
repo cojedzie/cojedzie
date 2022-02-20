@@ -29,10 +29,12 @@ trait ReferableEntityTrait
      *
      * @ORM\Column(type="string")
      * @ORM\Id
+     *
+     * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
-    private $id;
+    private string $id;
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }

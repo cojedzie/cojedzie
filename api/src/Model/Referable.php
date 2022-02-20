@@ -22,5 +22,5 @@ namespace App\Model;
 
 interface Referable
 {
-    public function getId();
+    public function getId(): mixed;
 }

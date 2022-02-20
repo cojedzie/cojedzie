@@ -33,40 +33,36 @@ class Track implements Referable, Fillable, DTO
      * Line variant describing track, for example 'a'
      * @Serializer\Type("string")
      * @OA\Property(example="a")
-     * @var string|null
      *
      */
-    private $variant;
+    private ?string $variant = null;
 
     /**
      * Track description
      * @Serializer\Type("string")
-     * @var string|null
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * Line reference
      * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
-     * @var Line
      */
-    private $line;
+    private ?Line $line = null;
 
     /**
      * Stops in track
-     * @var Stop[]|Collection
+     * @var Collection<Stop>
      * @Serializer\Type("Collection")
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      */
-    private $stops;
+    private Collection $stops;
 
     /**
      * Destination stop of this track
-     * @var Stop|null
      * @Serializer\Type(Stop::class)
      * @OA\Property(ref=@Model(type=Stop::class))
      */
-    private $destination;
+    private ?Stop $destination = null;
 
     /**
      * Track constructor.
@@ -96,12 +92,12 @@ class Track implements Referable, Fillable, DTO
         $this->description = $description;
     }
 
-    public function getLine(): Line
+    public function getLine(): ?Line
     {
         return $this->line;
     }
 
-    public function setLine(Line $line): void
+    public function setLine(?Line $line): void
     {
         $this->line = $line;
     }

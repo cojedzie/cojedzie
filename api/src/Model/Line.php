@@ -40,9 +40,8 @@ class Line implements Fillable, Referable, DTO
      * Line symbol, for example '10', or 'A'
      * @Serializer\Type("string")
      * @OA\Property(example="10")
-     * @var string
      */
-    private $symbol;
+    private string $symbol;
 
     /**
      * Line type tram, bus or whatever.
@@ -55,40 +54,36 @@ class Line implements Fillable, Referable, DTO
      *     Line::TYPE_TRAM,
      *     Line::TYPE_TROLLEYBUS
      * })
-     * @var string
      */
-    private $type;
+    private string $type;
 
     /**
      * Is line considered as fast line?
      * @Serializer\Type("bool")
-     * @var boolean
      */
-    private $fast = false;
+    private bool $fast = false;
 
     /**
      * Is line considered as night line?
      * @Serializer\Type("bool")
-     * @var boolean
      */
-    private $night = false;
+    private bool $night = false;
 
     /**
      * Line operator
      * @Serializer\Type(Operator::class)
      * @OA\Property(ref=@Model(type=Operator::class, groups={"Identity"}))
-     * @var Operator
      */
-    private $operator;
+    private Operator $operator;
 
     /**
      * Tracks for this line
      * @Serializer\Type("Collection")
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * @Serializer\Groups({"Full"})
-     * @var Collection<Track>|Track[]
+     * @var Collection<Track>
      */
-    private $tracks;
+    private Collection $tracks;
 
 
     public function getSymbol(): string
@@ -149,9 +144,6 @@ class Line implements Fillable, Referable, DTO
         return $this->operator;
     }
 
-    /**
-     * @param Operator $operator
-     */
     public function setOperator(Operator $operator): void
     {
         $this->operator = $operator;

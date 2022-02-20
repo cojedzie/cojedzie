@@ -38,47 +38,43 @@ class TrackEntity implements Entity, Fillable
 
     /**
      * Line variant describing track, for example 'a'
-     * @var string|null
      *
      * @ORM\Column(type="string", length=16, nullable=true)
      */
-    private $variant;
+    private ?string $variant = null;
 
     /**
      * Track description
-     * @var string|null
      *
      * @ORM\Column(type="string", length=256, nullable=true)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * Line reference
      *
-     * @var LineEntity
      *
      * @ORM\ManyToOne(targetEntity=LineEntity::class, fetch="EAGER", inversedBy="tracks")
      * @ORM\JoinColumn(name="line_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $line;
+    private LineEntity $line;
 
     /**
      * Stops in track
      *
-     * @var TrackStopEntity[]|Collection
+     * @var Collection<TrackStopEntity>
      * @ORM\OneToMany(targetEntity=TrackStopEntity::class, fetch="LAZY", mappedBy="track", cascade={"persist"})
      * @ORM\OrderBy({"order": "ASC"})
      */
-    private $stopsInTrack;
+    private Collection $stopsInTrack;
 
     /**
      * Final stop in this track.
      *
-     * @var TrackStopEntity
      * @ORM\OneToOne(targetEntity=TrackStopEntity::class, fetch="LAZY")
      * @ORM\JoinColumn(name="final_id", referencedColumnName="id", onDelete="SET NULL")
      */
-    private $final;
+    private TrackStopEntity $final;
 
     /**
      * Track constructor.
@@ -118,17 +114,11 @@ class TrackEntity implements Entity, Fillable
         $this->line = $line;
     }
 
-    /**
-     * @return Collection
-     */
     public function getStopsInTrack(): Collection
     {
         return $this->stopsInTrack;
     }
 
-    /**
-     * @param iterable $stopsInTrack
-     */
     public function setStopsInTrack(iterable $stopsInTrack): void
     {
         $this->stopsInTrack = IterableUtils::toArrayCollection($stopsInTrack);

@@ -26,14 +26,9 @@ trait ProviderReferenceTrait
 {
     /**
      * @ORM\ManyToOne(targetEntity=ProviderEntity::class, cascade={"persist", "remove"})
-     *
-     * @var ProviderEntity
      */
-    private $provider;
+    private ?ProviderEntity $provider = null;
 
-    /**
-     * @return ProviderEntity
-     */
     public function getProvider(): ProviderEntity
     {
         return $this->provider;

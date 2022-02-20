@@ -35,7 +35,7 @@ use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
  */
 class TripStopEntity implements Fillable, Referable
 {
-    use FillTrait, ReferableEntityTrait;
+    use FillTrait;
 
     /**
      * Identifier for stop coming from provider
@@ -44,47 +44,47 @@ class TripStopEntity implements Fillable, Referable
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    private ?int $id = null;
 
     /**
-     * @var StopEntity
      * @ORM\ManyToOne(targetEntity=StopEntity::class, fetch="EAGER")
      * @ORM\JoinColumn(name="stop_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $stop;
+    private StopEntity $stop;
 
     /**
-     * @var TripEntity
      * @ORM\ManyToOne(targetEntity=TripEntity::class, fetch="EAGER", inversedBy="stops")
      * @ORM\JoinColumn(name="trip_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $trip;
+    private TripEntity $trip;
 
     /**
      * Order in trip
-     * @var int
      *
      * @ORM\Column(name="sequence", type="integer")
      */
-    private $order;
+    private int $order;
 
     /**
      * Arrival time
-     * @var Carbon
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    private $arrival;
+    private Carbon $arrival;
 
     /**
      * Departure time
-     * @var Carbon
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    private $departure;
+    private Carbon $departure;
 
-    public function getStop()
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getStop(): ?StopEntity
     {
         return $this->stop;
     }
@@ -94,7 +94,7 @@ class TripStopEntity implements Fillable, Referable
         $this->stop = $stop;
     }
 
-    public function getTrip()
+    public function getTrip(): ?TripEntity
     {
         return $this->trip;
     }

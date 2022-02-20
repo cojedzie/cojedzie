@@ -30,7 +30,7 @@ class DataUpdater
     const UPDATE_EVENT = 'app.data_update';
 
     /**
-     * @param \App\DataImport\DataImporter[] $importers
+     * @param DataImporter[] $importers
      */
     public function __construct(private readonly EntityManagerInterface $em, private readonly ProgressReporterFactory $progressReporterFactory, private readonly iterable $importers)
     {

@@ -29,14 +29,12 @@ trait ReferableTrait
      * Identifier coming from provider service
      * @Serializer\Type("string")
      * @Serializer\Groups({"Default", "Identity", "Minimal"})
-     * @var string
+     *
+     * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
-    private $id;
+    private string $id;
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }

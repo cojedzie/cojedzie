@@ -34,35 +34,31 @@ class OperatorEntity implements Fillable, Entity
 
     /**
      * Describes operator name
-     * @var string
      *
      * @ORM\Column(type="string")
      */
-    private $name;
+    private string $name;
 
     /**
      * Contact email to operator
-     * @var string|null
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private $email;
+    private ?string $email = null;
 
     /**
      * URL of operators page
-     * @var string|null
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private $url;
+    private ?string $url = null;
 
     /**
      * Contact phone to operator
-     * @var string|null
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private $phone;
+    private ?string $phone = null;
 
     public function getName(): string
     {

@@ -26,21 +26,18 @@ class ScheduledStop extends TrackStop
 {
     /**
      * Arrival time.
-     * @var Carbon
      */
-    private $arrival;
+    private Carbon $arrival;
 
     /**
      * Departure time.
-     * @var Carbon
      */
-    private $departure;
+    private Carbon $departure;
 
     /**
      * Exact trip that this scheduled stop is part of.
-     * @var Trip|null
      */
-    private $trip;
+    private ?Trip $trip = null;
 
     public function getArrival(): Carbon
     {

@@ -41,50 +41,45 @@ class Stop implements Referable, Fillable, DTO
      * @OA\Property(example="Jasień PKM")
      * @Serializer\Type("string")
      */
-    private $name;
+    private string $name;
 
     /**
      * Optional stop description, should not be longer than 255 chars.
      *
-     * @var string|null
      * @Serializer\Type("string")
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * Optional stop variant - for example number of shed.
      *
-     * @var string|null
      * @OA\Property(example="01")
      * @Serializer\Type("string")
      */
-    private $variant;
+    private ?string $variant = null;
 
     /**
      * Optional stop location in form of latitude and longitude
      *
-     * @var ?Location
      * @Serializer\Type(Location::class)
      */
-    private $location;
+    private ?Location $location = null;
 
     /**
      * True if stop is available only on demand
      *
-     * @var bool
      * @Serializer\Type("bool")
      * @OA\Property(example=false)
      */
-    private $onDemand = false;
+    private bool $onDemand = false;
 
     /**
      * Name of group that this stop is part of.
      *
      * @Serializer\Type("string")
      * @OA\Property(example="Jasień PKM")
-     * @var string|null
      */
-    private $group;
+    private ?string $group = null;
 
     /**
      * Collection of possible destination stops.
@@ -95,7 +90,12 @@ class Stop implements Referable, Fillable, DTO
      *
      * @var Collection<Destination>
      */
-    private $destinations;
+    private Collection $destinations;
+
+    public function __construct()
+    {
+        $this->destinations = collect();
+    }
 
     public function getName(): string
     {

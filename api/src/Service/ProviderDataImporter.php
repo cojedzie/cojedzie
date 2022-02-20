@@ -29,7 +29,7 @@ use Doctrine\DBAL\Connection;
 class ProviderDataImporter implements DataImporter
 {
     /**
-     * @param \App\Provider\Provider[] $providers
+     * @param Provider[] $providers
      */
     public function __construct(private readonly Connection $connection, private readonly iterable $providers)
     {

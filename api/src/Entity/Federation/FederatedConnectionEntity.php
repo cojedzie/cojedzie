@@ -147,7 +147,7 @@ class FederatedConnectionEntity implements Referable, Fillable
      *
      * @ORM\Column(type="text", nullable=true)
      */
-    private ?string $lastStatus;
+    private ?string $lastStatus = null;
 
     public function getId(): Uuid
     {

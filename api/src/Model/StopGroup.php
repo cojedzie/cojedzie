@@ -36,19 +36,18 @@ class StopGroup implements DTO
      * Name of stop group.
      * @OA\Property(example="Jasień PKM")
      * @Serializer\Type("string")
-     * @var string
      */
-    private $name;
+    private string $name;
 
     /**
      * All stops in group.
-     * @var Collection|Stop[]
+     * @var Collection<Stop>
      * @OA\Property(
      *     type="array",
      *     @OA\Items(ref=@Model(type=Stop::class, groups={"Default", "WithDestinations"}))
      * )
      */
-    private $stops;
+    private Collection $stops;
 
     public function __construct()
     {
@@ -70,7 +69,7 @@ class StopGroup implements DTO
         $this->stops = new Collection($stops);
     }
 
-    public function getStops()
+    public function getStops(): Collection
     {
         return $this->stops;
     }
