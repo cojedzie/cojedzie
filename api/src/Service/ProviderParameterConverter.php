@@ -45,6 +45,7 @@ class ProviderParameterConverter implements ParamConverterInterface
 
         try {
             $request->attributes->set('provider', $this->resolver->resolve($provider));
+            return true;
         } catch (NonExistentServiceException $exception) {
             throw new NotFoundHttpException("There is no such provider as '$provider'.", $exception);
         }

@@ -78,7 +78,7 @@ class FederatedConnectionEntity implements Referable, Fillable
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     #[Serializer\Type('uuid')]
-    private readonly Uuid $id;
+    private ?Uuid $id = null;
 
     /**
      * Federated server associated with this connection. In principle server can have multiple connections, it's recommended though.

@@ -137,6 +137,8 @@ abstract class DatabaseRepository implements Repository
         return $reducers->reduce(fn ($result, $reducer) => $reducer($result), $result);
     }
 
+    abstract public function all(Modifier ...$modifiers);
+
     public function first(Modifier ...$modifiers)
     {
         return $this->all(Limit::count(1), ...$modifiers)->first();
