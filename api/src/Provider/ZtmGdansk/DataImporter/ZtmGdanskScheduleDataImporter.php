@@ -22,6 +22,7 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
+use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -41,13 +42,15 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     ) {
     }
 
-    public function import(ProgressReporterInterface $reporter)
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $existingLineIdsQueryResult = $this->connection->createQueryBuilder()
             ->from('line', 'l')
             ->select('id')
             ->where('l.provider_id = :provider_id')
+            ->where('l.import_id = :import_id')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+            ->setParameter('import_id', $event->import->getId(), 'uuid')
             ->execute();
 
         $existingLineIds   = $existingLineIdsQueryResult->iterateColumn();
@@ -65,7 +68,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         foreach ($existingLineIds as $lineId) {
             try {
                 $this->connection->beginTransaction();
-                $this->importScheduleOfLine($lineId, $existingStopIds);
+                $this->importScheduleOfLine($event, $lineId, $existingStopIds);
                 $this->connection->commit();
             } catch (JsonObjectsException $exception) {
                 $this->connection->rollBack();
@@ -76,7 +79,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $reporter->progress($count, comment: 'Imported all lines', finished: true);
     }
 
-    private function importScheduleOfLine(string $lineId, array $existingStopIds)
+    private function importScheduleOfLine(DataUpdateEvent $event, string $lineId, array $existingStopIds)
     {
         $tripIds = $this->connection->createQueryBuilder()
             ->from('track')
@@ -120,7 +123,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             );
         };
 
-        $saveTrip = function ($tripId, array $columns) use (&$existingStopIds) {
+        $saveTrip = function ($tripId, array $columns) use (&$existingStopIds, $event) {
             $this->connection->insert(
                 'trip',
                 array_merge(
@@ -128,8 +131,12 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
                     [
                         'id'          => $tripId,
                         'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                        'import_id'   => $event->import->getId(),
                     ]
-                )
+                ),
+                [
+                    'import_id' => 'uuid',
+                ]
             );
         };
 

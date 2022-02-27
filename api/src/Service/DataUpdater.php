@@ -23,6 +23,9 @@ namespace App\Service;
 use App\DataImport\DataImporter;
 use App\DataImport\ProgressReporterFactory;
 use App\DataImport\SectionalProgressReporterInterface;
+use App\Entity\ImportEntity;
+use App\Event\DataUpdateEvent;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 
 class DataUpdater
@@ -41,17 +44,36 @@ class DataUpdater
 
     public function update()
     {
-        ini_set('memory_limit', '1G');
+        ini_set('memory_limit', '4G');
 
+        // create import etity
+        $import = new ImportEntity();
+        $import->setStartedAt(Carbon::now());
+
+        $this->em->persist($import);
+        $this->em->flush();
+
+        // disable SQL logging to prevent performance issues
         $connection = $this->em->getConnection();
         $connection->getConfiguration()->setSQLLogger(null);
+
         $reporter = $this->progressReporterFactory->create();
+        $event    = new DataUpdateEvent(import: $import);
 
         /** @var DataImporter $updater */
         foreach ($this->getDataUpdatersInTopologicalOrder() as $updater) {
-            $updater->import($reporter->subtask($updater->getDescription()));
+            $updater->import(
+                reporter: $reporter->subtask($updater->getDescription()),
+                event: $event,
+            );
+
+            // force garbage collection
             gc_collect_cycles();
         }
+
+        // mark import event as finished and flush it to db
+        $import->setFinishedAt(Carbon::now());
+        $this->em->flush();
     }
 
     /**

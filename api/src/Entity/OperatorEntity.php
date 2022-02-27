@@ -28,7 +28,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('operator')]
 class OperatorEntity implements Fillable, Entity
 {
-    use ProviderReferenceTrait, FillTrait, ReferableEntityTrait;
+    use ProviderReferenceTrait, FillTrait, ReferableEntityTrait, ImportedTrait;
 
     /**
      * Describes operator name

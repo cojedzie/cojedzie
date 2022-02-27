@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('trip')]
 class TripEntity implements Entity, Fillable
 {
-    use ReferableEntityTrait, ProviderReferenceTrait, FillTrait;
+    use ReferableEntityTrait, ProviderReferenceTrait, FillTrait, ImportedTrait;
 
     /**
      * Operator of the trip

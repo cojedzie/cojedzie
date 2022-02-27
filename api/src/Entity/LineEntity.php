@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('line')]
 class LineEntity implements Fillable, Entity
 {
-    use FillTrait, ReferableEntityTrait, ProviderReferenceTrait;
+    use FillTrait, ReferableEntityTrait, ProviderReferenceTrait, ImportedTrait;
 
     /**
      * Line symbol, for example '10', or 'A'

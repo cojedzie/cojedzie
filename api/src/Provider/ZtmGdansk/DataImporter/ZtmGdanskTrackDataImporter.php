@@ -21,6 +21,7 @@
 namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
+use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -42,10 +43,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     ) {
     }
 
-    public function import(ProgressReporterInterface $reporter)
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
-        $this->importTracksFromZtmApi($reporter->subtask('Import tracks'));
-        $this->importStopsInTracksFromZtmApi($reporter->subtask('Import stops in tracks'));
+        $this->importTracksFromZtmApi($reporter->subtask('Import tracks'), $event);
+        $this->importStopsInTracksFromZtmApi($reporter->subtask('Import stops in tracks'), $event);
     }
 
     public function getDependencies(): array
@@ -56,7 +57,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         ];
     }
 
-    private function importTracksFromZtmApi(ProgressReporterInterface $reporter)
+    private function importTracksFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->connection->beginTransaction();
 
@@ -77,10 +78,16 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 if (in_array($id, $existing, true)) {
                     $this->connection->update(
                         'track',
-                        $track,
+                        [
+                            ...$track,
+                            'import_id' => $event->import->getId(),
+                        ],
                         [
                             'id'          => $id,
                             'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                        ],
+                        [
+                            'import_id' => 'uuid',
                         ]
                     );
                 } else {
@@ -90,9 +97,13 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                             [
                                 'id'          => $id,
                                 'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                                'import_id'   => $event->import->getId(),
                             ],
                             $track
-                        )
+                        ),
+                        [
+                            'import_id' => 'uuid',
+                        ]
                     );
                 }
             }
@@ -106,7 +117,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $this->trackCount = $count;
     }
 
-    private function importStopsInTracksFromZtmApi(ProgressReporterInterface $reporter)
+    private function importStopsInTracksFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->connection->beginTransaction();
 
@@ -130,7 +141,16 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             $deleteStopsPreparedQuery->executeQuery(['tid' => $trackId]);
 
             foreach ($stops as $stop) {
-                $this->connection->insert('track_stop', $stop);
+                $this->connection->insert(
+                    'track_stop',
+                    [
+                        ...$stop,
+                        'import_id' => $event->import->getId(),
+                    ],
+                    [
+                        'import_id' => 'uuid',
+                    ]
+                );
             }
 
             $reporter->progress($count += 1, max: $this->trackCount, comment: sprintf('Importing stops in track %s', $trackId));

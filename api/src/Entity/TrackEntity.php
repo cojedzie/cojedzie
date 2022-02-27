@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('track')]
 class TrackEntity implements Entity, Fillable
 {
-    use ReferableEntityTrait, FillTrait, ProviderReferenceTrait;
+    use ReferableEntityTrait, FillTrait, ProviderReferenceTrait, ImportedTrait;
 
     /**
      * Line variant describing track, for example 'a'

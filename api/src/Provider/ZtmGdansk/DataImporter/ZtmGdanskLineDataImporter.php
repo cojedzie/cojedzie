@@ -21,6 +21,7 @@
 namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
+use App\Event\DataUpdateEvent;
 use App\Model\Line as LineModel;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
@@ -45,7 +46,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     ) {
     }
 
-    public function import(ProgressReporterInterface $reporter)
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->connection->beginTransaction();
 
@@ -66,10 +67,16 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 if (in_array($id, $existing, true)) {
                     $this->connection->update(
                         'line',
-                        $line,
+                        [
+                            ...$line,
+                            'import_id' => $event->import->getId(),
+                        ],
                         [
                             'id'          => $id,
                             'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                        ],
+                        [
+                            'import_id' => 'uuid',
                         ]
                     );
                 } else {
@@ -79,9 +86,13 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                             [
                                 'id'          => $id,
                                 'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                                'import_id'   => $event->import->getId(),
                             ],
                             $line
-                        )
+                        ),
+                        [
+                            'import_id' => 'uuid',
+                        ]
                     );
                 }
             }

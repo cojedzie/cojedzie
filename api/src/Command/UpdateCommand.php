@@ -31,6 +31,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class UpdateCommand extends Command
 {
     protected static $defaultName = 'app:update';
+
     public function __construct(
         private readonly DataUpdater $updater,
         private readonly MessageBusInterface $bus

@@ -23,6 +23,7 @@ namespace App\Service;
 use App\DataImport\DataImporter;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
+use App\Event\DataUpdateEvent;
 use App\Provider\Provider;
 use Doctrine\DBAL\Connection;
 
@@ -37,7 +38,7 @@ class ProviderDataImporter implements DataImporter
     ) {
     }
 
-    public function import(ProgressReporterInterface $reporter)
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $existing = $this->connection->createQueryBuilder()
             ->from('provider', 'p')

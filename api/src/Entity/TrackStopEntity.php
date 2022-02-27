@@ -29,7 +29,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('track_stop')]
 class TrackStopEntity implements Fillable, Referable
 {
-    use FillTrait;
+    use FillTrait, ImportedTrait;
 
     /**
      * Identifier for stop coming from provider

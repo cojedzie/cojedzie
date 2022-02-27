@@ -20,9 +20,11 @@
 
 namespace App\DataImport;
 
+use App\Event\DataUpdateEvent;
+
 interface DataImporter
 {
-    public function import(ProgressReporterInterface $reporter);
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event);
 
     public function isOutdated(): bool;
 

@@ -21,6 +21,7 @@
 namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
+use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -40,7 +41,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     ) {
     }
 
-    public function import(ProgressReporterInterface $reporter)
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->connection->beginTransaction();
 
@@ -61,12 +62,18 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                 if (in_array($id, $existing, true)) {
                     $this->connection->update(
                         'stop',
-                        $stop,
+                        [
+                            ...$stop,
+                            'import_id' => $event->import->getId(),
+                        ],
                         [
                             'id'          => $id,
                             'provider_id' => ZtmGdanskProvider::IDENTIFIER,
                         ],
-                        [4 => ParameterType::BOOLEAN]
+                        [
+                            'on_demand' => ParameterType::BOOLEAN,
+                            'import_id' => 'uuid',
+                        ]
                     );
                 } else {
                     $this->connection->insert(
@@ -75,10 +82,14 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                             [
                                 'id'          => $id,
                                 'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                                'import_id'   => $event->import->getId(),
                             ],
                             $stop
                         ),
-                        [6 => ParameterType::BOOLEAN]
+                        [
+                            'on_demand' => ParameterType::BOOLEAN,
+                            'import_id' => 'uuid',
+                        ]
                     );
                 }
             }

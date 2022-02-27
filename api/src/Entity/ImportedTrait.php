@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,14 +18,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Event;
+namespace App\Entity;
 
-use App\Entity\ImportEntity;
+use Doctrine\ORM\Mapping as ORM;
 
-class DataUpdateEvent
+trait ImportedTrait
 {
-    public function __construct(
-        public readonly ImportEntity $import
-    ) {
+    #[ORM\ManyToOne(targetEntity: ImportEntity::class)]
+    #[ORM\JoinColumn(name: 'import_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
+    private ImportEntity $import;
+
+    public function getImport(): ImportEntity
+    {
+        return $this->import;
+    }
+
+    public function setImport(ImportEntity $import): void
+    {
+        $this->import = $import;
     }
 }

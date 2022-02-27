@@ -80,18 +80,18 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
             },
             collect()
         )->map(
-            fn (Collection $tracks)                   => $tracks
-                    ->groupBy(fn (TrackEntity $track) => $track->getFinal()->getStop()->getId())
-                    ->map(
-                        fn (Collection $tracks, $id) => Destination::createFromArray([
-                            'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
-                            'lines' => $tracks
-                                ->map(t\property('line'))
-                                ->unique(t\property('id'))
-                                ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
-                                ->values(),
-                        ])
-                    )->values()
+            fn (Collection $tracks)               => $tracks
+                ->groupBy(fn (TrackEntity $track) => $track->getFinal()->getStop()->getId())
+                ->map(
+                    fn (Collection $tracks, $id) => Destination::createFromArray([
+                        'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
+                        'lines' => $tracks
+                            ->map(t\property('line'))
+                            ->unique(t\property('id'))
+                            ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
+                            ->values(),
+                    ])
+                )->values()
         );
 
         foreach ($event->getData() as $stop) {

@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('provider')]
 class ProviderEntity implements Fillable, Referable
 {
-    use ReferableEntityTrait, FillTrait;
+    use ReferableEntityTrait, FillTrait, ImportedTrait;
 
     /**
      * Provider short name, for example. ZTM Gdańsk

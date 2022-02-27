@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('trip_stop')]
 class TripStopEntity implements Fillable, Referable
 {
-    use FillTrait;
+    use FillTrait, ImportedTrait;
 
     /**
      * Identifier for stop coming from provider
