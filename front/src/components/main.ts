@@ -82,7 +82,7 @@ export default class Main extends Vue {
     }
 
     async created() {
-        await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider as any });
+        await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider as string });
 
         this.$store.dispatch(`messages/${MessagesActions.Update}`);
         this.$store.dispatch('load', { version: 1, stops: [] });

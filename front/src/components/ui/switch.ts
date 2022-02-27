@@ -38,7 +38,7 @@ export class UiSwitch extends Vue {
     @Prop(Boolean)
     value: boolean;
 
-    handleSwitchClick(ev: MouseEvent) {
+    handleSwitchClick() {
         this.$emit('update:value', !this.value);
     }
 

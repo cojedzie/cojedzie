@@ -57,7 +57,7 @@ export class DeparturesDeparture extends Vue {
                 departure: moment.parseZone(scheduled.departure),
             }))
         };
-    };
+    }
 
     get showRelativeTime(): boolean {
         if (!this.relativeTimes) {
@@ -70,11 +70,8 @@ export class DeparturesDeparture extends Vue {
         }
 
         const now = moment();
-        if (this.relativeTimesLimitEnabled && this.time.diff(now, "minutes") > this.relativeTimesLimit) {
-            return false;
-        }
 
-        return true;
+        return !(this.relativeTimesLimitEnabled && this.time.diff(now, "minutes") > this.relativeTimesLimit);
     }
 
     get timeDiffers() {

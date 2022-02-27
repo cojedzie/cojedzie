@@ -63,7 +63,7 @@ export class FavouritesAdder extends Vue {
     }
 
     private validate(favourite: Favourite) {
-        let errors = { name: [] };
+        const errors = { name: [] };
 
         if (favourite.name.length == 0) {
             errors.name.push("Musisz podać nazwę.");

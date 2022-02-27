@@ -34,15 +34,15 @@ export class StopDetails extends Vue {
     tracks: { order: number, track: Track }[] = [];
 
     get types() {
-        return this.tracks.map(t => t.track.line.type).filter((value, index, array) => {
-            return array.indexOf(value) === index;
-        });
+        return this.tracks
+            .map(t => t.track.line.type)
+            .filter((value, index, array) => array.indexOf(value) === index);
     }
 
-    get lines(): Line[] {
-        return this.tracks.map(t => t.track.line).reduce((lines, line: Line) => {
-            return Object.assign(lines, { [line.symbol]: line });
-        }, {} as any);
+    get lines(): Record<string, Line> {
+        return this.tracks
+            .map(t => t.track.line)
+            .reduce((lines, line: Line) => Object.assign(lines, { [line.symbol]: line }), { });
     }
 
     async mounted() {

@@ -19,7 +19,9 @@ module.exports = {
         "vue/max-attributes-per-line": [1, { singleline: 5, multiline: 1 }],
         "@typescript-eslint/no-var-requires": [ 0 ],
         "@typescript-eslint/no-unused-vars": [1, { argsIgnorePattern: "^_" }],
-        "no-unused-vars": [1, { argsIgnorePattern: "^_" }]
+        "@typescript-eslint/no-inferrable-types": [1, { ignoreProperties: true }],
+        "@typescript-eslint/ban-ts-comment": [0],
+        "no-unused-vars": [1, { argsIgnorePattern: "^_" }],
     },
     "ignorePatterns": [".eslintrc.js", "webpack.config.js", "**/build/**", "resources/**/*"]
 }

@@ -32,7 +32,7 @@ import WithRenderer from "@templates/ui/dialog.html"
  */
 export type DialogBehaviour = "modal" | "popup";
 
-let openModalCounter: number = 0;
+let openModalCounter = 0;
 
 function computeZIndexOfElement(element: HTMLElement): number {
     let current = element;
@@ -64,7 +64,7 @@ function getRootElementOfComponent(component: ComponentPublicInstance | HTMLElem
 
 function findClosestRef(component: ComponentPublicInstance, ref: string): HTMLElement | null {
     for (let current = component; current !== null; current = current.$parent) {
-        if (current.$refs.hasOwnProperty(ref)) {
+        if (Object.prototype.hasOwnProperty.call(current.$refs, ref)) {
             return getRootElementOfComponent(current.$refs[ref] as ComponentPublicInstance | HTMLElement);
         }
     }

@@ -64,7 +64,10 @@ import { MessageType } from "@/model/message";
 import { LineType } from "@/model";
 import { faBus, faMetro, faTrain, faTram, faTrolleybus, faUnknown } from "@/icons";
 
-type IconDescription = { icon: IconDefinition, [prop: string]: any }
+interface IconDescription {
+    icon: IconDefinition,
+    [other: string]: unknown
+}
 
 type SimpleIcon = {
     type: 'simple',
@@ -77,8 +80,10 @@ type StackedIcon = {
 
 export type Icon = SimpleIcon | StackedIcon;
 
-const simple = (icon: IconDefinition, props: any = {}): SimpleIcon => ({
-    icon, ...props, type: "simple"
+const simple = (icon: IconDefinition, props: Record<string, unknown> = {}): SimpleIcon => ({
+    icon,
+    ...props,
+    type: "simple"
 });
 
 const stack = (icons: IconDescription[]): StackedIcon => ({ type: "stacked", icons });

@@ -26,7 +26,7 @@ type Events = {
 }
 type Trigger = "hover" | "focus" | "long-press";
 const longPressTimeout = 1000;
-export const openedTooltips: Set<UiTooltip> = new Set<UiTooltip>();
+export const openedTooltips = new Set<UiTooltip>();
 
 @WithRender
 @Options({ name: "UiTooltip" })
@@ -65,7 +65,7 @@ export class UiTooltip extends Vue {
 
         this.registeredEvents = {};
 
-        let blocked: boolean = false;
+        let blocked = false;
 
         if (this.triggers.includes("hover") && !this.$isTouch) {
             let timeout;
@@ -144,7 +144,7 @@ export class UiTooltip extends Vue {
 }
 
 document.addEventListener('touchstart', () => {
-    for (let tooltip of openedTooltips.values()) {
+    for (const tooltip of openedTooltips.values()) {
         tooltip.show = false;
     }
 })

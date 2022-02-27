@@ -37,14 +37,17 @@ export const LVectorLayer = defineComponent({
             type: String,
             required: true,
         },
-        attribution: String,
+        attribution: {
+            type: String,
+            default: "",
+        },
     },
     mounted(): void {
         // @ts-ignore
         this['mapObject'] = L.mapboxGL({
             style: this.url,
             attribution: this.attribution
-        } as any);
+        });
 
         this.$nextTick(() => {
             const map = this.$parent['leafletObject'];
