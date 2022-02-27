@@ -27,6 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table('track_stop')]
+#[ORM\UniqueConstraint(name: "stop_in_track_idx", columns: ["stop_id", "track_id", "sequence"])]
 class TrackStopEntity implements Fillable, Referable
 {
     use FillTrait, ImportedTrait;
