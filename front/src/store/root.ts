@@ -18,13 +18,13 @@
  */
 
 import { Provider, Stop } from "@/model";
-import { ensureArray } from "@/utils";
+import { ensureArray, Jsonified } from "@/utils";
 import { VuexActionHandler, VuexMutationHandler } from "vuex";
 import { StoreDefinition } from "@/store/initializer";
 
 export interface RootState {
     stops: Stop[],
-    provider: any,
+    provider: Jsonified<Provider>,
 }
 
 export interface SavedState {
@@ -52,7 +52,7 @@ export type RootMutationTree = {
     replace: VuexMutationHandler<RootState, Stop[]>,
     remove: VuexMutationHandler<RootState, Stop>,
     clear: VuexMutationHandler<RootState>,
-    setProvider: VuexMutationHandler<RootState, Provider>,
+    setProvider: VuexMutationHandler<RootState, Jsonified<Provider>>,
 }
 
 export const mutations: RootMutationTree = {
@@ -71,7 +71,8 @@ export const actions: RootActionTree = {
             params: { provider },
             version: '^1.0',
         });
-        commit('setProvider', response.data as any);
+
+        commit('setProvider', response.data);
     },
     async load({ commit }, { stops }: SavedState) {
         if (stops.length > 0) {

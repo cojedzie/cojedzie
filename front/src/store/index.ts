@@ -17,10 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import messages from './modules/messages';
-import departures from './modules/departures'
-import favourites from './modules/favourites'
-import history from "./modules/history";
 import { namespace } from "vuex-class";
 import VuexPersistence from "vuex-persist";
 import { createStore, State } from "@/store/initializer";

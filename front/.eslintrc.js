@@ -23,5 +23,5 @@ module.exports = {
         "@typescript-eslint/ban-ts-comment": [0],
         "no-unused-vars": [1, { argsIgnorePattern: "^_" }],
     },
-    "ignorePatterns": [".eslintrc.js", "webpack.config.js", "**/build/**", "resources/**/*"]
+    "ignorePatterns": [".eslintrc.js", "webpack.config.js", "**/build/**", "resources/**/*", "src/types/**/*.d.ts"]
 }

@@ -81,8 +81,10 @@ export default function install(Vue: App) {
 
     Vue.component('TripSchedule', TripSchedule);
 
+    // eslint-disable-next-line vue/multi-word-component-names
     Vue.component('Lazy', Lazy);
 
     // https://github.com/vuejs/vue/issues/7829
+    // eslint-disable-next-line vue/multi-word-component-names
     Vue.component('Empty', (props, context) => h('template', context.attrs, ''));
 }

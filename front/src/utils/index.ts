@@ -37,7 +37,7 @@ type Simplify<T> = string |
     T extends Moment   ? string :
     T extends Array<infer K> ? Array<Simplify<K>>  :
     T extends (infer K)[] ? Simplify<K>[] :
-    T extends Object ? Jsonified<T> : any;
+    T extends Record<string, unknown> ? Jsonified<T> : T;
 
 export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> }
 export type Optionalify<T> = { [K in keyof T]?: T[K] }
@@ -48,6 +48,20 @@ export type Index = string | symbol | number;
 export type FetchingState = 'fetching' | 'ready' | 'error' | 'not-initialized';
 
 export type MakeOptional<T, K extends keyof T> = Optionalify<Pick<T, K>> & Omit<T, K>;
+
+export type NestedValue<TSubject, TPath extends NestedKeyof<TSubject>>
+    = TSubject extends object
+    ? TPath extends `${infer TParent}.${infer TLeaf}`
+        ? TParent extends keyof TSubject
+            ? NestedValue<TSubject[TParent], TLeaf & NestedKeyof<TSubject[TParent]>>
+            : never
+        : TPath extends keyof TSubject ? TSubject[TPath] : never
+    : never
+
+export type NestedKeyof<TObj>
+    = TObj extends object
+    ? (keyof TObj | { [TKey in keyof TObj]: `${TKey & string}.${NestedKeyof<TObj[TKey]>}` }[keyof TObj]) & string
+    : never
 
 export interface Converter<T, U> {
     convert: (value: T) => U;
@@ -70,22 +84,32 @@ export function ensureArray<T>(x: T[]|T): T[] {
     return x instanceof Array ? x : [ x ];
 }
 
-export function set(object: any, path: string, value: any) {
+export function set<
+    TObject extends object,
+    TPath extends NestedKeyof<TObject>
+>(object: TObject, path: TPath, value: unknown): void {
     const segments = path.split('.');
+
+    let current: object = object;
     while (segments.length > 1) {
-        object = object[segments.shift()];
+        current = object[segments.shift()] as object;
     }
 
-    object[segments.shift()] = value;
+    current[segments.shift()] = value;
 }
 
-export function get(object: any, path: string): any {
+export function get<
+    TObject extends object,
+    TPath extends NestedKeyof<TObject>
+>(object: TObject, path: TPath): NestedValue<TObject, TPath> {
     const segments = path.split('.');
+
+    let current: object = object;
     while (segments.length > 1) {
-        object = object[segments.shift()];
+        current = object[segments.shift()] as object;
     }
 
-    return object[segments.shift()];
+    return current[segments.shift()];
 }
 
 export function distinct<T>(value: T, index: number, array: T[]) {
@@ -122,14 +146,14 @@ export function unique<T, U>(array: T[], criterion: (item: T) => U = identity) {
 
 export const supply: <T>(x: T) => () => T = x => () => cloneDeep(x);
 
-type Pattern<TResult, TArgs extends any[]> = [
+type Pattern<TResult, TArgs extends unknown[]> = [
     (...args: TArgs) => boolean,
     ((...args: TArgs) => TResult) | TResult,
 ]
 
-export function match<TResult, TArgs extends any[]>(...patterns: Pattern<TResult, TArgs>[]): (...args: TArgs) => TResult {
+export function match<TResult, TArgs extends unknown[]>(...patterns: Pattern<TResult, TArgs>[]): (...args: TArgs) => TResult {
     return (...args: TArgs) => {
-        for (let [pattern, action] of patterns) {
+        for (const [pattern, action] of patterns) {
             if (pattern(...args)) {
                 return typeof action === "function" ? (action as (...args: TArgs) => TResult)(...args) : action;
             }
@@ -139,7 +163,7 @@ export function match<TResult, TArgs extends any[]>(...patterns: Pattern<TResult
     }
 }
 
-match.default = (...args: any[]) => true;
+match.default = (..._args: unknown[]) => true;
 
 export function resolve<T>(supplier: Supplier<T>): T {
     if (typeof supplier === "undefined") {
@@ -154,6 +178,6 @@ export const delay = (milliseconds: number): Promise<void> => new Promise(resolv
 export function createBackoff(timeout: number): (counter: number, callback: () => void) => number {
     return (counter: number, callback: () => void): number => {
         const k = Math.round(2**(counter - 1) + Math.random() * (2**counter - 2**(counter - 1)));
-        return setTimeout(callback, timeout * (Math.max(1, k))) as any;
+        return setTimeout(callback, timeout * (Math.max(1, k))) as unknown as number;
     }
 }

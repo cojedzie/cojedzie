@@ -17,9 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Vuex, { Store, VuexPlugin, VuexStateProvider, VuexStoreDefinition, createStore as createVuexStore } from "vuex";
+import { Store, VuexPlugin, VuexStateProvider, VuexStoreDefinition, createStore as createVuexStore } from "vuex";
 import { actions, mutations, RootActionTree, RootMutationsTree, RootState, state } from "@/store/root";
-import { Optionalify, supply } from "@/utils";
+import { supply } from "@/utils";
 import messages, { MessagesState } from "@/store/modules/messages";
 import departures, { DeparturesState } from "@/store/modules/departures";
 import favourites, { FavouritesState } from "@/store/modules/favourites";
@@ -31,10 +31,9 @@ import { LoadBalancedClient, LoadBalancedClientOptions } from "@/api/client/bala
 import { LoadBalancerImplementation } from "@/api/loadbalancer";
 import { Endpoints, endpoints } from "@/api/endpoints";
 import { ApiClient } from "@/api/client";
-import { AxiosInstance } from "axios";
-import { http } from "@/api/client/http";
 
 declare module 'vuex' {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
     interface VuexStore<TDefinition extends VuexStoreDefinition> {
         $api: ApiClient<Endpoints, "provider">
     }

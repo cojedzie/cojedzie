@@ -36,7 +36,7 @@ export function createMutex(): Mutex {
 
     return {
         current,
-        use(symbol: symbol = Symbol()): MutexInstance {
+        use(symbol = Symbol()): MutexInstance {
             const active = computed(() => current.value === symbol);
 
             function acquire() {
@@ -44,7 +44,7 @@ export function createMutex(): Mutex {
             }
 
             function release() {
-                if (active) {
+                if (active.value) {
                     current.value = null;
                 }
             }

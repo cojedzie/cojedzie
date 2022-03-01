@@ -19,13 +19,13 @@
 
 import { createDecorator, Vue } from 'vue-class-component'
 
-export interface Decorator<TArgs extends any[], FArgs extends any[], TRet extends any, FRet extends any> {
-    decorate(f: (...farg: FArgs) => any, ...args: TArgs): (...farg: FArgs) => TRet;
+export interface Decorator<TArgs extends unknown[], FArgs extends unknown[], TRet, FRet> {
+    decorate(f: (...farg: FArgs) => unknown, ...args: TArgs): (...farg: FArgs) => TRet;
 
     (...args: TArgs): (target, name: string | symbol, descriptor: TypedPropertyDescriptor<(...farg: FArgs) => FRet>) => void;
 }
 
-export function decorator<TArgs extends any[], FArgs extends any[], TRet extends any, FRet extends any>
+export function decorator<TArgs extends unknown[], FArgs extends unknown[], TRet, FRet>
     (decorate: (f: (...farg: FArgs) => FRet, ...args: TArgs) => (...farg: FArgs) => TRet)
     : Decorator<TArgs, FArgs, TRet, FRet> {
 
@@ -41,7 +41,7 @@ export function decorator<TArgs extends any[], FArgs extends any[], TRet extends
 
 export const throttle = decorator(function (decorated, time: number) {
     let timeout;
-    return function (this: any, ...args) {
+    return function (this: unknown, ...args) {
         if (typeof timeout === 'undefined') {
             timeout = setTimeout(() => {
                 decorated.call(this, ...args);
@@ -51,9 +51,9 @@ export const throttle = decorator(function (decorated, time: number) {
     }
 });
 
-export const debounce = decorator(function (decorated, time: number, max: number = time * 3) {
+export const debounce = decorator(function (decorated, time: number) {
     let timeout;
-    return function (this: any, ...args) {
+    return function (this: unknown, ...args) {
         if (typeof timeout !== 'undefined') {
             clearTimeout(timeout);
         }
@@ -65,8 +65,8 @@ export const debounce = decorator(function (decorated, time: number, max: number
     }
 });
 
-export const condition = decorator(function <Args extends any[], Ret extends any>(decorated: (...args: Args) => Ret, predicate: (...args: Args) => boolean) {
-    return function (this: any, ...args: Args) {
+export const condition = decorator(function <TArgs extends unknown[], TReturn>(decorated: (...args: TArgs) => TReturn, predicate: (...args: TArgs) => boolean) {
+    return function (this: unknown, ...args: TArgs) {
         if (predicate(...args)) {
             return decorated(...args);
         }
@@ -84,7 +84,7 @@ export const notify = (name?: string) => createDecorator((options, key) => {
         get: function (this: Vue) {
             return this[symbol];
         },
-        set: function (this: Vue, value: any) {
+        set: function (this: Vue, value: unknown) {
             this[symbol] = value;
             this.$emit(name ? name : `update:${key}`, value);
         }

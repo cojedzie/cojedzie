@@ -31,7 +31,7 @@ const EventSource = (typeof window !== "undefined" && window.EventSource);
 
 export type NetworkingEndpoints = {
     v1_network_nodes: Endpoint<never, Jsonified<ApiNode>[]>,
-    v1_status_health: Endpoint<never, Jsonified<any>>,
+    v1_status_health: Endpoint<never, Jsonified<unknown>>,
 }
 
 export const networkingEndpoints: NetworkingEndpoints = {
@@ -191,7 +191,7 @@ const actions: NetworkActionTree = {
         try {
             const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
 
-            if (response.headers.hasOwnProperty('Set-Cookie')) {
+        if (Object.prototype.hasOwnProperty.call(response.headers, 'Set-Cookie')) {
             document.cookie = response.headers['Set-Cookie'];
         }
 
@@ -241,7 +241,7 @@ const actions: NetworkActionTree = {
         }
 
         try {
-            const response = await networkingClient.get("v1_status_health", {
+            await networkingClient.get("v1_status_health", {
                 version: "^1.0",
                 base: node.url
             })
@@ -317,7 +317,7 @@ class NetworkNodeUpdateListener {
     }
 }
 
-let listener: NetworkNodeUpdateListener = new NetworkNodeUpdateListener();
+const listener: NetworkNodeUpdateListener = new NetworkNodeUpdateListener();
 
 const getMercureHub = (response: AxiosResponse): string|undefined => {
     const link = response.headers['link'];

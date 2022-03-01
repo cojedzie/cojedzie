@@ -21,14 +21,15 @@ import { distinct } from "@/utils";
 import * as uuid from "uuid";
 import api from "@/api";
 
-type Migration = {
+type Migration<TState, TResult> = {
     name: string,
     key: string,
-    skip?: (state: any) => boolean,
-    up: (state: any) => Promise<any>,
+    skip?: (state: TState) => boolean,
+    up: (state: TState) => Promise<TResult>,
 }
 
-const migrations: Migration[] = [
+
+const migrations: Migration<any, any>[] = [
     {
         name: "202001261540_full_stop_in_state",
         key: "vuex",

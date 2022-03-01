@@ -21,7 +21,7 @@ import { Line } from "./line";
 import { Location } from "./common";
 
 export interface Stop {
-    id: any;
+    id: string;
     name: string;
     description?: string;
     location?: Location;

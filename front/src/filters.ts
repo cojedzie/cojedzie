@@ -37,20 +37,23 @@ export default function install(Vue: App) {
     }
 
     Vue.directive('hover',  {
-        beforeMount(el, binding, node) {
+        beforeMount(el, binding, _node) {
             const update = (hovered: boolean, e: Event) => {
                 if (typeof binding.value === 'function') {
                     binding.value(hovered, e);
                 }
 
                 if (typeof binding.arg !== 'undefined') {
-                    set(binding.instance, binding.arg, hovered);
+                    set(binding.instance as unknown as Record<string, unknown>, binding.arg, hovered);
                 }
             };
 
-            const activate   = event => update(true, event);
-            const deactivate = event => update(false, event);
-            const keyboard   = condition.decorate(deactivate, e => e.keyCode == 27);
+            const activate   = (event: KeyboardEvent) => update(true, event);
+            const deactivate = (event: KeyboardEvent) => update(false, event);
+            const keyboard   = condition.decorate(
+                deactivate,
+                (event: KeyboardEvent) => event.keyCode == 27
+            );
 
             binding['events'] = { activate, deactivate, keyboard };
 
@@ -93,7 +96,7 @@ export default function install(Vue: App) {
                 const width = el.scrollWidth;
                 el.classList.remove(...Object.keys(breakpoints).map(breakpoint => `size-${breakpoint}`));
 
-                for (let [ breakpoint, size ] of Object.entries(breakpoints)) {
+                for (const [ breakpoint, size ] of Object.entries(breakpoints)) {
                     if (width < size) {
                         break;
                     }

@@ -17,8 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/// <reference path="types/webpack.d.ts"/>
-
 import { Store } from 'vuex';
 import { dragscrollNext } from 'vue-dragscroll';
 import { Workbox } from "workbox-window";
@@ -63,16 +61,16 @@ Vue.registerHooks(['removed']);
     // todo figure out better way
     const fragment = document.createDocumentFragment();
     const root = document.getElementById('root');
-    app.mount(fragment as any);
+    app.mount(fragment as unknown as Element);
     root.parentNode.replaceChild(fragment, root);
 })();
 
 if ('serviceWorker' in navigator) {
     const wb = new Workbox("/service-worker.js");
 
-    wb.addEventListener('waiting', event => {
+    wb.addEventListener('waiting', _ => {
         if (window.confirm("Dostępna jest nowa wersja, przeładować?")) {
-            wb.addEventListener('controlling', event => {
+            wb.addEventListener('controlling', _ => {
                 window.location.reload();
             });
 
