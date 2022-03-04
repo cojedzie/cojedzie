@@ -43,7 +43,7 @@ services:
       - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
   frontend:
-    image: node:15.2.1
+    image: node:16
     working_dir: /app
     environment:
       - APP_API=http://nginx/api

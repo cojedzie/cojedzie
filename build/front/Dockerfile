@@ -1,4 +1,4 @@
-FROM node:15.2.1 as build
+FROM node:16 as build
 
 WORKDIR /app
 COPY . .
@@ -12,7 +12,7 @@ RUN yarn run build:app
 RUN yarn run build:server
 
 # server dependencies step
-FROM node:15.2.1 as prod-dependencies
+FROM node:16 as prod-dependencies
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ COPY . .
 # install dependencies
 RUN yarn install --production --frozen-lockfile
 
-FROM node:15.2.1-slim
+FROM node:16-slim
 
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 
