@@ -9,7 +9,7 @@ FROM php:8.1-cli-alpine
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds;
 
 WORKDIR /var/www
 

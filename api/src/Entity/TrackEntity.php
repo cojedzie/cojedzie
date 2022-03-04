@@ -22,7 +22,7 @@ namespace App\Entity;
 
 use App\Model\Fillable;
 use App\Model\FillTrait;
-use App\Service\IterableUtils;
+use App\Utility\IterableUtils;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 

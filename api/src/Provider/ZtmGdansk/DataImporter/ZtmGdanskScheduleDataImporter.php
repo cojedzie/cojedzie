@@ -30,7 +30,7 @@ use Carbon\Carbon;
 use Cerbero\JsonObjects\JsonObjects;
 use Cerbero\JsonObjects\JsonObjectsException;
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\Query\Expr;
+use Ds\Set;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
@@ -56,13 +56,15 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $existingLineIds   = $existingLineIdsQueryResult->iterateColumn();
         $existingLineCount = $existingLineIdsQueryResult->rowCount();
 
-        $existingStopIds = $this->connection->createQueryBuilder()
-            ->from('stop', 's')
-            ->select('id')
-            ->where('s.provider_id = :provider_id')
-            ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-            ->execute()
-            ->fetchFirstColumn();
+        $existingStopIds = new Set(
+            $this->connection->createQueryBuilder()
+                ->from('stop', 's')
+                ->select('id')
+                ->where('s.provider_id = :provider_id')
+                ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+                ->execute()
+                ->iterateColumn()
+        );
 
         $count = 0;
         foreach ($existingLineIds as $lineId) {
@@ -79,7 +81,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $reporter->progress($count, comment: 'Imported all lines', finished: true);
     }
 
-    private function importScheduleOfLine(DataUpdateEvent $event, string $lineId, array $existingStopIds)
+    private function importScheduleOfLine(DataUpdateEvent $event, string $lineId, Set $existingStopIds)
     {
         $tripIds = $this->connection->createQueryBuilder()
             ->from('track')
@@ -106,10 +108,10 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         );
 
         $schedule = JsonObjects::from($url, 'stopTimes.*');
-        $trips    = [];
+        $trips    = new Set();
 
-        $saveStop = function (array $columns) use (&$existingStopIds) {
-            if (!in_array($columns['stop_id'], $existingStopIds, true)) {
+        $saveStop = function (array $columns) use ($existingStopIds) {
+            if (!$existingStopIds->contains($columns['stop_id'])) {
                 return;
             }
 
@@ -123,7 +125,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             );
         };
 
-        $saveTrip = function ($tripId, array $columns) use (&$existingStopIds, $event) {
+        $saveTrip = function ($tripId, array $columns) use ($event) {
             $this->connection->insert(
                 'trip',
                 array_merge(
@@ -144,14 +146,15 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             $tripId = sprintf('%s-%s-%s-%d', $stop['routeId'], $stop['busServiceName'], $stop['tripId'], $stop['order']);
             $tripId = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $tripId);
 
-            if (!in_array($tripId, $trips, true)) {
+            if (!$trips->contains($tripId)) {
                 $saveTrip($tripId, [
                     'operator_id' => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['agencyId']),
                     'track_id'    => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, sprintf('R%sT%s', $stop['routeId'], $stop['tripId'])),
                     'provider_id' => ZtmGdanskProvider::IDENTIFIER,
                     'note'        => $stop['noteDescription'],
                 ]);
-                $trips[] = $tripId;
+
+                $trips->add($tripId);
             }
 
             $base = Carbon::create(1899, 12, 30, 00, 00, 00);

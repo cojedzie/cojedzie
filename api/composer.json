@@ -24,6 +24,7 @@
     "nesbot/carbon": "^2.57.0",
     "nyholm/psr7": "^1.5",
     "ocramius/proxy-manager": "^2.0",
+    "php-ds/php-ds": "^1.4",
     "sensio/framework-extra-bundle": "^5.4",
     "spiral/roadrunner": "^2.8",
     "symfony/amqp-messenger": "5.4.*",

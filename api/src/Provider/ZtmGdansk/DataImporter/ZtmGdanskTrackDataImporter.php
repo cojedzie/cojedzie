@@ -20,14 +20,18 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
-use App\Service\IterableUtils;
+use App\Utility\CollectionUtils;
+use App\Utility\IterableUtils;
+use App\Utility\SequenceGenerator;
 use Doctrine\DBAL\Connection;
-use Illuminate\Support\Collection;
+use Ds\Deque;
+use Ds\Set;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
@@ -72,10 +76,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         foreach (IterableUtils::batch($this->getTracksFromZtmApi(), 100) as $batch) {
             $ids = array_keys($batch);
             $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
-            $existing = $query->execute()->fetchFirstColumn();
+            $existing = new Set($query->execute()->iterateColumn());
 
             foreach ($batch as $id => $track) {
-                if (in_array($id, $existing, true)) {
+                if ($existing->contains($id)) {
                     $this->connection->update(
                         'track',
                         [
@@ -136,7 +140,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $updateFinalStopInTrackPreparedQuery = $this->connection->prepare($updateFinalStopInTrackSql);
 
         $count = 0;
-        foreach ($this->getTrackStopsFromZtmApi() as $trackId => $stops) {
+        foreach ($this->getTrackStopsFromZtmApi($reporter) as $trackId => $stops) {
             // clean all stops related with this track
             $deleteStopsPreparedQuery->executeQuery(['tid' => $trackId]);
 
@@ -180,41 +184,49 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         }
     }
 
-    private function getTrackStopsFromZtmApi()
+    private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter)
     {
         $response = $this->httpClient->request('GET', self::STOPS_IN_TRACK_URL);
         $all      = $response->toArray()[date('Y-m-d')]['stopsInTrip'];
-        $all      = collect($all)->groupBy(
+        $reporter->milestone(sprintf('Downloaded %d track stops', count($all)), MilestoneType::Success);
+
+        $all = CollectionUtils::groupBy(
+            $all,
             fn ($stop) => $this->idUtils->generate(
                 ZtmGdanskProvider::IDENTIFIER,
                 sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
             )
         );
 
-        $existingStopIds = $this->connection->createQueryBuilder()
-            ->from('stop', 's')
-            ->select('id')
-            ->where('s.provider_id = :provider_id')
-            ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-            ->execute()
-            ->fetchFirstColumn();
+        $existingStopIds = new Set(
+            $this->connection->createQueryBuilder()
+                ->from('stop', 's')
+                ->select('id')
+                ->where('s.provider_id = :provider_id')
+                ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+                ->execute()
+                ->iterateColumn()
+        );
 
         /**
          * @var string $trackId
-         * @var Collection<array> $stops
+         * @var Deque<array> $stops
          */
         foreach ($all as $trackId => $stops) {
-            yield $trackId       => $stops
+            $generator = new SequenceGenerator();
+
+            yield $trackId => $stops
                 ->map(fn ($stop) => [
                     'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
                     'track_id' => $trackId,
-                    // HACK! Gdynia has 0 based sequence
-                    'sequence' => $stop['stopSequence'] + (int) ($stop['stopId'] > 30000),
+                    'sequence' => $stop['stopSequence'] + (int) ($stop['stopId'] > 30000), // HACK! Gdynia has 0 based sequence
                 ])
-                ->filter(fn ($stop) => in_array($stop['stop_id'], $existingStopIds, true))
-                ->sortBy(fn ($stop) => $stop['sequence'])
-                ->map(fn ($stop, $i) => array_merge($stop, ['sequence' => $i]))
-                ->all();
+                ->filter(fn ($stop) => $existingStopIds->contains($stop['stop_id']))
+                ->sorted(fn ($a, $b) => $a['sequence'] <=> $b['sequence'])
+                ->map(fn ($stop) => [
+                    ...$stop,
+                    'sequence' => $generator->next()
+                ]);
         }
     }
 

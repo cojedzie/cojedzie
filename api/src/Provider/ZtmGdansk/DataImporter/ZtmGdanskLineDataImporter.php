@@ -26,8 +26,9 @@ use App\Model\Line as LineModel;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
-use App\Service\IterableUtils;
+use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
+use Ds\Set;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskLineDataImporter extends AbstractDataImporter
@@ -59,12 +60,11 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
 
         $count = 0;
         foreach (IterableUtils::batch($this->getLinesFromZtmApi(), 100) as $batch) {
-            $ids = array_keys($batch);
-            $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
-            $existing = $query->execute()->fetchFirstColumn();
+            $query->setParameter('ids', array_keys($batch), Connection::PARAM_STR_ARRAY);
+            $existing = new Set($query->execute()->iterateColumn());
 
             foreach ($batch as $id => $line) {
-                if (in_array($id, $existing, true)) {
+                if ($existing->contains($id)) {
                     $this->connection->update(
                         'line',
                         [
@@ -116,21 +116,22 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         $response = $this->httpClient->request('GET', self::RESOURCE_URL);
         $lines    = $response->toArray()[date('Y-m-d')]['routes'];
 
-        $operators = $this->connection->createQueryBuilder()
-            ->from('operator', 'o')
-            ->select('id')
-            ->where('o.provider_id = :provider_id')
-            ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-            ->execute()
-            ->fetchFirstColumn()
-            ;
+        $operators = new Set(
+            $this->connection->createQueryBuilder()
+                ->from('operator', 'o')
+                ->select('id')
+                ->where('o.provider_id = :provider_id')
+                ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+                ->execute()
+                ->iterateColumn()
+        );
 
         foreach ($lines as $line) {
             $symbol   = $line['routeShortName'];
             $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
 
             // skip unknown operators
-            if (!in_array($operator, $operators, true)) {
+            if (!$operators->contains($operator)) {
                 continue;
             }
 

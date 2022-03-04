@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,30 +18,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Service;
+namespace App\Utility;
 
-use Kadet\Functional\Predicate;
-use function Kadet\Functional\Predicates\instance;
-
-final class ModifierUtils
+class SequenceGenerator
 {
-    public static function get(iterable $modifiers, Predicate $predicate)
-    {
-        return collect($modifiers)->first($predicate);
-    }
+    private int $state = 0;
 
-    public static function getOfType(iterable $modifiers, $class)
+    public function next(): int
     {
-        return self::get($modifiers, instance($class));
-    }
-
-    public static function hasAny(iterable $modifiers, Predicate $predicate)
-    {
-        return collect($modifiers)->contains($predicate);
-    }
-
-    public static function hasAnyOfType(iterable $modifiers, $class)
-    {
-        return collect($modifiers)->contains(instance($class));
+        return $this->state++;
     }
 }

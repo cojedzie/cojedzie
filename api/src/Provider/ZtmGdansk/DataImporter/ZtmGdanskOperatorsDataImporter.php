@@ -26,6 +26,7 @@ use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use Doctrine\DBAL\Connection;
+use Ds\Set;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
@@ -43,16 +44,18 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
     {
         $this->connection->beginTransaction();
 
-        $existing = $this->connection->createQueryBuilder()
-            ->from('operator', 'o')
-            ->select('id', 'name', 'email', 'url', 'phone')
-            ->where('o.provider_id = :provider_id')
-            ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-            ->execute()
-            ->fetchAllAssociativeIndexed();
+        $existing = new Set(
+            $this->connection->createQueryBuilder()
+                ->from('operator', 'o')
+                ->select('id')
+                ->where('o.provider_id = :provider_id')
+                ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+                ->execute()
+                ->iterateColumn()
+        );
 
         foreach ($this->getOperatorsFromZtmApi() as $id => $operator) {
-            if (array_key_exists($id, $existing)) {
+            if ($existing->contains($id)) {
                 $this->connection->update(
                     'operator',
                     [

@@ -200,6 +200,9 @@
             "config/packages/nyholm_psr7.yaml"
         ]
     },
+    "php-ds/php-ds": {
+        "version": "v1.4.0"
+    },
     "php-http/message-factory": {
         "version": "v1.0.2"
     },

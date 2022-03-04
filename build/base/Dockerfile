@@ -5,7 +5,7 @@ LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 WORKDIR /var/www
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds;
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

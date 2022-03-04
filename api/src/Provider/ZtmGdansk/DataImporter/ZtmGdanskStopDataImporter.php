@@ -25,9 +25,10 @@ use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
-use App\Service\IterableUtils;
+use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Ds\Set;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
@@ -54,12 +55,12 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
         $count = 0;
         foreach (IterableUtils::batch($this->getStopsFromZtmApi(), 100) as $batch) {
-            $ids = array_keys($batch);
-            $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
-            $existing = $query->execute()->fetchFirstColumn();
+            $query->setParameter('ids', array_keys($batch), Connection::PARAM_STR_ARRAY);
+
+            $existing = new Set($query->execute()->iterateColumn());
 
             foreach ($batch as $id => $stop) {
-                if (in_array($id, $existing, true)) {
+                if ($existing->contains($id)) {
                     $this->connection->update(
                         'stop',
                         [

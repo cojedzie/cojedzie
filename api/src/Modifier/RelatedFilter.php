@@ -22,7 +22,7 @@ namespace App\Modifier;
 
 use App\Exception\InvalidArgumentException;
 use App\Model\Referable;
-use App\Service\IterableUtils;
+use App\Utility\IterableUtils;
 
 class RelatedFilter implements Modifier
 {

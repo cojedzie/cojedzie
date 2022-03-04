@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,31 +18,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modifier;
+namespace App\Utility;
 
-use App\Exception\InvalidArgumentException;
-use App\Utility\IterableUtils;
+use Kadet\Functional\Predicate;
+use function collect;
+use function Kadet\Functional\Predicates\instance;
 
-class IdFilter implements Modifier
+final class ModifierUtils
 {
-    private readonly array|string $id;
-
-    public function __construct($id)
+    public static function get(iterable $modifiers, Predicate $predicate)
     {
-        if (!is_iterable($id) && !is_string($id)) {
-            throw InvalidArgumentException::invalidType('id', $id, ['string', 'array']);
-        }
-
-        $this->id = is_iterable($id) ? IterableUtils::toArray($id) : $id;
+        return collect($modifiers)->first($predicate);
     }
 
-    public function getId()
+    public static function getOfType(iterable $modifiers, $class)
     {
-        return $this->id;
+        return self::get($modifiers, instance($class));
     }
 
-    public function isMultiple()
+    public static function hasAny(iterable $modifiers, Predicate $predicate)
     {
-        return is_array($this->id);
+        return collect($modifiers)->contains($predicate);
+    }
+
+    public static function hasAnyOfType(iterable $modifiers, $class)
+    {
+        return collect($modifiers)->contains(instance($class));
     }
 }

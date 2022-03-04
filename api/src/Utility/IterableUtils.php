@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,10 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Service;
+namespace App\Utility;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Illuminate\Support\Collection;
+use function collect;
 
 final class IterableUtils
 {
@@ -36,7 +37,9 @@ final class IterableUtils
 
     public static function toArrayCollection(iterable $iterable): ArrayCollection
     {
-        return new ArrayCollection(static::toArray($iterable));
+        return new ArrayCollection(
+            IterableUtils::toArray($iterable)
+        );
     }
 
     public static function toCollection(iterable $iterable): Collection
