@@ -14,14 +14,40 @@ tasks:
     cmds:
       - docker-compose exec {{.FLAGS}} -u {{.USER}} {{.SERVICE}} {{.CLI_ARGS}}
 
+  dependencies:
+    deps:
+      - task: dependencies:api
+      - task: dependencies:frontend
+
+  dependencies:api:
+    desc: Intalls api dependencies (composer)
+    cmds:
+      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api composer install
+
+  dependencies:frontend:
+    desc: Intalls api dependencies (composer)
+    cmds:
+      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend yarn install
+      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend sh -c "find resources/fontawesome -type f -name '*.tgz' | sed s/^/file:/ | xargs yarn add-no-save"
+
+  lint:
+    deps:
+      - task: lint:eslint
+
+  lint:eslint:
+    desc: Lint frontend using ES Lint
+    cmds:
+      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend node_modules/.bin/eslint {{.CLI_ARGS}}
+
+  frontend:yarn:
+    desc: Execute yarn command
+    cmds:
+      - docker-compose exec {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
+
   api:console:
     desc: Execute command in the symfony console
     cmds:
-      - task: exec
-        vars:
-          SERVICE: api
-          FLAGS: '{{.FLAGS}}'
-          CLI_ARGS: ./bin/console {{.CLI_ARGS}}
+      - docker-compose exec {{.FLAGS}} -u {{.USER}} api bin/console {{.CLI_ARGS}}
 
   api:migrations:generate:
     desc: Generate migrations for all database engines
