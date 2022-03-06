@@ -20,30 +20,41 @@
 
 namespace App\Parser\Consumer;
 
+use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\StreamInterface;
 
-class WhitespaceConsumer extends AbstractConsumer
+class AnyConsumer extends AbstractConsumer
 {
+    private array $consumers;
+
+    public function __construct(ConsumerInterface ...$consumers)
+    {
+        $this->consumers = $consumers;
+    }
+
     public function label(): string
     {
-        return 'whitespace';
+        return implode(' or ', array_map(fn ($consumer) => $consumer->label(), $this->consumers));
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $output = "";
+        $position = $stream->tell();
 
-        while ($input = $stream->peek(1)) {
-            if (ctype_space($input)) {
-                // skip whitespace
-                $output .= $stream->read(1);
-            } else {
-                break;
+        foreach ($this->consumers as $consumer) {
+            try {
+                $generator = $stream->consume($consumer);
+                yield from $generator;
+                return $generator->getReturn();
+            } catch (UnexpectedTokenException $exception) {
+                if ($position === $stream->tell()) {
+                    continue;
+                }
+
+                throw $exception;
             }
         }
 
-        yield $output;
-
-        return true;
+        return false;
     }
 }

@@ -22,6 +22,8 @@ namespace App\Parser;
 
 use App\Parser\Consumer\CallbackConsumer;
 use App\Parser\Consumer\Consumer;
+use App\Parser\Consumer\PredicateConsumer;
+use App\Parser\Consumer\ReducedConsumer;
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\JsonToken\ArrayEndToken;
 use App\Parser\JsonToken\ArrayStartToken;
@@ -184,7 +186,66 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         return $consumer
-            ?? $consumer = self::string()->map(ValueToken::createFromValue(...));
+            ?? $consumer = (new CallbackConsumer(
+                function (StreamInterface $stream) {
+                    $first = $stream->peek(1);
+
+                    yield from match (true) {
+                        $first == '['                        => $stream->consume(self::array()),
+                        $first == '{'                        => $stream->consume(self::object()),
+                        $first == '"'                        => $stream->consume(self::string()),
+                        $first == 'f' || $first == 't'       => $stream->consume(self::boolean()),
+                        $first == 'n'                        => $stream->consume(self::null()),
+                        ctype_digit($first) || $first == '-' => $stream->consume(self::number()),
+                        default                              => throw UnexpectedTokenException::create($first, '[, {, ", true, false or digit'),
+                    };
+
+                    return true;
+                },
+                'JSON value'
+            ))->map(ValueToken::createFromValue(...));
+    }
+
+    public static function null()
+    {
+        static $consumer = null;
+
+        return $consumer
+            ?? $consumer = Consumer::string('null')->map(fn () => null);
+    }
+
+    public static function boolean()
+    {
+        static $consumer = null;
+
+        return $consumer
+            ?? $consumer = Consumer::choice(
+                Consumer::string('true')->map(fn ()  => true),
+                Consumer::string('false')->map(fn () => false),
+            );
+    }
+
+    public static function number()
+    {
+        static $consumer = null;
+
+        return $consumer
+            ?? $consumer = Consumer::sequence(
+                Consumer::optional(Consumer::string('-')),
+                Consumer::choice(
+                    Consumer::string('0'),
+                    Consumer::sequence(
+                        Consumer::regex('[1-9]'),
+                        Consumer::regex('[0-9]')->repeated()
+                    )
+                ),
+                Consumer::optional(
+                    Consumer::sequence(
+                        Consumer::string('.'),
+                        Consumer::regex('[0-9]')->repeated()
+                    )
+                ),
+            )->reduce(ReducedConsumer::join())->map(floatval(...));
     }
 
     public static function member()

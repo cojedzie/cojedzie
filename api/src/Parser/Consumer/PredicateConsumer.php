@@ -23,10 +23,8 @@ namespace App\Parser\Consumer;
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\StreamInterface;
 
-class PredicateConsumer implements ConsumerInterface
+class PredicateConsumer extends AbstractConsumer
 {
-    use MapConsumerTrait;
-
     public function __construct(
         private $predicate,
         private int $length,

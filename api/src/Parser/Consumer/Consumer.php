@@ -20,6 +20,7 @@
 
 namespace App\Parser\Consumer;
 
+use App\Parser\StreamInterface;
 use function Kadet\Functional\Predicates\same;
 
 final class Consumer
@@ -34,6 +35,15 @@ final class Consumer
             same($string),
             strlen($string),
             $string,
+        );
+    }
+
+    public static function regex(string $pattern, string $flags = ''): ConsumerInterface
+    {
+        return new PredicateConsumer(
+            fn ($char) => preg_match(sprintf('/%s/%s', $pattern, $flags), $char),
+            1,
+            $pattern,
         );
     }
 
@@ -58,6 +68,51 @@ final class Consumer
     public static function between(ConsumerInterface $consumer, ConsumerInterface $left, ConsumerInterface $right = null)
     {
         return new BetweenConsumer($consumer, $left, $right);
+    }
+
+    public static function choice(ConsumerInterface ...$consumers): ConsumerInterface
+    {
+        return new AnyConsumer(...$consumers);
+    }
+
+    public static function sequence(ConsumerInterface ...$consumers): ConsumerInterface
+    {
+        return new CallbackConsumer(
+            function (StreamInterface $stream) use ($consumers) {
+                foreach ($consumers as $consumer) {
+                    $generator = $stream->consume($consumer);
+                    foreach ($generator as $result) {
+                        yield $result;
+                    }
+                }
+
+                return true;
+            },
+            implode(' then ', array_map(fn (ConsumerInterface $consumer) => $consumer->label(), $consumers)),
+        );
+    }
+
+    public static function ignore(ConsumerInterface $consumer): ConsumerInterface
+    {
+        return $consumer instanceof IgnoredConsumer ? $consumer : new IgnoredConsumer($consumer);
+    }
+
+    public static function many(ConsumerInterface $consumer): ConsumerInterface
+    {
+        return new CallbackConsumer(
+            static function (StreamInterface $stream) use ($consumer) {
+                $successful = false;
+
+                do {
+                    $result = $stream->consume(Consumer::optional($consumer));
+                    yield from $result;
+                    $successful = $successful || Consumer::isValid($result);
+                } while (Consumer::isValid($result));
+
+                return $successful;
+            },
+            sprintf("multiple %s", $consumer->label())
+        );
     }
 
     public static function isEmpty(\Generator $result): bool

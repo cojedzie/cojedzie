@@ -22,17 +22,20 @@ namespace App\Parser\Consumer;
 
 use App\Parser\StreamInterface;
 
-interface ConsumerInterface
+class IgnoredConsumer extends AbstractConsumer
 {
-    public function label(): string;
+    public function __construct(
+        private ConsumerInterface $consumer
+    ) {
+    }
 
-    public function map(callable $transform): ConsumerInterface;
+    public function label(): string
+    {
+        return sprintf("ignored %s", $this->consumer->label());
+    }
 
-    public function reduce(callable $transform): ConsumerInterface;
-
-    public function optional(): ConsumerInterface;
-
-    public function repeated(): ConsumerInterface;
-
-    public function __invoke(StreamInterface $stream): \Generator;
+    public function __invoke(StreamInterface $stream): \Generator
+    {
+        return $stream->skip($this->consumer);
+    }
 }

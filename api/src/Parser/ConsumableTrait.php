@@ -31,7 +31,13 @@ trait ConsumableTrait
 
     public function skip(ConsumerInterface $consumer): \Generator
     {
-        iterator_to_array($generator = $this->consume($consumer));
+        $generator = $this->consume($consumer);
+
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
+        foreach ($generator as $result) {
+            // noop
+        }
+
         return $generator;
     }
 }

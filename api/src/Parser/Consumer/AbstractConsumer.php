@@ -22,5 +22,5 @@ namespace App\Parser\Consumer;
 
 abstract class AbstractConsumer implements ConsumerInterface
 {
-    use MapConsumerTrait;
+    use ConsumerHelpersTrait;
 }

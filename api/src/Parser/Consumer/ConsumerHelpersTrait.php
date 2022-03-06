@@ -20,7 +20,7 @@
 
 namespace App\Parser\Consumer;
 
-trait MapConsumerTrait
+trait ConsumerHelpersTrait
 {
     public function map(callable $transform): ConsumerInterface
     {
@@ -28,5 +28,23 @@ trait MapConsumerTrait
             $this,
             $transform
         );
+    }
+
+    public function reduce(callable $reducer): ConsumerInterface
+    {
+        return new ReducedConsumer(
+            $this,
+            $reducer
+        );
+    }
+
+    public function optional(): ConsumerInterface
+    {
+        return Consumer::optional($this);
+    }
+
+    public function repeated(): ConsumerInterface
+    {
+        return Consumer::many($this);
     }
 }

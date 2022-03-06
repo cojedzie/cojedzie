@@ -20,6 +20,7 @@
 
 namespace App\Parser\Consumer;
 
+use App\Parser\Exception\EndOfStreamException;
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\StreamInterface;
 
@@ -44,7 +45,7 @@ class OptionalConsumer extends AbstractConsumer
             yield from $result;
 
             return $result->getReturn();
-        } catch (UnexpectedTokenException $exception) {
+        } catch (UnexpectedTokenException|EndOfStreamException $exception) {
             if ($stream->tell() === $position) {
                 return false;
             }

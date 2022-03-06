@@ -22,17 +22,35 @@ namespace App\Parser\Consumer;
 
 use App\Parser\StreamInterface;
 
-interface ConsumerInterface
+class ReducedConsumer extends AbstractConsumer
 {
-    public function label(): string;
+    public function __construct(
+        private ConsumerInterface $decorated,
+        private $transform,
+    ) {
+    }
 
-    public function map(callable $transform): ConsumerInterface;
+    public function label(): string
+    {
+        return $this->decorated->label();
+    }
 
-    public function reduce(callable $transform): ConsumerInterface;
+    public function __invoke(StreamInterface $stream): \Generator
+    {
+        $results = ($this->decorated)($stream);
+        $results = ($this->transform)($results);
 
-    public function optional(): ConsumerInterface;
+        yield from $results;
 
-    public function repeated(): ConsumerInterface;
+        return $results->getReturn();
+    }
 
-    public function __invoke(StreamInterface $stream): \Generator;
+    public static function join($separator = '')
+    {
+        return static function (\Generator $generator) use ($separator) {
+            yield implode($separator, iterator_to_array($generator));
+
+            return $generator->getReturn();
+        };
+    }
 }

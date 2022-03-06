@@ -22,10 +22,8 @@ namespace App\Parser\Consumer;
 
 use App\Parser\StreamInterface;
 
-class TransformedConsumer implements ConsumerInterface
+class TransformedConsumer extends AbstractConsumer
 {
-    use MapConsumerTrait;
-
     public function __construct(
         private ConsumerInterface $decorated,
         private $transform,
