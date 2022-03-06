@@ -45,7 +45,7 @@ final class CollectionUtils
             $group = $grouping($value);
 
             if (!$result->hasKey($group)) {
-                $result[$group] = new $container();
+                $result[$group] = new $container;
             }
 
             $result[$group]->push($value);
