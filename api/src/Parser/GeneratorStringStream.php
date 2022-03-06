@@ -20,41 +20,50 @@
 
 namespace App\Parser;
 
+use App\Parser\Consumer\ConsumerInterface;
 use App\Parser\Exception\EndOfStreamException;
 
-class StringStream implements StreamInterface
+class GeneratorStringStream implements StreamInterface
 {
-    use ConsumableTrait, PositionTrait;
+    use PositionTrait, ConsumableTrait;
+    private string $buffer = "";
 
     public function __construct(
-        private string $string
+        private \Generator $generator
     ) {
         $this->position = new Position();
     }
 
-    public function read(int $max): string
+    public function read(int $max)
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
+        $result = $this->peek($max);
+        $this->advance($result);
 
-        $slice = $this->peek($max);
-        $this->advance($slice);
+        $this->buffer = substr($this->buffer, $max);
 
-        return $slice;
+        return $result;
     }
 
-    public function peek(int $max): string
+    public function peek(int $max)
     {
+        $this->fillBuffer($max);
+
         if ($this->eof()) {
             throw new EndOfStreamException();
         }
 
-        return mb_substr($this->string, $this->position->offset, $max);
+        return substr($this->buffer, 0, $max);
     }
 
     public function eof(): bool
     {
-        return $this->position->offset >= mb_strlen($this->string);
+        return empty($this->buffer) && !$this->generator->valid();
+    }
+
+    private function fillBuffer(int $length)
+    {
+        for (; mb_strlen($this->buffer) < $length && $this->generator->valid(); $this->generator->next()) {
+            $this->buffer .= $this->generator->current();
+        }
     }
 }

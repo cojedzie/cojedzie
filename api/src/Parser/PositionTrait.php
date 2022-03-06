@@ -20,41 +20,19 @@
 
 namespace App\Parser;
 
-use App\Parser\Exception\EndOfStreamException;
-
-class StringStream implements StreamInterface
+trait PositionTrait
 {
-    use ConsumableTrait, PositionTrait;
+    private Position $position;
 
-    public function __construct(
-        private string $string
-    ) {
-        $this->position = new Position();
+    public function tell(): Position
+    {
+        return $this->position;
     }
 
-    public function read(int $max): string
+    private function advance(string $slice)
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        $slice = $this->peek($max);
-        $this->advance($slice);
-
-        return $slice;
-    }
-
-    public function peek(int $max): string
-    {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        return mb_substr($this->string, $this->position->offset, $max);
-    }
-
-    public function eof(): bool
-    {
-        return $this->position->offset >= mb_strlen($this->string);
+        $this->position = new Position(
+            offset: $this->position->offset + mb_strlen($slice),
+        );
     }
 }
