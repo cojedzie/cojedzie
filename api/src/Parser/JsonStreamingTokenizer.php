@@ -117,7 +117,23 @@ class JsonStreamingTokenizer
                     while ($input = $stream->peek(1)) {
                         switch (true) {
                             case $input == '\\':
-                                // todo;
+                                // consume backslash
+                                $stream->read(1);
+
+                                $result .= match ($character = $stream->read(1)) {
+                                    '\\' => '\\',
+                                    '/'  => '/',
+                                    't'  => "\t",
+                                    'r'  => "\r",
+                                    'f'  => "\f",
+                                    'b'  => mb_chr(8),
+                                    'n'  => "\n",
+                                    '"'  => '"',
+                                    'u'  => mb_chr(hexdec($stream->read(4))),
+                                    // no break
+                                    default => throw new UnexpectedTokenException("Undefined escape sequence \\$character."),
+                                };
+
                                 break;
                             case $input == '"':
                                 break 2; // string end
@@ -129,7 +145,7 @@ class JsonStreamingTokenizer
 
                     $stream->skip(Consumer::string('"'));
 
-                    yield $result ?: null;
+                    yield $result;
 
                     return true;
                 },
@@ -168,7 +184,7 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         return $consumer
-            ?? $consumer = self::string()->map(fn ($value) => new ValueToken(ValueTokenType::String, $value));
+            ?? $consumer = self::string()->map(ValueToken::createFromValue(...));
     }
 
     public static function member()
@@ -179,9 +195,7 @@ class JsonStreamingTokenizer
             ?? $consumer = new CallbackConsumer(
                 static function (StreamInterface $stream) {
                     yield from $stream->consume(self::string()->map(fn ($value) => new KeyToken($value)));
-                    $stream->skip(Consumer::whitespace());
-                    $stream->skip(Consumer::string(':'));
-                    $stream->skip(Consumer::whitespace());
+                    $stream->skip(Consumer::between(Consumer::string(':'), Consumer::whitespace()));
                     yield from $stream->consume(self::string()->map(fn ($value) => new ValueToken(ValueTokenType::String, $value)));
                 },
                 'object member'

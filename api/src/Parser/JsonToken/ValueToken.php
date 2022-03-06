@@ -27,4 +27,12 @@ class ValueToken implements JsonToken
         public readonly int|string|bool|null $value
     ) {
     }
+
+    public static function createFromValue($value)
+    {
+        return new self(
+            ValueTokenType::createFromValue($value),
+            $value
+        );
+    }
 }
