@@ -11,6 +11,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
     $parameters->set(Option::PATHS, [
         __DIR__.'/src',
+        __DIR__.'/tests',
     ]);
 
     $services = $containerConfigurator->services();
@@ -23,6 +24,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->remove(\PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer::class);
     $services->remove(\PhpCsFixer\Fixer\ClassNotation\SingleTraitInsertPerStatementFixer::class);
+    $services->remove(\PhpCsFixer\Fixer\Casing\ConstantCaseFixer::class);
     $services->remove(\Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer::class);
 
     $services->set(ArraySyntaxFixer::class)

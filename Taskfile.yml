@@ -39,6 +39,15 @@ tasks:
     cmds:
       - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend node_modules/.bin/eslint {{.CLI_ARGS}}
 
+  test:
+    deps:
+      - task: test:api
+
+  test:api:
+    desc: Test API component with phpunit
+    cmds:
+      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api bin/phpunit {{.CLI_ARGS}}
+
   frontend:yarn:
     desc: Execute yarn command
     cmds:

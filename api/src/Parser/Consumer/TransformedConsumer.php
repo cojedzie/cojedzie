@@ -18,39 +18,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Utility;
+namespace App\Parser\Consumer;
 
-use Ds\Deque;
-use Ds\Map;
+use App\Parser\StreamInterface;
 
-final class CollectionUtils
+class TransformedConsumer implements ConsumerInterface
 {
-    /**
-     * Groups items using given function.
-     *
-     * @template T
-     * @template U of Sequence<int, T>
-     *
-     * @psalm-param iterable<T> $collection
-     * @psalm-param Closure(T): string $grouping
-     * @psalm-param class-string<U> $container
-     *
-     * @return Map<string, U<T>>
-     */
-    public static function groupBy(iterable $collection, callable $grouping, string $container = Deque::class): Map
+    use MapConsumerTrait;
+
+    public function __construct(
+        private ConsumerInterface $decorated,
+        private $transform,
+    ) {
+    }
+
+    public function label(): string
     {
-        $result = new Map();
+        return $this->decorated->label();
+    }
 
-        foreach ($collection as $value) {
-            $group = $grouping($value);
+    public function __invoke(StreamInterface $stream): \Generator
+    {
+        $results = ($this->decorated)($stream);
 
-            if (!$result->hasKey($group)) {
-                $result[$group] = new $container();
-            }
-
-            $result[$group]->push($value);
+        foreach ($results as $result) {
+            yield ($this->transform)($result);
         }
 
-        return $result;
+        return $results->getReturn();
     }
 }
