@@ -20,13 +20,11 @@
 
 namespace App\Parser;
 
-interface StreamInterface extends ConsumableInterface
+use App\Parser\Consumer\ConsumerInterface;
+
+interface ConsumableInterface
 {
-    public function read(int $max);
+    public function consume(ConsumerInterface $consumer): \Generator;
 
-    public function peek(int $max);
-
-    public function eof(): bool;
-
-    public function tell(): Position;
+    public function skip(ConsumerInterface $consumer): \Generator;
 }

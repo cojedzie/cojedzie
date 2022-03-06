@@ -20,41 +20,18 @@
 
 namespace App\Parser;
 
-use App\Parser\Exception\EndOfStreamException;
+use App\Parser\Consumer\ConsumerInterface;
 
-class StringStream implements StreamInterface
+trait ConsumableTrait
 {
-    use ConsumableTrait, PositionTrait;
-
-    public function __construct(
-        private string $string
-    ) {
-        $this->position = new Position();
+    public function consume(ConsumerInterface $consumer): \Generator
+    {
+        return $consumer($this);
     }
 
-    public function read(int $max): string
+    public function skip(ConsumerInterface $consumer): \Generator
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        $slice = $this->peek($max);
-        $this->advance($slice);
-
-        return $slice;
-    }
-
-    public function peek(int $max): string
-    {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        return mb_substr($this->string, $this->position->offset, $max);
-    }
-
-    public function eof(): bool
-    {
-        return $this->position->offset >= mb_strlen($this->string);
+        iterator_to_array($generator = $this->consume($consumer));
+        return $generator;
     }
 }
