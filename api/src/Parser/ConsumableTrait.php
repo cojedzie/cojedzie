@@ -20,18 +20,22 @@
 
 namespace App\Parser;
 
-use App\Parser\Consumer\ConsumerInterface;
-
 trait ConsumableTrait
 {
-    public function consume(ConsumerInterface $consumer): \Generator
+    public function consume(ConsumerInterface $consumer): mixed
     {
         return $consumer($this);
     }
 
-    public function skip(ConsumerInterface $consumer): \Generator
+    public function skip(ConsumerInterface $consumer)
     {
-        iterator_to_array($generator = $this->consume($consumer));
+        $generator = $this->consume($consumer);
+
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
+        foreach ($generator as $result) {
+            // noop
+        }
+
         return $generator;
     }
 }

@@ -24,6 +24,8 @@ class Position
 {
     public function __construct(
         public readonly int $offset = 0,
+        public readonly int $line = 1,
+        public readonly int $column = 1,
     ) {
     }
 }

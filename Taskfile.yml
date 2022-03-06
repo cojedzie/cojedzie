@@ -48,6 +48,15 @@ tasks:
     cmds:
       - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api bin/phpunit {{.CLI_ARGS}}
 
+  benchmark:
+    deps:
+      - task: benchmark:api
+
+  benchmark:api:
+    desc: Benchmark API component with phpbench
+    cmds:
+      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api php -d opcache.enable_cli=1 vendor/bin/phpbench {{.CLI_ARGS}}
+
   frontend:yarn:
     desc: Execute yarn command
     cmds:

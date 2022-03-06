@@ -23,4 +23,5 @@
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
+/.phpbench/
 ###< phpunit/phpunit ###

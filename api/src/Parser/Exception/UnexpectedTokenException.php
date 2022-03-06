@@ -20,15 +20,16 @@
 
 namespace App\Parser\Exception;
 
+use App\Parser\Position;
 use JetBrains\PhpStorm\Pure;
 
 class UnexpectedTokenException extends \RuntimeException
 {
     #[Pure]
-    public static function create(string $got, string $expected)
+    public static function create(string $got, string $expected, Position $position)
     {
         return new static(
-            sprintf('Expected %s, got %s.', $expected, $got)
+            sprintf('Expected %s, got %s at %d:%d.', $expected, $got, $position->line, $position->column)
         );
     }
 }

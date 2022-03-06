@@ -20,11 +20,11 @@
 
 namespace App\Parser;
 
-use App\Parser\Consumer\ConsumerInterface;
+use App\Parser\ConsumerInterface;
 
 interface ConsumableInterface
 {
-    public function consume(ConsumerInterface $consumer): \Generator;
+    public function consume(ConsumerInterface $consumer): mixed;
 
-    public function skip(ConsumerInterface $consumer): \Generator;
+    public function skip(ConsumerInterface $consumer);
 }
