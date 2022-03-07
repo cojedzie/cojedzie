@@ -42,7 +42,7 @@ class PredicateConsumer extends AbstractConsumer
         $input = $stream->peek($this->length);
 
         if (!($this->predicate)($input)) {
-            throw UnexpectedTokenException::create($input, $this->label);
+            throw UnexpectedTokenException::create($input, $this->label, $stream->tell());
         }
 
         yield $stream->read($this->length);

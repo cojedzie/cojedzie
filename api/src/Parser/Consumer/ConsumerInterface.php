@@ -34,5 +34,7 @@ interface ConsumerInterface
 
     public function repeated(): ConsumerInterface;
 
+    public function ignore(): ConsumerInterface;
+
     public function __invoke(StreamInterface $stream): \Generator;
 }

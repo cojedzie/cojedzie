@@ -47,4 +47,9 @@ trait ConsumerHelpersTrait
     {
         return Consumer::many($this);
     }
+
+    public function ignore(): ConsumerInterface
+    {
+        return Consumer::ignore($this);
+    }
 }
