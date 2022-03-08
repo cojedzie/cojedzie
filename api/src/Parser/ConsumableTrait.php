@@ -20,16 +20,14 @@
 
 namespace App\Parser;
 
-use App\Parser\Consumer\ConsumerInterface;
-
 trait ConsumableTrait
 {
-    public function consume(ConsumerInterface $consumer): \Generator
+    public function consume(ConsumerInterface $consumer): mixed
     {
         return $consumer($this);
     }
 
-    public function skip(ConsumerInterface $consumer): \Generator
+    public function skip(ConsumerInterface $consumer)
     {
         $generator = $this->consume($consumer);
 

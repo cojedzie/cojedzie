@@ -18,18 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 use function Kadet\Functional\Predicates\same;
 
-final class Consumer
+final class StreamingConsumer
 {
     private function __construct()
     {
     }
 
-    public static function string(string $string): ConsumerInterface
+    public static function string(string $string): StreamingConsumerInterface
     {
         return new PredicateConsumer(
             same($string),
@@ -38,7 +39,7 @@ final class Consumer
         );
     }
 
-    public static function regex(string $pattern, string $flags = ''): ConsumerInterface
+    public static function regex(string $pattern, string $flags = ''): StreamingConsumerInterface
     {
         return new PredicateConsumer(
             fn ($char) => preg_match(sprintf('/%s/%s', $pattern, $flags), $char),
@@ -47,7 +48,7 @@ final class Consumer
         );
     }
 
-    public static function whitespace(): ConsumerInterface
+    public static function whitespace(): StreamingConsumerInterface
     {
         static $consumer = null;
 
@@ -55,27 +56,27 @@ final class Consumer
             ?? $consumer = new WhitespaceConsumer();
     }
 
-    public static function optional(ConsumerInterface $consumer): OptionalConsumer
+    public static function optional(StreamingConsumerInterface $consumer): OptionalConsumer
     {
         return $consumer instanceof OptionalConsumer ? $consumer : new OptionalConsumer($consumer);
     }
 
-    public static function separatedBy(ConsumerInterface $consumer, ConsumerInterface $separator): SeparatedByConsumer
+    public static function separatedBy(StreamingConsumerInterface $consumer, StreamingConsumerInterface $separator): SeparatedByConsumer
     {
         return new SeparatedByConsumer($consumer, $separator);
     }
 
-    public static function between(ConsumerInterface $consumer, ConsumerInterface $left, ConsumerInterface $right = null)
+    public static function between(StreamingConsumerInterface $consumer, StreamingConsumerInterface $left, StreamingConsumerInterface $right = null)
     {
         return new BetweenConsumer($consumer, $left, $right);
     }
 
-    public static function choice(ConsumerInterface ...$consumers): ConsumerInterface
+    public static function choice(StreamingConsumerInterface ...$consumers): StreamingConsumerInterface
     {
         return new AnyConsumer(...$consumers);
     }
 
-    public static function sequence(ConsumerInterface ...$consumers): ConsumerInterface
+    public static function sequence(StreamingConsumerInterface ...$consumers): StreamingConsumerInterface
     {
         return new CallbackConsumer(
             function (StreamInterface $stream) use ($consumers) {
@@ -88,26 +89,26 @@ final class Consumer
 
                 return true;
             },
-            implode(' then ', array_map(fn (ConsumerInterface $consumer) => $consumer->label(), $consumers)),
+            implode(' then ', array_map(fn (StreamingConsumerInterface $consumer) => $consumer->label(), $consumers)),
         );
     }
 
-    public static function ignore(ConsumerInterface $consumer): ConsumerInterface
+    public static function ignore(StreamingConsumerInterface $consumer): StreamingConsumerInterface
     {
         return $consumer instanceof IgnoredConsumer ? $consumer : new IgnoredConsumer($consumer);
     }
 
-    public static function many(ConsumerInterface $consumer): ConsumerInterface
+    public static function many(StreamingConsumerInterface $consumer): StreamingConsumerInterface
     {
         return new CallbackConsumer(
             static function (StreamInterface $stream) use ($consumer) {
                 $successful = false;
 
                 do {
-                    $result = $stream->consume(Consumer::optional($consumer));
+                    $result = $stream->consume(StreamingConsumer::optional($consumer));
                     yield from $result;
-                    $successful = $successful || Consumer::isValid($result);
-                } while (Consumer::isValid($result));
+                    $successful = $successful || StreamingConsumer::isValid($result);
+                } while (StreamingConsumer::isValid($result));
 
                 return $successful;
             },

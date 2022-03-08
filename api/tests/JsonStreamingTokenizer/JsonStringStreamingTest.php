@@ -20,7 +20,7 @@
 
 namespace App\Tests\JsonStreamingTokenizer;
 
-use App\Parser\Consumer\Consumer;
+use App\Parser\StreamingConsumer\StreamingConsumer;
 use App\Parser\JsonStreamingTokenizer;
 use App\Parser\StringStream;
 use PHPUnit\Framework\TestCase;
@@ -31,69 +31,69 @@ class JsonStringStreamingTest extends TestCase
     {
         $stream = new StringStream('"foo"');
 
-        $this->assertSame("foo", Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame("foo", StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testEmptyString()
     {
         $stream = new StringStream('""');
 
-        $this->assertSame("", Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame("", StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithEscapedQuote()
     {
         $stream = new StringStream('"\""');
 
-        $this->assertSame('"', Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame('"', StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithEscapedBackslash()
     {
         $stream = new StringStream('"\\\\"');
 
-        $this->assertSame('\\', Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame('\\', StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithEscapedSlash()
     {
         $stream = new StringStream('"a\/b"');
 
-        $this->assertSame('a/b', Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame('a/b', StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithEscapedTab()
     {
         $stream = new StringStream('"a\tb"');
 
-        $this->assertSame("a\tb", Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame("a\tb", StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithNewLine()
     {
         $stream = new StringStream('"a\nb"');
 
-        $this->assertSame("a\nb", Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame("a\nb", StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithCarriageReturn()
     {
         $stream = new StringStream('"a\rb"');
 
-        $this->assertSame("a\rb", Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame("a\rb", StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithLinefeed()
     {
         $stream = new StringStream('"a\fb"');
 
-        $this->assertSame("a\fb", Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame("a\fb", StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 
     public function testStringWithUnicodeEncodedCharacter()
     {
         $stream = new StringStream('"\u02da"');
 
-        $this->assertSame("˚", Consumer::result($stream->consume(JsonStreamingTokenizer::string())));
+        $this->assertSame("˚", StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::string())));
     }
 }

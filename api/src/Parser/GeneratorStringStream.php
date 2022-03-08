@@ -20,7 +20,7 @@
 
 namespace App\Parser;
 
-use App\Parser\Consumer\ConsumerInterface;
+use App\Parser\StreamingConsumer\ConsumerInterface;
 use App\Parser\Exception\EndOfStreamException;
 
 class GeneratorStringStream implements StreamInterface
@@ -65,5 +65,18 @@ class GeneratorStringStream implements StreamInterface
         for (; mb_strlen($this->buffer) < $length && $this->generator->valid(); $this->generator->next()) {
             $this->buffer .= $this->generator->current();
         }
+    }
+
+    public static function createFromFilename(string $filename)
+    {
+        $generator = function () use ($filename) {
+            $file = fopen($filename, 'rb');
+            while (!feof($file)) {
+                yield fread($file, 4096);
+            }
+            fclose($file);
+        };
+
+        return new static($generator());
     }
 }

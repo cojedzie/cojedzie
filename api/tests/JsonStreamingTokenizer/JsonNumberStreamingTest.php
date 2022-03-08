@@ -20,7 +20,7 @@
 
 namespace App\Tests\JsonStreamingTokenizer;
 
-use App\Parser\Consumer\Consumer;
+use App\Parser\StreamingConsumer\StreamingConsumer;
 use App\Parser\JsonStreamingTokenizer;
 use App\Parser\StringStream;
 use PHPUnit\Framework\TestCase;
@@ -31,48 +31,48 @@ class JsonNumberStreamingTest extends TestCase
     {
         $stream = new StringStream('0');
 
-        $this->assertSame(0.0, Consumer::result($stream->consume(JsonStreamingTokenizer::number())));
+        $this->assertSame(0.0, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::number())));
     }
 
     public function testSimpleInteger()
     {
         $stream = new StringStream('123');
 
-        $this->assertSame(123.0, Consumer::result($stream->consume(JsonStreamingTokenizer::number())));
+        $this->assertSame(123.0, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::number())));
     }
 
     public function testSimpleNegativeInteger()
     {
         $stream = new StringStream('-123');
 
-        $this->assertSame(-123.0, Consumer::result($stream->consume(JsonStreamingTokenizer::number())));
+        $this->assertSame(-123.0, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::number())));
     }
 
     public function testSimpleFraction()
     {
         $stream = new StringStream('21.37');
 
-        $this->assertSame(21.37, Consumer::result($stream->consume(JsonStreamingTokenizer::number())));
+        $this->assertSame(21.37, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::number())));
     }
 
     public function testSimpleNegativeFraction()
     {
         $stream = new StringStream('-21.37');
 
-        $this->assertSame(-21.37, Consumer::result($stream->consume(JsonStreamingTokenizer::number())));
+        $this->assertSame(-21.37, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::number())));
     }
 
     public function testSimpleNegativeFractionWithZero()
     {
         $stream = new StringStream('-0.123');
 
-        $this->assertSame(-0.123, Consumer::result($stream->consume(JsonStreamingTokenizer::number())));
+        $this->assertSame(-0.123, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::number())));
     }
 
     public function testSimpleNegativeFractionWithLeadingZeroes()
     {
         $stream = new StringStream('-0.00123');
 
-        $this->assertSame(-0.00123, Consumer::result($stream->consume(JsonStreamingTokenizer::number())));
+        $this->assertSame(-0.00123, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::number())));
     }
 }

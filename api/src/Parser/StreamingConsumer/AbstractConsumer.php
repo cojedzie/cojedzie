@@ -18,9 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
-abstract class AbstractConsumer implements ConsumerInterface
+use App\Parser\StreamingConsumerInterface;
+
+abstract class AbstractConsumer implements StreamingConsumerInterface
 {
     use ConsumerHelpersTrait;
 }

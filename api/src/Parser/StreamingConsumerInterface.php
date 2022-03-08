@@ -18,31 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser;
 
-use App\Parser\StreamInterface;
-
-class TransformedConsumer extends AbstractConsumer
+interface StreamingConsumerInterface extends ConsumerInterface
 {
-    public function __construct(
-        private ConsumerInterface $decorated,
-        private $transform,
-    ) {
-    }
+    public function map(callable $transform): self;
 
-    public function label(): string
-    {
-        return $this->decorated->label();
-    }
+    public function reduce(callable $transform): self;
 
-    public function __invoke(StreamInterface $stream): \Generator
-    {
-        $results = ($this->decorated)($stream);
+    public function optional(): self;
 
-        foreach ($results as $result) {
-            yield ($this->transform)($result);
-        }
+    public function repeated(): self;
 
-        return $results->getReturn();
-    }
+    public function ignore(): self;
+
+    public function __invoke(StreamInterface $stream);
 }

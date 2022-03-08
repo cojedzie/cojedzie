@@ -20,7 +20,7 @@
 
 namespace App\Tests\JsonStreamingTokenizer;
 
-use App\Parser\Consumer\Consumer;
+use App\Parser\StreamingConsumer\StreamingConsumer;
 use App\Parser\JsonStreamingTokenizer;
 use App\Parser\StringStream;
 use PHPUnit\Framework\TestCase;
@@ -31,20 +31,20 @@ class JsonConstantStreamingTest extends TestCase
     {
         $stream = new StringStream("true");
 
-        $this->assertSame(true, Consumer::result($stream->consume(JsonStreamingTokenizer::boolean())));
+        $this->assertSame(true, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::boolean())));
     }
 
     public function testFalseValue()
     {
         $stream = new StringStream("false");
 
-        $this->assertSame(false, Consumer::result($stream->consume(JsonStreamingTokenizer::boolean())));
+        $this->assertSame(false, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::boolean())));
     }
 
     public function testNullValue()
     {
         $stream = new StringStream("null");
 
-        $this->assertSame(null, Consumer::result($stream->consume(JsonStreamingTokenizer::null())));
+        $this->assertSame(null, StreamingConsumer::result($stream->consume(JsonStreamingTokenizer::null())));
     }
 }

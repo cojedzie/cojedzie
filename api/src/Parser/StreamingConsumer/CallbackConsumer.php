@@ -18,45 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
 use App\Parser\StreamInterface;
 
-class SeparatedByConsumer extends AbstractConsumer
+class CallbackConsumer extends AbstractConsumer
 {
     public function __construct(
-        private ConsumerInterface $value,
-        private ConsumerInterface $separator
+        private $callback,
+        private string $label
     ) {
-        $this->separator = Consumer::optional($this->separator);
     }
 
     public function label(): string
     {
-        return sprintf(
-            "%s separated by %s",
-            $this->value->label(),
-            $this->separator->label()
-        );
-    }
-
-    public function map(callable $transform): ConsumerInterface
-    {
-        return new static(
-            $this->value->map($transform),
-            $this->separator,
-        );
+        return $this->label;
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        do {
-            yield from $stream->consume($this->value);
-
-            /** @var \Generator $separator */
-            $separator = $stream->skip($this->separator);
-        } while (Consumer::isValid($separator));
-
-        return true;
+        $generator = ($this->callback)($stream);
+        yield from $generator;
+        return $generator->getReturn();
     }
 }

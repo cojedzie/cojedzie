@@ -18,13 +18,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\StreamingConsumer;
 
-use App\Parser\ConsumerInterface;
+use App\Parser\StreamingConsumerInterface;
+use App\Parser\StreamInterface;
 
-interface ConsumableInterface
+class IgnoredConsumer extends AbstractConsumer
 {
-    public function consume(ConsumerInterface $consumer): mixed;
+    public function __construct(
+        private StreamingConsumerInterface $consumer
+    ) {
+    }
 
-    public function skip(ConsumerInterface $consumer);
+    public function label(): string
+    {
+        return sprintf("ignored %s", $this->consumer->label());
+    }
+
+    public function __invoke(StreamInterface $stream): \Generator
+    {
+        return $stream->skip($this->consumer);
+    }
 }

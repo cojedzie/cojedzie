@@ -18,38 +18,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
-trait ConsumerHelpersTrait
+use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\StreamInterface;
+
+class PredicateConsumer extends AbstractConsumer
 {
-    public function map(callable $transform): ConsumerInterface
-    {
-        return new TransformedConsumer(
-            $this,
-            $transform
-        );
+    public function __construct(
+        private $predicate,
+        private int $length,
+        private string $label
+    ) {
     }
 
-    public function reduce(callable $reducer): ConsumerInterface
+    public function label(): string
     {
-        return new ReducedConsumer(
-            $this,
-            $reducer
-        );
+        return $this->label;
     }
 
-    public function optional(): ConsumerInterface
+    public function __invoke(StreamInterface $stream): \Generator
     {
-        return Consumer::optional($this);
-    }
+        $input = $stream->peek($this->length);
 
-    public function repeated(): ConsumerInterface
-    {
-        return Consumer::many($this);
-    }
+        if (!($this->predicate)($input)) {
+            throw UnexpectedTokenException::create($input, $this->label, $stream->tell());
+        }
 
-    public function ignore(): ConsumerInterface
-    {
-        return Consumer::ignore($this);
+        yield $stream->read($this->length);
+
+        return true;
     }
 }

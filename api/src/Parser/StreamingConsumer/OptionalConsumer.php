@@ -18,35 +18,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
+use App\Parser\Exception\EndOfStreamException;
 use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class PredicateConsumer extends AbstractConsumer
+class OptionalConsumer extends AbstractConsumer
 {
     public function __construct(
-        private $predicate,
-        private int $length,
-        private string $label
+        private StreamingConsumerInterface $decorated,
     ) {
     }
 
     public function label(): string
     {
-        return $this->label;
+        return 'optional ' . $this->decorated->label();
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $input = $stream->peek($this->length);
+        $position = $stream->tell();
 
-        if (!($this->predicate)($input)) {
-            throw UnexpectedTokenException::create($input, $this->label, $stream->tell());
+        try {
+            $result = $this->decorated->__invoke($stream);
+            yield from $result;
+
+            return $result->getReturn();
+        } catch (UnexpectedTokenException|EndOfStreamException $exception) {
+            if ($stream->tell() === $position) {
+                return false;
+            }
+
+            // if stream was advanced we cannot backtrack so rethrow exception
+            throw $exception;
         }
-
-        yield $stream->read($this->length);
-
-        return true;
     }
 }

@@ -20,9 +20,9 @@
 
 namespace App\Parser;
 
-use App\Parser\Consumer\CallbackConsumer;
-use App\Parser\Consumer\Consumer;
-use App\Parser\Consumer\ReducedConsumer;
+use App\Parser\StreamingConsumer\CallbackConsumer;
+use App\Parser\StreamingConsumer\StreamingConsumer;
+use App\Parser\StreamingConsumer\ReducedConsumer;
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\JsonToken\ArrayEndToken;
 use App\Parser\JsonToken\ArrayStartToken;
@@ -49,23 +49,23 @@ class JsonStreamingTokenizer
         static $consumer;
 
         if (!$consumer) {
-            $objectStartConsumer = Consumer::string('{')->map(fn () => new ObjectStartToken());
-            $objectEndConsumer = Consumer::string('}')->map(fn () => new ObjectEndToken());
+            $objectStartConsumer = StreamingConsumer::string('{')->map(fn () => new ObjectStartToken());
+            $objectEndConsumer = StreamingConsumer::string('}')->map(fn () => new ObjectEndToken());
 
             $consumer = new CallbackConsumer(
                 static function (StreamInterface $stream) use ($objectEndConsumer, $objectStartConsumer) {
                     yield from $stream->consume($objectStartConsumer);
 
-                    $stream->skip(Consumer::whitespace());
+                    $stream->skip(StreamingConsumer::whitespace());
 
                     $members = $stream->consume(self::members());
-                    if (Consumer::isValid($members)) {
+                    if (StreamingConsumer::isValid($members)) {
                         foreach ($members as $member) {
                             yield $member;
                         }
                     }
 
-                    $stream->skip(Consumer::whitespace());
+                    $stream->skip(StreamingConsumer::whitespace());
 
                     yield from $stream->consume($objectEndConsumer);
                 },
@@ -81,23 +81,23 @@ class JsonStreamingTokenizer
         static $consumer;
 
         if (!$consumer) {
-            $arrayStartConsumer = Consumer::string('[')->map(fn () => new ArrayStartToken());
-            $arrayEndConsumer = Consumer::string(']')->map(fn () => new ArrayEndToken());
+            $arrayStartConsumer = StreamingConsumer::string('[')->map(fn () => new ArrayStartToken());
+            $arrayEndConsumer = StreamingConsumer::string(']')->map(fn () => new ArrayEndToken());
 
             $consumer = new CallbackConsumer(
                 static function (StreamInterface $stream) use ($arrayStartConsumer, $arrayEndConsumer) {
                     yield from $stream->consume($arrayStartConsumer);
 
-                    $stream->skip(Consumer::whitespace());
+                    $stream->skip(StreamingConsumer::whitespace());
 
                     $values = $stream->consume(self::arrayValues());
-                    if (Consumer::isValid($values)) {
+                    if (StreamingConsumer::isValid($values)) {
                         foreach ($values as $value) {
                             yield $value;
                         }
                     }
 
-                    $stream->skip(Consumer::whitespace());
+                    $stream->skip(StreamingConsumer::whitespace());
 
                     yield from $stream->consume($arrayEndConsumer);
                 },
@@ -113,7 +113,7 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         if (!$consumer) {
-            $quoteConsumer = Consumer::string('"');
+            $quoteConsumer = StreamingConsumer::string('"');
 
             $consumer = new CallbackConsumer(
                 static function (StreamInterface $stream) use ($quoteConsumer) {
@@ -165,8 +165,8 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         return $consumer
-            ?? $consumer = Consumer::separatedBy(
-                Consumer::between(self::value(), Consumer::whitespace()),
+            ?? $consumer = StreamingConsumer::separatedBy(
+                StreamingConsumer::between(self::value(), StreamingConsumer::whitespace()),
                 self::comma(),
             )->optional();
     }
@@ -177,7 +177,7 @@ class JsonStreamingTokenizer
 
         if ($consumer === null) {
             $consumer = self::member();
-            $consumer = Consumer::separatedBy($consumer, self::comma())->optional();
+            $consumer = StreamingConsumer::separatedBy($consumer, self::comma())->optional();
         }
 
         return $consumer;
@@ -223,7 +223,7 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         return $consumer
-            ?? $consumer = Consumer::string('null')->map(fn () => null);
+            ?? $consumer = StreamingConsumer::string('null')->map(fn () => null);
     }
 
     public static function boolean()
@@ -231,9 +231,9 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         return $consumer
-            ?? $consumer = Consumer::choice(
-                Consumer::string('true')->map(fn ()  => true),
-                Consumer::string('false')->map(fn () => false),
+            ?? $consumer = StreamingConsumer::choice(
+                StreamingConsumer::string('true')->map(fn ()  => true),
+                StreamingConsumer::string('false')->map(fn () => false),
             );
     }
 
@@ -242,19 +242,19 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         return $consumer
-            ?? $consumer = Consumer::sequence(
-                Consumer::optional(Consumer::string('-')),
-                Consumer::choice(
-                    Consumer::string('0'),
-                    Consumer::sequence(
-                        Consumer::regex('[1-9]'),
-                        Consumer::regex('[0-9]')->repeated()
+            ?? $consumer = StreamingConsumer::sequence(
+                StreamingConsumer::optional(StreamingConsumer::string('-')),
+                StreamingConsumer::choice(
+                    StreamingConsumer::string('0'),
+                    StreamingConsumer::sequence(
+                        StreamingConsumer::regex('[1-9]'),
+                        StreamingConsumer::regex('[0-9]')->repeated()
                     )
                 ),
-                Consumer::optional(
-                    Consumer::sequence(
-                        Consumer::string('.'),
-                        Consumer::regex('[0-9]')->repeated()
+                StreamingConsumer::optional(
+                    StreamingConsumer::sequence(
+                        StreamingConsumer::string('.'),
+                        StreamingConsumer::regex('[0-9]')->repeated()
                     )
                 ),
             )->reduce(ReducedConsumer::join())->map(floatval(...));
@@ -267,11 +267,11 @@ class JsonStreamingTokenizer
         return $consumer
             ?? $consumer = new CallbackConsumer(
                 static function (StreamInterface $stream) {
-                    $stream->skip(Consumer::whitespace());
+                    $stream->skip(StreamingConsumer::whitespace());
                     yield from $stream->consume(self::string()->map(fn ($value) => new KeyToken($value)));
-                    $stream->skip(Consumer::between(Consumer::string(':'), Consumer::whitespace()));
+                    $stream->skip(StreamingConsumer::between(StreamingConsumer::string(':'), StreamingConsumer::whitespace()));
                     yield from $stream->consume(self::value());
-                    $stream->skip(Consumer::whitespace());
+                    $stream->skip(StreamingConsumer::whitespace());
                 },
                 'object member'
             );
@@ -282,6 +282,6 @@ class JsonStreamingTokenizer
         static $consumer = null;
 
         return $consumer
-            ?? $consumer = Consumer::string(',');
+            ?? $consumer = StreamingConsumer::string(',');
     }
 }

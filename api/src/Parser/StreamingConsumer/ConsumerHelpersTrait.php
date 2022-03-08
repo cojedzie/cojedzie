@@ -18,39 +18,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
-use App\Parser\StreamInterface;
+use App\Parser\StreamingConsumerInterface;
 
-class ReducedConsumer extends AbstractConsumer
+trait ConsumerHelpersTrait
 {
-    public function __construct(
-        private ConsumerInterface $decorated,
-        private $transform,
-    ) {
+    public function map(callable $transform): StreamingConsumerInterface
+    {
+        return new TransformedConsumer(
+            $this,
+            $transform
+        );
     }
 
-    public function label(): string
+    public function reduce(callable $reducer): self
     {
-        return $this->decorated->label();
+        return new ReducedConsumer(
+            $this,
+            $reducer
+        );
     }
 
-    public function __invoke(StreamInterface $stream): \Generator
+    public function optional(): StreamingConsumerInterface
     {
-        $results = ($this->decorated)($stream);
-        $results = ($this->transform)($results);
-
-        yield from $results;
-
-        return $results->getReturn();
+        return StreamingConsumer::optional($this);
     }
 
-    public static function join($separator = '')
+    public function repeated(): StreamingConsumerInterface
     {
-        return static function (\Generator $generator) use ($separator) {
-            yield implode($separator, iterator_to_array($generator));
+        return StreamingConsumer::many($this);
+    }
 
-            return $generator->getReturn();
-        };
+    public function ignore(): StreamingConsumerInterface
+    {
+        return StreamingConsumer::ignore($this);
     }
 }

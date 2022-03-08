@@ -18,43 +18,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
-use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class AnyConsumer extends AbstractConsumer
+class ReducedConsumer extends AbstractConsumer
 {
-    private array $consumers;
-
-    public function __construct(ConsumerInterface ...$consumers)
-    {
-        $this->consumers = $consumers;
+    public function __construct(
+        private StreamingConsumerInterface $decorated,
+        private $transform,
+    ) {
     }
 
     public function label(): string
     {
-        return implode(' or ', array_map(fn ($consumer) => $consumer->label(), $this->consumers));
+        return $this->decorated->label();
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $position = $stream->tell();
+        $results = ($this->decorated)($stream);
+        $results = ($this->transform)($results);
 
-        foreach ($this->consumers as $consumer) {
-            try {
-                $generator = $stream->consume($consumer);
-                yield from $generator;
-                return $generator->getReturn();
-            } catch (UnexpectedTokenException $exception) {
-                if ($position === $stream->tell()) {
-                    continue;
-                }
+        yield from $results;
 
-                throw $exception;
-            }
-        }
+        return $results->getReturn();
+    }
 
-        return false;
+    public static function join($separator = '')
+    {
+        return static function (\Generator $generator) use ($separator) {
+            yield implode($separator, iterator_to_array($generator));
+
+            return $generator->getReturn();
+        };
     }
 }

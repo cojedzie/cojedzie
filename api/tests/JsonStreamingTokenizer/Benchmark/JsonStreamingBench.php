@@ -18,13 +18,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Tests\JsonStreamingTokenizer\Benchmark;
 
-use App\Parser\ConsumerInterface;
+use App\Parser\GeneratorStringStream;
+use App\Parser\JsonStreamingTokenizer;
+use PhpBench\Attributes\Revs;
 
-interface ConsumableInterface
+class JsonStreamingBench
 {
-    public function consume(ConsumerInterface $consumer): mixed;
+    #[Revs(100)]
+    public function benchSimpleObject()
+    {
+        $parser = new JsonStreamingTokenizer();
+        $stream = GeneratorStringStream::createFromFilename(__DIR__.'/../stubs/test_1.json');
 
-    public function skip(ConsumerInterface $consumer);
+        iterator_to_array($parser->parse($stream));
+    }
+
+    #[Revs(5)]
+    public function benchZtmLines()
+    {
+        $parser = new JsonStreamingTokenizer();
+        $stream = GeneratorStringStream::createFromFilename(__DIR__.'/../stubs/ztm_lines.json');
+
+        iterator_to_array($parser->parse($stream));
+    }
 }

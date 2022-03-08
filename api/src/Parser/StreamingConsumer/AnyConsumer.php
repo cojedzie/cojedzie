@@ -18,43 +18,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
+use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class BetweenConsumer extends AbstractConsumer
+class AnyConsumer extends AbstractConsumer
 {
-    private ConsumerInterface $left;
-    private ConsumerInterface $right;
+    private array $consumers;
 
-    public function __construct(
-        private ConsumerInterface $value,
-        ConsumerInterface $left,
-        ConsumerInterface $right = null,
-    ) {
-        $this->left  = $left;
-        $this->right = $right ?: $left;
+    public function __construct(StreamingConsumerInterface ...$consumers)
+    {
+        $this->consumers = $consumers;
     }
 
     public function label(): string
     {
-        return sprintf(
-            "%s between %s and %s",
-            $this->value->label(),
-            $this->left->label(),
-            $this->right->label()
-        );
+        return implode(' or ', array_map(fn ($consumer) => $consumer->label(), $this->consumers));
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $stream->skip($this->left);
+        $position = $stream->tell();
 
-        $results = $stream->consume($this->value);
-        yield from $results;
+        foreach ($this->consumers as $consumer) {
+            try {
+                $generator = $stream->consume($consumer);
+                yield from $generator;
+                return $generator->getReturn();
+            } catch (UnexpectedTokenException $exception) {
+                if ($position === $stream->tell()) {
+                    continue;
+                }
 
-        $stream->skip($this->right);
+                throw $exception;
+            }
+        }
 
-        return $results->getReturn();
+        return false;
     }
 }

@@ -18,32 +18,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\Consumer;
+namespace App\Parser\StreamingConsumer;
 
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class WhitespaceConsumer extends AbstractConsumer
+class BetweenConsumer extends AbstractConsumer
 {
+    private StreamingConsumerInterface $left;
+    private StreamingConsumerInterface $right;
+
+    public function __construct(
+        private StreamingConsumerInterface $value,
+        StreamingConsumerInterface $left,
+        StreamingConsumerInterface $right = null,
+    ) {
+        $this->left  = $left;
+        $this->right = $right ?: $left;
+    }
+
     public function label(): string
     {
-        return 'whitespace';
+        return sprintf(
+            "%s between %s and %s",
+            $this->value->label(),
+            $this->left->label(),
+            $this->right->label()
+        );
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $output = "";
+        $stream->skip($this->left);
 
-        while ($input = $stream->peek(1)) {
-            if (ctype_space($input)) {
-                // skip whitespace
-                $output .= $stream->read(1);
-            } else {
-                break;
-            }
-        }
+        $results = $stream->consume($this->value);
+        yield from $results;
 
-        yield $output;
+        $stream->skip($this->right);
 
-        return true;
+        return $results->getReturn();
     }
 }

@@ -44,8 +44,6 @@ class JsonStreamingTokenizerTest extends TestCase
     {
         yield 'Wikipedia example' => [__DIR__.'/stubs/test_1.json'];
         yield 'ZTM Updates' => [__DIR__.'/stubs/ztm_stop_updates.json'];
-        yield 'ZTM Lines' => [__DIR__.'/stubs/ztm_lines.json'];
-        yield 'ZTM Stops' => [__DIR__.'/stubs/ztm_stops.json'];
     }
 
     private function createStreamFromJsonFile(string $filename)
