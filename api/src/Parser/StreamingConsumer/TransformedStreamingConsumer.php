@@ -23,20 +23,27 @@ namespace App\Parser\StreamingConsumer;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class IgnoredConsumer extends AbstractConsumer
+class TransformedStreamingConsumer extends AbstractStreamingConsumer
 {
     public function __construct(
-        private StreamingConsumerInterface $consumer
+        private StreamingConsumerInterface $decorated,
+        private $transform,
     ) {
     }
 
     public function label(): string
     {
-        return sprintf("ignored %s", $this->consumer->label());
+        return $this->decorated->label();
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        return $stream->skip($this->consumer);
+        $results = ($this->decorated)($stream);
+
+        foreach ($results as $result) {
+            yield ($this->transform)($result);
+        }
+
+        return $results->getReturn();
     }
 }

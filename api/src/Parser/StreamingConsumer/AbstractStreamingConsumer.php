@@ -22,7 +22,7 @@ namespace App\Parser\StreamingConsumer;
 
 use App\Parser\StreamingConsumerInterface;
 
-abstract class AbstractConsumer implements StreamingConsumerInterface
+abstract class AbstractStreamingConsumer implements StreamingConsumerInterface
 {
-    use ConsumerHelpersTrait;
+    use StreamingConsumerHelpersTrait;
 }

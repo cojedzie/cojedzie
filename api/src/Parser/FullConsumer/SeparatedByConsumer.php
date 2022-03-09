@@ -18,18 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\StreamingConsumer;
+namespace App\Parser\FullConsumer;
 
+use App\Parser\ConsumerInterface;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
 class SeparatedByConsumer extends AbstractConsumer
 {
     public function __construct(
-        private StreamingConsumerInterface $value,
-        private StreamingConsumerInterface $separator
+        private ConsumerInterface $value,
+        private ConsumerInterface $separator
     ) {
-        $this->separator = StreamingConsumer::optional($this->separator);
+        $this->separator = $this->separator->optional();
     }
 
     public function label(): string
@@ -41,7 +42,7 @@ class SeparatedByConsumer extends AbstractConsumer
         );
     }
 
-    public function map(callable $transform): StreamingConsumerInterface
+    public function map(callable $transform): ConsumerInterface
     {
         return new static(
             $this->value->map($transform),
@@ -49,15 +50,14 @@ class SeparatedByConsumer extends AbstractConsumer
         );
     }
 
-    public function __invoke(StreamInterface $stream): \Generator
+    public function __invoke(StreamInterface $stream)
     {
+        $results = [];
         do {
-            yield from $stream->consume($this->value);
+            $results[] = $stream->consume($this->value);
+            $separator = $stream->consume($this->separator);
+        } while ($separator !== null);
 
-            /** @var \Generator $separator */
-            $separator = $stream->skip($this->separator);
-        } while (StreamingConsumer::isValid($separator));
-
-        return true;
+        return $results;
     }
 }

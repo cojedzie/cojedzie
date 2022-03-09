@@ -18,43 +18,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\StreamingConsumer;
 
-use App\Parser\Exception\EndOfStreamException;
+use App\Parser\StreamInterface;
 
-class StringStream implements StreamInterface
+class WhitespaceStreamingConsumer extends AbstractStreamingConsumer
 {
-    use ConsumableTrait, PositionTrait;
-
-    public function __construct(
-        private string $string
-    ) {
-        $this->position = new Position();
+    public function label(): string
+    {
+        return 'whitespace';
     }
 
-    public function read(int $max): string
+    public function __invoke(StreamInterface $stream): \Generator
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
+        $output = "";
+
+        while ($input = $stream->peek(1)) {
+            if (ctype_space($input)) {
+                // skip whitespace
+                $output .= $stream->read(1);
+            } else {
+                break;
+            }
         }
 
-        $slice = $this->peek($max);
-        $this->advance($slice, $max);
+        yield $output;
 
-        return $slice;
-    }
-
-    public function peek(int $max): string
-    {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        return mb_substr($this->string, $this->position->offset, $max);
-    }
-
-    public function eof(): bool
-    {
-        return $this->position->offset >= mb_strlen($this->string);
+        return true;
     }
 }

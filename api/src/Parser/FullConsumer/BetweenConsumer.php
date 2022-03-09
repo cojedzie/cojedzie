@@ -18,35 +18,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\StreamingConsumer;
+namespace App\Parser\FullConsumer;
 
-use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\ConsumerInterface;
 use App\Parser\StreamInterface;
 
-class PredicateConsumer extends AbstractConsumer
+class BetweenConsumer extends AbstractConsumer
 {
+    private ConsumerInterface $left;
+    private ConsumerInterface $right;
+
     public function __construct(
-        private $predicate,
-        private int $length,
-        private string $label
+        private ConsumerInterface $value,
+        ConsumerInterface $left,
+        ConsumerInterface $right = null,
     ) {
+        $this->left  = $left;
+        $this->right = $right ?: $left;
     }
 
     public function label(): string
     {
-        return $this->label;
+        return sprintf(
+            "%s between %s and %s",
+            $this->value->label(),
+            $this->left->label(),
+            $this->right->label()
+        );
     }
 
-    public function __invoke(StreamInterface $stream): \Generator
+    public function __invoke(StreamInterface $stream)
     {
-        $input = $stream->peek($this->length);
+        $stream->skip($this->left);
+        $result = $stream->consume($this->value);
+        $stream->skip($this->right);
 
-        if (!($this->predicate)($input)) {
-            throw UnexpectedTokenException::create($input, $this->label, $stream->tell());
-        }
-
-        yield $stream->read($this->length);
-
-        return true;
+        return $result;
     }
 }

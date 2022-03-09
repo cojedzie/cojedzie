@@ -18,44 +18,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\StreamingConsumer;
+namespace App\Parser\FullConsumer;
 
-use App\Parser\StreamingConsumerInterface;
+use App\Parser\ConsumerInterface;
 use App\Parser\StreamInterface;
 
-class BetweenConsumer extends AbstractConsumer
+class TransformedConsumer extends AbstractConsumer
 {
-    private StreamingConsumerInterface $left;
-    private StreamingConsumerInterface $right;
-
     public function __construct(
-        private StreamingConsumerInterface $value,
-        StreamingConsumerInterface $left,
-        StreamingConsumerInterface $right = null,
+        private ConsumerInterface $decorated,
+        private $transform,
     ) {
-        $this->left  = $left;
-        $this->right = $right ?: $left;
     }
 
     public function label(): string
     {
-        return sprintf(
-            "%s between %s and %s",
-            $this->value->label(),
-            $this->left->label(),
-            $this->right->label()
-        );
+        return $this->decorated->label();
     }
 
-    public function __invoke(StreamInterface $stream): \Generator
+    public function __invoke(StreamInterface $stream)
     {
-        $stream->skip($this->left);
+        $result = ($this->decorated)($stream);
 
-        $results = $stream->consume($this->value);
-        yield from $results;
-
-        $stream->skip($this->right);
-
-        return $results->getReturn();
+        return ($this->transform)($result);
     }
 }

@@ -29,15 +29,15 @@ trait PositionTrait
         return $this->position;
     }
 
-    private function advance(string $slice)
+    private function advance(string $slice, int $length)
     {
-        $lines = preg_split('/\R/', $slice);
-        $last = end($lines);
+//        $lines = preg_split('/\R/', $slice);
+//        $last = end($lines);
 
         $this->position = new Position(
-            offset: $this->position->offset + mb_strlen($slice),
-            line: $this->position->line + count($lines) - 1,
-            column: count($lines) > 1 ? 1 + strlen($last) : $this->position->column + strlen($last),
+            offset: $this->position->offset + $length,
+//            line: $this->position->line + count($lines) - 1,
+//            column: count($lines) > 1 ? 1 + strlen($last) : $this->position->column + strlen($last),
         );
     }
 }

@@ -20,38 +20,42 @@
 
 namespace App\Parser\StreamingConsumer;
 
+use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class ReducedConsumer extends AbstractConsumer
+class AnyStreamingConsumer extends AbstractStreamingConsumer
 {
-    public function __construct(
-        private StreamingConsumerInterface $decorated,
-        private $transform,
-    ) {
+    private array $consumers;
+
+    public function __construct(StreamingConsumerInterface ...$consumers)
+    {
+        $this->consumers = $consumers;
     }
 
     public function label(): string
     {
-        return $this->decorated->label();
+        return implode(' or ', array_map(fn ($consumer) => $consumer->label(), $this->consumers));
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $results = ($this->decorated)($stream);
-        $results = ($this->transform)($results);
+        $position = $stream->tell();
 
-        yield from $results;
+        foreach ($this->consumers as $consumer) {
+            try {
+                $generator = $stream->consume($consumer);
+                yield from $generator;
+                return $generator->getReturn();
+            } catch (UnexpectedTokenException $exception) {
+                if ($position === $stream->tell()) {
+                    continue;
+                }
 
-        return $results->getReturn();
-    }
+                throw $exception;
+            }
+        }
 
-    public static function join($separator = '')
-    {
-        return static function (\Generator $generator) use ($separator) {
-            yield implode($separator, iterator_to_array($generator));
-
-            return $generator->getReturn();
-        };
+        return false;
     }
 }

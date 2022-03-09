@@ -20,25 +20,23 @@
 
 namespace App\Parser\StreamingConsumer;
 
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class CallbackConsumer extends AbstractConsumer
+class IgnoredStreamingConsumer extends AbstractStreamingConsumer
 {
     public function __construct(
-        private $callback,
-        private string $label
+        private StreamingConsumerInterface $consumer
     ) {
     }
 
     public function label(): string
     {
-        return $this->label;
+        return sprintf("ignored %s", $this->consumer->label());
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $generator = ($this->callback)($stream);
-        yield from $generator;
-        return $generator->getReturn();
+        return $stream->skip($this->consumer);
     }
 }

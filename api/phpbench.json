@@ -1,5 +1,6 @@
 {
     "$schema":"./vendor/phpbench/phpbench/phpbench.schema.json",
     "runner.env_enabled_providers": ["sampler", "opcache", "php", "uname", "unix_sysload"],
-    "runner.bootstrap": "tests/bootstrap.php"
+    "runner.bootstrap": "tests/bootstrap.php",
+    "runner.file_pattern": "*Bench.php"
 }

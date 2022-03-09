@@ -18,43 +18,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\StreamingConsumer;
 
-use App\Parser\Exception\EndOfStreamException;
+use App\Parser\StreamingConsumerInterface;
+use App\Parser\StreamInterface;
 
-class StringStream implements StreamInterface
+class ReducedStreamingConsumer extends AbstractStreamingConsumer
 {
-    use ConsumableTrait, PositionTrait;
-
     public function __construct(
-        private string $string
+        private StreamingConsumerInterface $decorated,
+        private $transform,
     ) {
-        $this->position = new Position();
     }
 
-    public function read(int $max): string
+    public function label(): string
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        $slice = $this->peek($max);
-        $this->advance($slice, $max);
-
-        return $slice;
+        return $this->decorated->label();
     }
 
-    public function peek(int $max): string
+    public function __invoke(StreamInterface $stream): \Generator
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
+        $results = ($this->decorated)($stream);
+        $results = ($this->transform)($results);
 
-        return mb_substr($this->string, $this->position->offset, $max);
+        yield from $results;
+
+        return $results->getReturn();
     }
 
-    public function eof(): bool
+    public static function join($separator = '')
     {
-        return $this->position->offset >= mb_strlen($this->string);
+        return static function (\Generator $generator) use ($separator) {
+            yield implode($separator, iterator_to_array($generator));
+
+            return $generator->getReturn();
+        };
     }
 }

@@ -20,18 +20,17 @@
 
 namespace App\Parser;
 
-use App\Parser\Exception\EndOfStreamException;
-
-class GeneratorStringStream implements StreamInterface
+class FileStringStream implements StreamInterface
 {
     use PositionTrait, ConsumableTrait;
 
+    private $handle;
     private string $buffer = "";
-    private int $offset = 0;
+    private int $bufferSize = 0;
 
-    public function __construct(
-        private \Generator $generator
-    ) {
+    public function __construct(string $filename)
+    {
+        $this->handle = fopen($filename, 'rb');
         $this->position = new Position();
     }
 
@@ -41,30 +40,29 @@ class GeneratorStringStream implements StreamInterface
         $this->advance($result, $max);
 
         $this->buffer = substr($this->buffer, $max);
+        $this->bufferSize -= $max;
 
         return $result;
     }
 
     public function peek(int $max)
     {
-        $this->fillBuffer($max);
-
-        if ($this->eof()) {
-            throw new EndOfStreamException();
+        if ($this->bufferSize < $max) {
+            $chunk = fread($this->handle, $max - strlen($this->buffer) + 1024);
+            $this->buffer .= $chunk;
+            $this->bufferSize += strlen($chunk);
         }
 
-        return substr($this->buffer, $this->offset, $max);
+        return $max == 1 ? $this->buffer[0] : substr($this->buffer, 0, $max);
     }
 
     public function eof(): bool
     {
-        return empty($this->buffer) && !$this->generator->valid();
+        return empty($this->buffer) && feof($this->handle);
     }
 
-    private function fillBuffer(int $length)
+    public function __destruct()
     {
-        for (; strlen($this->buffer) < $length && $this->generator->valid(); $this->generator->next()) {
-            $this->buffer .= $this->generator->current();
-        }
+        fclose($this->handle);
     }
 }

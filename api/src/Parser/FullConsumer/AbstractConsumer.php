@@ -18,26 +18,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\FullConsumer;
 
-trait ConsumableTrait
+use App\Parser\ConsumerInterface;
+use App\Parser\StreamingConsumer\StreamingConsumer;
+
+abstract class AbstractConsumer implements ConsumerInterface
 {
-    public function consume(ConsumerInterface $consumer): mixed
+    use ConsumerHelpersTrait;
+
+    public function streamify()
     {
-        return $consumer($this);
-    }
-
-    public function skip(ConsumerInterface $consumer)
-    {
-        $generator = $this->consume($consumer);
-
-        if ($generator instanceof \Generator) {
-            /** @noinspection PhpStatementHasEmptyBodyInspection */
-            foreach ($generator as $result) {
-                // noop
-            }
-        }
-
-        return $generator;
+        return StreamingConsumer::streamify($this);
     }
 }

@@ -20,42 +20,25 @@
 
 namespace App\Parser\StreamingConsumer;
 
-use App\Parser\Exception\UnexpectedTokenException;
-use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class AnyConsumer extends AbstractConsumer
+class CallbackStreamingConsumer extends AbstractStreamingConsumer
 {
-    private array $consumers;
-
-    public function __construct(StreamingConsumerInterface ...$consumers)
-    {
-        $this->consumers = $consumers;
+    public function __construct(
+        private $callback,
+        private string $label
+    ) {
     }
 
     public function label(): string
     {
-        return implode(' or ', array_map(fn ($consumer) => $consumer->label(), $this->consumers));
+        return $this->label;
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $position = $stream->tell();
-
-        foreach ($this->consumers as $consumer) {
-            try {
-                $generator = $stream->consume($consumer);
-                yield from $generator;
-                return $generator->getReturn();
-            } catch (UnexpectedTokenException $exception) {
-                if ($position === $stream->tell()) {
-                    continue;
-                }
-
-                throw $exception;
-            }
-        }
-
-        return false;
+        $generator = ($this->callback)($stream);
+        yield from $generator;
+        return $generator->getReturn();
     }
 }

@@ -18,43 +18,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\FullConsumer;
 
 use App\Parser\Exception\EndOfStreamException;
+use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\ConsumerInterface;
+use App\Parser\StreamInterface;
 
-class StringStream implements StreamInterface
+class OptionalConsumer extends AbstractConsumer
 {
-    use ConsumableTrait, PositionTrait;
-
     public function __construct(
-        private string $string
+        private ConsumerInterface $decorated,
     ) {
-        $this->position = new Position();
     }
 
-    public function read(int $max): string
+    public function label(): string
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
+        return 'optional ' . $this->decorated->label();
+    }
+
+    public function __invoke(StreamInterface $stream)
+    {
+        $position = $stream->tell();
+
+        try {
+            return ($this->decorated)($stream);
+        } catch (UnexpectedTokenException|EndOfStreamException $exception) {
+            if ($stream->tell() === $position) {
+                return null;
+            }
+
+            // if stream was advanced we cannot backtrack so rethrow exception
+            throw $exception;
         }
-
-        $slice = $this->peek($max);
-        $this->advance($slice, $max);
-
-        return $slice;
-    }
-
-    public function peek(int $max): string
-    {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        return mb_substr($this->string, $this->position->offset, $max);
-    }
-
-    public function eof(): bool
-    {
-        return $this->position->offset >= mb_strlen($this->string);
     }
 }

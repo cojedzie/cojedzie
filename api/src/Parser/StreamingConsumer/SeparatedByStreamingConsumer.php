@@ -20,39 +20,44 @@
 
 namespace App\Parser\StreamingConsumer;
 
-use App\Parser\Exception\EndOfStreamException;
-use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class OptionalConsumer extends AbstractConsumer
+class SeparatedByStreamingConsumer extends AbstractStreamingConsumer
 {
     public function __construct(
-        private StreamingConsumerInterface $decorated,
+        private StreamingConsumerInterface $value,
+        private StreamingConsumerInterface $separator
     ) {
+        $this->separator = StreamingConsumer::optional($this->separator);
     }
 
     public function label(): string
     {
-        return 'optional ' . $this->decorated->label();
+        return sprintf(
+            "%s separated by %s",
+            $this->value->label(),
+            $this->separator->label()
+        );
+    }
+
+    public function map(callable $transform): StreamingConsumerInterface
+    {
+        return new static(
+            $this->value->map($transform),
+            $this->separator,
+        );
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $position = $stream->tell();
+        do {
+            yield from $stream->consume($this->value);
 
-        try {
-            $result = $this->decorated->__invoke($stream);
-            yield from $result;
+            /** @var \Generator $separator */
+            $separator = $stream->skip($this->separator);
+        } while (StreamingConsumer::isValid($separator));
 
-            return $result->getReturn();
-        } catch (UnexpectedTokenException|EndOfStreamException $exception) {
-            if ($stream->tell() === $position) {
-                return false;
-            }
-
-            // if stream was advanced we cannot backtrack so rethrow exception
-            throw $exception;
-        }
+        return true;
     }
 }
