@@ -20,8 +20,11 @@
 
 namespace App\Tests\JsonStreamingTokenizer\Benchmark;
 
+use App\Parser\FileStringStream;
 use App\Parser\GeneratorStringStream;
 use App\Parser\JsonStreamingTokenizer;
+use JsonStreamingParser\Listener\IdleListener;
+use JsonStreamingParser\Parser;
 use PhpBench\Attributes\Revs;
 
 class JsonStreamingBench
@@ -30,16 +33,16 @@ class JsonStreamingBench
     public function benchSimpleObject()
     {
         $parser = new JsonStreamingTokenizer();
-        $stream = GeneratorStringStream::createFromFilename(__DIR__.'/../stubs/test_1.json');
+        $stream = new FileStringStream(__DIR__.'/../stubs/test_1.json');
 
         iterator_to_array($parser->parse($stream));
     }
 
-    #[Revs(5)]
+    #[Revs(1)]
     public function benchZtmLines()
     {
         $parser = new JsonStreamingTokenizer();
-        $stream = GeneratorStringStream::createFromFilename(__DIR__.'/../stubs/ztm_lines.json');
+        $stream = new FileStringStream(__DIR__.'/../stubs/ztm_lines.json');
 
         iterator_to_array($parser->parse($stream));
     }

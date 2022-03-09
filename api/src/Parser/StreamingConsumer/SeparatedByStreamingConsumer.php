@@ -20,29 +20,43 @@
 
 namespace App\Parser\StreamingConsumer;
 
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class WhitespaceConsumer extends AbstractConsumer
+class SeparatedByStreamingConsumer extends AbstractStreamingConsumer
 {
+    public function __construct(
+        private StreamingConsumerInterface $value,
+        private StreamingConsumerInterface $separator
+    ) {
+        $this->separator = StreamingConsumer::optional($this->separator);
+    }
+
     public function label(): string
     {
-        return 'whitespace';
+        return sprintf(
+            "%s separated by %s",
+            $this->value->label(),
+            $this->separator->label()
+        );
+    }
+
+    public function map(callable $transform): StreamingConsumerInterface
+    {
+        return new static(
+            $this->value->map($transform),
+            $this->separator,
+        );
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $output = "";
+        do {
+            yield from $stream->consume($this->value);
 
-        while ($input = $stream->peek(1)) {
-            if (ctype_space($input)) {
-                // skip whitespace
-                $output .= $stream->read(1);
-            } else {
-                break;
-            }
-        }
-
-        yield $output;
+            /** @var \Generator $separator */
+            $separator = $stream->skip($this->separator);
+        } while (StreamingConsumer::isValid($separator));
 
         return true;
     }

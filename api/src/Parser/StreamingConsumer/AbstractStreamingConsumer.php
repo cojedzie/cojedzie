@@ -20,25 +20,9 @@
 
 namespace App\Parser\StreamingConsumer;
 
-use App\Parser\StreamInterface;
+use App\Parser\StreamingConsumerInterface;
 
-class CallbackConsumer extends AbstractConsumer
+abstract class AbstractStreamingConsumer implements StreamingConsumerInterface
 {
-    public function __construct(
-        private $callback,
-        private string $label
-    ) {
-    }
-
-    public function label(): string
-    {
-        return $this->label;
-    }
-
-    public function __invoke(StreamInterface $stream): \Generator
-    {
-        $generator = ($this->callback)($stream);
-        yield from $generator;
-        return $generator->getReturn();
-    }
+    use StreamingConsumerHelpersTrait;
 }

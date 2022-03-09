@@ -18,41 +18,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\StreamingConsumer;
+namespace App\Parser\FullConsumer;
 
-use App\Parser\Exception\EndOfStreamException;
-use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\ConsumerInterface;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class OptionalConsumer extends AbstractConsumer
+class SeparatedByConsumer extends AbstractConsumer
 {
     public function __construct(
-        private StreamingConsumerInterface $decorated,
+        private ConsumerInterface $value,
+        private ConsumerInterface $separator
     ) {
+        $this->separator = $this->separator->optional();
     }
 
     public function label(): string
     {
-        return 'optional ' . $this->decorated->label();
+        return sprintf(
+            "%s separated by %s",
+            $this->value->label(),
+            $this->separator->label()
+        );
     }
 
-    public function __invoke(StreamInterface $stream): \Generator
+    public function map(callable $transform): ConsumerInterface
     {
-        $position = $stream->tell();
+        return new static(
+            $this->value->map($transform),
+            $this->separator,
+        );
+    }
 
-        try {
-            $result = $this->decorated->__invoke($stream);
-            yield from $result;
+    public function __invoke(StreamInterface $stream)
+    {
+        $results = [];
+        do {
+            $results[] = $stream->consume($this->value);
+            $separator = $stream->consume($this->separator);
+        } while ($separator !== null);
 
-            return $result->getReturn();
-        } catch (UnexpectedTokenException|EndOfStreamException $exception) {
-            if ($stream->tell() === $position) {
-                return false;
-            }
-
-            // if stream was advanced we cannot backtrack so rethrow exception
-            throw $exception;
-        }
+        return $results;
     }
 }

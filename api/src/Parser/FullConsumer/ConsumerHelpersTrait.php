@@ -18,43 +18,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\FullConsumer;
 
-use App\Parser\Exception\EndOfStreamException;
+use App\Parser\ConsumerInterface;
 
-class StringStream implements StreamInterface
+trait ConsumerHelpersTrait
 {
-    use ConsumableTrait, PositionTrait;
-
-    public function __construct(
-        private string $string
-    ) {
-        $this->position = new Position();
+    public function map(callable $transform): ConsumerInterface
+    {
+        return new TransformedConsumer(
+            $this,
+            $transform
+        );
     }
 
-    public function read(int $max): string
+    public function reduce(callable $reducer): self
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        $slice = $this->peek($max);
-        $this->advance($slice, $max);
-
-        return $slice;
+        return new TransformedConsumer(
+            $this,
+            $reducer
+        );
     }
 
-    public function peek(int $max): string
+    public function optional(): ConsumerInterface
     {
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        return mb_substr($this->string, $this->position->offset, $max);
+        return FullConsumer::optional($this);
     }
 
-    public function eof(): bool
+    public function repeated(): ConsumerInterface
     {
-        return $this->position->offset >= mb_strlen($this->string);
+        return FullConsumer::many($this);
+    }
+
+    public function ignore(): ConsumerInterface
+    {
+        return FullConsumer::ignore($this);
     }
 }

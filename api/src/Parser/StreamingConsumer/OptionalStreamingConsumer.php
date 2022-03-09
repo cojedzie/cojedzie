@@ -20,23 +20,39 @@
 
 namespace App\Parser\StreamingConsumer;
 
+use App\Parser\Exception\EndOfStreamException;
+use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class IgnoredConsumer extends AbstractConsumer
+class OptionalStreamingConsumer extends AbstractStreamingConsumer
 {
     public function __construct(
-        private StreamingConsumerInterface $consumer
+        private StreamingConsumerInterface $decorated,
     ) {
     }
 
     public function label(): string
     {
-        return sprintf("ignored %s", $this->consumer->label());
+        return 'optional ' . $this->decorated->label();
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        return $stream->skip($this->consumer);
+        $position = $stream->tell();
+
+        try {
+            $result = $this->decorated->__invoke($stream);
+            yield from $result;
+
+            return $result->getReturn();
+        } catch (UnexpectedTokenException|EndOfStreamException $exception) {
+            if ($stream->tell() === $position) {
+                return false;
+            }
+
+            // if stream was advanced we cannot backtrack so rethrow exception
+            throw $exception;
+        }
     }
 }

@@ -18,46 +18,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\StreamingConsumer;
+namespace App\Parser\FullConsumer;
 
-use App\Parser\StreamingConsumerInterface;
+use App\Parser\ConsumerInterface;
 use App\Parser\StreamInterface;
 
-class SeparatedByConsumer extends AbstractConsumer
+class BetweenConsumer extends AbstractConsumer
 {
+    private ConsumerInterface $left;
+    private ConsumerInterface $right;
+
     public function __construct(
-        private StreamingConsumerInterface $value,
-        private StreamingConsumerInterface $separator
+        private ConsumerInterface $value,
+        ConsumerInterface $left,
+        ConsumerInterface $right = null,
     ) {
-        $this->separator = StreamingConsumer::optional($this->separator);
+        $this->left  = $left;
+        $this->right = $right ?: $left;
     }
 
     public function label(): string
     {
         return sprintf(
-            "%s separated by %s",
+            "%s between %s and %s",
             $this->value->label(),
-            $this->separator->label()
+            $this->left->label(),
+            $this->right->label()
         );
     }
 
-    public function map(callable $transform): StreamingConsumerInterface
+    public function __invoke(StreamInterface $stream)
     {
-        return new static(
-            $this->value->map($transform),
-            $this->separator,
-        );
-    }
+        $stream->skip($this->left);
+        $result = $stream->consume($this->value);
+        $stream->skip($this->right);
 
-    public function __invoke(StreamInterface $stream): \Generator
-    {
-        do {
-            yield from $stream->consume($this->value);
-
-            /** @var \Generator $separator */
-            $separator = $stream->skip($this->separator);
-        } while (StreamingConsumer::isValid($separator));
-
-        return true;
+        return $result;
     }
 }

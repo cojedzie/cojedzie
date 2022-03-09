@@ -18,40 +18,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\StreamingConsumer;
+namespace App\Parser\FullConsumer;
 
-use App\Parser\StreamingConsumerInterface;
+use App\Parser\StreamInterface;
 
-trait ConsumerHelpersTrait
+class WhitespaceConsumer extends AbstractConsumer
 {
-    public function map(callable $transform): StreamingConsumerInterface
+    public function label(): string
     {
-        return new TransformedConsumer(
-            $this,
-            $transform
-        );
+        return 'whitespace';
     }
 
-    public function reduce(callable $reducer): self
+    public function __invoke(StreamInterface $stream)
     {
-        return new ReducedConsumer(
-            $this,
-            $reducer
-        );
-    }
+        $output = "";
 
-    public function optional(): StreamingConsumerInterface
-    {
-        return StreamingConsumer::optional($this);
-    }
+        while ($input = $stream->peek(1)) {
+            if (ctype_space($input)) {
+                // skip whitespace
+                $output .= $stream->read(1);
+            } else {
+                break;
+            }
+        }
 
-    public function repeated(): StreamingConsumerInterface
-    {
-        return StreamingConsumer::many($this);
-    }
-
-    public function ignore(): StreamingConsumerInterface
-    {
-        return StreamingConsumer::ignore($this);
+        return $output;
     }
 }

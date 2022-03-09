@@ -21,32 +21,41 @@
 namespace App\Parser\StreamingConsumer;
 
 use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class PredicateConsumer extends AbstractConsumer
+class AnyStreamingConsumer extends AbstractStreamingConsumer
 {
-    public function __construct(
-        private $predicate,
-        private int $length,
-        private string $label
-    ) {
+    private array $consumers;
+
+    public function __construct(StreamingConsumerInterface ...$consumers)
+    {
+        $this->consumers = $consumers;
     }
 
     public function label(): string
     {
-        return $this->label;
+        return implode(' or ', array_map(fn ($consumer) => $consumer->label(), $this->consumers));
     }
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        $input = $stream->peek($this->length);
+        $position = $stream->tell();
 
-        if (!($this->predicate)($input)) {
-            throw UnexpectedTokenException::create($input, $this->label, $stream->tell());
+        foreach ($this->consumers as $consumer) {
+            try {
+                $generator = $stream->consume($consumer);
+                yield from $generator;
+                return $generator->getReturn();
+            } catch (UnexpectedTokenException $exception) {
+                if ($position === $stream->tell()) {
+                    continue;
+                }
+
+                throw $exception;
+            }
         }
 
-        yield $stream->read($this->length);
-
-        return true;
+        return false;
     }
 }

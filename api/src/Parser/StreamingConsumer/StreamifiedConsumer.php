@@ -20,30 +20,30 @@
 
 namespace App\Parser\StreamingConsumer;
 
-use App\Parser\StreamingConsumerInterface;
+use App\Parser\ConsumerInterface;
+use App\Parser\FullConsumer\FullConsumer;
 use App\Parser\StreamInterface;
 
-class TransformedConsumer extends AbstractConsumer
+class StreamifiedConsumer extends AbstractStreamingConsumer
 {
-    public function __construct(
-        private StreamingConsumerInterface $decorated,
-        private $transform,
-    ) {
+    public function __construct(private ConsumerInterface $consumer)
+    {
     }
 
     public function label(): string
     {
-        return $this->decorated->label();
+        return 'streamified '.$this->consumer->label();
     }
 
-    public function __invoke(StreamInterface $stream): \Generator
+    public function __invoke(StreamInterface $stream)
     {
-        $results = ($this->decorated)($stream);
+        $result = $stream->consume($this->consumer);
 
-        foreach ($results as $result) {
-            yield ($this->transform)($result);
+        if (FullConsumer::isValid($result)) {
+            yield $result;
+            return true;
+        } else {
+            return false;
         }
-
-        return $results->getReturn();
     }
 }
