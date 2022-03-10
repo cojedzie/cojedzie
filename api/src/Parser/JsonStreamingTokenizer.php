@@ -32,9 +32,14 @@ use App\Parser\JsonToken\ValueToken;
 use App\Parser\StreamingParser\AbstractStreamingParser;
 use App\Parser\StreamingParser\StreamingParser;
 
-class JsonStreamingTokenizer
+class JsonStreamingTokenizer extends AbstractStreamingParser
 {
-    public function parse(StreamInterface $stream)
+    public function label(): string
+    {
+        return 'JSON';
+    }
+
+    public function __invoke(StreamInterface $stream)
     {
         $input = $stream->peek(1);
 

@@ -32,8 +32,8 @@ class JsonStreamingBench
         $parser = new JsonStreamingTokenizer();
         $stream = new FileStringStream(__DIR__ . '/../stubs/test_1.json');
 
-        /** @noinspection PhpStatementHasEmptyBodyInspection */
-        foreach ($parser->parse($stream) as $token) {
+        foreach ($parser($stream) as $token) {
+            // noop
         }
     }
 
@@ -43,8 +43,8 @@ class JsonStreamingBench
         $parser = new JsonStreamingTokenizer();
         $stream = new FileStringStream(__DIR__ . '/../stubs/ztm_lines.json');
 
-        /** @noinspection PhpStatementHasEmptyBodyInspection */
-        foreach ($parser->parse($stream) as $token) {
+        foreach ($parser($stream) as $token) {
+            // noop
         }
     }
 }

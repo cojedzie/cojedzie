@@ -19,7 +19,7 @@ class JsonArrayStreamingTest extends TestCase
         $stream = new StringStream('[]');
 
         $this->assertStream(
-            $parser->parse($stream),
+            $parser($stream),
             fn ($token) => $this->assertInstanceOf(JsonToken\ArrayStartToken::class, $token),
             fn ($token) => $this->assertInstanceOf(JsonToken\ArrayEndToken::class, $token),
         );
@@ -31,7 +31,7 @@ class JsonArrayStreamingTest extends TestCase
         $stream = new StringStream('["foo"]');
 
         $this->assertStream(
-            $parser->parse($stream),
+            $parser($stream),
             fn ($token) => $this->assertInstanceOf(JsonToken\ArrayStartToken::class, $token),
             fn ($token) => $this->assertTokenValue("foo", $token),
             fn ($token) => $this->assertInstanceOf(JsonToken\ArrayEndToken::class, $token),
@@ -44,7 +44,7 @@ class JsonArrayStreamingTest extends TestCase
         $stream = new StringStream('["foo", "bar"]');
 
         $this->assertStream(
-            $parser->parse($stream),
+            $parser($stream),
             fn ($token) => $this->assertInstanceOf(JsonToken\ArrayStartToken::class, $token),
             fn ($token) => $this->assertTokenValue("foo", $token),
             fn ($token) => $this->assertTokenValue("bar", $token),
