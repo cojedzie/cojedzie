@@ -26,13 +26,14 @@ use App\Parser\StreamInterface;
 
 class StreamifiedConsumer extends AbstractStreamingConsumer
 {
-    public function __construct(private ConsumerInterface $consumer)
-    {
+    public function __construct(
+        private ConsumerInterface $consumer
+    ) {
     }
 
     public function label(): string
     {
-        return 'streamified '.$this->consumer->label();
+        return 'streamified ' . $this->consumer->label();
     }
 
     public function __invoke(StreamInterface $stream)

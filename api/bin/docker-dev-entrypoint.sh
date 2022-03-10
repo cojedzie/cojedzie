@@ -5,4 +5,8 @@ if [ "$APP_MODE" != "debug" ]; then
     rm -f "$PHP_INI_DIR/conf.d/blackfire.ini"
 fi
 
-exec "$@"
+if [ -n "$APP_RUNAS" ]; then
+    exec su-exec "$APP_RUNAS" "$@"
+else
+    exec "$@"
+fi

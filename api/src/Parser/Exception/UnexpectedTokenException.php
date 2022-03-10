@@ -26,10 +26,14 @@ use JetBrains\PhpStorm\Pure;
 class UnexpectedTokenException extends \RuntimeException
 {
     #[Pure]
-    public static function create(string $got, string $expected, Position $position)
+    public static function createWithExpected(string $got, string $expected, Position $position)
     {
-        return new static(
-            sprintf('Expected %s, got %s at %d:%d.', $expected, $got, $position->line, $position->column)
-        );
+        return new static("Expected {$expected}, got {$got} at {$position->line}:{$position->column}.");
+    }
+
+    #[Pure]
+    public static function create(string $message, Position $position)
+    {
+        return new static("{$message} at {$position->line}:{$position->column}.");
     }
 }

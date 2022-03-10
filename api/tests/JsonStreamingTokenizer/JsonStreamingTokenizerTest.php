@@ -42,8 +42,8 @@ class JsonStreamingTokenizerTest extends TestCase
 
     public function jsonFileProvider(): \Generator
     {
-        yield 'Wikipedia example' => [__DIR__.'/stubs/test_1.json'];
-        yield 'ZTM Updates' => [__DIR__.'/stubs/ztm_stop_updates.json'];
+        yield 'Wikipedia example' => [__DIR__ . '/stubs/test_1.json'];
+        yield 'ZTM Updates' => [__DIR__ . '/stubs/ztm_stop_updates.json'];
     }
 
     private function createStreamFromJsonFile(string $filename)

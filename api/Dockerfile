@@ -4,7 +4,7 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql xdebug-^3.0 ds;
-RUN apk add git;
+RUN apk add git su-exec;
 
 # XDebug
 RUN echo "xdebug.mode=debug" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini && \

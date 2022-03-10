@@ -39,6 +39,15 @@ tasks:
     cmds:
       - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend node_modules/.bin/eslint {{.CLI_ARGS}}
 
+  reformat:
+    deps:
+      - task: reformat:api
+
+  reformat:api:
+    desc: Reformat API with ECS
+    cmds:
+      - docker-compose run --rm -e APP_RUNAS="{{.USER}}" api vendor/bin/ecs --fix
+
   test:
     deps:
       - task: test:api

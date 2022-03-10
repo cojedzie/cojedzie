@@ -29,19 +29,22 @@ final class Consumer
     {
     }
 
-    public static function isValid($result) {
+    public static function isValid($result): bool
+    {
         return $result instanceof \Generator
             ? StreamingConsumer::isValid($result)
             : FullConsumer::isValid($result);
     }
 
-    public static function result($result) {
+    public static function result($result)
+    {
         return $result instanceof \Generator
             ? StreamingConsumer::result($result)
             : FullConsumer::result($result);
     }
 
-    public static function isEmpty($result) {
+    public static function isEmpty($result): bool
+    {
         return $result instanceof \Generator
             ? StreamingConsumer::isEmpty($result)
             : FullConsumer::isEmpty($result);

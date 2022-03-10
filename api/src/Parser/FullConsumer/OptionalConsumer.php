@@ -20,9 +20,9 @@
 
 namespace App\Parser\FullConsumer;
 
+use App\Parser\ConsumerInterface;
 use App\Parser\Exception\EndOfStreamException;
 use App\Parser\Exception\UnexpectedTokenException;
-use App\Parser\ConsumerInterface;
 use App\Parser\StreamInterface;
 
 class OptionalConsumer extends AbstractConsumer
