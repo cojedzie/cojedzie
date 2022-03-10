@@ -18,33 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Tests\JsonStreamingTokenizer;
+namespace App\Parser\FullParser;
 
-use App\Parser\JsonStreamingTokenizer;
-use App\Parser\StreamingParser\StreamingParser;
-use App\Parser\StringStream;
-use PHPUnit\Framework\TestCase;
+use App\Parser\ParserInterface;
+use App\Parser\StreamInterface;
 
-class JsonConstantStreamingTest extends TestCase
+class SequenceParser extends AbstractParser
 {
-    public function testTrueValue()
-    {
-        $stream = new StringStream("true");
+    private array $parsers;
 
-        $this->assertSame(true, $stream->consume(JsonStreamingTokenizer::boolean()));
+    public function __construct(ParserInterface ...$parsers)
+    {
+        $this->parsers = $parsers;
     }
 
-    public function testFalseValue()
+    public function label(): string
     {
-        $stream = new StringStream("false");
-
-        $this->assertSame(false, $stream->consume(JsonStreamingTokenizer::boolean()));
+        return implode(' then ', array_map(fn (ParserInterface $parser) => $parser->label(), $this->parsers));
     }
 
-    public function testNullValue()
+    public function __invoke(StreamInterface $stream)
     {
-        $stream = new StringStream("null");
-
-        $this->assertSame(null, $stream->consume(JsonStreamingTokenizer::null()));
+        return array_map($stream->consume(...), $this->parsers);
     }
 }

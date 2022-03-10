@@ -22,14 +22,14 @@ namespace App\Parser;
 
 trait ConsumableTrait
 {
-    public function consume(ConsumerInterface $consumer): mixed
+    public function consume(ParserInterface $parser): mixed
     {
-        return $consumer($this);
+        return $parser($this);
     }
 
-    public function skip(ConsumerInterface $consumer)
+    public function skip(ParserInterface $parser)
     {
-        $generator = $this->consume($consumer);
+        $generator = $this->consume($parser);
 
         if ($generator instanceof \Generator) {
             /** @noinspection PhpStatementHasEmptyBodyInspection */

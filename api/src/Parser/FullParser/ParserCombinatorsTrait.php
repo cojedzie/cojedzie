@@ -18,33 +18,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Tests\JsonStreamingTokenizer;
+namespace App\Parser\FullParser;
 
-use App\Parser\JsonStreamingTokenizer;
-use App\Parser\StreamingParser\StreamingParser;
-use App\Parser\StringStream;
-use PHPUnit\Framework\TestCase;
+use App\Parser\ParserInterface;
+use JetBrains\PhpStorm\Pure;
 
-class JsonConstantStreamingTest extends TestCase
+trait ParserCombinatorsTrait
 {
-    public function testTrueValue()
+    #[Pure]
+    public function map(callable $transform): ParserInterface
     {
-        $stream = new StringStream("true");
-
-        $this->assertSame(true, $stream->consume(JsonStreamingTokenizer::boolean()));
+        return new TransformedParser(
+            $this,
+            $transform
+        );
     }
 
-    public function testFalseValue()
+    #[Pure]
+    public function reduce(callable $reducer): self
     {
-        $stream = new StringStream("false");
-
-        $this->assertSame(false, $stream->consume(JsonStreamingTokenizer::boolean()));
+        return new TransformedParser(
+            $this,
+            $reducer
+        );
     }
 
-    public function testNullValue()
+    #[Pure]
+    public function optional(): ParserInterface
     {
-        $stream = new StringStream("null");
+        return FullParser::optional($this);
+    }
 
-        $this->assertSame(null, $stream->consume(JsonStreamingTokenizer::null()));
+    #[Pure]
+    public function repeated(): ParserInterface
+    {
+        return FullParser::many($this);
+    }
+
+    #[Pure]
+    public function ignore(): ParserInterface
+    {
+        return FullParser::ignore($this);
     }
 }

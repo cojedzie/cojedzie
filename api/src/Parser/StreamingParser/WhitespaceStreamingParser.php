@@ -18,33 +18,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Tests\JsonStreamingTokenizer;
+namespace App\Parser\StreamingParser;
 
-use App\Parser\JsonStreamingTokenizer;
-use App\Parser\StreamingParser\StreamingParser;
-use App\Parser\StringStream;
-use PHPUnit\Framework\TestCase;
+use App\Parser\StreamInterface;
 
-class JsonConstantStreamingTest extends TestCase
+class WhitespaceStreamingParser extends AbstractStreamingParser
 {
-    public function testTrueValue()
+    public function label(): string
     {
-        $stream = new StringStream("true");
-
-        $this->assertSame(true, $stream->consume(JsonStreamingTokenizer::boolean()));
+        return 'whitespace';
     }
 
-    public function testFalseValue()
+    public function __invoke(StreamInterface $stream): \Generator
     {
-        $stream = new StringStream("false");
+        $output = "";
 
-        $this->assertSame(false, $stream->consume(JsonStreamingTokenizer::boolean()));
-    }
+        while ($input = $stream->peek(1)) {
+            if (ctype_space($input)) {
+                // skip whitespace
+                $output .= $stream->read(1);
+            } else {
+                break;
+            }
+        }
 
-    public function testNullValue()
-    {
-        $stream = new StringStream("null");
+        yield $output;
 
-        $this->assertSame(null, $stream->consume(JsonStreamingTokenizer::null()));
+        return true;
     }
 }

@@ -18,33 +18,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Tests\JsonStreamingTokenizer;
+namespace App\Parser\StreamingParser;
 
-use App\Parser\JsonStreamingTokenizer;
-use App\Parser\StreamingParser\StreamingParser;
-use App\Parser\StringStream;
-use PHPUnit\Framework\TestCase;
+use App\Parser\Exception\UnexpectedTokenException;
+use App\Parser\StreamInterface;
 
-class JsonConstantStreamingTest extends TestCase
+class PredicateStreamingParser extends AbstractStreamingParser
 {
-    public function testTrueValue()
-    {
-        $stream = new StringStream("true");
-
-        $this->assertSame(true, $stream->consume(JsonStreamingTokenizer::boolean()));
+    public function __construct(
+        private $predicate,
+        private int $length,
+        private string $label
+    ) {
     }
 
-    public function testFalseValue()
+    public function label(): string
     {
-        $stream = new StringStream("false");
-
-        $this->assertSame(false, $stream->consume(JsonStreamingTokenizer::boolean()));
+        return $this->label;
     }
 
-    public function testNullValue()
+    public function __invoke(StreamInterface $stream): \Generator
     {
-        $stream = new StringStream("null");
+        $input = $stream->peek($this->length);
 
-        $this->assertSame(null, $stream->consume(JsonStreamingTokenizer::null()));
+        if (!($this->predicate)($input)) {
+            throw UnexpectedTokenException::createWithExpected($input, $this->label, $stream->tell());
+        }
+
+        yield $stream->read($this->length);
+
+        return true;
     }
 }

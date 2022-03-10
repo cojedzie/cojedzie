@@ -21,16 +21,16 @@
 namespace App\Parser;
 
 use App\Parser\Exception\UnexpectedTokenException;
-use App\Parser\FullConsumer\AbstractConsumer;
-use App\Parser\FullConsumer\FullConsumer;
+use App\Parser\FullParser\AbstractParser;
+use App\Parser\FullParser\FullParser;
 use App\Parser\JsonToken\ArrayEndToken;
 use App\Parser\JsonToken\ArrayStartToken;
 use App\Parser\JsonToken\KeyToken;
 use App\Parser\JsonToken\ObjectEndToken;
 use App\Parser\JsonToken\ObjectStartToken;
 use App\Parser\JsonToken\ValueToken;
-use App\Parser\StreamingConsumer\AbstractStreamingConsumer;
-use App\Parser\StreamingConsumer\StreamingConsumer;
+use App\Parser\StreamingParser\AbstractStreamingParser;
+use App\Parser\StreamingParser\StreamingParser;
 
 class JsonStreamingTokenizer
 {
@@ -45,19 +45,19 @@ class JsonStreamingTokenizer
         };
     }
 
-    public static function object(): StreamingConsumerInterface
+    public static function object(): StreamingParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? $consumer = new class() extends AbstractStreamingConsumer {
-                private ConsumerInterface $objectEnd;
-                private ConsumerInterface $objectStart;
+        return $parser
+            ?? $parser = new class() extends AbstractStreamingParser {
+                private ParserInterface $objectEnd;
+                private ParserInterface $objectStart;
 
                 public function __construct()
                 {
-                    $this->objectStart = FullConsumer::string('{')->map(fn () => new ObjectStartToken());
-                    $this->objectEnd   = FullConsumer::string('}')->map(fn () => new ObjectEndToken());
+                    $this->objectStart = FullParser::string('{')->map(fn () => new ObjectStartToken());
+                    $this->objectEnd   = FullParser::string('}')->map(fn () => new ObjectEndToken());
                 }
 
                 public function label(): string
@@ -68,27 +68,27 @@ class JsonStreamingTokenizer
                 public function __invoke(StreamInterface $stream)
                 {
                     yield $stream->consume($this->objectStart);
-                    $stream->skip(FullConsumer::whitespace());
+                    $stream->skip(FullParser::whitespace());
                     yield from $stream->consume(JsonStreamingTokenizer::members());
-                    $stream->skip(FullConsumer::whitespace());
+                    $stream->skip(FullParser::whitespace());
                     yield $stream->consume($this->objectEnd);
                 }
             };
     }
 
-    public static function array(): StreamingConsumerInterface
+    public static function array(): StreamingParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? $consumer = new class() extends AbstractStreamingConsumer {
-                private ConsumerInterface $arrayStart;
-                private ConsumerInterface $arrayEnd;
+        return $parser
+            ?? $parser = new class() extends AbstractStreamingParser {
+                private ParserInterface $arrayStart;
+                private ParserInterface $arrayEnd;
 
                 public function __construct()
                 {
-                    $this->arrayStart = FullConsumer::string('[')->map(fn () => new ArrayStartToken());
-                    $this->arrayEnd   = FullConsumer::string(']')->map(fn () => new ArrayEndToken());
+                    $this->arrayStart = FullParser::string('[')->map(fn () => new ArrayStartToken());
+                    $this->arrayEnd   = FullParser::string(']')->map(fn () => new ArrayEndToken());
                 }
 
                 public function label(): string
@@ -99,36 +99,36 @@ class JsonStreamingTokenizer
                 public function __invoke(StreamInterface $stream)
                 {
                     yield $stream->consume($this->arrayStart);
-                    $stream->skip(FullConsumer::whitespace());
+                    $stream->skip(FullParser::whitespace());
                     yield from $stream->consume(self::values());
-                    $stream->skip(FullConsumer::whitespace());
+                    $stream->skip(FullParser::whitespace());
                     yield $stream->consume($this->arrayEnd);
                 }
 
                 public static function values()
                 {
-                    static $consumer = null;
+                    static $parser = null;
 
-                    return $consumer
-                        ?? $consumer = StreamingConsumer::separatedBy(
-                            StreamingConsumer::between(JsonStreamingTokenizer::value(), FullConsumer::whitespace()),
+                    return $parser
+                        ?? $parser = StreamingParser::separatedBy(
+                            StreamingParser::between(JsonStreamingTokenizer::value(), FullParser::whitespace()),
                             JsonStreamingTokenizer::comma(),
                         )->optional();
                 }
             };
     }
 
-    public static function string(): ConsumerInterface
+    public static function string(): ParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? new class() extends AbstractConsumer {
-                private ConsumerInterface $quote;
+        return $parser
+            ?? new class() extends AbstractParser {
+                private ParserInterface $quote;
 
                 public function __construct()
                 {
-                    $this->quote = FullConsumer::string('"');
+                    $this->quote = FullParser::string('"');
                 }
 
                 public function label(): string
@@ -165,29 +165,29 @@ class JsonStreamingTokenizer
             };
     }
 
-    public static function members(): StreamingConsumerInterface
+    public static function members(): StreamingParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? $consumer = StreamingConsumer::separatedBy(
+        return $parser
+            ?? $parser = StreamingParser::separatedBy(
                 self::member(),
                 self::comma()
             )->optional();
     }
 
-    public static function value(): StreamingConsumerInterface
+    public static function value(): StreamingParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? $consumer = new class() extends AbstractStreamingConsumer {
-                private ConsumerInterface $array;
-                private ConsumerInterface $object;
-                private ConsumerInterface $string;
-                private ConsumerInterface $boolean;
-                private ConsumerInterface $null;
-                private ConsumerInterface $number;
+        return $parser
+            ?? $parser = new class() extends AbstractStreamingParser {
+                private ParserInterface $array;
+                private ParserInterface $object;
+                private ParserInterface $string;
+                private ParserInterface $boolean;
+                private ParserInterface $null;
+                private ParserInterface $number;
 
                 public function __construct()
                 {
@@ -223,46 +223,46 @@ class JsonStreamingTokenizer
             };
     }
 
-    public static function null(): ConsumerInterface
+    public static function null(): ParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? $consumer = FullConsumer::string('null')->map(fn () => null);
+        return $parser
+            ?? $parser = FullParser::string('null')->map(fn () => null);
     }
 
-    public static function boolean(): ConsumerInterface
+    public static function boolean(): ParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? $consumer = FullConsumer::choice(
-                FullConsumer::string('true')->map(fn ()  => true),
-                FullConsumer::string('false')->map(fn () => false),
+        return $parser
+            ?? $parser = FullParser::choice(
+                FullParser::string('true')->map(fn ()  => true),
+                FullParser::string('false')->map(fn () => false),
             );
     }
 
-    public static function number(): ConsumerInterface
+    public static function number(): ParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        // this consumer is not spec compliant at all - but it's fast and working :)
-        return $consumer
-            ?? $consumer = FullConsumer::regex('[0-9\-.]')->repeated()->map(fn ($parts) => floatval(implode('', $parts)));
+        // this parser is not spec compliant at all - but it's fast and working :)
+        return $parser
+            ?? $parser = FullParser::regex('[0-9\-.]')->repeated()->map(fn ($parts) => floatval(implode('', $parts)));
     }
 
-    public static function member(): StreamingConsumerInterface
+    public static function member(): StreamingParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? new class() extends AbstractStreamingConsumer {
-                private ConsumerInterface $colon;
-                private ConsumerInterface $key;
+        return $parser
+            ?? new class() extends AbstractStreamingParser {
+                private ParserInterface $colon;
+                private ParserInterface $key;
 
                 public function __construct()
                 {
-                    $this->colon = FullConsumer::between(FullConsumer::string(':'), FullConsumer::whitespace());
+                    $this->colon = FullParser::between(FullParser::string(':'), FullParser::whitespace());
                     $this->key   = JsonStreamingTokenizer::string()->map(fn ($value) => new KeyToken($value));
                 }
 
@@ -273,20 +273,20 @@ class JsonStreamingTokenizer
 
                 public function __invoke(StreamInterface $stream)
                 {
-                    $stream->skip(FullConsumer::whitespace());
+                    $stream->skip(FullParser::whitespace());
                     yield $stream->consume($this->key);
                     $stream->skip($this->colon);
                     yield from $stream->consume(JsonStreamingTokenizer::value());
-                    $stream->skip(FullConsumer::whitespace());
+                    $stream->skip(FullParser::whitespace());
                 }
             };
     }
 
-    public static function comma(): ConsumerInterface
+    public static function comma(): ParserInterface
     {
-        static $consumer = null;
+        static $parser = null;
 
-        return $consumer
-            ?? $consumer = FullConsumer::string(',');
+        return $parser
+            ?? $parser = FullParser::string(',');
     }
 }

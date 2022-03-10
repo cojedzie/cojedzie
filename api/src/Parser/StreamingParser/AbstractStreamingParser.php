@@ -18,13 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\StreamingParser;
 
-use App\Parser\ParserInterface;
+use App\Parser\StreamingParserInterface;
 
-interface ConsumableInterface
+abstract class AbstractStreamingParser implements StreamingParserInterface
 {
-    public function consume(ParserInterface $parser): mixed;
-
-    public function skip(ParserInterface $parser);
+    use StreamingParserCombinatorsTrait;
 }
