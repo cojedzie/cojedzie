@@ -18,28 +18,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\FullConsumer;
 
-use JetBrains\PhpStorm\Pure;
+use App\Parser\ConsumerInterface;
+use App\Parser\StreamInterface;
 
-interface ConsumerInterface
+class RepeatedConsumer extends AbstractConsumer
 {
-    public function label(): string;
+    public function __construct(
+        private ConsumerInterface $consumer
+    ) {
+        $this->consumer = $this->consumer->optional();
+    }
 
-    #[Pure]
-    public function map(callable $transform): ConsumerInterface;
+    public function label(): string
+    {
+        return "multiple " . $this->consumer->label();
+    }
 
-    #[Pure]
-    public function reduce(callable $transform): ConsumerInterface;
+    public function __invoke(StreamInterface $stream)
+    {
+        $results = [];
 
-    #[Pure]
-    public function optional(): ConsumerInterface;
+        while (true) {
+            if (!FullConsumer::isValid($result = $stream->consume($this->consumer))) {
+                return $results;
+            }
 
-    #[Pure]
-    public function repeated(): ConsumerInterface;
-
-    #[Pure]
-    public function ignore(): ConsumerInterface;
-
-    public function __invoke(StreamInterface $stream);
+            $results[] = $result;
+        }
+    }
 }

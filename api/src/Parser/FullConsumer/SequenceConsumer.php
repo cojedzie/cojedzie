@@ -18,28 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\FullConsumer;
 
-use JetBrains\PhpStorm\Pure;
+use App\Parser\ConsumerInterface;
+use App\Parser\StreamInterface;
 
-interface ConsumerInterface
+class SequenceConsumer extends AbstractConsumer
 {
-    public function label(): string;
+    private array $consumers;
 
-    #[Pure]
-    public function map(callable $transform): ConsumerInterface;
+    public function __construct(ConsumerInterface ...$consumers)
+    {
+        $this->consumers = $consumers;
+    }
 
-    #[Pure]
-    public function reduce(callable $transform): ConsumerInterface;
+    public function label(): string
+    {
+        return implode(' then ', array_map(fn (ConsumerInterface $consumer) => $consumer->label(), $this->consumers));
+    }
 
-    #[Pure]
-    public function optional(): ConsumerInterface;
-
-    #[Pure]
-    public function repeated(): ConsumerInterface;
-
-    #[Pure]
-    public function ignore(): ConsumerInterface;
-
-    public function __invoke(StreamInterface $stream);
+    public function __invoke(StreamInterface $stream)
+    {
+        return array_map($stream->consume(...), $this->consumers);
+    }
 }

@@ -21,9 +21,11 @@
 namespace App\Parser\FullConsumer;
 
 use App\Parser\ConsumerInterface;
+use JetBrains\PhpStorm\Pure;
 
 trait ConsumerHelpersTrait
 {
+    #[Pure]
     public function map(callable $transform): ConsumerInterface
     {
         return new TransformedConsumer(
@@ -32,6 +34,7 @@ trait ConsumerHelpersTrait
         );
     }
 
+    #[Pure]
     public function reduce(callable $reducer): self
     {
         return new TransformedConsumer(
@@ -40,16 +43,19 @@ trait ConsumerHelpersTrait
         );
     }
 
+    #[Pure]
     public function optional(): ConsumerInterface
     {
         return FullConsumer::optional($this);
     }
 
+    #[Pure]
     public function repeated(): ConsumerInterface
     {
         return FullConsumer::many($this);
     }
 
+    #[Pure]
     public function ignore(): ConsumerInterface
     {
         return FullConsumer::ignore($this);

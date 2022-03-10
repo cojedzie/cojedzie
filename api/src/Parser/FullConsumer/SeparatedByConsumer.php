@@ -22,6 +22,7 @@ namespace App\Parser\FullConsumer;
 
 use App\Parser\ConsumerInterface;
 use App\Parser\StreamInterface;
+use JetBrains\PhpStorm\Pure;
 
 class SeparatedByConsumer extends AbstractConsumer
 {
@@ -41,6 +42,7 @@ class SeparatedByConsumer extends AbstractConsumer
         );
     }
 
+    #[Pure]
     public function map(callable $transform): ConsumerInterface
     {
         return new static(

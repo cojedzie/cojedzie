@@ -20,16 +20,23 @@
 
 namespace App\Parser;
 
+use JetBrains\PhpStorm\Pure;
+
 interface StreamingConsumerInterface extends ConsumerInterface
 {
+    #[Pure]
     public function map(callable $transform): self;
 
+    #[Pure]
     public function reduce(callable $transform): self;
 
+    #[Pure]
     public function optional(): self;
 
+    #[Pure]
     public function repeated(): self;
 
+    #[Pure]
     public function ignore(): self;
 
     public function __invoke(StreamInterface $stream);

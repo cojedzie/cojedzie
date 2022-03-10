@@ -21,43 +21,31 @@
 namespace App\Parser\StreamingConsumer;
 
 use App\Parser\StreamingConsumerInterface;
-use JetBrains\PhpStorm\Pure;
+use App\Parser\StreamInterface;
 
-trait StreamingConsumerHelpersTrait
+class RepeatedConsumer extends AbstractStreamingConsumer
 {
-    #[Pure]
-    public function map(callable $transform): StreamingConsumerInterface
-    {
-        return new TransformedStreamingConsumer(
-            $this,
-            $transform
-        );
+    public function __construct(
+        private StreamingConsumerInterface $consumer
+    ) {
+        $this->consumer = $this->consumer->optional();
     }
 
-    #[Pure]
-    public function reduce(callable $reducer): self
+    public function label(): string
     {
-        return new ReducedStreamingConsumer(
-            $this,
-            $reducer
-        );
+        return "multiple " . $this->consumer->label();
     }
 
-    #[Pure]
-    public function optional(): StreamingConsumerInterface
+    public function __invoke(StreamInterface $stream)
     {
-        return StreamingConsumer::optional($this);
-    }
+        $successful = false;
 
-    #[Pure]
-    public function repeated(): StreamingConsumerInterface
-    {
-        return StreamingConsumer::many($this);
-    }
+        do {
+            $result = $stream->consume($this->consumer);
+            yield from $result;
+            $successful = $successful || StreamingConsumer::isValid($result);
+        } while (StreamingConsumer::isValid($result));
 
-    #[Pure]
-    public function ignore(): StreamingConsumerInterface
-    {
-        return StreamingConsumer::ignore($this);
+        return $successful;
     }
 }

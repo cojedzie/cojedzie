@@ -22,6 +22,7 @@ namespace App\Parser\FullConsumer;
 
 use App\Parser\ConsumerInterface;
 use App\Parser\StreamInterface;
+use JetBrains\PhpStorm\Pure;
 use function Kadet\Functional\Predicates\same;
 
 final class FullConsumer
@@ -30,6 +31,7 @@ final class FullConsumer
     {
     }
 
+    #[Pure]
     public static function string(string $string): ConsumerInterface
     {
         return new PredicateConsumer(
@@ -39,16 +41,18 @@ final class FullConsumer
         );
     }
 
+    #[Pure]
     public static function regex(string $pattern, string $flags = ''): ConsumerInterface
     {
-        $pattern = sprintf('/%s/%s', $pattern, $flags);
+        $regex = sprintf('/%s/%s', $pattern, $flags);
         return new PredicateConsumer(
-            fn ($char) => preg_match($pattern, $char),
+            fn ($char) => preg_match($regex, $char),
             1,
             $pattern,
         );
     }
 
+    #[Pure]
     public static function whitespace(): ConsumerInterface
     {
         static $consumer = null;
@@ -57,70 +61,61 @@ final class FullConsumer
             ?? $consumer = new WhitespaceConsumer();
     }
 
+    #[Pure]
     public static function optional(ConsumerInterface $consumer): OptionalConsumer
     {
         return $consumer instanceof OptionalConsumer ? $consumer : new OptionalConsumer($consumer);
     }
 
+    #[Pure]
     public static function separatedBy(ConsumerInterface $consumer, ConsumerInterface $separator): SeparatedByConsumer
     {
         return new SeparatedByConsumer($consumer, $separator);
     }
 
+    #[Pure]
     public static function between(ConsumerInterface $consumer, ConsumerInterface $left, ConsumerInterface $right = null)
     {
         return new BetweenConsumer($consumer, $left, $right);
     }
 
+    #[Pure]
     public static function choice(ConsumerInterface ...$consumers): ConsumerInterface
     {
         return new AnyConsumer(...$consumers);
     }
 
+    #[Pure]
     public static function sequence(ConsumerInterface ...$consumers): ConsumerInterface
     {
-        return new CallbackConsumer(
-            function (StreamInterface $stream) use ($consumers) {
-                return array_map($stream->consume(...), $consumers);
-            },
-            implode(' then ', array_map(fn (ConsumerInterface $consumer) => $consumer->label(), $consumers)),
-        );
+        return new SequenceConsumer(...$consumers);
     }
 
+    #[Pure]
     public static function ignore(ConsumerInterface $consumer): ConsumerInterface
     {
         return $consumer instanceof IgnoredConsumer ? $consumer : new IgnoredConsumer($consumer);
     }
 
+    #[Pure]
     public static function many(ConsumerInterface $consumer): ConsumerInterface
     {
-        $consumer = FullConsumer::optional($consumer);
-        return new CallbackConsumer(
-            static function (StreamInterface $stream) use ($consumer) {
-                $results = [];
-
-                while (true) {
-                    if (!FullConsumer::isValid($result = $stream->consume($consumer))) {
-                        return $results;
-                    }
-
-                    $results[] = $result;
-                }
-            },
-            sprintf("multiple %s", $consumer->label())
-        );
+        return new RepeatedConsumer($consumer);
     }
 
+    #[Pure]
     public static function isEmpty($result): bool
     {
         return !self::isValid($result);
     }
 
+    #[Pure]
     public static function result($result)
     {
         return $result;
     }
 
+    #[Pure]
     public static function isValid($result): bool
     {
         return $result !== null;

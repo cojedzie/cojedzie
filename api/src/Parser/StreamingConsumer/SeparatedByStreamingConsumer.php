@@ -24,6 +24,7 @@ use App\Parser\Consumer;
 use App\Parser\ConsumerInterface;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
+use JetBrains\PhpStorm\Pure;
 
 class SeparatedByStreamingConsumer extends AbstractStreamingConsumer
 {
@@ -43,6 +44,7 @@ class SeparatedByStreamingConsumer extends AbstractStreamingConsumer
         );
     }
 
+    #[Pure]
     public function map(callable $transform): StreamingConsumerInterface
     {
         return new static(
