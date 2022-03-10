@@ -20,18 +20,19 @@
 
 namespace App\Parser\StreamingConsumer;
 
+use App\Parser\ConsumerInterface;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
 class BetweenStreamingConsumer extends AbstractStreamingConsumer
 {
-    private StreamingConsumerInterface $left;
-    private StreamingConsumerInterface $right;
+    private ConsumerInterface $left;
+    private ConsumerInterface $right;
 
     public function __construct(
         private StreamingConsumerInterface $value,
-        StreamingConsumerInterface $left,
-        StreamingConsumerInterface $right = null,
+        ConsumerInterface $left,
+        ConsumerInterface $right = null,
     ) {
         $this->left  = $left;
         $this->right = $right ?: $left;

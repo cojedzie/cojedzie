@@ -54,8 +54,26 @@ tasks:
 
   benchmark:api:
     desc: Benchmark API component with phpbench
+    vars:
+      REPORT: default
     cmds:
-      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api php -d opcache.enable_cli=1 vendor/bin/phpbench {{.CLI_ARGS}}
+      - >
+        docker-compose run 
+        --rm -e APP_MODE=benchmark {{.DOCKER_FLAGS}} 
+        api vendor/bin/phpbench 
+        --php-config="opcache.enable: 1, opcache.enable_cli: 1{{if .PHP_CONFIG}}, {{end}}{{.PHP_CONFIG}}"
+        run tests --report={{.REPORT}} {{.CLI_ARGS}}
+
+  benchmark:profile:api:
+    desc: Benchmark API component with phpbench
+    vars:
+      REPORT: default
+    cmds:
+      - >
+        docker-compose run 
+        --rm -e {{.DOCKER_FLAGS}} 
+        api vendor/bin/phpbench 
+        xdebug:profile tests --report={{.REPORT}} {{.CLI_ARGS}}
 
   frontend:yarn:
     desc: Execute yarn command

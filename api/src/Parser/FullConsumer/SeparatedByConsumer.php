@@ -21,7 +21,6 @@
 namespace App\Parser\FullConsumer;
 
 use App\Parser\ConsumerInterface;
-use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
 class SeparatedByConsumer extends AbstractConsumer
