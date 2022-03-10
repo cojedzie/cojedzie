@@ -25,9 +25,8 @@ use App\Parser\Exception\EndOfStreamException;
 class GeneratorStringStream implements StreamInterface
 {
     use PositionTrait, ConsumableTrait;
-
     private string $buffer = "";
-    private int $offset = 0;
+    private int $offset    = 0;
 
     public function __construct(
         private \Generator $generator

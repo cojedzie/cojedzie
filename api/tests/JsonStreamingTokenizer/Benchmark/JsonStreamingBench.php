@@ -30,19 +30,21 @@ class JsonStreamingBench
     public function benchSimpleObject()
     {
         $parser = new JsonStreamingTokenizer();
-        $stream = new FileStringStream(__DIR__.'/../stubs/test_1.json');
+        $stream = new FileStringStream(__DIR__ . '/../stubs/test_1.json');
 
         /** @noinspection PhpStatementHasEmptyBodyInspection */
-        foreach ($parser->parse($stream) as $token) { }
+        foreach ($parser->parse($stream) as $token) {
+        }
     }
 
     #[Revs(5)]
     public function benchZtmLines()
     {
         $parser = new JsonStreamingTokenizer();
-        $stream = new FileStringStream(__DIR__.'/../stubs/ztm_lines.json');
+        $stream = new FileStringStream(__DIR__ . '/../stubs/ztm_lines.json');
 
         /** @noinspection PhpStatementHasEmptyBodyInspection */
-        foreach ($parser->parse($stream) as $token) { }
+        foreach ($parser->parse($stream) as $token) {
+        }
     }
 }

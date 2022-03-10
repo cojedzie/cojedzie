@@ -25,14 +25,13 @@ use App\Parser\Exception\EndOfStreamException;
 class FileStringStream implements StreamInterface
 {
     use PositionTrait, ConsumableTrait;
-
     private $handle;
-    private string $buffer = "";
+    private string $buffer  = "";
     private int $bufferSize = 0;
 
     public function __construct(string $filename)
     {
-        $this->handle = fopen($filename, 'rb');
+        $this->handle   = fopen($filename, 'rb');
         $this->position = new Position();
     }
 

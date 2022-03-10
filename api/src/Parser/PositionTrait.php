@@ -32,7 +32,7 @@ trait PositionTrait
     private function advance(string $slice, int $length)
     {
         if ($length === 1) {
-            $nl = $slice === "\n";
+            $nl             = $slice === "\n";
             $this->position = new Position(
                 offset: $this->position->offset + $length,
                 line: $this->position->line + $nl,
@@ -40,7 +40,7 @@ trait PositionTrait
             );
         } else {
             $lines = preg_split('/\R/', $slice);
-            $last = end($lines);
+            $last  = end($lines);
 
             $this->position = new Position(
                 offset: $this->position->offset + $length,

@@ -20,8 +20,8 @@
 
 namespace App\Tests\JsonStreamingTokenizer;
 
-use App\Parser\StreamingConsumer\StreamingConsumer;
 use App\Parser\JsonStreamingTokenizer;
+use App\Parser\StreamingConsumer\StreamingConsumer;
 use App\Parser\StringStream;
 use PHPUnit\Framework\TestCase;
 
