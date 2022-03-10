@@ -23,7 +23,6 @@ namespace App\Parser\StreamingConsumer;
 use App\Parser\ConsumerInterface;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
-use function Kadet\Functional\Predicates\same;
 
 final class StreamingConsumer
 {
@@ -34,7 +33,7 @@ final class StreamingConsumer
     public static function string(string $string): StreamingConsumerInterface
     {
         return new PredicateStreamingConsumer(
-            same($string),
+            fn ($input) => $input === $string,
             strlen($string),
             $string,
         );
@@ -42,8 +41,9 @@ final class StreamingConsumer
 
     public static function regex(string $pattern, string $flags = ''): StreamingConsumerInterface
     {
+        $pattern = sprintf('/%s/%s', $pattern, $flags);
         return new PredicateStreamingConsumer(
-            fn ($char) => preg_match(sprintf('/%s/%s', $pattern, $flags), $char),
+            fn ($char) => preg_match($pattern, $char),
             1,
             $pattern,
         );
@@ -62,12 +62,12 @@ final class StreamingConsumer
         return $consumer instanceof OptionalStreamingConsumer ? $consumer : new OptionalStreamingConsumer($consumer);
     }
 
-    public static function separatedBy(StreamingConsumerInterface $consumer, StreamingConsumerInterface $separator): SeparatedByStreamingConsumer
+    public static function separatedBy(StreamingConsumerInterface $consumer, ConsumerInterface $separator): SeparatedByStreamingConsumer
     {
         return new SeparatedByStreamingConsumer($consumer, $separator);
     }
 
-    public static function between(StreamingConsumerInterface $consumer, StreamingConsumerInterface $left, StreamingConsumerInterface $right = null)
+    public static function between(StreamingConsumerInterface $consumer, ConsumerInterface $left, ConsumerInterface $right = null)
     {
         return new BetweenStreamingConsumer($consumer, $left, $right);
     }
@@ -79,19 +79,7 @@ final class StreamingConsumer
 
     public static function sequence(StreamingConsumerInterface ...$consumers): StreamingConsumerInterface
     {
-        return new CallbackStreamingConsumer(
-            function (StreamInterface $stream) use ($consumers) {
-                foreach ($consumers as $consumer) {
-                    $generator = $stream->consume($consumer);
-                    foreach ($generator as $result) {
-                        yield $result;
-                    }
-                }
-
-                return true;
-            },
-            implode(' then ', array_map(fn (StreamingConsumerInterface $consumer) => $consumer->label(), $consumers)),
-        );
+        return new SequenceStreamingConsumer(...$consumers);
     }
 
     public static function ignore(StreamingConsumerInterface $consumer): StreamingConsumerInterface
@@ -101,12 +89,12 @@ final class StreamingConsumer
 
     public static function many(StreamingConsumerInterface $consumer): StreamingConsumerInterface
     {
+        $consumer = StreamingConsumer::optional($consumer);
         return new CallbackStreamingConsumer(
             static function (StreamInterface $stream) use ($consumer) {
                 $successful = false;
-
                 do {
-                    $result = $stream->consume(StreamingConsumer::optional($consumer));
+                    $result = $stream->consume($consumer);
                     yield from $result;
                     $successful = $successful || StreamingConsumer::isValid($result);
                 } while (StreamingConsumer::isValid($result));

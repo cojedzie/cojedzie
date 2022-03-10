@@ -27,4 +27,6 @@ WORKDIR /var/www
 
 EXPOSE 9001
 
-#ENTRYPOINT ["./bin/docker-entrypoint.sh"]
+ENV APP_MODE="debug"
+
+ENTRYPOINT ["./bin/docker-dev-entrypoint.sh"]

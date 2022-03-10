@@ -20,44 +20,28 @@
 
 namespace App\Parser\StreamingConsumer;
 
-use App\Parser\Consumer;
-use App\Parser\ConsumerInterface;
 use App\Parser\StreamingConsumerInterface;
 use App\Parser\StreamInterface;
 
-class SeparatedByStreamingConsumer extends AbstractStreamingConsumer
+class SequenceStreamingConsumer extends AbstractStreamingConsumer
 {
-    public function __construct(
-        private StreamingConsumerInterface $value,
-        private ConsumerInterface $separator
-    ) {
-        $this->separator = $this->separator->optional();
+    private array $consumers;
+
+    public function __construct(StreamingConsumerInterface ...$consumers)
+    {
+        $this->consumers = $consumers;
     }
 
     public function label(): string
     {
-        return sprintf(
-            "%s separated by %s",
-            $this->value->label(),
-            $this->separator->label()
-        );
+        return implode(' then ', array_map(fn ($consumer) => $consumer->label(), $this->consumers));
     }
 
-    public function map(callable $transform): StreamingConsumerInterface
+    public function __invoke(StreamInterface $stream)
     {
-        return new static(
-            $this->value->map($transform),
-            $this->separator,
-        );
-    }
-
-    public function __invoke(StreamInterface $stream): \Generator
-    {
-        do {
-            yield from $stream->consume($this->value);
-
-            $separator = $stream->skip($this->separator);
-        } while (Consumer::isValid($separator));
+        foreach ($this->consumers as $consumer) {
+            yield from $stream->consume($consumer);
+        }
 
         return true;
     }

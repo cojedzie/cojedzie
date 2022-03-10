@@ -33,7 +33,7 @@ final class FullConsumer
     public static function string(string $string): ConsumerInterface
     {
         return new PredicateConsumer(
-            same($string),
+            fn ($input) => $input === $string,
             strlen($string),
             $string,
         );
@@ -94,19 +94,18 @@ final class FullConsumer
 
     public static function many(ConsumerInterface $consumer): ConsumerInterface
     {
+        $consumer = FullConsumer::optional($consumer);
         return new CallbackConsumer(
             static function (StreamInterface $stream) use ($consumer) {
                 $results = [];
 
-                do {
-                    if (!FullConsumer::isValid($result = $stream->consume(FullConsumer::optional($consumer)))) {
+                while (true) {
+                    if (!FullConsumer::isValid($result = $stream->consume($consumer))) {
                         return $results;
                     }
 
                     $results[] = $result;
-                } while (FullConsumer::isValid($result));
-
-                return null;
+                }
             },
             sprintf("multiple %s", $consumer->label())
         );

@@ -18,31 +18,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Tests\JsonStreamingTokenizer\Benchmark;
+namespace App\Parser;
 
-use App\Parser\FileStringStream;
-use App\Parser\JsonStreamingTokenizer;
-use PhpBench\Attributes\Revs;
+use App\Parser\FullConsumer\FullConsumer;
+use App\Parser\StreamingConsumer\StreamingConsumer;
 
-class JsonStreamingBench
+final class Consumer
 {
-    #[Revs(100)]
-    public function benchSimpleObject()
+    private function __construct()
     {
-        $parser = new JsonStreamingTokenizer();
-        $stream = new FileStringStream(__DIR__.'/../stubs/test_1.json');
-
-        /** @noinspection PhpStatementHasEmptyBodyInspection */
-        foreach ($parser->parse($stream) as $token) { }
     }
 
-    #[Revs(5)]
-    public function benchZtmLines()
-    {
-        $parser = new JsonStreamingTokenizer();
-        $stream = new FileStringStream(__DIR__.'/../stubs/ztm_lines.json');
+    public static function isValid($result) {
+        return $result instanceof \Generator
+            ? StreamingConsumer::isValid($result)
+            : FullConsumer::isValid($result);
+    }
 
-        /** @noinspection PhpStatementHasEmptyBodyInspection */
-        foreach ($parser->parse($stream) as $token) { }
+    public static function result($result) {
+        return $result instanceof \Generator
+            ? StreamingConsumer::result($result)
+            : FullConsumer::result($result);
+    }
+
+    public static function isEmpty($result) {
+        return $result instanceof \Generator
+            ? StreamingConsumer::isEmpty($result)
+            : FullConsumer::isEmpty($result);
     }
 }

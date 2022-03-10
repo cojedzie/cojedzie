@@ -20,6 +20,8 @@
 
 namespace App\Parser;
 
+use App\Parser\Exception\EndOfStreamException;
+
 class FileStringStream implements StreamInterface
 {
     use PositionTrait, ConsumableTrait;
@@ -47,8 +49,12 @@ class FileStringStream implements StreamInterface
 
     public function peek(int $max)
     {
+        if ($this->eof()) {
+            throw new EndOfStreamException();
+        }
+
         if ($this->bufferSize < $max) {
-            $chunk = fread($this->handle, $max - strlen($this->buffer) + 1024);
+            $chunk = stream_get_line($this->handle, $max - $this->bufferSize + 1024, PHP_EOL);
             $this->buffer .= $chunk;
             $this->bufferSize += strlen($chunk);
         }
@@ -58,7 +64,7 @@ class FileStringStream implements StreamInterface
 
     public function eof(): bool
     {
-        return empty($this->buffer) && feof($this->handle);
+        return feof($this->handle) && empty($this->buffer);
     }
 
     public function __destruct()
