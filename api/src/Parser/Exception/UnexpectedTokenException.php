@@ -21,7 +21,6 @@
 namespace App\Parser\Exception;
 
 use App\Parser\PositionInterface;
-use App\Parser\StringPosition;
 use JetBrains\PhpStorm\Pure;
 
 class UnexpectedTokenException extends \RuntimeException

@@ -114,7 +114,6 @@ final class StreamingParser
 
     public static function isValid(\Generator $result): bool
     {
-        $result->current();
         return $result->valid() || $result->getReturn();
     }
 

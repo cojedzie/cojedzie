@@ -34,7 +34,7 @@ class StringPosition implements PositionInterface
         $length = $length ?: strlen($slice);
 
         if ($length === 1) {
-            $nl             = $slice === "\n";
+            $nl = $slice === "\n";
             return new StringPosition(
                 offset: $this->offset + $length,
                 line: $this->line + $nl,

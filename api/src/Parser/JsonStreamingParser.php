@@ -20,6 +20,7 @@
 
 namespace App\Parser;
 
+use App\Parser\Exception\FullyParsedException;
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\FullParser\AbstractParser;
 use App\Parser\FullParser\FullParser;
@@ -28,13 +29,13 @@ use App\Parser\JsonToken\ArrayStartToken;
 use App\Parser\JsonToken\KeyToken;
 use App\Parser\JsonToken\ObjectEndToken;
 use App\Parser\JsonToken\ObjectStartToken;
+use App\Parser\JsonToken\ValueToken;
 use App\Parser\StreamingParser\AbstractStreamingParser;
-use App\Parser\StreamingParser\StreamingParser;
 
 class JsonStreamingParser extends AbstractStreamingParser
 {
     public function __construct(
-        private string $path
+        private $checker
     ) {
     }
 
@@ -45,43 +46,53 @@ class JsonStreamingParser extends AbstractStreamingParser
 
     public function __invoke(StreamInterface $stream): \Generator
     {
-        yield from $stream->consume($this->value());
+        try {
+            yield from $stream->consume($this->value());
+        } catch (FullyParsedException) {
+            // ignore
+        }
     }
 
     public function value(string $path = '')
     {
-        if (fnmatch($this->path, $path)) {
-            return JsonValueAccumulatorParser::value()->streamify();
-        }
+        return match (($this->checker)($path)) {
+            PathDecision::Consume => JsonValueAccumulatorParser::value()->streamify(),
+            PathDecision::Continue => new class($path, $this) extends AbstractStreamingParser {
+                public function __construct(
+                    private string $path,
+                    private JsonStreamingParser $json,
+                ) {
+                }
 
-        return new class($path, $this) extends AbstractStreamingParser {
-            public function __construct(
-                private string $path,
-                private JsonStreamingParser $json,
-            ) {
-            }
+                public function label(): string
+                {
+                    return "JSON object";
+                }
 
-            public function label(): string
-            {
-                return "JSON object";
-            }
+                public function __invoke(StreamInterface $stream)
+                {
+                    $token = $stream->peek()->first();
 
-            public function __invoke(StreamInterface $stream)
-            {
-                $token = $stream->peek()->first();
-
-                match (true) {
-                    $token instanceof ObjectStartToken => yield from $stream->consume($this->json->object($this->path)),
-                    $token instanceof ArrayStartToken  => yield from $stream->consume($this->json->array($this->path)),
-                    default                            => null,
-                };
-
-                return null;
-            }
+                    switch (true) {
+                        case $token instanceof ObjectStartToken:
+                            yield from $stream->consume($this->json->object($this->path));
+                            return true;
+                        case $token instanceof ArrayStartToken:
+                            yield from $stream->consume($this->json->array($this->path));
+                            return true;
+                        case $token instanceof ValueToken:
+                            $stream->read();
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+            },
+            PathDecision::Stop => throw new FullyParsedException(),
         };
     }
 
-    public function object(string $path = "")
+    public function object(string $path = ""): ParserInterface
     {
         return new class($path, $this) extends AbstractParser {
             private ParserInterface $objectStart;
@@ -115,7 +126,7 @@ class JsonStreamingParser extends AbstractStreamingParser
         };
     }
 
-    public function array(string $path = "")
+    public function array(string $path = ""): ParserInterface
     {
         return new class($path, $this) extends AbstractParser {
             private ParserInterface $arrayStart;
@@ -139,10 +150,15 @@ class JsonStreamingParser extends AbstractStreamingParser
                 $stream->consume($this->arrayStart);
 
                 $index = 0;
-                while (StreamingParser::isValid($result = $stream->consume($this->json->value("{$this->path}.{$index}")))) {
+                while ($result = $stream->consume($this->json->value("{$this->path}.{$index}"))) {
                     foreach ($result as $value) {
                         yield $value;
                     }
+
+                    if (!$result->getReturn()) {
+                        break;
+                    }
+
                     $index++;
                 }
 
@@ -178,5 +194,19 @@ class JsonStreamingParser extends AbstractStreamingParser
                     return $stream->read()->first();
                 }
             };
+    }
+
+    public static function path(string $pattern)
+    {
+        return function ($path) use ($pattern) {
+            static $state = 'waiting';
+
+            if (fnmatch($pattern, $path)) {
+                $state = 'consuming';
+                return PathDecision::Consume;
+            }
+
+            return $state === 'waiting' ? PathDecision::Continue : PathDecision::Stop;
+        };
     }
 }

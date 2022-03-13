@@ -26,7 +26,6 @@ use App\Parser\StringStream;
 use App\Parser\TokenizedStream;
 use App\Tests\Utils\StreamTestAssertions;
 use PHPUnit\Framework\TestCase;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\iterator;
 
 class JsonStreamingParserTest extends TestCase
 {

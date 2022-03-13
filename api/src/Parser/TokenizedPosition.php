@@ -23,7 +23,7 @@ namespace App\Parser;
 class TokenizedPosition implements PositionInterface
 {
     public function __construct(
-       public readonly int $offset
+        public readonly int $offset
     ) {
     }
 

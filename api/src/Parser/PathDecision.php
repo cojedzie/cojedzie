@@ -18,28 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\FullParser;
+namespace App\Parser;
 
-use App\Parser\ParserInterface;
-use App\Parser\StreamInterface;
-
-class TransformedParser extends AbstractParser
+enum PathDecision
 {
-    public function __construct(
-        private ParserInterface $parser,
-        private $transform,
-    ) {
-    }
-
-    public function label(): string
-    {
-        return $this->parser->label();
-    }
-
-    public function __invoke(StreamInterface $stream)
-    {
-        $result = ($this->parser)($stream);
-
-        return ($this->transform)($result);
-    }
+    case Continue;
+    case Consume;
+    case Stop;
 }

@@ -20,10 +20,13 @@
 
 namespace App\Tests\JsonStreamingParser;
 
+use App\Parser\FileStringStream;
 use App\Parser\JsonStreamingParser;
 use App\Parser\JsonStreamingTokenizer;
+use App\Parser\PathDecision;
 use App\Parser\StringStream;
 use App\Parser\TokenizedStream;
+use PhpBench\Attributes\Revs;
 
 class JsonStreamingParserBench
 {
@@ -38,7 +41,40 @@ class JsonStreamingParserBench
             new JsonStreamingTokenizer(),
         );
 
-        $parser = new JsonStreamingParser('.results.*');
+        $parser = new JsonStreamingParser(
+            fn ($path) => fnmatch('.results.*', $path)
+                ? PathDecision::Consume
+                : PathDecision::Continue
+        );
+
+        foreach ($parser($stream) as $_) {
+            // noop
+        }
+    }
+
+    #[Revs(10)]
+    public function benchParsingZtmLines()
+    {
+        $stream = new TokenizedStream(
+            new FileStringStream(__DIR__ . '/../JsonStreamingTokenizer/stubs/ztm_lines.json'),
+            new JsonStreamingTokenizer(),
+        );
+
+        $parser = new JsonStreamingParser(JsonStreamingParser::path('.2022-03-07.routes.*'));
+
+        foreach ($parser($stream) as $_) {
+            // noop
+        }
+    }
+
+    public function benchParsingZtmStopsInTrip()
+    {
+        $stream = new TokenizedStream(
+            new FileStringStream(__DIR__ . '/../JsonStreamingTokenizer/stubs/ztm_stops_in_trip.json'),
+            new JsonStreamingTokenizer(),
+        );
+
+        $parser = new JsonStreamingParser(JsonStreamingParser::path('.2022-03-07.stopsInTrip.*'));
 
         foreach ($parser($stream) as $_) {
             // noop
