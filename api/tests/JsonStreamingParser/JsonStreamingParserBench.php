@@ -21,9 +21,9 @@
 namespace App\Tests\JsonStreamingParser;
 
 use App\Parser\FileStringStream;
-use App\Parser\JsonStreamingParser;
-use App\Parser\JsonStreamingTokenizer;
-use App\Parser\PathDecision;
+use App\Parser\Json\BranchPathDecider;
+use App\Parser\Json\JsonStreamingParser;
+use App\Parser\Json\JsonStreamingTokenizer;
 use App\Parser\StringStream;
 use App\Parser\TokenizedStream;
 use PhpBench\Attributes\Revs;
@@ -41,11 +41,7 @@ class JsonStreamingParserBench
             new JsonStreamingTokenizer(),
         );
 
-        $parser = new JsonStreamingParser(
-            fn ($path) => fnmatch('.results.*', $path)
-                ? PathDecision::Consume
-                : PathDecision::Continue
-        );
+        $parser = new JsonStreamingParser(new BranchPathDecider('2022-03-07.routes'));
 
         foreach ($parser($stream) as $_) {
             // noop
@@ -60,7 +56,7 @@ class JsonStreamingParserBench
             new JsonStreamingTokenizer(),
         );
 
-        $parser = new JsonStreamingParser(JsonStreamingParser::path('.2022-03-07.routes.*'));
+        $parser = new JsonStreamingParser(new BranchPathDecider('2022-03-07.routes'));
 
         foreach ($parser($stream) as $_) {
             // noop
@@ -74,7 +70,7 @@ class JsonStreamingParserBench
             new JsonStreamingTokenizer(),
         );
 
-        $parser = new JsonStreamingParser(JsonStreamingParser::path('.2022-03-07.stopsInTrip.*'));
+        $parser = new JsonStreamingParser(new BranchPathDecider('2022-03-07.stopsInTrip'));
 
         foreach ($parser($stream) as $_) {
             // noop

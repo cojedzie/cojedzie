@@ -18,19 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\Json;
 
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\FullParser\AbstractParser;
 use App\Parser\FullParser\FullParser;
-use App\Parser\JsonToken\ArrayEndToken;
-use App\Parser\JsonToken\ArrayStartToken;
-use App\Parser\JsonToken\KeyToken;
-use App\Parser\JsonToken\ObjectEndToken;
-use App\Parser\JsonToken\ObjectStartToken;
-use App\Parser\JsonToken\ValueToken;
+use App\Parser\Json\JsonToken\ArrayEndToken;
+use App\Parser\Json\JsonToken\ArrayStartToken;
+use App\Parser\Json\JsonToken\KeyToken;
+use App\Parser\Json\JsonToken\ObjectEndToken;
+use App\Parser\Json\JsonToken\ObjectStartToken;
+use App\Parser\Json\JsonToken\ValueToken;
+use App\Parser\ParserInterface;
 use App\Parser\StreamingParser\AbstractStreamingParser;
 use App\Parser\StreamingParser\StreamingParser;
+use App\Parser\StreamingParserInterface;
+use App\Parser\StreamInterface;
 
 class JsonStreamingTokenizer extends AbstractStreamingParser
 {

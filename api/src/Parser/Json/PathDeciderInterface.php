@@ -18,21 +18,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\JsonToken;
+namespace App\Parser\Json;
 
-class ValueToken implements JsonToken
+interface PathDeciderInterface
 {
-    public function __construct(
-        public readonly ValueTokenType $type,
-        public readonly float|int|string|bool|null $value
-    ) {
-    }
-
-    public static function createFromValue($value)
-    {
-        return new self(
-            ValueTokenType::createFromValue($value),
-            $value
-        );
-    }
+    public function decide(string $path): PathDecision;
 }

@@ -18,8 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\JsonToken;
+namespace App\Parser\Json;
 
-class ArrayEndToken implements JsonToken
+enum PathDecision
 {
+    case Continue;
+    case Consume;
+    case Stop;
 }

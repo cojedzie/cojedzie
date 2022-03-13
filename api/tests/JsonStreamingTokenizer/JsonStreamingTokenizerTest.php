@@ -21,7 +21,7 @@
 namespace App\Tests\JsonStreamingTokenizer;
 
 use App\Parser\GeneratorStringStream;
-use App\Parser\JsonStreamingTokenizer;
+use App\Parser\Json\JsonStreamingTokenizer;
 use PHPUnit\Framework\TestCase;
 
 class JsonStreamingTokenizerTest extends TestCase

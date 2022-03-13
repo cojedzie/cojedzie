@@ -20,9 +20,9 @@
 
 namespace App\Tests\Utils;
 
-use App\Parser\JsonToken\KeyToken;
-use App\Parser\JsonToken\ValueToken;
-use App\Parser\JsonToken\ValueTokenType;
+use App\Parser\Json\JsonToken\KeyToken;
+use App\Parser\Json\JsonToken\ValueToken;
+use App\Parser\Json\JsonToken\ValueTokenType;
 
 trait JsonTokenizerAssertions
 {

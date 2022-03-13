@@ -18,24 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\Json;
 
 use App\Parser\Exception\FullyParsedException;
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Parser\FullParser\AbstractParser;
 use App\Parser\FullParser\FullParser;
-use App\Parser\JsonToken\ArrayEndToken;
-use App\Parser\JsonToken\ArrayStartToken;
-use App\Parser\JsonToken\KeyToken;
-use App\Parser\JsonToken\ObjectEndToken;
-use App\Parser\JsonToken\ObjectStartToken;
-use App\Parser\JsonToken\ValueToken;
+use App\Parser\Json\JsonToken\ArrayEndToken;
+use App\Parser\Json\JsonToken\ArrayStartToken;
+use App\Parser\Json\JsonToken\KeyToken;
+use App\Parser\Json\JsonToken\ObjectEndToken;
+use App\Parser\Json\JsonToken\ObjectStartToken;
+use App\Parser\Json\JsonToken\ValueToken;
+use App\Parser\ParserInterface;
 use App\Parser\StreamingParser\AbstractStreamingParser;
+use App\Parser\StreamInterface;
+use function get_debug_type;
 
 class JsonStreamingParser extends AbstractStreamingParser
 {
     public function __construct(
-        private $checker
+        private BranchPathDecider $decider
     ) {
     }
 
@@ -55,8 +58,8 @@ class JsonStreamingParser extends AbstractStreamingParser
 
     public function value(string $path = '')
     {
-        return match (($this->checker)($path)) {
-            PathDecision::Consume => JsonValueAccumulatorParser::value()->streamify(),
+        return match ($this->decider->decide($path)) {
+            PathDecision::Consume  => JsonValueAccumulatorParser::value()->streamify(),
             PathDecision::Continue => new class($path, $this) extends AbstractStreamingParser {
                 public function __construct(
                     private string $path,
@@ -200,13 +203,6 @@ class JsonStreamingParser extends AbstractStreamingParser
     {
         return function ($path) use ($pattern) {
             static $state = 'waiting';
-
-            if (fnmatch($pattern, $path)) {
-                $state = 'consuming';
-                return PathDecision::Consume;
-            }
-
-            return $state === 'waiting' ? PathDecision::Continue : PathDecision::Stop;
         };
     }
 }

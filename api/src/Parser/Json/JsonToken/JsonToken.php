@@ -18,33 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Tests\JsonStreamingTokenizer;
+namespace App\Parser\Json\JsonToken;
 
-use App\Parser\FileStringStream;
-use App\Parser\Json\JsonStreamingTokenizer;
-use PhpBench\Attributes\Revs;
-
-class JsonStreamingBench
+interface JsonToken
 {
-    #[Revs(100)]
-    public function benchSimpleObject()
-    {
-        $parser = new JsonStreamingTokenizer();
-        $stream = new FileStringStream(__DIR__ . '/stubs/test_1.json');
-
-        foreach ($parser($stream) as $token) {
-            // noop
-        }
-    }
-
-    #[Revs(5)]
-    public function benchZtmLines()
-    {
-        $parser = new JsonStreamingTokenizer();
-        $stream = new FileStringStream(__DIR__ . '/stubs/ztm_lines.json');
-
-        foreach ($parser($stream) as $token) {
-            // noop
-        }
-    }
 }

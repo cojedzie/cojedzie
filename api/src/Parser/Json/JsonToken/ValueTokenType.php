@@ -18,12 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\JsonToken;
+namespace App\Parser\Json\JsonToken;
 
-class KeyToken implements JsonToken
+enum ValueTokenType
 {
-    public function __construct(
-        public readonly string $key
-    ) {
+    case String;
+    case Boolean;
+    case Number;
+    case Null;
+
+    public static function createFromValue($value): ValueTokenType
+    {
+        return match (gettype($value)) {
+            'string'  => self::String,
+            'boolean' => self::Boolean,
+            'NULL'    => self::Null,
+            'double', 'integer' => self::Number,
+        };
     }
 }

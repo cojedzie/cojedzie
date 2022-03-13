@@ -18,8 +18,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\JsonToken;
+namespace App\Parser\Json;
 
-interface JsonToken
+class BranchPathDecider implements PathDeciderInterface
 {
+    private bool $visited = false;
+    private string $pattern;
+
+    public function __construct(string $branch)
+    {
+        $this->pattern = ".$branch.*";
+    }
+
+    public function decide(string $path): PathDecision
+    {
+        if (fnmatch($this->pattern, $path)) {
+            $this->visited = true;
+            return PathDecision::Consume;
+        }
+
+        return !$this->visited ? PathDecision::Continue : PathDecision::Stop;
+    }
 }

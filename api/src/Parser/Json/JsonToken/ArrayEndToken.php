@@ -18,22 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\JsonToken;
+namespace App\Parser\Json\JsonToken;
 
-enum ValueTokenType
+class ArrayEndToken implements JsonToken
 {
-    case String;
-    case Boolean;
-    case Number;
-    case Null;
-
-    public static function createFromValue($value): ValueTokenType
-    {
-        return match (gettype($value)) {
-            'string'  => self::String,
-            'boolean' => self::Boolean,
-            'NULL'    => self::Null,
-            'double', 'integer' => self::Number,
-        };
-    }
 }

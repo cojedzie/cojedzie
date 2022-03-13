@@ -24,7 +24,7 @@ use App\Parser\Exception\EndOfStreamException;
 
 class FileStringStream implements StreamInterface
 {
-    use PositionTrait, ConsumableTrait;
+    use StringPositionTrait, ConsumableTrait;
     private $handle;
     private string $buffer  = "";
     private int $bufferSize = 0;

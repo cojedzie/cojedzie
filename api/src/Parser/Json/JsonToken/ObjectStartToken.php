@@ -18,8 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\JsonToken;
+namespace App\Parser\Json\JsonToken;
 
-class ObjectEndToken implements JsonToken
+class ObjectStartToken implements JsonToken
 {
 }

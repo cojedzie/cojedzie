@@ -18,11 +18,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser;
+namespace App\Parser\Json\JsonToken;
 
-enum PathDecision
+class KeyToken implements JsonToken
 {
-    case Continue;
-    case Consume;
-    case Stop;
+    public function __construct(
+        public readonly string $key
+    ) {
+    }
 }

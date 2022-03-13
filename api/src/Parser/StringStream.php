@@ -24,7 +24,7 @@ use App\Parser\Exception\EndOfStreamException;
 
 class StringStream implements StreamInterface
 {
-    use ConsumableTrait, PositionTrait;
+    use ConsumableTrait, StringPositionTrait;
 
     public function __construct(
         private string $string

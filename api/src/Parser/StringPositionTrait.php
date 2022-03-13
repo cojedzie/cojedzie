@@ -18,8 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Parser\JsonToken;
+namespace App\Parser;
 
-class ObjectStartToken implements JsonToken
+trait StringPositionTrait
 {
+    private StringPosition $position;
+
+    public function tell(): StringPosition
+    {
+        return $this->position;
+    }
+
+    private function advance(string $slice, int $length)
+    {
+        $this->position = $this->position->advance($slice, $length);
+    }
 }

@@ -20,8 +20,9 @@
 
 namespace App\Tests\JsonStreamingParser;
 
-use App\Parser\JsonStreamingParser;
-use App\Parser\JsonStreamingTokenizer;
+use App\Parser\Json\BranchPathDecider;
+use App\Parser\Json\JsonStreamingParser;
+use App\Parser\Json\JsonStreamingTokenizer;
 use App\Parser\StringStream;
 use App\Parser\TokenizedStream;
 use App\Tests\Utils\StreamTestAssertions;
@@ -46,7 +47,7 @@ class JsonStreamingParserTest extends TestCase
             new JsonStreamingTokenizer(),
         );
 
-        $parser = new JsonStreamingParser('.results.*');
+        $parser = new JsonStreamingParser(new BranchPathDecider('results'));
 
         $this->assertStream(
             $parser($stream),
