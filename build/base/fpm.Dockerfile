@@ -9,7 +9,9 @@ FROM php:8.1-fpm-alpine
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds && \
+    echo "opcache.jit_buffer_size=100m" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini && \
+    echo "opcache.jit=tracing" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini;
 
 WORKDIR /var/www
 
