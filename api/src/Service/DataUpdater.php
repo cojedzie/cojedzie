@@ -22,7 +22,6 @@ namespace App\Service;
 
 use App\DataImport\DataImporter;
 use App\DataImport\ProgressReporterFactory;
-use App\DataImport\SectionalProgressReporterInterface;
 use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
 use Carbon\Carbon;

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,8 +18,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Provider;
+namespace App\Parser;
 
-interface TripRepository extends FluentRepository
+class TokenizedPosition implements PositionInterface
 {
+    public function __construct(
+       public readonly int $offset
+    ) {
+    }
+
+    public function advance($slice)
+    {
+        return new static(offset: $this->offset + count($slice));
+    }
+
+    public function __toString()
+    {
+        return $this->offset;
+    }
 }

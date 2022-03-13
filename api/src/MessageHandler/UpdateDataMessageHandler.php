@@ -21,7 +21,6 @@
 namespace App\MessageHandler;
 
 use App\Message\UpdateDataMessage;
-use App\Output\LoggerOutput;
 use App\Service\DataUpdater;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;

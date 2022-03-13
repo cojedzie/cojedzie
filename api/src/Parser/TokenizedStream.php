@@ -20,26 +20,33 @@
 
 namespace App\Parser;
 
-use App\Parser\Exception\EndOfStreamException;
+use Ds\Deque;
 
-class GeneratorStringStream implements StreamInterface
+class TokenizedStream implements StreamInterface
 {
-    use PositionTrait, ConsumableTrait;
-    private string $buffer = "";
-    private int $offset    = 0;
+    use ConsumableTrait;
+    private Deque $buffer;
+    private \Generator $generator;
+    private TokenizedPosition $position;
 
     public function __construct(
-        private \Generator $generator
+        private StreamInterface $decorated,
+        private ParserInterface $parser
     ) {
-        $this->position = new StringPosition();
+        $this->buffer    = new Deque();
+        $this->generator = ($this->parser)($this->decorated);
+        $this->position  = new TokenizedPosition(0);
     }
 
     public function read(int $max = 1)
     {
         $result = $this->peek($max);
-        $this->advance($result, $max);
 
-        $this->buffer = substr($this->buffer, $max);
+        foreach ($result as $_) {
+            $this->buffer->shift(); // discard token
+        }
+
+        $this->position = $this->position->advance($result);
 
         return $result;
     }
@@ -48,11 +55,7 @@ class GeneratorStringStream implements StreamInterface
     {
         $this->fillBuffer($max);
 
-        if ($this->eof()) {
-            throw new EndOfStreamException();
-        }
-
-        return substr($this->buffer, $this->offset, $max);
+        return $this->buffer->slice(0, $max);
     }
 
     public function eof(): bool
@@ -60,10 +63,15 @@ class GeneratorStringStream implements StreamInterface
         return empty($this->buffer) && !$this->generator->valid();
     }
 
-    private function fillBuffer(int $length)
+    public function tell(): TokenizedPosition
     {
-        for (; strlen($this->buffer) < $length && $this->generator->valid(); $this->generator->next()) {
-            $this->buffer .= $this->generator->current();
+        return $this->position;
+    }
+
+    private function fillBuffer(int $max)
+    {
+        for (; $this->generator->valid() && count($this->buffer) < $max; $this->generator->next()) {
+            $this->buffer->push($this->generator->current());
         }
     }
 }

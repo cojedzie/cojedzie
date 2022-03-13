@@ -22,11 +22,11 @@ namespace App\Parser;
 
 interface StreamInterface extends ConsumableInterface
 {
-    public function read(int $max);
+    public function read(int $max = 1);
 
-    public function peek(int $max);
+    public function peek(int $max = 1);
 
     public function eof(): bool;
 
-    public function tell(): Position;
+    public function tell(): PositionInterface;
 }

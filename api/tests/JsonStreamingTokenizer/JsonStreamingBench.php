@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,40 +18,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Tests\JsonStreamingTokenizer;
 
-use JMS\Serializer\Annotation as Serializer;
+use App\Parser\FileStringStream;
+use App\Parser\JsonStreamingTokenizer;
+use PhpBench\Attributes\Revs;
 
-trait ReferableTrait
+class JsonStreamingBench
 {
-    /**
-     * Identifier coming from provider service
-     *
-     * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
-     */
-    #[Serializer\Type('string')]
-    #[Serializer\Groups(['Default', 'Identity', 'Minimal'])]
-    private string $id;
-
-    public function getId(): string
+    #[Revs(100)]
+    public function benchSimpleObject()
     {
-        return $this->id;
-    }
+        $parser = new JsonStreamingTokenizer();
+        $stream = new FileStringStream(__DIR__ . '/stubs/test_1.json');
 
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    public static function reference($id)
-    {
-        if (!is_array($id)) {
-            $id = ['id' => $id];
+        foreach ($parser($stream) as $token) {
+            // noop
         }
+    }
 
-        $result = new static();
-        $result->fill($id);
+    #[Revs(5)]
+    public function benchZtmLines()
+    {
+        $parser = new JsonStreamingTokenizer();
+        $stream = new FileStringStream(__DIR__ . '/stubs/ztm_lines.json');
 
-        return $result;
+        foreach ($parser($stream) as $token) {
+            // noop
+        }
     }
 }

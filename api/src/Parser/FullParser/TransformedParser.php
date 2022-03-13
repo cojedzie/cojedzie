@@ -40,6 +40,6 @@ class TransformedParser extends AbstractParser
     {
         $result = ($this->parser)($stream);
 
-        return ($this->transform)($result);
+        return $result ? ($this->transform)($result) : null;
     }
 }

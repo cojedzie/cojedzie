@@ -21,9 +21,7 @@
 namespace App\Parser\FullParser;
 
 use App\Parser\ParserInterface;
-use App\Parser\StreamInterface;
 use JetBrains\PhpStorm\Pure;
-use function Kadet\Functional\Predicates\same;
 
 final class FullParser
 {

@@ -22,31 +22,15 @@ namespace App\Parser;
 
 trait PositionTrait
 {
-    private Position $position;
+    private StringPosition $position;
 
-    public function tell(): Position
+    public function tell(): StringPosition
     {
         return $this->position;
     }
 
     private function advance(string $slice, int $length)
     {
-        if ($length === 1) {
-            $nl             = $slice === "\n";
-            $this->position = new Position(
-                offset: $this->position->offset + $length,
-                line: $this->position->line + $nl,
-                column: $nl ? 1 : $this->position->column + 1
-            );
-        } else {
-            $lines = preg_split('/\R/', $slice);
-            $last  = end($lines);
-
-            $this->position = new Position(
-                offset: $this->position->offset + $length,
-                line: $this->position->line + count($lines) - 1,
-                column: count($lines) > 1 ? 1 + strlen($last) : $this->position->column + strlen($last),
-            );
-        }
+        $this->position = $this->position->advance($slice, $length);
     }
 }

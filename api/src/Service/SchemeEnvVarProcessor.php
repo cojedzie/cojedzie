@@ -21,7 +21,6 @@
 namespace App\Service;
 
 use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
-use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
 class SchemeEnvVarProcessor implements EnvVarProcessorInterface
 {

@@ -21,7 +21,6 @@
 namespace App\Service;
 
 use App\Serialization\SerializeAs;
-use Doctrine\Common\Annotations\Reader;
 use JMS\Serializer\Metadata\PropertyMetadata;
 use JMS\Serializer\SerializationContext;
 use Metadata\AdvancedMetadataFactoryInterface;

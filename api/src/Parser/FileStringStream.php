@@ -32,10 +32,10 @@ class FileStringStream implements StreamInterface
     public function __construct(string $filename)
     {
         $this->handle   = fopen($filename, 'rb');
-        $this->position = new Position();
+        $this->position = new StringPosition();
     }
 
-    public function read(int $max)
+    public function read(int $max = 1)
     {
         $result = $this->peek($max);
         $this->advance($result, $max);
@@ -46,7 +46,7 @@ class FileStringStream implements StreamInterface
         return $result;
     }
 
-    public function peek(int $max)
+    public function peek(int $max = 1)
     {
         if ($this->eof()) {
             throw new EndOfStreamException();

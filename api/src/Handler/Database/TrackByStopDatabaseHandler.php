@@ -20,7 +20,6 @@
 
 namespace App\Handler\Database;
 
-use App\Entity\TrackStopEntity;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Handler\ModifierHandler;

@@ -23,7 +23,6 @@ namespace App\Provider\Dummy;
 use App\Model\Stop;
 use App\Modifier\Modifier;
 use App\Provider\StopRepository;
-use App\Service\Proxy\ReferenceFactory;
 use Illuminate\Support\Collection;
 use Kadet\Functional as f;
 

@@ -22,7 +22,6 @@ namespace App\Command;
 
 use App\Entity\Federation\FederatedConnectionEntity;
 use App\Repository\FederatedConnectionEntityRepository;
-use App\Service\FederatedConnectionChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

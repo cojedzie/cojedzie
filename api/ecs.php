@@ -55,4 +55,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 ],
             ],
         ]);
+
+    $services->set(\PhpCsFixer\Fixer\Import\NoUnusedImportsFixer::class);
 };

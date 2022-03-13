@@ -20,12 +20,40 @@
 
 namespace App\Parser;
 
-class Position
+class StringPosition implements PositionInterface
 {
     public function __construct(
         public readonly int $offset = 0,
         public readonly int $line = 1,
         public readonly int $column = 1,
     ) {
+    }
+
+    public function advance($slice, int $length = null)
+    {
+        $length = $length ?: strlen($slice);
+
+        if ($length === 1) {
+            $nl             = $slice === "\n";
+            return new StringPosition(
+                offset: $this->offset + $length,
+                line: $this->line + $nl,
+                column: $nl ? 1 : $this->column + 1
+            );
+        } else {
+            $lines = preg_split('/\R/', $slice);
+            $last  = end($lines);
+
+            return new StringPosition(
+                offset: $this->offset + $length,
+                line: $this->line + count($lines) - 1,
+                column: count($lines) > 1 ? 1 + strlen($last) : $this->column + strlen($last),
+            );
+        }
+    }
+
+    public function __toString()
+    {
+        return "{$this->line}:{$this->column}";
     }
 }

@@ -24,8 +24,13 @@ trait StreamTestAssertions
 {
     private function assertStream(iterable $stream, callable ...$tests)
     {
+        $called = 0;
+
         foreach ($stream as $value) {
             array_shift($tests)($value);
+            $called++;
         }
+
+        $this->assertLessThan($called, count($tests), 'All tests were not called');
     }
 }

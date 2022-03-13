@@ -29,10 +29,10 @@ class StringStream implements StreamInterface
     public function __construct(
         private string $string
     ) {
-        $this->position = new Position();
+        $this->position = new StringPosition();
     }
 
-    public function read(int $max): string
+    public function read(int $max = 1): string
     {
         if ($this->eof()) {
             throw new EndOfStreamException();
@@ -44,7 +44,7 @@ class StringStream implements StreamInterface
         return $slice;
     }
 
-    public function peek(int $max): string
+    public function peek(int $max = 1): string
     {
         if ($this->eof()) {
             throw new EndOfStreamException();

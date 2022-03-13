@@ -20,18 +20,12 @@
 
 namespace App\Command;
 
-use App\Context\FederationContext;
 use App\Entity\Federation\FederatedConnectionEntity;
-use App\Entity\Federation\FederatedServerEntity;
-use App\Service\FederatedConnectionService;
 use Doctrine\ORM\EntityManagerInterface;
-use Illuminate\Support\Collection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
-use function App\Functions\class_name;
 
 class FederationConnectionsListCommand extends Command
 {

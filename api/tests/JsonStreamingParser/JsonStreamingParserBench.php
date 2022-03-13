@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,8 +18,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Provider;
+namespace App\Tests\JsonStreamingParser;
 
-interface TripRepository extends FluentRepository
+use App\Parser\JsonStreamingParser;
+use App\Parser\JsonStreamingTokenizer;
+use App\Parser\StringStream;
+use App\Parser\TokenizedStream;
+
+class JsonStreamingParserBench
 {
+    public function benchParsingSmallResultsArray()
+    {
+        $json = json_encode([
+            'results' => range(1, 1000),
+        ]);
+
+        $stream = new TokenizedStream(
+            new StringStream($json),
+            new JsonStreamingTokenizer(),
+        );
+
+        $parser = new JsonStreamingParser('.results.*');
+
+        foreach ($parser($stream) as $_) {
+            // noop
+        }
+    }
 }

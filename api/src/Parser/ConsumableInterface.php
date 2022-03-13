@@ -20,8 +20,6 @@
 
 namespace App\Parser;
 
-use App\Parser\ParserInterface;
-
 interface ConsumableInterface
 {
     public function consume(ParserInterface $parser): mixed;
