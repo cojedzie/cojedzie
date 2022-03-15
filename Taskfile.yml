@@ -46,7 +46,7 @@ tasks:
   reformat:api:
     desc: Reformat API with ECS
     cmds:
-      - docker-compose run --rm -e APP_RUNAS="{{.USER}}" api vendor/bin/ecs --fix
+      - docker-compose run --rm -e APP_RUNAS="{{.USER}}" -e APP_MODE=performance api vendor/bin/ecs --fix
 
   test:
     deps:
@@ -68,7 +68,7 @@ tasks:
     cmds:
       - >
         docker-compose run 
-        --rm -e APP_MODE=benchmark {{.DOCKER_FLAGS}} 
+        --rm -e APP_MODE=performance {{.DOCKER_FLAGS}} 
         api vendor/bin/phpbench 
         --php-config="opcache.enable: 1, opcache.enable_cli: 1{{if .PHP_CONFIG}}, {{end}}{{.PHP_CONFIG}}"
         run tests --report={{.REPORT}} {{.CLI_ARGS}}
@@ -80,9 +80,9 @@ tasks:
     cmds:
       - >
         docker-compose run 
-        --rm -e {{.DOCKER_FLAGS}} 
+        --rm {{.DOCKER_FLAGS}} 
         api vendor/bin/phpbench 
-        xdebug:profile tests --report={{.REPORT}} {{.CLI_ARGS}}
+        xdebug:profile tests {{.CLI_ARGS}}
 
   frontend:yarn:
     desc: Execute yarn command
@@ -103,3 +103,8 @@ tasks:
         ignore_error: true
       - cmd: docker-compose exec -e DATABASE_URL="{{.POSTGRES_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
         ignore_error: true
+
+  api:update:
+    desc: Update data from data providers
+    cmds:
+      - docker-compose run {{.FLAGS}} -e APP_MODE=performance api bin/console app:update

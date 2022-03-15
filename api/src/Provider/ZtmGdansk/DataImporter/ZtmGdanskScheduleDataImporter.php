@@ -26,8 +26,8 @@ use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
+use App\Service\JsonStreamer;
 use Carbon\Carbon;
-use Cerbero\JsonObjects\JsonObjects;
 use Cerbero\JsonObjects\JsonObjectsException;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
@@ -38,7 +38,8 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly IdUtils $idUtils
+        private readonly IdUtils $idUtils,
+        private readonly JsonStreamer $jsonStreamer,
     ) {
     }
 
@@ -107,8 +108,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ])
         );
 
-        $schedule = JsonObjects::from($url, 'stopTimes.*');
-        $trips    = new Set();
+        $trips = new Set();
 
         $saveStop = function (array $columns) use ($existingStopIds) {
             if (!$existingStopIds->contains($columns['stop_id'])) {
@@ -142,7 +142,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             );
         };
 
-        $schedule->each(function ($stop) use (&$trips, $saveStop, $saveTrip) {
+        foreach ($this->jsonStreamer->stream($url, 'stopTimes') as $stop) {
             $tripId = sprintf('%s-%s-%s-%d', $stop['routeId'], $stop['busServiceName'], $stop['tripId'], $stop['order']);
             $tripId = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $tripId);
 
@@ -160,10 +160,10 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             $base = Carbon::create(1899, 12, 30, 00, 00, 00);
             $date = Carbon::createFromFormat('Y-m-d', $stop['date'], 'Europe/Warsaw')->setTime(00, 00, 00);
 
-            $arrival = $base->diff(Carbon::createFromTimeString($stop['arrivalTime']));
+            $arrival   = $base->diff(Carbon::createFromTimeString($stop['arrivalTime']));
             $departure = $base->diff(Carbon::createFromTimeString($stop['departureTime']));
 
-            $arrival = (clone $date)->add($arrival);
+            $arrival   = (clone $date)->add($arrival);
             $departure = (clone $date)->add($departure);
 
             $saveStop([
@@ -173,7 +173,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
                 'arrival'   => $arrival->tz('UTC'),
                 'departure' => $departure->tz('UTC'),
             ]);
-        });
+        }
     }
 
     public function getDependencies(): array

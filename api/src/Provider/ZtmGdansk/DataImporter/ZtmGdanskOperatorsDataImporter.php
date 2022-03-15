@@ -25,9 +25,9 @@ use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
+use App\Service\JsonStreamer;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 {
@@ -35,7 +35,7 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly HttpClientInterface $httpClient,
+        private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils
     ) {
     }
@@ -93,9 +93,7 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 
     private function getOperatorsFromZtmApi()
     {
-        $response = $this->httpClient->request('GET', self::RESOURCE_URL);
-
-        foreach ($response->toArray()['agency'] as $operator) {
+        foreach ($this->jsonStreamer->stream(self::RESOURCE_URL, 'agency') as $operator) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $operator['agencyId']) => [
                 'name'  => $operator['agencyName'],
                 'email' => $operator['agencyEmail'] ?? null,

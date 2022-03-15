@@ -3,8 +3,8 @@ FROM php:8.1-fpm-alpine
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql xdebug-^3.0 ds;
-RUN apk add git su-exec;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds;
+RUN apk add git su-exec tini;
 
 # XDebug
 RUN echo "xdebug.mode=debug" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini && \
@@ -30,3 +30,4 @@ EXPOSE 9001
 ENV APP_MODE="debug"
 
 ENTRYPOINT ["./bin/docker-dev-entrypoint.sh"]
+CMD ["php-fpm"]

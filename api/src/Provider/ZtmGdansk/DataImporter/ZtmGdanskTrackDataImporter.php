@@ -20,19 +20,18 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
-use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
+use App\Service\JsonStreamer;
 use App\Utility\CollectionUtils;
 use App\Utility\IterableUtils;
 use App\Utility\SequenceGenerator;
 use Doctrine\DBAL\Connection;
 use Ds\Deque;
 use Ds\Set;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
@@ -42,8 +41,8 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly HttpClientInterface $httpClient,
-        private readonly IdUtils $idUtils
+        private readonly IdUtils $idUtils,
+        private readonly JsonStreamer $jsonStreamer,
     ) {
     }
 
@@ -173,10 +172,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTracksFromZtmApi()
     {
-        $response = $this->httpClient->request('GET', self::TRACKS_URL);
-        $tracks   = $response->toArray()[date('Y-m-d')]['trips'];
-
-        foreach ($tracks as $track) {
+        foreach ($this->jsonStreamer->stream(self::TRACKS_URL, sprintf('%s.trips', date('Y-m-d'))) as $track) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['id']) => [
                 'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['routeId']),
                 'description' => preg_replace('/\(\d+\)/', '', $track['tripHeadsign']),
@@ -186,12 +182,8 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter)
     {
-        $response = $this->httpClient->request('GET', self::STOPS_IN_TRACK_URL);
-        $all      = $response->toArray()[date('Y-m-d')]['stopsInTrip'];
-        $reporter->milestone(sprintf('Downloaded %d track stops', count($all)), MilestoneType::Success);
-
         $all = CollectionUtils::groupBy(
-            $all,
+            $this->jsonStreamer->stream(self::STOPS_IN_TRACK_URL, sprintf('%s.stopsInTrip', date('Y-m-d'))),
             fn ($stop) => $this->idUtils->generate(
                 ZtmGdanskProvider::IDENTIFIER,
                 sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])

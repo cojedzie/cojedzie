@@ -25,11 +25,11 @@ use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
+use App\Service\JsonStreamer;
 use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ds\Set;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
@@ -37,7 +37,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly HttpClientInterface $httpClient,
+        private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils
     ) {
     }
@@ -104,10 +104,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
     private function getStopsFromZtmApi()
     {
-        $response = $this->httpClient->request('GET', self::RESOURCE_URL);
-        $stops    = $response->toArray()[date('Y-m-d')]['stops'];
-
-        foreach ($stops as $stop) {
+        foreach ($this->jsonStreamer->stream(self::RESOURCE_URL, sprintf('%s.stops', date('Y-m-d'))) as $stop) {
             // skip stops that are technical
             if ($stop['nonpassenger'] === 1 || $stop['virtual'] === 1 || $stop['depot'] === 1) {
                 continue;

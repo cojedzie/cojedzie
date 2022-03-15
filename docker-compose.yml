@@ -17,6 +17,9 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
+    command: ["php-fpm"]
+    environment:
+      - APP_MODE=debug
     env_file:
       - .docker-compose/api/.env
     volumes:

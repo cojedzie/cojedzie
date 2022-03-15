@@ -76,4 +76,18 @@ class JsonStreamingParserBench
             // noop
         }
     }
+
+    public function benchSchedule()
+    {
+        $stream = new TokenizedStream(
+            new FileStringStream(__DIR__ . '/../JsonStreamingTokenizer/stubs/schedule.json'),
+            new JsonStreamingTokenizer(),
+        );
+
+        $parser = new JsonStreamingParser(new BranchPathDecider('stopTimes'));
+
+        foreach ($parser($stream) as $_) {
+            // noop
+        }
+    }
 }

@@ -6,6 +6,7 @@ WORKDIR /var/www
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds && \
+    echo "opcache.enable_cli=1" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.jit_buffer_size=100m" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.jit=tracing" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini;
 

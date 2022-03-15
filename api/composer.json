@@ -42,6 +42,7 @@
     "symfony/property-access": "5.4.*",
     "symfony/property-info": "5.4.*",
     "symfony/redis-messenger": "5.4.*",
+    "symfony/runtime": "5.4.*",
     "symfony/serializer": "5.4.*",
     "symfony/twig-bundle": "^5.4",
     "symfony/uid": "5.4.*",

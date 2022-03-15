@@ -26,10 +26,10 @@ use App\Model\Line as LineModel;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
+use App\Service\JsonStreamer;
 use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskLineDataImporter extends AbstractDataImporter
 {
@@ -42,7 +42,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly HttpClientInterface $httpClient,
+        private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils
     ) {
     }
@@ -113,9 +113,6 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
 
     private function getLinesFromZtmApi()
     {
-        $response = $this->httpClient->request('GET', self::RESOURCE_URL);
-        $lines    = $response->toArray()[date('Y-m-d')]['routes'];
-
         $operators = new Set(
             $this->connection->createQueryBuilder()
                 ->from('operator', 'o')
@@ -126,7 +123,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 ->iterateColumn()
         );
 
-        foreach ($lines as $line) {
+        foreach ($this->jsonStreamer->stream(self::RESOURCE_URL, sprintf('%s.routes', date('Y-m-d'))) as $line) {
             $symbol   = $line['routeShortName'];
             $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
 
