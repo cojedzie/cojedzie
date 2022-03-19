@@ -51,11 +51,6 @@ final class Version20211216200929 extends AbstractMigration
 
         $this->addSql('CREATE TABLE provider (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, class VARCHAR(255) NOT NULL, update_date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
 
-        $this->addSql('CREATE TABLE messenger_messages (id BIGSERIAL NOT NULL, body TEXT NOT NULL, headers TEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, available_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, delivered_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE INDEX idx_75ea56e0e3bd61ce ON messenger_messages (available_at)');
-        $this->addSql('CREATE INDEX idx_75ea56e0fb7336f0 ON messenger_messages (queue_name)');
-        $this->addSql('CREATE INDEX idx_75ea56e016ba31db ON messenger_messages (delivered_at)');
-
         $this->addSql('CREATE TABLE federated_server (id UUID NOT NULL, email VARCHAR(255) NOT NULL, maintainer VARCHAR(255) DEFAULT NULL, allowed_url VARCHAR(255) NOT NULL, secret VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('COMMENT ON COLUMN federated_server.id IS \'(DC2Type:uuid)\'');
 
@@ -78,7 +73,6 @@ final class Version20211216200929 extends AbstractMigration
         $this->addSql('DROP TABLE trip');
         $this->addSql('DROP TABLE line');
         $this->addSql('DROP TABLE provider');
-        $this->addSql('DROP TABLE messenger_messages');
         $this->addSql('DROP TABLE federated_server');
         $this->addSql('DROP TABLE federated_connection');
     }

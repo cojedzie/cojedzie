@@ -32,7 +32,6 @@ final class Version20211216204515 extends AbstractMigration
         $this->addSql('CREATE TABLE track_stop (id INT AUTO_INCREMENT NOT NULL, stop_id VARCHAR(255) DEFAULT NULL, track_id VARCHAR(255) DEFAULT NULL, sequence INT NOT NULL, INDEX IDX_24003EB33902063D (stop_id), INDEX IDX_24003EB35ED23C43 (track_id), UNIQUE INDEX stop_in_track_idx (stop_id, track_id, sequence), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE trip (id VARCHAR(255) NOT NULL, operator_id VARCHAR(255) DEFAULT NULL, track_id VARCHAR(255) DEFAULT NULL, provider_id VARCHAR(255) DEFAULT NULL, variant VARCHAR(255) DEFAULT NULL, note VARCHAR(255) DEFAULT NULL, INDEX IDX_7656F53B584598A3 (operator_id), INDEX IDX_7656F53B5ED23C43 (track_id), INDEX IDX_7656F53BA53A8AA (provider_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE trip_stop (id INT AUTO_INCREMENT NOT NULL, stop_id VARCHAR(255) DEFAULT NULL, trip_id VARCHAR(255) DEFAULT NULL, sequence INT NOT NULL, arrival DATETIME NOT NULL, departure DATETIME NOT NULL, INDEX IDX_926E85DD3902063D (stop_id), INDEX IDX_926E85DDA5BC2E0E (trip_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE messenger_messages (id BIGINT AUTO_INCREMENT NOT NULL, body LONGTEXT NOT NULL, headers LONGTEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at DATETIME NOT NULL, available_at DATETIME NOT NULL, delivered_at DATETIME DEFAULT NULL, INDEX IDX_75EA56E0FB7336F0 (queue_name), INDEX IDX_75EA56E0E3BD61CE (available_at), INDEX IDX_75EA56E016BA31DB (delivered_at), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE federated_connection ADD CONSTRAINT FK_D3AF7DF01844E6B7 FOREIGN KEY (server_id) REFERENCES federated_server (id)');
         $this->addSql('ALTER TABLE line ADD CONSTRAINT FK_D114B4F6584598A3 FOREIGN KEY (operator_id) REFERENCES operator (id)');
         $this->addSql('ALTER TABLE line ADD CONSTRAINT FK_D114B4F6A53A8AA FOREIGN KEY (provider_id) REFERENCES provider (id)');
@@ -80,6 +79,5 @@ final class Version20211216204515 extends AbstractMigration
         $this->addSql('DROP TABLE track_stop');
         $this->addSql('DROP TABLE trip');
         $this->addSql('DROP TABLE trip_stop');
-        $this->addSql('DROP TABLE messenger_messages');
     }
 }
