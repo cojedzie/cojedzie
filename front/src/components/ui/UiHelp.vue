@@ -17,7 +17,7 @@
 <script lang="ts">
 import { defineComponent, PropType, ref } from "vue";
 import { supply } from "@/utils";
-import { createMutex } from "@/utils/mutex";
+import { createMutex } from "@/composables/useMutex";
 
 export type HelpTrigger = "click" | "long-hover";
 

@@ -12,7 +12,7 @@
 <script lang="ts">
 import { LMap, LVectorLayer } from "@/components/map";
 import { defineComponent } from "vue";
-import { useAppConfig } from "@/utils/config";
+import { useAppConfig } from "@/composables/useAppConfig";
 
 export default defineComponent({
     name: "UiMap",

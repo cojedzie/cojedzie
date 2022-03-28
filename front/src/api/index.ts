@@ -18,5 +18,12 @@
  */
 
 import client from "@/api/client";
+import { App, InjectionKey } from "vue";
 
 export default client;
+
+export const ApiClientKey: InjectionKey<typeof client> = Symbol();
+
+export function install(Vue: App) {
+    Vue.provide(ApiClientKey, client);
+}

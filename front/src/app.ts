@@ -27,7 +27,9 @@ import moment from "moment";
 
 import components, { app } from "@/components";
 import filters from '@/filters'
+import { install as api } from '@/api';
 
+app.use(api);
 app.use(filters);
 app.use(components);
 

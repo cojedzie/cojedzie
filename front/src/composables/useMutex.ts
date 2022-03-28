@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,17 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { computed, ComputedRef, Ref, ref } from "vue";
+import { computed, ComputedRef, ref, Ref } from "vue";
 
 export interface Mutex {
     current: Ref<symbol | null>;
+
     use(symbol?: symbol): MutexInstance;
 }
 
 export interface MutexInstance {
     active: ComputedRef<boolean>;
+
     acquire(): void;
+
     release(): void;
+
     toggle(): void;
 }
 
@@ -65,4 +69,8 @@ export function createMutex(): Mutex {
             }
         }
     }
+}
+
+export function useMutex(mutex: Mutex, symbol = Symbol()): MutexInstance {
+    return mutex.use(symbol);
 }
