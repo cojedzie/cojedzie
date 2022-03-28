@@ -67,3 +67,14 @@ export function merge<T1 extends object, T2 extends object, TReturn extends { [K
 
     return result;
 }
+
+export function groupBy<T, TGroup extends string | symbol | number>(array: T[], grouping: (value: T) => TGroup): Record<TGroup, T[]> {
+    const result = {} as Record<TGroup, T[]>;
+
+    for (const value of array) {
+        const group = grouping(value);
+        result[group] = [ ...(result[group] || []), value ];
+    }
+
+    return result;
+}

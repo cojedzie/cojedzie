@@ -51,6 +51,7 @@ import {
     faSpinnerThird,
     faClock,
     faLessThan,
+    faArrowRight
 } from "@fortawesome/pro-regular-svg-icons";
 import {
     faExclamationTriangle as faSolidExclamationTriangle,
@@ -132,6 +133,7 @@ const definitions = {
     'increment': simple(faPlus, { "fixed-width": true }),
     'decrement': simple(faMinus, { "fixed-width": true }),
     'relative-time': simple(faHourglassHalf),
+    'destination': simple(faArrowRight),
     'relative-time-limit': stack([
         { icon: faLessThan },
         { icon: faSolidClock, transform: "shrink-5 down-6 left-5" }

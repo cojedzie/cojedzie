@@ -22,9 +22,10 @@ import { Prop } from "vue-property-decorator";
 import { Line, StopWithDestinations as Stop } from "@/model";
 import { match, unique } from "@/utils";
 import WithRender from "@templates/stop-picker/entry.html";
+import { StopDetailsDialog } from "@/components";
 
 @WithRender
-@Options({ name: "StopPickerEntry" })
+@Options({ name: "StopPickerEntry", components: { StopDetailsDialog } })
 export class StopPickerEntry extends Vue {
     @Prop(Object)
     public stop: Stop;

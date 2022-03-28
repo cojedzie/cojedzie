@@ -26,7 +26,7 @@ import FavouritesList from "@/components/favourites/list";
 import FavouritesAdder from "@/components/favourites/adder";
 import StopPicker from "@/components/stop-picker/picker";
 import StopLabel from "@/components/stop/label";
-import StopDetails from "@/components/stop/details";
+import { StopDetailsDialog } from "@/components/stop";
 import StopMap from "@/components/stop/map";
 import MessagesList from "@/components/messages/list";
 import LineSymbol from "@/components/line/symbol";
@@ -74,7 +74,6 @@ export default function install(Vue: App) {
 
     Vue.component('StopPicker', StopPicker);
     Vue.component('StopLabel', StopLabel);
-    Vue.component('StopDetails', StopDetails);
     Vue.component('StopMap', StopMap);
 
     Vue.component('LineSymbol', LineSymbol);

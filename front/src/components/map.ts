@@ -44,7 +44,7 @@ export const LVectorLayer = defineComponent({
     },
     mounted(): void {
         // @ts-ignore
-        this['mapObject'] = L.mapboxGL({
+        this['leafletObject'] = L.mapboxGL({
             style: this.url,
             attribution: this.attribution
         });
@@ -52,11 +52,11 @@ export const LVectorLayer = defineComponent({
         this.$nextTick(() => {
             const map = this.$parent['leafletObject'];
 
-            this['mapObject'].addTo(map);
+            this['leafletObject'].addTo(map);
         })
     },
     beforeUmount(): void {
-        this.$parent['leafletObject'].removeLayer(this['mapObject'])
+        this.$parent['leafletObject'].removeLayer(this['leafletObject'])
     },
     render: () => null,
 });

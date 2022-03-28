@@ -86,7 +86,8 @@ function findClosestNonWrapperParent(component: ComponentPublicInstance): Compon
 @Options({
     name: "UiDialog",
     inheritAttrs: false,
-    mixins: [ removedHookMixin ]
+    mixins: [ removedHookMixin ],
+    emits: ['leave', 'close']
 })
 export class UiDialog extends Vue {
     @Prop({ type: String, default: "popup" })

@@ -29,9 +29,11 @@ export interface Stop {
     variant?: string;
 }
 
-export interface StopWithDestinations extends Stop {
+export type HasDestinations = {
     destinations?: Destination[];
 }
+
+export type StopWithDestinations = Stop & HasDestinations;
 
 export type Destination = {
     stop: Stop;

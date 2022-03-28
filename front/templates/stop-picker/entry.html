@@ -35,9 +35,7 @@
 
     <keep-alive>
         <teleport to="#popups">
-            <ui-dialog v-if="details" @leave="details = false" behaviour="modal" class="ui-modal--medium" title="Szczegóły przystanku">
-                <stop-details :stop="stop"/>
-            </ui-dialog>
+            <stop-details-dialog v-if="details" @leave="details = false" lel="lol" :stop="stop" />
         </teleport>
     </keep-alive>
     <keep-alive>

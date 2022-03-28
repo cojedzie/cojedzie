@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { Stop } from "@/model/stop";
+
 export type LineType = "tram" | "bus" | "trolleybus" | "train" | "other";
 
 export interface Line {
@@ -31,4 +33,5 @@ export interface Track {
     id: string;
     description: string;
     line: Line;
+    destination?: Stop;
 }
