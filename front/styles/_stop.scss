@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+$stop-variant-color: mix($dark, white, 75%);
 
 .stop {
   flex-wrap: nowrap;
@@ -36,6 +37,9 @@
 }
 
 .stop__variant {
+  @extend .badge;
+  border: solid 1px $stop-variant-color;
+  color: $dark;
   margin-left: .5em;
 }
 

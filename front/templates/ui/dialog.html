@@ -1,15 +1,15 @@
 <div class="ui-backdrop" @click="handleBackdropClick" v-if="currentBehaviour === 'modal'" role="dialog">
     <div class="ui-modal" v-bind="$attrs">
-        <div class="ui-modal__top-bar">
-            <div class="ui-modal__header">
-                <slot name="header">
+        <slot name="header" v-bind="{ title, handleCloseClick }">
+            <div class="ui-modal__top-bar">
+                <div class="ui-modal__header">
                     <div class="ui-modal__title" role="heading"><slot name="title">{{ title }}</slot></div>
-                </slot>
+                </div>
+                <button class="btn btn-action ui-modal__close" @click.prevent="handleCloseClick">
+                    <ui-icon icon="close"/>
+                </button>
             </div>
-            <button class="btn btn-action ui-modal__close" @click.prevent="handleCloseClick">
-                <ui-icon icon="close"/>
-            </button>
-        </div>
+        </slot>
         <slot />
         <div class="ui-modal__footer" v-if="hasFooter">
             <slot name="footer" />

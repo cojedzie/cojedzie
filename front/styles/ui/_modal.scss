@@ -37,27 +37,41 @@
   }
 }
 
-$dialog-margin: 2rem;
-$dialog-sizes: (
+$ui-dialog-margin: 2rem;
+$ui-dialog-sizes: (
         medium: 480px,
         small: 320px,
-        large: 640px,
+        big: 640px,
+        large: 860px,
+        huge: 1024px,
 )
 ;
 
 .ui-modal {
-  padding: $dialog-margin;
+  padding: $ui-dialog-margin;
   background: white;
   margin: auto;
   box-shadow: rgba(black, .7) 0 1px 3px;
   border-radius: 1px;
   box-sizing: content-box;
+  max-width: 80%;
+  position: relative;
 
   &.ui-modal--slim {
-    padding: $dialog-margin / 2;
+    padding: $ui-dialog-margin / 2;
   }
 
-  @each $size, $width in $dialog-sizes {
+  &.ui-modal--no-padding {
+      padding: 0;
+  }
+
+  &__heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1rem;
+  }
+
+  @each $size, $width in $ui-dialog-sizes {
     &.ui-modal--#{$size} {
       width: $width;
     }
@@ -65,9 +79,9 @@ $dialog-sizes: (
 }
 
 .ui-modal__close {
-  margin-right: -$dialog-margin;
-  padding: $dialog-margin $dialog-margin 0;
-  margin-top: -$dialog-margin;
+  margin-right: -$ui-dialog-margin;
+  padding: $ui-dialog-margin $ui-dialog-margin 0;
+  margin-top: -$ui-dialog-margin;
 }
 
 .ui-modal__header {
@@ -81,15 +95,15 @@ $dialog-sizes: (
 
 .ui-modal__top-bar {
   display: flex;
-  margin-bottom: $dialog-margin * 0.75;
+  margin-bottom: $ui-dialog-margin * 0.75;
 }
 
 @include media-breakpoint-down('sm') {
   .ui-dialog {
-    padding: $dialog-margin / 2;
+    padding: $ui-dialog-margin / 2;
   }
 
-  @each $size, $width in $dialog-sizes {
+  @each $size, $width in $ui-dialog-sizes {
     .ui-modal.ui-modal--#{$size} {
       width: 100%;
       box-sizing: border-box;

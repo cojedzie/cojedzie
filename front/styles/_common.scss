@@ -30,8 +30,18 @@
   margin-bottom: 0;
 
   > li {
-    border-bottom: 1px solid $dark;
-    padding: 2px 0;
+    border-bottom: 1px dotted rgba($dark, .5);
+    padding: 0.5rem 0.25rem;
+
+    transition: background-color 100ms ease-in-out;
+
+    &:hover {
+      background-color: rgba($dark, 0.01);
+    }
+  }
+
+  &--condensed > li {
+    padding: 0.25rem 0.25rem;
   }
 }
 
@@ -49,7 +59,7 @@
 
   @each $color, $value in $theme-colors {
     &.alert-#{$color} {
-      border-bottom: 2px solid theme-color-level($color, $alert-color-level);
+      border-bottom: 1px dashed theme-color-level($color, $alert-color-level);
       transition: background-color ease 200ms;
 
       &:hover {
@@ -110,6 +120,9 @@ $section-safe-margin: 0.5rem;
   .section__title {
     @extend .alert;
     @extend .alert-dark;
+
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
 
     > * {
       font-size: medium;
