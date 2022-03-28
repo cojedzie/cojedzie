@@ -13,3 +13,6 @@ ij_wrap_on_typing = false
 
 [*.{yaml,yml}]
 indent_size = 2
+
+[*.{scss,css}]
+indent_size = 2
