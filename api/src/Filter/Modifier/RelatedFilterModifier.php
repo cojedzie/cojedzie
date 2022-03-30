@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,13 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modifier;
+namespace App\Filter\Modifier;
 
 use App\Exception\InvalidArgumentException;
 use App\Model\Referable;
 use App\Utility\IterableUtils;
 
-class RelatedFilter implements Modifier
+class RelatedFilterModifier implements Modifier
 {
     private $relationship;
     private $reference;

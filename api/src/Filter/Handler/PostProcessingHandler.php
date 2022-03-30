@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,8 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modifier;
+namespace App\Filter\Handler;
 
-interface Modifier
+use App\Event\PostProcessEvent;
+
+interface PostProcessingHandler
 {
+    public function postProcess(PostProcessEvent $event);
 }

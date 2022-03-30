@@ -21,9 +21,10 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Filter\Binding\Http\LimitParameterBinding;
+use App\Filter\Modifier\IdFilterModifier;
+use App\Filter\Modifier\LimitModifier;
 use App\Model\Departure;
-use App\Modifier\IdFilter;
-use App\Modifier\Limit;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -50,7 +51,7 @@ class DeparturesController extends Controller
     #[Route(path: '/{stop}', name: 'stop', methods: ['GET'], options: ['version' => '1.0'])]
     public function stop(DepartureRepository $departures, StopRepository $stops, $stop, Request $request)
     {
-        $stop = $stops->first(new IdFilter($stop));
+        $stop = $stops->first(new IdFilterModifier($stop));
 
         return $this->json($departures->current(collect($stop), ...$this->getModifiersFromRequest($request)));
     }
@@ -77,9 +78,10 @@ class DeparturesController extends Controller
      * )
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
+    #[LimitParameterBinding]
     public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
     {
-        $stops  = $stops->all(new IdFilter($request->query->all('stop')));
+        $stops  = $stops->all(new IdFilterModifier($request->query->all('stop')));
         $result = $departures->current($stops, ...$this->getModifiersFromRequest($request));
 
         return $this->json(
@@ -93,7 +95,7 @@ class DeparturesController extends Controller
     private function getModifiersFromRequest(Request $request)
     {
         if ($request->query->has('limit')) {
-            yield Limit::count($request->query->getInt('limit'));
+            yield LimitModifier::count($request->query->getInt('limit'));
         }
     }
 }

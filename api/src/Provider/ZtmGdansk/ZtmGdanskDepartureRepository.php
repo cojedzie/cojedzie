@@ -20,17 +20,18 @@
 
 namespace App\Provider\ZtmGdansk;
 
+use App\Filter\Modifier\EmbedModifier;
+use App\Filter\Modifier\FieldFilterModifier;
+use App\Filter\Modifier\FieldFilterOperator;
+use App\Filter\Modifier\IdFilterModifier;
+use App\Filter\Modifier\LimitModifier;
+use App\Filter\Modifier\Modifier;
+use App\Filter\Modifier\RelatedFilterModifier;
 use App\Model\Departure;
 use App\Model\Line;
 use App\Model\ScheduledStop;
 use App\Model\Stop;
 use App\Model\Vehicle;
-use App\Modifier\FieldFilter;
-use App\Modifier\IdFilter;
-use App\Modifier\Limit;
-use App\Modifier\Modifier;
-use App\Modifier\RelatedFilter;
-use App\Modifier\With;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
@@ -83,7 +84,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
         $lines = $estimates->map(fn ($delay) => $delay['routeId'])->unique();
 
-        $lines = $this->lines->all(new IdFilter($lines))->keyBy(t\property('id'));
+        $lines = $this->lines->all(new IdFilterModifier($lines))->keyBy(t\property('id'));
 
         return collect($estimates)->map(function ($delay) use ($stop, $lines) {
             $scheduled = (new Carbon($delay['theoreticalTime'], 'Europe/Warsaw'))->tz('UTC');
@@ -107,10 +108,10 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     private function getScheduledDepartures($stop, Carbon $time, Modifier ...$modifiers)
     {
         return $this->schedule->all(
-            new RelatedFilter($stop, Stop::class),
-            new FieldFilter('departure', $time, '>='),
-            new With('track'),
-            new With('destination'),
+            new RelatedFilterModifier($stop, Stop::class),
+            new FieldFilterModifier('departure', $time, FieldFilterOperator::GreaterOrEqual),
+            new EmbedModifier('track'),
+            new EmbedModifier('destination'),
             ...$modifiers
         );
     }
@@ -201,11 +202,11 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     {
         $result = [];
 
-        /** @var Limit $limit */
-        if ($limit = ModifierUtils::getOfType($modifiers, Limit::class)) {
-            $result[] = new Limit($limit->getOffset(), $limit->getCount() * 2);
+        /** @var LimitModifier $limit */
+        if ($limit = ModifierUtils::getOfType($modifiers, LimitModifier::class)) {
+            $result[] = new LimitModifier($limit->getOffset(), $limit->getCount() * 2);
         } else {
-            $result[] = Limit::count(16);
+            $result[] = LimitModifier::count(16);
         }
 
         return $result;
@@ -215,7 +216,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     {
         foreach ($modifiers as $modifier) {
             switch (true) {
-                case $modifier instanceof Limit:
+                case $modifier instanceof LimitModifier:
                     $result = $result->slice($modifier->getOffset(), $modifier->getCount());
                     break;
             }

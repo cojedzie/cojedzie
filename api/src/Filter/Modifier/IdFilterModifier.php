@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,11 +18,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Handler;
+namespace App\Filter\Modifier;
 
-use App\Event\PostProcessEvent;
+use App\Exception\InvalidArgumentException;
+use App\Utility\IterableUtils;
 
-interface PostProcessingHandler
+class IdFilterModifier implements Modifier
 {
-    public function postProcess(PostProcessEvent $event);
+    private readonly array|string $id;
+
+    public function __construct(iterable|string $id)
+    {
+        if (!is_iterable($id) && !is_string($id)) {
+            throw InvalidArgumentException::invalidType('id', $id, ['string', 'array']);
+        }
+
+        $this->id = is_iterable($id) ? IterableUtils::toArray($id) : $id;
+    }
+
+    public function getId(): array|string
+    {
+        return $this->id;
+    }
+
+    public function isMultiple(): bool
+    {
+        return is_array($this->id);
+    }
 }

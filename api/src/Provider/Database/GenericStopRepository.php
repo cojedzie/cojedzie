@@ -21,11 +21,11 @@
 namespace App\Provider\Database;
 
 use App\Entity\StopEntity;
-use App\Handler\Database\GenericWithDatabaseHandler;
-use App\Handler\Database\WithDestinationsDatabaseHandler;
+use App\Filter\Handler\Database\GenericWithDatabaseHandler;
+use App\Filter\Handler\Database\WithDestinationsDatabaseHandler;
+use App\Filter\Modifier\EmbedModifier;
+use App\Filter\Modifier\Modifier;
 use App\Model\Stop;
-use App\Modifier\Modifier;
-use App\Modifier\With;
 use App\Provider\StopRepository;
 use Illuminate\Support\Collection;
 
@@ -49,7 +49,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
     protected static function getHandlers()
     {
         return array_merge(parent::getHandlers(), [
-            With::class => fn (With $modifier) => $modifier->getRelationship() === 'destinations'
+            EmbedModifier::class => fn (EmbedModifier $modifier) => $modifier->getRelationship() === 'destinations'
                 ? WithDestinationsDatabaseHandler::class
                 : GenericWithDatabaseHandler::class,
         ]);

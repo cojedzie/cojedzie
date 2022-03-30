@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,40 +18,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modifier;
+namespace App\Filter\Modifier;
 
-class FieldFilter implements Modifier
+class EmbedModifier implements Modifier
 {
     public function __construct(
-        private readonly string $field,
-        private $value,
-        private readonly string $operator = '=',
-        private readonly bool $caseSensitive = true
+        private readonly string $relationship
     ) {
     }
 
-    public static function contains(string $field, string $value, bool $caseSensitive = false)
+    public function getRelationship(): string
     {
-        return new static($field, "%$value%", 'LIKE', $caseSensitive);
-    }
-
-    public function getField(): string
-    {
-        return $this->field;
-    }
-
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    public function getOperator(): string
-    {
-        return $this->operator;
-    }
-
-    public function isCaseSensitive(): bool
-    {
-        return $this->caseSensitive;
+        return $this->relationship;
     }
 }

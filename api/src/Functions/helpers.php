@@ -20,6 +20,8 @@
 
 namespace App\Functions;
 
+use JetBrains\PhpStorm\Pure;
+
 function encapsulate($value)
 {
     return match (true) {
@@ -38,4 +40,19 @@ function setup($value, $callback)
 function class_name($object): string
 {
     return (new \ReflectionObject($object))->getName();
+}
+
+/**
+ * @template T
+ *
+ * @psalm-param T $value
+ * @psalm-param T $min
+ * @psalm-param T $max
+ *
+ * @psalm-return T
+ */
+#[Pure]
+function clamp($value, $min, $max)
+{
+    return min($max, max($min, $value));
 }

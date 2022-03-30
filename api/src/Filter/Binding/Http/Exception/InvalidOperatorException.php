@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,17 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modifier;
+namespace App\Filter\Binding\Http\Exception;
 
-class With implements Modifier
+class InvalidOperatorException extends \RuntimeException
 {
-    public function __construct(
-        private readonly string $relationship
-    ) {
-    }
-
-    public function getRelationship(): string
+    public static function unsupported(string $operator, array $supported, string $parameter): self
     {
-        return $this->relationship;
+        return new static(
+            sprintf(
+                "Operator %s is not supported for %s parameter, valid ones: %s.",
+                $operator,
+                $parameter,
+                implode(', ', $supported)
+            )
+        );
     }
 }

@@ -22,9 +22,9 @@ namespace App\Provider\Database;
 
 use App\Entity\TrackEntity;
 use App\Entity\TrackStopEntity;
+use App\Filter\Modifier\Modifier;
 use App\Model\Track;
 use App\Model\TrackStop;
-use App\Modifier\Modifier;
 use App\Provider\TrackRepository;
 use Illuminate\Support\Collection;
 

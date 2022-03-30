@@ -21,13 +21,22 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Filter\Binding\Http\EmbedParameterBinding;
+use App\Filter\Binding\Http\FieldFilterParameterBinding;
+use App\Filter\Binding\Http\IdFilterParameterBinding;
+use App\Filter\Binding\Http\LimitParameterBinding;
+use App\Filter\Binding\Http\ParameterBinding;
+use App\Filter\Binding\Http\ParameterBindingGroup;
+use App\Filter\Binding\Http\ParameterBindingProvider;
+use App\Filter\Modifier\EmbedModifier;
+use App\Filter\Modifier\FieldFilterModifier;
+use App\Filter\Modifier\FieldFilterOperator;
+use App\Filter\Modifier\IdFilterModifier;
+use App\Filter\Modifier\Modifier;
+use App\Filter\Modifier\RelatedFilterModifier;
 use App\Model\Stop;
 use App\Model\StopGroup;
 use App\Model\TrackStop;
-use App\Modifier\FieldFilter;
-use App\Modifier\IdFilter;
-use App\Modifier\RelatedFilter;
-use App\Modifier\With;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use Illuminate\Support\Collection;
@@ -60,12 +69,13 @@ class StopsController extends Controller
      *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will return all data.",
      *     @OA\Schema(type="array", @OA\Items(type="string"))
      * )
+     *
+     * @psalm-param iterable<Modifier> $modifiers
      */
     #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.0'])]
-    public function index(Request $request, StopRepository $stops)
+    #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
+    public function index(StopRepository $stops, iterable $modifiers)
     {
-        $modifiers = $this->getModifiersFromRequest($request);
-
         return $this->json($stops->all(...$modifiers)->toArray());
     }
 
@@ -82,11 +92,13 @@ class StopsController extends Controller
      *     description="Part of the stop name to search for.",
      *     @OA\Schema(type="string")
      * )
+     *
+     * @psalm-param iterable<Modifier> $modifiers
      */
     #[Route(path: '/groups', name: 'groups', methods: ['GET'], options: ['version' => '1.0'])]
-    public function groups(Request $request, StopRepository $stops)
+    #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
+    public function groups(Request $request, StopRepository $stops, iterable $modifiers)
     {
-        $modifiers = $this->getModifiersFromRequest($request);
         return $this->json(static::group($stops->all(...$modifiers))->toArray());
     }
 
@@ -107,7 +119,12 @@ class StopsController extends Controller
     #[Route(path: '/{stop}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
     public function one(Request $request, StopRepository $stops, $stop)
     {
-        return $this->json($stops->first(new IdFilter($stop), new With("destinations")));
+        return $this->json(
+            $stops->first(
+                new IdFilterModifier($stop),
+                new EmbedModifier("destinations")
+            )
+        );
     }
 
     /**
@@ -120,7 +137,7 @@ class StopsController extends Controller
     #[Route(path: '/{stop}/tracks', name: 'tracks', methods: ['GET'], options: ['version' => '1.0'])]
     public function tracks(TrackRepository $tracks, $stop)
     {
-        return $this->json($tracks->stops(new RelatedFilter(Stop::reference($stop))));
+        return $this->json($tracks->stops(new RelatedFilterModifier(Stop::reference($stop))));
     }
 
     public static function group(Collection $stops)
@@ -139,18 +156,24 @@ class StopsController extends Controller
         )->values();
     }
 
-    private function getModifiersFromRequest(Request $request)
+    /**
+     * @psalm-return ParameterBinding[]
+     */
+    public static function getParameterBinding(): ParameterBinding
     {
-        if ($request->query->has('name')) {
-            yield FieldFilter::contains('name', $request->query->get('name'));
-        }
-
-        if ($request->query->has('id')) {
-            yield new IdFilter($request->query->get('id'));
-        }
-
-        if ($request->query->has('include-destinations')) {
-            yield new With("destinations");
-        }
+        return new ParameterBindingGroup(
+            new IdFilterParameterBinding(),
+            new LimitParameterBinding(),
+            new EmbedParameterBinding(['destinations']),
+            new FieldFilterParameterBinding(
+                parameter: 'name',
+                field: 'name',
+                defaultOperator: FieldFilterOperator::Contains,
+                operators: FieldFilterParameterBinding::STRING_OPERATORS,
+                options: [
+                    FieldFilterModifier::OPTION_CASE_SENSITIVE => false,
+                ]
+            ),
+        );
     }
 }

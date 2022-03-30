@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,40 +18,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Handler\Database;
+namespace App\Filter\Handler\Database;
 
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
-use App\Handler\ModifierHandler;
-use App\Modifier\IdFilter;
-use App\Service\IdUtils;
-use function Kadet\Functional\apply;
+use App\Filter\Handler\ModifierHandler;
+use App\Filter\Modifier\LimitModifier;
 
-class IdFilterDatabaseHandler implements ModifierHandler
+class LimitDatabaseHandler implements ModifierHandler
 {
-    public function __construct(
-        private readonly IdUtils $id
-    ) {
-    }
-
     public function process(HandleModifierEvent $event)
     {
         if (!$event instanceof HandleDatabaseModifierEvent) {
             return;
         }
 
-        /** @var IdFilter $modifier */
+        /** @var LimitModifier $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
-        $alias    = $event->getMeta()['alias'];
-        $provider = $event->getMeta()['provider'];
-
-        $id     = $modifier->getId();
-        $mapper = apply([$this->id, 'generate'], $provider);
 
         $builder
-            ->andWhere($modifier->isMultiple() ? "{$alias} in (:id)" : "{$alias} = :id")
-            ->setParameter(':id', $modifier->isMultiple() ? array_map($mapper, $id) : $mapper($id));
+            ->setFirstResult($modifier->getOffset())
+            ->setMaxResults($modifier->getCount())
         ;
     }
 }

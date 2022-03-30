@@ -21,7 +21,7 @@
 namespace App\Service;
 
 use App\Exception\UnsupportedModifierException;
-use App\Modifier\Modifier;
+use App\Filter\Modifier\Modifier;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class HandlerProvider

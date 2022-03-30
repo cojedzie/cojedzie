@@ -21,8 +21,8 @@
 namespace App\Provider\Database;
 
 use App\Entity\TripEntity;
+use App\Filter\Modifier\Modifier;
 use App\Model\Trip;
-use App\Modifier\Modifier;
 use App\Provider\TripRepository;
 use Illuminate\Support\Collection;
 

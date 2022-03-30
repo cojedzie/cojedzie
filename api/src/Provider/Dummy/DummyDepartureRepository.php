@@ -20,10 +20,10 @@
 
 namespace App\Provider\Dummy;
 
+use App\Filter\Modifier\Modifier;
 use App\Model\Departure;
 use App\Model\Line;
 use App\Model\Vehicle;
-use App\Modifier\Modifier;
 use App\Provider\DepartureRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;

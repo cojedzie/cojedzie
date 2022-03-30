@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,11 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Provider;
+namespace App\Filter\Handler;
 
-use App\Filter\Modifier\Modifier;
+use App\Event\HandleModifierEvent;
 
-interface DepartureRepository extends Repository
+interface ModifierHandler
 {
-    public function current(iterable $stops, Modifier ...$modifiers);
+    public function process(HandleModifierEvent $event);
 }

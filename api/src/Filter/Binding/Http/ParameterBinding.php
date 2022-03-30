@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,28 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modifier;
+namespace App\Filter\Binding\Http;
 
-class Limit implements Modifier
+use App\Filter\Modifier\Modifier;
+use Symfony\Component\HttpFoundation\Request;
+
+interface ParameterBinding
 {
-    public function __construct(
-        private readonly int $offset = 0,
-        private readonly ?int $count = null
-    ) {
-    }
-
-    public function getOffset()
-    {
-        return $this->offset;
-    }
-
-    public function getCount()
-    {
-        return $this->count;
-    }
-
-    public static function count(int $count)
-    {
-        return new static(0, $count);
-    }
+    /**
+     * @psalm-return iterable<Modifier>
+     */
+    public function getModifiersFromRequest(Request $request): iterable;
 }

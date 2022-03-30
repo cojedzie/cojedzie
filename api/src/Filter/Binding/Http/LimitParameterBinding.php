@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,30 +18,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Event;
+namespace App\Filter\Binding\Http;
 
-use App\Filter\Modifier\Modifier;
-use App\Provider\Repository;
-use Doctrine\ORM\QueryBuilder;
+use App\Filter\Modifier\LimitModifier;
+use Attribute;
+use Symfony\Component\HttpFoundation\Request;
+use function App\Functions\clamp;
 
-class HandleDatabaseModifierEvent extends HandleModifierEvent
+#[Attribute(Attribute::TARGET_METHOD)]
+class LimitParameterBinding implements ParameterBinding
 {
+    private const LIMIT_QUERY_PARAMETER  = 'limit';
+    private const OFFSET_QUERY_PARAMETER = 'offset';
+
     public function __construct(
-        Modifier $modifier,
-        Repository $repository,
-        private QueryBuilder $builder,
-        array $meta = []
+        public readonly int $defaultLimit = 20,
+        public readonly int $maxLimit = 100
     ) {
-        parent::__construct($modifier, $repository, $meta);
     }
 
-    public function getBuilder(): QueryBuilder
+    public function getModifiersFromRequest(Request $request): iterable
     {
-        return $this->builder;
-    }
-
-    public function replaceBuilder(QueryBuilder $builder): void
-    {
-        $this->builder = $builder;
+        yield new LimitModifier(
+            $request->query->get(self::OFFSET_QUERY_PARAMETER, 0),
+            clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), 1, $this->maxLimit),
+        );
     }
 }

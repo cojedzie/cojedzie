@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,11 +18,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Provider;
+namespace App\Filter\Modifier;
 
-use App\Filter\Modifier\Modifier;
+use JetBrains\PhpStorm\Pure;
 
-interface DepartureRepository extends Repository
+class LimitModifier implements Modifier
 {
-    public function current(iterable $stops, Modifier ...$modifiers);
+    #[Pure]
+    public function __construct(
+        private readonly int $offset = 0,
+        private readonly ?int $count = null
+    ) {
+    }
+
+    public function getOffset(): int
+    {
+        return $this->offset;
+    }
+
+    public function getCount(): ?int
+    {
+        return $this->count;
+    }
+
+    #[Pure]
+    public static function count(int $count): self
+    {
+        return new self(0, $count);
+    }
 }

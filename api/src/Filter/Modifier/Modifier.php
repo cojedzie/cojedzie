@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,28 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Handler\Database;
+namespace App\Filter\Modifier;
 
-use App\Event\HandleDatabaseModifierEvent;
-use App\Event\HandleModifierEvent;
-use App\Handler\ModifierHandler;
-use App\Modifier\Limit;
-
-class LimitDatabaseHandler implements ModifierHandler
+interface Modifier
 {
-    public function process(HandleModifierEvent $event)
-    {
-        if (!$event instanceof HandleDatabaseModifierEvent) {
-            return;
-        }
-
-        /** @var Limit $modifier */
-        $modifier = $event->getModifier();
-        $builder  = $event->getBuilder();
-
-        $builder
-            ->setFirstResult($modifier->getOffset())
-            ->setMaxResults($modifier->getCount())
-        ;
-    }
 }

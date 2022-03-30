@@ -20,7 +20,7 @@
 
 namespace App\Provider;
 
-use App\Modifier\Modifier;
+use App\Filter\Modifier\Modifier;
 use Illuminate\Support\Collection;
 
 interface FluentRepository extends Repository

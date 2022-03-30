@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,43 +18,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Handler\Database;
+namespace App\Filter\Handler\Database;
 
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
-use App\Handler\ModifierHandler;
-use App\Model\Line;
+use App\Filter\Handler\ModifierHandler;
+use App\Filter\Modifier\RelatedFilterModifier;
 use App\Model\ScheduledStop;
-use App\Model\Stop;
 use App\Model\Track;
 use App\Model\TrackStop;
 use App\Model\Trip;
-use App\Modifier\RelatedFilter;
 use App\Service\EntityReferenceFactory;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Container\ContainerInterface;
-use Symfony\Contracts\Service\ServiceSubscriberInterface;
+use function Kadet\Functional\Transforms\property;
 
-class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSubscriberInterface
+class GenericWithDatabaseHandler implements ModifierHandler
 {
     protected $mapping = [
         Track::class => [
-            Line::class => 'line',
-            Stop::class => TrackByStopDatabaseHandler::class,
+            'line'  => 'line',
+            'stops' => 'stopsInTrack',
+        ],
+        Trip::class => [
+            'schedule' => 'stops.stop',
         ],
         TrackStop::class => [
-            Stop::class  => 'stop',
-            Track::class => 'track',
+            'track' => 'track',
         ],
         ScheduledStop::class => [
-            Stop::class => 'stop',
-            Trip::class => 'trip',
+            'trip'        => 'trip',
+            'track'       => 'trip.track',
+            'destination' => 'trip.track.final',
         ],
     ];
 
     public function __construct(
-        private readonly ContainerInterface $inner,
         private readonly EntityManagerInterface $em,
         private readonly IdUtils $id,
         private readonly EntityReferenceFactory $references
@@ -67,41 +66,31 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
             return;
         }
 
-        /** @var RelatedFilter $modifier */
+        /** @var RelatedFilterModifier $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];
         $type     = $event->getMeta()['type'];
 
-        if (!array_key_exists($type, $this->mapping)) {
-            throw new \InvalidArgumentException(
-                sprintf("Relationship filtering for %s is not supported.", $type)
-            );
-        }
-
         if (!array_key_exists($modifier->getRelationship(), $this->mapping[$type])) {
             throw new \InvalidArgumentException(
-                sprintf("Relationship %s is not supported for %s.", $modifier->getRelationship(), $type)
+                sprintf("Relationship %s is not supported for .", $type)
             );
         }
 
         $relationship = $this->mapping[$type][$modifier->getRelationship()];
 
-        if ($this->inner->has($relationship)) {
-            /** @var ModifierHandler $inner */
-            $inner = $this->inner->get($relationship);
-            $inner->process($event);
+        foreach ($this->getRelationships($relationship, $alias) as [$relationshipPath, $relationshipAlias]) {
+            $selected = collect($builder->getDQLPart('select'))->flatMap(property('parts'));
 
-            return;
+            if ($selected->contains($relationshipAlias)) {
+                continue;
+            }
+
+            $builder
+                ->join($relationshipPath, $relationshipAlias)
+                ->addSelect($relationshipAlias);
         }
-
-        $parameter = sprintf(":%s_%s", $alias, $relationship);
-        $reference = $this->references->create($modifier->getRelated(), $event->getMeta()['provider']);
-
-        $builder
-            ->join(sprintf('%s.%s', $alias, $relationship), $relationship)
-            ->andWhere(sprintf($modifier->isMultiple() ? "%s in (%s)" : "%s = %s", $relationship, $parameter))
-            ->setParameter($parameter, $reference);
     }
 
     public static function getSubscribedServices()
@@ -109,5 +98,14 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         return [
             TrackByStopDatabaseHandler::class,
         ];
+    }
+
+    private function getRelationships($relationship, $alias)
+    {
+        $relationships = explode('.', (string) $relationship);
+
+        foreach ($relationships as $current) {
+            yield [sprintf("%s.%s", $alias, $current), $alias = sprintf('%s_%s', $alias, $current)];
+        }
     }
 }

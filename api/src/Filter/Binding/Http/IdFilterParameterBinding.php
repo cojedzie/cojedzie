@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,31 +18,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modifier;
+namespace App\Filter\Binding\Http;
 
-use App\Exception\InvalidArgumentException;
-use App\Utility\IterableUtils;
+use App\Filter\Modifier\IdFilterModifier;
+use Attribute;
+use Symfony\Component\HttpFoundation\Request;
 
-class IdFilter implements Modifier
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+class IdFilterParameterBinding implements ParameterBinding
 {
-    private readonly array|string $id;
+    public function __construct(
+        public readonly string $parameter = 'id'
+    ) {
+    }
 
-    public function __construct($id)
+    public function getModifiersFromRequest(Request $request): iterable
     {
-        if (!is_iterable($id) && !is_string($id)) {
-            throw InvalidArgumentException::invalidType('id', $id, ['string', 'array']);
+        if ($request->query->has($this->parameter)) {
+            yield new IdFilterModifier($request->query->get($this->parameter));
         }
-
-        $this->id = is_iterable($id) ? IterableUtils::toArray($id) : $id;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function isMultiple()
-    {
-        return is_array($this->id);
     }
 }

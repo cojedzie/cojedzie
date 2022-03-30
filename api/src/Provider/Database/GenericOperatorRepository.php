@@ -21,8 +21,8 @@
 namespace App\Provider\Database;
 
 use App\Entity\OperatorEntity;
+use App\Filter\Modifier\Modifier;
 use App\Model\Operator;
-use App\Modifier\Modifier;
 use App\Provider\OperatorRepository;
 use Illuminate\Support\Collection;
 

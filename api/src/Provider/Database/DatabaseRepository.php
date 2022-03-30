@@ -24,21 +24,21 @@ use App\DataConverter\Converter;
 use App\Entity\ProviderEntity;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\PostProcessEvent;
-use App\Handler\Database\FieldFilterDatabaseHandler;
-use App\Handler\Database\GenericWithDatabaseHandler;
-use App\Handler\Database\IdFilterDatabaseHandler;
-use App\Handler\Database\LimitDatabaseHandler;
-use App\Handler\Database\RelatedFilterDatabaseGenericHandler;
-use App\Handler\ModifierHandler;
-use App\Handler\PostProcessingHandler;
+use App\Filter\Handler\Database\FieldFilterDatabaseHandler;
+use App\Filter\Handler\Database\GenericWithDatabaseHandler;
+use App\Filter\Handler\Database\IdFilterDatabaseHandler;
+use App\Filter\Handler\Database\LimitDatabaseHandler;
+use App\Filter\Handler\Database\RelatedFilterDatabaseGenericHandler;
+use App\Filter\Handler\ModifierHandler;
+use App\Filter\Handler\PostProcessingHandler;
+use App\Filter\Modifier\EmbedModifier;
+use App\Filter\Modifier\FieldFilterModifier;
+use App\Filter\Modifier\IdFilterModifier;
+use App\Filter\Modifier\LimitModifier;
+use App\Filter\Modifier\Modifier;
+use App\Filter\Modifier\RelatedFilterModifier;
 use App\Model\DTO;
 use App\Model\Referable;
-use App\Modifier\FieldFilter;
-use App\Modifier\IdFilter;
-use App\Modifier\Limit;
-use App\Modifier\Modifier;
-use App\Modifier\RelatedFilter;
-use App\Modifier\With;
 use App\Provider\Repository;
 use App\Service\HandlerProvider;
 use App\Service\IdUtils;
@@ -62,11 +62,11 @@ abstract class DatabaseRepository implements Repository
         protected HandlerProvider $handlers
     ) {
         $this->handlers->loadConfiguration(array_merge([
-            IdFilter::class      => IdFilterDatabaseHandler::class,
-            Limit::class         => LimitDatabaseHandler::class,
-            FieldFilter::class   => FieldFilterDatabaseHandler::class,
-            RelatedFilter::class => RelatedFilterDatabaseGenericHandler::class,
-            With::class          => GenericWithDatabaseHandler::class,
+            IdFilterModifier::class      => IdFilterDatabaseHandler::class,
+            LimitModifier::class         => LimitDatabaseHandler::class,
+            FieldFilterModifier::class   => FieldFilterDatabaseHandler::class,
+            RelatedFilterModifier::class => RelatedFilterDatabaseGenericHandler::class,
+            EmbedModifier::class         => GenericWithDatabaseHandler::class,
         ], static::getHandlers()));
     }
 
@@ -141,7 +141,7 @@ abstract class DatabaseRepository implements Repository
 
     public function first(Modifier ...$modifiers)
     {
-        return $this->all(Limit::count(1), ...$modifiers)->first();
+        return $this->all(LimitModifier::count(1), ...$modifiers)->first();
     }
 
     /**

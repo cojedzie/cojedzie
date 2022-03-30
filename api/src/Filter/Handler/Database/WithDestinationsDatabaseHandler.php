@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,13 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Handler\Database;
+namespace App\Filter\Handler\Database;
 
 use App\DataConverter\CacheableConverter;
 use App\DataConverter\Converter;
 use App\Entity\TrackEntity;
 use App\Event\PostProcessEvent;
-use App\Handler\PostProcessingHandler;
+use App\Filter\Handler\PostProcessingHandler;
 use App\Model\Destination;
 use App\Model\DTO;
 use App\Service\IdUtils;

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,14 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Handler\Database;
+namespace App\Filter\Handler\Database;
 
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
-use App\Handler\ModifierHandler;
+use App\Filter\Handler\ModifierHandler;
+use App\Filter\Modifier\FieldFilterModifier;
+use App\Filter\Modifier\FieldFilterOperator;
 use App\Model\ScheduledStop;
 use App\Model\Stop;
-use App\Modifier\FieldFilter;
 use function App\Functions\encapsulate;
 
 class FieldFilterDatabaseHandler implements ModifierHandler
@@ -46,7 +47,7 @@ class FieldFilterDatabaseHandler implements ModifierHandler
             return;
         }
 
-        /** @var FieldFilter $modifier */
+        /** @var FieldFilterModifier $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];
@@ -57,7 +58,7 @@ class FieldFilterDatabaseHandler implements ModifierHandler
 
         $parameter = sprintf(":%s_%s", $alias, $field);
 
-        if ($operator === 'in' || $operator === 'not in') {
+        if ($operator->isSetOperator()) {
             $parameter = "($parameter)";
             $value     = encapsulate($value);
         }
@@ -70,12 +71,12 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         }
 
         $builder
-            ->andWhere(sprintf("%s %s %s", $where, $operator, $parameter))
+            ->andWhere(sprintf("%s %s %s", $where, $this->mapFieldFilterOperatorToDatabase($operator), $parameter))
             ->setParameter($parameter, $value)
         ;
     }
 
-    protected function mapFieldName(string $class, string $field)
+    protected function mapFieldName(string $class, string $field): string
     {
         if (!isset($this->mapping[$class][$field])) {
             throw new \InvalidArgumentException(
@@ -84,5 +85,20 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         }
 
         return $this->mapping[$class][$field];
+    }
+
+    protected function mapFieldFilterOperatorToDatabase(FieldFilterOperator $operator): string
+    {
+        return match ($operator) {
+            FieldFilterOperator::Equals         => '=',
+            FieldFilterOperator::NotEquals      => '!=',
+            FieldFilterOperator::Less           => '<',
+            FieldFilterOperator::LessOrEqual    => '<=',
+            FieldFilterOperator::Greater        => '>',
+            FieldFilterOperator::GreaterOrEqual => '>=',
+            FieldFilterOperator::In             => 'in',
+            FieldFilterOperator::NotIn          => 'not in',
+            FieldFilterOperator::Contains       => 'LIKE'
+        };
     }
 }

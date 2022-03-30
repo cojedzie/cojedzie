@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -18,11 +18,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Handler;
+namespace App\Filter\Binding\Http;
 
-use App\Event\HandleModifierEvent;
+use Attribute;
+use Symfony\Component\HttpFoundation\Request;
 
-interface ModifierHandler
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+class ParameterBindingGroup implements ParameterBinding
 {
-    public function process(HandleModifierEvent $event);
+    public readonly iterable $bindings;
+
+    public function __construct(ParameterBinding ...$bindings)
+    {
+        $this->bindings = $bindings;
+    }
+
+    public function getModifiersFromRequest(Request $request): iterable
+    {
+        foreach ($this->bindings as $binding) {
+            yield from $binding->getModifiersFromRequest($request);
+        }
+    }
 }

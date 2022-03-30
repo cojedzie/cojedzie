@@ -21,8 +21,8 @@
 namespace App\Provider\Database;
 
 use App\Entity\LineEntity;
+use App\Filter\Modifier\Modifier;
 use App\Model\Line;
-use App\Modifier\Modifier;
 use App\Provider\LineRepository;
 use Illuminate\Support\Collection;
 
