@@ -20,23 +20,18 @@
 
 namespace App\Filter\Modifier;
 
-use App\Exception\InvalidArgumentException;
 use App\Model\Referable;
 use App\Utility\IterableUtils;
 
 class RelatedFilterModifier implements Modifier
 {
-    private $relationship;
-    private $reference;
+    private array|Referable $reference;
+    private ?string $relationship;
 
-    public function __construct($reference, ?string $relation = null)
+    public function __construct(iterable|Referable $reference, ?string $relationship = null)
     {
-        if (!is_iterable($reference) && !$reference instanceof Referable) {
-            throw InvalidArgumentException::invalidType('object', $reference, [Referable::class, 'iterable']);
-        }
-
         $this->reference    = is_iterable($reference) ? IterableUtils::toArray($reference) : $reference;
-        $this->relationship = $relation ?: $reference::class;
+        $this->relationship = $relationship ?: $this->guessRelationship();
     }
 
     public function getRelationship(): string
@@ -44,13 +39,18 @@ class RelatedFilterModifier implements Modifier
         return $this->relationship;
     }
 
-    public function getRelated()
+    public function getRelated(): array|Referable
     {
         return $this->reference;
     }
 
-    public function isMultiple()
+    public function isMultiple(): bool
     {
         return is_array($this->reference);
+    }
+
+    private function guessRelationship(): string
+    {
+        return ($this->isMultiple() ? $this->reference[0] : $this->reference)::class;
     }
 }

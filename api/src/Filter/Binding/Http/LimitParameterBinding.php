@@ -40,8 +40,8 @@ class LimitParameterBinding implements ParameterBinding
     public function getModifiersFromRequest(Request $request): iterable
     {
         yield new LimitModifier(
-            $request->query->get(self::OFFSET_QUERY_PARAMETER, 0),
-            clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), 1, $this->maxLimit),
+            offset: $request->query->get(self::OFFSET_QUERY_PARAMETER, 0),
+            count: clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), 1, $this->maxLimit),
         );
     }
 }

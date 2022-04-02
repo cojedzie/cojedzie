@@ -38,11 +38,17 @@ class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterf
 
     public function getModifiersFromRequest(Request $request): iterable
     {
-        yield from match (true) {
-            is_callable($this->source)           => ($this->source)()->getModifiersFromRequest($request),
-            class_exists($this->source)          => (new $this->source())->getModifiersFromRequest($request),
-            $this->container->has($this->source) => $this->container->get($this->source)->getModifiersFromRequest($request),
-            default                              => InvalidArgumentException::invalidType('source', $this->source, ['class-name', 'service id', 'callable']),
+        $source = match (true) {
+            is_callable($this->source)           => ($this->source)(),
+            class_exists($this->source)          => new $this->source(),
+            $this->container->has($this->source) => $this->container->get($this->source),
+            default                              => throw InvalidArgumentException::invalidType(
+                'source',
+                $this->source,
+                ['class-name', 'service id', 'callable']
+            ),
         };
+
+        yield from $source->getModifiersFromRequest($request);
     }
 }

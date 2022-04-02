@@ -46,7 +46,9 @@ class EmbedParameterBinding implements ParameterBinding
                 continue;
             }
 
-            yield new EmbedModifier($embedded);
+            yield new EmbedModifier(
+                relationship: $embedded
+            );
         }
     }
 }

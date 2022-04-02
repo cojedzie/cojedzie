@@ -23,17 +23,12 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\Filter\Binding\Http\IdFilterParameterBinding;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
-use App\Filter\Modifier\IdFilterModifier;
-use App\Filter\Modifier\RelatedFilterModifier;
 use App\Model\Line;
 use App\Model\Stop;
 use App\Model\Track;
 use App\Provider\TrackRepository;
 use OpenApi\Annotations as OA;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use function App\Functions\encapsulate;
-use function Kadet\Functional\ref;
 
 /**
  * @OA\Tag(name="Tracks")
@@ -64,14 +59,10 @@ class TracksController extends Controller
     #[Route(path: '/stops', name: 'stops', methods: ['GET'], options: ['version' => '1.0'])]
     #[Route(path: '/{track}/stops', name: 'stops_in_track', methods: ['GET'], options: ['version' => '1.0'])]
     #[RelatedFilterParameterBinding(Stop::class, 'stop')]
-    #[RelatedFilterParameterBinding(Track::class, 'track')]
+    #[RelatedFilterParameterBinding(Track::class, 'track', from: ["attributes", "query"])]
     #[IdFilterParameterBinding]
-    public function stops(TrackRepository $repository, array $modifiers, ?string $track = null)
+    public function stops(TrackRepository $repository, array $modifiers)
     {
-        if ($track) {
-            $modifiers[] = new RelatedFilterModifier($track, Track::class);
-        }
-
         return $this->json($repository->stops(...$modifiers));
     }
 }

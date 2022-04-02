@@ -83,10 +83,10 @@ class FieldFilterParameterBinding implements ParameterBinding
 
             if ($name === $this->parameter) {
                 yield new FieldFilterModifier(
-                    $this->field,
-                    $request->query->get($parameter),
-                    $operator,
-                    $this->options,
+                    field: $this->field,
+                    value: $request->query->get($parameter),
+                    operator: $operator,
+                    options: $this->options,
                 );
             }
         }

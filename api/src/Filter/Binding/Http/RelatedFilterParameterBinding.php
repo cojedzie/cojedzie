@@ -21,7 +21,9 @@
 namespace App\Filter\Binding\Http;
 
 use App\Filter\Modifier\RelatedFilterModifier;
+use App\Utility\RequestUtils;
 use Attribute;
+use JetBrains\PhpStorm\ExpectedValues;
 use Symfony\Component\HttpFoundation\Request;
 use function App\Functions\encapsulate;
 
@@ -34,19 +36,26 @@ class RelatedFilterParameterBinding implements ParameterBinding
         public readonly string $resource,
         public readonly string $parameter,
         ?string $relationship = null,
+        #[ExpectedValues(values: ['query', 'attributes'])]
+        public readonly array $from = ['query'],
     ) {
         $this->relationship = $relationship ?: $this->resource;
     }
 
     public function getModifiersFromRequest(Request $request): iterable
     {
-        if (!$request->query->has($this->parameter)) {
+        $value = RequestUtils::get($request, $this->parameter, $this->from);
+
+        if ($value === null) {
             return;
         }
 
-        $related = encapsulate($request->query->get($this->parameter));
+        $related = encapsulate($value);
         $related = collect($related)->map([$this->resource, 'reference']);
 
-        yield new RelatedFilterModifier($related, $this->relationship);
+        yield new RelatedFilterModifier(
+            reference: $related,
+            relationship: $this->relationship
+        );
     }
 }

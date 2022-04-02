@@ -18,28 +18,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Filter\Binding\Http;
+namespace App\Utility;
 
-use App\Filter\Modifier\IdFilterModifier;
-use App\Utility\RequestUtils;
-use Attribute;
-use JetBrains\PhpStorm\ExpectedValues;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-class IdFilterParameterBinding implements ParameterBinding
+final class RequestUtils
 {
-    public function __construct(
-        public readonly string $parameter = 'id',
-        #[ExpectedValues(values: ['query', 'attributes'])]
-        public readonly array $from = ['query'],
-    ) {
+    private function __construct()
+    {
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public static function get(Request $request, string $parameter, array $from, mixed $default = null)
     {
-        if ($value = RequestUtils::get($request, $this->parameter, $this->from)) {
-            yield new IdFilterModifier(id: $value);
+        foreach ($from as $source) {
+            /** @var InputBag $bag */
+            $bag = $request->$source;
+
+            if ($bag->has($parameter)) {
+                return $bag->get($parameter);
+            }
         }
+
+        return $default;
     }
 }
