@@ -11,24 +11,40 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS :w
+ * :w
+ * FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Filter\Modifier;
+namespace App\Filter\Requirement;
 
-class EmbedModifier implements Modifier
+use App\Exception\InvalidArgumentException;
+use App\Utility\IterableUtils;
+
+class IdConstraint implements Requirement
 {
-    public function __construct(
-        private readonly string $relationship
-    ) {
+    private readonly array|string $id;
+
+    public function __construct(iterable|string $id)
+    {
+        if (!is_iterable($id) && !is_string($id)) {
+            throw InvalidArgumentException::invalidType('id', $id, ['string', 'array']);
+        }
+
+        $this->id = is_iterable($id) ? IterableUtils::toArray($id) : $id;
     }
 
-    public function getRelationship(): string
+    public function getId(): array|string
     {
-        return $this->relationship;
+        return $this->id;
+    }
+
+    public function isMultiple(): bool
+    {
+        return is_array($this->id);
     }
 }

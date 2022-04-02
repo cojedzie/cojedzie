@@ -20,11 +20,11 @@
 
 namespace App\Exception;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 
 class UnsupportedModifierException extends \LogicException
 {
-    public static function createFromModifier(Modifier $modifier): self
+    public static function createFromModifier(Requirement $modifier): self
     {
         return new self(sprintf("Modifier %s is not supported.", $modifier::class));
     }

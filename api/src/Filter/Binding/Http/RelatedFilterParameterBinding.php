@@ -20,7 +20,7 @@
 
 namespace App\Filter\Binding\Http;
 
-use App\Filter\Modifier\RelatedFilterModifier;
+use App\Filter\Requirement\RelatedFilter;
 use App\Utility\RequestUtils;
 use Attribute;
 use JetBrains\PhpStorm\ExpectedValues;
@@ -42,7 +42,7 @@ class RelatedFilterParameterBinding implements ParameterBinding
         $this->relationship = $relationship ?: $this->resource;
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public function getRequirementsFromRequest(Request $request): iterable
     {
         $value = RequestUtils::get($request, $this->parameter, $this->from);
 
@@ -53,7 +53,7 @@ class RelatedFilterParameterBinding implements ParameterBinding
         $related = encapsulate($value);
         $related = collect($related)->map([$this->resource, 'reference']);
 
-        yield new RelatedFilterModifier(
+        yield new RelatedFilter(
             reference: $related,
             relationship: $this->relationship
         );

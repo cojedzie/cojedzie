@@ -23,7 +23,7 @@ namespace App\Filter\Handler\Database;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Filter\Handler\ModifierHandler;
-use App\Filter\Modifier\LimitModifier;
+use App\Filter\Requirement\LimitConstraint;
 
 class LimitDatabaseHandler implements ModifierHandler
 {
@@ -33,7 +33,7 @@ class LimitDatabaseHandler implements ModifierHandler
             return;
         }
 
-        /** @var LimitModifier $modifier */
+        /** @var LimitConstraint $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
 

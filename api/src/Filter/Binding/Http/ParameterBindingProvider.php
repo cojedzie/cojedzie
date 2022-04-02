@@ -36,7 +36,7 @@ class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterf
     ) {
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public function getRequirementsFromRequest(Request $request): iterable
     {
         $source = match (true) {
             is_callable($this->source)           => ($this->source)(),
@@ -49,6 +49,6 @@ class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterf
             ),
         };
 
-        yield from $source->getModifiersFromRequest($request);
+        yield from $source->getRequirementsFromRequest($request);
     }
 }

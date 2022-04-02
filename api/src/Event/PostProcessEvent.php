@@ -20,14 +20,14 @@
 
 namespace App\Event;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Provider\Repository;
 
 class PostProcessEvent extends HandleModifierEvent
 {
     public function __construct(
         private $data,
-        Modifier $modifier,
+        Requirement $modifier,
         Repository $repository,
         array $meta = []
     ) {

@@ -20,10 +20,10 @@
 
 namespace App\Provider;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use Illuminate\Support\Collection;
 
 interface TrackRepository extends FluentRepository
 {
-    public function stops(Modifier ...$modifiers): Collection;
+    public function stops(Requirement ...$requirements): Collection;
 }

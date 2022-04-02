@@ -18,28 +18,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Filter\Binding\Http;
+namespace App\Filter\Requirement;
 
-use App\Filter\Modifier\IdFilterModifier;
-use App\Utility\RequestUtils;
-use Attribute;
-use JetBrains\PhpStorm\ExpectedValues;
-use Symfony\Component\HttpFoundation\Request;
+use JetBrains\PhpStorm\Pure;
 
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-class IdFilterParameterBinding implements ParameterBinding
+class LimitConstraint implements Requirement
 {
+    #[Pure]
     public function __construct(
-        public readonly string $parameter = 'id',
-        #[ExpectedValues(values: ['query', 'attributes'])]
-        public readonly array $from = ['query'],
+        private readonly int $offset = 0,
+        private readonly ?int $count = null
     ) {
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public function getOffset(): int
     {
-        if ($value = RequestUtils::get($request, $this->parameter, $this->from)) {
-            yield new IdFilterModifier(id: $value);
-        }
+        return $this->offset;
+    }
+
+    public function getCount(): ?int
+    {
+        return $this->count;
+    }
+
+    #[Pure]
+    public static function count(int $count): self
+    {
+        return new self(0, $count);
     }
 }

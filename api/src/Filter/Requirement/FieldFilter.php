@@ -18,11 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Filter\Modifier;
+namespace App\Filter\Requirement;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class FieldFilterModifier implements Modifier
+class FieldFilter implements Requirement
 {
     public const OPTION_CASE_SENSITIVE = 'case_sensitive';
     private readonly array $options;
@@ -34,10 +34,13 @@ class FieldFilterModifier implements Modifier
         array $options = [],
     ) {
         $resolver = new OptionsResolver();
-
-        $resolver->setDefault('case_sensitive', false);
-
+        $this->configureOptions($resolver);
         $this->options = $resolver->resolve($options);
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefault('case_sensitive', false);
     }
 
     public function getField(): string

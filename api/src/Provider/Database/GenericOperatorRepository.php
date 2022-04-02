@@ -21,14 +21,14 @@
 namespace App\Provider\Database;
 
 use App\Entity\OperatorEntity;
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Model\Operator;
 use App\Provider\OperatorRepository;
 use Illuminate\Support\Collection;
 
 class GenericOperatorRepository extends DatabaseRepository implements OperatorRepository
 {
-    public function all(Modifier ...$modifiers): Collection
+    public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em
             ->createQueryBuilder()
@@ -36,7 +36,7 @@ class GenericOperatorRepository extends DatabaseRepository implements OperatorRe
             ->select('operator')
         ;
 
-        return $this->allFromQueryBuilder($builder, $modifiers, [
+        return $this->allFromQueryBuilder($builder, $requirements, [
             'alias'  => 'operator',
             'entity' => OperatorEntity::class,
             'type'   => Operator::class,

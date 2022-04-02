@@ -23,7 +23,7 @@ namespace App\Filter\Handler\Database;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Filter\Handler\ModifierHandler;
-use App\Filter\Modifier\IdFilterModifier;
+use App\Filter\Requirement\IdConstraint;
 use App\Service\IdUtils;
 use function Kadet\Functional\apply;
 
@@ -40,7 +40,7 @@ class IdFilterDatabaseHandler implements ModifierHandler
             return;
         }
 
-        /** @var IdFilterModifier $modifier */
+        /** @var IdConstraint $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];

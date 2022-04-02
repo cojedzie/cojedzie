@@ -40,19 +40,19 @@ class ModifierParameterConverter implements ParamConverterInterface
         $controllerReflection = new ReflectionClass($controller);
         $actionReflection     = $controllerReflection->getMethod($action);
 
-        $modifiers = [];
+        $requirements = [];
 
         foreach ($actionReflection->getAttributes(ParameterBinding::class, ReflectionAttribute::IS_INSTANCEOF) as $attribute) {
             /** @var ParameterBinding $binding */
-            $binding   = $attribute->newInstance();
-            $modifiers = [...$modifiers, ...$binding->getModifiersFromRequest($request)];
+            $binding      = $attribute->newInstance();
+            $requirements = [...$requirements, ...$binding->getRequirementsFromRequest($request)];
         }
 
-        $request->attributes->set($configuration->getName(), $modifiers);
+        $request->attributes->set($configuration->getName(), $requirements);
     }
 
     public function supports(ParamConverter $configuration): bool
     {
-        return $configuration->getName() === 'modifiers';
+        return $configuration->getName() === 'requirements';
     }
 }

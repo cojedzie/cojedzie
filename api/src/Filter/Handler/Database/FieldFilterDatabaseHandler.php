@@ -23,8 +23,8 @@ namespace App\Filter\Handler\Database;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Filter\Handler\ModifierHandler;
-use App\Filter\Modifier\FieldFilterModifier;
-use App\Filter\Modifier\FieldFilterOperator;
+use App\Filter\Requirement\FieldFilter;
+use App\Filter\Requirement\FieldFilterOperator;
 use App\Model\ScheduledStop;
 use App\Model\Stop;
 use function App\Functions\encapsulate;
@@ -47,7 +47,7 @@ class FieldFilterDatabaseHandler implements ModifierHandler
             return;
         }
 
-        /** @var FieldFilterModifier $modifier */
+        /** @var FieldFilter $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];

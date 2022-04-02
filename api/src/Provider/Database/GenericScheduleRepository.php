@@ -23,7 +23,7 @@ namespace App\Provider\Database;
 use App\Entity\StopEntity;
 use App\Entity\TrackEntity;
 use App\Entity\TripStopEntity;
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Model\Departure;
 use App\Model\ScheduledStop;
 use App\Model\Stop;
@@ -84,7 +84,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
         });
     }
 
-    public function all(Modifier ...$modifiers): Collection
+    public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em
             ->createQueryBuilder()
@@ -93,7 +93,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ->orderBy('trip_stop.departure', 'ASC')
         ;
 
-        return $this->allFromQueryBuilder($builder, $modifiers, [
+        return $this->allFromQueryBuilder($builder, $requirements, [
             'alias'  => 'trip_stop',
             'type'   => ScheduledStop::class,
             'entity' => TripStopEntity::class,

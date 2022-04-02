@@ -20,12 +20,12 @@
 
 namespace App\Provider;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use Illuminate\Support\Collection;
 
 interface FluentRepository extends Repository
 {
-    public function first(Modifier ...$modifiers);
+    public function first(Requirement ...$requirements);
 
-    public function all(Modifier ...$modifiers): Collection;
+    public function all(Requirement ...$requirements): Collection;
 }

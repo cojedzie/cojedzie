@@ -20,19 +20,19 @@
 
 namespace App\Event;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Provider\Repository;
 
 class HandleModifierEvent
 {
     public function __construct(
-        private readonly Modifier $modifier,
+        private readonly Requirement $modifier,
         private readonly Repository $repository,
         private readonly array $meta = []
     ) {
     }
 
-    public function getModifier(): Modifier
+    public function getModifier(): Requirement
     {
         return $this->modifier;
     }

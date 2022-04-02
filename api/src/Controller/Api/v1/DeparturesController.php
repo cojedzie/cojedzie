@@ -21,9 +21,10 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
-use App\Filter\Modifier\IdFilterModifier;
-use App\Filter\Modifier\LimitModifier;
+use App\Filter\Requirement\IdConstraint;
+use App\Filter\Requirement\LimitConstraint;
 use App\Model\Departure;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
@@ -51,9 +52,9 @@ class DeparturesController extends Controller
     #[Route(path: '/{stop}', name: 'stop', methods: ['GET'], options: ['version' => '1.0'])]
     public function stop(DepartureRepository $departures, StopRepository $stops, $stop, Request $request)
     {
-        $stop = $stops->first(new IdFilterModifier($stop));
+        $stop = $stops->first(new IdConstraint($stop));
 
-        return $this->json($departures->current(collect($stop), ...$this->getModifiersFromRequest($request)));
+        return $this->json($departures->current(collect($stop), ...$this->getrequirementsFromRequest($request)));
     }
 
     /**
@@ -79,10 +80,13 @@ class DeparturesController extends Controller
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     #[LimitParameterBinding]
-    public function stops(DepartureRepository $departures, StopRepository $stops, Request $request)
+    public function stops(DepartureRepository $departures, StopRepository $stops, Request $request, array $requirements)
     {
-        $stops  = $stops->all(new IdFilterModifier($request->query->all('stop')));
-        $result = $departures->current($stops, ...$this->getModifiersFromRequest($request));
+        $stops  = $stops->all(
+            new IdConstraint($request->query->all('stop'))
+        );
+
+        $result = $departures->current($stops, ...$requirements);
 
         return $this->json(
             $result->values()->slice(0, (int) $request->query->get('limit', 8)),
@@ -90,12 +94,5 @@ class DeparturesController extends Controller
             [],
             $this->serializerContextFactory->create(Departure::class, ['Default'])
         );
-    }
-
-    private function getModifiersFromRequest(Request $request)
-    {
-        if ($request->query->has('limit')) {
-            yield LimitModifier::count($request->query->getInt('limit'));
-        }
     }
 }

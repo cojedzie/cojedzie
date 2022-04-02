@@ -20,14 +20,14 @@
 
 namespace App\Event;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Provider\Repository;
 use Doctrine\ORM\QueryBuilder;
 
 class HandleDatabaseModifierEvent extends HandleModifierEvent
 {
     public function __construct(
-        Modifier $modifier,
+        Requirement $modifier,
         Repository $repository,
         private QueryBuilder $builder,
         array $meta = []

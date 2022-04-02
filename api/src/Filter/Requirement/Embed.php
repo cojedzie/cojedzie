@@ -18,39 +18,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Filter\Modifier;
+namespace App\Filter\Requirement;
 
-use App\Model\Referable;
-use App\Utility\IterableUtils;
-
-class RelatedFilterModifier implements Modifier
+class Embed implements Requirement
 {
-    private array|Referable $reference;
-    private ?string $relationship;
-
-    public function __construct(iterable|Referable $reference, ?string $relationship = null)
-    {
-        $this->reference    = is_iterable($reference) ? IterableUtils::toArray($reference) : $reference;
-        $this->relationship = $relationship ?: $this->guessRelationship();
+    public function __construct(
+        private readonly string $relationship
+    ) {
     }
 
     public function getRelationship(): string
     {
         return $this->relationship;
-    }
-
-    public function getRelated(): array|Referable
-    {
-        return $this->reference;
-    }
-
-    public function isMultiple(): bool
-    {
-        return is_array($this->reference);
-    }
-
-    private function guessRelationship(): string
-    {
-        return ($this->isMultiple() ? $this->reference[0] : $this->reference)::class;
     }
 }

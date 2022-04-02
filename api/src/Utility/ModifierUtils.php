@@ -26,23 +26,23 @@ use function Kadet\Functional\Predicates\instance;
 
 final class ModifierUtils
 {
-    public static function get(iterable $modifiers, Predicate $predicate)
+    public static function get(iterable $requirements, Predicate $predicate)
     {
-        return collect($modifiers)->first($predicate);
+        return collect($requirements)->first($predicate);
     }
 
-    public static function getOfType(iterable $modifiers, $class)
+    public static function getOfType(iterable $requirements, $class)
     {
-        return self::get($modifiers, instance($class));
+        return self::get($requirements, instance($class));
     }
 
-    public static function hasAny(iterable $modifiers, Predicate $predicate)
+    public static function hasAny(iterable $requirements, Predicate $predicate)
     {
-        return collect($modifiers)->contains($predicate);
+        return collect($requirements)->contains($predicate);
     }
 
-    public static function hasAnyOfType(iterable $modifiers, $class)
+    public static function hasAnyOfType(iterable $requirements, $class)
     {
-        return collect($modifiers)->contains(instance($class));
+        return collect($requirements)->contains(instance($class));
     }
 }

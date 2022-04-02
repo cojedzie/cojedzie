@@ -21,8 +21,8 @@
 namespace App\Filter\Binding\Http;
 
 use App\Filter\Binding\Http\Exception\InvalidOperatorException;
-use App\Filter\Modifier\FieldFilterModifier;
-use App\Filter\Modifier\FieldFilterOperator;
+use App\Filter\Requirement\FieldFilter;
+use App\Filter\Requirement\FieldFilterOperator;
 use Attribute;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -70,7 +70,7 @@ class FieldFilterParameterBinding implements ParameterBinding
     ) {
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public function getRequirementsFromRequest(Request $request): iterable
     {
         foreach ($request->query as $parameter => $value) {
             @[ $name, $operator ] = explode(':', $parameter);
@@ -82,7 +82,7 @@ class FieldFilterParameterBinding implements ParameterBinding
             };
 
             if ($name === $this->parameter) {
-                yield new FieldFilterModifier(
+                yield new FieldFilter(
                     field: $this->field,
                     value: $request->query->get($parameter),
                     operator: $operator,

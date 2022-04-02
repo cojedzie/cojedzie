@@ -18,8 +18,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Filter\Modifier;
+namespace App\Filter\Binding\Http;
 
-interface Modifier
+use App\Filter\Requirement\IdConstraint;
+use App\Utility\RequestUtils;
+use Attribute;
+use JetBrains\PhpStorm\ExpectedValues;
+use Symfony\Component\HttpFoundation\Request;
+
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+class IdConstraintParameterBinding implements ParameterBinding
 {
+    public function __construct(
+        public readonly string $parameter = 'id',
+        #[ExpectedValues(values: ['query', 'attributes'])]
+        public readonly array $from = ['query'],
+    ) {
+    }
+
+    public function getRequirementsFromRequest(Request $request): iterable
+    {
+        if ($value = RequestUtils::get($request, $this->parameter, $this->from)) {
+            yield new IdConstraint(id: $value);
+        }
+    }
 }

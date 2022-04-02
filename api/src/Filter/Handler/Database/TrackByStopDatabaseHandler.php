@@ -23,7 +23,7 @@ namespace App\Filter\Handler\Database;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Filter\Handler\ModifierHandler;
-use App\Filter\Modifier\RelatedFilterModifier;
+use App\Filter\Requirement\RelatedFilter;
 use App\Service\EntityReferenceFactory;
 
 class TrackByStopDatabaseHandler implements ModifierHandler
@@ -39,7 +39,7 @@ class TrackByStopDatabaseHandler implements ModifierHandler
             return;
         }
 
-        /** @var RelatedFilterModifier $modifier */
+        /** @var RelatedFilter $modifier */
         $modifier = $event->getModifier();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];

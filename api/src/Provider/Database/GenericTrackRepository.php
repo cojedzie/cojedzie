@@ -22,7 +22,7 @@ namespace App\Provider\Database;
 
 use App\Entity\TrackEntity;
 use App\Entity\TrackStopEntity;
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Model\Track;
 use App\Model\TrackStop;
 use App\Provider\TrackRepository;
@@ -30,28 +30,28 @@ use Illuminate\Support\Collection;
 
 class GenericTrackRepository extends DatabaseRepository implements TrackRepository
 {
-    public function stops(Modifier ...$modifiers): Collection
+    public function stops(Requirement ...$requirements): Collection
     {
         $builder = $this->em
             ->createQueryBuilder()
             ->from(TrackStopEntity::class, 'track_stop')
             ->select(['track_stop']);
 
-        return $this->allFromQueryBuilder($builder, $modifiers, [
+        return $this->allFromQueryBuilder($builder, $requirements, [
             'alias'  => 'track_stop',
             'entity' => TrackStopEntity::class,
             'type'   => TrackStop::class,
         ]);
     }
 
-    public function all(Modifier ...$modifiers): Collection
+    public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em
             ->createQueryBuilder()
             ->from(TrackEntity::class, 'track')
             ->select('track');
 
-        return $this->allFromQueryBuilder($builder, $modifiers, [
+        return $this->allFromQueryBuilder($builder, $requirements, [
             'alias'  => 'track',
             'entity' => TrackEntity::class,
             'type'   => Track::class,

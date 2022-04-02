@@ -21,14 +21,14 @@
 namespace App\Provider\Database;
 
 use App\Entity\LineEntity;
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Model\Line;
 use App\Provider\LineRepository;
 use Illuminate\Support\Collection;
 
 class GenericLineRepository extends DatabaseRepository implements LineRepository
 {
-    public function all(Modifier ...$modifiers): Collection
+    public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em
             ->createQueryBuilder()
@@ -36,7 +36,7 @@ class GenericLineRepository extends DatabaseRepository implements LineRepository
             ->select('line')
         ;
 
-        return $this->allFromQueryBuilder($builder, $modifiers, [
+        return $this->allFromQueryBuilder($builder, $requirements, [
             'alias'  => 'line',
             'entity' => LineEntity::class,
             'type'   => Line::class,

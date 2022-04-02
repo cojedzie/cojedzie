@@ -31,12 +31,12 @@ use App\Filter\Handler\Database\LimitDatabaseHandler;
 use App\Filter\Handler\Database\RelatedFilterDatabaseGenericHandler;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Handler\PostProcessingHandler;
-use App\Filter\Modifier\EmbedModifier;
-use App\Filter\Modifier\FieldFilterModifier;
-use App\Filter\Modifier\IdFilterModifier;
-use App\Filter\Modifier\LimitModifier;
-use App\Filter\Modifier\Modifier;
-use App\Filter\Modifier\RelatedFilterModifier;
+use App\Filter\Requirement\Embed;
+use App\Filter\Requirement\FieldFilter;
+use App\Filter\Requirement\IdConstraint;
+use App\Filter\Requirement\LimitConstraint;
+use App\Filter\Requirement\RelatedFilter;
+use App\Filter\Requirement\Requirement;
 use App\Model\DTO;
 use App\Model\Referable;
 use App\Provider\Repository;
@@ -62,11 +62,11 @@ abstract class DatabaseRepository implements Repository
         protected HandlerProvider $handlers
     ) {
         $this->handlers->loadConfiguration(array_merge([
-            IdFilterModifier::class      => IdFilterDatabaseHandler::class,
-            LimitModifier::class         => LimitDatabaseHandler::class,
-            FieldFilterModifier::class   => FieldFilterDatabaseHandler::class,
-            RelatedFilterModifier::class => RelatedFilterDatabaseGenericHandler::class,
-            EmbedModifier::class         => GenericWithDatabaseHandler::class,
+            IdConstraint::class    => IdFilterDatabaseHandler::class,
+            LimitConstraint::class => LimitDatabaseHandler::class,
+            FieldFilter::class     => FieldFilterDatabaseHandler::class,
+            RelatedFilter::class   => RelatedFilterDatabaseGenericHandler::class,
+            Embed::class           => GenericWithDatabaseHandler::class,
         ], static::getHandlers()));
     }
 
@@ -93,11 +93,11 @@ abstract class DatabaseRepository implements Repository
         return $this->em->getReference($class, $id);
     }
 
-    protected function processQueryBuilder(QueryBuilder $builder, iterable $modifiers, array $meta = [])
+    protected function processQueryBuilder(QueryBuilder $builder, iterable $requirements, array $meta = [])
     {
         $reducers = [];
 
-        foreach ($modifiers as $modifier) {
+        foreach ($requirements as $modifier) {
             $handler = $this->handlers->get($modifier);
 
             if ($handler instanceof ModifierHandler) {
@@ -124,11 +124,11 @@ abstract class DatabaseRepository implements Repository
         return collect($reducers);
     }
 
-    protected function allFromQueryBuilder(QueryBuilder $builder, iterable $modifiers, array $meta = [])
+    protected function allFromQueryBuilder(QueryBuilder $builder, iterable $requirements, array $meta = [])
     {
         $builder->setMaxResults(self::DEFAULT_LIMIT);
 
-        $reducers = $this->processQueryBuilder($builder, $modifiers, $meta);
+        $reducers = $this->processQueryBuilder($builder, $requirements, $meta);
         $query    = $builder->getQuery();
 
         $paginator = new Paginator($query);
@@ -137,11 +137,11 @@ abstract class DatabaseRepository implements Repository
         return $reducers->reduce(fn ($result, $reducer) => $reducer($result), $result);
     }
 
-    abstract public function all(Modifier ...$modifiers);
+    abstract public function all(Requirement ...$requirements);
 
-    public function first(Modifier ...$modifiers)
+    public function first(Requirement ...$requirements)
     {
-        return $this->all(LimitModifier::count(1), ...$modifiers)->first();
+        return $this->all(LimitConstraint::count(1), ...$requirements)->first();
     }
 
     /**

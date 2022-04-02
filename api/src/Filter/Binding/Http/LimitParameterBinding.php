@@ -20,7 +20,7 @@
 
 namespace App\Filter\Binding\Http;
 
-use App\Filter\Modifier\LimitModifier;
+use App\Filter\Requirement\LimitConstraint;
 use Attribute;
 use Symfony\Component\HttpFoundation\Request;
 use function App\Functions\clamp;
@@ -37,9 +37,9 @@ class LimitParameterBinding implements ParameterBinding
     ) {
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public function getRequirementsFromRequest(Request $request): iterable
     {
-        yield new LimitModifier(
+        yield new LimitConstraint(
             offset: $request->query->get(self::OFFSET_QUERY_PARAMETER, 0),
             count: clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), 1, $this->maxLimit),
         );

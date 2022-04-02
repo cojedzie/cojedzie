@@ -20,7 +20,7 @@
 
 namespace App\Provider\Dummy;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Model\Departure;
 use App\Model\Line;
 use App\Model\Vehicle;
@@ -35,7 +35,7 @@ class DummyDepartureRepository implements DepartureRepository
     ) {
     }
 
-    public function current(iterable $stops, Modifier ...$modifiers)
+    public function current(iterable $stops, Requirement ...$requirements)
     {
         return collect([
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],

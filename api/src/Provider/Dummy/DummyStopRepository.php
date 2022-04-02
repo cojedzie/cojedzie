@@ -20,7 +20,7 @@
 
 namespace App\Provider\Dummy;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use App\Model\Stop;
 use App\Provider\StopRepository;
 use Illuminate\Support\Collection;
@@ -55,11 +55,11 @@ class DummyStopRepository implements StopRepository
         return collect();
     }
 
-    public function first(Modifier ...$modifiers)
+    public function first(Requirement ...$requirements)
     {
     }
 
-    public function all(Modifier ...$modifiers): Collection
+    public function all(Requirement ...$requirements): Collection
     {
         return collect();
     }

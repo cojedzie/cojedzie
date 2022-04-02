@@ -20,7 +20,7 @@
 
 namespace App\Filter\Binding\Http;
 
-use App\Filter\Modifier\EmbedModifier;
+use App\Filter\Requirement\Embed;
 use Attribute;
 use Symfony\Component\HttpFoundation\Request;
 use function App\Functions\encapsulate;
@@ -35,7 +35,7 @@ class EmbedParameterBinding implements ParameterBinding
     ) {
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public function getRequirementsFromRequest(Request $request): iterable
     {
         if (!$request->query->has(self::EMBED_QUERY_PARAMETER)) {
             return;
@@ -46,7 +46,7 @@ class EmbedParameterBinding implements ParameterBinding
                 continue;
             }
 
-            yield new EmbedModifier(
+            yield new Embed(
                 relationship: $embedded
             );
         }

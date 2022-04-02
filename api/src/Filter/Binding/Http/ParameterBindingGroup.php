@@ -33,10 +33,10 @@ class ParameterBindingGroup implements ParameterBinding
         $this->bindings = $bindings;
     }
 
-    public function getModifiersFromRequest(Request $request): iterable
+    public function getRequirementsFromRequest(Request $request): iterable
     {
         foreach ($this->bindings as $binding) {
-            yield from $binding->getModifiersFromRequest($request);
+            yield from $binding->getRequirementsFromRequest($request);
         }
     }
 }

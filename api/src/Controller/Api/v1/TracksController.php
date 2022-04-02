@@ -21,7 +21,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
-use App\Filter\Binding\Http\IdFilterParameterBinding;
+use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
 use App\Model\Line;
 use App\Model\Stop;
@@ -45,10 +45,10 @@ class TracksController extends Controller
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     #[RelatedFilterParameterBinding(Stop::class, 'stop')]
     #[RelatedFilterParameterBinding(Line::class, 'line')]
-    #[IdFilterParameterBinding]
-    public function index(TrackRepository $repository, array $modifiers)
+    #[IdConstraintParameterBinding]
+    public function index(TrackRepository $repository, array $requirements)
     {
-        return $this->json($repository->all(...$modifiers));
+        return $this->json($repository->all(...$requirements));
     }
 
     /**
@@ -60,9 +60,9 @@ class TracksController extends Controller
     #[Route(path: '/{track}/stops', name: 'stops_in_track', methods: ['GET'], options: ['version' => '1.0'])]
     #[RelatedFilterParameterBinding(Stop::class, 'stop')]
     #[RelatedFilterParameterBinding(Track::class, 'track', from: ["attributes", "query"])]
-    #[IdFilterParameterBinding]
-    public function stops(TrackRepository $repository, array $modifiers)
+    #[IdConstraintParameterBinding]
+    public function stops(TrackRepository $repository, array $requirements)
     {
-        return $this->json($repository->stops(...$modifiers));
+        return $this->json($repository->stops(...$requirements));
     }
 }

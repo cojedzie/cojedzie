@@ -21,8 +21,8 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
-use App\Filter\Modifier\EmbedModifier;
-use App\Filter\Modifier\IdFilterModifier;
+use App\Filter\Requirement\Embed;
+use App\Filter\Requirement\IdConstraint;
 use App\Model\Trip;
 use App\Provider\TripRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +34,10 @@ class TripController extends Controller
     #[Route(path: '/{id}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
     public function one($id, TripRepository $repository)
     {
-        $trip = $repository->first(new IdFilterModifier($id), new EmbedModifier('schedule'));
+        $trip = $repository->first(
+            new IdConstraint($id),
+            new Embed('schedule')
+        );
 
         return $this->json($trip, Response::HTTP_OK, [], $this->serializerContextFactory->create(Trip::class));
     }

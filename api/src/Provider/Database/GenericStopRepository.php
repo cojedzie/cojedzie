@@ -23,15 +23,15 @@ namespace App\Provider\Database;
 use App\Entity\StopEntity;
 use App\Filter\Handler\Database\GenericWithDatabaseHandler;
 use App\Filter\Handler\Database\WithDestinationsDatabaseHandler;
-use App\Filter\Modifier\EmbedModifier;
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Embed;
+use App\Filter\Requirement\Requirement;
 use App\Model\Stop;
 use App\Provider\StopRepository;
 use Illuminate\Support\Collection;
 
 class GenericStopRepository extends DatabaseRepository implements StopRepository
 {
-    public function all(Modifier ...$modifiers): Collection
+    public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em
             ->createQueryBuilder()
@@ -39,7 +39,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
             ->select('stop')
         ;
 
-        return $this->allFromQueryBuilder($builder, $modifiers, [
+        return $this->allFromQueryBuilder($builder, $requirements, [
             'alias'  => 'stop',
             'entity' => StopEntity::class,
             'type'   => Stop::class,
@@ -49,7 +49,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
     protected static function getHandlers()
     {
         return array_merge(parent::getHandlers(), [
-            EmbedModifier::class => fn (EmbedModifier $modifier) => $modifier->getRelationship() === 'destinations'
+            Embed::class => fn (Embed $modifier) => $modifier->getRelationship() === 'destinations'
                 ? WithDestinationsDatabaseHandler::class
                 : GenericWithDatabaseHandler::class,
         ]);

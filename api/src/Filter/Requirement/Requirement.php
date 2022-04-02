@@ -18,31 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Filter\Modifier;
+namespace App\Filter\Requirement;
 
-use App\Exception\InvalidArgumentException;
-use App\Utility\IterableUtils;
-
-class IdFilterModifier implements Modifier
+interface Requirement
 {
-    private readonly array|string $id;
-
-    public function __construct(iterable|string $id)
-    {
-        if (!is_iterable($id) && !is_string($id)) {
-            throw InvalidArgumentException::invalidType('id', $id, ['string', 'array']);
-        }
-
-        $this->id = is_iterable($id) ? IterableUtils::toArray($id) : $id;
-    }
-
-    public function getId(): array|string
-    {
-        return $this->id;
-    }
-
-    public function isMultiple(): bool
-    {
-        return is_array($this->id);
-    }
 }

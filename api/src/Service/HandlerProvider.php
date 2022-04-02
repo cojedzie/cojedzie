@@ -21,7 +21,7 @@
 namespace App\Service;
 
 use App\Exception\UnsupportedModifierException;
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class HandlerProvider
@@ -38,7 +38,7 @@ class HandlerProvider
         $this->configuration = $providers;
     }
 
-    public function get(Modifier $modifier)
+    public function get(Requirement $modifier)
     {
         $class = $modifier::class;
 

@@ -23,17 +23,17 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\Filter\Binding\Http\EmbedParameterBinding;
 use App\Filter\Binding\Http\FieldFilterParameterBinding;
-use App\Filter\Binding\Http\IdFilterParameterBinding;
+use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Binding\Http\ParameterBinding;
 use App\Filter\Binding\Http\ParameterBindingGroup;
 use App\Filter\Binding\Http\ParameterBindingProvider;
-use App\Filter\Modifier\EmbedModifier;
-use App\Filter\Modifier\FieldFilterModifier;
-use App\Filter\Modifier\FieldFilterOperator;
-use App\Filter\Modifier\IdFilterModifier;
-use App\Filter\Modifier\Modifier;
-use App\Filter\Modifier\RelatedFilterModifier;
+use App\Filter\Requirement\Embed;
+use App\Filter\Requirement\FieldFilter;
+use App\Filter\Requirement\FieldFilterOperator;
+use App\Filter\Requirement\IdConstraint;
+use App\Filter\Requirement\RelatedFilter;
+use App\Filter\Requirement\Requirement;
 use App\Model\Stop;
 use App\Model\StopGroup;
 use App\Model\TrackStop;
@@ -70,13 +70,13 @@ class StopsController extends Controller
      *     @OA\Schema(type="array", @OA\Items(type="string"))
      * )
      *
-     * @psalm-param iterable<Modifier> $modifiers
+     * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.0'])]
     #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
-    public function index(StopRepository $stops, iterable $modifiers)
+    public function index(StopRepository $stops, iterable $requirements)
     {
-        return $this->json($stops->all(...$modifiers)->toArray());
+        return $this->json($stops->all(...$requirements)->toArray());
     }
 
     /**
@@ -93,13 +93,13 @@ class StopsController extends Controller
      *     @OA\Schema(type="string")
      * )
      *
-     * @psalm-param iterable<Modifier> $modifiers
+     * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '/groups', name: 'groups', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
-    public function groups(Request $request, StopRepository $stops, iterable $modifiers)
+    public function groups(Request $request, StopRepository $stops, iterable $requirements)
     {
-        return $this->json(static::group($stops->all(...$modifiers))->toArray());
+        return $this->json(static::group($stops->all(...$requirements))->toArray());
     }
 
     /**
@@ -121,8 +121,8 @@ class StopsController extends Controller
     {
         return $this->json(
             $stops->first(
-                new IdFilterModifier($stop),
-                new EmbedModifier("destinations")
+                new IdConstraint($stop),
+                new Embed("destinations")
             )
         );
     }
@@ -137,7 +137,7 @@ class StopsController extends Controller
     #[Route(path: '/{stop}/tracks', name: 'tracks', methods: ['GET'], options: ['version' => '1.0'])]
     public function tracks(TrackRepository $tracks, $stop)
     {
-        return $this->json($tracks->stops(new RelatedFilterModifier(Stop::reference($stop))));
+        return $this->json($tracks->stops(new RelatedFilter(Stop::reference($stop))));
     }
 
     public static function group(Collection $stops)
@@ -162,7 +162,7 @@ class StopsController extends Controller
     public static function getParameterBinding(): ParameterBinding
     {
         return new ParameterBindingGroup(
-            new IdFilterParameterBinding(),
+            new IdConstraintParameterBinding(),
             new LimitParameterBinding(),
             new EmbedParameterBinding(['destinations']),
             new FieldFilterParameterBinding(
@@ -171,7 +171,7 @@ class StopsController extends Controller
                 defaultOperator: FieldFilterOperator::Contains,
                 operators: FieldFilterParameterBinding::STRING_OPERATORS,
                 options: [
-                    FieldFilterModifier::OPTION_CASE_SENSITIVE => false,
+                    FieldFilter::OPTION_CASE_SENSITIVE => false,
                 ]
             ),
         );

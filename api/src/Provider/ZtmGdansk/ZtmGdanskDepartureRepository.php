@@ -20,13 +20,13 @@
 
 namespace App\Provider\ZtmGdansk;
 
-use App\Filter\Modifier\EmbedModifier;
-use App\Filter\Modifier\FieldFilterModifier;
-use App\Filter\Modifier\FieldFilterOperator;
-use App\Filter\Modifier\IdFilterModifier;
-use App\Filter\Modifier\LimitModifier;
-use App\Filter\Modifier\Modifier;
-use App\Filter\Modifier\RelatedFilterModifier;
+use App\Filter\Requirement\Embed;
+use App\Filter\Requirement\FieldFilter;
+use App\Filter\Requirement\FieldFilterOperator;
+use App\Filter\Requirement\IdConstraint;
+use App\Filter\Requirement\LimitConstraint;
+use App\Filter\Requirement\RelatedFilter;
+use App\Filter\Requirement\Requirement;
 use App\Model\Departure;
 use App\Model\Line;
 use App\Model\ScheduledStop;
@@ -55,7 +55,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     ) {
     }
 
-    public function current(iterable $stops, Modifier ...$modifiers)
+    public function current(iterable $stops, Requirement ...$requirements)
     {
         $real = IterableUtils::toCollection($stops)
             ->flatMap(ref([$this, 'getRealDepartures']))
@@ -64,11 +64,11 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
         $now       = Carbon::now()->second(0);
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
-        $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractModifiers($modifiers));
+        $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractRequirements($requirements));
 
         $result = $this->pair($scheduled, $real)->filter(fn (Departure $departure) => $departure->getDeparture() > $now);
 
-        return $this->processResultWithModifiers($result, $modifiers);
+        return $this->processResultWithRequirements($result, $requirements);
     }
 
     private function getRealDepartures(Stop $stop)
@@ -84,7 +84,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
         $lines = $estimates->map(fn ($delay) => $delay['routeId'])->unique();
 
-        $lines = $this->lines->all(new IdFilterModifier($lines))->keyBy(t\property('id'));
+        $lines = $this->lines->all(new IdConstraint($lines))->keyBy(t\property('id'));
 
         return collect($estimates)->map(function ($delay) use ($stop, $lines) {
             $scheduled = (new Carbon($delay['theoreticalTime'], 'Europe/Warsaw'))->tz('UTC');
@@ -105,14 +105,14 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         })->values();
     }
 
-    private function getScheduledDepartures($stop, Carbon $time, Modifier ...$modifiers)
+    private function getScheduledDepartures($stop, Carbon $time, Requirement ...$requirements)
     {
         return $this->schedule->all(
-            new RelatedFilterModifier($stop, Stop::class),
-            new FieldFilterModifier('departure', $time, FieldFilterOperator::GreaterOrEqual),
-            new EmbedModifier('track'),
-            new EmbedModifier('destination'),
-            ...$modifiers
+            new RelatedFilter($stop, Stop::class),
+            new FieldFilter('departure', $time, FieldFilterOperator::GreaterOrEqual),
+            new Embed('track'),
+            new Embed('destination'),
+            ...$requirements
         );
     }
 
@@ -198,25 +198,25 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         return $stop->getTrack()->getDestination()->getName();
     }
 
-    private function extractModifiers(iterable $modifiers)
+    private function extractRequirements(iterable $requirements)
     {
         $result = [];
 
-        /** @var LimitModifier $limit */
-        if ($limit = ModifierUtils::getOfType($modifiers, LimitModifier::class)) {
-            $result[] = new LimitModifier($limit->getOffset(), $limit->getCount() * 2);
+        /** @var LimitConstraint $limit */
+        if ($limit = ModifierUtils::getOfType($requirements, LimitConstraint::class)) {
+            $result[] = new LimitConstraint($limit->getOffset(), $limit->getCount() * 2);
         } else {
-            $result[] = LimitModifier::count(16);
+            $result[] = LimitConstraint::count(16);
         }
 
         return $result;
     }
 
-    private function processResultWithModifiers(Collection $result, iterable $modifiers)
+    private function processResultWithRequirements(Collection $result, iterable $requirements)
     {
-        foreach ($modifiers as $modifier) {
+        foreach ($requirements as $modifier) {
             switch (true) {
-                case $modifier instanceof LimitModifier:
+                case $modifier instanceof LimitConstraint:
                     $result = $result->slice($modifier->getOffset(), $modifier->getCount());
                     break;
             }

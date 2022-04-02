@@ -20,13 +20,13 @@
 
 namespace App\Filter\Binding\Http;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 use Symfony\Component\HttpFoundation\Request;
 
 interface ParameterBinding
 {
     /**
-     * @psalm-return iterable<Modifier>
+     * @psalm-return iterable<Requirement>
      */
-    public function getModifiersFromRequest(Request $request): iterable;
+    public function getRequirementsFromRequest(Request $request): iterable;
 }

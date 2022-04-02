@@ -20,9 +20,9 @@
 
 namespace App\Provider;
 
-use App\Filter\Modifier\Modifier;
+use App\Filter\Requirement\Requirement;
 
 interface DepartureRepository extends Repository
 {
-    public function current(iterable $stops, Modifier ...$modifiers);
+    public function current(iterable $stops, Requirement ...$requirements);
 }
