@@ -25,7 +25,7 @@ use Attribute;
 use Symfony\Component\HttpFoundation\Request;
 use function App\Functions\encapsulate;
 
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class EmbedParameterBinding implements ParameterBinding
 {
     public const EMBED_QUERY_PARAMETER = 'embed';

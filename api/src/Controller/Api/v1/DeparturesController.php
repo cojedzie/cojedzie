@@ -50,11 +50,17 @@ class DeparturesController extends Controller
      * )
      */
     #[Route(path: '/{stop}', name: 'stop', methods: ['GET'], options: ['version' => '1.0'])]
-    public function stop(DepartureRepository $departures, StopRepository $stops, $stop, Request $request)
-    {
-        $stop = $stops->first(new IdConstraint($stop));
+    #[LimitParameterBinding]
+    public function stop(
+        DepartureRepository $departureRepository,
+        StopRepository $stopRepository,
+        #[IdConstraintParameterBinding(parameter: 'stop', from: ["attributes"])]
+        IdConstraint $stop,
+        array $requirements
+    ) {
+        $stop = $stopRepository->first($stop);
 
-        return $this->json($departures->current(collect($stop), ...$this->getrequirementsFromRequest($request)));
+        return $this->json($departureRepository->current(collect($stop), ...$requirements));
     }
 
     /**
@@ -80,19 +86,20 @@ class DeparturesController extends Controller
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     #[LimitParameterBinding]
-    public function stops(DepartureRepository $departures, StopRepository $stops, Request $request, array $requirements)
-    {
-        $stops  = $stops->all(
-            new IdConstraint($request->query->all('stop'))
-        );
-
-        $result = $departures->current($stops, ...$requirements);
+    public function stops(
+        DepartureRepository $departureRepository,
+        StopRepository $stopRepository,
+        Request $request,
+        #[IdConstraintParameterBinding(parameter: 'stop')]
+        IdConstraint $stops,
+        array $requirements
+    ) {
+        $stopRepository = $stopRepository->all($stops);
+        $result = $departureRepository->current($stopRepository, ...$requirements);
 
         return $this->json(
             $result->values()->slice(0, (int) $request->query->get('limit', 8)),
-            200,
-            [],
-            $this->serializerContextFactory->create(Departure::class, ['Default'])
+            context: $this->serializerContextFactory->create(Departure::class, ['Default'])
         );
     }
 }

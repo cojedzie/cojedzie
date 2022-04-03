@@ -26,7 +26,7 @@ use App\Filter\Requirement\FieldFilterOperator;
 use Attribute;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class FieldFilterParameterBinding implements ParameterBinding
 {
     public const EQUALITY_OPERATORS = [

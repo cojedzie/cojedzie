@@ -117,6 +117,9 @@ services:
 
   App\DataImport\ProgressReporterFactory: '@app.import.progress_reporter_factory'
 
+  App\Service\RequirementsArgumentResolver:
+    decorates: 'argument_resolver'
+
   # Context Providers
   App\Context\FederationContext:
     arguments:

@@ -25,7 +25,7 @@ use Attribute;
 use Symfony\Component\HttpFoundation\Request;
 use function App\Functions\clamp;
 
-#[Attribute(Attribute::TARGET_METHOD)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER)]
 class LimitParameterBinding implements ParameterBinding
 {
     private const LIMIT_QUERY_PARAMETER  = 'limit';

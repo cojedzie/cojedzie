@@ -26,7 +26,7 @@ use Attribute;
 use JetBrains\PhpStorm\ExpectedValues;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class IdConstraintParameterBinding implements ParameterBinding
 {
     public function __construct(

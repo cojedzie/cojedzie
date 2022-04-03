@@ -3,7 +3,7 @@ FROM php:8.1-fpm-alpine
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds xdebug;
 RUN apk add git su-exec tini;
 
 # XDebug

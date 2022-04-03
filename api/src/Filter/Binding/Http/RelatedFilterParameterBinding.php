@@ -27,7 +27,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Symfony\Component\HttpFoundation\Request;
 use function App\Functions\encapsulate;
 
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class RelatedFilterParameterBinding implements ParameterBinding
 {
     public readonly string $relationship;
