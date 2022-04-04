@@ -63,13 +63,6 @@ class StopsController extends Controller
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      * )
      *
-     * @OA\Parameter(
-     *     name="id",
-     *     in="query",
-     *     description="Stop identificators to retrieve at once. Can be used to bulk load data. If not specified will return all data.",
-     *     @OA\Schema(type="array", @OA\Items(type="string"))
-     * )
-     *
      * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.0'])]
@@ -84,13 +77,6 @@ class StopsController extends Controller
      *     response=200,
      *     description="Returns grouped stops for specific provider, e.g. ZTM Gdańsk.",
      *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=StopGroup::class)))
-     * )
-     *
-     * @OA\Parameter(
-     *     name="name",
-     *     in="query",
-     *     description="Part of the stop name to search for.",
-     *     @OA\Schema(type="string")
      * )
      *
      * @psalm-param iterable<Requirement> $requirements
@@ -162,7 +148,9 @@ class StopsController extends Controller
     public static function getParameterBinding(): ParameterBinding
     {
         return new ParameterBindingGroup(
-            new IdConstraintParameterBinding(),
+            new IdConstraintParameterBinding(documentation: [
+                'description' => 'Stop unique identifier as provided by data provider.',
+            ]),
             new LimitParameterBinding(),
             new EmbedParameterBinding(['destinations']),
             new FieldFilterParameterBinding(
@@ -172,6 +160,12 @@ class StopsController extends Controller
                 operators: FieldFilterParameterBinding::STRING_OPERATORS,
                 options: [
                     FieldFilter::OPTION_CASE_SENSITIVE => false,
+                ],
+                documentation: [
+                    'description' => 'Part of the stop name to search for.',
+                    'schema'      => [
+                        'type' => 'string',
+                    ],
                 ]
             ),
         );

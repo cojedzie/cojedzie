@@ -24,7 +24,6 @@ use App\Controller\Controller;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Requirement\IdConstraint;
-use App\Filter\Requirement\LimitConstraint;
 use App\Model\Departure;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
@@ -69,20 +68,6 @@ class DeparturesController extends Controller
      *     response=200,
      *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Departure::class)))
      * )
-     *
-     * @OA\Parameter(
-     *     name="stop",
-     *     description="Stop identifiers.",
-     *     in="query",
-     *     @OA\Schema(type="array", @OA\Items(type="string")),
-     * )
-     *
-     * @OA\Parameter(
-     *     name="limit",
-     *     description="Max departures count.",
-     *     @OA\Schema(type="integer"),
-     *     in="query"
-     * )
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     #[LimitParameterBinding]
@@ -90,12 +75,17 @@ class DeparturesController extends Controller
         DepartureRepository $departureRepository,
         StopRepository $stopRepository,
         Request $request,
-        #[IdConstraintParameterBinding(parameter: 'stop')]
+        #[IdConstraintParameterBinding(
+            parameter: 'stop',
+            documentation: [
+                'description' => 'Stop identifiers as provided by data provider.',
+            ]
+        )]
         IdConstraint $stops,
         array $requirements
     ) {
         $stopRepository = $stopRepository->all($stops);
-        $result = $departureRepository->current($stopRepository, ...$requirements);
+        $result         = $departureRepository->current($stopRepository, ...$requirements);
 
         return $this->json(
             $result->values()->slice(0, (int) $request->query->get('limit', 8)),

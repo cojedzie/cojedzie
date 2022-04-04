@@ -70,6 +70,13 @@ class FieldFilterDatabaseHandler implements ModifierHandler
             $value = is_array($value) ? array_map(fn ($x) => mb_strtolower($x), $value) : mb_strtolower($value);
         }
 
+        $value = match ($operator) {
+            FieldFilterOperator::Contains   => "%$value%",
+            FieldFilterOperator::BeginsWith => "$value%",
+            FieldFilterOperator::EndsWith   => "%$value",
+            default                         => $value,
+        };
+
         $builder
             ->andWhere(sprintf("%s %s %s", $where, $this->mapFieldFilterOperatorToDatabase($operator), $parameter))
             ->setParameter($parameter, $value)
@@ -98,7 +105,9 @@ class FieldFilterDatabaseHandler implements ModifierHandler
             FieldFilterOperator::GreaterOrEqual => '>=',
             FieldFilterOperator::In             => 'in',
             FieldFilterOperator::NotIn          => 'not in',
-            FieldFilterOperator::Contains       => 'LIKE'
+            FieldFilterOperator::Contains,
+            FieldFilterOperator::BeginsWith,
+            FieldFilterOperator::EndsWith => 'LIKE',
         };
     }
 }

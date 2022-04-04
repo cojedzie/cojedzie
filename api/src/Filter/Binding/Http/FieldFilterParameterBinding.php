@@ -24,7 +24,10 @@ use App\Filter\Binding\Http\Exception\InvalidOperatorException;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
 use Attribute;
+use OpenApi\Attributes\Parameter;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
+use function App\Functions\setup;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class FieldFilterParameterBinding implements ParameterBinding
@@ -43,6 +46,8 @@ class FieldFilterParameterBinding implements ParameterBinding
         ...self::EQUALITY_OPERATORS,
         ...self::SET_OPERATORS,
         'contains' => FieldFilterOperator::Contains,
+        'begins'   => FieldFilterOperator::BeginsWith,
+        'ends'     => FieldFilterOperator::EndsWith,
     ];
 
     public const ORDINAL_OPERATORS = [
@@ -66,6 +71,7 @@ class FieldFilterParameterBinding implements ParameterBinding
         public readonly string $field,
         public readonly FieldFilterOperator $defaultOperator = FieldFilterOperator::Equals,
         public readonly array $operators = self::DEFAULT_OPERATORS,
+        public readonly array $documentation = [],
         public readonly array $options = [],
     ) {
     }
@@ -90,5 +96,35 @@ class FieldFilterParameterBinding implements ParameterBinding
                 );
             }
         }
+    }
+
+    public function getDocumentation(Route $route): iterable
+    {
+        yield setup(new Parameter(
+            name: $this->parameter,
+            in: 'query',
+            x: [
+                'operators' => array_map($this->mapOperatorToDescription(...), $this->operators),
+            ],
+        ), function (Parameter $parameter) {
+            $parameter->mergeProperties((object) $this->documentation);
+        });
+    }
+
+    private function mapOperatorToDescription(FieldFilterOperator $operator): string
+    {
+        return match ($operator) {
+            FieldFilterOperator::Equals         => 'equals',
+            FieldFilterOperator::NotEquals      => 'not equals',
+            FieldFilterOperator::Less           => 'less',
+            FieldFilterOperator::LessOrEqual    => 'less or equal',
+            FieldFilterOperator::Greater        => 'greater',
+            FieldFilterOperator::GreaterOrEqual => 'greater or equal',
+            FieldFilterOperator::In             => 'in collection',
+            FieldFilterOperator::NotIn          => 'not in collection)',
+            FieldFilterOperator::Contains       => 'contains substring',
+            FieldFilterOperator::BeginsWith     => 'begins with substring',
+            FieldFilterOperator::EndsWith       => 'ends with substring',
+        };
     }
 }

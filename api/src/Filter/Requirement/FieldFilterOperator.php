@@ -35,6 +35,8 @@ enum FieldFilterOperator
     case NotIn;
     // String
     case Contains;
+    case BeginsWith;
+    case EndsWith;
 
     public function isSetOperator(): bool
     {
@@ -64,6 +66,8 @@ enum FieldFilterOperator
             self::Equals,
             self::NotEquals,
             self::Contains,
+            self::BeginsWith,
+            self::EndsWith,
         ]);
     }
 }

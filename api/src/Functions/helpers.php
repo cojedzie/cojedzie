@@ -37,6 +37,12 @@ function setup($value, $callback)
     return $value;
 }
 
+function memoize(&$value, $callback)
+{
+    return $value
+        ?? $value = $callback($value);
+}
+
 function class_name($object): string
 {
     return (new \ReflectionObject($object))->getName();

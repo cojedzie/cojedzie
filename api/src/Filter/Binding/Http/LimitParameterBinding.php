@@ -22,7 +22,10 @@ namespace App\Filter\Binding\Http;
 
 use App\Filter\Requirement\LimitConstraint;
 use Attribute;
+use OpenApi\Attributes\Parameter;
+use OpenApi\Attributes\Schema;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
 use function App\Functions\clamp;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER)]
@@ -41,7 +44,26 @@ class LimitParameterBinding implements ParameterBinding
     {
         yield new LimitConstraint(
             offset: $request->query->get(self::OFFSET_QUERY_PARAMETER, 0),
-            count: clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), 1, $this->maxLimit),
+            count: clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), 0, $this->maxLimit),
+        );
+    }
+
+    public function getDocumentation(Route $route): iterable
+    {
+        yield new Parameter(
+            name: 'limit',
+            in: 'query',
+            description: 'Max number of items to obtain.',
+            required: false,
+            schema: new Schema(type: 'int', maximum: $this->maxLimit, minimum: 0),
+        );
+
+        yield new Parameter(
+            name: 'offset',
+            in: 'query',
+            description: 'Offset of the first item to obtain.',
+            required: false,
+            schema: new Schema(type: 'int', minimum: 0),
         );
     }
 }

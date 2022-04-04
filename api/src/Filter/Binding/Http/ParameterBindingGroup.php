@@ -22,6 +22,7 @@ namespace App\Filter\Binding\Http;
 
 use Attribute;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class ParameterBindingGroup implements ParameterBinding
@@ -37,6 +38,13 @@ class ParameterBindingGroup implements ParameterBinding
     {
         foreach ($this->bindings as $binding) {
             yield from $binding->getRequirementsFromRequest($request);
+        }
+    }
+
+    public function getDocumentation(Route $route): iterable
+    {
+        foreach ($this->bindings as $binding) {
+            yield from $binding->getDocumentation($route);
         }
     }
 }

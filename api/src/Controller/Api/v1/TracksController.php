@@ -22,6 +22,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
+use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
 use App\Model\Line;
 use App\Model\Stop;
@@ -46,6 +47,7 @@ class TracksController extends Controller
     #[RelatedFilterParameterBinding(Stop::class, 'stop')]
     #[RelatedFilterParameterBinding(Line::class, 'line')]
     #[IdConstraintParameterBinding]
+    #[LimitParameterBinding]
     public function index(TrackRepository $repository, array $requirements)
     {
         return $this->json($repository->all(...$requirements));

@@ -30,7 +30,9 @@ use function Kadet\Functional\reflect;
 
 class RequirementsArgumentResolver implements ArgumentResolverInterface
 {
-    public function __construct(private ArgumentResolverInterface $resolver) {
+    public function __construct(
+        private ArgumentResolverInterface $resolver
+    ) {
     }
 
     public function getArguments(Request $request, callable $controller): array
@@ -44,7 +46,7 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
 
             if ($resolved !== false) {
                 $this->applyRequirementToParameter($request, $parameterReflection, $resolved);
-            } else if ($global !== false) {
+            } elseif ($global !== false) {
                 $global = $this->applyRequirementToParameter($request, $parameterReflection, $global);
             }
         }
@@ -55,7 +57,7 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
     private function applyRequirementToParameter(Request $request, ReflectionParameter $parameter, array $resolved): array|false
     {
         $types = $parameter->getType() instanceof \ReflectionNamedType
-            ? [ $parameter->getType() ]
+            ? [$parameter->getType()]
             : $parameter->getType()->getTypes();
 
         foreach ($types as $type) {
@@ -64,7 +66,7 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
                 $request->attributes->set($parameter->getName(), $resolved);
                 // all parameters were consumed
                 return false;
-            } else if (is_subclass_of($class, Requirement::class, true)) {
+            } elseif (is_subclass_of($class, Requirement::class, true)) {
                 foreach ($resolved as $key => $requirement) {
                     if ($requirement instanceof $class) {
                         $request->attributes->set($parameter->getName(), $requirement);
@@ -94,7 +96,7 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
             $binding      = $attribute->newInstance();
             $requirements = [
                 ...$requirements,
-                ...$binding->getRequirementsFromRequest($request)
+                ...$binding->getRequirementsFromRequest($request),
             ];
         }
 

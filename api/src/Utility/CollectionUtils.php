@@ -22,6 +22,7 @@ namespace App\Utility;
 
 use Ds\Deque;
 use Ds\Map;
+use Ds\Sequence;
 
 final class CollectionUtils
 {
@@ -49,6 +50,27 @@ final class CollectionUtils
             }
 
             $result[$group]->push($value);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @template T
+     * @template U
+     *
+     * @psalm-param iterable<T> $collection
+     * @psalm-param Closure(T, string|int): U|U[] $map
+     *
+     * @return Sequence<U>
+     */
+    public static function flatMap(iterable $collection, callable $map): Sequence
+    {
+        $result = new ($collection instanceof Sequence ? $collection::class : Deque::class)();
+
+        foreach ($collection as $key => $item) {
+            $mapped = $map($item, $key);
+            $result->push(...$mapped);
         }
 
         return $result;

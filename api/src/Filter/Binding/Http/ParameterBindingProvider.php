@@ -25,11 +25,14 @@ use Attribute;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
+use function App\Functions\memoize;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterface
 {
     use ContainerAwareTrait;
+    private ?ParameterBinding $memoized;
 
     public function __construct(
         private readonly mixed $source
@@ -38,7 +41,17 @@ class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterf
 
     public function getRequirementsFromRequest(Request $request): iterable
     {
-        $source = match (true) {
+        yield from $this->source()->getRequirementsFromRequest($request);
+    }
+
+    public function getDocumentation(Route $route): iterable
+    {
+        yield from $this->source()->getDocumentation($route);
+    }
+
+    private function source()
+    {
+        return memoize($this->memoized, fn () => match (true) {
             is_callable($this->source)           => ($this->source)(),
             class_exists($this->source)          => new $this->source(),
             $this->container->has($this->source) => $this->container->get($this->source),
@@ -47,8 +60,6 @@ class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterf
                 $this->source,
                 ['class-name', 'service id', 'callable']
             ),
-        };
-
-        yield from $source->getRequirementsFromRequest($request);
+        });
     }
 }

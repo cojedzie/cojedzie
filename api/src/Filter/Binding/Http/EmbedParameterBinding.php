@@ -22,7 +22,11 @@ namespace App\Filter\Binding\Http;
 
 use App\Filter\Requirement\Embed;
 use Attribute;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\Parameter;
+use OpenApi\Attributes\Schema;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
 use function App\Functions\encapsulate;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
@@ -50,5 +54,15 @@ class EmbedParameterBinding implements ParameterBinding
                 relationship: $embedded
             );
         }
+    }
+
+    // fixme: Thie does not work when parameter is duplicated
+    public function getDocumentation(Route $route): iterable
+    {
+        yield new Parameter(
+            name: self::EMBED_QUERY_PARAMETER,
+            in: 'query',
+            schema: new Schema(type: "array", items: new Items(type: 'string', enum: $this->allowed))
+        );
     }
 }
