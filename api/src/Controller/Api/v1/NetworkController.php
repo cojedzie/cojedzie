@@ -32,6 +32,7 @@ use Kadet\Functional as f;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\Authorization;
 use Symfony\Component\Mercure\Discovery;
 use Symfony\Component\Routing\Annotation\Route;
@@ -65,8 +66,13 @@ class NetworkController extends Controller
      * )
      */
     #[Route(path: '/nodes', name: 'nodes', methods: ['GET'], options: ['version' => '1.0'])]
-    public function nodes(FederatedConnectionEntityRepository $connectionRepository, Converter $converter, Discovery $discovery, Authorization $authorization, Request $request)
-    {
+    public function nodes(
+        FederatedConnectionEntityRepository $connectionRepository,
+        Converter $converter,
+        Discovery $discovery,
+        Authorization $authorization,
+        Request $request
+    ): Response {
         $discovery->addLink($request);
 
         $nodes = collect($connectionRepository->findAllReadyConnections())

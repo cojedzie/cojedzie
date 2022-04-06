@@ -29,6 +29,7 @@ use App\Model\Stop;
 use App\Model\Track;
 use App\Provider\TrackRepository;
 use OpenApi\Annotations as OA;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -48,9 +49,11 @@ class TracksController extends Controller
     #[RelatedFilterParameterBinding(Line::class, 'line')]
     #[IdConstraintParameterBinding]
     #[LimitParameterBinding]
-    public function index(TrackRepository $repository, array $requirements)
-    {
-        return $this->json($repository->all(...$requirements));
+    public function index(
+        TrackRepository $trackRepository,
+        array $requirements
+    ): Response {
+        return $this->json($trackRepository->all(...$requirements));
     }
 
     /**
@@ -63,8 +66,10 @@ class TracksController extends Controller
     #[RelatedFilterParameterBinding(Stop::class, 'stop')]
     #[RelatedFilterParameterBinding(Track::class, 'track', from: ["attributes", "query"])]
     #[IdConstraintParameterBinding]
-    public function stops(TrackRepository $repository, array $requirements)
-    {
-        return $this->json($repository->stops(...$requirements));
+    public function stops(
+        TrackRepository $trackRepository,
+        array $requirements
+    ): Response {
+        return $this->json($trackRepository->stops(...$requirements));
     }
 }

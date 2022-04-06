@@ -25,6 +25,7 @@ use App\Service\SerializerContextFactory;
 use App\Service\StatusService;
 use JMS\Serializer\SerializerInterface;
 use OpenApi\Annotations as OA;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -46,28 +47,28 @@ class StatusController extends Controller
     }
 
     #[Route(path: '', name: 'aggregated', methods: ['GET'], options: ['version' => '1.0'])]
-    public function aggregated()
+    public function aggregated(): Response
     {
         $aggregated = $this->service->getAggregatedStatus();
         return $this->json($aggregated);
     }
 
     #[Route(path: '/endpoints', name: 'endpoints', methods: ['GET'], options: ['version' => '1.0'])]
-    public function endpoints()
+    public function endpoints(): Response
     {
         $endpoints = $this->service->getEndpointsStatus();
         return $this->json($endpoints);
     }
 
     #[Route(path: '/time', name: 'time', methods: ['GET'], options: ['version' => '1.0'])]
-    public function time()
+    public function time(): Response
     {
         $endpoints = $this->service->getTimeStatus();
         return $this->json($endpoints);
     }
 
     #[Route(path: '/health', name: 'health', methods: ['GET'], options: ['version' => '1.0'])]
-    public function health()
+    public function health(): Response
     {
         return $this->json(['health' => 'alive']);
     }

@@ -25,6 +25,7 @@ use App\Model\Message;
 use App\Provider\MessageRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -42,8 +43,9 @@ class MessagesController extends Controller
      * )
      */
     #[Route(path: '', name: 'all', methods: ['GET'], options: ['version' => '1.0'])]
-    public function all(MessageRepository $messages)
-    {
-        return $this->json($messages->getAll());
+    public function all(
+        MessageRepository $messageRepository
+    ): Response {
+        return $this->json($messageRepository->getAll());
     }
 }

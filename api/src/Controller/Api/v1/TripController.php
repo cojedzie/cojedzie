@@ -21,24 +21,30 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
 use App\Model\Trip;
 use App\Provider\TripRepository;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/{provider}/trips', name: 'trip_')]
 class TripController extends Controller
 {
     #[Route(path: '/{id}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
-    public function one($id, TripRepository $repository)
-    {
+    public function one(
+        #[IdConstraintParameterBinding(from: ['attributes'])]
+        IdConstraint $id,
+        TripRepository $repository
+    ) {
         $trip = $repository->first(
-            new IdConstraint($id),
+            $id,
             new Embed('schedule')
         );
 
-        return $this->json($trip, Response::HTTP_OK, [], $this->serializerContextFactory->create(Trip::class));
+        return $this->json(
+            data: $trip,
+            context: $this->serializerContextFactory->create(Trip::class)
+        );
     }
 }

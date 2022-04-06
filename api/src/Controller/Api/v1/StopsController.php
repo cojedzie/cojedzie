@@ -28,6 +28,7 @@ use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Binding\Http\ParameterBinding;
 use App\Filter\Binding\Http\ParameterBindingGroup;
 use App\Filter\Binding\Http\ParameterBindingProvider;
+use App\Filter\Binding\Http\RelatedFilterParameterBinding;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
@@ -42,7 +43,7 @@ use App\Provider\TrackRepository;
 use Illuminate\Support\Collection;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -67,9 +68,13 @@ class StopsController extends Controller
      */
     #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.0'])]
     #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
-    public function index(StopRepository $stops, iterable $requirements)
-    {
-        return $this->json($stops->all(...$requirements)->toArray());
+    public function index(
+        StopRepository $stopRepository,
+        array $requirements
+    ): Response {
+        $stops = $stopRepository->all(...$requirements);
+
+        return $this->json($stops);
     }
 
     /**
@@ -83,9 +88,13 @@ class StopsController extends Controller
      */
     #[Route(path: '/groups', name: 'groups', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
-    public function groups(Request $request, StopRepository $stops, iterable $requirements)
-    {
-        return $this->json(static::group($stops->all(...$requirements))->toArray());
+    public function groups(
+        StopRepository $stopRepository,
+        iterable $requirements
+    ): Response {
+        $groups = static::group($stopRepository->all(...$requirements))->toArray();
+
+        return $this->json($groups);
     }
 
     /**
@@ -94,20 +103,16 @@ class StopsController extends Controller
      *     description="Returns specific stop referenced via identificator.",
      *     @OA\JsonContent(ref=@Model(type=Stop::class))
      * )
-     *
-     * @OA\Parameter(
-     *     name="id",
-     *     in="path",
-     *     description="Stop identificator as provided by data provider.",
-     *     @OA\Schema(type="string")
-     * )
      */
     #[Route(path: '/{stop}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
-    public function one(Request $request, StopRepository $stops, $stop)
-    {
+    public function one(
+        StopRepository $stopRepository,
+        #[IdConstraintParameterBinding(parameter: 'stop', from: ['attributes'])]
+        IdConstraint $stop
+    ): Response {
         return $this->json(
-            $stops->first(
-                new IdConstraint($stop),
+            $stopRepository->first(
+                $stop,
                 new Embed("destinations")
             )
         );
@@ -121,9 +126,14 @@ class StopsController extends Controller
      * )
      */
     #[Route(path: '/{stop}/tracks', name: 'tracks', methods: ['GET'], options: ['version' => '1.0'])]
-    public function tracks(TrackRepository $tracks, $stop)
-    {
-        return $this->json($tracks->stops(new RelatedFilter(Stop::reference($stop))));
+    public function tracks(
+        TrackRepository $trackRepository,
+        #[RelatedFilterParameterBinding(parameter: 'stop', resource: Stop::class, from: ['attributes'])]
+        RelatedFilter $stop
+    ): Response {
+        $stops = $trackRepository->stops($stop);
+
+        return $this->json($stops);
     }
 
     public static function group(Collection $stops)
@@ -148,9 +158,11 @@ class StopsController extends Controller
     public static function getParameterBinding(): ParameterBinding
     {
         return new ParameterBindingGroup(
-            new IdConstraintParameterBinding(documentation: [
-                'description' => 'Stop unique identifier as provided by data provider.',
-            ]),
+            new IdConstraintParameterBinding(
+                documentation: [
+                    'description' => 'Stop unique identifier as provided by data provider.',
+                ]
+            ),
             new LimitParameterBinding(),
             new EmbedParameterBinding(['destinations']),
             new FieldFilterParameterBinding(
