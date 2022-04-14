@@ -20,6 +20,7 @@
 
 namespace App\Filter\Binding\Http;
 
+use App\Exception\InvalidArgumentException;
 use App\Filter\Binding\Http\Exception\InvalidOperatorException;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
@@ -44,7 +45,6 @@ class FieldFilterParameterBinding implements ParameterBinding
 
     public const STRING_OPERATORS = [
         ...self::EQUALITY_OPERATORS,
-        ...self::SET_OPERATORS,
         'contains' => FieldFilterOperator::Contains,
         'begins'   => FieldFilterOperator::BeginsWith,
         'ends'     => FieldFilterOperator::EndsWith,
@@ -52,7 +52,6 @@ class FieldFilterParameterBinding implements ParameterBinding
 
     public const ORDINAL_OPERATORS = [
         ...self::EQUALITY_OPERATORS,
-        ...self::SET_OPERATORS,
         'eq'  => FieldFilterOperator::Equals,
         'not' => FieldFilterOperator::NotEquals,
         'le'  => FieldFilterOperator::Less,
@@ -66,12 +65,15 @@ class FieldFilterParameterBinding implements ParameterBinding
         ...self::STRING_OPERATORS,
     ];
 
+    /**
+     * @psalm-param array | callable(FieldFilterOperator): array
+     */
     public function __construct(
         public readonly string $parameter,
         public readonly string $field,
         public readonly FieldFilterOperator $defaultOperator = FieldFilterOperator::Equals,
         public readonly array $operators = self::DEFAULT_OPERATORS,
-        public readonly array $documentation = [],
+        public readonly mixed $documentation = [],
         public readonly array $options = [],
     ) {
     }
@@ -103,28 +105,67 @@ class FieldFilterParameterBinding implements ParameterBinding
         yield setup(new Parameter(
             name: $this->parameter,
             in: 'query',
+            explode: false,
             x: [
-                'operators' => array_map($this->mapOperatorToDescription(...), $this->operators),
+                'group' => $this->parameter,
+                'alias' => [
+                    sprintf('%s:%s', $this->parameter, array_search($this->defaultOperator, $this->operators)),
+                ],
+                'operator' => FieldFilterParameterBinding::mapOperatorToDescription($this->defaultOperator),
             ],
         ), function (Parameter $parameter) {
-            $parameter->mergeProperties((object) $this->documentation);
+            $parameter->mergeProperties((object) $this->getDocumentationForOperator($this->defaultOperator));
         });
+
+        foreach ($this->operators as $suffix => $operator) {
+            if ($operator === $this->defaultOperator) {
+                continue;
+            }
+
+            yield setup(
+                new Parameter(
+                    name: sprintf("%s:%s", $this->parameter, $suffix),
+                    in: 'query',
+                    explode: false,
+                    x: [
+                        'group'    => $this->parameter,
+                        'operator' => FieldFilterParameterBinding::mapOperatorToDescription($operator),
+                    ],
+                ),
+                function (Parameter $parameter) use ($operator) {
+                    $parameter->mergeProperties((object) $this->getDocumentationForOperator($operator), );
+                }
+            );
+        }
     }
 
-    private function mapOperatorToDescription(FieldFilterOperator $operator): string
+    public static function mapOperatorToDescription(FieldFilterOperator $operator): string
     {
         return match ($operator) {
-            FieldFilterOperator::Equals         => 'equals',
-            FieldFilterOperator::NotEquals      => 'not equals',
-            FieldFilterOperator::Less           => 'less',
-            FieldFilterOperator::LessOrEqual    => 'less or equal',
-            FieldFilterOperator::Greater        => 'greater',
-            FieldFilterOperator::GreaterOrEqual => 'greater or equal',
-            FieldFilterOperator::In             => 'in collection',
-            FieldFilterOperator::NotIn          => 'not in collection)',
+            FieldFilterOperator::Equals         => 'is equal',
+            FieldFilterOperator::NotEquals      => 'is not equal',
+            FieldFilterOperator::Less           => 'is less than',
+            FieldFilterOperator::LessOrEqual    => 'is less than or equal',
+            FieldFilterOperator::Greater        => 'is greater than',
+            FieldFilterOperator::GreaterOrEqual => 'is greater or equal',
+            FieldFilterOperator::In             => 'is in collection',
+            FieldFilterOperator::NotIn          => 'is not in collection',
             FieldFilterOperator::Contains       => 'contains substring',
             FieldFilterOperator::BeginsWith     => 'begins with substring',
             FieldFilterOperator::EndsWith       => 'ends with substring',
+        };
+    }
+
+    private function getDocumentationForOperator(FieldFilterOperator $operator): array
+    {
+        return match (true) {
+            is_callable($this->documentation) => ($this->documentation)($operator),
+            is_array($this->documentation)    => $this->documentation,
+            default                           => throw InvalidArgumentException::invalidType(
+                parameter: 'documentation',
+                value: $this->documentation,
+                expected: ['array', 'callable(FieldFilterOperator): array']
+            )
         };
     }
 }

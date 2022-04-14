@@ -21,6 +21,7 @@
 namespace App\Filter\Binding\Http;
 
 use App\Filter\Requirement\RelatedFilter;
+use App\Model\Referable;
 use App\Utility\RequestUtils;
 use Attribute;
 use JetBrains\PhpStorm\ExpectedValues;
@@ -29,7 +30,6 @@ use OpenApi\Attributes\Parameter;
 use OpenApi\Attributes\Schema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
-use function App\Functions\encapsulate;
 use function App\Functions\setup;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
@@ -37,6 +37,9 @@ class RelatedFilterParameterBinding implements ParameterBinding
 {
     public readonly string $relationship;
 
+    /**
+     * @param class-string<Referable> $resource
+     */
     public function __construct(
         public readonly string $resource,
         public readonly string $parameter,
@@ -56,8 +59,8 @@ class RelatedFilterParameterBinding implements ParameterBinding
             return;
         }
 
-        $related = encapsulate($value);
-        $related = collect($related)->map([$this->resource, 'reference']);
+        $related = explode(',', $value);
+        $related = array_map($this->resource::reference(...), $related);
 
         yield new RelatedFilter(
             reference: $related,
@@ -77,6 +80,7 @@ class RelatedFilterParameterBinding implements ParameterBinding
             new Parameter(
                 name: $this->parameter,
                 in: $fromAttributes ? 'path' : 'query',
+                explode: false,
                 schema: $fromAttributes
                     ? $schema
                     : new Schema(

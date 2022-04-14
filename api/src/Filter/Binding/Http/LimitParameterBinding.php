@@ -44,7 +44,7 @@ class LimitParameterBinding implements ParameterBinding
     {
         yield new LimitConstraint(
             offset: $request->query->get(self::OFFSET_QUERY_PARAMETER, 0),
-            count: clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), 0, $this->maxLimit),
+            count: clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), min: 0, max: $this->maxLimit),
         );
     }
 
@@ -53,17 +53,17 @@ class LimitParameterBinding implements ParameterBinding
         yield new Parameter(
             name: 'limit',
             in: 'query',
-            description: 'Max number of items to obtain.',
+            description: 'Max number of records to obtain.',
             required: false,
-            schema: new Schema(type: 'int', maximum: $this->maxLimit, minimum: 0),
+            schema: new Schema(type: 'integer', maximum: $this->maxLimit, minimum: 0),
         );
 
         yield new Parameter(
             name: 'offset',
             in: 'query',
-            description: 'Offset of the first item to obtain.',
+            description: 'Offset of the first record to obtain.',
             required: false,
-            schema: new Schema(type: 'int', minimum: 0),
+            schema: new Schema(type: 'integer', minimum: 0),
         );
     }
 }

@@ -72,10 +72,10 @@ class Line implements Fillable, Referable, DTO
 
     /**
      * Line operator
-     * @OA\Property(ref=@Model(type=Operator::class, groups={"Identity"}))
+     * @OA\Property(ref=@Model(type=Operator::class, groups={"Reference"}))
      */
     #[Serializer\Type(Operator::class)]
-    #[SerializeAs(['Default' => 'Identity'])]
+    #[SerializeAs(['Default' => 'Reference'])]
     private Operator $operator;
 
     /**

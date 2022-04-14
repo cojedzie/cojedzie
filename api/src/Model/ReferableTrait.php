@@ -30,7 +30,7 @@ trait ReferableTrait
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
     #[Serializer\Type('string')]
-    #[Serializer\Groups(['Default', 'Identity', 'Minimal'])]
+    #[Serializer\Groups(['Default', 'Reference', 'Minimal'])]
     private string $id;
 
     public function getId(): string
