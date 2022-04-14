@@ -27,6 +27,7 @@ use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
 use App\Model\ScheduledStop;
 use App\Model\Stop;
+use App\Model\TrackStop;
 use function App\Functions\encapsulate;
 
 class FieldFilterDatabaseHandler implements ModifierHandler
@@ -38,6 +39,9 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         ScheduledStop::class => [
             'departure' => 'departure',
             'arrival'   => 'arrival',
+        ],
+        TrackStop::class => [
+            'order' => 'order',
         ],
     ];
 
@@ -97,14 +101,18 @@ class FieldFilterDatabaseHandler implements ModifierHandler
     protected function mapFieldFilterOperatorToDatabase(FieldFilterOperator $operator): string
     {
         return match ($operator) {
-            FieldFilterOperator::Equals         => '=',
-            FieldFilterOperator::NotEquals      => '!=',
+            // Equality
+            FieldFilterOperator::Equals    => '=',
+            FieldFilterOperator::NotEquals => '!=',
+            // Ordinal
             FieldFilterOperator::Less           => '<',
             FieldFilterOperator::LessOrEqual    => '<=',
             FieldFilterOperator::Greater        => '>',
             FieldFilterOperator::GreaterOrEqual => '>=',
-            FieldFilterOperator::In             => 'in',
-            FieldFilterOperator::NotIn          => 'not in',
+            // Set
+            FieldFilterOperator::In    => 'in',
+            FieldFilterOperator::NotIn => 'not in',
+            // String
             FieldFilterOperator::Contains,
             FieldFilterOperator::BeginsWith,
             FieldFilterOperator::EndsWith => 'LIKE',

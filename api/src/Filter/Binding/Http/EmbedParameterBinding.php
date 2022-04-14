@@ -56,7 +56,7 @@ class EmbedParameterBinding implements ParameterBinding
         }
     }
 
-    // fixme: Thie does not work when parameter is duplicated
+    // fixme: This does not work when parameter is duplicated
     public function getDocumentation(Route $route): iterable
     {
         yield new Parameter(

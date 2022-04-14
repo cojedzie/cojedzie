@@ -38,6 +38,7 @@ class IdConstraintParameterBinding implements ParameterBinding
         public readonly string $parameter = 'id',
         #[ExpectedValues(values: ['query', 'attributes'])]
         public readonly array $from = ['query'],
+        public readonly bool $isMultiple = false,
         public readonly array $documentation = [],
     ) {
     }
@@ -45,7 +46,7 @@ class IdConstraintParameterBinding implements ParameterBinding
     public function getRequirementsFromRequest(Request $request): iterable
     {
         if ($value = RequestUtils::get($request, $this->parameter, $this->from)) {
-            yield new IdConstraint(id: $value);
+            yield new IdConstraint(id: $this->isMultiple ? explode(',', $value) : $value);
         }
     }
 
@@ -61,7 +62,7 @@ class IdConstraintParameterBinding implements ParameterBinding
             new Parameter(
                 name: $this->parameter,
                 in: $fromAttributes ? 'path' : 'query',
-                schema: $fromAttributes
+                schema: $this->isMultiple
                     ? $schema
                     : new Schema(
                         type: 'array',
