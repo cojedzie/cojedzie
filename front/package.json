@@ -5,11 +5,19 @@
   "license": "AGPL-3.0-only",
   "sideEffects": [
     "**/*.css",
+    "**/*.scss",
     "**/*.vue"
   ],
   "devDependencies": {
+    "@babel/core": "^7.17.10",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/vue-fontawesome": "^3.0.0-4",
+    "@storybook/addon-actions": "^6.4.22",
+    "@storybook/addon-essentials": "^6.4.22",
+    "@storybook/addon-links": "^6.4.22",
+    "@storybook/builder-webpack5": "^6.4.22",
+    "@storybook/manager-webpack5": "^6.4.22",
+    "@storybook/vue3": "^6.4.22",
     "@types/axios": "^0.14.0",
     "@types/bootstrap": "^4.3.1",
     "@types/ejs": "^3.0.5",
@@ -29,6 +37,7 @@
     "@typescript-eslint/parser": "^5.8.0",
     "@vue-leaflet/vue-leaflet": "^0.6.1",
     "axios": "^0.21.1",
+    "babel-loader": "^8.2.5",
     "bootstrap": "^4.3.1",
     "copy-webpack-plugin": "^9.1.0",
     "css-loader": "^6.5.1",
@@ -53,7 +62,7 @@
     "vue-class-component": "^8.0.0-rc.1",
     "vue-dragscroll": "^3.0.0",
     "vue-eslint-parser": "^8.0.1",
-    "vue-loader": "16.8.3",
+    "vue-loader": "^16.8.3",
     "vue-property-decorator": "^10.0.0-rc.3",
     "vue-router": "^4.0.10",
     "vuex": "^4.0.2",
@@ -83,7 +92,9 @@
   "scripts": {
     "build:server": "tsc -p server",
     "build:loadtester": "tsc -p loadtester",
-    "build:app": "webpack --config webpack.config.js --mode production --progress"
+    "build:app": "webpack --config webpack.config.js --mode production --progress",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "_moduleAliases": {
     "@": "loadtester/build/src"

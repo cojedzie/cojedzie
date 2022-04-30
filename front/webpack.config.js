@@ -42,7 +42,7 @@ module.exports = (env, argv) => {
             }, {
                 test: /\.s[ac]ss$/,
                 use: [
-                    argv.mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+                    'style-loader',
                     "css-loader",
                     "sass-loader"
                 ]
