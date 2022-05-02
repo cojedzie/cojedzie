@@ -1,5 +1,7 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
-import { UiIcon, definitions } from "./icon";
+import UiIcon from "./UiIcon.vue";
+import { icons } from "@/icons"
+
 import toReact from "@egoist/vue-to-react"
 
 <Meta title="Ui/Icon"
@@ -7,7 +9,7 @@ import toReact from "@egoist/vue-to-react"
       argTypes={{
           icon: {
               defaultValue: 'unknown',
-              options: Object.keys(definitions),
+              options: Object.keys(icons),
               control: {
                   type: 'select',
               }
@@ -34,7 +36,7 @@ export const Icon = toReact(UiIcon)
 
 ## Catalog
 <div className="icon-catalog">
-    { Object.keys(definitions).map(icon =>
+    { Object.keys(icons).map(icon =>
         <div className="icon-catalog__entry">
             <div className="icon-catalog__icon">
                 <Icon icon={icon} />

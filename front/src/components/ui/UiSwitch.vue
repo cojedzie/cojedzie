@@ -1,7 +1,15 @@
 <template>
     <div class="ui-switch" :class="[ value && 'ui-switch--checked' ]" v-bind="$attrs" @click="handleSwitchClick">
-        <div class="ui-switch__track"><div class="ui-switch__thumb"></div></div>
-        <input type="checkbox" class="ui-switch__checkbox" :id="id" :checked="value" @change="handleCheckboxChange"/>
+        <div class="ui-switch__track">
+            <div class="ui-switch__thumb" />
+        </div>
+        <input
+            :id="id"
+            type="checkbox"
+            class="ui-switch__checkbox"
+            :checked="value"
+            @change="handleCheckboxChange"
+        >
     </div>
 </template>
 

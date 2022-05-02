@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { LMap, LVectorLayer } from "@/components/map";
-import { computed, defineComponent, nextTick, onMounted, ref, watch } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { Map } from "leaflet";
 import { useAppConfig } from "@/composables/useAppConfig";
 
