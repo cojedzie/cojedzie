@@ -80,6 +80,7 @@
     "yarn-add-no-save": "^1.0.3"
   },
   "dependencies": {
+    "@egoist/vue-to-react": "^1.2.0",
     "@elastic/elasticsearch": "7",
     "ejs": "^3.1.5",
     "eventsource": "^1.1.0",
