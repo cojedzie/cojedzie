@@ -29,7 +29,7 @@ export type HelpTrigger = "click" | "long-hover";
 
 const mutex = createMutex();
 
-export const UiHelp = defineComponent({
+export default defineComponent({
     props: {
         trigger: {
             type: Array as PropType<HelpTrigger[]>,
@@ -53,6 +53,4 @@ export const UiHelp = defineComponent({
         }
     },
 })
-
-export default UiHelp;
 </script>
