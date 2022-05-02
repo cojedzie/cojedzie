@@ -1,6 +1,8 @@
 const createWebpackConfig = require('../webpack.config.js');
 const { exit } = require("yargs");
 
+__webpack_public_path__ = '/storybook/'
+
 module.exports = {
     "stories": [
         "../src/**/*.stories.mdx",
@@ -17,11 +19,20 @@ module.exports = {
     typescript: {
         check: false
     },
+    env: (env) => ({
+        ...env,
+        APP_MAPTILER_KEY: process.env.APP_MAPTILER_KEY,
+    }),
     webpackFinal: async (config) => {
         const customConfig = createWebpackConfig('development', { ...process.argv, mode: 'development' });
 
         return {
             ...config,
+            entry: config.entry.map(entry => {
+                return entry.includes("webpack-hot-middleware")
+                    ? entry + '&path=/storybook/__webpack_hmr'
+                    : entry;
+            }),
             resolve: {
                 ...config.resolve,
                 alias: {
