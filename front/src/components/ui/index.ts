@@ -17,11 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from './icon';
+
 export * from './dialog'
 export * from './fold';
 export * from './tooltip';
 
+export { default as UiIcon } from './UiIcon.vue';
 export { default as UiHelp } from './UiHelp.vue';
 export { default as UiNumericInput } from './UiNumericInput.vue';
 export { default as UiSwitch } from './UiSwitch.vue';
