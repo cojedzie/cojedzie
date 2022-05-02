@@ -55,12 +55,12 @@ label, .label {
 }
 
 .form-control, .input-group-text, .btn-addon {
-  background: rgba($dark, .06);
+  background: mix($dark, white, 6%);
   border: none;
   border-bottom: 2px solid $dark;
 
   &:focus {
-    background: rgba($dark, .06);
+    background: mix($dark, white, 6%);
   }
 }
 
