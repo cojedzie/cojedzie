@@ -56,6 +56,16 @@ services:
       - ./front:/app
     command: ["node", "build/server.js"]
 
+  storybook:
+    image: node:16
+    working_dir: /app
+    environment:
+      - STORYBOOK_BASE_HREF=/storybook/
+      - APP_MAPTILER_KEY
+    volumes:
+      - ./front:/app
+    command: ["yarn", "storybook"]
+
   postgres:
     image: postgres:14
     restart: unless-stopped

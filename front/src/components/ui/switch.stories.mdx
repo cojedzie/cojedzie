@@ -1,0 +1,35 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import { UiSwitch } from "./switch";
+import { ref } from "vue";
+
+<Meta title="UI/Switch"
+      component={UiSwitch}
+      argTypes={{
+          value: {
+              control: {
+                  type: 'boolean'
+              }
+          }
+      }}
+      args={{ value: true }}
+/>
+
+export const Template = (args) => ({
+    components: { UiSwitch },
+    setup: () => {
+        const value = ref(args.value)
+        return { value, args }
+    },
+    template: "<ui-switch v-model:value='value'/>"
+})
+
+# Switch
+<Canvas>
+    <Story name="On" args={{ value: true }}>{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="On" />
+
+<Canvas>
+    <Story name="Off" args={{ value: false }}>{Template.bind({})}</Story>
+</Canvas>

@@ -218,6 +218,10 @@ body {
   margin-top: $grid-gutter-width / 2;
 }
 
+pre {
+  color: white;
+}
+
 @include media-breakpoint-up('md') {
   #app {
     padding-top: 4rem;
