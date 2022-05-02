@@ -1,6 +1,6 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 import UiNumericInput from "./UiNumericInput.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue"; import { action } from "@storybook/addon-actions";
 
 <Meta title="UI/Numeric Input"
       component={UiNumericInput}
@@ -27,16 +27,19 @@ import { ref } from "vue";
                   type: 'number'
               }
           },
+          onUpdate: {
+              action: 'update:value'
+          }
       }}
 />
 
 export const Template = (args) => ({
     components: { UiNumericInput },
     setup: () => {
-        const value = ref(args.value);
+        const value = ref(args.value)
         return { args, value }
     },
-    template: "<ui-numeric-input v-bind='args' v-model:value='value'/>"
+    template: `<ui-numeric-input v-bind='args' v-model:value='value' @update:value='args.onUpdate'/>`
 })
 
 # Numeric Input
