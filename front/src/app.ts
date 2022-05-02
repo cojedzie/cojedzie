@@ -27,11 +27,13 @@ import moment from "moment";
 
 import components, { app } from "@/components";
 import filters from '@/filters'
+import globals from '@/globals'
 import { install as api } from '@/api';
 
 app.use(api);
 app.use(filters);
 app.use(components);
+app.use(globals);
 
 app.directive("dragscroll", dragscrollNext);
 
@@ -43,12 +45,6 @@ declare module '@vue/runtime-core' {
         $store: Store<StoreDefinition>;
     }
 }
-
-app.config.globalProperties.$isTouch = 'ontouchstart' in window || navigator['msMaxTouchPoints'] > 0;
-app.config.globalProperties.$hasSlot = function (this: Vue, slot: string): boolean {
-    return !!this.$slots[slot];
-}
-app.config.globalProperties.$moment = moment;
 
 Vue.registerHooks(['removed']);
 
