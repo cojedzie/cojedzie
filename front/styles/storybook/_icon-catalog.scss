@@ -1,0 +1,42 @@
+/*!
+ * Copyright (C) 2022 Kacper Donat
+ *
+ * @author Kacper Donat <kacper@kadet.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+.icon-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: .5rem;
+  width: 100%;
+
+  &__entry {
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(black, .3);
+    padding: 0.5rem;
+    flex: 1 1 auto;
+    text-align: center;
+    width: 100%;
+
+    &:last-child {
+      margin-right: auto;
+    }
+  }
+
+  &__icon-name {
+    font-size: 0.875rem !important;
+  }
+}

@@ -133,6 +133,8 @@ $grid-gutter-width: $spacer * 2;
 
 @import "stop/stop-details-dialog";
 
+@import "storybook/_icon-catalog.scss";
+
 html, body {
   overscroll-behavior-y: contain;
 }

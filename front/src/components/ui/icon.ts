@@ -107,7 +107,7 @@ const messageTypeIcons: Record<`message-${MessageType}`, Icon> = {
     'message-unknown': simple(faQuestionCircle),
 };
 
-const definitions = {
+export const definitions = {
     'favourite': simple(faStar),
     'unknown': simple(faQuestionSquare),
     'add': simple(faCheck),
