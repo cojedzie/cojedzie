@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,12 +17,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { useRef, useEffect, createElement } from "react";
+import { Component, createApp } from "vue";
 
-export * from './dialog'
-export * from './fold';
+export type VProps<TComponent extends Component> = {
+    component: TComponent
+} & (TComponent extends Component<infer TProps> ? TProps : unknown);
 
-export { default as UiTooltip } from './UiTooltip.vue'
-export { default as UiIcon } from './UiIcon.vue';
-export { default as UiHelp } from './UiHelp.vue';
-export { default as UiNumericInput } from './UiNumericInput.vue';
-export { default as UiSwitch } from './UiSwitch.vue';
+export function V<TComponent extends Component>({ component, ...args }: VProps<TComponent>) {
+    const el = useRef();
+
+    useEffect(() => {
+        const app = createApp(component, args);
+        app.mount(el.current);
+
+        return () => app.unmount();
+    }, [ el ])
+
+    return createElement(
+        "div",
+        null,
+        createElement("div", { ref: el })
+    );
+}
