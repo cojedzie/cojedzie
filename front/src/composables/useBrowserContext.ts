@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+export type BrowserContext = {
+    isTouch: boolean;
+}
 
-export * from './dialog'
-export * from './fold';
-
-export { default as UiTooltip } from './UiTooltip.vue'
-export { default as UiIcon } from './UiIcon.vue';
-export { default as UiHelp } from './UiHelp.vue';
-export { default as UiNumericInput } from './UiNumericInput.vue';
-export { default as UiSwitch } from './UiSwitch.vue';
+export function useBrowserContext(): BrowserContext {
+    return {
+        isTouch: 'ontouchstart' in window || navigator['msMaxTouchPoints'] > 0
+    }
+}

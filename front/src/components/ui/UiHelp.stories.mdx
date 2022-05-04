@@ -28,11 +28,6 @@ import figure from "@resources/images/help/departures-relative-time.png"
               }
           }
       }}
-      decorators={[
-          () => ({
-              template: '<div><story /><div id="popups"></div></div>'
-          })
-      ]}
 />
 
 export const Template = template => (args) => ({
@@ -72,7 +67,7 @@ export const Template = template => (args) => ({
       <ui-help v-bind='args' :mutex='mutex'>
         <template #title><ui-icon v-if="args.icon" :icon="args.icon"/> {{ args.title }}</template>
         <template #button="{ toggle, ref }">
-            <button class="btn btn-primary btn-sm" :ref="ref" @click="toggle">help</button>
+            <button class="btn btn-primary btn-sm" :ref="ref" @click="toggle">Show help</button>
         </template>
         <p>{{ args.content }}</p>
       </ui-help>`).bind({})}</Story>

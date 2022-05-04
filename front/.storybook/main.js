@@ -1,5 +1,4 @@
 const createWebpackConfig = require('../webpack.config.js');
-const { exit } = require("yargs");
 
 __webpack_public_path__ = '/storybook/'
 
