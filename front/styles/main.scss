@@ -19,98 +19,9 @@
 
 @import "reset";
 
-$border-radius:    0;
-$border-radius-lg: $border-radius;
-$border-radius-sm: $border-radius;
-
-$danger: #cd2e12;
-
-@import "~bootstrap/scss/functions";
-@import "~bootstrap/scss/variables";
-
-$primary: #005ea8;
-$primary-gradient: linear-gradient(120deg, #0083c5 10%, #005ea8 90%);
-$danger-gradient: linear-gradient(120deg, $danger 10%, darken($danger, 10%) 90%);
-
-$custom-control-indicator-checked-bg: $dark;
-$custom-control-indicator-active-bg: $dark;
-$small-font-size: $font-size-base * 0.8;
-
-$line-types: (
-  'trolleybus': #419517,
-  'tram':       #cd2e12,
-  'bus':        $primary,
-  'train':      $yellow,
-  'unknown':    $dark
-);
-
-$default-spacing: .5rem;
-
-$alert-margin-bottom:    $default-spacing;
-$headings-margin-bottom: $default-spacing;
-
-$container-max-widths: map-merge($container-max-widths, ( xl: 1320px ));
-
-$link-color: #005ea8;
-$grid-gutter-width: $spacer * 2;
+@import "variables";
 
 @import "~bootstrap/scss/bootstrap";
-
-@mixin headings {
-  h1, h2, h3, h4, h5, h6 {
-    @content
-  }
-}
-
-@mixin direct-headings {
-  > h1, > h2, > h3, > h4, > h5, > h6 {
-    @content
-  }
-}
-
-@mixin spacing($spacing: .25em) {
-  margin-left: $spacing;
-  &:first-child {
-    margin-left: 0;
-  }
-}
-
-@mixin no-scrollbars {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-
-  &::-webkit-scrollbar { /* WebKit */
-    width: 0;
-    height: 0;
-  }
-}
-
-@mixin active {
-  &:hover, &:active, &:focus, #{&}--active {
-    @content
-  }
-}
-
-@mixin flex-with-spacing($spacing) {
-  display: flex;
-
-  & > *:not(:last-child) {
-    margin-right: $spacing;
-  }
-}
-
-@mixin position($position, $top: inherit, $right: inherit, $bottom: inherit, $left: inherit) {
-  $right:  if($right == inherit, $top, $right);
-  $bottom: if($bottom == inherit, $top, $bottom);
-  $left:   if($left == inherit, $right, $left);
-
-  position: $position;
-
-  top: $top;
-  right: $right;
-  left: $left;
-  bottom: $bottom;
-}
 
 @import "common";
 @import "stop";
@@ -127,7 +38,6 @@ $grid-gutter-width: $spacer * 2;
 @import "ui/switch";
 @import "ui/popup";
 @import "ui/modal";
-@import "ui/help";
 
 @import "page/provider-picker";
 
@@ -226,7 +136,6 @@ pre {
 
 @include media-breakpoint-up('md') {
   #app {
-    padding-top: 4rem;
     padding-top: 2rem;
   }
 
