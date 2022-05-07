@@ -51,6 +51,7 @@ import {
     faSync,
     faTimes,
     faTrashAlt,
+    faBullseyePointer,
 } from "@fortawesome/pro-light-svg-icons";
 
 import {
@@ -61,7 +62,7 @@ import {
     faSpinnerThird,
     faClock,
     faLessThan,
-    faArrowRight
+    faArrowRight,
 } from "@fortawesome/pro-regular-svg-icons";
 
 import {
@@ -189,6 +190,7 @@ export const icons = {
     ]),
     'close': simple(faTimes),
     'history': simple(faHistory),
+    'target': simple(faBullseyePointer),
     ...lineTypeIcons,
     ...messageTypeIcons,
 };

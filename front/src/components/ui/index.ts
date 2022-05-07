@@ -22,6 +22,8 @@ export * from './dialog'
 export * from './fold';
 
 export { default as UiTooltip } from './UiTooltip.vue'
+export { default as UiPin } from './UiPin.vue'
+export { default as UiMapPin } from './UiMapPin.vue'
 export { default as UiIcon } from './UiIcon.vue';
 export { default as UiHelp } from './UiHelp.vue';
 export { default as UiNumericInput } from './UiNumericInput.vue';
