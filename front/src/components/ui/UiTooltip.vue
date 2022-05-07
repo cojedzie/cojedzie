@@ -2,7 +2,7 @@
     <teleport to="#popups">
         <transition name="tooltip">
             <ui-dialog
-                v-if="show"
+                v-if="show || always"
                 class="ui-popup--tooltip"
                 aria-hidden="true"
                 arrow

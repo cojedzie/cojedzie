@@ -40,8 +40,12 @@
                 style="min-height: 450px"
             >
                 <l-feature-group ref="features">
-                    <l-marker :lat-lng="stop.location" />
-                    <l-marker v-if="hoveredStop" :lat-lng="hoveredStop.location" />
+                    <ui-map-pin :lat-lng="stop.location" variant="filled-outline">
+                        <ui-icon icon="stop" />
+                    </ui-map-pin>
+                    <ui-map-pin v-if="hoveredStop" :lat-lng="hoveredStop.location" variant="outline">
+                        <ui-icon icon="target" />
+                    </ui-map-pin>
                 </l-feature-group>
             </ui-map>
         </div>
@@ -55,10 +59,11 @@ import { LFeatureGroup } from '@vue-leaflet/vue-leaflet';
 import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
 import { point } from "leaflet";
 import { groupBy } from "@/utils";
+import { UiMapPin } from "@/components";
 
 export default defineComponent({
     name: "StopDetailsDialog",
-    components: { LFeatureGroup },
+    components: { LFeatureGroup, UiMapPin },
     inheritAttrs: false,
     props: {
         stop: {
@@ -99,11 +104,11 @@ export default defineComponent({
 
         watch(bounds, async bounds => {
             const zoom = bounds && map.value?.leafletObject?.getBoundsZoom
-                ? Math.min(map.value?.leafletObject.getBoundsZoom(bounds) - 0.3, 17)
+                ? Math.min(map.value?.leafletObject.getBoundsZoom(bounds) - 0.5, 17)
                 : 17;
             const center = bounds.getCenter() || props.stop.location;
 
-            map.value?.leafletObject?.setView?.(center, zoom, { padding: point(100, 100) });
+            map.value?.leafletObject?.setView?.(center, zoom, { padding: point(200, 200) });
             map.value?.leafletObject?.invalidateSize();
         })
 
