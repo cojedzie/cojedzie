@@ -18,6 +18,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from "./entry"
-export * from "./history"
-export * from "./picker"
+export * from "./StopPickerEntry.vue"
+export * from "./StopPickerHistory.vue"
+export * from "./StopPicker.vue"

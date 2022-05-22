@@ -18,27 +18,25 @@
  */
 
 import { App, defineAsyncComponent, h } from "vue";
-import { SettingsDepartures, SettingsMessages } from "@/components/settings";
-import { UiFold, UiTooltip, UiIcon, UiNumericInput, UiSwitch, UiDialog, UiHelp } from "@/components/ui";
-import Lazy from "@/components/utils";
-import DeparturesList from "@/components/departures/list";
-import FavouritesList from "@/components/favourites/list";
-import FavouritesAdder from "@/components/favourites/adder";
-import StopPicker from "@/components/stop-picker/picker";
-import StopLabel from "@/components/stop/label";
-import { StopDetailsDialog } from "@/components/stop";
-import StopMap from "@/components/stop/map";
-import MessagesList from "@/components/messages/list";
-import LineSymbol from "@/components/line/symbol";
-import TripSchedule from "@/components/trip/schedule";
+import MessagesList from "@/components/messages/MessagesList.vue";
+import FavouritesList from "@/components/favourites/FavouritesList.vue";
+import SettingsDepartures from "@/components/settings/SettingsDepartures.vue";
+import { UiDialog, UiFold, UiHelp, UiIcon, UiNumericInput, UiSwitch, UiTooltip } from "@/components/ui";
+import LineSymbol from "@/components/line/LineSymbol.vue";
+import FavouritesAdder from "@/components/favourites/FavouritesAdder.vue";
+import SettingsMessages from "@/components/settings/SettingsMessages.vue";
+import { DeparturesList } from "@/components/departures";
+import { StopPicker } from "@/components/stop-picker";
+import { StopLabel, StopMap } from "@/components/stop";
+import { TripSchedule } from "@/components/trip";
+import { Lazy } from "@/components/utils";
 
-export * from "./application"
+export * from "./Application.vue"
 export * from './utils'
 export * from './map'
-export * from './main'
+export * from '../pages'
 export * from './ui'
 export * from './settings'
-export * from "./provider-chooser"
 export * from "./departures"
 export * from "./favourites"
 export * from "./line"

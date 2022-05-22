@@ -87,7 +87,7 @@ tasks:
   frontend:yarn:
     desc: Execute yarn command
     cmds:
-      - docker-compose exec {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
+      - docker-compose run {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
 
   api:console:
     desc: Execute command in the symfony console

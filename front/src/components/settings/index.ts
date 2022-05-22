@@ -17,5 +17,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from "./departures"
-export * from "./messages"
+export * from "./SettingsMessages.vue"
+export * from "./SettingsDepartures.vue"

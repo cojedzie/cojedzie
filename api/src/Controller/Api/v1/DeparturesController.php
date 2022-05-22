@@ -81,7 +81,7 @@ class DeparturesController extends Controller
                 'description' => 'Stop identifiers as provided by data provider.',
             ]
         )]
-        IdConstraint $stops,
+        ?IdConstraint $stops,
         array $requirements
     ) {
         $stopRepository = $stopRepository->all($stops);

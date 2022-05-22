@@ -17,5 +17,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from "./adder";
-export * from "./list";
+export * from "./FavouritesList.vue";
+export * from "./FavouritesAdder.vue";
