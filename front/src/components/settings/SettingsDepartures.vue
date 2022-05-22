@@ -1,0 +1,239 @@
+<template>
+    <div class="form-group">
+        <div class="label flex">
+            <label class="text" for="departures-auto-refresh">
+                <ui-icon icon="refresh" fixed-width />
+                autoodświeżanie
+            </label>
+            <ui-switch
+                id="departures-auto-refresh"
+                class="flex-space-left"
+                :value="autorefresh"
+                @update:value="update({ autorefresh: $event })"
+            />
+            <ui-help class="label__button">
+                <template #title>
+                    <ui-icon icon="refresh" fixed-width />
+                    autoodświeżanie
+                </template>
+
+                <p>Automatyczne odświeżanie listy odjazdów z zadaną częstotliwością.</p>
+                <p>
+                    Zbyt częste odświeżanie listy odjazdów może prowadzić do większego zużycia energii bez zwiększenia
+                    dokładności informacji o odjazdach.
+                </p>
+            </ui-help>
+        </div>
+        <div v-if="autorefresh">
+            <div class="input-group input-group-sm">
+                <input
+                    id="departures-auto-refresh-interval"
+                    type="text"
+                    class="form-control form-control-sm form-control-simple"
+                    :value="autorefreshInterval"
+                    @input="update({ autorefreshInterval: Number.parseInt($event.target.value) })"
+                >
+                <div class="input-group-append">
+                    <span class="input-group-text" aria-label="sekund">s</span>
+                </div>
+            </div>
+            <label for="departures-auto-refresh-interval" class="text mt-1 label--secondary">
+                częstotliwość odświeżania
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="label flex">
+            <label class="text" for="departures-count">
+                <ui-icon icon="line-bus" fixed-width />
+                liczba wpisów
+            </label>
+            <ui-help class="flex-space-left label__button">
+                <template #title>
+                    <ui-icon icon="line-bus" fixed-width />
+                    liczba wpisów
+                </template>
+
+                <p>
+                    Kontroluje liczbę wpisów wyświetlanych w tabeli odjazdów. Liczba ta jest niezależna od liczby wybranych
+                    przystanków.
+                </p>
+            </ui-help>
+        </div>
+        <ui-numeric-input
+            id="departures-count"
+            :min="1"
+            :max="20"
+            :value="displayedEntriesCount"
+            @update:value="update({ displayedEntriesCount: $event })"
+        />
+    </div>
+    <div class="form-group">
+        <div class="label flex">
+            <label class="text mr-1" for="departures-relative-times">
+                <ui-icon icon="relative-time" fixed-width />
+                pokazuj czas do odjazdu
+            </label>
+            <button
+                type="button"
+                class="label__button mr-1 flex-space-left"
+                :class="[ relativeTimesShowAdvancedOptions && 'label__button--pressed' ]"
+                :disabled="!relativeTimes"
+                @click="relativeTimesShowAdvancedOptions = !relativeTimesShowAdvancedOptions"
+            >
+                <ui-icon icon="settings" fixed-width />
+            </button>
+
+            <ui-switch
+                id="departures-relative-times"
+                :value="relativeTimes"
+                @update:value="update({ relativeTimes: $event })"
+            />
+
+            <ui-help class="label__button">
+                <template #title>
+                    <ui-icon icon="relative-time" fixed-width />
+                    pokazuj czas do odjazdu
+                </template>
+                <img :src="require('@resources/images/help/departures-relative-time.png')" alt="" class="help__image">
+
+                <p>Włączenie tej opcji spowoduje pokazywanie czasu pozostałego do odjazdu w miejsce godziny odjazdu.</p>
+                <p>
+                    Ta opcja posiada dodatkową konfigurację dostępną za pomocą przycisku zaawansowanych ustawień z ikoną
+                    <ui-icon icon="settings" fixed-width />.
+                </p>
+            </ui-help>
+        </div>
+        <ui-fold
+            :visible="relativeTimes && relativeTimesShowAdvancedOptions"
+            style="margin-left: 7px; border-left: 1px solid lightgray; padding-left: 10px;"
+        >
+            <div class="label flex">
+                <label class="text label--secondary" for="departures-relative-times-for-scheduled">
+                    <ui-icon icon="departure-warning" fixed-width />
+                    również dla czasu rozkładowego
+                </label>
+                <ui-switch
+                    id="departures-relative-times-for-scheduled"
+                    class="flex-space-left"
+                    :value="relativeTimesForScheduled"
+                    @update:value="update({ relativeTimesForScheduled: $event })"
+                />
+                <ui-help class="label__button">
+                    <template #title>
+                        <ui-icon icon="departure-warning" fixed-width />
+                        również dla czasu rozkładowego
+                    </template>
+
+                    <img
+                        :src="require('@resources/images/help/departures-relative-for-scheduled.png')"
+                        alt=""
+                        class="help__image"
+                    >
+
+                    <p>
+                        Możliwość wyłączenia pokazywania czasu do odjazdu dla kursów, które nie posiadają informacji w czasie
+                        rzeczywistym i nie uwzględniają aktualnej sytuacji komunikacyjnej.
+                    </p>
+                    <p>
+                        Zachowanie takie jest zgodne z tym występującym na wielu tablicach Systemu Informacji Pasażerskiej
+                        dostępnych na przystankach.
+                    </p>
+                </ui-help>
+            </div>
+            <div class="flex">
+                <label class="text label--secondary" for="departures-has-relative-time-limit">
+                    <ui-icon icon="relative-time-limit" fixed-width />
+                    tylko dla odjazdów szybciej niż
+                </label>
+                <ui-switch
+                    id="departures-has-relative-time-limit"
+                    v-model:value="relativeTimesHasLimit"
+                    class="flex-space-left"
+                />
+                <ui-help class="label__button">
+                    <template #title>
+                        <ui-icon icon="relative-time-limit" fixed-width />
+                        tylko dla odjazdów szybciej niż
+                    </template>
+
+                    <figure class="help__figure">
+                        <img
+                            :src="require('@resources/images/help/departures-relative-time-limit.png')"
+                            alt=""
+                            class="help__image"
+                        >
+                        <figcaption>Zachowanie dla włączonego ustawienia z ustawionym domyślnym progiem 40 minut.</figcaption>
+                    </figure>
+
+                    <p>
+                        Możliwość pokazywania czasu do odjazdu wyłącznie dla odjazdów wcześniejszych niż zadany próg. Opcja
+                        ta umożliwia dokładniejsze informowanie o czasie późniejszych odjazdów.
+                    </p>
+                </ui-help>
+            </div>
+            <div class="flex">
+                <label for="departures-max-relative-time" class="text">
+                    <span class="sr-only">maksymalny czas do odjazdu</span>
+                </label>
+                <div v-if="relativeTimesHasLimit" class="input-group input-group-sm">
+                    <input
+                        id="departures-max-relative-time"
+                        v-model="relativeTimesLimit"
+                        type="text"
+                        class="form-control form-control-sm form-control-simple"
+                    >
+                    <div class="input-group-append">
+                        <span class="input-group-text" aria-label="minut">min</span>
+                    </div>
+                </div>
+            </div>
+        </ui-fold>
+    </div>
+</template>
+
+<script lang="ts">
+import { Options, Vue } from "vue-class-component";
+import store, { DeparturesSettings } from "../../store";
+import { DeparturesSettingsState } from "@/store/modules/settings/departures";
+
+@Options({
+    name: "SettingsDepartures",
+    store
+})
+export default class SettingsDepartures extends Vue {
+    @DeparturesSettings.State
+    public autorefresh: boolean;
+    @DeparturesSettings.State
+    public relativeTimes: boolean;
+    @DeparturesSettings.State
+    public relativeTimesForScheduled: boolean;
+    @DeparturesSettings.State
+    public autorefreshInterval: number;
+    @DeparturesSettings.State
+    public displayedEntriesCount: number;
+
+    public get relativeTimesLimit(): number {
+        return this.$store.state["departures-settings"].relativeTimesLimit;
+    }
+
+    public set relativeTimesLimit(relativeTimesLimit: number | string) {
+        this.update({
+            relativeTimesLimit: typeof relativeTimesLimit === "string" ? Number.parseInt(relativeTimesLimit) : relativeTimesLimit
+        })
+    }
+
+    public get relativeTimesHasLimit(): boolean {
+        return this.$store.state["departures-settings"].relativeTimesLimitEnabled;
+    }
+
+    public set relativeTimesHasLimit(relativeTimesLimitEnabled: boolean) {
+        this.update({ relativeTimesLimitEnabled })
+    }
+
+    @DeparturesSettings.Mutation
+    public update: (state: Partial<DeparturesSettingsState>) => void;
+
+    public relativeTimesShowAdvancedOptions: boolean = false;
+}
+</script>

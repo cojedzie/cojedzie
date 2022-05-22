@@ -270,6 +270,7 @@ declare module "vuex" {
     }
 
     export function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): Store<TDefinition>;
+    export function useStore<TDefinition extends VuexStoreDefinition>(): Store<TDefinition>;
 
     export function install(...args: any[]): any;
 

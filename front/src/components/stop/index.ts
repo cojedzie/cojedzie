@@ -19,5 +19,5 @@
  */
 
 export { default as StopDetailsDialog } from "./StopDetailsDialog.vue"
-export * from "./label"
-export * from "./map"
+export * from "./StopMap.vue"
+export * from "./StopLabel.vue"

@@ -23,7 +23,6 @@ module.exports = (env, argv) => {
         resolve: {
             extensions: ['.tsx', '.ts', '.js'],
             alias: {
-                "@templates": path.resolve(__dirname, "./templates"),
                 "@resources": path.resolve(__dirname, "./resources"),
                 "@styles": path.resolve(__dirname, "./styles"),
                 "@": path.resolve(__dirname, "./src"),
@@ -54,6 +53,9 @@ module.exports = (env, argv) => {
                 loader: "vue-loader",
                 options: {
                     enableTsInTemplate: false,
+                    compilerOptions: {
+                        preserveWhitespace: true
+                    }
                 }
             }, {
                 test: /\.tsx?$/,
@@ -71,21 +73,6 @@ module.exports = (env, argv) => {
             }, {
                 test: /\.(woff|woff2|eot|ttf|otf)$/,
                 type: 'asset/resource',
-            }, {
-                test: /\.html?$/,
-                use: [
-                    {
-                        loader: path.resolve('./resources/vue-template-loader.js'),
-                        options: {
-                            compilerOptions: {
-                                whitespace: "preserve",
-                            }
-                        }
-                    },
-                ],
-                include: [
-                    path.resolve('./templates')
-                ]
             }]
         },
         plugins: [

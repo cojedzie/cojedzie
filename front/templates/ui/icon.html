@@ -1,4 +1,0 @@
-<fa v-bind="attrs" v-if="type === 'simple'" class="ui-icon"/>
-<fa-layers v-else-if="type === 'stacked'" class="ui-icon">
-    <fa v-bind="props" :icon="props.icon" v-for="(props, index) in definition.icons" :key="index"/>
-</fa-layers>

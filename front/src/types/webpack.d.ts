@@ -17,13 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-declare module "*.html" {
-    import { RenderFunction } from "vue";
-
-    export const render: RenderFunction
-    export default function WithRender<T>(decorated: T): T & { render: CallableFunction };
-}
-
 declare module "*.svg" {
     const content: string;
     export = content;

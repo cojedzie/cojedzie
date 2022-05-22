@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,5 +17,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { default as DeparturesList } from "./DeparturesList.vue";
-export { default as DeparturesDeparture } from "./DeparturesDeparture.vue"
+export * from "./MainPage.vue"
+export * from "./ProviderChooserPage.vue"
