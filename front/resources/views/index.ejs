@@ -3,8 +3,8 @@
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="/dist/main.css"/>
         <link rel="manifest" href="<%= manifest_path %>"/>
+        <link rel="stylesheet" href="/styles/main.scss"/>
 
         <!-- icons -->
         <link rel="icon" href="/images/favicon.png" sizes="16x16"/>
@@ -64,6 +64,7 @@
                 &copy; <%= year %>
             </span>
         </footer>
-        <script src="/dist/main.js"></script>
+
+        <script type="module" src="/src/app.ts"></script>
     </body>
 </html>

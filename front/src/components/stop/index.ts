@@ -18,6 +18,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { default as StopDetailsDialog } from "./StopDetailsDialog.vue"
-export * from "./StopMap.vue"
-export * from "./StopLabel.vue"
+export { default as StopMap } from "./StopMap.vue"
+export { default as StopLabel } from "./StopLabel.vue"

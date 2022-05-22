@@ -56,7 +56,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import "~@styles/_variables.scss";
+@import "../../../styles/_variables.scss";
 
 $ui-help-width: 300px !default;
 $ui-help-spacing: 0.5rem !default;

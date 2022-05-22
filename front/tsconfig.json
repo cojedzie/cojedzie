@@ -2,7 +2,7 @@
   "compilerOptions": {
     "lib": ["dom", "esnext"],
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "esnext",
     "module": "esnext",
     "sourceMap": true,
     "noImplicitThis": true,

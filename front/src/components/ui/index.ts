@@ -18,8 +18,8 @@
  */
 
 
-export * from './UiDialog.vue'
-export * from './UiFold.vue';
+export { default as UiDialog } from './UiDialog.vue'
+export { default as UiFold } from './UiFold.vue';
 export { default as UiTooltip } from './UiTooltip.vue'
 export { default as UiPin } from './UiPin.vue'
 export { default as UiMapPin } from './UiMapPin.vue'

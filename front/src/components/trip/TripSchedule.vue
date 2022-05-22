@@ -24,7 +24,7 @@ import moment from "moment";
 type ScheduledStopInfo = ScheduledStop & { visited: boolean, current: boolean };
 
 @Options({ name: "TripSchedule" })
-export class TripSchedule extends Vue {
+export default class TripSchedule extends Vue {
     @Prop(Array) public schedule: ScheduledStop[];
     @Prop(Object) public current: Stop;
 
@@ -45,6 +45,4 @@ export class TripSchedule extends Vue {
         list.scrollLeft = current.offsetLeft - (list.clientWidth + current.clientWidth) / 2;
     }
 }
-
-export default TripSchedule;
 </script>
