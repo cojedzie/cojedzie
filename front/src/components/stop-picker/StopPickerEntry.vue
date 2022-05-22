@@ -60,10 +60,10 @@ import { Options, Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { Line, StopWithDestinations as Stop } from "@/model";
 import { match, unique } from "@/utils";
-import { StopDetailsDialog } from "@/components";
+import StopDetailsDialog from "@/components/stop/StopDetailsDialog.vue";
 
 @Options({ name: "StopPickerEntry", components: { StopDetailsDialog } })
-export class StopPickerEntry extends Vue {
+export default class StopPickerEntry extends Vue {
     @Prop(Object)
     public stop: Stop;
 
@@ -101,6 +101,4 @@ export class StopPickerEntry extends Vue {
         return unique(this.stop.destinations || [], destination => destination.stop && destination.stop.name).map(compactLines);
     }
 }
-
-export default StopPickerEntry;
 </script>

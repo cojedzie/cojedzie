@@ -21,7 +21,7 @@ import { Prop, Watch } from "vue-property-decorator";
 export type UiFoldState = "folded" | "expanding" | "expanded" | "folding";
 
 @Options({ name: "UiFold" })
-export class UiFold extends Vue {
+export default class UiFold extends Vue {
     @Prop(Boolean)
     public visible: boolean;
 
@@ -112,6 +112,4 @@ export class UiFold extends Vue {
         }
     }
 }
-
-export default UiFold;
 </script>

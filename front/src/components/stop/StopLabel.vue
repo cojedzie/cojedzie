@@ -11,10 +11,8 @@ import { Prop } from "vue-property-decorator";
 import { Stop } from "@/model";
 
 @Options({ name: "StopLabel" })
-export class StopLabel extends Vue {
+export default class StopLabel extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
-
-export default StopLabel;
 </script>

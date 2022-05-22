@@ -54,25 +54,6 @@ server.set("view engine", "ejs");
 
 server.use(express.static(path.join(__dirname, "../build/public/")))
 
-if (dev) {
-  const webpack = require('webpack')
-  const webpackDevMiddleware = require('webpack-dev-middleware')
-  const webpackHotMiddleware = require('webpack-hot-middleware')
-
-  const config = require('../webpack.config.js')('development', { mode: 'development' });
-  const compiler = webpack(config);
-  const instance = webpackDevMiddleware(compiler);
-
-  server.use(instance);
-  server.use(webpackHotMiddleware(compiler));
-
-  server.get('/service-worker.js', (req, res) => {
-      const content = instance.context.outputFileSystem.readFileSync(path.join(__dirname, '../build/public/service-worker.js'));
-      res.set('Content-Type', 'application/javascript');
-      res.send(content);
-  })
-}
-
 server.get("/:provider?/manifest.json", (req, res) => {
     const provider = req.params.provider;
 
@@ -103,31 +84,48 @@ server.get("/:provider?/manifest.json", (req, res) => {
     })
 })
 
-server.get("/:provider?/*", (req, res) => {
-    const manifest_path = req.params.provider
-        ? `/${req.params.provider}/manifest.json`
-        : "/manifest.json";
+const { createServer: createViteServer } = require('vite');
 
-    const year = (new Date()).getFullYear();
+createViteServer({
+    server: {
+        middlewareMode: 'ssr',
+        hmr: {
+            port: 3001
+        }
+    }
+}).then(vite => {
+    server.use(vite.middlewares)
 
-    res.render("index", {
-        manifest_path,
-        gtm_tracking,
-        version,
-        year,
-        config: {
+    server.get("/:provider?/*", (req, res) => {
+        const manifest_path = req.params.provider
+            ? `/${req.params.provider}/manifest.json`
+            : "/manifest.json";
+
+        const year = (new Date()).getFullYear();
+
+        res.render("index", {
+            manifest_path,
+            gtm_tracking,
             version,
-            api,
-            maptiler: {
-                key: maptiler_key
-            }
-        },
-    })
-})
+            year,
+            config: {
+                version,
+                api,
+                maptiler: {
+                    key: maptiler_key
+                }
+            },
+        }, async (err, output) => {
+            const template = await vite.transformIndexHtml(req.originalUrl, output);
 
-server.listen(port, host, () => {
-    console.info(`Server started at ${host}:${port}`);
-});
+            res.send(template)
+        })
+    })
+
+    server.listen(port, host, () => {
+        console.info(`Server started at ${host}:${port}`);
+    });
+})
 
 process.on('SIGINT', function() {
     console.info("Terminating server...");

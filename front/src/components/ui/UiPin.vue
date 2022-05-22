@@ -53,7 +53,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import "~@styles/_variables";
+@import "../../../styles/_variables.scss";
 
 $ui-pin-width: 32px;
 

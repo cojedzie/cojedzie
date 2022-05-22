@@ -24,11 +24,9 @@ import StopPickerEntry from "./StopPickerEntry.vue";
     name: "StopPickerHistory",
     components: { StopPickerEntry }
 })
-export class StopPickerHistory extends Vue {
+export default class StopPickerHistory extends Vue {
     @History.Getter all: HistoryEntry[];
 
     @Mutation("add") select: (stops: Stop[]) => void;
 }
-
-export default StopPickerHistory;
 </script>

@@ -61,7 +61,7 @@ import StopPickerHistory from "./StopPickerHistory.vue";
     name: "StopPicker",
     components: { StopPickerEntry, StopPickerHistory }
 })
-export class StopPicker extends Vue {
+export default class StopPicker extends Vue {
     protected found?: StopGroups = {};
 
     public state: FetchingState = 'ready';
@@ -118,6 +118,4 @@ export class StopPicker extends Vue {
         this.$emit('select', stop);
     }
 }
-
-export default StopPicker;
 </script>

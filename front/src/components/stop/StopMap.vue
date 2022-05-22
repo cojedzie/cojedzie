@@ -15,10 +15,8 @@ import UiMapPin from "@/components/ui/UiMapPin.vue";
 @Options({ name: "StopMap",
     components: { UiMapPin }
 })
-export class StopMap extends Vue {
+export default class StopMap extends Vue {
     @Prop(Object)
     public stop: Stop;
 }
-
-export default StopMap;
 </script>

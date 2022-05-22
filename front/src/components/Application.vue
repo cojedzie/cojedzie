@@ -20,9 +20,8 @@ export const router = createRouter({
     history: createWebHistory(),
 });
 
-
 @Options({ router, store })
-export class Application extends Vue {
+export default class Application extends Vue {
     mounted() {
         this.$el.classList.remove('not-ready');
     }

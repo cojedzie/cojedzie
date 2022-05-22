@@ -19,6 +19,7 @@
                 <span v-if="timeDiffers" :class="[ 'departure__time', 'departure__time--delayed']">
                     {{ departure.scheduled.format('HH:mm') }}
                 </span>
+                {{ ' ' }}
                 <span
                     v-if="departure.delay < 0 || departure.delay > 30"
                     class="badge"
@@ -26,7 +27,7 @@
                 >
                     {{ $f.signed(departure.delay) }}s
                 </span>
-
+                {{ ' ' }}
                 <span class="departure__time">{{ time.format('HH:mm') }}</span>
             </template>
             <template v-else>

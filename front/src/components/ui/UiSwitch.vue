@@ -39,7 +39,7 @@ const handleCheckboxChange = (ev: Event) => emit('update:value', (ev.target as H
 </script>
 
 <style lang="scss">
-@import "~@styles/_variables.scss";
+@import "../../../styles/_variables.scss";
 
 $ui-switch-marker-size: .7rem !default;
 $ui-switch-spacing: 1px !default;
