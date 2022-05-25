@@ -9,7 +9,7 @@
                         <ul>
                             <li v-for="destination in destinations" :key="destination.stop.id" class="stop__destination destination">
                                 <ul class="destination__lines">
-                                    <li v-for="line in destination.lines">
+                                    <li v-for="line in destination.lines" :key="line.id">
                                         <line-symbol :key="line.symbol" :line="line" simple />
                                     </li>
                                 </ul>

@@ -1,7 +1,9 @@
 <template>
     <div>
         <ui-map :center="stop.location" :zoom="17" :options="{ zoomControl: false, dragging: false }">
-            <ui-map-pin :lat-lng="stop.location" />
+            <ui-map-pin :lat-lng="stop.location" class="ui-pin--tram">
+                <ui-icon icon="line-tram" />
+            </ui-map-pin>
         </ui-map>
     </div>
 </template>

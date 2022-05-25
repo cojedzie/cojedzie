@@ -1,3 +1,5 @@
+window.global = this
+
 import "../styles/main.scss"
 
 import { app } from "@storybook/vue3"

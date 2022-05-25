@@ -80,4 +80,10 @@ $ui-pin-width: 32px;
 .ui-pin--outline .ui-pin__content {
     color: var(--ui-pin-color);
 }
+
+@each $type, $color in $line-types {
+    .ui-pin.ui-pin--#{$type} {
+        --ui-pin-color: $color;
+    }
+}
 </style>

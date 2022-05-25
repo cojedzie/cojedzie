@@ -19,8 +19,6 @@ export default function({ match, exclude }) {
             const parser   = new dom.DOMParser();
             const svg      = parser.parseFromString(source, 'image/svg+xml');
 
-            console.log(source);
-
             const result = xpath.useNamespaces({
                 'svg': 'http://www.w3.org/2000/svg'
             })('string(//svg:path/@d)', svg);
