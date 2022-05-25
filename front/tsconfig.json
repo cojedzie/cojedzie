@@ -9,6 +9,7 @@
     "moduleResolution": "node",
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
     "baseUrl": "./",
     "paths": {
       "@resources/*": ["./resources/*"],
