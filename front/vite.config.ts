@@ -22,16 +22,24 @@ import vue from "@vitejs/plugin-vue";
 import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 import SvgIconLoader from "./src/svg-icon-loader";
+import viteImagemin from "vite-plugin-imagemin"
 
 export default defineConfig({
-    base: '/dist/',
     plugins: [
         vue(),
         VitePWA({}),
-        SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ })
+        viteImagemin(),
+        SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
     ],
+    publicDir: path.resolve(__dirname, './public'),
     build: {
-        outDir: path.resolve(__dirname, './build/public/dist/'),
+        outDir: path.resolve(__dirname, './build/public/'),
+        manifest: true,
+        rollupOptions: {
+            input: [
+                path.resolve(__dirname, './src/app.ts'),
+            ]
+        }
     },
     resolve: {
         alias: [
@@ -53,5 +61,5 @@ export default defineConfig({
         __IS_SSR__: false,
         __VUE_OPTIONS_API__: true,
         __VUE_PROD_DEVTOOLS__: false,
-    }
+    },
 })

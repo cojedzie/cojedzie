@@ -17,9 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'vite/modulepreload-polyfill';
+
+import '@styles/main.scss'
+
 import { Store } from 'vuex';
 import { dragscrollNext } from 'vue-dragscroll';
-import { Workbox } from "workbox-window";
 import { StoreDefinition } from "@/store/initializer";
 import { Vue } from "vue-class-component"
 
@@ -62,19 +65,3 @@ Vue.registerHooks(['removed']);
     app.mount(fragment as unknown as Element);
     root.parentNode.replaceChild(fragment, root);
 })();
-
-if ('serviceWorker' in navigator) {
-    const wb = new Workbox("/service-worker.js");
-
-    wb.addEventListener('waiting', _ => {
-        if (window.confirm("Dostępna jest nowa wersja, przeładować?")) {
-            wb.addEventListener('controlling', _ => {
-                window.location.reload();
-            });
-
-            wb.messageSW({type: 'SKIP_WAITING'});
-        }
-    });
-
-    wb.register();
-}

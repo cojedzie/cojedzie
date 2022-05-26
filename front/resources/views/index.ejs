@@ -4,8 +4,11 @@
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="manifest" href="<%= manifest_path %>"/>
-        <link rel="stylesheet" href="/styles/main.scss"/>
-
+        <% if (is_production) { %>
+            <link rel="stylesheet" href="/<%= manifest['src/app.ts'].css[0] %>"/>
+        <% } else { %>
+            <link rel="stylesheet" href="/styles/main.scss"/>
+        <% } %>
         <!-- icons -->
         <link rel="icon" href="/images/favicon.png" sizes="16x16"/>
         <link rel="icon" href="/images/favicon-2x.png" sizes="32x32"/>
@@ -65,6 +68,11 @@
             </span>
         </footer>
 
-        <script type="module" src="/src/app.ts"></script>
+        <% if (is_production) { %>
+            <script type="module" src="/<%= manifest['src/app.ts'].file %>"></script>
+            <script src="/registerSW.js"></script>
+        <% } else { %>
+            <script type="module" src="/src/app.ts"></script>
+        <% } %>
     </body>
 </html>
