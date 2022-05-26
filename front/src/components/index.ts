@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, defineAsyncComponent, h } from "vue";
+import { App, createApp, defineAsyncComponent, h } from "vue";
 import MessagesList from "@/components/messages/MessagesList.vue";
 import FavouritesList from "@/components/favourites/FavouritesList.vue";
 import SettingsDepartures from "@/components/settings/SettingsDepartures.vue";
@@ -30,6 +30,7 @@ import { StopPicker } from "@/components/stop-picker";
 import { StopLabel, StopMap } from "@/components/stop";
 import { TripSchedule } from "@/components/trip";
 import { Lazy } from "@/components/utils";
+import Application, { router } from "@/components/Application.vue";
 
 export * from "./Application.vue"
 export * from './utils'
@@ -85,3 +86,7 @@ export default function install(Vue: App) {
     // eslint-disable-next-line vue/multi-word-component-names
     Vue.component('Empty', (props, context) => h('template', context.attrs, ''));
 }
+
+export const app = createApp(Application);
+
+app.use(router);

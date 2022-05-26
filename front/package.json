@@ -5,7 +5,8 @@
   "license": "AGPL-3.0-only",
   "sideEffects": [
     "**/*.css",
-    "**/*.scss"
+    "**/*.scss",
+    "**/*.vue"
   ],
   "devDependencies": {
     "@babel/core": "^7.17.10",
@@ -80,7 +81,7 @@
   "scripts": {
     "build:server": "tsc -p server",
     "build:loadtester": "tsc -p loadtester",
-    "build:app": "webpack --config webpack.config.js --mode development --progress --profile",
+    "build:app": "vite build",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

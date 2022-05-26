@@ -26,8 +26,4 @@ export default class Application extends Vue {
         this.$el.classList.remove('not-ready');
     }
 }
-
-export const app = createApp(Application);
-
-app.use(router);
 </script>
