@@ -4,7 +4,6 @@
         ref="map"
         :options="{ zoomSnap: 0.1, ...options }"
         :max-zoom="17"
-        :padding="[ 10000, 10000 ]"
     >
         <l-vector-layer
             :url="`https://api.maptiler.com/maps/bright/style.json?key=${ key }`"

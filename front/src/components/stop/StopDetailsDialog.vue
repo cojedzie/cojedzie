@@ -40,12 +40,12 @@
                 style="min-height: 450px"
             >
                 <l-feature-group ref="features">
-                    <ui-map-pin :lat-lng="stop.location" variant="filled-outline">
-                        <ui-icon icon="stop" />
-                    </ui-map-pin>
-                    <ui-map-pin v-if="hoveredStop" :lat-lng="hoveredStop.location" variant="outline">
-                        <ui-icon icon="target" />
-                    </ui-map-pin>
+                    <stop-pin :stop="stop" />
+                    <stop-pin v-if="selectedStop" :stop="selectedStop" variant="outline" :type="type">
+                        <template #icon>
+                            <ui-icon icon="target" />
+                        </template>
+                    </stop-pin>
                 </l-feature-group>
             </ui-map>
         </div>
@@ -54,16 +54,24 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType, ref, watch } from "vue";
-import { HasDestinations, Line, Stop } from "@/model";
+import { getStopType, HasDestinations, Line, Stop } from "@/model";
 import { LFeatureGroup } from '@vue-leaflet/vue-leaflet';
 import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
-import { point } from "leaflet";
+import { Map, LatLngExpression, point, PointExpression } from "leaflet";
 import { groupBy } from "@/utils";
-import { UiMapPin } from "@/components";
+import StopPin from "@/components/stop/StopPin.vue";
+
+type OffsetOptions = {
+    zoom?: number,
+}
+
+const offset = (map: Map, point: LatLngExpression, by: PointExpression, options: OffsetOptions = {}) => {
+    return map.unproject(map.project(point, options.zoom).subtract(by), options.zoom)
+}
 
 export default defineComponent({
     name: "StopDetailsDialog",
-    components: { LFeatureGroup, UiMapPin },
+    components: { StopPin, LFeatureGroup },
     inheritAttrs: false,
     props: {
         stop: {
@@ -112,7 +120,9 @@ export default defineComponent({
             map.value?.leafletObject?.invalidateSize();
         })
 
-        return { lines, status, hoveredStop, features, map, bounds, tracksForDestination }
+        const type = computed(() => getStopType(props.stop));
+
+        return { lines, status, hoveredStop, features, map, bounds, tracksForDestination, type }
     }
 })
 </script>

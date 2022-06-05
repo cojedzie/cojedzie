@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Line } from "./line";
+import { Line, LineType } from "./line";
 import { Location } from "./common";
+import { uniq } from "lodash";
 
 export interface Stop {
     id: string;
@@ -44,4 +45,12 @@ export type StopGroup = Stop[];
 
 export type StopGroups = {
     [name: string]: StopGroup;
+}
+
+export function getStopTypes(stop: StopWithDestinations) {
+    return uniq(stop.destinations.flatMap(destination => destination.lines.map(line => line.type)))
+}
+
+export function getStopType(stop: StopWithDestinations): LineType {
+    return getStopTypes(stop)[0] || "unknown";
 }

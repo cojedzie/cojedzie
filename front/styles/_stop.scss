@@ -113,3 +113,25 @@ $stop-variant-color: mix($dark, white, 75%);
 
   margin-bottom: 0;
 }
+
+.stop-sign {
+  padding: 0.25rem 0.5rem;
+  background: white;
+  border: 1px solid;
+  border-radius: 2px;
+  color: black;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translate(-50%, -100%);
+
+  @each $type, $color in $line-types {
+    &--type-#{$type} {
+      border-color: $color;
+    }
+  }
+}
