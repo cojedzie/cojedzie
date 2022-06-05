@@ -16,9 +16,27 @@
 
 <script lang="ts">
 import { LMap, LVectorLayer } from "@/components/map";
-import { computed, defineComponent, ref } from "vue";
+import { computed, ComputedRef, defineComponent, onBeforeUnmount, onMounted, ref } from "vue";
 import { Map } from "leaflet";
 import { useAppConfig } from "@/composables/useAppConfig";
+
+const leaflet = Symbol("leaflet")
+
+const observer = new ResizeObserver(entries => {
+    for (const entry of entries) {
+        if (!entry.target[leaflet]) {
+            return;
+        }
+
+        if (entry.contentRect.width === 0 || entry.contentRect.height === 0) {
+            return;
+        }
+
+        const map = entry.target[leaflet] as ComputedRef<Map>;
+
+        map?.value?.invalidateSize?.()
+    }
+})
 
 export default defineComponent({
     name: "UiMap",
@@ -35,6 +53,17 @@ export default defineComponent({
         const leafletObject = computed<Map>(() => map.value?.leafletObject);
 
         expose({ leafletObject });
+
+        onMounted(() => {
+            observer.observe(map.value.root, { box: "border-box" });
+            map.value.root[leaflet] = leafletObject;
+        })
+
+        onBeforeUnmount(() => {
+            observer.unobserve(map.value.root);
+            // prevent memory leak
+            delete map.value.root[leaflet];
+        })
 
         return {
             key,
