@@ -21,13 +21,16 @@
                         v-for="destination in stop.destinations"
                         :key="destination.stop.id"
                         class="stop-details-dialog__destination"
-                        @mouseover="hoveredStop = destination.stop"
-                        @mouseleave="hoveredStop = null"
                     >
                         <ui-icon icon="destination" class="mr-2" />
                         <stop-label :stop="destination.stop" class="stop-details-dialog__destination-name" />
                         <div class="stop-details-dialog__destination-lines">
                             <line-symbol v-for="line in destination.lines" :key="line.id" :line="line" />
+                        </div>
+                        <div class="stop-details-dialog__actions">
+                            <button class="btn btn-action" @click="selectedStop = destination.stop">
+                                <ui-icon icon="map-marked" />
+                            </button>
                         </div>
                     </li>
                 </ul>
@@ -105,10 +108,10 @@ export default defineComponent({
         );
 
         const tracksForDestination = computed(
-            () => hoveredStop.value && tracksByDestination.value?.[hoveredStop.value.id]
+            () => selectedStop.value && tracksByDestination.value?.[selectedStop.value.id]
         )
 
-        const hoveredStop = ref<Stop & HasDestinations>(null);
+        const selectedStop = ref<Stop & HasDestinations>(null);
 
         watch(bounds, async bounds => {
             const zoom = bounds && map.value?.leafletObject?.getBoundsZoom
@@ -122,7 +125,7 @@ export default defineComponent({
 
         const type = computed(() => getStopType(props.stop));
 
-        return { lines, status, hoveredStop, features, map, bounds, tracksForDestination, type }
+        return { lines, status, selectedStop, features, map, bounds, tracksForDestination, type }
     }
 })
 </script>
