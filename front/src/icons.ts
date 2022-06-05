@@ -52,6 +52,7 @@ import {
     faTimes,
     faTrashAlt,
     faBullseyePointer,
+    faMapMarkedAlt,
 } from "@fortawesome/pro-light-svg-icons";
 
 import {
@@ -174,6 +175,7 @@ export const icons = {
     'track': simple(faCodeCommit),
     'info-hide': simple(faChevronCircleUp),
     'map': simple(faMapMarkerAlt),
+    'map-marked': simple(faMapMarkedAlt),
     'stop': simple(faSign),
     'spinner': simple(faSpinnerThird, { spin: true }),
     'increment': simple(faPlus, { "fixed-width": true }),

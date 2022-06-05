@@ -67,8 +67,10 @@
 
   &__destination {
     display: grid;
-    grid-template-columns: min-content auto;
+    grid-template-columns: min-content auto min-content;
     grid-template-rows: 1fr 1fr;
+    grid-template-areas: "icon name         actions"
+                         "icon destinations actions";
     gap: 0.25rem;
     padding: ($ui-dialog-margin / 4) $ui-dialog-margin;
 
@@ -79,6 +81,12 @@
     .ui-icon {
       place-self: center;
     }
+  }
+
+  &__actions {
+    display: flex;
+    grid-area: actions;
+    align-items: center;
   }
 
   &__destination-name {
