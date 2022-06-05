@@ -56,6 +56,10 @@ const actions: DeparturesActionTree = {
         const count = this.state['departures-settings'].displayedEntriesCount;
         const stops = this.state.stops;
 
+        if (stops.length == 0) {
+            return;
+        }
+
         commit(CommonMutations.Fetching);
 
         try {
