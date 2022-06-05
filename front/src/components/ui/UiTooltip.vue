@@ -1,8 +1,8 @@
 <template>
-    <teleport to="#popups">
+    <teleport to="#popups" :disabled="noTeleport">
         <transition name="tooltip">
             <ui-dialog
-                v-if="show || always"
+                v-if="isVisible"
                 class="ui-popup--tooltip"
                 aria-hidden="true"
                 arrow
@@ -49,12 +49,21 @@ export default defineComponent({
         delay: {
             type: Number,
             default: 400,
-        }
+        },
+        noTeleport: {
+            type: Boolean,
+            default: false,
+        },
+        permanent: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup: function (props, { expose }) {
         const root = shallowRef<HTMLElement>(null);
         const show = ref<boolean>(false);
         const anchor = computed(() => root.value?.parentElement);
+        const isVisible = computed(() => show.value || props.permanent)
 
         const { isTouch } = useBrowserContext();
 
@@ -64,8 +73,8 @@ export default defineComponent({
 
         expose(exposed);
 
-        watch(show, show => {
-            if (show) {
+        watch(isVisible, isVisible => {
+            if (isVisible) {
                 openedTooltips.add(exposed);
             } else {
                 openedTooltips.delete(exposed);
@@ -157,7 +166,7 @@ export default defineComponent({
         watch([ props.triggers, anchor ], updateTriggers, { deep: true })
         onBeforeUnmount(removeEventListeners);
 
-        return { root, show, anchor };
+        return { root, isVisible, anchor };
     }
 })
 </script>
