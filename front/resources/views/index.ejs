@@ -6,8 +6,6 @@
         <link rel="manifest" href="<%= manifest_path %>"/>
         <% if (is_production) { %>
             <link rel="stylesheet" href="/<%= manifest['src/app.ts'].css[0] %>"/>
-        <% } else { %>
-            <link rel="stylesheet" href="/styles/main.scss"/>
         <% } %>
         <!-- icons -->
         <link rel="icon" href="/images/favicon.png" sizes="16x16"/>
