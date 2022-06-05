@@ -114,13 +114,19 @@ export default defineComponent({
         const selectedStop = ref<Stop & HasDestinations>(null);
 
         watch(bounds, async bounds => {
-            const zoom = bounds && map.value?.leafletObject?.getBoundsZoom
-                ? Math.min(map.value?.leafletObject.getBoundsZoom(bounds) - 0.5, 17)
-                : 17;
-            const center = bounds.getCenter() || props.stop.location;
+            const leaflet: Map = map.value?.leafletObject;
 
-            map.value?.leafletObject?.setView?.(center, zoom, { padding: point(200, 200) });
-            map.value?.leafletObject?.invalidateSize();
+            if (!leaflet) {
+                return;
+            }
+
+            const zoom = bounds && leaflet.getBoundsZoom
+                ? Math.min(leaflet.getBoundsZoom(bounds, false, point([ 50, 100 ])) - 0.5, 17)
+                : 17;
+
+            const center: LatLngExpression = bounds?.getCenter() || props.stop.location;
+
+            leaflet.setView?.(offset(leaflet, center, [ 0, 40 ], { zoom }), zoom);
         })
 
         const type = computed(() => getStopType(props.stop));
