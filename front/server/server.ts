@@ -36,7 +36,7 @@ const web_manifest = JSON.parse(
     fs.readFileSync(path.join(__dirname, "../resources/manifest.json")).toString("utf-8")
 );
 
-const assets_manifest = JSON.parse(
+const assets_manifest = dev ? {} : JSON.parse(
     fs.readFileSync(path.join(__dirname, "../build/public/manifest.json")).toString("utf-8")
 );
 
@@ -116,7 +116,7 @@ async function createServer(): Promise<Express> {
     server.get("/:provider?/manifest.json", getWebManifestAction)
 
     if (dev) {
-        const { createSever: createViteServer } = require("vite")
+        const { createServer: createViteServer } = require("vite")
 
         const vite = await createViteServer({
             server: {

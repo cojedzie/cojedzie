@@ -38,6 +38,7 @@ export default defineConfig({
         rollupOptions: {
             input: [
                 path.resolve(__dirname, './src/app.ts'),
+                path.resolve(__dirname, './styles/main.scss'),
             ]
         }
     },
