@@ -57,10 +57,13 @@ export default defineComponent({
 
 $ui-pin-width: 32px;
 
-.ui-pin {
-    position: relative;
+:root {
     --ui-pin-color: #{$primary};
     --ui-pin-width: #{$ui-pin-width};
+}
+
+.ui-pin {
+    position: relative;
 }
 
 .ui-pin__pin {
@@ -83,7 +86,7 @@ $ui-pin-width: 32px;
 
 @each $type, $color in $line-types {
     .ui-pin.ui-pin--#{$type} {
-        --ui-pin-color: $color;
+        --ui-pin-color: #{$color};
     }
 }
 </style>

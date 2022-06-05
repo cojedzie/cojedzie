@@ -19,7 +19,7 @@
 
 import { Stop } from "@/model/stop";
 
-export type LineType = "tram" | "bus" | "trolleybus" | "train" | "other";
+export type LineType = "tram" | "bus" | "trolleybus" | "train" | "other" | "unknown";
 
 export interface Line {
     id: string;
