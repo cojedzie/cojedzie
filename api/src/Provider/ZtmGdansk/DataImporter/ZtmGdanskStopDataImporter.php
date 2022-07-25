@@ -106,7 +106,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     {
         foreach ($this->jsonStreamer->stream(self::RESOURCE_URL, sprintf('%s.stops', date('Y-m-d'))) as $stop) {
             // skip stops that are technical
-            if ($stop['nonpassenger'] === 1 || $stop['virtual'] === 1 || $stop['depot'] === 1) {
+            if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
                 continue;
             }
 

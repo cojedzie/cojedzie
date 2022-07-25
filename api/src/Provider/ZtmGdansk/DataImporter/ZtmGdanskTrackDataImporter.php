@@ -139,11 +139,14 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $updateFinalStopInTrackPreparedQuery = $this->connection->prepare($updateFinalStopInTrackSql);
 
         $count = 0;
-        foreach ($this->getTrackStopsFromZtmApi($reporter) as $trackId => $stops) {
+        foreach ($this->getTrackStopsFromZtmApi($reporter, $event) as $trackId => $stops) {
             // clean all stops related with this track
             $deleteStopsPreparedQuery->executeQuery(['tid' => $trackId]);
+            $hasStops = false;
 
             foreach ($stops as $stop) {
+                $hasStops = true;
+
                 $this->connection->insert(
                     'track_stop',
                     [
@@ -157,6 +160,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             }
 
             $reporter->progress($count += 1, max: $this->trackCount, comment: sprintf('Importing stops in track %s', $trackId));
+
+            if (!$hasStops) {
+                continue;
+            }
 
             // set final id on track to last stop
             $updateFinalStopInTrackPreparedQuery->executeQuery([
@@ -180,7 +187,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         }
     }
 
-    private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter)
+    private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $all = CollectionUtils::groupBy(
             $this->jsonStreamer->stream(self::STOPS_IN_TRACK_URL, sprintf('%s.stopsInTrip', date('Y-m-d'))),
@@ -195,7 +202,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 ->from('stop', 's')
                 ->select('id')
                 ->where('s.provider_id = :provider_id')
+                ->where('s.import_id = :import_id')
                 ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+                // allow only stops from current import
+                ->setParameter('import_id', $event->import->getId(), 'uuid')
                 ->execute()
                 ->iterateColumn()
         );
