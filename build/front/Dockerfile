@@ -37,4 +37,7 @@ COPY --from=prod-dependencies /app/node_modules/ node_modules
 
 EXPOSE 3000
 
+ARG COJEDZIE_REVISION
+ENV COJEDZIE_REVISION="${COJEDZIE_REVISION}"
+
 CMD ["node", "build/server.js"]

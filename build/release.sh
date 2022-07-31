@@ -85,7 +85,11 @@ build () {
   done
 
   echo "Building $IMAGE $VARIANT"
-  run docker build --build-arg "BASE_VERSION=${TAGS[0]}" --build-arg "REGISTRY=$REGISTRY" "$CONTEXT" "${ARGS[@]}" "$@"
+  run docker build \
+    --build-arg "BASE_VERSION=${TAGS[0]}" \
+    --build-arg "REGISTRY=$REGISTRY" \
+    --build-arg "COJEDZIE_REVISION=$(git describe --tags)" \
+    "$CONTEXT" "${ARGS[@]}" "$@"
 }
 
 options=$(getopt -l "help,dry,registry:,tag:,push,no-base" -o "hdr:t:pB" -- "$@")
