@@ -25,13 +25,13 @@ import request from "request";
 const { version: versionFromPackageJson } = require("../package.json")
 
 const version = process.env.COJEDZIE_REVISION || versionFromPackageJson;
-const port = parseInt(process.env.APP_PORT) || 3000;
-const host = process.env.APP_HOST || '0.0.0.0';
-const api  = process.env.APP_API || "https://cojedzie.pl";
-const dev  = process.env.APP_MODE === 'development';
+const port = parseInt(process.env.COJEDZIE_PORT) || 3000;
+const host = process.env.COJEDZIE_HOST || '0.0.0.0';
+const api  = process.env.COJEDZIE_API || "https://cojedzie.pl";
+const dev  = process.env.COJEDZIE_MODE === 'development';
 
-const gtm_tracking = process.env.APP_GTM || '';
-const maptiler_key = process.env.APP_MAPTILER_KEY || "unknown";
+const gtm_tracking = process.env.COJEDZIE_GTM || '';
+const maptiler_key = process.env.COJEDZIE_MAPTILER_KEY || "unknown";
 
 const web_manifest = JSON.parse(
     fs.readFileSync(path.join(__dirname, "../resources/manifest.json")).toString("utf-8")
