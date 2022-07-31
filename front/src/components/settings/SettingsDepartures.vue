@@ -95,7 +95,7 @@
                     <ui-icon icon="relative-time" fixed-width />
                     pokazuj czas do odjazdu
                 </template>
-                <img :src="require('@resources/images/help/departures-relative-time.png')" alt="" class="help__image">
+                <img src="@resources/images/help/departures-relative-time.png" alt="" class="help__image">
 
                 <p>Włączenie tej opcji spowoduje pokazywanie czasu pozostałego do odjazdu w miejsce godziny odjazdu.</p>
                 <p>
@@ -126,7 +126,7 @@
                     </template>
 
                     <img
-                        :src="require('@resources/images/help/departures-relative-for-scheduled.png')"
+                        src="@resources/images/help/departures-relative-for-scheduled.png"
                         alt=""
                         class="help__image"
                     >
@@ -159,7 +159,7 @@
 
                     <figure class="help__figure">
                         <img
-                            :src="require('@resources/images/help/departures-relative-time-limit.png')"
+                            src="@resources/images/help/departures-relative-time-limit.png"
                             alt=""
                             class="help__image"
                         >
