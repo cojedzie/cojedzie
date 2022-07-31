@@ -170,7 +170,7 @@ done
 
 if [ $PUSH -eq 1 ]; then
   for TAG in "${BUILT_TAGS[@]}"; do
-    docker push $TAG
+    run docker push $TAG
   done
 else
   echo "Created tags:"
