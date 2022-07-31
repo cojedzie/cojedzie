@@ -38,8 +38,8 @@ export default defineConfig({
         rollupOptions: {
             input: [
                 path.resolve(__dirname, './src/app.ts'),
-            ]
-        }
+            ],
+        },
     },
     resolve: {
         alias: [
