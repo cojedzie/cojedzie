@@ -21,6 +21,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Filter\Binding\Http\EmbedParameterBinding;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
@@ -45,8 +46,10 @@ class TracksController extends Controller
      * )
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
-    #[RelatedFilterParameterBinding(Stop::class, 'stop')]
+    #[RelatedFilterParameterBinding(Stop::class, 'stop', relationship: 'stop')]
+    #[RelatedFilterParameterBinding(Stop::class, 'destination', relationship: 'destination')]
     #[RelatedFilterParameterBinding(Line::class, 'line')]
+    #[EmbedParameterBinding(['stops'])]
     #[IdConstraintParameterBinding]
     #[LimitParameterBinding]
     public function index(

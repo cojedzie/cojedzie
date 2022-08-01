@@ -40,8 +40,9 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
 {
     protected $mapping = [
         Track::class => [
-            Line::class => 'line',
-            Stop::class => TrackByStopDatabaseHandler::class,
+            Line::class   => 'line',
+            'stop'        => TrackByStopDatabaseHandler::class,
+            'destination' => TrackByStopDatabaseHandler::class,
         ],
         TrackStop::class => [
             Stop::class  => 'stop',
