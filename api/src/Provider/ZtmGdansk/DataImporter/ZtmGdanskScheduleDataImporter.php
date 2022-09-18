@@ -110,7 +110,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 
         $trips = new Set();
 
-        $saveStop = function (array $columns) use ($existingStopIds) {
+        $saveStop = function (array $columns) use ($existingStopIds, $event) {
             if (!$existingStopIds->contains($columns['stop_id'])) {
                 return;
             }
@@ -121,6 +121,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
                 [
                     'arrival'   => 'datetime',
                     'departure' => 'datetime',
+                    'import_id' => $event->import->getId(),
                 ]
             );
         };
