@@ -24,7 +24,7 @@ import request from "request";
 
 const { version: versionFromPackageJson } = require("../package.json")
 
-const version = process.env.COJEDZIE_REVISION || versionFromPackageJson;
+const version = process.env.COJEDZIE_VERSION || `v${versionFromPackageJson}`;
 const port = parseInt(process.env.COJEDZIE_PORT) || 3000;
 const host = process.env.COJEDZIE_HOST || '0.0.0.0';
 const api  = process.env.COJEDZIE_API || "https://cojedzie.pl";

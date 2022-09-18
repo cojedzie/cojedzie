@@ -46,7 +46,7 @@ class StatusController extends Controller
         parent::__construct($serializer, $serializerContextFactory);
     }
 
-    #[Route(path: '', name: 'aggregated', methods: ['GET'], options: ['version' => '1.0'])]
+    #[Route(path: '', name: 'aggregated', methods: ['GET'], options: ['version' => '1.1'])]
     public function aggregated(): Response
     {
         $aggregated = $this->service->getAggregatedStatus();
@@ -65,6 +65,13 @@ class StatusController extends Controller
     {
         $endpoints = $this->service->getTimeStatus();
         return $this->json($endpoints);
+    }
+
+    #[Route(path: '/version', name: 'version', methods: ['GET'], options: ['version' => '1.0'])]
+    public function version(): Response
+    {
+        $version = $this->service->getVersionStatus();
+        return $this->json($version);
     }
 
     #[Route(path: '/health', name: 'health', methods: ['GET'], options: ['version' => '1.0'])]

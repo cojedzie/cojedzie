@@ -32,23 +32,34 @@ class Aggregated implements Fillable, DTO
 {
     use FillTrait;
 
-    /**
-     * Time status for this node.
-     *
-     * @OA\Property(ref=@Model(type=Time::class))
-     */
-    #[Serializer\Type(Time::class)]
-    private Time $time;
+    public function __construct(
+        /**
+         * Time status for this node.
+         *
+         * @OA\Property(ref=@Model(type=Time::class))
+         */
+        #[Serializer\Type(Time::class)]
+        private Time $time,
 
-    /**
-     * All endpoints defined for this node.
-     *
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
-     *
-     * @var Collection<Endpoint>
-     */
-    #[Serializer\Type('Collection<App\Model\Status\Endpoint>')]
-    private Collection $endpoints;
+        /**
+         * Version of the software on this ndoe.
+         *
+         * @OA\Property(ref=@Model(type=Version::class))
+         */
+        #[Serializer\Type(Version::class)]
+        private Version $version,
+
+        /**
+         * All endpoints defined for this node.
+         *
+         * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
+         *
+         * @var Collection<Endpoint>
+         */
+        #[Serializer\Type('Collection<App\Model\Status\Endpoint>')]
+        private Collection $endpoints,
+    ) {
+    }
 
     public function getEndpoints(): Collection
     {
@@ -68,5 +79,15 @@ class Aggregated implements Fillable, DTO
     public function setTime(Time $time): void
     {
         $this->time = $time;
+    }
+
+    public function getVersion(): Version
+    {
+        return $this->version;
+    }
+
+    public function setVersion(Version $version): void
+    {
+        $this->version = $version;
     }
 }

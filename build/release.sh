@@ -88,7 +88,8 @@ build () {
   run docker build \
     --build-arg "BASE_VERSION=${TAGS[0]}" \
     --build-arg "REGISTRY=$REGISTRY" \
-    --build-arg "COJEDZIE_REVISION=$(git describe --tags)" \
+    --build-arg "COJEDZIE_VERSION=$(git describe --tags)" \
+    --build-arg "COJEDZIE_REVISION=$(git rev-parse HEAD)" \
     "$CONTEXT" "${ARGS[@]}" "$@"
 }
 

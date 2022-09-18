@@ -23,6 +23,7 @@ namespace App\Service;
 use App\Model\Status\Aggregated;
 use App\Model\Status\Endpoint;
 use App\Model\Status\Time;
+use App\Model\Status\Version;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Symfony\Component\Routing\Route;
@@ -35,12 +36,21 @@ class StatusService
     ) {
     }
 
+    public function getVersionStatus(): Version
+    {
+        return new Version(
+            version: $_ENV['COJEDZIE_VERSION'],
+            revision: $_ENV['COJEDZIE_REVISION'],
+        );
+    }
+
     public function getAggregatedStatus(): Aggregated
     {
-        return Aggregated::createFromArray([
-            'time'      => $this->getTimeStatus(),
-            'endpoints' => $this->getEndpointsStatus(),
-        ]);
+        return new Aggregated(
+            time: $this->getTimeStatus(),
+            endpoints: $this->getEndpointsStatus(),
+            version: $this->getVersionStatus(),
+        );
     }
 
     public function getEndpointsStatus(): Collection

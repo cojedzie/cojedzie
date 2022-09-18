@@ -27,7 +27,8 @@ ENV PATH=$PATH:/var/www/bin
 VOLUME /var/db
 
 ARG COJEDZIE_REVISION
-ENV COJEDZIE_REVISION="${COJEDZIE_REVISION}"
+ARG COJEDZIE_VERSION
+ENV COJEDZIE_REVISION="${COJEDZIE_REVISION}" COJEDZIE_VERSION="${COJEDZIE_VERSION}"
 
 # This image is not meant to be run, just to prepare all required files
 CMD ["/bin/false"]
