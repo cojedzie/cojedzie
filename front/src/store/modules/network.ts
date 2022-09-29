@@ -26,6 +26,7 @@ import { query } from "@/api/utils";
 import { AxiosResponse } from "axios";
 // import EventSourcePolyfill from "eventsource";
 import { NamespacedVuexModule, VuexActionHandler, VuexGetter, VuexMutationHandler } from "vuex";
+import { createHttpClient } from "@/api/client/http";
 
 const EventSource = (typeof window !== "undefined" && window.EventSource);
 
@@ -45,7 +46,12 @@ export const networkingEndpoints: NetworkingEndpoints = {
     }
 }
 
-export const networkingClient = new StaticClient({ endpoints: networkingEndpoints })
+export const networkingClient = new StaticClient({
+    endpoints: networkingEndpoints,
+    http: createHttpClient({
+        baseURL: window.CoJedzie.api.hub,
+    })
+})
 
 export const nodeBackoff = createBackoff(5000);
 export const sseBackoff = createBackoff(1000);

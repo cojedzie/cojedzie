@@ -10,14 +10,17 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.18.9",
+    "@babel/plugin-proposal-decorators": "^7.18.10",
+    "@babel/plugin-proposal-export-default-from": "^7.18.10",
+    "@babel/preset-typescript": "^7.18.6",
     "@egoist/vue-to-react": "^1.2.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/vue-fontawesome": "^3.0.0-4",
-    "@storybook/addon-actions": "6.4.*",
-    "@storybook/addon-essentials": "6.4.*",
-    "@storybook/addon-links": "6.4.*",
-    "@storybook/builder-vite": "0.1.22",
-    "@storybook/vue3": "6.4.*",
+    "@storybook/addon-actions": "6.5.*",
+    "@storybook/addon-essentials": "6.5.*",
+    "@storybook/addon-links": "6.5.*",
+    "@storybook/builder-vite": "0.2.2",
+    "@storybook/vue3": "6.5.*",
     "@types/axios": "^0.14.0",
     "@types/bootstrap": "^4.3.1",
     "@types/ejs": "^3.0.5",
@@ -87,5 +90,10 @@
   },
   "_moduleAliases": {
     "@": "loadtester/build/src"
+  },
+  "optionalDependencies": {
+    "@fortawesome/pro-light-svg-icons": "file:resources/fontawesome/fortawesome-pro-light-svg-icons-5.15.4.tgz",
+    "@fortawesome/pro-regular-svg-icons": "file:resources/fontawesome/fortawesome-pro-regular-svg-icons-5.15.4.tgz",
+    "@fortawesome/pro-solid-svg-icons": "file:resources/fontawesome/fortawesome-pro-solid-svg-icons-5.15.4.tgz"
   }
 }

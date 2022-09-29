@@ -17,10 +17,6 @@ module.exports = {
     typescript: {
         check: false
     },
-    env: (env) => ({
-        ...env,
-        APP_MAPTILER_KEY: process.env.APP_MAPTILER_KEY,
-    }),
     async viteFinal(storybookConfig, { configType }) {
         const { config } = await loadConfigFromFile(path.resolve(__dirname, "../vite.config.ts"))
 
@@ -32,7 +28,17 @@ module.exports = {
             base: '/dist/',
             resolve: config.resolve,
             // has-symbols requires global to be available
-            define: { ...config.define, global: {} },
+            define: {
+                ...config.define,
+                global: {},
+                process: {
+                    env: Object.fromEntries(
+                        Object
+                            .entries(process.env)
+                            .filter(([key, _]) => /(COJEDZIE|APP)_/.test(key))
+                    )
+                }
+            },
             // remove duplicated vue plugin
             plugins: config.plugins.filter(plugin => plugin.name !== 'vite:vue'),
         });

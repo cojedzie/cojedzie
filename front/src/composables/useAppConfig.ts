@@ -18,8 +18,13 @@
  */
 
 export interface AppConfig {
-    maptiler: { key: string };
-    api: string;
+    maptiler: {
+        key: string
+    };
+    api: {
+        base?: string,
+        hub?: string,
+    };
     version: string;
 }
 
