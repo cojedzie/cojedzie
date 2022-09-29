@@ -100,3 +100,21 @@
     grid-column: 2;
   }
 }
+
+@include media-breakpoint-down('sm') {
+  .stop-details-dialog {
+    &__body {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 250px 1fr;
+    }
+
+    &__map {
+      grid-row: 1;
+    }
+
+    &__details {
+      grid-row: 2;
+    }
+  }
+}

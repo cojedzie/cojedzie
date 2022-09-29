@@ -40,7 +40,6 @@
                 :zoom="17"
                 :center="stop.location"
                 class="stop-details-modal__map"
-                style="min-height: 450px"
             >
                 <l-feature-group ref="features">
                     <stop-pin :stop="stop" />
