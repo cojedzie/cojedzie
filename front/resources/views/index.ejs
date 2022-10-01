@@ -58,6 +58,9 @@
                 <img src="/images/logo.png" alt="co jedzie logo"/>
                 <%= version %> &bullet;
                 <a href="/api/doc">API</a> &bullet;
+                <% if (!is_production) { %>
+                    <a href="/storybook/">Storybook</a> &bullet;
+                <% } %>
                 <a href="https://github.com/cojedzie/cojedzie">GitHub</a>
             </span>
             <span class="copyright flex flex-space-left justify-content-end">

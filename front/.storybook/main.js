@@ -25,7 +25,7 @@ module.exports = {
 
         // return the customized config
         return mergeConfig(storybookConfig, {
-            base: '/dist/',
+            base: '/storybook/dist/',
             resolve: config.resolve,
             // has-symbols requires global to be available
             define: {

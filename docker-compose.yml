@@ -20,6 +20,7 @@ services:
     command: ["php-fpm"]
     environment:
       - APP_MODE=debug
+      - CORS_ALLOW_ORIGIN=*
     env_file:
       - .docker-compose/api/.env
     volumes:
@@ -64,8 +65,11 @@ services:
     environment:
       - STORYBOOK_BASE_HREF=/storybook/
       - APP_MAPTILER_KEY
+      - APP_API_BASE_URL=http://cojedzie.localhost:8080
     volumes:
       - ./front:/app
+    ports:
+      - 6006:6006
     command: ["yarn", "storybook"]
 
   postgres:
