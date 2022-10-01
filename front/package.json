@@ -1,6 +1,6 @@
 {
   "name": "cojedzie",
-  "version": "2022.3.0",
+  "version": "2022.3.1",
   "author": "Kacper Donat <kadet1090@gmail.com>",
   "license": "AGPL-3.0-only",
   "sideEffects": [
@@ -90,10 +90,5 @@
   },
   "_moduleAliases": {
     "@": "loadtester/build/src"
-  },
-  "optionalDependencies": {
-    "@fortawesome/pro-light-svg-icons": "file:resources/fontawesome/fortawesome-pro-light-svg-icons-5.15.4.tgz",
-    "@fortawesome/pro-regular-svg-icons": "file:resources/fontawesome/fortawesome-pro-regular-svg-icons-5.15.4.tgz",
-    "@fortawesome/pro-solid-svg-icons": "file:resources/fontawesome/fortawesome-pro-solid-svg-icons-5.15.4.tgz"
   }
 }
