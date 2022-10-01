@@ -2,7 +2,12 @@ const dom   = require('xmldom');
 const xpath = require('xpath');
 const fs    = require('fs');
 
-export default function({ match, exclude }) {
+type SvgIconLoaderOptions = {
+    match: RegExp,
+    exclude?: RegExp
+}
+
+export default function({ match, exclude }: SvgIconLoaderOptions) {
     return {
         name: 'svg-icon-loader',
         async transform(_, filename) {

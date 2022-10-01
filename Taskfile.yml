@@ -20,15 +20,14 @@ tasks:
       - task: dependencies:frontend
 
   dependencies:api:
-    desc: Intalls api dependencies (composer)
+    desc: Installs api dependencies (composer)
     cmds:
       - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api composer install
 
   dependencies:frontend:
-    desc: Intalls api dependencies (composer)
+    desc: Installs api dependencies (composer)
     cmds:
       - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend yarn install
-      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend sh -c "find resources/fontawesome -type f -name '*.tgz' | sed s/^/file:/ | xargs yarn add-no-save"
 
   lint:
     deps:
@@ -87,7 +86,7 @@ tasks:
   frontend:yarn:
     desc: Execute yarn command
     cmds:
-      - docker-compose run {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
+      - docker-compose run --rm {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
 
   api:console:
     desc: Execute command in the symfony console

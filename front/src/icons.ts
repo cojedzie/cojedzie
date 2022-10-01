@@ -53,7 +53,7 @@ import {
     faTrashAlt,
     faBullseyePointer,
     faMapMarkedAlt,
-} from "@fortawesome/pro-light-svg-icons";
+} from "@resources/fontawesome/pro-light-svg-icons";
 
 import {
     faClock as faClockBold,
@@ -64,13 +64,13 @@ import {
     faClock,
     faLessThan,
     faArrowRight,
-} from "@fortawesome/pro-regular-svg-icons";
+} from "@resources/fontawesome/pro-regular-svg-icons";
 
 import {
     faExclamationTriangle as faSolidExclamationTriangle,
     faWalking,
     faClock as faSolidClock,
-} from "@fortawesome/pro-solid-svg-icons";
+} from "@resources/fontawesome/pro-solid-svg-icons";
 
 const faBus: IconDefinition = <any>{
     prefix:   'fac',
