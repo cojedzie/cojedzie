@@ -161,6 +161,7 @@ export const icons = {
     'add-all': simple(faCheckDouble),
     'remove-stop': simple(faTimes),
     'delete': simple(faTrashAlt),
+    'clear': simple(faTimes),
     'messages': simple(faBullhorn),
     'timetable': simple(faClock),
     'settings': simple(faCog),
@@ -193,6 +194,7 @@ export const icons = {
     'close': simple(faTimes),
     'history': simple(faHistory),
     'target': simple(faBullseyePointer),
+    'ui-select:open': simple(faChevronDown),
     ...lineTypeIcons,
     ...messageTypeIcons,
 };

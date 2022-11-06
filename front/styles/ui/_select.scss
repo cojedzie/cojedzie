@@ -1,0 +1,50 @@
+%option {
+  padding: 0.5 * $spacer;
+}
+
+%action {
+  padding: 0.5 * $spacer;
+}
+
+.ui-select {
+  &__control {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+  }
+
+
+  &__options {
+    padding-left: 0;
+    list-style: none;
+    margin-bottom: 0;
+  }
+
+  &__options-popup {
+    @extend .ui-popup;
+
+    width: 100%;
+    padding: 0;
+    margin-bottom: $spacer;
+  }
+
+  &__option {
+    @extend %option;
+
+    cursor: pointer;
+
+    &--hovered {
+      background: rgba(black, 0.1);
+    }
+
+    &--selected {
+      @extend %option;
+
+      flex: 1 1 auto;
+    }
+  }
+
+  &__toggle, &__close {
+    @extend %action;
+  }
+}
