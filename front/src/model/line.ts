@@ -34,4 +34,5 @@ export interface Track {
     description: string;
     line: Line;
     destination?: Stop;
+    stops?: Stop[]
 }

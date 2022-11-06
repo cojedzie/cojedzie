@@ -1,6 +1,6 @@
 <template>
     <ui-map-pin :lat-lng="stop.location" variant="filled-outline" :class="[`ui-pin--${type}`]">
-        <slot name="sign">
+        <slot v-if="!noLabel" name="sign">
             <div class="stop-sign" :class="[`stop-sign--type-${type}`]">
                 <slot name="label">
                     <stop-label :stop="stop" />
@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from "vue";
+import { defineComponent, PropType } from "vue";
 import UiMapPin from "@/components/ui/UiMapPin.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import { getStopType, LineType, Stop } from "@/model";
@@ -36,6 +36,10 @@ const StopPin = defineComponent({
             default({ stop }) {
                 return getStopType(stop)
             }
+        },
+        noLabel: {
+            type: Boolean,
+            required: false,
         }
     }
 })

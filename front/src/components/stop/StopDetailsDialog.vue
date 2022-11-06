@@ -18,17 +18,17 @@
                 </h3>
                 <ul class="stop-details-dialog__destinations">
                     <li
-                        v-for="destination in stop.destinations"
-                        :key="destination.stop.id"
+                        v-for="possibleDestination in stop.destinations"
+                        :key="possibleDestination.stop.id"
                         class="stop-details-dialog__destination"
                     >
                         <ui-icon icon="destination" class="mr-2" />
-                        <stop-label :stop="destination.stop" class="stop-details-dialog__destination-name" />
+                        <stop-label :stop="possibleDestination.stop" class="stop-details-dialog__destination-name" />
                         <div class="stop-details-dialog__destination-lines">
-                            <line-symbol v-for="line in destination.lines" :key="line.id" :line="line" />
+                            <line-symbol v-for="line in possibleDestination.lines" :key="line.id" :line="line" />
                         </div>
                         <div class="stop-details-dialog__actions">
-                            <button class="btn btn-action" @click="selectedStop = destination.stop">
+                            <button class="btn btn-action" @click="destination = possibleDestination.stop">
                                 <ui-icon icon="map-marked" />
                             </button>
                         </div>
@@ -38,30 +38,53 @@
             <ui-map
                 ref="map"
                 :zoom="17"
-                :center="stop.location"
                 class="stop-details-modal__map"
             >
                 <l-feature-group ref="features">
-                    <stop-pin :stop="stop" />
-                    <stop-pin v-if="selectedStop" :stop="selectedStop" variant="outline" :type="type">
+                    <stop-pin :stop="stop" :type="selectedTrack?.line.type ?? type" />
+
+                    <template v-if="selectedTrack">
+                        <stop-pin
+                            v-for="(stopOfSelectedTrack, index) in stopsToDestination"
+                            :key="stopOfSelectedTrack.id"
+                            :stop="stopOfSelectedTrack"
+                            :type="selectedTrack.line.type"
+                            variant="outline"
+                            no-label
+                        >
+                            <template #icon>
+                                {{ index + 1 }}
+                            </template>
+                        </stop-pin>
+                    </template>
+
+                    <stop-pin v-if="destination" :stop="destination" variant="outline" :type="selectedTrack?.line.type ?? type">
                         <template #icon>
                             <ui-icon icon="target" />
                         </template>
                     </stop-pin>
                 </l-feature-group>
+
+                <div v-if="destination" class="track-selector">
+                    <track-picker v-model="selectedTrack" :tracks="tracksForDestination" placement="top-start" />
+                </div>
             </ui-map>
         </div>
     </ui-dialog>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref, watch } from "vue";
-import { getStopType, HasDestinations, Line, Stop } from "@/model";
+import { computed, defineComponent, inject, PropType, ref, watch } from "vue";
+import { getStopType, HasDestinations, Line, Stop, Track } from "@/model";
 import { LFeatureGroup } from '@vue-leaflet/vue-leaflet';
 import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
 import { Map, LatLngExpression, point, PointExpression } from "leaflet";
-import { groupBy } from "@/utils";
 import StopPin from "@/components/stop/StopPin.vue";
+import { ApiClientKey } from "@/api";
+import TrackRepository from "@/services/trackRepository";
+import { computedAsync } from "@vueuse/core";
+import TrackPicker from "@/components/track/TrackPicker.vue";
+import { slice } from "@/utils";
 
 type OffsetOptions = {
     zoom?: number,
@@ -73,7 +96,7 @@ const offset = (map: Map, point: LatLngExpression, by: PointExpression, options:
 
 export default defineComponent({
     name: "StopDetailsDialog",
-    components: { StopPin, LFeatureGroup },
+    components: { TrackPicker, StopPin, LFeatureGroup },
     inheritAttrs: false,
     props: {
         stop: {
@@ -86,6 +109,10 @@ export default defineComponent({
             params: { stop: props.stop.id as string },
             version: "1.0",
         })
+
+        const trackRepository = new TrackRepository(
+            inject(ApiClientKey)
+        );
 
         const features = ref<LFeatureGroup>();
         const map = ref();
@@ -102,15 +129,20 @@ export default defineComponent({
                 : []
         )
 
-        const tracksByDestination = computed(
-            () => groupBy(tracks.value || [], track => track.track.destination.id),
-        );
-
-        const tracksForDestination = computed(
-            () => selectedStop.value && tracksByDestination.value?.[selectedStop.value.id]
+        const tracksForDestination = computedAsync(
+            async () => destination.value && props.stop ? await trackRepository.getTracksForDestination(props.stop, destination.value) : null,
+            null,
+            { lazy: true }
         )
 
-        const selectedStop = ref<Stop & HasDestinations>(null);
+        const selectedTrack = ref<Track>(null);
+        const destination = ref<Stop & HasDestinations>(null);
+
+        const stopsToDestination = computed(() => slice(selectedTrack.value?.stops ?? [], s => s.id == props.stop.id, s => s.id == destination.value.id).slice(1))
+
+        watch(destination, () => {
+            selectedTrack.value = null;
+        })
 
         watch(bounds, async bounds => {
             const leaflet: Map = map.value?.leafletObject;
@@ -130,7 +162,7 @@ export default defineComponent({
 
         const type = computed(() => getStopType(props.stop));
 
-        return { lines, status, selectedStop, features, map, bounds, tracksForDestination, type }
+        return { lines, status, destination, selectedTrack, stopsToDestination, features, map, bounds, tracksForDestination, type }
     }
 })
 </script>

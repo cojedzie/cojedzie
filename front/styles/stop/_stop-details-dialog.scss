@@ -101,6 +101,15 @@
   }
 }
 
+.track-selector {
+  @extend .ui-popup;
+  padding: 0;
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  right: 2rem;
+}
+
 @include media-breakpoint-down('sm') {
   .stop-details-dialog {
     &__body {

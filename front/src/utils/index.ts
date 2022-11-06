@@ -181,3 +181,10 @@ export function createBackoff(timeout: number): (counter: number, callback: () =
         return setTimeout(callback, timeout * (Math.max(1, k))) as unknown as number;
     }
 }
+
+export function slice<T>(list: T[], first: (value: T) => boolean, last?: (value: T) => boolean): T[] {
+    return list.slice(
+        list.findIndex(first),
+        last && list.findIndex(last),
+    )
+}

@@ -8,7 +8,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import store from "@/store";
 import { Options, Vue } from "vue-class-component";
-import { createApp } from "vue";
 
 const routes: RouteRecordRaw[] = [
     { path: "/:provider", component: () => import ("@/pages/MainPage.vue") },

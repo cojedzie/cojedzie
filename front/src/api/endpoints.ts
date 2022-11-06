@@ -38,6 +38,7 @@ export type Endpoints = {
     v1_provider_details: Endpoint<"provider", Jsonified<Provider>>,
     v1_provider_list: Endpoint<never, Jsonified<Provider>[]>,
     v1_stop_list: Endpoint<"provider", Jsonified<Stop>[]>,
+    v1_track_list: Endpoint<"provider", Jsonified<Track>[]>,
     v1_stop_groups: Endpoint<"provider", Jsonified<{ name: string, stops: Stop[] }>[]>,
     v1_stop_tracks: Endpoint<"provider" | "stop", Jsonified<{ order: number, track: Track }>[]>,
 }
@@ -71,6 +72,10 @@ export const endpoints: Endpoints = {
     },
     v1_stop_list: {
         template: '/api/v1/{provider}/stops',
+        version: '1.0'
+    },
+    v1_track_list: {
+        template: '/api/v1/{provider}/tracks',
         version: '1.0'
     },
     v1_stop_groups: {
