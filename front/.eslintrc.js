@@ -23,5 +23,8 @@ module.exports = {
         "@typescript-eslint/ban-ts-comment": [0],
         "no-unused-vars": [1, { argsIgnorePattern: "^_" }],
     },
+    "env": {
+        "vue/setup-compiler-macros": true,
+    },
     "ignorePatterns": [".eslintrc.js", "webpack.config.js", "**/build/**", "resources/**/*", "src/types/**/*.d.ts"]
 }
