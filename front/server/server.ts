@@ -66,7 +66,10 @@ const renderPageAction = (callback?: ({ req: Request, res: Response, err: Error,
         year,
         config: {
             version,
-            api,
+            api: {
+                base: process.env.COJEDZIE_API_PUBLIC || process.env.COJEDZIE_API_HUB || process.env.COJEDZIE_API || "https://cojedzie.pl",
+                hub: process.env.COJEDZIE_API_HUB || process.env.COJEDZIE_API || "https://cojedzie.pl",
+            },
             maptiler: {
                 key: maptiler_key
             }

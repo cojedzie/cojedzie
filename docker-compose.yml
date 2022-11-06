@@ -7,7 +7,7 @@ services:
       - api
       - frontend
     ports:
-      - "0.0.0.0:8080:80"
+      - "0.0.0.0:80:80"
     volumes:
       - ./front:/var/www/front:cached
       - ./api:/var/www/api:cached
@@ -50,13 +50,14 @@ services:
     image: node:16
     working_dir: /app
     environment:
-      - APP_API=http://nginx/api
-      - APP_MODE=development
-      - APP_MAPTILER_KEY
+      - COJEDZIE_MODE=development
+      - COJEDZIE_API=http://nginx/api
+      - COJEDZIE_API_HUB=http://cojedzie.localhost
+      - COJEDZIE_MAPTILER_KEY
     volumes:
       - ./front:/app
     ports:
-      - 3001:3001
+      - '3001:3001' # required for vite HMR
     command: ["node", "build/server.js"]
 
   storybook:
@@ -65,7 +66,7 @@ services:
     environment:
       - STORYBOOK_BASE_HREF=/storybook/
       - APP_MAPTILER_KEY
-      - APP_API_BASE_URL=http://cojedzie.localhost:8080
+      - APP_API_BASE_URL=http://cojedzie.localhost
     volumes:
       - ./front:/app
     ports:

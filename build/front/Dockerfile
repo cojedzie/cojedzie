@@ -7,7 +7,6 @@ COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 COPY resources/fontawesome ./resources/fontawesome
-RUN find resources/fontawesome -type f -name '*.tgz' | sed s/^/file:/ | xargs yarn add-no-save
 
 COPY . .
 # build stuff

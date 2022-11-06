@@ -45,7 +45,7 @@ export const store = createStore({
     ] : [],
     apiClientOptions: {
         http: createHttpClient({
-            baseURL: window.CoJedzie?.api || `${window.location.protocol}//${window.location.host}`
+            baseURL: window.CoJedzie?.api?.base || `${window.location.protocol}//${window.location.host}`
         })
     }
 });
