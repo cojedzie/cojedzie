@@ -70,7 +70,7 @@ tasks:
         --rm -e APP_MODE=performance {{.DOCKER_FLAGS}} 
         api vendor/bin/phpbench 
         --php-config="opcache.enable: 1, opcache.enable_cli: 1{{if .PHP_CONFIG}}, {{end}}{{.PHP_CONFIG}}"
-        run tests --report={{.REPORT}} {{.CLI_ARGS}}
+        run {{default .TEST tests}} --report={{.REPORT}} {{.CLI_ARGS}}
 
   benchmark:profile:api:
     desc: Benchmark API component with phpbench
