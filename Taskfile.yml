@@ -106,4 +106,4 @@ tasks:
   api:update:
     desc: Update data from data providers
     cmds:
-      - docker-compose run {{.FLAGS}} -e APP_MODE=performance api bin/console app:update
+      - docker-compose run {{.FLAGS}} -e APP_MODE={{default "performance" .APP_MODE}} api bin/console app:update
