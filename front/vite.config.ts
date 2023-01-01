@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
@@ -25,13 +25,6 @@ import SvgIconLoader from "./src/svg-icon-loader";
 import viteImagemin from "vite-plugin-imagemin"
 
 export default defineConfig({
-    plugins: [
-        vue(),
-        VitePWA({}),
-        viteImagemin(),
-        SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
-    ],
-    publicDir: path.resolve(__dirname, './public'),
     build: {
         outDir: path.resolve(__dirname, './build/public/'),
         manifest: true,
@@ -41,6 +34,18 @@ export default defineConfig({
             ],
         },
     },
+    define: {
+        __IS_SSR__: false,
+        __VUE_OPTIONS_API__: true,
+        __VUE_PROD_DEVTOOLS__: false,
+    },
+    plugins: [
+        vue(),
+        VitePWA({}),
+        viteImagemin(),
+        SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
+    ],
+    publicDir: path.resolve(__dirname, './public'),
     resolve: {
         alias: [
             {
@@ -57,9 +62,7 @@ export default defineConfig({
             },
         ]
     },
-    define: {
-        __IS_SSR__: false,
-        __VUE_OPTIONS_API__: true,
-        __VUE_PROD_DEVTOOLS__: false,
-    },
+    test: {
+
+    }
 })

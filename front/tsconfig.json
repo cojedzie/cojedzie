@@ -17,7 +17,8 @@
       "@/*": ["./src/*"],
       "vuex": ["./src/types/vuex.d.ts"],
       "vuex-class": ["./src/types/vuex-class.d.ts"]
-    }
+    },
+    "types": ["vitest/globals"]
   },
   "files": ["src/app.ts"],
   "include": [

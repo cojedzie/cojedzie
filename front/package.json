@@ -57,6 +57,7 @@
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-pwa": "^0.12.3",
     "vite-tsconfig-paths": "^3.5.0",
+    "vitest": "^0.26.2",
     "vue": "^3.2.37",
     "vue-class-component": "^8.0.0-rc.1",
     "vue-dragscroll": "^3.0.0",
@@ -86,6 +87,8 @@
     "build:server": "tsc -p server",
     "build:loadtester": "tsc -p loadtester",
     "build:app": "vite build",
+    "test:app": "vitest",
+    "coverage:app": "vitest run --coverage",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

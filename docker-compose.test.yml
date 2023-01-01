@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  vitest:
+    image: node:16
+    working_dir: /app
+    environment:
+      - COJEDZIE_MODE=development
+      - COJEDZIE_API=http://nginx/api
+      - COJEDZIE_API_HUB=http://cojedzie.localhost
+      - COJEDZIE_MAPTILER_KEY
+    command:
+      - yarn
+      - test:app
+    volumes:
+      - ./front:/app
