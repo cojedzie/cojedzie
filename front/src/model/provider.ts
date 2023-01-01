@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2022 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 import { Location } from "./common";
+import { Jsonified } from "@/utils";
 
 export interface Provider {
     id: string;
@@ -27,4 +28,11 @@ export interface Provider {
     attribution?: string;
     lastUpdate?: Moment;
     location: Location;
+}
+
+export function convertProviderDtoToProvider(dto: Jsonified<Provider>): Provider {
+    return {
+        ...dto,
+        lastUpdate: moment(dto.lastUpdate),
+    }
 }

@@ -37,28 +37,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Options } from 'vue-class-component'
-import { Provider } from "@/model";
-import moment from 'moment';
-import api from "@/api";
+import { defineComponent, onMounted } from "vue";
+import useService from "@/composables/useService";
+import ProviderRepository from "@/services/ProviderRepository";
+import { useAsyncState } from "@vueuse/core";
 
-@Options({ name: "ProviderChooserPage" })
-export default class ProviderChooserPage extends Vue {
-    providers: Provider[] = [];
+export default defineComponent({
+    setup() {
+        const repository = useService(ProviderRepository.service);
 
-    mounted() {
-        document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = "/manifest.json";
+        const { state: providers } = useAsyncState(repository.getAllProviders(), []);
+
+        onMounted(() => {
+            document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = "/manifest.json";
+        })
+
+        return { providers }
     }
-
-    async created() {
-        const response = await api.get('v1_provider_list', { version: "^1.0" })
-
-        this.providers = response.data.map<Provider>(provider => {
-            return {
-                ...provider,
-                lastUpdate: provider.lastUpdate && moment(provider.lastUpdate)
-            }
-        });
-    }
-}
+})
 </script>
