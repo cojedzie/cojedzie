@@ -1,5 +1,5 @@
 <template>
-    <div class="ui-select" @keydown="handleKeyboardNavigation">
+    <div class="ui-select" :class="{'ui-select--active': isOpen}" @keydown="handleKeyboardNavigation">
         <div class="ui-select__control" tabindex="0" ref="controlElement">
             <div class="ui-select__option ui-select__option--selected" :class="{ 'ui-select__option--empty': !modelValue }" @click="open()">
                 <slot v-if="modelValue" :option="modelValue">
