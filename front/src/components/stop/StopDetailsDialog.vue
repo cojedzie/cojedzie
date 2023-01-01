@@ -81,10 +81,11 @@ import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
 import { Map, LatLngExpression, point, PointExpression } from "leaflet";
 import StopPin from "@/components/stop/StopPin.vue";
 import { ApiClientKey } from "@/api";
-import TrackRepository from "@/services/trackRepository";
+import TrackRepository from "@/services/TrackRepository";
 import { computedAsync } from "@vueuse/core";
 import TrackPicker from "@/components/track/TrackPicker.vue";
 import { slice } from "@/utils";
+import useService from "@/composables/useService";
 
 type OffsetOptions = {
     zoom?: number,
@@ -110,9 +111,7 @@ export default defineComponent({
             version: "1.0",
         })
 
-        const trackRepository = new TrackRepository(
-            inject(ApiClientKey)
-        );
+        const trackRepository = useService(TrackRepository.service);
 
         const features = ref<LFeatureGroup>();
         const map = ref();

@@ -32,6 +32,7 @@ import components, { app } from "@/components";
 import filters from '@/filters'
 import globals from '@/globals'
 import { install as api } from '@/api';
+import container from '@/services'
 
 app.use(api);
 app.use(filters);
@@ -58,6 +59,7 @@ Vue.registerHooks(['removed']);
     const { default: store } = await import('./store');
 
     app.use(store);
+    app.use(container)
 
     // todo figure out better way
     const fragment = document.createDocumentFragment();

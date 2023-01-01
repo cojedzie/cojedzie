@@ -3,6 +3,8 @@ import { ApiClient } from "@/api/client";
 import { Endpoints } from "@/api/endpoints";
 
 export default class TrackRepository {
+    static readonly service = Symbol();
+
     public constructor(private client: ApiClient<Endpoints, "provider">) {
     }
 
