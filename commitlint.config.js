@@ -20,7 +20,7 @@ module.exports = {
             'test',
             'release'
         ]],
-        'scope-enum': [2, 'always', ['front', 'api']],
+        'scope-enum': [2, 'always', ['front', 'api', 'streaming-parser']],
     },
     ignores: [
         commit => commit.startsWith('WIP ')
