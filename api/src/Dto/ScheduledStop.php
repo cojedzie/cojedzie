@@ -18,49 +18,54 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Provider\Dummy;
+namespace App\Dto;
 
-use App\Filter\Requirement\Requirement;
-use App\Dto\Stop;
-use App\Provider\StopRepository;
-use Illuminate\Support\Collection;
-use Kadet\Functional as f;
+use Carbon\Carbon;
 
-class DummyStopRepository implements StopRepository
+class ScheduledStop extends TrackStop
 {
-    public function __construct(
-    ) {
+    /**
+     * Arrival time.
+     */
+    private Carbon $arrival;
+
+    /**
+     * Departure time.
+     */
+    private Carbon $departure;
+
+    /**
+     * Exact trip that this scheduled stop is part of.
+     */
+    private ?Trip $trip = null;
+
+    public function getArrival(): Carbon
+    {
+        return $this->arrival;
     }
 
-    public function getAll(): Collection
+    public function setArrival(Carbon $arrival): void
     {
-        return collect();
+        $this->arrival = $arrival;
     }
 
-    public function getById($id): ?Stop
+    public function getDeparture(): Carbon
     {
-        return Stop::createFromArray([
-            'id'   => $id,
-            'name' => 'lorem',
-        ]);
+        return $this->departure;
     }
 
-    public function getManyById($ids): Collection
+    public function setDeparture(Carbon $departure): void
     {
-        return collect($ids)->map(f\ref([$this, 'getById']));
+        $this->departure = $departure;
     }
 
-    public function findByName(string $name): Collection
+    public function getTrip(): ?Trip
     {
-        return collect();
+        return $this->trip;
     }
 
-    public function first(Requirement ...$requirements)
+    public function setTrip(?Trip $trip): void
     {
-    }
-
-    public function all(Requirement ...$requirements): Collection
-    {
-        return collect();
+        $this->trip = $trip;
     }
 }

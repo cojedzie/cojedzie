@@ -20,7 +20,7 @@
 
 namespace App\Entity;
 
-use App\Model\Referable;
+use App\Dto\Referable;
 
 interface Entity extends Referable
 {

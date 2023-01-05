@@ -21,7 +21,7 @@
 namespace App\Filter\Binding\Http;
 
 use App\Filter\Requirement\RelatedFilter;
-use App\Model\Referable;
+use App\Dto\Referable;
 use App\Utility\RequestUtils;
 use Attribute;
 use JetBrains\PhpStorm\ExpectedValues;

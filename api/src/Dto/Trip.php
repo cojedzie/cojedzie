@@ -18,54 +18,50 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
+use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
 
-class Track implements Referable, Fillable, DTO
+class Trip implements Referable, Fillable, Dto
 {
     use ReferableTrait, FillTrait;
 
     /**
-     * Line variant describing track, for example 'a'
-     * @OA\Property(example="a")
+     * Line variant describing trip, for example 'a'
      */
     #[Serializer\Type('string')]
     private ?string $variant = null;
 
     /**
-     * Track description
+     * Trip description
      */
     #[Serializer\Type('string')]
     private ?string $description = null;
 
     /**
      * Line reference
-     * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      */
-    private ?Line $line = null;
+    #[Serializer\Type(Track::class)]
+    #[SerializeAs(['Default' => 'Identity'])]
+    private ?Track $track = null;
 
     /**
      * Stops in track
-     * @var Collection<Stop>
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Stop::class)))
+     * @var Collection<ScheduledStop>
      */
-    #[Serializer\Type('Collection')]
-    private Collection $stops;
+    #[Serializer\Type('Collection<App\Model\ScheduledStop>')]
+    private Collection $schedule;
 
     /**
-     * Destination stop of this track
-     * @OA\Property(ref=@Model(type=Stop::class))
+     * Destination stop of this trip
      */
-    #[Serializer\Type(Stop::class)]
     private ?Stop $destination = null;
 
     public function __construct()
     {
-        $this->setStops([]);
+        $this->setSchedule([]);
     }
 
     public function getVariant(): ?string
@@ -88,24 +84,24 @@ class Track implements Referable, Fillable, DTO
         $this->description = $description;
     }
 
-    public function getLine(): ?Line
+    public function getTrack(): ?Track
     {
-        return $this->line;
+        return $this->track;
     }
 
-    public function setLine(?Line $line): void
+    public function setTrack(?Track $track): void
     {
-        $this->line = $line;
+        $this->track = $track;
     }
 
-    public function getStops(): Collection
+    public function getSchedule(): Collection
     {
-        return $this->stops;
+        return $this->schedule;
     }
 
-    public function setStops($stops = [])
+    public function setSchedule($schedule = [])
     {
-        return $this->stops = collect($stops);
+        return $this->schedule = collect($schedule);
     }
 
     public function getDestination(): ?Stop

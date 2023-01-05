@@ -21,7 +21,7 @@
 namespace App\Provider\Dummy;
 
 use App\Exception\NotSupportedException;
-use App\Model\Location;
+use App\Dto\Location;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;

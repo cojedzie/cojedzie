@@ -20,7 +20,7 @@
 
 namespace App\Service\Proxy;
 
-use App\Model\JustReference;
+use App\Dto\JustReference;
 use Laminas\Code\Generator\ClassGenerator;
 use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
 use ReflectionClass;

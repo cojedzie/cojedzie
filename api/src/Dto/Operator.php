@@ -18,11 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
 use JMS\Serializer\Annotation as Serializer;
 
-class Operator implements Fillable, Referable, DTO
+class Operator implements Fillable, Referable, Dto
 {
     use FillTrait, ReferableTrait;
 

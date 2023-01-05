@@ -18,9 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
-interface Referable
+interface Fillable
 {
-    public function getId(): mixed;
+    public function fill(array $vars = []);
+
+    public static function createFromArray(array $vars = [], ...$args);
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Status;
+namespace App\Dto\Status;
 
 use OpenApi\Annotations as OA;
 use JMS\Serializer\Annotation as Serializer;

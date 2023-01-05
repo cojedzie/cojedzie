@@ -20,8 +20,8 @@
 
 namespace App\Provider\Dummy;
 
-use App\Model\Message;
-use App\Model\Stop;
+use App\Dto\Message;
+use App\Dto\Stop;
 use App\Provider\MessageRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;

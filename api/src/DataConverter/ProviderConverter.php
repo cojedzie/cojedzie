@@ -20,8 +20,8 @@
 
 namespace App\DataConverter;
 
-use App\Model\DTO;
-use App\Model\Provider as ProviderDTO;
+use App\Dto\Dto;
+use App\Dto\Provider as ProviderDTO;
 use App\Provider\Provider;
 
 class ProviderConverter implements Converter
@@ -43,6 +43,6 @@ class ProviderConverter implements Converter
     public function supports($entity, string $type)
     {
         return $entity instanceof Provider
-            && ($type === DTO::class || is_subclass_of($type, DTO::class, true));
+            && ($type === Dto::class || is_subclass_of($type, Dto::class, true));
     }
 }

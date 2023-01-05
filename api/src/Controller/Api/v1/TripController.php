@@ -24,7 +24,7 @@ use App\Controller\Controller;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
-use App\Model\Trip;
+use App\Dto\Trip;
 use App\Provider\TripRepository;
 use Symfony\Component\Routing\Annotation\Route;
 

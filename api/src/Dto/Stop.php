@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
@@ -30,7 +30,7 @@ use OpenApi\Annotations as OA;
  *
  * @package App\Model
  */
-class Stop implements Referable, Fillable, DTO
+class Stop implements Referable, Fillable, Dto
 {
     use FillTrait, ReferableTrait;
 

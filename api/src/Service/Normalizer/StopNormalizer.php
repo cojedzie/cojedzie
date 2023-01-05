@@ -20,7 +20,7 @@
 
 namespace App\Service\Normalizer;
 
-use App\Model\Stop;
+use App\Dto\Stop;
 use Illuminate\Support\Arr;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;

@@ -18,54 +18,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
-use Carbon\Carbon;
+use JMS\Serializer\Annotation as Serializer;
 
-class ScheduledStop extends TrackStop
+trait ReferableTrait
 {
     /**
-     * Arrival time.
+     * Identifier coming from provider service
+     *
+     * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
-    private Carbon $arrival;
+    #[Serializer\Type('string')]
+    #[Serializer\Groups(['Default', 'Reference', 'Minimal'])]
+    private string $id;
 
-    /**
-     * Departure time.
-     */
-    private Carbon $departure;
-
-    /**
-     * Exact trip that this scheduled stop is part of.
-     */
-    private ?Trip $trip = null;
-
-    public function getArrival(): Carbon
+    public function getId(): string
     {
-        return $this->arrival;
+        return $this->id;
     }
 
-    public function setArrival(Carbon $arrival): void
+    public function setId($id): void
     {
-        $this->arrival = $arrival;
+        $this->id = $id;
     }
 
-    public function getDeparture(): Carbon
+    public static function reference($id)
     {
-        return $this->departure;
-    }
+        if (!is_array($id)) {
+            $id = ['id' => $id];
+        }
 
-    public function setDeparture(Carbon $departure): void
-    {
-        $this->departure = $departure;
-    }
+        $result = new static();
+        $result->fill($id);
 
-    public function getTrip(): ?Trip
-    {
-        return $this->trip;
-    }
-
-    public function setTrip(?Trip $trip): void
-    {
-        $this->trip = $trip;
+        return $result;
     }
 }

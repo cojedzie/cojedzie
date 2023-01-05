@@ -20,8 +20,8 @@
 
 namespace App\Entity;
 
-use App\Model\Fillable;
-use App\Model\FillTrait;
+use App\Dto\Fillable;
+use App\Dto\FillTrait;
 use App\Utility\IterableUtils;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

@@ -20,7 +20,7 @@
 
 namespace App\Provider\ZtmGdansk;
 
-use App\Model\Message;
+use App\Dto\Message;
 
 class ZtmGdanskMessageTypeClassifier
 {

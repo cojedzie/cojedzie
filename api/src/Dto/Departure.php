@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
 use App\Serialization\SerializeAs;
 use Carbon\Carbon;
@@ -26,7 +26,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class Departure implements Fillable, DTO
+class Departure implements Fillable, Dto
 {
     use FillTrait;
 

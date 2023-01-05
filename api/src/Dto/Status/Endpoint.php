@@ -18,15 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model\Status;
+namespace App\Dto\Status;
 
-use App\Model\DTO;
-use App\Model\Fillable;
-use App\Model\FillTrait;
+use App\Dto\Dto;
+use App\Dto\Fillable;
+use App\Dto\FillTrait;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
-class Endpoint implements Fillable, DTO
+class Endpoint implements Fillable, Dto
 {
     use FillTrait;
 

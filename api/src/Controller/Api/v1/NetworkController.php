@@ -22,8 +22,8 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\DataConverter\Converter;
-use App\Model\DTO;
-use App\Model\Federation\Node;
+use App\Dto\Dto;
+use App\Dto\Federation\Node;
 use App\Repository\FederatedConnectionEntityRepository;
 use App\Service\SerializerContextFactory;
 use App\Service\StatusService;
@@ -76,7 +76,7 @@ class NetworkController extends Controller
         $discovery->addLink($request);
 
         $nodes = collect($connectionRepository->findAllReadyConnections())
-            ->map(f\partial(f\ref([$converter, 'convert']), f\_, DTO::class))
+            ->map(f\partial(f\ref([$converter, 'convert']), f\_, Dto::class))
             ->prepend($this->getSelfNode())
         ;
 

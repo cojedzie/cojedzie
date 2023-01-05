@@ -22,9 +22,9 @@ namespace App\DataConverter;
 
 use App\Entity\TrackStopEntity;
 use App\Entity\TripStopEntity;
-use App\Model\DTO;
-use App\Model\ScheduledStop;
-use App\Model\TrackStop;
+use App\Dto\Dto;
+use App\Dto\ScheduledStop;
+use App\Dto\TrackStop;
 
 class ScheduledStopConverter implements Converter, RecursiveConverter
 {
@@ -57,6 +57,6 @@ class ScheduledStopConverter implements Converter, RecursiveConverter
     public function supports($entity, string $type)
     {
         return ($entity instanceof TripStopEntity || $entity instanceof TrackStopEntity)
-            && ($type === DTO::class || is_subclass_of($type, DTO::class, true));
+            && ($type === Dto::class || is_subclass_of($type, Dto::class, true));
     }
 }

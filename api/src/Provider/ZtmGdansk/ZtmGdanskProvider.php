@@ -21,7 +21,7 @@
 namespace App\Provider\ZtmGdansk;
 
 use App\Entity\ProviderEntity;
-use App\Model\Location;
+use App\Dto\Location;
 use App\Provider\Database\GenericLineRepository;
 use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;

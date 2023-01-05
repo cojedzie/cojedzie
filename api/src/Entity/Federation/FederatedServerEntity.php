@@ -20,9 +20,9 @@
 
 namespace App\Entity\Federation;
 
-use App\Model\Fillable;
-use App\Model\FillTrait;
-use App\Model\Referable;
+use App\Dto\Fillable;
+use App\Dto\FillTrait;
+use App\Dto\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

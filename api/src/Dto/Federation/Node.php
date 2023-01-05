@@ -18,19 +18,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model\Federation;
+namespace App\Dto\Federation;
 
-use App\Model\DTO;
-use App\Model\Fillable;
-use App\Model\FillTrait;
-use App\Model\Status\Endpoint;
+use App\Dto\Dto;
+use App\Dto\Fillable;
+use App\Dto\FillTrait;
+use App\Dto\Status\Endpoint;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Uid\Uuid;
 
-class Node implements Fillable, DTO
+class Node implements Fillable, Dto
 {
     use FillTrait;
 

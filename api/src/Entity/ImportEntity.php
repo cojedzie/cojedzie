@@ -20,9 +20,9 @@
 
 namespace App\Entity;
 
-use App\Model\Fillable;
-use App\Model\FillTrait;
-use App\Model\Referable;
+use App\Dto\Fillable;
+use App\Dto\FillTrait;
+use App\Dto\Referable;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;

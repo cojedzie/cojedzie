@@ -20,7 +20,7 @@
 
 namespace App\Provider;
 
-use App\Model\Stop;
+use App\Dto\Stop;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 

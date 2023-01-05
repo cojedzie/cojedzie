@@ -18,11 +18,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
-class Vehicle implements Referable, Fillable, DTO
+interface Dto
 {
-    use ReferableTrait, FillTrait;
-
-    // todo: what attributes? AC, USB, GPS, seat count, length, manufacturer...?
 }

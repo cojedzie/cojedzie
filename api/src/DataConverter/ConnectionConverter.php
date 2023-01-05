@@ -21,9 +21,9 @@
 namespace App\DataConverter;
 
 use App\Entity\Federation\FederatedConnectionEntity;
-use App\Model\DTO;
-use App\Model\Federation\Node;
-use App\Model\Status\Aggregated;
+use App\Dto\Dto;
+use App\Dto\Federation\Node;
+use App\Dto\Status\Aggregated;
 use JMS\Serializer\SerializerInterface;
 
 class ConnectionConverter implements Converter
@@ -52,6 +52,6 @@ class ConnectionConverter implements Converter
     public function supports($entity, string $type)
     {
         return $entity instanceof FederatedConnectionEntity
-            && ($type === DTO::class || is_subclass_of($type, DTO::class, true));
+            && ($type === Dto::class || is_subclass_of($type, Dto::class, true));
     }
 }

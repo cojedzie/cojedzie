@@ -20,7 +20,7 @@
 
 namespace App\Filter\Requirement;
 
-use App\Model\Referable;
+use App\Dto\Referable;
 use App\Utility\IterableUtils;
 
 class RelatedFilter implements Requirement

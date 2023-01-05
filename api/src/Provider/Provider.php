@@ -20,7 +20,7 @@
 
 namespace App\Provider;
 
-use App\Model\Location;
+use App\Dto\Location;
 use Carbon\Carbon;
 
 interface Provider

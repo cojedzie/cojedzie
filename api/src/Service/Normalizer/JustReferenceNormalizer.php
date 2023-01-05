@@ -20,7 +20,7 @@
 
 namespace App\Service\Normalizer;
 
-use App\Model\JustReference;
+use App\Dto\JustReference;
 use Symfony\Component\Serializer\Exception\CircularReferenceException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\LogicException;

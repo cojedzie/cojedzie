@@ -18,56 +18,59 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
+use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class Location implements DTO
+/**
+ * Class StopGroup
+ *
+ * @package App\Model
+ */
+class StopGroup implements Dto
 {
     /**
-     * Locations longitude.
+     * Name of stop group.
+     * @OA\Property(example="Jasień PKM")
      */
-    #[Serializer\Type('float')]
-    #[Serializer\SerializedName('lng')]
-    private $longitude;
+    #[Serializer\Type('string')]
+    private string $name;
 
     /**
-     * Locations latitude.
-     * @OA\Property()
+     * All stops in group.
+     * @var Collection<Stop>
+     * @OA\Property(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=Stop::class, groups={"Default", "WithDestinations"}))
+     * )
      */
-    #[Serializer\Type('float')]
-    #[Serializer\SerializedName('lat')]
-    private $latitude;
+    private Collection $stops;
 
-    public function __construct(float $longitude = 0.0, float $latitude = 0.0)
+    public function __construct()
     {
-        $this->set($longitude, $latitude);
+        $this->stops = new Collection();
     }
 
-    public function getLongitude()
+    public function getName(): string
     {
-        return $this->longitude;
+        return $this->name;
     }
 
-    public function setLongitude(float $longitude): void
+    public function setName(string $name): void
     {
-        $this->longitude = $longitude;
+        $this->name = $name;
     }
 
-    public function getLatitude()
+    public function setStops($stops)
     {
-        return $this->latitude;
+        $this->stops = new Collection($stops);
     }
 
-    public function setLatitude(float $latitude): void
+    public function getStops(): Collection
     {
-        $this->latitude = $latitude;
-    }
-
-    public function set(float $longitude, float $latitude)
-    {
-        $this->setLongitude($longitude);
-        $this->setLatitude($latitude);
+        return $this->stops;
     }
 }

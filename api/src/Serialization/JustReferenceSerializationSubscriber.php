@@ -20,7 +20,7 @@
 
 namespace App\Serialization;
 
-use App\Model\JustReference;
+use App\Dto\JustReference;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 

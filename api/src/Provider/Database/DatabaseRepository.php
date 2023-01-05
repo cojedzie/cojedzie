@@ -37,8 +37,8 @@ use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
-use App\Model\DTO;
-use App\Model\Referable;
+use App\Dto\Dto;
+use App\Dto\Referable;
 use App\Provider\Repository;
 use App\Service\HandlerProvider;
 use App\Service\IdUtils;
@@ -83,7 +83,7 @@ abstract class DatabaseRepository implements Repository
 
     protected function convert($entity)
     {
-        return $this->converter->convert($entity, DTO::class);
+        return $this->converter->convert($entity, Dto::class);
     }
 
     protected function reference($class, Referable $referable)

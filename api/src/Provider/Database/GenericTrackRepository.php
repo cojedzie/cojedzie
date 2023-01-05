@@ -23,8 +23,8 @@ namespace App\Provider\Database;
 use App\Entity\TrackEntity;
 use App\Entity\TrackStopEntity;
 use App\Filter\Requirement\Requirement;
-use App\Model\Track;
-use App\Model\TrackStop;
+use App\Dto\Track;
+use App\Dto\TrackStop;
 use App\Provider\TrackRepository;
 use Illuminate\Support\Collection;
 

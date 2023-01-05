@@ -25,8 +25,8 @@ use App\DataConverter\Converter;
 use App\Entity\TrackEntity;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\PostProcessingHandler;
-use App\Model\Destination;
-use App\Model\DTO;
+use App\Dto\Destination;
+use App\Dto\Dto;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\Collection;
@@ -83,11 +83,11 @@ class WithDestinationsDatabaseHandler implements PostProcessingHandler
                 ->groupBy(fn (TrackEntity $track) => $track->getFinal()->getStop()->getId())
                 ->map(
                     fn (Collection $tracks, $id) => Destination::createFromArray([
-                        'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), DTO::class),
+                        'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), Dto::class),
                         'lines' => $tracks
                             ->map(t\property('line'))
                             ->unique(t\property('id'))
-                            ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, DTO::class))
+                            ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, Dto::class))
                             ->values(),
                     ])
                 )->values()

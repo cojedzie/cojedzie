@@ -20,10 +20,10 @@
 
 namespace App\Service;
 
-use App\Model\Status\Aggregated;
-use App\Model\Status\Endpoint;
-use App\Model\Status\Time;
-use App\Model\Status\Version;
+use App\Dto\Status\Aggregated;
+use App\Dto\Status\Endpoint;
+use App\Dto\Status\Time;
+use App\Dto\Status\Version;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Symfony\Component\Routing\Route;

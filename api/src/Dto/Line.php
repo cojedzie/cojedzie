@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
 use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
@@ -26,7 +26,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class Line implements Fillable, Referable, DTO
+class Line implements Fillable, Referable, Dto
 {
     final public const TYPE_TRAM       = 'tram';
     final public const TYPE_BUS        = 'bus';

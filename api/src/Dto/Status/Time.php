@@ -18,15 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model\Status;
+namespace App\Dto\Status;
 
-use App\Model\DTO;
+use App\Dto\Dto;
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 use function App\Functions\setup;
 
-class Time implements DTO
+class Time implements Dto
 {
     /**
      * Current date and time on node.

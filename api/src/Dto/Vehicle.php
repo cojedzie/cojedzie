@@ -18,40 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
-use JMS\Serializer\Annotation as Serializer;
-
-trait ReferableTrait
+class Vehicle implements Referable, Fillable, Dto
 {
-    /**
-     * Identifier coming from provider service
-     *
-     * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
-     */
-    #[Serializer\Type('string')]
-    #[Serializer\Groups(['Default', 'Reference', 'Minimal'])]
-    private string $id;
+    use ReferableTrait, FillTrait;
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    public static function reference($id)
-    {
-        if (!is_array($id)) {
-            $id = ['id' => $id];
-        }
-
-        $result = new static();
-        $result->fill($id);
-
-        return $result;
-    }
+    // todo: what attributes? AC, USB, GPS, seat count, length, manufacturer...?
 }

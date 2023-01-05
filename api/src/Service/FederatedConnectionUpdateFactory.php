@@ -22,7 +22,7 @@ namespace App\Service;
 
 use App\DataConverter\Converter;
 use App\Entity\Federation\FederatedConnectionEntity;
-use App\Model\DTO;
+use App\Dto\Dto;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Mercure\Update;
 
@@ -67,7 +67,7 @@ class FederatedConnectionUpdateFactory
             self::TOPIC,
             $this->serializer->serialize([
                 'event' => $event,
-                'node'  => $this->converter->convert($connection, DTO::class),
+                'node'  => $this->converter->convert($connection, Dto::class),
             ], 'json'),
         );
     }

@@ -18,54 +18,52 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
-class TrackStop implements Fillable, DTO
+use Illuminate\Support\Collection;
+use JMS\Serializer\Annotation as Serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
+
+class Destination implements Fillable, Dto
 {
     use FillTrait;
 
     /**
-     * Order in trip
+     * Stop associated with destination.
      */
-    private int $order;
-
-    /**
-     * Stop (as a place) related to that scheduled bus stop
-     */
+    #[Serializer\Type(Stop::class)]
     private Stop $stop;
 
     /**
-     * Track that this stop is part of.
+     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Line::class, groups={"Default"})))
+     * @var Collection<Line>
      */
-    private ?Track $track = null;
+    #[Serializer\Type('Collection')]
+    private Collection $lines;
+
+    public function __construct()
+    {
+        $this->lines = collect();
+    }
 
     public function getStop(): Stop
     {
         return $this->stop;
     }
 
-    public function setStop($stop): void
+    public function setStop(Stop $stop): void
     {
         $this->stop = $stop;
     }
 
-    public function getOrder(): int
+    public function getLines(): Collection
     {
-        return $this->order;
+        return $this->lines;
     }
 
-    public function setOrder(int $order): void
+    public function setLines(iterable $lines): void
     {
-        $this->order = $order;
-    }
-
-    public function getTrack(): ?Track
-    {
-        return $this->track;
-    }
-
-    public function setTrack(?Track $track): void
-    {
-        $this->track = $track;
+        $this->lines = collect($lines);
     }
 }

@@ -21,7 +21,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
-use App\Model\Message;
+use App\Dto\Message;
 use App\Provider\MessageRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
@@ -42,9 +42,9 @@ class MessagesController extends Controller
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Message::class)))
      * )
      */
-    #[Route(path: '', name: 'all', methods: ['GET'], options: ['version' => '1.0'])]
+    #[Route(path: '', name: 'all', methods: ['GET'], options: ['version' => '1.1'])]
     public function all(
-        MessageRepository $messageRepository
+        MessageRepository $messageRepository,
     ): Response {
         return $this->json($messageRepository->getAll());
     }

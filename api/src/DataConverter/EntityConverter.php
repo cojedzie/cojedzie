@@ -21,7 +21,7 @@
 namespace App\DataConverter;
 
 use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
-use App\Model\{DTO, Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
+use App\Dto\{Dto, Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
 use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
@@ -174,7 +174,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     public function supports($entity, string $type)
     {
         return $entity instanceof Entity
-            && ($type === DTO::class || is_subclass_of($type, DTO::class, true));
+            && ($type === Dto::class || is_subclass_of($type, Dto::class, true));
     }
 
     public function reset()

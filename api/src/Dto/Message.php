@@ -18,13 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
 use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
-class Message implements Fillable, DTO
+class Message implements Fillable, Dto
 {
     use FillTrait;
 

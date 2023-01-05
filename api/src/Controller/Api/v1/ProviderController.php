@@ -23,7 +23,7 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\DataConverter\Converter;
 use App\Exception\NonExistentServiceException;
-use App\Model\DTO;
+use App\Dto\Dto;
 use App\Service\ProviderResolver;
 use Kadet\Functional as f;
 use OpenApi\Annotations as OA;
@@ -44,7 +44,7 @@ class ProviderController extends Controller
     {
         $providers = $resolver
             ->all()
-            ->map(f\partial(f\ref([$converter, 'convert']), f\_, DTO::class))
+            ->map(f\partial(f\ref([$converter, 'convert']), f\_, Dto::class))
             ->values()
             ->toArray()
         ;
@@ -56,7 +56,7 @@ class ProviderController extends Controller
     {
         try {
             $provider = $resolver->resolve($provider);
-            return $this->json($converter->convert($provider, DTO::class));
+            return $this->json($converter->convert($provider, Dto::class));
         } catch (NonExistentServiceException $exception) {
             throw new NotFoundHttpException($exception->getMessage());
         }

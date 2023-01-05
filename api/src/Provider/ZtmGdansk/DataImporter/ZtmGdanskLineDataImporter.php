@@ -22,7 +22,7 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
-use App\Model\Line as LineModel;
+use App\Dto\Line as LineModel;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;

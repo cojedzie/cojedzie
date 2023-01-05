@@ -25,9 +25,9 @@ use App\Event\HandleModifierEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
-use App\Model\ScheduledStop;
-use App\Model\Stop;
-use App\Model\TrackStop;
+use App\Dto\ScheduledStop;
+use App\Dto\Stop;
+use App\Dto\TrackStop;
 use function App\Functions\encapsulate;
 
 class FieldFilterDatabaseHandler implements ModifierHandler

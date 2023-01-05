@@ -18,59 +18,56 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Model;
+namespace App\Dto;
 
-use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-/**
- * Class StopGroup
- *
- * @package App\Model
- */
-class StopGroup implements DTO
+class Location implements Dto
 {
     /**
-     * Name of stop group.
-     * @OA\Property(example="Jasień PKM")
+     * Locations longitude.
      */
-    #[Serializer\Type('string')]
-    private string $name;
+    #[Serializer\Type('float')]
+    #[Serializer\SerializedName('lng')]
+    private $longitude;
 
     /**
-     * All stops in group.
-     * @var Collection<Stop>
-     * @OA\Property(
-     *     type="array",
-     *     @OA\Items(ref=@Model(type=Stop::class, groups={"Default", "WithDestinations"}))
-     * )
+     * Locations latitude.
+     * @OA\Property()
      */
-    private Collection $stops;
+    #[Serializer\Type('float')]
+    #[Serializer\SerializedName('lat')]
+    private $latitude;
 
-    public function __construct()
+    public function __construct(float $longitude = 0.0, float $latitude = 0.0)
     {
-        $this->stops = new Collection();
+        $this->set($longitude, $latitude);
     }
 
-    public function getName(): string
+    public function getLongitude()
     {
-        return $this->name;
+        return $this->longitude;
     }
 
-    public function setName(string $name): void
+    public function setLongitude(float $longitude): void
     {
-        $this->name = $name;
+        $this->longitude = $longitude;
     }
 
-    public function setStops($stops)
+    public function getLatitude()
     {
-        $this->stops = new Collection($stops);
+        return $this->latitude;
     }
 
-    public function getStops(): Collection
+    public function setLatitude(float $latitude): void
     {
-        return $this->stops;
+        $this->latitude = $latitude;
+    }
+
+    public function set(float $longitude, float $latitude)
+    {
+        $this->setLongitude($longitude);
+        $this->setLatitude($latitude);
     }
 }
