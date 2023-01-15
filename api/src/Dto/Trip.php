@@ -31,19 +31,16 @@ class Trip implements Referable, Fillable, Dto
     /**
      * Line variant describing trip, for example 'a'
      */
-    #[Serializer\Type('string')]
     private ?string $variant = null;
 
     /**
      * Trip description
      */
-    #[Serializer\Type('string')]
     private ?string $description = null;
 
     /**
      * Line reference
      */
-    #[Serializer\Type(Track::class)]
     #[SerializeAs(['Default' => 'Identity'])]
     private ?Track $track = null;
 
@@ -51,7 +48,6 @@ class Trip implements Referable, Fillable, Dto
      * Stops in track
      * @var Collection<ScheduledStop>
      */
-    #[Serializer\Type('Collection<App\Model\ScheduledStop>')]
     private Collection $schedule;
 
     /**

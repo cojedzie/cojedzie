@@ -33,22 +33,20 @@ class Departure implements Fillable, Dto
     /**
      * Unique identifier of departure, can be meaningless.
      */
-    #[Serializer\Type('string')]
     private ?string $key = null;
 
     /**
      * Information about line.
      * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      */
-    #[Serializer\Type(Line::class)]
     #[SerializeAs(['Default' => 'Default'])]
+
     private Line $line;
 
     /**
      * Information about line.
      * @OA\Property(ref=@Model(type=Track::class, groups={"Reference"}))
      */
-    #[Serializer\Type(Track::class)]
     #[SerializeAs(['Default' => 'Reference'])]
     private ?Track $track = null;
 
@@ -56,41 +54,35 @@ class Departure implements Fillable, Dto
      * Information about line.
      * @OA\Property(ref=@Model(type=Trip::class, groups={"Reference"}))
      */
-    #[Serializer\Type(Trip::class)]
     #[SerializeAs(['Default' => 'Reference'])]
     private ?Trip $trip = null;
 
     /**
      * Information about stop.
      */
-    #[Serializer\Type(Stop::class)]
     private Stop $stop;
 
     /**
      * Vehicle identification.
      */
-    #[Serializer\Type(Vehicle::class)]
     private ?Vehicle $vehicle = null;
 
     /**
      * Displayed destination.
      * @OA\Property(example="Łostowice Świętokrzyska")
      */
-    #[Serializer\Type('string')]
     private ?string $display = null;
 
     /**
      * Estimated time of departure, null if case of no realtime data.
      * @OA\Property(type="string", format="date-time")
      */
-    #[Serializer\Type('Carbon')]
     private ?Carbon $estimated = null;
 
     /**
      * Scheduled time of departure.
      * @OA\Property(type="string", format="date-time")
      */
-    #[Serializer\Type('Carbon')]
     private Carbon $scheduled;
 
     public function getKey(): ?string

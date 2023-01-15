@@ -23,7 +23,6 @@ namespace App\Dto\Status;
 use App\Dto\Dto;
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
-use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
 class Endpoint implements Fillable, Dto
@@ -31,11 +30,10 @@ class Endpoint implements Fillable, Dto
     use FillTrait;
 
     /**
-     * Name of the endpoint, machine readable
+     * Name of the endpoint, machine-readable
      *
      * @OA\Property(type="string", example="v1_provider_list")
      */
-    #[Serializer\Type('string')]
     private string $name;
 
     /**
@@ -43,7 +41,6 @@ class Endpoint implements Fillable, Dto
      *
      * @OA\Property(type="string", example="/api/v1/providers")
      */
-    #[Serializer\Type('string')]
     private string $template;
 
     /**
@@ -51,7 +48,6 @@ class Endpoint implements Fillable, Dto
      *
      * @OA\Property(type="string", format="version", example="1.0")
      */
-    #[Serializer\Type('string')]
     private string $version;
 
     /**
@@ -62,7 +58,6 @@ class Endpoint implements Fillable, Dto
      *     @OA\Items(type="string", enum={"GET", "POST", "DELETE", "PUT", "PATCH"})
      * )
      */
-    #[Serializer\Type('array<string>')]
     private array $methods;
 
     public function getName(): string

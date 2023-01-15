@@ -22,7 +22,6 @@ namespace App\Dto\Status;
 
 use App\Dto\Dto;
 use Carbon\Carbon;
-use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 use function App\Functions\setup;
 
@@ -33,7 +32,6 @@ class Time implements Dto
      *
      * @OA\Property(type="string", format="date-time")
      */
-    #[Serializer\Type('Carbon')]
     private Carbon $current;
 
     /**
@@ -41,7 +39,6 @@ class Time implements Dto
      *
      * @OA\Property(type="string", format="timezone", example="Europe/Warsaw")
      */
-    #[Serializer\Type('string')]
     private string $timezone;
 
     public static function createFromDateTime(Carbon $now)

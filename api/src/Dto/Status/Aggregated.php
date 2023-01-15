@@ -24,7 +24,6 @@ use App\Dto\Dto;
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
 use Illuminate\Support\Collection;
-use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
@@ -38,7 +37,6 @@ class Aggregated implements Fillable, Dto
          *
          * @OA\Property(ref=@Model(type=Time::class))
          */
-        #[Serializer\Type(Time::class)]
         private Time $time,
 
         /**
@@ -46,7 +44,6 @@ class Aggregated implements Fillable, Dto
          *
          * @OA\Property(ref=@Model(type=Version::class))
          */
-        #[Serializer\Type(Version::class)]
         private Version $version,
 
         /**
@@ -56,7 +53,6 @@ class Aggregated implements Fillable, Dto
          *
          * @var Collection<Endpoint>
          */
-        #[Serializer\Type('Collection<App\Model\Status\Endpoint>')]
         private Collection $endpoints,
     ) {
     }

@@ -3,7 +3,6 @@
 namespace App\Dto\Status;
 
 use OpenApi\Annotations as OA;
-use JMS\Serializer\Annotation as Serializer;
 
 class Version
 {
@@ -13,7 +12,6 @@ class Version
          *
          * @OA\Property(type="string", format="version", example="v2022.3.0")
          */
-        #[Serializer\Type('string')]
         private string $version,
 
         /**
@@ -21,7 +19,6 @@ class Version
          *
          * @OA\Property(type="string", format="revision", example="43a97fd1f515bb49737fded905ad326fa8cb35b7")
          */
-        #[Serializer\Type('string')]
         private string $revision,
     ) {
     }

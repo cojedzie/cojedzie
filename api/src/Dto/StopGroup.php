@@ -36,7 +36,6 @@ class StopGroup implements Dto
      * Name of stop group.
      * @OA\Property(example="Jasień PKM")
      */
-    #[Serializer\Type('string')]
     private string $name;
 
     /**

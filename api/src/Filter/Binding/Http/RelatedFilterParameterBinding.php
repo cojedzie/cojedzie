@@ -20,8 +20,8 @@
 
 namespace App\Filter\Binding\Http;
 
-use App\Filter\Requirement\RelatedFilter;
 use App\Dto\Referable;
+use App\Filter\Requirement\RelatedFilter;
 use App\Utility\RequestUtils;
 use Attribute;
 use JetBrains\PhpStorm\ExpectedValues;

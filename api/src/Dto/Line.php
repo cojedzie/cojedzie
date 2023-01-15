@@ -41,7 +41,6 @@ class Line implements Fillable, Referable, Dto
      * Line symbol, for example '10', or 'A'
      * @OA\Property(example="10")
      */
-    #[Serializer\Type('string')]
     private string $symbol;
 
     /**
@@ -55,26 +54,22 @@ class Line implements Fillable, Referable, Dto
      *     Line::TYPE_TROLLEYBUS
      * })
      */
-    #[Serializer\Type('string')]
     private string $type;
 
     /**
      * Is line considered as fast line?
      */
-    #[Serializer\Type('bool')]
     private bool $fast = false;
 
     /**
      * Is line considered as night line?
      */
-    #[Serializer\Type('bool')]
     private bool $night = false;
 
     /**
      * Line operator
      * @OA\Property(ref=@Model(type=Operator::class, groups={"Reference"}))
      */
-    #[Serializer\Type(Operator::class)]
     #[SerializeAs(['Default' => 'Reference'])]
     private Operator $operator;
 
@@ -83,7 +78,6 @@ class Line implements Fillable, Referable, Dto
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * @var Collection<Track>
      */
-    #[Serializer\Type('Collection')]
     #[Serializer\Groups(['Full'])]
     private Collection $tracks;
 

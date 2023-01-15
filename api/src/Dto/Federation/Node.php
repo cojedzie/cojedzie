@@ -25,7 +25,6 @@ use App\Dto\Fillable;
 use App\Dto\FillTrait;
 use App\Dto\Status\Endpoint;
 use Illuminate\Support\Collection;
-use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Uid\Uuid;
@@ -44,14 +43,12 @@ class Node implements Fillable, Dto
      *
      * @OA\Property(type="string", example="a022a57b-866c-4f59-a3cf-2271d958552c")
      */
-    #[Serializer\Type('uuid')]
     private Uuid $id;
 
     /**
      * Base URL address for this particular connection.
      * @OA\Property(type="string", format="url", example="https://cojedzie.pl")
      */
-    #[Serializer\Type('string')]
     private string $url;
 
     /**
@@ -59,7 +56,6 @@ class Node implements Fillable, Dto
      *
      * @OA\Property(type="string", format="url", example=Node::TYPE_HUB, enum=Node::TYPES)
      */
-    #[Serializer\Type('string')]
     private string $type;
 
     /**
@@ -68,7 +64,6 @@ class Node implements Fillable, Dto
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
      * @var Collection<Endpoint>
      */
-    #[Serializer\Type('Collection')]
     private Collection $endpoints;
 
     public function getId(): Uuid

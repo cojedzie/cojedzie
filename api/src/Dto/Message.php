@@ -21,7 +21,6 @@
 namespace App\Dto;
 
 use Carbon\Carbon;
-use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
 class Message implements Fillable, Dto
@@ -36,28 +35,24 @@ class Message implements Fillable, Dto
      * Message content.
      * @OA\Property(example="Tram accident on Haller alley, possible delays on lines: 2, 3, 4, 5.")
      */
-    #[Serializer\Type('string')]
     private string $message;
 
     /**
      * Message type, see TYPE_* constants
      * @OA\Property(type="string", enum={ Message::TYPE_INFO, Message::TYPE_BREAKDOWN, Message::TYPE_UNKNOWN })
      */
-    #[Serializer\Type('string')]
     private string $type = self::TYPE_UNKNOWN;
 
     /**
      * Message validity time span start
      * @OA\Property(type="string", format="date-time")
      */
-    #[Serializer\Type('Carbon')]
     private ?Carbon $validFrom = null;
 
     /**
      * Message validity time span end
      * @OA\Property(type="string", format="date-time")
      */
-    #[Serializer\Type('Carbon')]
     private ?Carbon $validTo = null;
 
     public function getMessage(): string

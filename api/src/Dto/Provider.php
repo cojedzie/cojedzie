@@ -32,34 +32,29 @@ class Provider implements Fillable, Referable, Dto
      * Short identifier of provider, ex. "trojmiasto"
      * @OA\Property(example="trojmiasto")
      */
-    #[Serializer\Type('string')]
     private string $id;
 
     /**
      * Full name of the provider, ex. "MZKZG Trójmiasto"
      * @OA\Property(example="MZKZG Trójmiasto")
      */
-    #[Serializer\Type('string')]
     private string $name;
 
     /**
      * Short name of the provider for easier identification, ex. "Trójmiasto" or "Warszawa"
      * @OA\Property(example="Trójmiasto")
      */
-    #[Serializer\Type('string')]
     private string $shortName;
 
     /**
      * Attribution to be presented for this provider, can contain HTML tags.
      * @OA\Property(example="Copyright by XYZ inc.")
      */
-    #[Serializer\Type('string')]
     private ?string $attribution = null;
 
     /**
      * Time when data was last synchronized with this provider.
      */
-    #[Serializer\Type('Carbon')]
     private ?Carbon $lastUpdate = null;
 
     /**

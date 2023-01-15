@@ -32,14 +32,12 @@ class Destination implements Fillable, Dto
     /**
      * Stop associated with destination.
      */
-    #[Serializer\Type(Stop::class)]
     private Stop $stop;
 
     /**
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Line::class, groups={"Default"})))
      * @var Collection<Line>
      */
-    #[Serializer\Type('Collection')]
     private Collection $lines;
 
     public function __construct()

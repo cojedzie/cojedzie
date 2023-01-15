@@ -29,7 +29,6 @@ trait ReferableTrait
      *
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
-    #[Serializer\Type('string')]
     #[Serializer\Groups(['Default', 'Reference', 'Minimal'])]
     private string $id;
 

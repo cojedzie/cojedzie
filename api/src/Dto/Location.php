@@ -28,24 +28,21 @@ class Location implements Dto
     /**
      * Locations longitude.
      */
-    #[Serializer\Type('float')]
     #[Serializer\SerializedName('lng')]
-    private $longitude;
+    private float $longitude;
 
     /**
      * Locations latitude.
-     * @OA\Property()
      */
-    #[Serializer\Type('float')]
     #[Serializer\SerializedName('lat')]
-    private $latitude;
+    private float $latitude;
 
     public function __construct(float $longitude = 0.0, float $latitude = 0.0)
     {
         $this->set($longitude, $latitude);
     }
 
-    public function getLongitude()
+    public function getLongitude(): float
     {
         return $this->longitude;
     }
@@ -55,7 +52,7 @@ class Location implements Dto
         $this->longitude = $longitude;
     }
 
-    public function getLatitude()
+    public function getLatitude(): float
     {
         return $this->latitude;
     }
