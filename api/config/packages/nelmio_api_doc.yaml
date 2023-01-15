@@ -8,7 +8,7 @@ nelmio_api_doc:
         provider:
           in: path
           name: provider
-          description: Data provider identificator, e.g. trojmiasto for ZTM Gdańsk.
+          description: Data provider identifier, e.g. trojmiasto for ZTM Gdańsk.
           required: true
           schema:
             type: string
