@@ -24,6 +24,7 @@ use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Class Stop
@@ -38,7 +39,6 @@ class Stop implements Referable, Fillable, Dto
     /**
      * Stop name
      *
-     * @var string
      * @OA\Property(example="Jasień PKM")
      */
     private string $name;
@@ -82,6 +82,7 @@ class Stop implements Referable, Fillable, Dto
      * @var Collection<Destination>
      */
     #[Serializer\Groups(['WithDestinations'])]
+    #[Groups(['with-destinations'])]
     private Collection $destinations;
 
     public function __construct()

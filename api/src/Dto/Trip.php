@@ -22,7 +22,8 @@ namespace App\Dto;
 
 use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[ContentType('vnd.cojedzie.trip')]
 class Trip implements Referable, Fillable, Dto
@@ -43,6 +44,9 @@ class Trip implements Referable, Fillable, Dto
      * Line reference
      */
     #[SerializeAs(['Default' => 'Identity'])]
+    #[Context(context: [
+        AbstractNormalizer::GROUPS => ['reference'],
+    ])]
     private ?Track $track = null;
 
     /**

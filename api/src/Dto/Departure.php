@@ -25,6 +25,9 @@ use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[ContentType('vnd.cojedzie.departure')]
 class Departure implements Fillable, Dto
@@ -38,16 +41,17 @@ class Departure implements Fillable, Dto
 
     /**
      * Information about line.
-     * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
+     * @OA\Property(ref=@Model(type=Line::class))
      */
-    #[SerializeAs(['Default' => 'Default'])]
-
     private Line $line;
 
     /**
      * Information about line.
      * @OA\Property(ref=@Model(type=Track::class, groups={"Reference"}))
      */
+    #[Context(context: [
+        AbstractNormalizer::GROUPS => ['reference'],
+    ])]
     #[SerializeAs(['Default' => 'Reference'])]
     private ?Track $track = null;
 
@@ -55,6 +59,9 @@ class Departure implements Fillable, Dto
      * Information about line.
      * @OA\Property(ref=@Model(type=Trip::class, groups={"Reference"}))
      */
+    #[Context(context: [
+        AbstractNormalizer::GROUPS => ['reference'],
+    ])]
     #[SerializeAs(['Default' => 'Reference'])]
     private ?Trip $trip = null;
 
@@ -146,6 +153,7 @@ class Departure implements Fillable, Dto
         $this->scheduled = $scheduled;
     }
 
+    #[Ignore]
     public function getDeparture(): Carbon
     {
         return $this->estimated ?? $this->scheduled;

@@ -21,7 +21,7 @@
 namespace App\Dto;
 
 use JMS\Serializer\Annotation as Serializer;
-use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class Location implements Dto
 {
@@ -29,12 +29,14 @@ class Location implements Dto
      * Locations longitude.
      */
     #[Serializer\SerializedName('lng')]
+    #[SerializedName('lng')]
     private float $longitude;
 
     /**
      * Locations latitude.
      */
     #[Serializer\SerializedName('lat')]
+    #[SerializedName('lat')]
     private float $latitude;
 
     public function __construct(float $longitude = 0.0, float $latitude = 0.0)

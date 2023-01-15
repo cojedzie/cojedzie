@@ -31,14 +31,17 @@ class Serializer implements SerializerInterface, NormalizerInterface
     private function setDefaultContextProperties(array &$context)
     {
         $context[AbstractNormalizer::IGNORED_ATTRIBUTES] = [
+            ...($context[AbstractNormalizer::IGNORED_ATTRIBUTES] ?? []),
             '__isInitialized__',
             '__initializer__',
             '__cloner__',
         ];
 
-        $context[AbstractObjectNormalizer::SKIP_NULL_VALUES] = false;
+        $context[AbstractObjectNormalizer::SKIP_NULL_VALUES] ??= false;
 
-        $context[AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER] = fn ($entity) => ['id' => $entity->getId()];
+        $context[AbstractNormalizer::GROUPS][] = 'default';
+
+        $context[AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER] ??= fn ($entity) => ['id' => $entity->getId()];
     }
 
     public function normalize($object, string $format = null, array $context = []): array

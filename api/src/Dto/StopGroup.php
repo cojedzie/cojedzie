@@ -21,7 +21,6 @@
 namespace App\Dto;
 
 use Illuminate\Support\Collection;
-use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 

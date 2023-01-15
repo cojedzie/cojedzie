@@ -25,6 +25,9 @@ use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[ContentType('vnd.cojedzie.line')]
 class Line implements Fillable, Referable, Dto
@@ -72,6 +75,7 @@ class Line implements Fillable, Referable, Dto
      * @OA\Property(ref=@Model(type=Operator::class, groups={"Reference"}))
      */
     #[SerializeAs(['Default' => 'Reference'])]
+    #[Context(context: [AbstractNormalizer::GROUPS => ['reference']])]
     private Operator $operator;
 
     /**
@@ -80,6 +84,7 @@ class Line implements Fillable, Referable, Dto
      * @var Collection<Track>
      */
     #[Serializer\Groups(['Full'])]
+    #[Groups(['full'])]
     private Collection $tracks;
 
     public function getSymbol(): string

@@ -133,6 +133,8 @@ services:
     arguments:
       $decorated: '@App\Serialization\Normalizer\DtoNormalizer.inner'
 
+  App\Serialization\MetadataLoader:
+    decorates: 'serializer.mapping.chain_loader'
 
   # Context Providers
   App\Context\FederationContext:

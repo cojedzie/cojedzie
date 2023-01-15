@@ -27,8 +27,9 @@ use App\Repository\FederatedConnectionEntityRepository;
 use App\Serialization\SerializeAs;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
+use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: FederatedConnectionEntityRepository::class)]
@@ -77,7 +78,6 @@ class FederatedConnectionEntity implements Referable, Fillable
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    #[Serializer\Type('uuid')]
     private ?Uuid $id = null;
 
     /**
@@ -85,6 +85,7 @@ class FederatedConnectionEntity implements Referable, Fillable
      */
     #[ORM\ManyToOne(targetEntity: FederatedServerEntity::class, inversedBy: 'connections')]
     #[SerializeAs(['Default' => 'Basic'])]
+    #[Context(context: [AbstractNormalizer::GROUPS => ['basic']])]
     private FederatedServerEntity $server;
 
     /**

@@ -27,6 +27,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
@@ -40,7 +42,6 @@ class FederatedServerEntity implements Referable, Fillable
      */
     #[ORM\Column(type: 'uuid')]
     #[ORM\Id]
-    #[Serializer\Type('uuid')]
     private Uuid $id;
 
     /**
@@ -67,6 +68,7 @@ class FederatedServerEntity implements Referable, Fillable
      */
     #[ORM\OneToMany(targetEntity: FederatedConnectionEntity::class, cascade: ['persist'], mappedBy: 'server', orphanRemoval: true)]
     #[Serializer\Groups(['Connections', 'All'])]
+    #[Groups(['connections', 'all'])]
     private readonly Collection $connections;
 
     /**
@@ -74,6 +76,7 @@ class FederatedServerEntity implements Referable, Fillable
      */
     #[ORM\Column(type: 'string')]
     #[Serializer\Exclude]
+    #[Ignore]
     private string $secret;
 
     public function __construct()

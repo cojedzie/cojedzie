@@ -21,19 +21,35 @@
 namespace App\Serialization\Normalizer;
 
 use App\Dto\JustReference;
+use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class JustReferenceNormalizer implements NormalizerInterface
+class JustReferenceNormalizer implements NormalizerInterface, CacheableSupportsMethodInterface
 {
+    public function __construct(
+        private readonly DtoNormalizer $normalizer
+    ) {
+    }
+
     public function normalize($object, string $format = null, array $context = [])
     {
-        return [
-            'id' => $object->getId(),
-        ];
+        return $this->normalizer->normalize(
+            object: $object,
+            format: $format,
+            context: [
+                ...$context,
+                'groups' => ['reference'],
+            ]
+        );
     }
 
     public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof JustReference;
+    }
+
+    public function hasCacheableSupportsMethod(): bool
+    {
+        return true;
     }
 }
