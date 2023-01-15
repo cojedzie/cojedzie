@@ -123,6 +123,17 @@ services:
   App\Service\RequirementsArgumentResolver:
     decorates: 'argument_resolver'
 
+  App\Serialization\Serializer:
+    decorates: serializer
+    arguments:
+      $decorated: '@App\Serialization\Serializer.inner'
+
+  App\Serialization\Normalizer\DtoNormalizer:
+    decorates: serializer.normalizer.object
+    arguments:
+      $decorated: '@App\Serialization\Normalizer\DtoNormalizer.inner'
+
+
   # Context Providers
   App\Context\FederationContext:
     arguments:

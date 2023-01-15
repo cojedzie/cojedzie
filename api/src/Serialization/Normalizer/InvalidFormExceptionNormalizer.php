@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Serialization;
+namespace App\Serialization\Normalizer;
 
 use App\Exception\InvalidFormException;
 use Symfony\Component\Form\FormError;

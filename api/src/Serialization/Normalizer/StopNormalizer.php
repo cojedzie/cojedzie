@@ -18,23 +18,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Service\Normalizer;
+namespace App\Serialization\Normalizer;
 
 use App\Dto\Stop;
+use App\Serialization\Normalizer\DtoNormalizer;
 use Illuminate\Support\Arr;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class StopNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private readonly ObjectNormalizer $normalizer
+        private readonly DtoNormalizer $normalizer
     ) {
     }
 
     public function normalize($object, $format = null, array $context = [])
     {
-        return Arr::except($this->normalizer->normalize($object), ['latitude', 'longitude']);
+        return Arr::except(
+            $this->normalizer->normalize($object),
+            ['latitude', 'longitude']
+        );
     }
 
     public function supportsNormalization($data, $format = null): bool
