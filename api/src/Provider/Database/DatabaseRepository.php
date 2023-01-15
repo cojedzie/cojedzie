@@ -21,6 +21,8 @@
 namespace App\Provider\Database;
 
 use App\DataConverter\Converter;
+use App\Dto\Dto;
+use App\Dto\Referable;
 use App\Entity\ProviderEntity;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\PostProcessEvent;
@@ -37,10 +39,9 @@ use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
-use App\Dto\Dto;
-use App\Dto\Referable;
 use App\Provider\Repository;
 use App\Service\HandlerProvider;
+use App\Service\HandlerProviderFactory;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -54,14 +55,15 @@ abstract class DatabaseRepository implements Repository
      * @var ProviderEntity
      */
     protected $provider;
+    protected readonly HandlerProvider $handlers;
 
     public function __construct(
         protected EntityManagerInterface $em,
         protected IdUtils $id,
         protected Converter $converter,
-        protected HandlerProvider $handlers
+        HandlerProviderFactory $handlerProviderFactory
     ) {
-        $this->handlers->loadConfiguration(array_merge([
+        $this->handlers = $handlerProviderFactory->createHandlerProvider(array_merge([
             IdConstraint::class    => IdFilterDatabaseHandler::class,
             LimitConstraint::class => LimitDatabaseHandler::class,
             FieldFilter::class     => FieldFilterDatabaseHandler::class,

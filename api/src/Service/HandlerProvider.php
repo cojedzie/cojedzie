@@ -26,16 +26,10 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class HandlerProvider
 {
-    private array $configuration = [];
-
     public function __construct(
-        private readonly ServiceLocator $handlerLocator
+        private readonly ServiceLocator $handlerLocator,
+        private readonly array $configuration = []
     ) {
-    }
-
-    public function loadConfiguration(array $providers)
-    {
-        $this->configuration = $providers;
     }
 
     public function get(Requirement $modifier)

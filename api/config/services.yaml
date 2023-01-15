@@ -100,6 +100,9 @@ services:
     arguments: [ !tagged_locator app.handler ]
     shared: false
 
+  App\Service\HandlerProviderFactory:
+    arguments: [ !tagged_locator app.handler ]
+
   App\Service\DataUpdater:
     arguments:
       $importers: !tagged_iterator app.data_importer
