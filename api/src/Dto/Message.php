@@ -22,15 +22,22 @@ namespace App\Dto;
 
 use Carbon\Carbon;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ContentType('vnd.cojedzie.message')]
-class Message implements Fillable, Dto
+class Message implements Fillable, Dto, Referable
 {
     use FillTrait;
+    use ReferableTrait;
 
     final public const TYPE_INFO      = 'info';
     final public const TYPE_BREAKDOWN = 'breakdown';
     final public const TYPE_UNKNOWN   = 'unknown';
+    final public const TYPES          = [
+        self::TYPE_UNKNOWN,
+        self::TYPE_INFO,
+        self::TYPE_BREAKDOWN,
+    ];
 
     /**
      * Message content.

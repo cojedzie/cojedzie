@@ -22,45 +22,49 @@ namespace App\Provider\ZtmGdansk;
 
 use App\Dto\Message;
 use App\Dto\Stop;
+use App\Filter\Requirement\Requirement;
+use App\Provider\InMemory\InMemoryRepository;
 use App\Provider\MessageRepository;
+use App\Service\HandlerProviderFactory;
+use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
+use Ds\Map;
 use Illuminate\Support\Collection;
 use Psr\Cache\CacheItemPoolInterface;
 
-class ZtmGdanskMessageRepository implements MessageRepository
+class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRepository
 {
     final public const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
 
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
-        private readonly ZtmGdanskMessageTypeClassifier $classifier
+        private readonly ZtmGdanskMessageTypeClassifier $classifier,
+        private readonly ReferenceFactory $referenceFactory,
+        HandlerProviderFactory $handlerProviderFactory
     ) {
+        parent::__construct($handlerProviderFactory);
     }
 
-    public function getAll(): Collection
+    public function all(Requirement ...$requirements): Collection
     {
-        return collect($this->queryZtmApi())->unique(fn ($message) => $message['messagePart1'] . $message['messagePart2'])->map(function ($message) {
-            $message = Message::createFromArray([
-                'message'   => trim($message['messagePart1'] . $message['messagePart2']),
-                'validFrom' => new Carbon($message['startDate']),
-                'validTo'   => new Carbon($message['endDate']),
-            ]);
+        $messagesFromApi = $this->getZtmMessages();
+        $messages        = new Map();
 
-            if ($type = $this->classifier->classify($message)) {
-                $message->setType($type);
-                return $message;
+        foreach ($messagesFromApi as $messageApiDto) {
+            $id = $this->generateIdFromApi($messageApiDto);
+
+            if (!isset($messages[$id])) {
+                $messages[$id] = $this->createMessageFromZtm($messageApiDto);
             }
+        }
 
-            return null;
-        })->filter()->values();
+        return $this->filterAndProcessResults(
+            result: collect($messages->filter())->values(),
+            requirements: $requirements
+        );
     }
 
-    public function getForStop(Stop $stop): Collection
-    {
-        return $this->getAll();
-    }
-
-    private function queryZtmApi()
+    private function getZtmMessages(): \Generator
     {
         $item = $this->cache->getItem('ztm-gdansk.messages');
 
@@ -73,6 +77,40 @@ class ZtmGdanskMessageRepository implements MessageRepository
             $this->cache->save($item);
         }
 
-        return $item->get();
+        yield from $item->get();
+    }
+
+    private function generateIdFromApi(array $ztmMessage): string
+    {
+        $message = $this->extractMessageFromZtm($ztmMessage);
+
+        // theoretically this could result in hash collision
+        // but due to similarity of strings this should be negligible
+        return md5($message);
+    }
+
+    private function createMessageFromZtm(array $ztmMessage): ?Message
+    {
+        $message = Message::createFromArray([
+            'id'        => $this->generateIdFromApi($ztmMessage),
+            'message'   => $this->extractMessageFromZtm($ztmMessage),
+            'validFrom' => new Carbon($ztmMessage['startDate']),
+            'validTo'   => new Carbon($ztmMessage['endDate']),
+        ]);
+
+        if ($type = $this->classifier->classify($message)) {
+            $message->setType($type);
+            return $message;
+        }
+
+        return null;
+    }
+
+    private function extractMessageFromZtm(array $ztmMessage): string
+    {
+        $message = trim($ztmMessage['messagePart1'] . $ztmMessage['messagePart2']);
+        $message = preg_replace('/\s+/', ' ', $message);
+
+        return $message;
     }
 }

@@ -20,12 +20,6 @@
 
 namespace App\Provider;
 
-use App\Dto\Stop;
-use Illuminate\Support\Collection;
-
-interface MessageRepository
+interface MessageRepository extends FluentRepository
 {
-    public function getAll(): Collection;
-
-    public function getForStop(Stop $stop): Collection;
 }

@@ -21,14 +21,15 @@
 namespace App\Provider\Dummy;
 
 use App\Dto\Message;
-use App\Dto\Stop;
+use App\Filter\Requirement\LimitConstraint;
+use App\Filter\Requirement\Requirement;
 use App\Provider\MessageRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class DummyMessageRepository implements MessageRepository
 {
-    public function getAll(): Collection
+    public function all(Requirement ...$requirements): Collection
     {
         return collect([
             Message::TYPE_INFO,
@@ -42,8 +43,8 @@ class DummyMessageRepository implements MessageRepository
         ]));
     }
 
-    public function getForStop(Stop $stop): Collection
+    public function first(Requirement ...$requirements)
     {
-        return $this->getAll();
+        return $this->all(LimitConstraint::count(1), ...$requirements)->first();
     }
 }
