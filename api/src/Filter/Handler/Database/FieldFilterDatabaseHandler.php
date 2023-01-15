@@ -20,14 +20,14 @@
 
 namespace App\Filter\Handler\Database;
 
+use App\Dto\ScheduledStop;
+use App\Dto\Stop;
+use App\Dto\TrackStop;
 use App\Event\HandleDatabaseModifierEvent;
 use App\Event\HandleModifierEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
-use App\Dto\ScheduledStop;
-use App\Dto\Stop;
-use App\Dto\TrackStop;
 use function App\Functions\encapsulate;
 
 class FieldFilterDatabaseHandler implements ModifierHandler

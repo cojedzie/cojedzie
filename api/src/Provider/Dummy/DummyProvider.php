@@ -20,8 +20,8 @@
 
 namespace App\Provider\Dummy;
 
-use App\Exception\NotSupportedException;
 use App\Dto\Location;
+use App\Exception\NotSupportedException;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;

@@ -21,6 +21,9 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\Stop;
+use App\Dto\StopGroup;
+use App\Dto\TrackStop;
 use App\Filter\Binding\Http\EmbedParameterBinding;
 use App\Filter\Binding\Http\FieldFilterParameterBinding;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
@@ -35,9 +38,6 @@ use App\Filter\Requirement\FieldFilterOperator;
 use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
-use App\Dto\Stop;
-use App\Dto\StopGroup;
-use App\Dto\TrackStop;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use Illuminate\Support\Collection;

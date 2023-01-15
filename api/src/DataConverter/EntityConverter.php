@@ -20,8 +20,8 @@
 
 namespace App\DataConverter;
 
-use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
 use App\Dto\{Dto, Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
+use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
 use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;

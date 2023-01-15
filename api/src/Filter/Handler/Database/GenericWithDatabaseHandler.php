@@ -20,14 +20,14 @@
 
 namespace App\Filter\Handler\Database;
 
-use App\Event\HandleDatabaseModifierEvent;
-use App\Event\HandleModifierEvent;
-use App\Filter\Handler\ModifierHandler;
-use App\Filter\Requirement\RelatedFilter;
 use App\Dto\ScheduledStop;
 use App\Dto\Track;
 use App\Dto\TrackStop;
 use App\Dto\Trip;
+use App\Event\HandleDatabaseModifierEvent;
+use App\Event\HandleModifierEvent;
+use App\Filter\Handler\ModifierHandler;
+use App\Filter\Requirement\RelatedFilter;
 use App\Service\EntityReferenceFactory;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;

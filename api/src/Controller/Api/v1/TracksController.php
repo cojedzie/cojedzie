@@ -21,13 +21,13 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\Line;
+use App\Dto\Stop;
+use App\Dto\Track;
 use App\Filter\Binding\Http\EmbedParameterBinding;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
-use App\Dto\Line;
-use App\Dto\Stop;
-use App\Dto\Track;
 use App\Provider\TrackRepository;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;

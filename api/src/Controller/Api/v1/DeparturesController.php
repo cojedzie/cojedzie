@@ -21,10 +21,10 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\Departure;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Requirement\IdConstraint;
-use App\Dto\Departure;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;

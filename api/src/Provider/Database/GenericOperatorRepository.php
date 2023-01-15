@@ -20,9 +20,9 @@
 
 namespace App\Provider\Database;
 
+use App\Dto\Operator;
 use App\Entity\OperatorEntity;
 use App\Filter\Requirement\Requirement;
-use App\Dto\Operator;
 use App\Provider\OperatorRepository;
 use Illuminate\Support\Collection;
 

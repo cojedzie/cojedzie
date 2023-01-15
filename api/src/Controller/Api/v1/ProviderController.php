@@ -22,8 +22,8 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\DataConverter\Converter;
-use App\Exception\NonExistentServiceException;
 use App\Dto\Dto;
+use App\Exception\NonExistentServiceException;
 use App\Service\ProviderResolver;
 use Kadet\Functional as f;
 use OpenApi\Annotations as OA;

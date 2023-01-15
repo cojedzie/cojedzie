@@ -20,6 +20,11 @@
 
 namespace App\Provider\ZtmGdansk;
 
+use App\Dto\Departure;
+use App\Dto\Line;
+use App\Dto\ScheduledStop;
+use App\Dto\Stop;
+use App\Dto\Vehicle;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
@@ -27,11 +32,6 @@ use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
-use App\Dto\Departure;
-use App\Dto\Line;
-use App\Dto\ScheduledStop;
-use App\Dto\Stop;
-use App\Dto\Vehicle;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;

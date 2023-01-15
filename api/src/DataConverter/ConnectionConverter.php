@@ -20,10 +20,10 @@
 
 namespace App\DataConverter;
 
-use App\Entity\Federation\FederatedConnectionEntity;
 use App\Dto\Dto;
 use App\Dto\Federation\Node;
 use App\Dto\Status\Aggregated;
+use App\Entity\Federation\FederatedConnectionEntity;
 use JMS\Serializer\SerializerInterface;
 
 class ConnectionConverter implements Converter

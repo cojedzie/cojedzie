@@ -21,6 +21,9 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\Stop;
+use App\Dto\Track;
+use App\Dto\TrackStop;
 use App\Filter\Binding\Http\FieldFilterParameterBinding;
 use App\Filter\Binding\Http\ImportFilterParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
@@ -29,9 +32,6 @@ use App\Filter\Binding\Http\ParameterBindingGroup;
 use App\Filter\Binding\Http\ParameterBindingProvider;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
 use App\Filter\Requirement\FieldFilterOperator;
-use App\Dto\Stop;
-use App\Dto\Track;
-use App\Dto\TrackStop;
 use App\Provider\TrackRepository;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;

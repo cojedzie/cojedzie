@@ -20,11 +20,11 @@
 
 namespace App\DataConverter;
 
-use App\Entity\TrackStopEntity;
-use App\Entity\TripStopEntity;
 use App\Dto\Dto;
 use App\Dto\ScheduledStop;
 use App\Dto\TrackStop;
+use App\Entity\TrackStopEntity;
+use App\Entity\TripStopEntity;
 
 class ScheduledStopConverter implements Converter, RecursiveConverter
 {

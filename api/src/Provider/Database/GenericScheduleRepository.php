@@ -20,13 +20,13 @@
 
 namespace App\Provider\Database;
 
+use App\Dto\Departure;
+use App\Dto\ScheduledStop;
+use App\Dto\Stop;
 use App\Entity\StopEntity;
 use App\Entity\TrackEntity;
 use App\Entity\TripStopEntity;
 use App\Filter\Requirement\Requirement;
-use App\Dto\Departure;
-use App\Dto\ScheduledStop;
-use App\Dto\Stop;
 use App\Provider\ScheduleRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;

@@ -20,15 +20,15 @@
 
 namespace App\Service;
 
+use App\Dto\Line;
+use App\Dto\Referable;
+use App\Dto\Stop;
+use App\Dto\Track;
 use App\Entity\LineEntity;
 use App\Entity\ProviderEntity;
 use App\Entity\StopEntity;
 use App\Entity\TrackEntity;
 use App\Exception\InvalidArgumentException;
-use App\Dto\Line;
-use App\Dto\Referable;
-use App\Dto\Stop;
-use App\Dto\Track;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\Collection;
 use function Kadet\Functional\partial;

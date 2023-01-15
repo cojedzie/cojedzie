@@ -34,7 +34,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
-    final public const RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
+    final public const RESOURCE_URL     = ZtmGdanskProvider::BASE_URL . "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
     final public const GDYNIA_STOPS_URL = "https://zkmgdynia.pl/stopsAPI/stopsList";
 
     public function __construct(
@@ -117,8 +117,8 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
             $name = trim($stop['stopName'] ?? $stop['stopDesc']);
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']) => [
-                'name'       => $name,
-                'variant'    => trim(
+                'name'    => $name,
+                'variant' => trim(
                     $stop['zoneName'] == 'Gdańsk'
                         ? $stop['stopCode'] ?? $stop['subName']
                         : $gdyniaStopVariants[$stop['stopId']] ?? null
@@ -138,7 +138,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
         $entries = array_map(
             fn ($stop) => isset($stop['stopId']) ? [
                 $stop['stopId'],
-                preg_replace('/^.*?(\d+)$/', '$1', $stop['stopName'] ?? '')
+                preg_replace('/^.*?(\d+)$/', '$1', $stop['stopName'] ?? ''),
             ] : null,
             $stops
         );

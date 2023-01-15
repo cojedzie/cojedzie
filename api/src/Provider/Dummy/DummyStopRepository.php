@@ -20,8 +20,8 @@
 
 namespace App\Provider\Dummy;
 
-use App\Filter\Requirement\Requirement;
 use App\Dto\Stop;
+use App\Filter\Requirement\Requirement;
 use App\Provider\StopRepository;
 use Illuminate\Support\Collection;
 use Kadet\Functional as f;

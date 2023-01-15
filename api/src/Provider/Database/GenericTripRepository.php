@@ -20,9 +20,9 @@
 
 namespace App\Provider\Database;
 
+use App\Dto\Trip;
 use App\Entity\TripEntity;
 use App\Filter\Requirement\Requirement;
-use App\Dto\Trip;
 use App\Provider\TripRepository;
 use Illuminate\Support\Collection;
 

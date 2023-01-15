@@ -21,10 +21,10 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\Trip;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
-use App\Dto\Trip;
 use App\Provider\TripRepository;
 use Symfony\Component\Routing\Annotation\Route;
 

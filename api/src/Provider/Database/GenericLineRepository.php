@@ -20,9 +20,9 @@
 
 namespace App\Provider\Database;
 
+use App\Dto\Line;
 use App\Entity\LineEntity;
 use App\Filter\Requirement\Requirement;
-use App\Dto\Line;
 use App\Provider\LineRepository;
 use Illuminate\Support\Collection;
 
