@@ -24,6 +24,7 @@ use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
 use JMS\Serializer\Annotation as Serializer;
 
+#[ContentType('vnd.cojedzie.trip')]
 class Trip implements Referable, Fillable, Dto
 {
     use ReferableTrait, FillTrait;

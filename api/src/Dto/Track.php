@@ -25,6 +25,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
+#[ContentType('vnd.cojedzie.track')]
 class Track implements Referable, Fillable, Dto
 {
     use ReferableTrait, FillTrait;

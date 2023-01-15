@@ -20,6 +20,7 @@
 
 namespace App\Dto;
 
+#[ContentType('vnd.cojedzie.track.stop')]
 class TrackStop implements Fillable, Dto
 {
     use FillTrait;

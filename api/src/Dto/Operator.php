@@ -22,6 +22,7 @@ namespace App\Dto;
 
 use JMS\Serializer\Annotation as Serializer;
 
+#[ContentType('vnd.cojedzie.operator')]
 class Operator implements Fillable, Referable, Dto
 {
     use FillTrait, ReferableTrait;

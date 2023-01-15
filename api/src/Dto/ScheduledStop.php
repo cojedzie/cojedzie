@@ -22,6 +22,7 @@ namespace App\Dto;
 
 use Carbon\Carbon;
 
+#[ContentType('vnd.cojedzie.trip.stop')]
 class ScheduledStop extends TrackStop
 {
     /**

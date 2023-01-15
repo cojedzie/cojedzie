@@ -26,6 +26,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
+#[ContentType('vnd.cojedzie.line')]
 class Line implements Fillable, Referable, Dto
 {
     final public const TYPE_TRAM       = 'tram';

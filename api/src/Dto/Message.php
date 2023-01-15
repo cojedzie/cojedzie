@@ -23,6 +23,7 @@ namespace App\Dto;
 use Carbon\Carbon;
 use OpenApi\Annotations as OA;
 
+#[ContentType('vnd.cojedzie.message')]
 class Message implements Fillable, Dto
 {
     use FillTrait;

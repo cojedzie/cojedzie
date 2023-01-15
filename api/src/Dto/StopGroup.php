@@ -25,11 +25,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-/**
- * Class StopGroup
- *
- * @package App\Model
- */
+#[ContentType('vnd.cojedzie.trip')]
 class StopGroup implements Dto
 {
     /**

@@ -24,6 +24,7 @@ use Carbon\Carbon;
 use JMS\Serializer\Annotation as Serializer;
 use OpenApi\Annotations as OA;
 
+#[ContentType('vnd.cojedzie.provider')]
 class Provider implements Fillable, Referable, Dto
 {
     use FillTrait;

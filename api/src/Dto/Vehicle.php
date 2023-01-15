@@ -20,6 +20,7 @@
 
 namespace App\Dto;
 
+#[ContentType('vnd.cojedzie.vehicle')]
 class Vehicle implements Referable, Fillable, Dto
 {
     use ReferableTrait, FillTrait;

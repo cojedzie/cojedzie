@@ -30,6 +30,7 @@ use OpenApi\Annotations as OA;
  *
  * @package App\Model
  */
+#[ContentType('vnd.cojedzie.stop')]
 class Stop implements Referable, Fillable, Dto
 {
     use FillTrait, ReferableTrait;
