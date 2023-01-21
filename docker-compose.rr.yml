@@ -18,6 +18,8 @@ services:
       - .docker-compose/api/.env
       - api/.env.local
     environment:
+      - APP_MODE=${APP_MODE:-debug}
+      - CORS_ALLOW_ORIGIN=*
       - TRUSTED_PROXIES=172.0.0.0/8
     ports:
       - 8888:8080
@@ -27,17 +29,46 @@ services:
     command: ["rr", "serve", "-c", ".rr.yaml"]
 
   frontend:
-    image: node:15.2.1
+    image: node:16
     working_dir: /app
     environment:
-      - APP_API=http://nginx/api
+      - COJEDZIE_MODE=development
+      - COJEDZIE_API=http://nginx/api
+      - COJEDZIE_API_HUB=http://cojedzie.localhost
+      - COJEDZIE_MAPTILER_KEY
     volumes:
       - ./front:/app
+    ports:
+      - '3001:3001' # required for vite HMR
     command: ["node", "build/server.js"]
 
-  blackfire:
-    image: blackfire/blackfire
-    ports: ["8707"]
+  mysql:
+    image: mariadb:10.7
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
     environment:
-      - BLACKFIRE_SERVER_ID
-      - BLACKFIRE_SERVER_TOKEN
+      - MYSQL_USER=cojedzie
+      - MYSQL_PASSWORD=cojedzie
+      - MYSQL_DATABASE=cojedzie
+      - MARIADB_RANDOM_ROOT_PASSWORD=1
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  mercure:
+    image: dunglas/mercure
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ':80'
+      USE_FORWARDED_HEADERS: 1
+      MERCURE_PUBLISHER_JWT_KEY: '!ChangeMe!'
+      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeMe!'
+    command: /usr/bin/caddy run -config /etc/caddy/Caddyfile.dev
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+  mysql_data:
