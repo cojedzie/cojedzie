@@ -56,6 +56,16 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
             if (!isset($messages[$id])) {
                 $messages[$id] = $this->createMessageFromZtm($messageApiDto);
             }
+
+            $message = $messages[$id];
+
+            if (!$message) {
+                continue;
+            }
+
+            if ($stop = $this->extractStopFromZtm($messageApiDto)) {
+                $message->getRefs()->stops->add($stop);
+            }
         }
 
         return $this->filterAndProcessResults(
@@ -104,6 +114,14 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         }
 
         return null;
+    }
+
+    private function extractStopFromZtm(array $ztmMessage): Stop
+    {
+        return $this->referenceFactory->get(
+            Stop::class,
+            $ztmMessage['displayCode'],
+        );
     }
 
     private function extractMessageFromZtm(array $ztmMessage): string

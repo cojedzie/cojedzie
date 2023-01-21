@@ -24,11 +24,16 @@ use App\Dto\Message;
 
 class ZtmGdanskMessageTypeClassifier
 {
-    public function classify(Message $message): string
+    public function classify(Message $message): string|false
     {
         return match (true) {
-            preg_match('/(awari|opóźnie)/i', $message->getMessage()) => Message::TYPE_BREAKDOWN,
-            preg_match('#gdansk.pl/powietrze#i', $message->getMessage()) => false,
+            preg_match('/(awari|opóźnie)/i', $message->getMessage()) > 0
+                => Message::TYPE_BREAKDOWN,
+
+            preg_match('#gdansk.pl/powietrze#i', $message->getMessage()) > 0,
+            preg_match('#TEST#i', $message->getMessage()) > 0
+                => false,
+
             default => Message::TYPE_INFO,
         };
     }
