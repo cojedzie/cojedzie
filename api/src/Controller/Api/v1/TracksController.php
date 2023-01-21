@@ -21,6 +21,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\CollectionResult;
 use App\Dto\Line;
 use App\Dto\Stop;
 use App\Dto\Track;
@@ -50,6 +51,10 @@ class TracksController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="Returns all tracks for specific provider, e.g. ZTM Gdańsk.",
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.collection+json",
+     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
+     *     ),
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * )
      */
@@ -75,6 +80,10 @@ class TracksController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="List of track stops matching given criteria.",
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.collection+json",
+     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
+     *     ),
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=TrackStop::class)))
      * )
      *

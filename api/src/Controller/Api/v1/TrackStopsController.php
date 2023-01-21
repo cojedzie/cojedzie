@@ -21,6 +21,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\CollectionResult;
 use App\Dto\Stop;
 use App\Dto\Track;
 use App\Dto\TrackStop;
@@ -52,6 +53,10 @@ class TrackStopsController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="List of track stops matching given criteria.",
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.collection+json",
+     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
+     *     ),
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=TrackStop::class)))
      * )
      *

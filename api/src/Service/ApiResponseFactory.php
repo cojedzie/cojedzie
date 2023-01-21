@@ -53,7 +53,21 @@ class ApiResponseFactory
         array $context = [],
         Request $request = null,
     ): Response {
-        $list = array_values(IterableUtils::toArray($items));
+        $request ??= $this->requestStack->getCurrentRequest();
+
+        $accept = AcceptHeader::fromString($request->headers->get('Accept'));
+
+        if ($accept->has("application/vnd.cojedzie.collection+json")) {
+            $list = CollectionResult::createFromIterable(
+                items: $items,
+                total: count($items),
+                links: new CollectionLinks(
+                    self: new Link($request->getUri()),
+                )
+            );
+        } else {
+            $list = array_values(IterableUtils::toArray($items));
+        }
 
         return $this->createResponse($list, $status, $headers, $context, $request);
     }

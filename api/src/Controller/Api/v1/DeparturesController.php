@@ -21,6 +21,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\CollectionResult;
 use App\Dto\Departure;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
@@ -45,6 +46,10 @@ class DeparturesController extends Controller
      * @OA\Response(
      *     description="List of departures valid at time of request",
      *     response=200,
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.collection+json",
+     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
+     *     ),
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Departure::class)))
      * )
      */

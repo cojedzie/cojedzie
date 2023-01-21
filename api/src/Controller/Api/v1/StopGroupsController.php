@@ -3,6 +3,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\CollectionResult;
 use App\Dto\Stop;
 use App\Dto\StopGroup;
 use App\Filter\Binding\Http\ParameterBindingProvider;
@@ -27,6 +28,10 @@ class StopGroupsController extends Controller
      * @OA\Response(
      *     response=200,
      *     description="List of stop groups.",
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.collection+json",
+     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
+     *     ),
      *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=StopGroup::class)))
      * )
      *

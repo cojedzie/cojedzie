@@ -22,7 +22,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\DataConverter\Converter;
-use App\Dto\{Dto, Provider};
+use App\Dto\{CollectionResult, Dto, Provider};
 use App\Exception\NonExistentServiceException;
 use App\Service\ProviderResolver;
 use Kadet\Functional as f;
@@ -44,6 +44,10 @@ class ProviderController extends Controller
      * @OA\Response(
      *     description="List of available data providers.",
      *     response=200,
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.collection+json",
+     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
+     *     ),
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Provider::class)))
      * )
      */
