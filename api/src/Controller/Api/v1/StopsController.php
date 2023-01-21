@@ -21,9 +21,9 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
+use App\Dto\Departure;
 use App\Dto\Stop;
-use App\Dto\StopGroup;
-use App\Dto\TrackStop;
+use App\Dto\Track;
 use App\Filter\Binding\Http\EmbedParameterBinding;
 use App\Filter\Binding\Http\FieldFilterParameterBinding;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
@@ -38,19 +38,15 @@ use App\Filter\Requirement\FieldFilterOperator;
 use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
+use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
-use Illuminate\Support\Collection;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class StopsController
- *
- * @package App\Controller
- *
  * @OA\Tag(name="Stops")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */
@@ -58,15 +54,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class StopsController extends Controller
 {
     /**
+     * List stops.
+     *
      * @OA\Response(
      *     response=200,
-     *     description="Returns all stops for specific provider, e.g. ZTM Gdańsk.",
+     *     description="List of stops matching given criteria.",
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      * )
      *
      * @psalm-param iterable<Requirement> $requirements
      */
-    #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.0'])]
+    #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.1'])]
     #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
     public function index(
         StopRepository $stopRepository,
@@ -74,58 +72,45 @@ class StopsController extends Controller
     ): Response {
         $stops = $stopRepository->all(...$requirements);
 
-        return $this->json($stops);
+        return $this->apiResponseFactory->createCollectionResponse($stops);
     }
 
     /**
-     * @OA\Response(
-     *     response=200,
-     *     description="Returns grouped stops for specific provider, e.g. ZTM Gdańsk.",
-     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=StopGroup::class)))
-     * )
+     * Get information about specific stop.
      *
-     * @psalm-param iterable<Requirement> $requirements
-     */
-    #[Route(path: '/groups', name: 'groups', methods: ['GET'], options: ['version' => '1.0'])]
-    #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
-    public function groups(
-        StopRepository $stopRepository,
-        iterable $requirements
-    ): Response {
-        $groups = static::group($stopRepository->all(...$requirements))->toArray();
-
-        return $this->json($groups);
-    }
-
-    /**
      * @OA\Response(
      *     response=200,
-     *     description="Returns specific stop referenced via identificator.",
-     *     @OA\JsonContent(ref=@Model(type=Stop::class))
+     *     description="Stop details.",
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.stop+json",
+     *          @OA\Schema(ref=@Model(type=Stop::class))
+     *     ),
      * )
      */
-    #[Route(path: '/{stop}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
+    #[Route(path: '/{stop}', name: 'details', methods: ['GET'], options: ['version' => '1.2'])]
     public function one(
         StopRepository $stopRepository,
         #[IdConstraintParameterBinding(parameter: 'stop', from: ['attributes'])]
-        IdConstraint $stop
+        IdConstraint $id
     ): Response {
-        return $this->json(
-            $stopRepository->first(
-                $stop,
-                new Embed("destinations")
-            )
+        $stop = $stopRepository->first(
+            $id,
+            new Embed("destinations")
         );
+
+        return $this->apiResponseFactory->createResponse($stop);
     }
 
     /**
+     * List tracks containing specific stop.
+     *
      * @OA\Response(
      *     response=200,
-     *     description="Returns specific stop referenced via identificator.",
-     *     @OA\JsonContent(ref=@Model(type=TrackStop::class))
+     *     description="List of tracks",
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * )
      */
-    #[Route(path: '/{stop}/tracks', name: 'tracks', methods: ['GET'], options: ['version' => '1.0'])]
+    #[Route(path: '/{stop}/tracks', name: 'tracks', methods: ['GET'], options: ['version' => '1.1'])]
     public function tracks(
         TrackRepository $trackRepository,
         #[RelatedFilterParameterBinding(parameter: 'stop', resource: Stop::class, from: ['attributes'])]
@@ -133,23 +118,35 @@ class StopsController extends Controller
     ): Response {
         $stops = $trackRepository->stops($stop);
 
-        return $this->json($stops);
+        return $this->apiResponseFactory->createCollectionResponse($stops);
     }
 
-    public static function group(Collection $stops)
-    {
-        return $stops->groupBy(
-            fn (Stop $stop) => $stop->getGroup()
-        )->map(
-            function ($stops, $key) {
-                $group = new StopGroup();
+    /**
+     * List departures for given stop.
+     *
+     * @OA\Response(
+     *     description="List of departures valid at the time of the request",
+     *     response=200,
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Departure::class)))
+     * )
+     */
+    #[Route(path: '/{stop}/departures', name: 'departures', methods: ['GET'], options: ['version' => '1.2'])]
+    #[LimitParameterBinding]
+    public function departures(
+        DepartureRepository $departureRepository,
+        StopRepository $stopRepository,
+        #[IdConstraintParameterBinding(parameter: 'stop', from: ["attributes"])]
+        IdConstraint $stop,
+        array $requirements
+    ): Response {
+        $stops = $stopRepository->all($stop);
 
-                $group->setName($key);
-                $group->setStops($stops);
+        $departures = $departureRepository->current(
+            $stops,
+            ...$requirements
+        );
 
-                return $group;
-            }
-        )->values();
+        return $this->apiResponseFactory->createCollectionResponse($departures);
     }
 
     /**

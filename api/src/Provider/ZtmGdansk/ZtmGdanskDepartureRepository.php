@@ -68,7 +68,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
 
         $result = $this->pair($scheduled, $real)->filter(fn (Departure $departure) => $departure->getDeparture() > $now);
 
-        return $this->processResultWithRequirements($result, $requirements);
+        return $this->processResultWithRequirements($result, $requirements)->values();
     }
 
     private function getRealDepartures(Stop $stop)

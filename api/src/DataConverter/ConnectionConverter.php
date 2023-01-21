@@ -24,7 +24,7 @@ use App\Dto\Dto;
 use App\Dto\Federation\Node;
 use App\Dto\Status\Aggregated;
 use App\Entity\Federation\FederatedConnectionEntity;
-use JMS\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class ConnectionConverter implements Converter
 {

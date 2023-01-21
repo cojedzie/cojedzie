@@ -25,12 +25,33 @@ use App\Dto\Trip;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
+use App\Filter\Requirement\Requirement;
 use App\Provider\TripRepository;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @OA\Tag(name="Trips")
+ * @OA\Parameter(ref="#/components/parameters/provider")
+ */
 #[Route(path: '/{provider}/trips', name: 'trip_')]
 class TripController extends Controller
 {
+    /**
+     * Get information about specific trip.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Trip details.",
+     *     @OA\MediaType(
+     *          mediaType="application/vnd.cojedzie.trip+json",
+     *          @OA\Schema(ref=@Model(type=Trip::class))
+     *     )
+     * )
+     *
+     * @psalm-param iterable<Requirement> $requirements
+     */
     #[Route(path: '/{id}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
     public function one(
         #[IdConstraintParameterBinding(from: ['attributes'])]
@@ -42,9 +63,6 @@ class TripController extends Controller
             new Embed('schedule')
         );
 
-        return $this->json(
-            data: $trip,
-            context: $this->serializerContextFactory->create(Trip::class)
-        );
+        return $this->apiResponseFactory->createResponse($trip);
     }
 }

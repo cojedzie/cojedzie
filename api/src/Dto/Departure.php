@@ -22,7 +22,6 @@ namespace App\Dto;
 
 use App\Serialization\SerializeAs;
 use Carbon\Carbon;
-use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Context;
@@ -47,7 +46,7 @@ class Departure implements Fillable, Dto
 
     /**
      * Information about line.
-     * @OA\Property(ref=@Model(type=Track::class, groups={"Reference"}))
+     * @OA\Property(ref=@Model(type=Track::class, groups={"reference"}))
      */
     #[Context(context: [
         AbstractNormalizer::GROUPS => ['reference'],
@@ -57,7 +56,7 @@ class Departure implements Fillable, Dto
 
     /**
      * Information about line.
-     * @OA\Property(ref=@Model(type=Trip::class, groups={"Reference"}))
+     * @OA\Property(ref=@Model(type=Trip::class, groups={"reference"}))
      */
     #[Context(context: [
         AbstractNormalizer::GROUPS => ['reference'],
@@ -192,8 +191,6 @@ class Departure implements Fillable, Dto
     /**
      * @OA\Property(type="int")
      */
-    #[Serializer\VirtualProperty]
-    #[Serializer\Type('int')]
     public function getDelay(): ?int
     {
         return $this->getEstimated()

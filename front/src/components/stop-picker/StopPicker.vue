@@ -91,7 +91,7 @@ export default class StopPicker extends Vue {
 
         this.state = 'fetching';
         try {
-            const response = await api.get('v1_stop_groups', {
+            const response = await api.get('v1_stop_group_list', {
                 query: {
                     name: this.filter,
                     'embed': 'destinations'

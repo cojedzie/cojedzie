@@ -29,12 +29,10 @@ use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class DeparturesController
- *
  * @OA\Tag(name="Departures")
  * @OA\Parameter(ref="#/components/parameters/provider")
  */
@@ -42,39 +40,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class DeparturesController extends Controller
 {
     /**
+     * List departures.
+     *
      * @OA\Response(
-     *     description="Gets departures from particular stop.",
+     *     description="List of departures valid at time of request",
      *     response=200,
      *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Departure::class)))
      * )
      */
-    #[Route(path: '/{stop}', name: 'stop', methods: ['GET'], options: ['version' => '1.0'])]
-    #[LimitParameterBinding]
-    public function stop(
-        DepartureRepository $departureRepository,
-        StopRepository $stopRepository,
-        #[IdConstraintParameterBinding(parameter: 'stop', from: ["attributes"])]
-        IdConstraint $stop,
-        array $requirements
-    ) {
-        $stop = $stopRepository->first($stop);
-
-        return $this->json($departureRepository->current(collect($stop), ...$requirements));
-    }
-
-    /**
-     * @OA\Response(
-     *     description="Gets departures from given stops.",
-     *     response=200,
-     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=Departure::class)))
-     * )
-     */
-    #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
+    #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.1'])]
     #[LimitParameterBinding]
     public function stops(
         DepartureRepository $departureRepository,
         StopRepository $stopRepository,
-        Request $request,
         #[IdConstraintParameterBinding(
             parameter: 'stop',
             documentation: [
@@ -83,13 +61,10 @@ class DeparturesController extends Controller
         )]
         ?IdConstraint $stops,
         array $requirements
-    ) {
-        $stopRepository = $stopRepository->all($stops);
-        $result         = $departureRepository->current($stopRepository, ...$requirements);
+    ): Response {
+        $stops      = $stopRepository->all($stops);
+        $departures = $departureRepository->current($stops, ...$requirements);
 
-        return $this->json(
-            $result->values()->slice(0, (int) $request->query->get('limit', 8)),
-            context: $this->serializerContextFactory->create(Departure::class, ['Default'])
-        );
+        return $this->apiResponseFactory->createCollectionResponse($departures);
     }
 }

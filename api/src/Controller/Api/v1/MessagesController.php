@@ -45,7 +45,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class MessagesController extends Controller
 {
     /**
-     * Obtain messages from given provider.
+     * Obtain messages.
      *
      * @OA\Response(
      *     response=200,
@@ -65,7 +65,7 @@ class MessagesController extends Controller
     ): Response {
         $messages = $messageRepository->all(...$requirements);
 
-        return $this->json($messages);
+        return $this->apiResponseFactory->createCollectionResponse($messages);
     }
 
     /**
@@ -95,16 +95,16 @@ class MessagesController extends Controller
                     'description' => sprintf(
                         'Select only messages with type %s.',
                         match ($op) {
-                            FieldFilterOperator::Equals => 'equal to specified value',
+                            FieldFilterOperator::Equals    => 'equal to specified value',
                             FieldFilterOperator::NotEquals => 'not equal to specified value',
-                            FieldFilterOperator::In => 'equal to one of specified values',
-                            FieldFilterOperator::NotIn => 'not equal to any of specified values',
-                            default => throw new NonReachableException(),
+                            FieldFilterOperator::In        => 'equal to one of specified values',
+                            FieldFilterOperator::NotIn     => 'not equal to any of specified values',
+                            default                        => throw new NonReachableException(),
                         }
                     ),
                     'schema' => $op->isSetOperator()
                         ? [
-                            'type' => 'array',
+                            'type'  => 'array',
                             'items' => $typeFilterSchema,
                         ]
                         : $typeFilterSchema,

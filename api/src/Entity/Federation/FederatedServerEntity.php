@@ -26,7 +26,6 @@ use App\Dto\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Uid\Uuid;
@@ -67,7 +66,6 @@ class FederatedServerEntity implements Referable, Fillable
      * @var Collection<FederatedConnectionEntity>
      */
     #[ORM\OneToMany(targetEntity: FederatedConnectionEntity::class, cascade: ['persist'], mappedBy: 'server', orphanRemoval: true)]
-    #[Serializer\Groups(['Connections', 'All'])]
     #[Groups(['connections', 'all'])]
     private readonly Collection $connections;
 
@@ -75,7 +73,6 @@ class FederatedServerEntity implements Referable, Fillable
      * Secret for that server required for authenticating some endpoints.
      */
     #[ORM\Column(type: 'string')]
-    #[Serializer\Exclude]
     #[Ignore]
     private string $secret;
 

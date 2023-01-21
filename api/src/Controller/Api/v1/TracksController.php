@@ -24,28 +24,36 @@ use App\Controller\Controller;
 use App\Dto\Line;
 use App\Dto\Stop;
 use App\Dto\Track;
+use App\Dto\TrackStop;
 use App\Filter\Binding\Http\EmbedParameterBinding;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
+use App\Filter\Binding\Http\ParameterBindingProvider;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
+use App\Filter\Requirement\Requirement;
 use App\Provider\TrackRepository;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @OA\Tag(name="Tracks")
+ * @OA\Parameter(ref="#/components/parameters/provider")
  */
 #[Route(path: '/{provider}/tracks', name: 'track_')]
 class TracksController extends Controller
 {
     /**
+     * List tracks.
+     *
      * @OA\Response(
      *     response=200,
      *     description="Returns all tracks for specific provider, e.g. ZTM Gdańsk.",
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * )
      */
-    #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
+    #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.1'])]
     #[RelatedFilterParameterBinding(Stop::class, 'stop', relationship: 'stop')]
     #[RelatedFilterParameterBinding(Stop::class, 'destination', relationship: 'destination')]
     #[RelatedFilterParameterBinding(Line::class, 'line')]
@@ -56,23 +64,30 @@ class TracksController extends Controller
         TrackRepository $trackRepository,
         array $requirements
     ): Response {
-        return $this->json($trackRepository->all(...$requirements));
+        $tracks = $trackRepository->all(...$requirements);
+
+        return $this->apiResponseFactory->createCollectionResponse($tracks);
     }
 
     /**
-     * @OA\Tag(name="Tracks")
+     * List stops in specific track.
      *
-     * @OA\Response(response=200, description="Stops related to specified query.")
+     * @OA\Response(
+     *     response=200,
+     *     description="List of track stops matching given criteria.",
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=TrackStop::class)))
+     * )
+     *
+     * @psalm-param iterable<Requirement> $requirements
      */
-    #[Route(path: '/stops', name: 'stops', methods: ['GET'], options: ['version' => '1.0'])]
     #[Route(path: '/{track}/stops', name: 'stops_in_track', methods: ['GET'], options: ['version' => '1.0'])]
-    #[RelatedFilterParameterBinding(Stop::class, 'stop')]
-    #[RelatedFilterParameterBinding(Track::class, 'track', from: ["attributes", "query"])]
-    #[IdConstraintParameterBinding]
+    #[ParameterBindingProvider([TrackStopsController::class, 'getParameterBindings'])]
     public function stops(
         TrackRepository $trackRepository,
         array $requirements
     ): Response {
-        return $this->json($trackRepository->stops(...$requirements));
+        $stops = $trackRepository->stops(...$requirements);
+
+        return $this->apiResponseFactory->createCollectionResponse($stops);
     }
 }

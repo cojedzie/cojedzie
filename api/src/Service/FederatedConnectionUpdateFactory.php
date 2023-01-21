@@ -23,8 +23,8 @@ namespace App\Service;
 use App\DataConverter\Converter;
 use App\Dto\Dto;
 use App\Entity\Federation\FederatedConnectionEntity;
-use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Mercure\Update;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class FederatedConnectionUpdateFactory
 {

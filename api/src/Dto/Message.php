@@ -63,6 +63,14 @@ class Message implements Fillable, Dto, Referable
      */
     private ?Carbon $validTo = null;
 
+    #[SerializedName('$refs')]
+    private MessageRefs $refs;
+
+    public function __construct()
+    {
+        $this->refs = new MessageRefs();
+    }
+
     public function getMessage(): string
     {
         return $this->message;
@@ -101,5 +109,10 @@ class Message implements Fillable, Dto, Referable
     public function setValidTo(?Carbon $validTo): void
     {
         $this->validTo = $validTo;
+    }
+
+    public function getRefs(): MessageRefs
+    {
+        return $this->refs;
     }
 }

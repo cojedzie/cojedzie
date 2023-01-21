@@ -32,44 +32,56 @@ use App\Filter\Binding\Http\ParameterBindingGroup;
 use App\Filter\Binding\Http\ParameterBindingProvider;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
 use App\Filter\Requirement\FieldFilterOperator;
+use App\Filter\Requirement\Requirement;
 use App\Provider\TrackRepository;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @OA\Tag(name="Tracks")
+ * @OA\Parameter(ref="#/components/parameters/provider")
+ */
 #[Route(path: '/{provider}/track-stops', name: 'track_stops_')]
 class TrackStopsController extends Controller
 {
     /**
-     * @OA\Tag(name="Track Stop")
+     * List track stops.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="List of track stops matching given criteria.",
+     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=TrackStop::class)))
+     * )
+     *
+     * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(name: 'list', methods: ['GET'])]
+    #[RelatedFilterParameterBinding(
+        parameter: 'stop',
+        resource: Stop::class,
+        documentation: [
+            'description' => 'Select only records related to the specified stop.',
+        ]
+    )]
+    #[ParameterBindingProvider([__CLASS__, 'getParameterBindings'])]
     public function list(
         TrackRepository $trackRepository,
-        #[ParameterBindingProvider([__CLASS__, 'getParameterBindings'])]
         array $requirements
     ): Response {
         $stops = $trackRepository->stops(...$requirements);
 
-        return $this->json(
-            $stops,
-            context: $this->serializerContextFactory->create(TrackStop::class)
-        );
+        return $this->apiResponseFactory->createResponse($stops);
     }
 
     public static function getParameterBindings(): ParameterBinding
     {
         return new ParameterBindingGroup(
             new RelatedFilterParameterBinding(
-                parameter: 'stop',
-                resource: Stop::class,
-                documentation: [
-                    'description' => 'Select only records related to the specified stop.',
-                ]
-            ),
-            new RelatedFilterParameterBinding(
                 parameter: 'track',
                 resource: Track::class,
+                from: ['attributes', 'query'],
                 documentation: [
                     'description' => 'Select only records related to the specified track.',
                 ]

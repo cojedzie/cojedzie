@@ -37,15 +37,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             DoctrineAnnotationClassToAttributeRector::REMOVE_ANNOTATIONS => false,
         ]);
 
-    $services
-        ->set(AnnotationToAttributeRector::class)
-        ->configure([
-            new AnnotationToAttribute(\JMS\Serializer\Annotation\Type::class),
-            new AnnotationToAttribute(\JMS\Serializer\Annotation\Groups::class),
-            new AnnotationToAttribute(\JMS\Serializer\Annotation\Exclude::class),
-            new AnnotationToAttribute(\JMS\Serializer\Annotation\VirtualProperty::class),
-            new AnnotationToAttribute(\JMS\Serializer\Annotation\SerializedName::class),
-
-            new AnnotationToAttribute(\App\Serialization\SerializeAs::class),
-        ]);
+    $services->set(AnnotationToAttributeRector::class);
 };

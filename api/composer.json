@@ -17,7 +17,6 @@
     "doctrine/doctrine-migrations-bundle": "^2",
     "doctrine/orm": "^2",
     "illuminate/collections": "^8.83",
-    "jms/serializer-bundle": "^4.0",
     "kadet/functional": "dev-master",
     "nelmio/api-doc-bundle": "^4.2",
     "nelmio/cors-bundle": "^2.1",

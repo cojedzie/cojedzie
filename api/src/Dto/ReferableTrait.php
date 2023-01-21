@@ -20,7 +20,6 @@
 
 namespace App\Dto;
 
-use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 trait ReferableTrait
@@ -30,7 +29,6 @@ trait ReferableTrait
      *
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
-    #[Serializer\Groups(['Default', 'Reference', 'Minimal'])]
     #[Groups(['default', 'reference', 'minimal'])]
     private string $id;
 

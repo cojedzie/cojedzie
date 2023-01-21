@@ -21,7 +21,6 @@
 namespace App\Dto;
 
 use Illuminate\Support\Collection;
-use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -77,12 +76,11 @@ class Stop implements Referable, Fillable, Dto
     /**
      * Collection of possible destination stops.
      *
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Destination::class, groups={"Default"})))
+     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Destination::class, groups={"default"})))
      *
      * @var Collection<Destination>
      */
-    #[Serializer\Groups(['WithDestinations'])]
-    #[Groups(['with-destinations'])]
+    #[Groups(['embed:destinations'])]
     private Collection $destinations;
 
     public function __construct()

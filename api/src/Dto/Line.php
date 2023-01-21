@@ -22,7 +22,6 @@ namespace App\Dto;
 
 use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
-use JMS\Serializer\Annotation as Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Context;
@@ -72,9 +71,8 @@ class Line implements Fillable, Referable, Dto
 
     /**
      * Line operator
-     * @OA\Property(ref=@Model(type=Operator::class, groups={"Reference"}))
+     * @OA\Property(ref=@Model(type=Operator::class, groups={"reference"}))
      */
-    #[SerializeAs(['Default' => 'Reference'])]
     #[Context(context: [AbstractNormalizer::GROUPS => ['reference']])]
     private Operator $operator;
 
@@ -83,7 +81,6 @@ class Line implements Fillable, Referable, Dto
      * @OA\Property(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * @var Collection<Track>
      */
-    #[Serializer\Groups(['Full'])]
     #[Groups(['full'])]
     private Collection $tracks;
 

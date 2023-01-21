@@ -21,9 +21,8 @@
 namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
-use App\Service\SerializerContextFactory;
+use App\Service\ApiResponseFactory;
 use App\Service\StatusService;
-use JMS\Serializer\SerializerInterface;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,11 +38,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class StatusController extends Controller
 {
     public function __construct(
-        SerializerInterface $serializer,
-        SerializerContextFactory $serializerContextFactory,
+        ApiResponseFactory $apiResponseFactory,
         private readonly StatusService $service
     ) {
-        parent::__construct($serializer, $serializerContextFactory);
+        parent::__construct($apiResponseFactory);
     }
 
     #[Route(path: '', name: 'aggregated', methods: ['GET'], options: ['version' => '1.1'])]
@@ -63,8 +61,8 @@ class StatusController extends Controller
     #[Route(path: '/time', name: 'time', methods: ['GET'], options: ['version' => '1.0'])]
     public function time(): Response
     {
-        $endpoints = $this->service->getTimeStatus();
-        return $this->json($endpoints);
+        $time = $this->service->getTimeStatus();
+        return $this->json($time);
     }
 
     #[Route(path: '/version', name: 'version', methods: ['GET'], options: ['version' => '1.0'])]

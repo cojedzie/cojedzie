@@ -8,6 +8,19 @@ use ReflectionClass;
 
 class ContentTypeResolver
 {
+    public function getContentType(mixed $value): ?string
+    {
+        if (is_object($value)) {
+            return $this->getContentTypeForObject($value);
+        }
+
+        if (is_string($value) && class_exists($value)) {
+            return $this->getContentTypeForClass($value);
+        }
+
+        return null;
+    }
+
     public function getContentTypeForObject(object $object): ?string
     {
         if ($object instanceof DynamicContentType) {

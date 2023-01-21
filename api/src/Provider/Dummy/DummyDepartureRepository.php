@@ -62,6 +62,6 @@ class DummyDepartureRepository implements DepartureRepository
                     'type'                                     => $type,
                 ]),
             ]);
-        });
+        })->values();
     }
 }

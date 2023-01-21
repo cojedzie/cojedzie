@@ -25,9 +25,8 @@ use App\DataConverter\Converter;
 use App\Dto\Dto;
 use App\Dto\Federation\Node;
 use App\Repository\FederatedConnectionEntityRepository;
-use App\Service\SerializerContextFactory;
+use App\Service\ApiResponseFactory;
 use App\Service\StatusService;
-use JMS\Serializer\SerializerInterface;
 use Kadet\Functional as f;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
@@ -50,12 +49,11 @@ use Symfony\Component\Uid\NilUuid;
 class NetworkController extends Controller
 {
     public function __construct(
-        SerializerInterface $serializer,
-        SerializerContextFactory $serializerContextFactory,
+        ApiResponseFactory $apiResponseFactory,
         private readonly StatusService $status,
         private readonly UrlGeneratorInterface $urlGenerator
     ) {
-        parent::__construct($serializer, $serializerContextFactory);
+        parent::__construct($apiResponseFactory);
     }
 
     /**

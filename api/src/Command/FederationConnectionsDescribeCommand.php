@@ -3,13 +3,12 @@
 namespace App\Command;
 
 use App\Repository\FederatedConnectionEntityRepository;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Uid\Uuid;
 
 class FederationConnectionsDescribeCommand extends Command
@@ -44,11 +43,7 @@ class FederationConnectionsDescribeCommand extends Command
             return Command::FAILURE;
         }
 
-        $serialized = $this->serializer->serialize(
-            $connection,
-            'json',
-            SerializationContext::create()->setGroups(['Default'])
-        );
+        $serialized = $this->serializer->serialize($connection, 'json');
 
         $io->write($serialized);
 
