@@ -98,6 +98,8 @@ class ZtmGdanskProvider implements Provider
         $this->tracks     = $tracks;
         $this->entity     = $provider;
         $this->trips      = $trips;
+
+        $this->messages->setProvider($provider);
     }
 
     public function getDepartureRepository(): DepartureRepository

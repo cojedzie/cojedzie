@@ -17,7 +17,7 @@ class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
     ) {
     }
 
-    public function normalize($object, string $format = null, array $context = []): array
+    public function normalize($object, string $format = null, array $context = []): array|\ArrayObject
     {
         $normalized = $this->decorated->normalize($object, $format, $context);
 
@@ -29,7 +29,16 @@ class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
             context: $context
         ));
 
-        return $event->getNormalized();
+        $processed = $event->getNormalized();
+
+        foreach ($processed as $key => $value) {
+            // Skip empty magic properties
+            if ($key[0] === '$' && $this->isEmpty($value)) {
+                unset($processed[$key]);
+            }
+        }
+
+        return $processed;
     }
 
     public function supportsNormalization($data, string $format = null): bool
@@ -40,5 +49,14 @@ class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
     public function setSerializer(SerializerInterface $serializer)
     {
         $this->decorated->setSerializer($serializer);
+    }
+
+    private function isEmpty(mixed $value)
+    {
+        if (is_countable($value)) {
+            return count($value) == 0;
+        }
+
+        return empty($value);
     }
 }

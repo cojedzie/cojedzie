@@ -20,15 +20,22 @@
 
 namespace App\Provider\ZtmGdansk;
 
+use App\Dto\Line;
 use App\Dto\Message;
 use App\Dto\Stop;
+use App\Entity\ProviderEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\InMemory\InMemoryRepository;
+use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Service\HandlerProviderFactory;
+use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Ds\Map;
+use Ds\Set;
 use Illuminate\Support\Collection;
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -36,10 +43,15 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
 {
     final public const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
 
+    private ProviderEntity $provider;
+
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
         private readonly ZtmGdanskMessageTypeClassifier $classifier,
+        private readonly ZtmGdanskMessageLineExtractor $lineExtractor,
         private readonly ReferenceFactory $referenceFactory,
+        private readonly Connection $connection,
+        private readonly IdUtils $idUtils,
         HandlerProviderFactory $handlerProviderFactory
     ) {
         parent::__construct($handlerProviderFactory);
@@ -64,14 +76,60 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
             }
 
             if ($stop = $this->extractStopFromZtm($messageApiDto)) {
-                $message->getRefs()->stops->add($stop);
+                $message->getRefs()->stops->getItems()->add($stop);
             }
         }
 
+        $messages = collect($messages->filter())->values();
+
+        $this->addLineRefsToMessages($messages);
+
         return $this->filterAndProcessResults(
-            result: collect($messages->filter())->values(),
+            result: $messages,
             requirements: $requirements
         );
+    }
+
+    private function addLineRefsToMessages(iterable $messages): void
+    {
+        $messagesBySymbol = new Map();
+
+        foreach ($messages as $message) {
+            $lines = $this->lineExtractor->extractLinesFromMessage($message);
+
+            if (empty($lines)) {
+                continue;
+            }
+
+            foreach ($lines as $symbol) {
+                if (!$messagesBySymbol->hasKey($symbol)) {
+                    $messagesBySymbol[$symbol] = new Set();
+                }
+
+                $messagesBySymbol[$symbol]->add($message);
+            }
+
+        }
+
+        $linesBySymbol = $this->connection
+            ->createQueryBuilder()
+            ->from('line')
+            ->select('symbol', 'id')
+            ->andWhere('symbol IN (:symbols)')
+            ->andWhere('provider_id = :provider')
+            ->setParameter('provider', $this->provider->getId())
+            ->setParameter('symbols', $messagesBySymbol->keys()->toArray(), Connection::PARAM_STR_ARRAY)
+            ->execute()
+            ->iterateKeyValue();
+
+        foreach ($linesBySymbol as $symbol => $id) {
+            $line = $this->referenceFactory->get(Line::class, $this->idUtils->strip($id));
+
+            /** @var Message $message */
+            foreach ($messagesBySymbol[$symbol] as $message) {
+                $message->getRefs()->lines->getItems()->add($line);
+            }
+        }
     }
 
     private function getZtmMessages(): \Generator
@@ -130,5 +188,10 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         $message = preg_replace('/\s+/', ' ', $message);
 
         return $message;
+    }
+
+    public function setProvider(ProviderEntity $provider): void
+    {
+        $this->provider = $provider;
     }
 }

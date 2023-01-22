@@ -2,22 +2,24 @@
 
 namespace App\Event;
 
+use ArrayObject;
+
 class PostNormalizationEvent
 {
     public function __construct(
-        private array $normalized,
+        private array|ArrayObject $normalized,
         private readonly mixed $data,
         private readonly mixed $format,
         private readonly array $context,
     ) {
     }
 
-    public function getNormalized(): array
+    public function getNormalized(): array|ArrayObject
     {
         return $this->normalized;
     }
 
-    public function setNormalized(array $normalized): void
+    public function setNormalized(array|ArrayObject $normalized): void
     {
         $this->normalized = $normalized;
     }

@@ -33,7 +33,7 @@ use Illuminate\Support\Collection;
 use Kadet\Functional as f;
 use Kadet\Functional\Transforms as t;
 
-class WithDestinationsDatabaseHandler implements PostProcessingHandler
+class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
 {
     /**
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector

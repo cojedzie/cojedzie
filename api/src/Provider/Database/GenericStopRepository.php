@@ -23,7 +23,7 @@ namespace App\Provider\Database;
 use App\Dto\Stop;
 use App\Entity\StopEntity;
 use App\Filter\Handler\Database\GenericWithDatabaseHandler;
-use App\Filter\Handler\Database\WithDestinationsDatabaseHandler;
+use App\Filter\Handler\Database\EmbedDestinationsDatabaseHandler;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\Requirement;
 use App\Provider\StopRepository;
@@ -50,7 +50,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
     {
         return array_merge(parent::getHandlers(), [
             Embed::class => fn (Embed $modifier) => $modifier->getRelationship() === 'destinations'
-                ? WithDestinationsDatabaseHandler::class
+                ? EmbedDestinationsDatabaseHandler::class
                 : GenericWithDatabaseHandler::class,
         ]);
     }

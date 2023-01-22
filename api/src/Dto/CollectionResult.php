@@ -4,6 +4,8 @@ namespace App\Dto;
 
 use App\Dto\Links\CollectionLinks;
 use App\Utility\IterableUtils;
+use Ds\Collection;
+use Ds\Set;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
@@ -11,14 +13,14 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 class CollectionResult
 {
     public function __construct(
-        /**
-         * @OA\Property(type="array", @OA\Items(type="object"))
-         */
-        private array $items,
-        private int $total,
+        private Set $items = new Set(),
+        private int $total = 0,
         #[SerializedName('$links')]
-        private CollectionLinks $links,
+        private CollectionLinks $links = new CollectionLinks(),
     ) {
+        if ($this->total < count($this->items)) {
+            $this->total = count($this->items);
+        }
     }
 
     public function getCount(): int
@@ -26,7 +28,7 @@ class CollectionResult
         return count($this->items);
     }
 
-    public function getItems(): array
+    public function getItems(): Set
     {
         return $this->items;
     }
@@ -44,7 +46,7 @@ class CollectionResult
     public static function createFromIterable(iterable $items, int $total, CollectionLinks $links): static
     {
         return new static(
-            IterableUtils::toArray($items),
+            new Set($items),
             $total,
             $links
         );

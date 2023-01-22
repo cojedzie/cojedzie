@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Serialization\Normalizer;
+
+use App\Dto\Links;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
+class LinksNormalizer implements NormalizerInterface, CacheableSupportsMethodInterface
+{
+    public function __construct(
+        private readonly DtoNormalizer $normalizer
+    ) {
+    }
+
+    public function normalize($object, string $format = null, array $context = [])
+    {
+        return $this->normalizer->normalize($object, $format, [
+            ...$context,
+            AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
+            AbstractObjectNormalizer::PRESERVE_EMPTY_OBJECTS => true,
+        ]);
+    }
+
+    public function supportsNormalization($data, string $format = null): bool
+    {
+        return $data instanceof Links;
+    }
+
+    public function hasCacheableSupportsMethod(): bool
+    {
+        return true;
+    }
+}

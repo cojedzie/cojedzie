@@ -7,17 +7,17 @@ use Ds\Set;
 class MessageRefs implements Refs
 {
     public function __construct(
-        public readonly Set $stops = new Set(),
-        public readonly Set $lines = new Set(),
+        public readonly CollectionResult $stops = new CollectionResult(),
+        public readonly CollectionResult $lines = new CollectionResult(),
     ) {
     }
 
-    public function getStops(): Set
+    public function getStops(): CollectionResult
     {
         return $this->stops;
     }
 
-    public function getLines(): Set
+    public function getLines(): CollectionResult
     {
         return $this->lines;
     }
