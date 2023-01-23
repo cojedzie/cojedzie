@@ -20,8 +20,8 @@
 
 namespace App\Filter\Handler\Database;
 
-use App\Event\HandleDatabaseModifierEvent;
-use App\Event\HandleModifierEvent;
+use App\Event\HandleDatabaseRequirementEvent;
+use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\IdConstraint;
 use App\Service\IdUtils;
@@ -34,14 +34,14 @@ class IdFilterDatabaseHandler implements ModifierHandler
     ) {
     }
 
-    public function process(HandleModifierEvent $event)
+    public function process(HandleRequirementEvent $event)
     {
-        if (!$event instanceof HandleDatabaseModifierEvent) {
+        if (!$event instanceof HandleDatabaseRequirementEvent) {
             return;
         }
 
         /** @var IdConstraint $modifier */
-        $modifier = $event->getModifier();
+        $modifier = $event->getRequirement();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];
         $provider = $event->getMeta()['provider'];

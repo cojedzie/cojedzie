@@ -24,7 +24,7 @@ use App\DataConverter\Converter;
 use App\Dto\Dto;
 use App\Dto\Referable;
 use App\Entity\ProviderEntity;
-use App\Event\HandleDatabaseModifierEvent;
+use App\Event\HandleDatabaseRequirementEvent;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\Database\FieldFilterDatabaseHandler;
 use App\Filter\Handler\Database\GenericWithDatabaseHandler;
@@ -103,7 +103,7 @@ abstract class DatabaseRepository implements Repository
             $handler = $this->handlers->get($modifier);
 
             if ($handler instanceof ModifierHandler) {
-                $event = new HandleDatabaseModifierEvent($modifier, $this, $builder, array_merge([
+                $event = new HandleDatabaseRequirementEvent($modifier, $this, $builder, array_merge([
                     'provider' => $this->provider,
                 ], $meta));
 

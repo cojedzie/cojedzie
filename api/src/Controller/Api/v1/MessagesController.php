@@ -24,6 +24,7 @@ use App\Controller\Controller;
 use App\Dto\CollectionResult;
 use App\Dto\Message;
 use App\Exception\NonReachableException;
+use App\Filter\Binding\Http\EmbedParameterBinding;
 use App\Filter\Binding\Http\FieldFilterParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Binding\Http\ParameterBinding;
@@ -80,6 +81,7 @@ class MessagesController extends Controller
 
         return new ParameterBindingGroup(
             new LimitParameterBinding(),
+            new EmbedParameterBinding(['$refs.lines', '$refs.stops']),
             new FieldFilterParameterBinding(
                 parameter: 'type',
                 field: 'type',

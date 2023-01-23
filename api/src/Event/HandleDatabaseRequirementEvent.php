@@ -22,40 +22,26 @@ namespace App\Event;
 
 use App\Filter\Requirement\Requirement;
 use App\Provider\Repository;
-use Kadet\Functional as f;
+use Doctrine\ORM\QueryBuilder;
 
-class HandleInMemoryModifierEvent extends HandleModifierEvent
+class HandleDatabaseRequirementEvent extends HandleRequirementEvent
 {
     public function __construct(
         Requirement $modifier,
         Repository $repository,
-        private array $predicates = [],
+        private QueryBuilder $builder,
         array $meta = []
     ) {
         parent::__construct($modifier, $repository, $meta);
     }
 
-    public function addPredicate(callable $predicate, string $name = null)
+    public function getBuilder(): QueryBuilder
     {
-        if ($name) {
-            $this->predicates[$name] = $predicate;
-        } else {
-            $this->predicates[] = $predicate;
-        }
+        return $this->builder;
     }
 
-    public function removePredicate($nameOrIndex)
+    public function replaceBuilder(QueryBuilder $builder): void
     {
-        unset($this->predicates[$nameOrIndex]);
-    }
-
-    public function getPredicates(): array
-    {
-        return $this->predicates;
-    }
-
-    public function getPredicate(): callable
-    {
-        return f\all(...$this->predicates);
+        $this->builder = $builder;
     }
 }

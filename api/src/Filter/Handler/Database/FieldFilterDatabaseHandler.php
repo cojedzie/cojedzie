@@ -23,8 +23,8 @@ namespace App\Filter\Handler\Database;
 use App\Dto\ScheduledStop;
 use App\Dto\Stop;
 use App\Dto\TrackStop;
-use App\Event\HandleDatabaseModifierEvent;
-use App\Event\HandleModifierEvent;
+use App\Event\HandleDatabaseRequirementEvent;
+use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
@@ -45,14 +45,14 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         ],
     ];
 
-    public function process(HandleModifierEvent $event)
+    public function process(HandleRequirementEvent $event)
     {
-        if (!$event instanceof HandleDatabaseModifierEvent) {
+        if (!$event instanceof HandleDatabaseRequirementEvent) {
             return;
         }
 
         /** @var FieldFilter $modifier */
-        $modifier = $event->getModifier();
+        $modifier = $event->getRequirement();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];
 

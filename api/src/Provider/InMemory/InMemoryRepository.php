@@ -2,7 +2,7 @@
 
 namespace App\Provider\InMemory;
 
-use App\Event\HandleInMemoryModifierEvent;
+use App\Event\HandleInMemoryRequirementEvent;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\InMemory\FieldFilterInMemoryHandler;
 use App\Filter\Handler\InMemory\LimitInMemoryHandler;
@@ -58,7 +58,7 @@ abstract class InMemoryRepository implements FluentRepository
         foreach ($requirements as $modifier) {
             $handler = $this->handlers->get($modifier);
 
-            $event = new HandleInMemoryModifierEvent($modifier, $this);
+            $event = new HandleInMemoryRequirementEvent($modifier, $this);
 
             if ($handler instanceof ModifierHandler) {
                 $handler->process($event);

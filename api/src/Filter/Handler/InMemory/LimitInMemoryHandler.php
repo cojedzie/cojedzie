@@ -12,7 +12,7 @@ class LimitInMemoryHandler implements PostProcessingHandler
         /** @var \Illuminate\Support\Collection $data */
         $data = $event->getData();
         /** @var \App\Filter\Requirement\LimitConstraint $modifier */
-        $modifier = $event->getModifier();
+        $modifier = $event->getRequirement();
 
         $event->setData(
             $data->slice(

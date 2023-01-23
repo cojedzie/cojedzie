@@ -20,9 +20,9 @@
 
 namespace App\Filter\Handler;
 
-use App\Event\HandleModifierEvent;
+use App\Event\HandleRequirementEvent;
 
 interface ModifierHandler
 {
-    public function process(HandleModifierEvent $event);
+    public function process(HandleRequirementEvent $event);
 }

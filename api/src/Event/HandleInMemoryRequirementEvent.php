@@ -22,28 +22,40 @@ namespace App\Event;
 
 use App\Filter\Requirement\Requirement;
 use App\Provider\Repository;
+use Kadet\Functional as f;
 
-class HandleModifierEvent
+class HandleInMemoryRequirementEvent extends HandleRequirementEvent
 {
     public function __construct(
-        private readonly Requirement $modifier,
-        private readonly Repository $repository,
-        private readonly array $meta = []
+        Requirement $modifier,
+        Repository $repository,
+        private array $predicates = [],
+        array $meta = []
     ) {
+        parent::__construct($modifier, $repository, $meta);
     }
 
-    public function getModifier(): Requirement
+    public function addPredicate(callable $predicate, string $name = null)
     {
-        return $this->modifier;
+        if ($name) {
+            $this->predicates[$name] = $predicate;
+        } else {
+            $this->predicates[] = $predicate;
+        }
     }
 
-    public function getRepository()
+    public function removePredicate($nameOrIndex)
     {
-        return $this->repository;
+        unset($this->predicates[$nameOrIndex]);
     }
 
-    public function getMeta(): array
+    public function getPredicates(): array
     {
-        return $this->meta;
+        return $this->predicates;
+    }
+
+    public function getPredicate(): callable
+    {
+        return f\all(...$this->predicates);
     }
 }

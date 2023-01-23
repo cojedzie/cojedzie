@@ -2,8 +2,8 @@
 
 namespace App\Filter\Handler\InMemory;
 
-use App\Event\HandleInMemoryModifierEvent;
-use App\Event\HandleModifierEvent;
+use App\Event\HandleInMemoryRequirementEvent;
+use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
@@ -16,14 +16,14 @@ class FieldFilterInMemoryHandler implements ModifierHandler
     ) {
     }
 
-    public function process(HandleModifierEvent $event)
+    public function process(HandleRequirementEvent $event)
     {
-        if (!$event instanceof HandleInMemoryModifierEvent) {
+        if (!$event instanceof HandleInMemoryRequirementEvent) {
             return;
         }
 
         /** @var FieldFilter $modifier */
-        $modifier = $event->getModifier();
+        $modifier = $event->getRequirement();
 
         $field    = $modifier->getField();
         $operator = $modifier->getOperator();

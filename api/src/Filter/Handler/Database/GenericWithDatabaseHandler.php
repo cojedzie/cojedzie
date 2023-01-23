@@ -24,8 +24,8 @@ use App\Dto\ScheduledStop;
 use App\Dto\Track;
 use App\Dto\TrackStop;
 use App\Dto\Trip;
-use App\Event\HandleDatabaseModifierEvent;
-use App\Event\HandleModifierEvent;
+use App\Event\HandleDatabaseRequirementEvent;
+use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\RelatedFilter;
 use App\Service\EntityReferenceFactory;
@@ -60,14 +60,14 @@ class GenericWithDatabaseHandler implements ModifierHandler
     ) {
     }
 
-    public function process(HandleModifierEvent $event)
+    public function process(HandleRequirementEvent $event)
     {
-        if (!$event instanceof HandleDatabaseModifierEvent) {
+        if (!$event instanceof HandleDatabaseRequirementEvent) {
             return;
         }
 
         /** @var RelatedFilter $modifier */
-        $modifier = $event->getModifier();
+        $modifier = $event->getRequirement();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];
         $type     = $event->getMeta()['type'];

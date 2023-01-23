@@ -23,7 +23,7 @@ namespace App\Event;
 use App\Filter\Requirement\Requirement;
 use App\Provider\Repository;
 
-class PostProcessEvent extends HandleModifierEvent
+class PostProcessEvent extends HandleRequirementEvent
 {
     public function __construct(
         private $data,

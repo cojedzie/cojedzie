@@ -22,26 +22,28 @@ namespace App\Event;
 
 use App\Filter\Requirement\Requirement;
 use App\Provider\Repository;
-use Doctrine\ORM\QueryBuilder;
 
-class HandleDatabaseModifierEvent extends HandleModifierEvent
+class HandleRequirementEvent
 {
     public function __construct(
-        Requirement $modifier,
-        Repository $repository,
-        private QueryBuilder $builder,
-        array $meta = []
+        private readonly Requirement $requirement,
+        private readonly Repository $repository,
+        private readonly array $meta = []
     ) {
-        parent::__construct($modifier, $repository, $meta);
     }
 
-    public function getBuilder(): QueryBuilder
+    public function getRequirement(): Requirement
     {
-        return $this->builder;
+        return $this->requirement;
     }
 
-    public function replaceBuilder(QueryBuilder $builder): void
+    public function getRepository()
     {
-        $this->builder = $builder;
+        return $this->repository;
+    }
+
+    public function getMeta(): array
+    {
+        return $this->meta;
     }
 }

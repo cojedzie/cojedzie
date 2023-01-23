@@ -20,21 +20,21 @@
 
 namespace App\Filter\Handler\Database;
 
-use App\Event\HandleDatabaseModifierEvent;
-use App\Event\HandleModifierEvent;
+use App\Event\HandleDatabaseRequirementEvent;
+use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\LimitConstraint;
 
 class LimitDatabaseHandler implements ModifierHandler
 {
-    public function process(HandleModifierEvent $event)
+    public function process(HandleRequirementEvent $event)
     {
-        if (!$event instanceof HandleDatabaseModifierEvent) {
+        if (!$event instanceof HandleDatabaseRequirementEvent) {
             return;
         }
 
         /** @var LimitConstraint $modifier */
-        $modifier = $event->getModifier();
+        $modifier = $event->getRequirement();
         $builder  = $event->getBuilder();
 
         $builder
