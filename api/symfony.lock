@@ -14,6 +14,9 @@
     "cerbero/json-objects": {
         "version": "v1.1.2"
     },
+    "clue/stream-filter": {
+        "version": "v1.6.0"
+    },
     "composer/package-versions-deprecated": {
         "version": "1.11.99.1"
     },
@@ -117,6 +120,15 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
+    "guzzlehttp/promises": {
+        "version": "1.5.2"
+    },
+    "guzzlehttp/psr7": {
+        "version": "2.4.3"
+    },
+    "http-interop/http-factory-guzzle": {
+        "version": "1.2.0"
+    },
     "illuminate/collections": {
         "version": "v8.35.1"
     },
@@ -125,6 +137,9 @@
     },
     "illuminate/macroable": {
         "version": "v8.35.1"
+    },
+    "jean85/pretty-package-versions": {
+        "version": "2.0.5"
     },
     "kadet/functional": {
         "version": "dev-master"
@@ -192,8 +207,23 @@
     "php-ds/php-ds": {
         "version": "v1.4.0"
     },
+    "php-http/client-common": {
+        "version": "2.6.0"
+    },
+    "php-http/discovery": {
+        "version": "1.14.3"
+    },
+    "php-http/httplug": {
+        "version": "2.3.0"
+    },
+    "php-http/message": {
+        "version": "1.13.0"
+    },
     "php-http/message-factory": {
         "version": "v1.0.2"
+    },
+    "php-http/promise": {
+        "version": "1.1.0"
     },
     "phpbench/container": {
         "version": "2.2.1"
@@ -260,6 +290,9 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
     "psr/http-factory": {
         "version": "1.0.1"
     },
@@ -274,6 +307,9 @@
     },
     "psr/simple-cache": {
         "version": "1.0.1"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
     },
     "rector/rector": {
         "version": "0.12.16"
@@ -340,6 +376,24 @@
             "version": "5.2",
             "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
         }
+    },
+    "sentry/sdk": {
+        "version": "3.3.0"
+    },
+    "sentry/sentry": {
+        "version": "3.12.1"
+    },
+    "sentry/sentry-symfony": {
+        "version": "4.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "4.0",
+            "ref": "9ac202e84b6fb3c276cb3d7846006e0df65272d0"
+        },
+        "files": [
+            "config/packages/sentry.yaml"
+        ]
     },
     "spiral/goridge": {
         "version": "v2.4.5"
@@ -516,6 +570,9 @@
     "symfony/options-resolver": {
         "version": "v4.1.12"
     },
+    "symfony/password-hasher": {
+        "version": "v5.4.19"
+    },
     "symfony/phpunit-bridge": {
         "version": "6.0",
         "recipe": {
@@ -584,6 +641,9 @@
     },
     "symfony/runtime": {
         "version": "v5.4.5"
+    },
+    "symfony/security-core": {
+        "version": "v5.4.19"
     },
     "symfony/serializer": {
         "version": "v4.1.3"

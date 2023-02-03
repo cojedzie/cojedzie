@@ -1,0 +1,7 @@
+when@prod:
+  sentry:
+    dsn: '%env(SENTRY_DSN)%'
+
+    options:
+      release: '%env(COJEDZIE_VERSION)%'
+      traces_sample_rate: '%env(float:SENTRY_SAMPLE_RATE)%'
