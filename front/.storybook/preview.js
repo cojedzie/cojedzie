@@ -8,6 +8,8 @@ import filters from "../src/filters"
 import globals from "../src/globals"
 import { install as api } from "../src/api"
 
+import 'moment/dist/locale/pl'
+
 app.use(components)
 app.use(filters)
 app.use(globals)
