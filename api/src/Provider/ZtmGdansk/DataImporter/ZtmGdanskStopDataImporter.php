@@ -121,8 +121,8 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                 'variant' => trim(
                     $stop['zoneName'] == 'Gdańsk'
                         ? $stop['stopCode'] ?? $stop['subName']
-                        : $gdyniaStopVariants[$stop['stopId']] ?? null
-                ),
+                        : $gdyniaStopVariants[$stop['stopId']] ?? ''
+                ) ?: null,
                 'latitude'   => $stop['stopLat'],
                 'longitude'  => $stop['stopLon'],
                 'on_demand'  => (bool) $stop['onDemand'],
