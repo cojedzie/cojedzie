@@ -49,6 +49,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         private readonly CacheItemPoolInterface $cache,
         private readonly ZtmGdanskMessageTypeClassifier $classifier,
         private readonly ZtmGdanskMessageLineExtractor $lineExtractor,
+        private readonly ZtmGdanskDisplayToStopResolver $displayToStopResolver,
         private readonly ReferenceFactory $referenceFactory,
         private readonly Connection $connection,
         private readonly IdUtils $idUtils,
@@ -75,8 +76,8 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
                 continue;
             }
 
-            if ($stop = $this->extractStopFromZtm($messageApiDto)) {
-                $message->getRefs()->stops->getItems()->add($stop);
+            if ($stops = $this->extractStopsFromZtm($messageApiDto)) {
+                $message->getRefs()->stops->getItems()->add(...$stops);
             }
         }
 
@@ -174,11 +175,13 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         return null;
     }
 
-    private function extractStopFromZtm(array $ztmMessage): Stop
+    private function extractStopsFromZtm(array $ztmMessage): array
     {
-        return $this->referenceFactory->get(
-            Stop::class,
-            $ztmMessage['displayCode'],
+        $stopIds = $this->displayToStopResolver->mapDisplayCodeToStops($ztmMessage['displayCode']);
+
+        return array_map(
+            fn ($id) => $this->referenceFactory->get(Stop::class, $id),
+            $stopIds
         );
     }
 
