@@ -28,6 +28,8 @@ export interface Stop {
     location?: Location;
     onDemand?: boolean;
     variant?: string;
+    group?: string;
+    $type: 'vnd.cojedzie.stop';
 }
 
 export type HasDestinations = {

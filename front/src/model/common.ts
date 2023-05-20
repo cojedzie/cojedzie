@@ -21,3 +21,10 @@ export interface Location {
     lat: number,
     lng: number,
 }
+
+
+export interface Collection<T> {
+    items: T[],
+    total: number,
+    count: number,
+}

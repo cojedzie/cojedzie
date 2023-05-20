@@ -18,6 +18,7 @@
  */
 
 import { Stop } from "@/model/stop";
+import { Identity } from "@/model/identity";
 
 export type LineType = "tram" | "bus" | "trolleybus" | "train" | "other" | "unknown";
 
@@ -25,8 +26,16 @@ export interface Line {
     id: string;
     symbol: string;
     type: LineType;
+    operator?: Identity<Operator> | Operator;
     night: boolean;
     fast: boolean;
+    $type: 'vnd.cojedzie.line';
+}
+
+export interface Operator {
+    id: string;
+    name: string;
+    $type: 'vnd.cojedzie.operator';
 }
 
 export interface Track {

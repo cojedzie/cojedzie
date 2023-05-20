@@ -4,10 +4,12 @@ namespace App\Provider\InMemory;
 
 use App\Event\HandleInMemoryRequirementEvent;
 use App\Event\PostProcessEvent;
+use App\Filter\Handler\Common\RefsEmbedHandler;
 use App\Filter\Handler\InMemory\FieldFilterInMemoryHandler;
 use App\Filter\Handler\InMemory\LimitInMemoryHandler;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Handler\PostProcessingHandler;
+use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\Requirement;
@@ -27,6 +29,7 @@ abstract class InMemoryRepository implements FluentRepository
         $this->handlers = $handlerProviderFactory->createHandlerProvider(array_merge([
             LimitConstraint::class => LimitInMemoryHandler::class,
             FieldFilter::class     => FieldFilterInMemoryHandler::class,
+            Embed::class           => RefsEmbedHandler::class,
         ], static::getHandlers()));
     }
 

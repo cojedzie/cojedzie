@@ -25,7 +25,7 @@ use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ContentType('vnd.cojedzie.message')]
-class Message implements Fillable, Dto, Referable
+class Message implements Fillable, Dto, Referable, HasRefs
 {
     use FillTrait;
     use ReferableTrait;
@@ -63,7 +63,6 @@ class Message implements Fillable, Dto, Referable
      */
     private ?Carbon $validTo = null;
 
-    #[SerializedName('$refs')]
     private MessageRefs $refs;
 
     public function __construct()

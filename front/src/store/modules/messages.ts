@@ -61,7 +61,7 @@ const actions: MessagesActionTree = {
         commit(CommonMutations.Fetching);
 
         try {
-            const response = await this.$api.get("v1_message_all", { version: "^1.0" });
+            const response = await this.$api.get("v1_message_all", { version: "^1.0", query: { embed: '$refs.stops,$refs.lines' } });
             const messages = response.data;
 
             commit(

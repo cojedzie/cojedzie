@@ -94,7 +94,7 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
         );
 
         foreach ($event->getData() as $stop) {
-            $stop->setDestinations($destinations[$this->id->generate($provider, $stop->getId())]);
+            $stop->setDestinations($destinations[$this->id->generate($provider, $stop->getId())] ?? collect());
         }
     }
 }

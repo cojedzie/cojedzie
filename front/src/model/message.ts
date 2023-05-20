@@ -18,12 +18,23 @@
  */
 
 import { Moment } from "moment";
+import { Stop } from "@/model/stop";
+import { Line } from "@/model/line";
+import { Collection } from "@/model/common";
 
 export type MessageType = "info" | "breakdown" | "unknown";
+
+export interface MessageRefs {
+    stops: Collection<Stop>,
+    lines: Collection<Line>,
+}
+
 export interface Message {
+    id: string;
     type: MessageType;
     message: string;
-
-    validFrom: Moment;
-    validTo: Moment;
+    validFrom?: Moment;
+    validTo?: Moment;
+    $refs: MessageRefs;
+    $type: 'vnd.cojedzie.message';
 }

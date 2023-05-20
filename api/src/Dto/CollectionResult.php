@@ -33,14 +33,29 @@ class CollectionResult
         return $this->items;
     }
 
+    public function setItems(Set $items): void
+    {
+        $this->items = $items;
+    }
+
     public function getTotal(): int
     {
         return $this->total;
     }
 
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
+    }
+
     public function getLinks(): CollectionLinks
     {
         return $this->links;
+    }
+
+    public function setLinks(CollectionLinks $links): void
+    {
+        $this->links = $links;
     }
 
     public static function createFromIterable(iterable $items, int $total, CollectionLinks $links): static
