@@ -62,6 +62,7 @@ class IdConstraintParameterBinding implements ParameterBinding
             new Parameter(
                 name: $this->parameter,
                 in: $fromAttributes ? 'path' : 'query',
+                explode: false,
                 schema: $this->isMultiple
                     ? $schema
                     : new Schema(

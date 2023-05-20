@@ -45,7 +45,7 @@ class EmbedParameterBinding implements ParameterBinding
             return;
         }
 
-        foreach (encapsulate($request->query->get(self::EMBED_QUERY_PARAMETER)) as $embedded) {
+        foreach (explode(',', $request->query->get(self::EMBED_QUERY_PARAMETER)) as $embedded) {
             if (!in_array($embedded, $this->allowed)) {
                 continue;
             }
@@ -62,6 +62,7 @@ class EmbedParameterBinding implements ParameterBinding
         yield new Parameter(
             name: self::EMBED_QUERY_PARAMETER,
             in: 'query',
+            explode: false,
             schema: new Schema(type: "array", items: new Items(type: 'string', enum: $this->allowed))
         );
     }
