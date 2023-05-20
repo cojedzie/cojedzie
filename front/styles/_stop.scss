@@ -74,6 +74,19 @@ $stop-variant-color: mix($dark, white, 75%);
   }
 }
 
+ul.stop-list.stop-list--inline {
+  display: block;
+  white-space: nowrap;
+  padding-left: 0;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+
+  > li {
+    @extend .favourite__stop;
+    align-items: center;
+  }
+}
+
 .stop__destination {
   @extend .favourite__stop;
   align-items: center;

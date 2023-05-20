@@ -1,19 +1,17 @@
 <template>
     <div class="messages mb-2">
-        <ul class="list-unstyled mb-0">
-            <li v-for="message in messages" class="message alert" :class="`alert-${type(message)}`">
-                <ui-icon :icon="`message-${message.type}`" fixed-width />
-                {{ message.message }}
-
-                <div class="message__info">
-                    <small class="message__date">
-                        Komunikat ważny od
-                        {{ message.validFrom.format('HH:mm') }}
-                        do
-                        {{ message.validTo.format('HH:mm') }}
-                    </small>
-                </div>
-            </li>
+        <ul class="messages__list">
+            <messages-message
+                v-for="message in messages"
+                :key="message.id"
+                :message="message.message"
+                :valid-from="message.validFrom"
+                :valid-to="message.validTo"
+                :type="message.type"
+                :lines="message.$refs.lines.items"
+                :stops="message.$refs.stops.items"
+                tag="li"
+            />
         </ul>
         <template v-if="nonDisplayedCount > 0">
             <div class="flex">
@@ -34,9 +32,11 @@
 import { Options, Vue } from "vue-class-component";
 import store, { Messages, MessagesSettings } from "@/store";
 import { Message } from "@/model/message";
+import MessagesMessage from "@/components/messages/MessagesMessage.vue";
 
 @Options({
     name: "MessagesList",
+    components: { MessagesMessage },
     store
 })
 export default class MessagesList extends Vue {

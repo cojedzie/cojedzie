@@ -27,6 +27,9 @@ import { StoreDefinition } from "@/store/initializer";
 import { Vue } from "vue-class-component"
 
 import moment from "moment";
+import 'moment/dist/locale/pl'
+
+moment.locale('pl')
 
 import components, { app } from "@/components";
 import filters from '@/filters'
