@@ -12,6 +12,10 @@ RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql d
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+ARG COJEDZIE_REVISION
+ARG COJEDZIE_VERSION
+ENV COJEDZIE_REVISION="${COJEDZIE_REVISION}" COJEDZIE_VERSION="${COJEDZIE_VERSION}"
+
 COPY composer.json composer.lock ./
 
 RUN apk add git && \
@@ -27,13 +31,10 @@ ENV APP_ENV=prod
 ENV DATABASE_URL="sqlite:////var/db/app.db"
 ENV PATH=$PATH:/var/www/bin
 
-RUN composer run-script post-install-cmd
-
 VOLUME /var/db
 
-ARG COJEDZIE_REVISION
-ARG COJEDZIE_VERSION
-ENV COJEDZIE_REVISION="${COJEDZIE_REVISION}" COJEDZIE_VERSION="${COJEDZIE_VERSION}"
+RUN mkdir -p /var/db
+RUN composer run-script post-install-cmd
 
 # This image is not meant to be run, just to prepare all required files
 CMD ["/bin/false"]

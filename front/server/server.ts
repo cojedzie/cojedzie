@@ -52,7 +52,7 @@ function generateProviderManifest(provider: any) {
     };
 }
 
-const renderPageAction = (callback?: ({ req: Request, res: Response, err: Error, html: string }) => void) => (req: Request, res: Response) => {
+const renderPageAction = (callback?: (args: { req: Request, res: Response, err: Error, html: string }) => void) => (req: Request, res: Response) => {
     const manifest_path = req.params.provider
         ? `/${req.params.provider}/manifest.json`
         : "/manifest.json";
