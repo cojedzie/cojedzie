@@ -12,5 +12,8 @@ when@prod:
           - schedule:run
 
     options:
-      release: 'cojedzie/api@%env(COJEDZIE_VERSION)%'
+      release: '%env(COJEDZIE_VERSION)%'
+      environment: '%env(resolve:SENTRY_ENVIRONMENT)%'
       traces_sample_rate: '%env(float:SENTRY_SAMPLE_RATE)%'
+      integrations:
+        - 'Sentry\Integration\IgnoreErrorsIntegration'

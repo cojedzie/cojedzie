@@ -17,6 +17,8 @@ parameters:
   env(MERCURE_URL): ''
   env(MERCURE_PUBLIC_URL): ''
 
+  env(SENTRY_ENVIRONMENT): '%kernel.environment%'
+
 services:
   # default configuration for services in *this* file
   _defaults:
@@ -70,6 +72,13 @@ services:
       - [ 'setProxiesTargetDir', [ '%kernel.cache_dir%/proxy' ] ]
 
   ProxyManager\Configuration: '@proxy.config'
+
+  # Sentry configuration
+  Sentry\Integration\IgnoreErrorsIntegration:
+    arguments:
+      $options:
+        ignore_exceptions:
+          - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
 
   # converter
   App\DataConverter\AggregateConverter:
