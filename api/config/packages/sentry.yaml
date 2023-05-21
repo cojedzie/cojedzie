@@ -2,6 +2,15 @@ when@prod:
   sentry:
     dsn: '%env(SENTRY_DSN)%'
 
+    register_error_listener: false # Disables the ErrorListener to avoid duplicated log in sentry
+    register_error_handler: false # Disables the ErrorListener, ExceptionListener and FatalErrorListener integrations of the base PHP SDK
+
+    tracing:
+      console:
+        excluded_commands:
+          - messenger:consume
+          - schedule:run
+
     options:
-      release: '%env(COJEDZIE_VERSION)%'
+      release: 'cojedzie/api@%env(COJEDZIE_VERSION)%'
       traces_sample_rate: '%env(float:SENTRY_SAMPLE_RATE)%'
