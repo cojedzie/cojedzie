@@ -9,8 +9,13 @@ RUN yarn install --frozen-lockfile
 COPY resources/fontawesome ./resources/fontawesome
 
 COPY . .
+
+ARG COJEDZIE_REVISION
+ARG COJEDZIE_VERSION
+ENV COJEDZIE_REVISION="${COJEDZIE_REVISION}" COJEDZIE_VERSION="${COJEDZIE_VERSION}"
+
 # build stuff
-RUN yarn run build:app
+RUN --mount=type=secret,id=sentry-auth-token yarn run build:app
 RUN yarn run build:server
 
 # server dependencies step

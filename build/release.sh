@@ -84,6 +84,10 @@ build () {
     fi
   done
 
+  if [[ ! -z "$SENTRY_AUTH_TOKEN" ]]; then
+    ARGS+=("--secret" "id=sentry-auth-token,env=SENTRY_AUTH_TOKEN")
+  fi
+
   echo "Building $IMAGE $VARIANT"
   run docker build \
     --build-arg "BASE_VERSION=${TAGS[0]}" \

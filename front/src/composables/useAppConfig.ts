@@ -25,6 +25,13 @@ export interface AppConfig {
         base?: string,
         hub?: string,
     };
+    sentry: {
+        environment: string;
+        replaysSessionSampleRate?: number;
+        replaysErrorSampleRate?: number;
+        tracesSampleRate?: number;
+        dsn: string;
+    };
     version: string;
 }
 

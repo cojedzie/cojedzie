@@ -20,13 +20,28 @@
 import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
+import { readFileSync } from "fs";
 import { VitePWA } from "vite-plugin-pwa";
 import SvgIconLoader from "./src/svg-icon-loader";
-import viteImagemin from "vite-plugin-imagemin"
+import viteImagemin from "vite-plugin-imagemin";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
+
+const dist = path.resolve(__dirname, './build/public');
+
+function readSecret(path: string): string|undefined {
+    try {
+        return readFileSync(path, { encoding: 'utf-8' });
+    } catch {
+        return undefined;
+    }
+}
+
+const sentryAuthToken= readSecret(process.env.SENTRY_AUTH_TOKEN_FILE || '/run/secrets/sentry-auth-token') || process.env.SENTRY_AUTH_TOKEN || false;
 
 export default defineConfig({
     build: {
-        outDir: path.resolve(__dirname, './build/public/'),
+        outDir: `${dist}/`,
+        sourcemap: true,
         manifest: true,
         rollupOptions: {
             input: [
@@ -44,6 +59,15 @@ export default defineConfig({
         VitePWA({}),
         viteImagemin(),
         SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
+        sentryAuthToken && sentryVitePlugin({
+            org: process.env.SENTRY_ORG || "cojedzie",
+            project: process.env.SENTRY_PROJECT || "frontend-vue",
+            authToken: sentryAuthToken,
+            sourcemaps: {
+                assets: `${dist}/**`
+            },
+            release: process.env.COJEDZIE_VERSION,
+        }),
     ],
     publicDir: path.resolve(__dirname, './public'),
     resolve: {

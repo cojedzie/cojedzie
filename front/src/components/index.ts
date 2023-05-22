@@ -30,7 +30,7 @@ import { StopPicker } from "@/components/stop-picker";
 import { StopLabel, StopMap } from "@/components/stop";
 import { TripSchedule } from "@/components/trip";
 import { Lazy } from "@/components/utils";
-import Application, { router } from "@/components/Application.vue";
+import Application from "@/components/Application.vue";
 
 export * from "./Application.vue"
 export * from './utils'
@@ -88,5 +88,3 @@ export default function install(Vue: App) {
 }
 
 export const app = createApp(Application);
-
-app.use(router);

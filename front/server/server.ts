@@ -72,6 +72,13 @@ const renderPageAction = (callback?: (args: { req: Request, res: Response, err: 
             },
             maptiler: {
                 key: maptiler_key
+            },
+            sentry: {
+                dsn: process.env.SENTRY_DSN || "",
+                environment: process.env.SENTRY_ENVIRONMENT || "",
+                replaysSessionSampleRate: parseFloat(process.env.SENTRY_SESSION_REPLAY_RATE || "0.0"),
+                replaysErrorSampleRate: parseFloat(process.env.SENTRY_ERROR_REPLAY_RATE || "0.1"),
+                tracesSampleRate: parseFloat(process.env.SENTRY_SAMPLE_RATE || "0.05"),
             }
         },
         is_production: !dev,
