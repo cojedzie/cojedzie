@@ -83,17 +83,22 @@ tasks:
         api vendor/bin/phpbench 
         xdebug:profile tests {{.CLI_ARGS}}
 
-  frontend:yarn:
+  npx:
+    desc: Execute yarn command
+    cmds:
+      - docker-compose run --rm {{.FLAGS}} -u {{.USER}} frontend npx {{.CLI_ARGS}}
+
+  yarn:
     desc: Execute yarn command
     cmds:
       - docker-compose run --rm {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
 
-  api:console:
+  console:
     desc: Execute command in the symfony console
     cmds:
       - docker-compose exec {{.FLAGS}} -u {{.USER}} api bin/console {{.CLI_ARGS}}
 
-  api:composer:
+  composer:
     desc: Execute command in the symfony console
     cmds:
       - docker-compose exec {{.FLAGS}} -u {{.USER}} -e HOME=/tmp api composer {{.CLI_ARGS}}

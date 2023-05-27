@@ -58,7 +58,7 @@ services:
       - ./front:/app
     ports:
       - '3001:3001' # required for vite HMR
-    command: ["node", "build/server.js"]
+    command: ["node", "build/server/server.js"]
 
   storybook:
     image: node:16

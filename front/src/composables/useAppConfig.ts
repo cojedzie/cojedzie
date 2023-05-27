@@ -17,21 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+export interface SentryConfig {
+    environment: string;
+    replaysSessionSampleRate?: number;
+    replaysErrorSampleRate?: number;
+    tracesSampleRate?: number;
+    dsn: string;
+    tags: { [tag: string]: string }
+}
+
+export interface ApiConfig {
+    base?: string,
+    hub?: string,
+}
+
+export interface MapTilerConfig {
+    key: string
+}
+
 export interface AppConfig {
-    maptiler: {
-        key: string
-    };
-    api: {
-        base?: string,
-        hub?: string,
-    };
-    sentry: {
-        environment: string;
-        replaysSessionSampleRate?: number;
-        replaysErrorSampleRate?: number;
-        tracesSampleRate?: number;
-        dsn: string;
-    };
+    maptiler: MapTilerConfig;
+    api: ApiConfig;
+    sentry: SentryConfig;
     version: string;
 }
 
@@ -42,5 +49,6 @@ declare global {
 }
 
 export function useAppConfig(): AppConfig {
+    /** @ts-ignore */
     return window.CoJedzie;
 }

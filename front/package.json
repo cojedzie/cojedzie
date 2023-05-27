@@ -77,6 +77,8 @@
   "dependencies": {
     "@elastic/elasticsearch": "7",
     "@vueuse/core": "^9.2.0",
+    "browserslist": "^4.21.5",
+    "browserslist-useragent": "^4.0.0",
     "ejs": "^3.1.5",
     "eventsource": "^1.1.0",
     "express": "^4.17.1",

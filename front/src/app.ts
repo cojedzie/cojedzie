@@ -25,7 +25,6 @@ import { Store } from 'vuex';
 import { dragscrollNext } from 'vue-dragscroll';
 import { StoreDefinition } from "@/store/initializer";
 import { Vue } from "vue-class-component"
-import * as Sentry from "@sentry/vue";
 
 import moment from "moment";
 import 'moment/dist/locale/pl'
@@ -36,37 +35,17 @@ import components, { app } from "@/components";
 import filters from '@/filters'
 import globals from '@/globals'
 import { install as api } from '@/api';
+import { install as sentry } from '@/sentry';
 import container from '@/services'
 import { router } from "@/routes";
 
-if (window.CoJedzie.sentry.dsn) {
-    Sentry.init({
-        app,
-        dsn: window.CoJedzie.sentry.dsn,
-
-        integrations: [
-            new Sentry.BrowserTracing({
-                routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-                tracePropagationTargets: [window.CoJedzie.api.base, window.CoJedzie.api.hub, /^\//]
-            }),
-            new Sentry.Replay(),
-        ],
-
-        release: window.CoJedzie.version,
-        environment: window.CoJedzie.sentry.environment,
-
-        tracesSampleRate: window.CoJedzie.sentry.tracesSampleRate || 0.1,
-
-        replaysSessionSampleRate: window.CoJedzie.sentry.replaysSessionSampleRate || 0.1,
-        replaysOnErrorSampleRate: 1.0,
-    });
-}
-
+app.use(sentry)
 app.use(api);
 app.use(filters);
 app.use(components);
 app.use(globals);
 app.use(router);
+
 app.directive("dragscroll", dragscrollNext);
 
 declare module '@vue/runtime-core' {

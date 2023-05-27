@@ -21,40 +21,120 @@ import express, { Express, Request, Response } from 'express';
 import path from "path";
 import fs from "fs";
 import request from "request";
+import type { SentryConfig } from "../src/composables/useAppConfig";
+import { matchesUA } from "browserslist-useragent";
 
-const { version: versionFromPackageJson } = require("../package.json")
+const { version: versionFromPackageJson } = require("../../package.json")
 
-const version = process.env.COJEDZIE_VERSION || `v${versionFromPackageJson}`;
+const version = process.env.COJEDZIE_VERSION || `v${ versionFromPackageJson }`;
 const port = parseInt(process.env.COJEDZIE_PORT) || 3000;
 const host = process.env.COJEDZIE_HOST || '0.0.0.0';
-const api  = process.env.COJEDZIE_API || "https://cojedzie.pl";
-const dev  = process.env.COJEDZIE_MODE === 'development';
+const api = process.env.COJEDZIE_API || "https://cojedzie.pl";
+const dev = process.env.COJEDZIE_MODE === 'development';
 
 const gtm_tracking = process.env.COJEDZIE_GTM || '';
 const maptiler_key = process.env.COJEDZIE_MAPTILER_KEY || "unknown";
 
 const web_manifest = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "../resources/manifest.json")).toString("utf-8")
+    fs.readFileSync(path.join(__dirname, "../../resources/manifest.json")).toString("utf-8")
 );
 
 const assets_manifest = dev ? {} : JSON.parse(
-    fs.readFileSync(path.join(__dirname, "../build/public/manifest.json")).toString("utf-8")
+    fs.readFileSync(path.join(__dirname, "../public/manifest.json")).toString("utf-8")
 );
 
 const provider_manifests = {}
 
+type SentryBrowserSettings = {
+    browsers?: string[],
+    multiplier?: number,
+    tags?: { [tag: string]: string },
+}
+
+const sentryBrowserSettings: SentryBrowserSettings[] = [
+    {
+        browsers: ["unreleased versions"],
+        multiplier: 0.7,
+        tags: {
+            'browser.release-group': 'unreleased'
+        }
+    },
+    {
+        browsers: ["defaults"],
+        multiplier: 1,
+        tags: {
+            'browser.release-group': 'current'
+        }
+    },
+    {
+        browsers: ["last 1 year"],
+        multiplier: 0.8,
+        tags: {
+            'browser.release-group': 'up to 1 year old'
+        }
+    },
+    {
+        browsers: ["last 2 years"],
+        multiplier: 0.5,
+        tags: {
+            'browser.release-group': 'up to 2 years old'
+        }
+    },
+    {
+        multiplier: 0.0,
+        tags: {
+            'browser.release-group': 'old'
+        }
+    },
+]
+
 function generateProviderManifest(provider: any) {
     return {
         ...web_manifest,
-        start_url: `/${provider.id}`,
-        name: `${web_manifest.name} - ${provider.name}`,
-        short_name: `${web_manifest.short_name} - ${provider.shortName}`,
+        start_url: `/${ provider.id }`,
+        name: `${ web_manifest.name } - ${ provider.name }`,
+        short_name: `${ web_manifest.short_name } - ${ provider.shortName }`,
     };
+}
+
+function computeSentryMultiplierForRequest(req: Request): SentryBrowserSettings|null {
+    const ua = req.header('User-Agent');
+
+    for (const settings of sentryBrowserSettings) {
+        const { browsers } = settings;
+
+        // settings should be returned if there is no browsers query (match-all) or UA matches browser query
+        if (!browsers || matchesUA(ua, { browsers, allowHigherVersions: true })) {
+            return settings;
+        }
+    }
+
+    return null;
+}
+
+function generateSentryConfig(req: Request): SentryConfig {
+    const replaysSessionSampleRate = parseFloat(process.env.SENTRY_SESSION_REPLAY_RATE || "0.0"),
+        replaysErrorSampleRate = parseFloat(process.env.SENTRY_ERROR_REPLAY_RATE || "0.1"),
+        tracesSampleRate = parseFloat(process.env.SENTRY_SAMPLE_RATE || "0.05");
+
+    const {
+        multiplier = 0,
+        tags = {}
+    } = computeSentryMultiplierForRequest(req);
+
+    return {
+        dsn: process.env.SENTRY_DSN || "",
+        environment: process.env.SENTRY_ENVIRONMENT || "",
+        replaysErrorSampleRate: replaysErrorSampleRate * multiplier,
+        replaysSessionSampleRate: replaysSessionSampleRate * multiplier,
+        tracesSampleRate: tracesSampleRate * multiplier,
+        tags
+    }
 }
 
 const renderPageAction = (callback?: (args: { req: Request, res: Response, err: Error, html: string }) => void) => (req: Request, res: Response) => {
     const manifest_path = req.params.provider
-        ? `/${req.params.provider}/manifest.json`
+        ? `/${ req.params.provider }/manifest.json`
         : "/manifest.json";
 
     const year = (new Date()).getFullYear();
@@ -73,13 +153,7 @@ const renderPageAction = (callback?: (args: { req: Request, res: Response, err: 
             maptiler: {
                 key: maptiler_key
             },
-            sentry: {
-                dsn: process.env.SENTRY_DSN || "",
-                environment: process.env.SENTRY_ENVIRONMENT || "",
-                replaysSessionSampleRate: parseFloat(process.env.SENTRY_SESSION_REPLAY_RATE || "0.0"),
-                replaysErrorSampleRate: parseFloat(process.env.SENTRY_ERROR_REPLAY_RATE || "0.1"),
-                tracesSampleRate: parseFloat(process.env.SENTRY_SAMPLE_RATE || "0.05"),
-            }
+            sentry: generateSentryConfig(req)
         },
         is_production: !dev,
         manifest: assets_manifest,
@@ -99,18 +173,18 @@ const getWebManifestAction = (req: Request, res: Response) => {
         return;
     }
 
-    console.log(`No manifest entry for ${provider}, calling ${api}/providers/${provider}`);
+    console.log(`No manifest entry for ${ provider }, calling ${ api }/providers/${ provider }`);
 
-    request.get(`${api}/api/v1/providers/${provider}`, (err, _, body) => {
+    request.get(`${ api }/api/v1/providers/${ provider }`, (err, _, body) => {
         try {
             const info = JSON.parse(body);
             provider_manifests[provider] = generateProviderManifest(info);
 
-            console.info(`Generated manifest for ${provider}`, provider_manifests[provider]);
+            console.info(`Generated manifest for ${ provider }`, provider_manifests[provider]);
 
             res.send(provider_manifests[provider]);
         } catch (error) {
-            console.error(`Problem with generating manifest for ${provider}: ${error.message}`);
+            console.error(`Problem with generating manifest for ${ provider }: ${ error.message }`);
             res.send(web_manifest);
         }
     })
@@ -119,10 +193,10 @@ const getWebManifestAction = (req: Request, res: Response) => {
 async function createServer(): Promise<Express> {
     const server = express();
 
-    server.set("views", path.join(__dirname, "../resources/views/"));
+    server.set("views", path.join(__dirname, "../../resources/views/"));
     server.set("view engine", "ejs");
 
-    server.use(express.static(path.join(__dirname, "../build/public/")))
+    server.use(express.static(path.join(__dirname, "../public/")))
 
     server.get("/:provider?/manifest.json", getWebManifestAction)
 
@@ -154,10 +228,10 @@ async function createServer(): Promise<Express> {
 
 createServer().then(server => {
     server.listen(port, host, () => {
-        console.info(`Server started at ${host}:${port}`);
+        console.info(`Server started at ${ host }:${ port }`);
     });
 
-    process.on('SIGINT', function() {
+    process.on('SIGINT', function () {
         console.info("Terminating server...");
         process.exit();
     });
