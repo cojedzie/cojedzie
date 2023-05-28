@@ -1,0 +1,19 @@
+import { Meta, Story, Canvas } from '@storybook/blocks'
+import UiMap from "./UiMap.vue"
+import * as UiMapStories from './UiMap.stories';
+
+<Meta of={UiMapStories} />
+
+export const Template = (args) => ({
+    components: { UiMap },
+    setup: () => {
+        return { args }
+    },
+    template: "<ui-map v-bind='args' />",
+})
+
+# Basic Map
+
+<Canvas>
+  <Story of={UiMapStories.Default} />
+</Canvas>

@@ -1,0 +1,36 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
+import UiIcon from "./UiIcon.vue";
+import { icons } from "@/icons"
+import { V } from "@/stories/helpers";
+import * as UiIconStories from './UiIcon.stories';
+
+<Meta of={UiIconStories} />
+
+export const Template = (args) => ({
+    components: { UiIcon },
+    setup: () => {
+        return { args }
+    },
+    template: "<ui-icon :icon='args.icon'/>"
+})
+
+# UiIcon
+
+<Canvas>
+  <Story of={UiIconStories.Default} />
+</Canvas>
+
+<ArgsTable story="Default" />
+
+## Catalog
+
+<div className="icon-catalog">
+  { Object.keys(icons).map(icon =>
+      <div className="icon-catalog__entry" key={icon}>
+          <div className="icon-catalog__icon">
+              <V component={UiIcon} icon={icon} />
+          </div>
+          <span className="icon-catalog__icon-name">{icon}</span>
+      </div>
+  ) }
+</div>
