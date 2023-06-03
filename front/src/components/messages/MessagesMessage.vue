@@ -21,10 +21,18 @@
         <div v-if="validFrom || validTo" class="message__validity">
             ważne
             <template v-if="validFrom">
-                od {{ validFrom.isSame(today, "day") ? validFrom.format('LT') : validFrom.format('LL') }}
+                od {{
+                    validFrom.isSame(today, "day")
+                        ? validFrom.isSame(validTo) ? validFrom.calendar('LT') : validFrom.calendar().toLowerCase()
+                        : validFrom.format('LL')
+                }}
             </template>
             <template v-if="validTo">
-                do {{ validTo.isSame(today, "day") ? validTo.format('LT') : validTo.format('LL') }}
+                do {{
+                    validTo.isSame(today, "day")
+                        ? validTo.isSame(validFrom) ? validTo.calendar('LT') : validTo.calendar().toLowerCase()
+                        : validTo.format('LL')
+                }}
             </template>
         </div>
     </component>
