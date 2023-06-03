@@ -22,7 +22,7 @@ $message-type-color: (
     "i m m" auto
     "i v l" auto
     "i s l" auto
-    / min-content 1fr max-content;
+    / min-content minmax(0, 1fr) max-content;
 
   transition: 200ms ease background-color;
 
