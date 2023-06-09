@@ -1,18 +1,28 @@
 %option {
-  padding: 0.5 * $spacer;
+  padding: 0.6 * $spacer 0.8 * $spacer;
 }
 
 %action {
-  padding: 0.5 * $spacer;
+  padding: 0.6 * $spacer 0.8 * $spacer;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: rgba(black, 0.05);
+  }
+
+  &:active {
+    background-color: rgba(black, 0.1);
+  }
 }
 
 .ui-select {
+  border-radius: 20px;
+
   &__control {
     display: flex;
     flex-direction: row;
     cursor: pointer;
   }
-
 
   &__options {
     padding-left: 0;
@@ -34,7 +44,7 @@
     cursor: pointer;
 
     &--hovered {
-      background: rgba(black, 0.1);
+      background: rgba(black, 0.05);
     }
 
     &--selected {
@@ -42,9 +52,15 @@
 
       flex: 1 1 auto;
     }
+
+    &--empty {
+      font-weight: 700;
+      display: grid;
+      align-items: center;
+    }
   }
 
-  &__toggle, &__close {
+  &__toggle, &__clear {
     @extend %action;
   }
 }

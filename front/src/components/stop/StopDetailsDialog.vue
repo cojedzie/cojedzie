@@ -1,5 +1,5 @@
 <template>
-    <ui-dialog behaviour="modal" class="ui-modal--huge ui-modal--no-padding" v-bind="$attrs">
+    <ui-dialog behaviour="modal" class="ui-modal--huge ui-modal--no-padding stop-details-dialog" v-bind="$attrs">
         <template #header="{ handleCloseClick }">
             <button class="stop-details-dialog__close" @click="handleCloseClick">
                 <ui-icon icon="close" />
@@ -28,8 +28,8 @@
                             <line-symbol v-for="line in possibleDestination.lines" :key="line.id" :line="line" />
                         </div>
                         <div class="stop-details-dialog__actions">
-                            <button class="btn btn-action" @click="destination = possibleDestination.stop">
-                                <ui-icon icon="map-marked" />
+                            <button class="btn btn-action" :class="{'btn-toggled': destination?.id == possibleDestination.stop.id}" @click="destination = possibleDestination.stop">
+                                <ui-icon :icon="destination?.id == possibleDestination.stop.id ? 'map-marked:selected' : 'map-marked'" />
                             </button>
                         </div>
                     </li>
@@ -74,13 +74,12 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, PropType, ref, watch } from "vue";
+import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { getStopType, HasDestinations, Line, Stop, Track } from "@/model";
 import { LFeatureGroup } from '@vue-leaflet/vue-leaflet';
 import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
 import { Map, LatLngExpression, point, PointExpression } from "leaflet";
 import StopPin from "@/components/stop/StopPin.vue";
-import { ApiClientKey } from "@/api";
 import TrackRepository from "@/services/TrackRepository";
 import { computedAsync } from "@vueuse/core";
 import TrackPicker from "@/components/track/TrackPicker.vue";

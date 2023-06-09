@@ -25,3 +25,8 @@ button {
 p:last-child {
   margin-bottom: 0;
 }
+
+* {
+  grid-auto-rows: minmax(0, 1fr);
+  grid-auto-columns: minmax(0, 1fr);
+}

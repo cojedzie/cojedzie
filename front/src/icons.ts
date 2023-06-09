@@ -70,6 +70,7 @@ import {
     faExclamationTriangle as faSolidExclamationTriangle,
     faWalking,
     faClock as faSolidClock,
+    faMapMarkedAlt as faMapMarkedSolidAlt
 } from "@resources/fontawesome/pro-solid-svg-icons";
 
 const faBus: IconDefinition = <any>{
@@ -177,6 +178,7 @@ export const icons = {
     'info-hide': simple(faChevronCircleUp),
     'map': simple(faMapMarkerAlt),
     'map-marked': simple(faMapMarkedAlt),
+    'map-marked:selected': simple(faMapMarkedSolidAlt),
     'stop': simple(faSign),
     'spinner': simple(faSpinnerThird, { spin: true }),
     'increment': simple(faPlus, { "fixed-width": true }),

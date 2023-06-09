@@ -18,6 +18,10 @@
  */
 
 .stop-details-dialog {
+  min-height: 50vh;
+  max-height: 70vh;
+  display: grid;
+
   &__body {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -47,7 +51,7 @@
     padding: 0.5rem 1rem;
     background: white;
     box-shadow: rgba(black, .3) 0 1px 3px;
-    border-bottom-left-radius: 1px;
+    border-bottom-left-radius: 3px;
   }
 
   &__lines, &__destination-lines {
@@ -56,10 +60,14 @@
     gap: 0.25rem;
   }
 
+  &__details {
+    display: flex;
+    flex-direction: column;
+  }
+
   &__destinations {
     padding-left: 0;
     list-style: none;
-    max-height: 400px;
     margin-left: -$ui-dialog-margin;
     margin-right: -$ui-dialog-margin;
     margin-bottom: -$ui-dialog-margin;
@@ -88,6 +96,21 @@
     display: flex;
     grid-area: actions;
     align-items: center;
+
+    .btn-action {
+      padding: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 100%;
+
+      &:hover {
+        background-color: rgba(black, 0.05);
+      }
+    }
+
+    .btn-toggled {
+      color: $primary;
+    }
   }
 
   &__destination-name {
@@ -113,10 +136,14 @@
 
 @include media-breakpoint-down('sm') {
   .stop-details-dialog {
+    height: 100%;
+    max-height: 100%;
+
     &__body {
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 250px 1fr;
+      overflow-y: auto;
     }
 
     &__map {

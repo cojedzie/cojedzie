@@ -28,7 +28,7 @@
   overscroll-behavior-y: contain;
   z-index: 10000;
 
-  &::after {
+  &::after, &::before {
     height: $spacer;
     display: block;
     content: "";
