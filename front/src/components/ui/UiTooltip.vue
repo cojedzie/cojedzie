@@ -163,7 +163,8 @@ export default defineComponent({
             registerEventListeners();
         }
 
-        watch([ props.triggers, anchor ], updateTriggers, { deep: true })
+        watch([ () => props.triggers, anchor ], updateTriggers, { deep: true })
+
         onBeforeUnmount(removeEventListeners);
 
         return { root, isVisible, anchor };
