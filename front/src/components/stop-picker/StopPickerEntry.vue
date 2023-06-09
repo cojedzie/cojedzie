@@ -36,7 +36,7 @@
 
         <keep-alive>
             <teleport to="#popups">
-                <stop-details-dialog v-if="details" :stop="stop" @leave="details = false" style="display: grid; min-height: 70vh"/>
+                <stop-details-dialog v-if="details" :stop="stop" style="display: grid; min-height: 70vh" @leave="details = false" />
             </teleport>
         </keep-alive>
         <keep-alive>
