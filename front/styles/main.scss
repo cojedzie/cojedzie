@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@use "sass:math";
+
 @import "reset";
 
 @import "variables";
@@ -128,7 +130,7 @@ body {
 }
 
 #app {
-  margin-top: $grid-gutter-width / 2;
+  margin-top: math.div($grid-gutter-width, 2);
 }
 
 pre {

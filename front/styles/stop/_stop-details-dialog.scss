@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@use "sass:math";
+
 .stop-details-dialog {
   min-height: 50vh;
   max-height: 70vh;
@@ -81,7 +83,7 @@
     grid-template-areas: "icon name         actions"
                          "icon destinations actions";
     gap: 0.25rem;
-    padding: ($ui-dialog-margin / 4) $ui-dialog-margin;
+    padding: math.div($ui-dialog-margin, 4) $ui-dialog-margin;
 
     &:nth-child(2n) {
       background: rgba(black, .03);

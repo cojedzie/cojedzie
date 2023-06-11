@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@use "sass:math";
+
 @import "trigonometry";
 
 $description-rotation: 60deg;
@@ -79,9 +81,9 @@ $trip-visited: rgba($dark, .3);
     display: block;
     height: $trip-line-width;
     background: $dark;
-    width: calc(50% - #{$trip-stop-marker-size / 2});
+    width: calc(50% - ($trip-stop-marker-size / 2));
     position: absolute;
-    top: $trip-stop-marker-spacing + ($trip-stop-marker-size) / 2;
+    top: $trip-stop-marker-spacing + math.div($trip-stop-marker-size, 2);
     transform: translateY(-50%);
   }
 

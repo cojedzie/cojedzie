@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@use "sass:math";
+
 .ui-backdrop {
   @include position(fixed, 0);
   background: rgba(black, .75);
@@ -58,7 +60,7 @@ $ui-dialog-sizes: (
   position: relative;
 
   &.ui-modal--slim {
-    padding: $ui-dialog-margin / 2;
+    padding: calc($ui-dialog-margin / 2);
   }
 
   &.ui-modal--no-padding {
@@ -100,11 +102,11 @@ $ui-dialog-sizes: (
 
 @include media-breakpoint-down('sm') {
   .ui-backdrop {
-    padding: $spacer / 4;
+    padding: calc($spacer / 4);
   }
 
   .ui-modal {
-    padding: $ui-dialog-margin / 2;
+    padding: calc($ui-dialog-margin / 2);
     max-width: calc(100% - $spacer / 2);
   }
 

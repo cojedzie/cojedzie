@@ -50,11 +50,11 @@ $stop-variant-color: mix($dark, white, 75%);
 .stop__details {
   display: flex;
   flex-wrap: wrap;
-  margin: 0 (-$grid-gutter-width/2);
+  margin: 0 $grid-gutter-width * -0.5;
 
   section {
     flex: 0 0 100%;
-    padding: 0 $grid-gutter-width/2;
+    padding: 0 $grid-gutter-width * 0.5;
   }
 
   &.size-lg {

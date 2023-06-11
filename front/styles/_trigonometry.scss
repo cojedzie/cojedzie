@@ -24,7 +24,8 @@
 //      http://japborst.net/posts/sass-sines-and-cosines //
 ///////////////////////////////////////////////////////////
 
-$pi: 3.14159265359;
+@use 'sass:math';
+
 $_precision: 5;
 
 @function pow($base, $exp) {
@@ -36,7 +37,7 @@ $_precision: 5;
   }
   @if $exp < 1{
     @for $i from 0 through -$exp {
-      $value: $value / $base;
+      $value: math.div($value, $base);
     }
   }
   @return $value;
@@ -54,10 +55,10 @@ $_precision: 5;
 
 @function _to_unitless_rad($angle) {
   @if unit($angle) == "deg" {
-    $angle: $angle / 180deg * $pi;
+    $angle: math.div($angle, 180deg) * math.$pi;
   }
   @if unit($angle) == "rad" {
-    $angle: $angle / 1rad;
+    $angle: math.div($angle, 1rad);
   }
   @return $angle;
 }
@@ -66,7 +67,7 @@ $_precision: 5;
   $a: _to_unitless_rad($angle);
   $sin: $a;
   @for $n from 1 through $_precision {
-    $sin: $sin + (pow(-1, $n) / fact(2 * $n + 1) ) * pow($a, (2 * $n + 1));
+    $sin: $sin + math.div(pow(-1, $n), fact(2 * $n + 1)) * math.pow($a, (2 * $n + 1));
   }
   @return $sin;
 }
@@ -75,11 +76,11 @@ $_precision: 5;
   $a: _to_unitless_rad($angle);
   $cos: 1;
   @for $n from 1 through $_precision {
-    $cos: $cos + ( pow(-1,$n) / fact(2*$n) ) * pow($a,2*$n);
+    $cos: $cos + math.div(pow(-1,$n), fact(2*$n)) * pow($a,2*$n);
   }
   @return $cos;
 }
 
 @function tan($angle){
-  @return sin($angle) / cos($angle);
+  @return math.div(sin($angle), cos($angle));
 }
