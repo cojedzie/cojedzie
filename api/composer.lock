@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7980f1759a58f0fa4301135f1077e654",
+    "content-hash": "4ca151412b52b2e76a4074b19eebc9e6",
     "packages": [
         {
             "name": "baldinof/roadrunner-bundle",
@@ -4371,22 +4371,22 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "3.18.2",
+            "version": "3.19.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "c634615c09a69bfdc3bb5f6ffeee78db3711167c"
+                "reference": "dd1057fb37d4484ebb2d1bc9b05fa5969c078436"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/c634615c09a69bfdc3bb5f6ffeee78db3711167c",
-                "reference": "c634615c09a69bfdc3bb5f6ffeee78db3711167c",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/dd1057fb37d4484ebb2d1bc9b05fa5969c078436",
+                "reference": "dd1057fb37d4484ebb2d1bc9b05fa5969c078436",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "guzzlehttp/promises": "^1.4",
+                "guzzlehttp/promises": "^1.5.3|^2.0",
                 "jean85/pretty-package-versions": "^1.5|^2.0.4",
                 "php": "^7.2|^8.0",
                 "php-http/async-client-implementation": "^1.0",
@@ -4460,7 +4460,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/3.18.2"
+                "source": "https://github.com/getsentry/sentry-php/tree/3.19.1"
             },
             "funding": [
                 {
@@ -4472,7 +4472,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-17T10:56:54+00:00"
+            "time": "2023-05-25T06:19:09+00:00"
         },
         {
             "name": "sentry/sentry-symfony",
