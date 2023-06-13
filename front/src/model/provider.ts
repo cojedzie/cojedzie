@@ -33,6 +33,6 @@ export interface Provider {
 export function convertProviderDtoToProvider(dto: Jsonified<Provider>): Provider {
     return {
         ...dto,
-        lastUpdate: moment(dto.lastUpdate),
+        lastUpdate: moment.parseZone(dto.lastUpdate).local(),
     }
 }

@@ -68,8 +68,8 @@ const actions: MessagesActionTree = {
                 MessagesMutations.ListReceived,
                 messages.map(message => ({
                     ...message,
-                    validFrom: moment(message.validFrom),
-                    validTo:   moment(message.validTo),
+                    validFrom: moment.parseZone(message.validFrom).local(),
+                    validTo:   moment.parseZone(message.validTo).local(),
                 })) as Message[]
             );
         } catch (response) {

@@ -78,8 +78,8 @@ const actions: DeparturesActionTree = {
                 departures.map((departure): Departure => ({
                     ...departure,
                     line: departure.line as Line,
-                    scheduled: moment.parseZone(departure.scheduled),
-                    estimated: departure.estimated && moment.parseZone(departure.estimated),
+                    scheduled: moment.parseZone(departure.scheduled).local(),
+                    estimated: departure.estimated && moment.parseZone(departure.estimated).local(),
                 }))
             );
         } catch (response) {

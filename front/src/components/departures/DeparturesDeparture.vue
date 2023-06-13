@@ -71,8 +71,8 @@ function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
         ...trip,
         schedule: trip.schedule.map(scheduled => ({
             ...scheduled,
-            arrival: moment.parseZone(scheduled.arrival),
-            departure: moment.parseZone(scheduled.departure),
+            arrival: moment.parseZone(scheduled.arrival).local(),
+            departure: moment.parseZone(scheduled.departure).local(),
         }))
     };
 }
