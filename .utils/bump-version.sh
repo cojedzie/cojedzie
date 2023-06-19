@@ -28,3 +28,8 @@ for FILE in "${FILES_TO_UPDATE[@]}"; do
   cat "$FILE" | jq ".version=\"$1\"" > "$TMPFILE"
   cp $TMPFILE $FILE
 done
+
+git reset .
+git add "${FILES_TO_UPDATE[@]}"
+git commit -m "release: $1"
+git tag "v$1"
