@@ -23,6 +23,7 @@ namespace App\Command;
 use App\Entity\Federation\FederatedConnectionEntity;
 use App\Repository\FederatedConnectionEntityRepository;
 use App\Service\FederatedConnectionChecker;
+use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,7 +33,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Uid\Uuid;
 
-class FederationCheckCommand extends Command
+class FederationCheckCommand extends Command implements CustomSentrySampleRateInterface
 {
     protected static $defaultName        = 'federation:check';
     protected static $defaultDescription = 'Get list of all federated servers.';
@@ -71,5 +72,10 @@ class FederationCheckCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    public function getSentrySampleRate(): float
+    {
+        return 0.0;
     }
 }

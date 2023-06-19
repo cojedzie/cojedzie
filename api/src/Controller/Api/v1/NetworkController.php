@@ -45,7 +45,7 @@ use Symfony\Component\Uid\NilUuid;
  *
  * @OA\Tag(name="Network")
  */
-#[Route(path: '/network', name: 'network_')]
+#[Route(path: '/network', name: 'network_', options: ['sentry_trace_sample' => 0.01])]
 class NetworkController extends Controller
 {
     public function __construct(

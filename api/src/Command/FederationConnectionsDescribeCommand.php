@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Repository\FederatedConnectionEntityRepository;
+use App\Utility\CustomSentrySampleRateInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,8 +12,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Uid\Uuid;
 
-class FederationConnectionsDescribeCommand extends Command
+class FederationConnectionsDescribeCommand extends Command implements CustomSentrySampleRateInterface
 {
+    use FederationSampleRateTrait;
+
     protected static $defaultName        = 'federation:connections:describe';
     protected static $defaultDescription = 'Describe federation connection';
 

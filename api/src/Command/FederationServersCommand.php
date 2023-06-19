@@ -21,14 +21,17 @@
 namespace App\Command;
 
 use App\Entity\Federation\FederatedServerEntity;
+use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class FederationServersCommand extends Command
+class FederationServersCommand extends Command implements CustomSentrySampleRateInterface
 {
+    use FederationSampleRateTrait;
+
     protected static $defaultName        = 'federation:servers';
     protected static $defaultDescription = 'Get list of all federated servers.';
 

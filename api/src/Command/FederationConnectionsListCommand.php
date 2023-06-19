@@ -21,14 +21,17 @@
 namespace App\Command;
 
 use App\Entity\Federation\FederatedConnectionEntity;
+use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class FederationConnectionsListCommand extends Command
+class FederationConnectionsListCommand extends Command implements CustomSentrySampleRateInterface
 {
+    use FederationSampleRateTrait;
+
     protected static $defaultName        = 'federation:connections:list';
     protected static $defaultDescription = 'List federated connections';
 

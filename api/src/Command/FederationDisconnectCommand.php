@@ -22,14 +22,17 @@ namespace App\Command;
 
 use App\Context\FederationContext;
 use App\Service\FederatedConnectionService;
+use App\Utility\CustomSentrySampleRateInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 
-class FederationDisconnectCommand extends Command
+class FederationDisconnectCommand extends Command implements CustomSentrySampleRateInterface
 {
+    use FederationSampleRateTrait;
+
     protected static $defaultName        = 'federation:disconnect';
     protected static $defaultDescription = 'Disconnect this node into the federation network.';
 

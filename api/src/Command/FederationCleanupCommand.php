@@ -22,14 +22,17 @@ namespace App\Command;
 
 use App\Entity\Federation\FederatedConnectionEntity;
 use App\Repository\FederatedConnectionEntityRepository;
+use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class FederationCleanupCommand extends Command
+class FederationCleanupCommand extends Command implements CustomSentrySampleRateInterface
 {
+    use FederationSampleRateTrait;
+
     protected static $defaultName        = 'federation:cleanup';
     protected static $defaultDescription = 'Cleanup closed connections from database.';
 

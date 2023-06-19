@@ -10,10 +10,11 @@ when@prod:
         excluded_commands:
           - messenger:consume
           - schedule:run
+          - federation:check
 
     options:
       release: '%env(COJEDZIE_VERSION)%'
       environment: '%env(resolve:SENTRY_ENVIRONMENT)%'
-      traces_sample_rate: '%env(float:SENTRY_SAMPLE_RATE)%'
+      traces_sampler: App\Service\SentrySampler
       integrations:
         - 'Sentry\Integration\IgnoreErrorsIntegration'

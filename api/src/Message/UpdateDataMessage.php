@@ -20,6 +20,12 @@
 
 namespace App\Message;
 
-final class UpdateDataMessage
+use App\Utility\CustomSentrySampleRateInterface;
+
+final class UpdateDataMessage implements CustomSentrySampleRateInterface
 {
+    public function getSentrySampleRate(): float
+    {
+        return 0.01;
+    }
 }
