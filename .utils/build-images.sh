@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TAGS=$*
-BUILD=$(dirname $0)
+BUILD=$(dirname $0)/../build
 ROOT=$BUILD/..
 
 REGISTRY="docker.io"
