@@ -38,6 +38,7 @@ import { install as api } from '@/api';
 import { install as sentry } from '@/sentry';
 import container from '@/services'
 import { router } from "@/routes";
+import { signed } from './utils';
 
 app.use(sentry)
 app.use(api);
@@ -54,6 +55,10 @@ declare module '@vue/runtime-core' {
         $hasSlot: (slot: string) => string;
         $moment: typeof moment;
         $store: Store<StoreDefinition>;
+        $f: {
+            signed: typeof signed,
+            duration: typeof moment.duration,
+        }
     }
 }
 
