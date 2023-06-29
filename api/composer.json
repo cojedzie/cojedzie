@@ -2,7 +2,7 @@
   "name": "kadet/cojedzie",
   "description": "Co Jedzie",
   "type": "project",
-  "version": "2023.1.3",
+  "version": "2023.1.4",
   "license": "AGPL-3.0-only",
   "require": {
     "php": "^8.1",
