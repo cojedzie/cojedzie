@@ -1,8 +1,6 @@
 import { App } from "vue";
 import * as Sentry from "@sentry/vue";
-import { app } from "@/components";
 import { router } from "@/routes";
-import * as browserslist from "browserslist";
 
 export function install(app: App) {
     // Skip if DSN for sentry is not defined
@@ -31,10 +29,10 @@ export function install(app: App) {
         release: window.CoJedzie.version,
         environment: config.environment,
 
-        tracesSampleRate: config.tracesSampleRate || 0.1,
+        tracesSampleRate: config.tracesSampleRate ?? 0.1,
 
-        replaysSessionSampleRate: config.replaysSessionSampleRate || 0.1,
-        replaysOnErrorSampleRate: 1.0,
+        replaysSessionSampleRate: config.replaysSessionSampleRate ?? 0.1,
+        replaysOnErrorSampleRate: config.replaysErrorSampleRate ?? 1.0,
     });
 
     Sentry.setTags(config.tags || { })

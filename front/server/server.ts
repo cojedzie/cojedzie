@@ -114,7 +114,7 @@ function computeSentryMultiplierForRequest(req: Request): SentryBrowserSettings|
 
 function generateSentryConfig(req: Request): SentryConfig {
     const replaysSessionSampleRate = parseFloat(process.env.SENTRY_SESSION_REPLAY_RATE || "0.0"),
-        replaysErrorSampleRate = parseFloat(process.env.SENTRY_ERROR_REPLAY_RATE || "0.1"),
+        replaysErrorSampleRate = parseFloat(process.env.SENTRY_ERROR_REPLAY_RATE || "1.0"),
         tracesSampleRate = parseFloat(process.env.SENTRY_SAMPLE_RATE || "0.05");
 
     const {
