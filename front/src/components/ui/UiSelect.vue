@@ -2,7 +2,7 @@
     <div class="ui-select" :class="{'ui-select--active': isOpen}" @keydown="handleKeyboardNavigation">
         <div class="ui-select__control" tabindex="0" ref="controlElement">
             <div class="ui-select__option ui-select__option--selected" :class="{ 'ui-select__option--empty': !modelValue }" @click="open()">
-                <slot v-if="modelValue" :option="modelValue">
+                <slot v-if="modelValue" :option="(modelValue as T)">
                     {{ modelValue }}
                 </slot>
                 <slot v-else name="empty">
@@ -41,11 +41,11 @@
     </div>
 </template>
 
-<script lang="ts" setup>
-import { PropType, ref, reactive } from "vue";
+<script setup lang="ts" generic="T">
+import { ref, reactive, PropType } from "vue";
 import { onClickOutside } from "@vueuse/core"
-import {usePopper} from "@/composables/usePopper";
-import {Placement} from "popper.js";
+import { usePopper } from "@/composables/usePopper";
+import { Placement } from "popper.js";
 
 const props = defineProps({
     allowEmpty: Boolean,
@@ -55,12 +55,12 @@ const props = defineProps({
     },
     allowInput: Boolean,
     modelValue: {
-        type: null as PropType<unknown>,
+        type: null as PropType<T>,
         required: false,
         default: null,
     },
     options: {
-        type: Array as PropType<unknown[]>,
+        type: Array as PropType<T[]>,
         required: true,
     },
     placement: {
@@ -68,6 +68,10 @@ const props = defineProps({
         default: "bottom-start",
     }
 })
+
+defineSlots<{
+    default?: (props: { option: T }) => any
+}>();
 
 const optionsPopupElement = ref<HTMLElement>(null);
 const controlElement = ref<HTMLElement>(null);
@@ -81,9 +85,9 @@ onClickOutside(optionsPopupElement, () => {
 })
 
 const emit = defineEmits<{
-    (type: "update:modelValue", value: unknown, index: number): void,
-    (type: "hover", value: unknown, index: number): void,
-    (type: "clear", value: unknown),
+    (type: "update:modelValue", value: T, index: number): void,
+    (type: "hover", value: T, index: number): void,
+    (type: "clear", value: T),
 }>();
 
 const isOpen = ref<boolean>(false);
@@ -91,14 +95,14 @@ const selectedIndex = ref<number | null>(null);
 
 function clear() {
     emit('update:modelValue', null, -1);
-    emit('clear', props.modelValue);
+    emit('clear', props.modelValue as T);
 
     selectedIndex.value = null;
 
     close();
 }
 
-function select(item: unknown, index: number) {
+function select(item: T, index: number) {
     emit('update:modelValue', item, index);
 
     selectedIndex.value = null;
@@ -106,7 +110,7 @@ function select(item: unknown, index: number) {
     close();
 }
 
-function hover(item: unknown, index: number) {
+function hover(item: T, index: number) {
     emit('hover', item, index);
 
     selectedIndex.value = index;
