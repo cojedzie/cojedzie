@@ -26,7 +26,7 @@ import { Store } from "vuex";
 export interface LoadBalancerNode<TEndpoints extends EndpointCollection> {
     id: string;
     url: string;
-    endpoints: Optionalify<TEndpoints>,
+    endpoints: Optionalify<TEndpoints>;
 }
 
 export type LoadBalancedEndpoint<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> = {
@@ -34,19 +34,19 @@ export type LoadBalancedEndpoint<TEndpoints extends EndpointCollection, TEndpoin
 } & TEndpoints[TEndpoint];
 
 export interface LoadBalanceOptions<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> {
-    require: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean,
+    require: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean;
 }
 
 export interface LoadBalancer<TEndpoints extends EndpointCollection> {
     get<TEndpoint extends keyof TEndpoints>(
         name: TEndpoint,
         options: LoadBalanceOptions<TEndpoints, TEndpoint>
-    ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>>,
+    ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>>;
 
     candidates<TEndpoint extends keyof TEndpoints>(
         name: TEndpoint,
         options: LoadBalanceOptions<TEndpoints, TEndpoint>
-    ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]>,
+    ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]>;
 }
 
 export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> implements LoadBalancer<TEndpoints> {
@@ -71,15 +71,15 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
         name: TEndpoint,
         options: LoadBalanceOptions<TEndpoints, TEndpoint>
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]> {
-        const requirements = options.require || (_ => true)
+        const requirements = options.require || (_ => true);
 
-        return (this.store.getters['network/available'] as LoadBalancerNode<TEndpoints>[])
+        return (this.store.getters["network/available"] as LoadBalancerNode<TEndpoints>[])
             .filter(node => typeof node.endpoints[name] !== "undefined")
             .map<LoadBalancedEndpoint<TEndpoints, TEndpoint>>(node => ({
                 node,
                 ...node.endpoints[name],
             }))
-            .filter(endpoint => requirements(endpoint))
+            .filter(endpoint => requirements(endpoint));
     }
 
     async get<TEndpoint extends keyof TEndpoints>(

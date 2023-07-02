@@ -1,5 +1,5 @@
 <template>
-    <slot name="button" v-bind="{ toggle, ref: el => button = el, $attrs }">
+    <slot name="button" v-bind="{ toggle, ref: el => (button = el), $attrs }">
         <button v-bind="$attrs" ref="button" type="button" @click="toggle">
             <ui-icon icon="info" fixed-width />
         </button>
@@ -34,13 +34,13 @@ export default defineComponent({
         trigger: {
             type: Array as PropType<HelpTrigger[]>,
             required: false,
-            default: supply<HelpTrigger[]>(["click", "long-hover"])
+            default: supply<HelpTrigger[]>(["click", "long-hover"]),
         },
         mutex: {
             type: Object as PropType<Mutex>,
             required: false,
             default: mutex,
-        }
+        },
     },
     setup(props) {
         const button = ref<HTMLElement>(null);
@@ -50,9 +50,9 @@ export default defineComponent({
             active,
             toggle,
             button,
-        }
+        };
     },
-})
+});
 </script>
 
 <style lang="scss">

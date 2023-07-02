@@ -1,13 +1,8 @@
 <template>
-    <l-map
-        v-bind="{ ...$attrs, ...$props }"
-        ref="map"
-        :options="{ zoomSnap: 0.1, ...options }"
-        :max-zoom="17"
-    >
+    <l-map v-bind="{ ...$attrs, ...$props }" ref="map" :options="{ zoomSnap: 0.1, ...options }" :max-zoom="17">
         <l-vector-layer
-            :url="`https://api.maptiler.com/maps/bright/style.json?key=${ key }`"
-            attribution="<a href=&quot;https://www.maptiler.com/copyright/&quot; target=&quot;_blank&quot;>© MapTiler</a> <a href=&quot;https://www.openstreetmap.org/copyright&quot; target=&quot;_blank&quot;>© OpenStreetMap contributors</a>"
+            :url="`https://api.maptiler.com/maps/bright/style.json?key=${key}`"
+            attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>'
         />
 
         <slot />
@@ -20,7 +15,7 @@ import { computed, ComputedRef, defineComponent, onBeforeUnmount, onMounted, ref
 import { Map } from "leaflet";
 import { useAppConfig } from "@/composables/useAppConfig";
 
-const leaflet = Symbol("leaflet")
+const leaflet = Symbol("leaflet");
 
 const observer = new ResizeObserver(entries => {
     for (const entry of entries) {
@@ -34,20 +29,22 @@ const observer = new ResizeObserver(entries => {
 
         const map = entry.target[leaflet] as ComputedRef<Map>;
 
-        map?.value?.invalidateSize?.()
+        map?.value?.invalidateSize?.();
     }
-})
+});
 
 export default defineComponent({
     name: "UiMap",
     components: {
         LMap,
-        LVectorLayer
+        LVectorLayer,
     },
     props: LMap.props,
     emits: LMap.emits,
     setup(props, { expose }) {
-        const { maptiler: { key } } = useAppConfig();
+        const {
+            maptiler: { key },
+        } = useAppConfig();
 
         const map = ref();
         const leafletObject = computed<Map>(() => map.value?.leafletObject);
@@ -57,18 +54,18 @@ export default defineComponent({
         onMounted(() => {
             observer.observe(map.value.root, { box: "border-box" });
             map.value.root[leaflet] = leafletObject;
-        })
+        });
 
         onBeforeUnmount(() => {
             observer.unobserve(map.value.root);
             // prevent memory leak
             delete map.value.root[leaflet];
-        })
+        });
 
         return {
             key,
-            map
-        }
-    }
-})
+            map,
+        };
+    },
+});
 </script>

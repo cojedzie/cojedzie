@@ -23,26 +23,26 @@ const StopPin = defineComponent({
     name: "StopPin",
     components: {
         UiMapPin,
-        StopLabel
+        StopLabel,
     },
     props: {
         stop: {
             type: Object as PropType<Stop>,
-            required: true
+            required: true,
         },
         type: {
             type: String as PropType<LineType>,
             required: false,
             default({ stop }) {
-                return getStopType(stop)
-            }
+                return getStopType(stop);
+            },
         },
         noLabel: {
             type: Boolean,
             required: false,
-        }
-    }
-})
+        },
+    },
+});
 
 export default StopPin;
 </script>

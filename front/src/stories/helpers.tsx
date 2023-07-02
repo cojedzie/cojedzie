@@ -21,7 +21,7 @@ import { useRef, useEffect, createElement } from "react";
 import { Component, createApp } from "vue";
 
 export type VProps<TComponent extends Component> = {
-    component: TComponent
+    component: TComponent;
 } & (TComponent extends Component<infer TProps> ? TProps : unknown);
 
 export function V<TComponent extends Component>({ component, ...args }: VProps<TComponent>) {
@@ -32,11 +32,7 @@ export function V<TComponent extends Component>({ component, ...args }: VProps<T
         app.mount(el.current);
 
         return () => app.unmount();
-    }, [ el ])
+    }, [el]);
 
-    return createElement(
-        "div",
-        null,
-        createElement("div", { ref: el })
-    );
+    return createElement("div", null, createElement("div", { ref: el }));
 }

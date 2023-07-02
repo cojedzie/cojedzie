@@ -21,7 +21,7 @@
 
 .ui-backdrop {
   @include position(fixed, 0);
-  background: rgba(black, .75);
+  background: rgba(black, 0.75);
   padding: $spacer;
   display: flex;
   flex-direction: column;
@@ -30,7 +30,8 @@
   overscroll-behavior-y: contain;
   z-index: 10000;
 
-  &::after, &::before {
+  &::after,
+  &::before {
     height: $spacer;
     display: block;
     content: "";
@@ -41,19 +42,18 @@
 
 $ui-dialog-margin: 2rem;
 $ui-dialog-sizes: (
-        medium: 480px,
-        small: 320px,
-        big: 640px,
-        large: 860px,
-        huge: 1024px,
-)
-;
+  medium: 480px,
+  small: 320px,
+  big: 640px,
+  large: 860px,
+  huge: 1024px,
+);
 
 .ui-modal {
   padding: $ui-dialog-margin;
   background: white;
   margin: auto;
-  box-shadow: rgba(black, .7) 0 1px 3px;
+  box-shadow: rgba(black, 0.7) 0 1px 3px;
   border-radius: 1px;
   box-sizing: content-box;
   max-width: 80%;
@@ -64,7 +64,7 @@ $ui-dialog-sizes: (
   }
 
   &.ui-modal--no-padding {
-      padding: 0;
+    padding: 0;
   }
 
   &__heading {
@@ -100,7 +100,7 @@ $ui-dialog-sizes: (
   margin-bottom: $ui-dialog-margin * 0.75;
 }
 
-@include media-breakpoint-down('sm') {
+@include media-breakpoint-down("sm") {
   .ui-backdrop {
     padding: calc($spacer / 4);
   }

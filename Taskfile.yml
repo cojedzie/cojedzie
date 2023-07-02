@@ -41,11 +41,17 @@ tasks:
   reformat:
     deps:
       - task: reformat:api
+      - task: reformat:frontend
 
   reformat:api:
     desc: Reformat API with ECS
     cmds:
       - docker-compose run --rm -e APP_RUNAS="{{.USER}}" -e APP_MODE=performance api vendor/bin/ecs --fix
+
+  reformat:frontend:
+    desc: Reformat Frontend with Prettier
+    cmds:
+      - docker-compose run --rm -u {{.USER}} frontend node_modules/.bin/prettier . --write
 
   test:
     deps:

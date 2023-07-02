@@ -31,8 +31,12 @@
                     type="text"
                     class="form-control form-control-sm form-control-simple"
                     :value="autorefreshInterval"
-                    @input="update({ autorefreshInterval: Number.parseInt($event.target.value) })"
-                >
+                    @input="
+                        update({
+                            autorefreshInterval: Number.parseInt($event.target.value),
+                        })
+                    "
+                />
                 <div class="input-group-append">
                     <span class="input-group-text" aria-label="sekund">s</span>
                 </div>
@@ -55,8 +59,8 @@
                 </template>
 
                 <p>
-                    Kontroluje liczbę wpisów wyświetlanych w tabeli odjazdów. Liczba ta jest niezależna od liczby wybranych
-                    przystanków.
+                    Kontroluje liczbę wpisów wyświetlanych w tabeli odjazdów. Liczba ta jest niezależna od liczby
+                    wybranych przystanków.
                 </p>
             </ui-help>
         </div>
@@ -77,7 +81,7 @@
             <button
                 type="button"
                 class="label__button mr-1 flex-space-left"
-                :class="[ relativeTimesShowAdvancedOptions && 'label__button--pressed' ]"
+                :class="[relativeTimesShowAdvancedOptions && 'label__button--pressed']"
                 :disabled="!relativeTimes"
                 @click="relativeTimesShowAdvancedOptions = !relativeTimesShowAdvancedOptions"
             >
@@ -95,7 +99,7 @@
                     <ui-icon icon="relative-time" fixed-width />
                     pokazuj czas do odjazdu
                 </template>
-                <img src="@resources/images/help/departures-relative-time.png" alt="" class="help__image">
+                <img src="@resources/images/help/departures-relative-time.png" alt="" class="help__image" />
 
                 <p>Włączenie tej opcji spowoduje pokazywanie czasu pozostałego do odjazdu w miejsce godziny odjazdu.</p>
                 <p>
@@ -106,7 +110,7 @@
         </div>
         <ui-fold
             :visible="relativeTimes && relativeTimesShowAdvancedOptions"
-            style="margin-left: 7px; border-left: 1px solid lightgray; padding-left: 10px;"
+            style="margin-left: 7px; border-left: 1px solid lightgray; padding-left: 10px"
         >
             <div class="label flex">
                 <label class="text label--secondary" for="departures-relative-times-for-scheduled">
@@ -129,15 +133,15 @@
                         src="@resources/images/help/departures-relative-for-scheduled.png"
                         alt=""
                         class="help__image"
-                    >
+                    />
 
                     <p>
-                        Możliwość wyłączenia pokazywania czasu do odjazdu dla kursów, które nie posiadają informacji w czasie
-                        rzeczywistym i nie uwzględniają aktualnej sytuacji komunikacyjnej.
+                        Możliwość wyłączenia pokazywania czasu do odjazdu dla kursów, które nie posiadają informacji w
+                        czasie rzeczywistym i nie uwzględniają aktualnej sytuacji komunikacyjnej.
                     </p>
                     <p>
-                        Zachowanie takie jest zgodne z tym występującym na wielu tablicach Systemu Informacji Pasażerskiej
-                        dostępnych na przystankach.
+                        Zachowanie takie jest zgodne z tym występującym na wielu tablicach Systemu Informacji
+                        Pasażerskiej dostępnych na przystankach.
                     </p>
                 </ui-help>
             </div>
@@ -162,13 +166,15 @@
                             src="@resources/images/help/departures-relative-time-limit.png"
                             alt=""
                             class="help__image"
-                        >
-                        <figcaption>Zachowanie dla włączonego ustawienia z ustawionym domyślnym progiem 40 minut.</figcaption>
+                        />
+                        <figcaption>
+                            Zachowanie dla włączonego ustawienia z ustawionym domyślnym progiem 40 minut.
+                        </figcaption>
                     </figure>
 
                     <p>
-                        Możliwość pokazywania czasu do odjazdu wyłącznie dla odjazdów wcześniejszych niż zadany próg. Opcja
-                        ta umożliwia dokładniejsze informowanie o czasie późniejszych odjazdów.
+                        Możliwość pokazywania czasu do odjazdu wyłącznie dla odjazdów wcześniejszych niż zadany próg.
+                        Opcja ta umożliwia dokładniejsze informowanie o czasie późniejszych odjazdów.
                     </p>
                 </ui-help>
             </div>
@@ -182,7 +188,7 @@
                         v-model="relativeTimesLimit"
                         type="text"
                         class="form-control form-control-sm form-control-simple"
-                    >
+                    />
                     <div class="input-group-append">
                         <span class="input-group-text" aria-label="minut">min</span>
                     </div>
@@ -199,7 +205,7 @@ import { DeparturesSettingsState } from "@/store/modules/settings/departures";
 
 @Options({
     name: "SettingsDepartures",
-    store
+    store,
 })
 export default class SettingsDepartures extends Vue {
     @DeparturesSettings.State
@@ -219,8 +225,9 @@ export default class SettingsDepartures extends Vue {
 
     public set relativeTimesLimit(relativeTimesLimit: number | string) {
         this.update({
-            relativeTimesLimit: typeof relativeTimesLimit === "string" ? Number.parseInt(relativeTimesLimit) : relativeTimesLimit
-        })
+            relativeTimesLimit:
+                typeof relativeTimesLimit === "string" ? Number.parseInt(relativeTimesLimit) : relativeTimesLimit,
+        });
     }
 
     public get relativeTimesHasLimit(): boolean {
@@ -228,7 +235,7 @@ export default class SettingsDepartures extends Vue {
     }
 
     public set relativeTimesHasLimit(relativeTimesLimitEnabled: boolean) {
-        this.update({ relativeTimesLimitEnabled })
+        this.update({ relativeTimesLimitEnabled });
     }
 
     @DeparturesSettings.Mutation

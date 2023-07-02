@@ -33,14 +33,16 @@ $stop-variant-color: mix($dark, white, 75%);
 
 .stop__details-fold {
   flex-basis: 100%;
-  .fold__inner { padding-bottom: .75rem; }
+  .fold__inner {
+    padding-bottom: 0.75rem;
+  }
 }
 
 .stop__variant {
   @extend .badge;
   border: solid 1px $stop-variant-color;
   color: $dark;
-  margin-left: .5em;
+  margin-left: 0.5em;
 }
 
 .stop__tracks .line__symbol .badge {
@@ -115,7 +117,7 @@ ul.stop-list.stop-list--inline {
   margin-bottom: 0 !important;
 
   .actions {
-    margin: -.5rem -.75rem;
+    margin: -0.5rem -0.75rem;
     margin-left: auto;
   }
 }

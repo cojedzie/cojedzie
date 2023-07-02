@@ -28,17 +28,20 @@ export type DeparturesSettingsState = {
     relativeTimesForScheduled: boolean;
     relativeTimesLimit: number;
     relativeTimesLimitEnabled: boolean;
-}
+};
 
 export enum DeparturesSettingsMutations {
     Update = "update",
 }
 
 export type DeparturesSettingsMutationTree = {
-    [DeparturesSettingsMutations.Update]: VuexMutationHandler<DeparturesSettingsState, Partial<DeparturesSettingsState>>
-}
+    [DeparturesSettingsMutations.Update]: VuexMutationHandler<
+        DeparturesSettingsState,
+        Partial<DeparturesSettingsState>
+    >;
+};
 
-export type DeparturesSettingsModule = NamespacedVuexModule<DeparturesSettingsState, DeparturesSettingsMutationTree>
+export type DeparturesSettingsModule = NamespacedVuexModule<DeparturesSettingsState, DeparturesSettingsMutationTree>;
 
 const departureSettings: DeparturesSettingsModule = {
     namespaced: true,
@@ -49,13 +52,13 @@ const departureSettings: DeparturesSettingsModule = {
         relativeTimes: false,
         relativeTimesForScheduled: true,
         relativeTimesLimit: 40,
-        relativeTimesLimitEnabled: true
+        relativeTimesLimitEnabled: true,
     }),
     mutations: {
         [DeparturesSettingsMutations.Update](state, patch) {
             Object.assign(state, patch);
-        }
-    }
+        },
+    },
 };
 
 export default departureSettings;

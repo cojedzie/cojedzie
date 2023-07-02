@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2021 Kacper Donat
  *
@@ -18,5 +17,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { default as StopMap } from "./StopMap.vue"
-export { default as StopLabel } from "./StopLabel.vue"
+export { default as StopMap } from "./StopMap.vue";
+export { default as StopLabel } from "./StopLabel.vue";

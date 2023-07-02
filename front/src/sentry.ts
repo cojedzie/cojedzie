@@ -17,11 +17,7 @@ export function install(app: App) {
         integrations: [
             new Sentry.BrowserTracing({
                 routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-                tracePropagationTargets: [
-                    window.CoJedzie.api.base,
-                    window.CoJedzie.api.hub,
-                    /^\//
-                ]
+                tracePropagationTargets: [window.CoJedzie.api.base, window.CoJedzie.api.hub, /^\//],
             }),
             new Sentry.Replay(),
         ],
@@ -35,5 +31,5 @@ export function install(app: App) {
         replaysOnErrorSampleRate: config.replaysErrorSampleRate ?? 1.0,
     });
 
-    Sentry.setTags(config.tags || { })
+    Sentry.setTags(config.tags || {});
 }

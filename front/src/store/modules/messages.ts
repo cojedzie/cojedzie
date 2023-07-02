@@ -19,7 +19,7 @@
 
 import { Message, MessageType } from "@/model/message";
 import common, { CommonMutations, CommonMutationTree, CommonState } from "./common";
-import moment from 'moment';
+import moment from "moment";
 import { resolve, supply } from "@/utils";
 import { NamespacedVuexModule, VuexActionHandler, VuexMutationHandler, VuexGetter } from "vuex";
 
@@ -32,36 +32,39 @@ export enum MessagesMutations {
 }
 
 export interface MessagesState extends CommonState {
-    messages: Message[]
+    messages: Message[];
 }
 
 export type MessagesMutationTree = {
-    [MessagesMutations.ListReceived]: VuexMutationHandler<MessagesState, Message[]>,
-}
+    [MessagesMutations.ListReceived]: VuexMutationHandler<MessagesState, Message[]>;
+};
 
 export type MessagesActionTree = {
-    [MessagesActions.Update]: VuexActionHandler<MessagesModule>,
-}
+    [MessagesActions.Update]: VuexActionHandler<MessagesModule>;
+};
 
 export type MessagesGettersTree = {
-    count: VuexGetter<MessagesModule, number>,
-    counts: VuexGetter<MessagesModule, Record<MessageType, number>>,
-}
+    count: VuexGetter<MessagesModule, number>;
+    counts: VuexGetter<MessagesModule, Record<MessageType, number>>;
+};
 
 const mutations: MessagesMutationTree = {
     [MessagesMutations.ListReceived]: (state: MessagesState, messages: Message[]) => {
-        state.messages   = messages;
+        state.messages = messages;
         state.lastUpdate = moment();
-        state.state      = 'ready';
-    }
-}
+        state.state = "ready";
+    },
+};
 
 const actions: MessagesActionTree = {
     async [MessagesActions.Update]({ commit }) {
         commit(CommonMutations.Fetching);
 
         try {
-            const response = await this.$api.get("v1_message_all", { version: "^1.0", query: { embed: '$refs.stops,$refs.lines' } });
+            const response = await this.$api.get("v1_message_all", {
+                version: "^1.0",
+                query: { embed: "$refs.stops,$refs.lines" },
+            });
             const messages = response.data;
 
             commit(
@@ -69,14 +72,14 @@ const actions: MessagesActionTree = {
                 messages.map(message => ({
                     ...message,
                     validFrom: moment.parseZone(message.validFrom).local(),
-                    validTo:   moment.parseZone(message.validTo).local(),
+                    validTo: moment.parseZone(message.validTo).local(),
                 })) as Message[]
             );
         } catch (response) {
             commit(CommonMutations.Error, JSON.stringify(response));
         }
-    }
-}
+    },
+};
 
 export type MessagesModule = NamespacedVuexModule<
     MessagesState & CommonState,
@@ -94,10 +97,10 @@ export const messages: MessagesModule = {
     getters: {
         count: state => state.messages.length,
         counts: state => ({
-            info:      state.messages.filter(m => m.type === 'info').length,
-            unknown:   state.messages.filter(m => m.type === 'unknown').length,
-            breakdown: state.messages.filter(m => m.type === 'breakdown').length,
-        })
+            info: state.messages.filter(m => m.type === "info").length,
+            unknown: state.messages.filter(m => m.type === "unknown").length,
+            breakdown: state.messages.filter(m => m.type === "breakdown").length,
+        }),
     },
     mutations: {
         ...mutations,

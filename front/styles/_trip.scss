@@ -24,10 +24,10 @@
 $description-rotation: 60deg;
 $description-width: 250px;
 
-$trip-stop-marker-size: .9rem;
-$trip-stop-marker-spacing: .75rem;
-$trip-line-width: .125rem;
-$trip-visited: rgba($dark, .3);
+$trip-stop-marker-size: 0.9rem;
+$trip-stop-marker-spacing: 0.75rem;
+$trip-line-width: 0.125rem;
+$trip-visited: rgba($dark, 0.3);
 
 .trip {
   display: flex;
@@ -76,7 +76,8 @@ $trip-visited: rgba($dark, .3);
   background: white;
   margin: $trip-stop-marker-spacing 0;
 
-  &::before, &::after {
+  &::before,
+  &::after {
     content: "";
     display: block;
     height: $trip-line-width;
@@ -97,7 +98,7 @@ $trip-visited: rgba($dark, .3);
 }
 
 .trip__stop--current .trip__marker {
-  box-shadow: 0 0 .5rem $dark;
+  box-shadow: 0 0 0.5rem $dark;
 }
 
 @each $type, $color in $line-types {
@@ -105,13 +106,14 @@ $trip-visited: rgba($dark, .3);
     .trip__marker {
       border-color: $color;
 
-      &::before, &::after {
+      &::before,
+      &::after {
         background: $color;
       }
     }
 
     .trip__stop--current .trip__marker {
-      box-shadow: 0 0 .5rem $color;
+      box-shadow: 0 0 0.5rem $color;
     }
   }
 }
@@ -119,13 +121,15 @@ $trip-visited: rgba($dark, .3);
 .trip__stop--visited {
   .trip__marker {
     border-color: $trip-visited;
-    &::before, &::after {
+    &::before,
+    &::after {
       background: $trip-visited;
     }
   }
 
-  .trip__description, .trip__departure {
-    opacity: .4;
+  .trip__description,
+  .trip__departure {
+    opacity: 0.4;
   }
 }
 
@@ -137,7 +141,7 @@ $trip-visited: rgba($dark, .3);
 
 .trip__description {
   display: flex;
-  transform: rotate(-$description-rotation) translateX(.75rem);
+  transform: rotate(-$description-rotation) translateX(0.75rem);
   transform-origin: 0 50%;
   max-width: $description-width;
   position: absolute;
@@ -152,5 +156,5 @@ $trip-visited: rgba($dark, .3);
 .trip__departure {
   font-size: $small-font-size;
   font-weight: bold;
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
 }

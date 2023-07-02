@@ -24,7 +24,7 @@ import {
     ApiClientRequestInfo,
     ApiClientStartRequestEventHandler,
     BoundRequestOptions,
-    RequestOptions
+    RequestOptions,
 } from "@/api/client";
 import { LoadBalancedEndpoint, LoadBalancer } from "@/api/loadbalancer";
 import { delay, resolve, Supplier } from "@/utils";
@@ -40,25 +40,25 @@ export type LoadBalancedRequestOptions<
     TEndpoint extends keyof TEndpoints,
     TBoundParams extends string
 > = BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams> & {
-    require?: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean
+    require?: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean;
 };
 
-export interface LoadBalancedClientOptions<
-    TEndpoints extends EndpointCollection,
-    TBoundParams extends string = never
-> extends ApiClientOptions<TEndpoints, TBoundParams> {
-    balancer: LoadBalancer<TEndpoints>
-    store: Store<any> // eslint-disable-line @typescript-eslint/no-explicit-any
-    maxRetries?: number
+export interface LoadBalancedClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
+    extends ApiClientOptions<TEndpoints, TBoundParams> {
+    balancer: LoadBalancer<TEndpoints>;
+    store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    maxRetries?: number;
 
-    onRequestError?: ApiClientStartRequestEventHandler<TEndpoints>
+    onRequestError?: ApiClientStartRequestEventHandler<TEndpoints>;
 }
 
 const loadBalancedClientDefaultOptions = {
     maxRetries: 5,
-}
+};
 
-export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
+export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
+    implements ApiClient<TEndpoints, TBoundParams>
+{
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
     private readonly store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -66,7 +66,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
     private readonly options: LoadBalancedClientOptions<TEndpoints, TBoundParams>;
 
     constructor(options: LoadBalancedClientOptions<TEndpoints, TBoundParams>) {
-        options = { ...loadBalancedClientDefaultOptions, ...options}
+        options = { ...loadBalancedClientDefaultOptions, ...options };
 
         this.options = options;
 
@@ -78,33 +78,30 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
 
     async get<TEndpoint extends keyof TEndpoints>(
         endpoint: TEndpoint,
-        options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>,
+        options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
         let retry = 0;
         while (retry < this.options.maxRetries) {
             const definition = await this.balancer.get(endpoint, {
                 require: candidate =>
                     semver.satisfies(semver.coerce(candidate.version), options.version) &&
-                    (!options.require || options.require(candidate))
+                    (!options.require || options.require(candidate)),
             });
 
-            const params  = {
+            const params = {
                 ...(resolve(this.bound) || {}),
-                ...(resolve(options.params) || {})
-            }
+                ...(resolve(options.params) || {}),
+            };
 
-            const url = prepare(
-                definition.template,
-                params,
-            );
+            const url = prepare(definition.template, params);
 
             const requestInfo: ApiClientRequestInfo<TEndpoints, keyof TEndpoints> = {
                 endpoint: endpoint,
                 url: (definition.node?.url || this.http.defaults.baseURL) + url,
                 options: {
                     ...options,
-                    params
-                } as RequestOptions<EndpointParams<TEndpoints, keyof TEndpoints>>
+                    params,
+                } as RequestOptions<EndpointParams<TEndpoints, keyof TEndpoints>>,
             };
 
             try {
@@ -122,7 +119,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
                 return result;
             } catch (err) {
                 if (definition.node) {
-                    await this.store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id)
+                    await this.store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id);
                 } else {
                     console.error(err.message);
                     this.options.onRequestFailure?.(err, requestInfo);

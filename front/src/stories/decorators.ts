@@ -17,4 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export const centered = () => ({ template: '<div style="padding: 50px 150px" class="d-flex justify-content-center"><story /></div>'})
+export const centered = () => ({
+    template: '<div style="padding: 50px 150px" class="d-flex justify-content-center"><story /></div>',
+});

@@ -25,7 +25,7 @@ export default defineComponent({
             type: String as PropType<LineType>,
             required: false,
             default: ({ stop }) => getStopType(stop),
-        }
-    }
-})
+        },
+    },
+});
 </script>

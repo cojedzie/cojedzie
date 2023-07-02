@@ -1,23 +1,17 @@
 <template>
-    <div class="ui-switch" :class="[ value && 'ui-switch--checked' ]" v-bind="$attrs" @click="handleSwitchClick">
+    <div class="ui-switch" :class="[value && 'ui-switch--checked']" v-bind="$attrs" @click="handleSwitchClick">
         <div class="ui-switch__track">
             <div class="ui-switch__thumb" />
         </div>
-        <input
-            :id="id"
-            type="checkbox"
-            class="ui-switch__checkbox"
-            :checked="value"
-            @change="handleCheckboxChange"
-        >
+        <input :id="id" type="checkbox" class="ui-switch__checkbox" :checked="value" @change="handleCheckboxChange" />
     </div>
 </template>
 
 <script lang="ts">
 export default {
     name: "UiSwitch",
-    inheritAttrs: false
-}
+    inheritAttrs: false,
+};
 </script>
 
 <script lang="ts" setup>
@@ -27,21 +21,21 @@ const props = defineProps({
     value: {
         type: Boolean,
         required: true,
-    }
+    },
 });
 
 const emit = defineEmits<{
-    (event: 'update:value', value: boolean): void;
-}>()
+    (event: "update:value", value: boolean): void;
+}>();
 
-const handleSwitchClick = () => emit('update:value', !props.value);
-const handleCheckboxChange = (ev: Event) => emit('update:value', (ev.target as HTMLInputElement).checked);
+const handleSwitchClick = () => emit("update:value", !props.value);
+const handleCheckboxChange = (ev: Event) => emit("update:value", (ev.target as HTMLInputElement).checked);
 </script>
 
 <style lang="scss">
 @import "../../../styles/_variables.scss";
 
-$ui-switch-marker-size: .7rem !default;
+$ui-switch-marker-size: 0.7rem !default;
 $ui-switch-spacing: 1px !default;
 $ui-switch-duration: 150ms !default;
 $ui-switch-width-factor: 2.25 !default;

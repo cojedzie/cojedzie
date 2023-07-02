@@ -16,12 +16,8 @@
         <template v-if="nonDisplayedCount > 0">
             <div class="flex">
                 <button class="btn btn-action btn-sm flex-space-left" @click="showAll = !showAll">
-                    <template v-if="showAll">
-                        <ui-icon icon="chevron-up" /> {{ nonDisplayedCount }} mniej
-                    </template>
-                    <template v-else>
-                        <ui-icon icon="chevron-down" /> {{ nonDisplayedCount }} więcej
-                    </template>
+                    <template v-if="showAll"> <ui-icon icon="chevron-up" /> {{ nonDisplayedCount }} mniej </template>
+                    <template v-else> <ui-icon icon="chevron-down" /> {{ nonDisplayedCount }} więcej </template>
                 </button>
             </div>
         </template>
@@ -37,10 +33,10 @@ import MessagesMessage from "@/components/messages/MessagesMessage.vue";
 @Options({
     name: "MessagesList",
     components: { MessagesMessage },
-    store
+    store,
 })
 export default class MessagesList extends Vue {
-    @Messages.State('messages')
+    @Messages.State("messages")
     public allMessages: Message[];
 
     @MessagesSettings.State
@@ -49,9 +45,7 @@ export default class MessagesList extends Vue {
     public showAll: boolean = false;
 
     get messages() {
-        return this.showAll
-            ? this.allMessages
-            : this.allMessages.slice(0, this.displayedEntriesCount);
+        return this.showAll ? this.allMessages : this.allMessages.slice(0, this.displayedEntriesCount);
     }
 
     get nonDisplayedCount(): number {

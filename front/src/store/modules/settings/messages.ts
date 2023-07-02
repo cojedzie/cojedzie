@@ -24,30 +24,30 @@ export type MessagesSettingsState = {
     autorefresh: boolean;
     autorefreshInterval?: number;
     displayedEntriesCount?: number;
-}
+};
 
 export enum MessagesSettingsMutations {
     Update = "update",
 }
 
 export type MessagesSettingsMutationTree = {
-    [MessagesSettingsMutations.Update]: VuexMutationHandler<MessagesSettingsState, Partial<MessagesSettingsState>>
-}
+    [MessagesSettingsMutations.Update]: VuexMutationHandler<MessagesSettingsState, Partial<MessagesSettingsState>>;
+};
 
-export type MessagesSettingsModule = NamespacedVuexModule<MessagesSettingsState, MessagesSettingsMutationTree>
+export type MessagesSettingsModule = NamespacedVuexModule<MessagesSettingsState, MessagesSettingsMutationTree>;
 
 const messagesSettings: MessagesSettingsModule = {
     namespaced: true,
     state: supply({
         autorefresh: true,
         autorefreshInterval: 60,
-        displayedEntriesCount: 2
+        displayedEntriesCount: 2,
     }),
     mutations: {
         [MessagesSettingsMutations.Update](state, patch) {
             Object.assign(state, patch);
-        }
-    }
+        },
+    },
 };
 
 export default messagesSettings;

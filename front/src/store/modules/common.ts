@@ -22,16 +22,16 @@ import moment, { Moment } from "moment";
 import { VuexMutationHandler } from "vuex";
 
 export interface CommonState {
-    state: FetchingState,
-    lastUpdate: Moment,
-    error: string
+    state: FetchingState;
+    lastUpdate: Moment;
+    error: string;
 }
 
 export const state: CommonState = {
     state: "not-initialized",
     error: "",
-    lastUpdate: moment()
-}
+    lastUpdate: moment(),
+};
 
 export enum CommonMutations {
     Fetching = "fetching",
@@ -39,21 +39,21 @@ export enum CommonMutations {
 }
 
 export type CommonMutationTree = {
-    [CommonMutations.Fetching]: VuexMutationHandler<CommonState>,
-    [CommonMutations.Error]: VuexMutationHandler<CommonState, string>,
-}
+    [CommonMutations.Fetching]: VuexMutationHandler<CommonState>;
+    [CommonMutations.Error]: VuexMutationHandler<CommonState, string>;
+};
 
 export const mutations: CommonMutationTree = {
     [CommonMutations.Fetching]: state => {
-        state.state = 'fetching'
+        state.state = "fetching";
     },
     [CommonMutations.Error]: (state, error) => {
-        state.state = 'error';
+        state.state = "error";
         state.error = error;
-    }
+    },
 };
 
 export default {
     state,
-    mutations
+    mutations,
 };

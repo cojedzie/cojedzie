@@ -1,5 +1,5 @@
-import { Vue } from 'vue-class-component';
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+import { Vue } from "vue-class-component";
+import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export declare type VuexDecorator = <V extends Vue>(proto: V, key: string) => void;
 export declare type StateTransformer = (state: any, getters: any) => any;
 export declare type MapHelper = typeof mapState | typeof mapGetters | typeof mapActions | typeof mapMutations;

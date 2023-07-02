@@ -1,53 +1,51 @@
-import UiHelp from './UiHelp.vue';
+import UiHelp from "./UiHelp.vue";
 import { StoryObj } from "@storybook/vue3";
 import { createMutex } from "@/composables/useMutex";
 
-import figure from "@resources/images/help/departures-relative-time.png"
+import figure from "@resources/images/help/departures-relative-time.png";
 
 export default {
-  title: 'Ui/Help',
-  component: UiHelp,
+    title: "Ui/Help",
+    component: UiHelp,
 
-  argTypes: {
-    title: {
-      control: {
-        type: 'text',
-      },
-    },
-
-    caption: {
-      defaultValue: 'Some caption for image',
-
-      control: {
-        type: 'text',
-      },
-    },
-
-    icon: {
-      options: [null, 'unknown', 'info', 'stop'],
-      description:
-        'Just for example, icon can be placed as arbitrary component into the title slot.',
-
-      control: {
-        type: 'select',
-
-        labels: {
-          "": 'None',
+    argTypes: {
+        title: {
+            control: {
+                type: "text",
+            },
         },
-      },
+
+        caption: {
+            defaultValue: "Some caption for image",
+
+            control: {
+                type: "text",
+            },
+        },
+
+        icon: {
+            options: [null, "unknown", "info", "stop"],
+            description: "Just for example, icon can be placed as arbitrary component into the title slot.",
+
+            control: {
+                type: "select",
+
+                labels: {
+                    "": "None",
+                },
+            },
+        },
     },
-  },
 };
 
-
-const createRenderFunction = template => ((args) => ({
+const createRenderFunction = template => args => ({
     components: { UiHelp },
     setup: () => {
         const mutex = createMutex();
-        return { args, mutex }
+        return { args, mutex };
     },
-    template
-}))
+    template,
+});
 
 export const Basic: StoryObj<any> = {
     render: createRenderFunction(`
@@ -58,9 +56,9 @@ export const Basic: StoryObj<any> = {
     `),
     args: {
         title: "Example title",
-        content: "Some kind of content"
-    }
-}
+        content: "Some kind of content",
+    },
+};
 
 export const WithCoverPhoto = {
     render: createRenderFunction(`
@@ -75,9 +73,9 @@ export const WithCoverPhoto = {
     `),
     args: {
         title: "Example title",
-        content: "Some kind of content"
-    }
-}
+        content: "Some kind of content",
+    },
+};
 
 export const WithCustomButton = {
     render: createRenderFunction(`
@@ -91,6 +89,6 @@ export const WithCustomButton = {
     `),
     args: {
         title: "Example title",
-        content: "Some kind of content"
-    }
-}
+        content: "Some kind of content",
+    },
+};

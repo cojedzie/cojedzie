@@ -25,8 +25,8 @@ import { Collection } from "@/model/common";
 export type MessageType = "info" | "breakdown" | "unknown";
 
 export interface MessageRefs {
-    stops: Collection<Stop>,
-    lines: Collection<Line>,
+    stops: Collection<Stop>;
+    lines: Collection<Line>;
 }
 
 export interface Message {
@@ -36,5 +36,5 @@ export interface Message {
     validFrom?: Moment;
     validTo?: Moment;
     $refs: MessageRefs;
-    $type: 'vnd.cojedzie.message';
+    $type: "vnd.cojedzie.message";
 }

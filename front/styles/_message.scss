@@ -3,8 +3,8 @@
 }
 
 $message-type-color: (
-  'info': $info,
-  'breakdown': $danger,
+  "info": $info,
+  "breakdown": $danger,
 );
 
 .messages {
@@ -14,7 +14,7 @@ $message-type-color: (
 }
 
 .message {
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   padding: var(--message-padding);
   background-color: transparent;
   display: grid;
@@ -40,7 +40,7 @@ $message-type-color: (
   }
 
   &__stops {
-    font-size: .75rem;
+    font-size: 0.75rem;
     font-weight: bold;
     grid-area: s;
     align-self: center;
@@ -53,7 +53,7 @@ $message-type-color: (
   }
 
   &__validity {
-    font-size: .75rem;
+    font-size: 0.75rem;
     grid-area: v;
   }
 
@@ -68,7 +68,7 @@ $message-type-color: (
 
       > li {
         display: inline-block;
-        margin-right: .325rem
+        margin-right: 0.325rem;
       }
     }
   }

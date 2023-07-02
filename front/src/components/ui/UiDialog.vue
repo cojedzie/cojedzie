@@ -24,7 +24,7 @@
     <div
         v-else
         v-bind="$attrs"
-        :class="[ 'ui-popup', arrow && 'ui-popup--arrow', $attrs.class ]"
+        :class="['ui-popup', arrow && 'ui-popup--arrow', $attrs.class]"
         :style="{ zIndex: zIndex }"
         role="dialog"
     >
@@ -101,7 +101,7 @@ function findClosestRef(component: ComponentPublicInstance, ref: string): HTMLEl
 }
 
 function findClosestNonWrapperParent(component: ComponentPublicInstance): ComponentPublicInstance | null {
-    let parent = component.$parent
+    let parent = component.$parent;
 
     while (parent && (parent.$el === component.$el || !(parent.$el instanceof HTMLElement))) {
         parent = parent.$parent;
@@ -113,8 +113,8 @@ function findClosestNonWrapperParent(component: ComponentPublicInstance): Compon
 @Options({
     name: "UiDialog",
     inheritAttrs: false,
-    mixins: [ removedHookMixin ],
-    emits: ['leave', 'close']
+    mixins: [removedHookMixin],
+    emits: ["leave", "close"],
 })
 export class UiDialog extends Vue {
     @Prop({ type: String, default: "popup" })
@@ -161,16 +161,16 @@ export class UiDialog extends Vue {
     }
 
     get hasFooter() {
-        return this.$hasSlot('footer')
+        return this.$hasSlot("footer");
     }
 
     get hasHeader() {
-        return this.$hasSlot('header') || this.$hasSlot('title') || this.title;
+        return this.$hasSlot("header") || this.$hasSlot("title") || this.title;
     }
 
     private getReferenceElement() {
-        if (typeof this.reference === 'string') {
-            if (this.reference[0] === '#') {
+        if (typeof this.reference === "string") {
+            if (this.reference[0] === "#") {
                 return document.getElementById(this.reference.substr(1));
             }
 
@@ -195,7 +195,7 @@ export class UiDialog extends Vue {
             return;
         }
 
-        this.$emit('leave', event);
+        this.$emit("leave", event);
     }
 
     mounted() {
@@ -203,31 +203,31 @@ export class UiDialog extends Vue {
 
         this.handleWindowResize();
 
-        if (this.behaviour === 'popup') {
+        if (this.behaviour === "popup") {
             this.mountPopper();
         }
 
-        window.addEventListener('resize', this._resizeEvent = this.handleWindowResize.bind(this));
+        window.addEventListener("resize", (this._resizeEvent = this.handleWindowResize.bind(this)));
 
         this._activated();
     }
 
     private _activated() {
-        if (this.behaviour === 'modal') {
+        if (this.behaviour === "modal") {
             this.mountModal();
         }
     }
 
     private _deactivated() {
-        if (this.behaviour === 'modal') {
+        if (this.behaviour === "modal") {
             this.dismountModal();
         }
     }
 
     private mountModal() {
         if (openModalCounter === 0) {
-            document.body.style.paddingRight = `${window.screen.width - document.body.clientWidth}px`
-            document.body.classList.add('contains-modal');
+            document.body.style.paddingRight = `${window.screen.width - document.body.clientWidth}px`;
+            document.body.classList.add("contains-modal");
         }
 
         openModalCounter++;
@@ -238,7 +238,7 @@ export class UiDialog extends Vue {
 
         if (openModalCounter === 0) {
             document.body.style.paddingRight = "";
-            document.body.classList.remove('contains-modal');
+            document.body.classList.remove("contains-modal");
         }
     }
 
@@ -256,7 +256,7 @@ export class UiDialog extends Vue {
         this._popper = new Popper(reference, this.$el, {
             placement: this.placement,
             modifiers: {
-                arrow: { enabled: this.arrow, element: this.$refs['arrow'] as Element },
+                arrow: { enabled: this.arrow, element: this.$refs["arrow"] as Element },
                 offset: {
                     enabled: !!this.offset,
                     offset: this.offset,
@@ -266,28 +266,28 @@ export class UiDialog extends Vue {
                     order: 890,
                     fn(data) {
                         if (window.innerWidth < 560) {
-                            data.instance.options.placement = 'top';
-                            data.styles.transform = `translate3d(0, ${ data.offsets.popper.top }px, 0)`;
-                            data.styles.right = '0';
-                            data.styles.left = '0';
-                            data.styles.width = 'auto';
-                            data.arrowStyles.left = `${ data.offsets.popper.left + data.offsets.arrow.left }px`;
+                            data.instance.options.placement = "top";
+                            data.styles.transform = `translate3d(0, ${data.offsets.popper.top}px, 0)`;
+                            data.styles.right = "0";
+                            data.styles.left = "0";
+                            data.styles.width = "auto";
+                            data.arrowStyles.left = `${data.offsets.popper.left + data.offsets.arrow.left}px`;
                         }
 
                         return data;
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
 
         this.$nextTick(() => {
             this._popper && this._popper.update();
-            document.addEventListener('click', this._focusOutEvent = this.focusOut.bind(this), { capture: true });
+            document.addEventListener("click", (this._focusOutEvent = this.focusOut.bind(this)), { capture: true });
         });
     }
 
     private removePopper() {
-        this._popper.destroy()
+        this._popper.destroy();
         this._popper = null;
     }
 
@@ -298,9 +298,12 @@ export class UiDialog extends Vue {
     }
 
     beforeUnmount() {
-        this._focusOutEvent && document.removeEventListener('click', this._focusOutEvent, { capture: true });
+        this._focusOutEvent &&
+            document.removeEventListener("click", this._focusOutEvent, {
+                capture: true,
+            });
 
-        this._deactivated()
+        this._deactivated();
     }
 
     removed() {
@@ -313,34 +316,34 @@ export class UiDialog extends Vue {
         const target = ev.target as HTMLElement;
 
         if (target.classList.contains("ui-backdrop")) {
-            this.$emit('leave');
+            this.$emit("leave");
         }
     }
 
     private handleCloseClick() {
-        this.$emit('leave');
-        this.$emit('close');
+        this.$emit("leave");
+        this.$emit("close");
     }
 
     private handleWindowResize() {
         this.isMobile = screen.width < defaultBreakpoints.md;
     }
 
-    @Watch('currentBehaviour')
+    @Watch("currentBehaviour")
     private handleBehaviourChange(newBehaviour: DialogBehaviour, oldBehaviour: DialogBehaviour) {
-        if (oldBehaviour === 'popup') {
+        if (oldBehaviour === "popup") {
             this.removePopper();
         }
 
-        if (newBehaviour === 'popup') {
+        if (newBehaviour === "popup") {
             this.$nextTick(() => this.mountPopper());
         }
 
-        if (newBehaviour === 'modal') {
+        if (newBehaviour === "modal") {
             this.mountModal();
         }
 
-        if (oldBehaviour === 'modal') {
+        if (oldBehaviour === "modal") {
             this.dismountModal();
         }
     }

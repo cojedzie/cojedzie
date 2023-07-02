@@ -14,7 +14,7 @@
     "outDir": "./build/",
     "paths": {
       "@/*": ["../src/*"],
-      "vuex": ["../src/types/vuex.d.ts"],
+      "vuex": ["../src/types/vuex.d.ts"]
     }
   },
   "files": ["./test.ts"],

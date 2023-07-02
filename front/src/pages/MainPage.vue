@@ -6,7 +6,8 @@
                     <header class="section__title flex">
                         <h2>
                             <ui-icon icon="messages" fixed-width class="mr-2" />
-                            Komunikaty <span class="ml-2 badge badge-pill badge-dark">{{ messages.count }}</span>
+                            Komunikaty
+                            <span class="ml-2 badge badge-pill badge-dark">{{ messages.count }}</span>
                         </h2>
                         <button
                             id="settings-messages"
@@ -23,7 +24,7 @@
                         </button>
                         <button class="btn btn-action" @click="sections.messages = !sections.messages">
                             <ui-tooltip>
-                                {{ sections.messages ? 'zwiń' : 'rozwiń' }}
+                                {{ sections.messages ? "zwiń" : "rozwiń" }}
                                 <span class="sr-only">sekcję komunikatów</span>
                             </ui-tooltip>
                             <ui-icon :icon="sections.messages ? 'chevron-up' : 'chevron-down'" fixed-width />
@@ -84,7 +85,8 @@
                     </div>
                     <div v-if="provider && provider.attribution" class="attribution">
                         <ui-icon icon="info" />
-                        Pochodzenie danych: <span class="attribution__attribution" v-html="provider.attribution" />
+                        Pochodzenie danych:
+                        <span class="attribution__attribution" v-html="provider.attribution" />
                     </div>
                 </section>
             </div>
@@ -115,7 +117,11 @@
                     </ul>
 
                     <div class="d-flex mt-2">
-                        <button ref="save" class="btn btn-action btn-sm flex-space-left" @click="visibility.save = true">
+                        <button
+                            ref="save"
+                            class="btn btn-action btn-sm flex-space-left"
+                            @click="visibility.save = true"
+                        >
                             <ui-icon icon="favourite" fixed-width />
                             zapisz jako...
                         </button>
@@ -169,7 +175,7 @@
 
 <script lang="ts">
 import { Watch } from "vue-property-decorator";
-import { Action, Mutation, State } from 'vuex-class'
+import { Action, Mutation, State } from "vuex-class";
 import { Provider, Stop } from "@/model";
 import { DeparturesSettingsState } from "@/store/modules/settings/departures";
 import { MessagesSettingsState } from "@/store/modules/settings/messages";
@@ -182,20 +188,20 @@ import { StopPickerEntry } from "@/components";
 
 @Options({
     name: "MainPage",
-    components: { StopPickerEntry }
+    components: { StopPickerEntry },
 })
 export default class MainPage extends Vue {
     $store: Store<StoreDefinition>;
 
     private sections = {
-        messages: true
+        messages: true,
     };
 
     private visibility = {
         messages: false,
         departures: false,
         save: false,
-        picker: 'search'
+        picker: "search",
     };
 
     private intervals = { messages: null, departures: null };
@@ -204,15 +210,15 @@ export default class MainPage extends Vue {
 
     get messages() {
         return {
-            count: this.$store.getters['messages/count'],
-            counts: this.$store.getters['messages/counts'],
-            state: this.$store.state.messages.state
+            count: this.$store.getters["messages/count"],
+            counts: this.$store.getters["messages/counts"],
+            state: this.$store.state.messages.state,
         };
     }
 
     get departures() {
         return {
-            state: this.$store.state.departures.state
+            state: this.$store.state.departures.state,
         };
     }
 
@@ -221,20 +227,22 @@ export default class MainPage extends Vue {
     }
 
     set stops(value) {
-        this.$store.commit('replace', value);
+        this.$store.commit("replace", value);
     }
 
     mounted() {
         document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = prepare("/{provider}/manifest.json", {
-            provider: this.$route.params.provider as string
+            provider: this.$route.params.provider as string,
         });
     }
 
     async created() {
-        await this.$store.dispatch('loadProvider', { provider: this.$route.params.provider as string });
+        await this.$store.dispatch("loadProvider", {
+            provider: this.$route.params.provider as string,
+        });
 
         this.$store.dispatch(`messages/${MessagesActions.Update}`);
-        this.$store.dispatch('load', { version: 1, stops: [] });
+        this.$store.dispatch("load", { version: 1, stops: [] });
 
         this.initDeparturesRefreshInterval();
         this.initMessagesRefreshInterval();
@@ -242,50 +250,63 @@ export default class MainPage extends Vue {
 
     private initDeparturesRefreshInterval() {
         const departuresAutorefreshCallback = () => {
-            const {autorefresh, autorefreshInterval} = this.$store.state['departures-settings'] as DeparturesSettingsState;
+            const { autorefresh, autorefreshInterval } = this.$store.state[
+                "departures-settings"
+            ] as DeparturesSettingsState;
 
             if (this.intervals.departures) {
                 clearInterval(this.intervals.departures);
             }
 
             if (autorefresh) {
-                this.intervals.departures = setInterval(() => this.updateDepartures(), Math.max(5, autorefreshInterval) * 1000)
+                this.intervals.departures = setInterval(
+                    () => this.updateDepartures(),
+                    Math.max(5, autorefreshInterval) * 1000
+                );
             }
         };
 
-        this.$store.watch(({"departures-settings": state}) => state.autorefresh, departuresAutorefreshCallback);
-        this.$store.watch(({"departures-settings": state}) => state.autorefreshInterval, departuresAutorefreshCallback);
+        this.$store.watch(({ "departures-settings": state }) => state.autorefresh, departuresAutorefreshCallback);
+        this.$store.watch(
+            ({ "departures-settings": state }) => state.autorefreshInterval,
+            departuresAutorefreshCallback
+        );
 
         departuresAutorefreshCallback();
     }
 
     private initMessagesRefreshInterval() {
         const messagesAutorefreshCallback = () => {
-            const {autorefresh, autorefreshInterval} = this.$store.state['messages-settings'] as MessagesSettingsState;
+            const { autorefresh, autorefreshInterval } = this.$store.state[
+                "messages-settings"
+            ] as MessagesSettingsState;
 
             if (this.intervals.messages) {
                 clearInterval(this.intervals.messages);
             }
 
             if (autorefresh) {
-                this.intervals.messages = setInterval(() => this.updateMessages(), Math.max(5, autorefreshInterval) * 1000)
+                this.intervals.messages = setInterval(
+                    () => this.updateMessages(),
+                    Math.max(5, autorefreshInterval) * 1000
+                );
             }
         };
 
-        this.$store.watch(({"messages-settings": state}) => state.autorefresh, messagesAutorefreshCallback);
-        this.$store.watch(({"messages-settings": state}) => state.autorefreshInterval, messagesAutorefreshCallback);
+        this.$store.watch(({ "messages-settings": state }) => state.autorefresh, messagesAutorefreshCallback);
+        this.$store.watch(({ "messages-settings": state }) => state.autorefreshInterval, messagesAutorefreshCallback);
 
         messagesAutorefreshCallback();
     }
 
     @Action(`messages/${MessagesActions.Update}`) updateMessages: () => void;
-    @Action('departures/update') updateDepartures: () => void;
+    @Action("departures/update") updateDepartures: () => void;
 
     @Mutation add: (stops: Stop[]) => void;
     @Mutation remove: (stop: Stop) => void;
     @Mutation clear: () => void;
 
-    @Watch('stops', { deep: true })
+    @Watch("stops", { deep: true })
     onStopUpdate() {
         this.updateDepartures();
     }

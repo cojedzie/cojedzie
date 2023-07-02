@@ -1,11 +1,11 @@
-import {MaybeElementRef} from "@vueuse/core";
-import Popper, {PopperOptions} from "popper.js"
-import {ref, watch, Ref, unref, onUnmounted} from "vue";
+import { MaybeElementRef } from "@vueuse/core";
+import Popper, { PopperOptions } from "popper.js";
+import { ref, watch, Ref, unref, onUnmounted } from "vue";
 
 export type UsePopperOptions = PopperOptions;
 export type UsePopperResult = {
-    popper: Ref<Popper>
-}
+    popper: Ref<Popper>;
+};
 
 export function usePopper(
     reference: MaybeElementRef<HTMLElement>,
@@ -15,7 +15,7 @@ export function usePopper(
     const popper = ref<Popper>();
 
     watch(
-        [ element, reference ],
+        [element, reference],
         () => {
             if (popper.value) {
                 popper.value.destroy();
@@ -31,13 +31,13 @@ export function usePopper(
             popper.value = new Popper(newReference, newElement, options);
         },
         { immediate: true }
-    )
+    );
 
     onUnmounted(() => {
         if (popper.value) {
             popper.value.destroy();
         }
-    })
+    });
 
-    return { popper }
+    return { popper };
 }

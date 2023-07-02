@@ -22,32 +22,33 @@ import VuexPersistence from "vuex-persist";
 import { createStore, State } from "@/store/initializer";
 import { createHttpClient } from "@/api/client/http";
 
-export const Favourites = namespace('favourites');
-export const DeparturesSettings = namespace('departures-settings');
-export const MessagesSettings = namespace('messages-settings');
-export const Departures = namespace('departures');
-export const Messages = namespace('messages');
-export const History = namespace('history');
+export const Favourites = namespace("favourites");
+export const DeparturesSettings = namespace("departures-settings");
+export const MessagesSettings = namespace("messages-settings");
+export const Departures = namespace("departures");
+export const Messages = namespace("messages");
+export const History = namespace("history");
 
-const localStoragePersist = typeof window !== "undefined" && new VuexPersistence<State>({
-    modules: ['favourites', 'departures-settings', 'messages-settings', 'history'],
-});
+const localStoragePersist =
+    typeof window !== "undefined" &&
+    new VuexPersistence<State>({
+        modules: ["favourites", "departures-settings", "messages-settings", "history"],
+    });
 
-const sessionStoragePersist = typeof window !== "undefined" && new VuexPersistence<State>({
-    reducer: state => ({ stops: state.stops }),
-    storage: window.sessionStorage
-});
+const sessionStoragePersist =
+    typeof window !== "undefined" &&
+    new VuexPersistence<State>({
+        reducer: state => ({ stops: state.stops }),
+        storage: window.sessionStorage,
+    });
 
 export const store = createStore({
-    plugins: typeof window !== "undefined" ? [
-        localStoragePersist.plugin,
-        sessionStoragePersist.plugin,
-    ] : [],
+    plugins: typeof window !== "undefined" ? [localStoragePersist.plugin, sessionStoragePersist.plugin] : [],
     apiClientOptions: {
         http: createHttpClient({
-            baseURL: window.CoJedzie?.api?.base || `${window.location.protocol}//${window.location.host}`
-        })
-    }
+            baseURL: window.CoJedzie?.api?.base || `${window.location.protocol}//${window.location.host}`,
+        }),
+    },
 });
 
 export default store;

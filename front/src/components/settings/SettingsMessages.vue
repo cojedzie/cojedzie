@@ -19,8 +19,8 @@
 
                 <p>Automatyczne odświeżanie listy komunikatów z zadaną częstotliwością.</p>
                 <p>
-                    Zbyt częste odświeżanie listy komunikatów może prowadzić do większego zużycia energii bez zwiększenia
-                    dokładności informacji.
+                    Zbyt częste odświeżanie listy komunikatów może prowadzić do większego zużycia energii bez
+                    zwiększenia dokładności informacji.
                 </p>
             </ui-help>
         </div>
@@ -35,8 +35,12 @@
                     type="text"
                     class="form-control form-control-sm form-control-simple"
                     :value="autorefreshInterval"
-                    @input="update({ autorefreshInterval: Number.parseInt($event.target.value) })"
-                >
+                    @input="
+                        update({
+                            autorefreshInterval: Number.parseInt($event.target.value),
+                        })
+                    "
+                />
                 <div class="input-group-append">
                     <span class="input-group-text" aria-label="sekund">s</span>
                 </div>
@@ -74,7 +78,7 @@ import { MessagesSettingsState } from "@/store/modules/settings/messages";
 
 @Options({
     name: "SettingsMessages",
-    store
+    store,
 })
 export default class SettingsMessages extends Vue {
     @MessagesSettings.State

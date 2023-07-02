@@ -29,38 +29,35 @@ export type StaticRequestOptions<
     TEndpoint extends keyof TEndpoints,
     TBoundParams extends string
 > = BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams> & {
-    base?: Supplier<string>
+    base?: Supplier<string>;
 };
 
-export interface StaticClientOptions<
-    TEndpoints extends EndpointCollection,
-    TBoundParams extends string = never
-> extends ApiClientOptions<TEndpoints, TBoundParams> {
-    endpoints: TEndpoints
+export interface StaticClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
+    extends ApiClientOptions<TEndpoints, TBoundParams> {
+    endpoints: TEndpoints;
 }
 
-export class StaticClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> implements ApiClient<TEndpoints, TBoundParams> {
+export class StaticClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
+    implements ApiClient<TEndpoints, TBoundParams>
+{
     private readonly endpoints: TEndpoints;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
-    private readonly http: AxiosInstance
+    private readonly http: AxiosInstance;
 
     constructor({ endpoints, bound, http = globalHttpClient }: StaticClientOptions<TEndpoints, TBoundParams>) {
         this.endpoints = endpoints;
-        this.bound     = bound;
-        this.http      = http;
+        this.bound = bound;
+        this.http = http;
     }
 
     async get<TEndpoint extends keyof TEndpoints>(
         endpoint: TEndpoint,
         options: StaticRequestOptions<TEndpoints, TEndpoint, TBoundParams>
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
-        const url = prepare(
-            this.endpoints[endpoint].template,
-            {
-                ...(resolve(this.bound) || {}),
-                ...(resolve(options.params) || {})
-            },
-        );
+        const url = prepare(this.endpoints[endpoint].template, {
+            ...(resolve(this.bound) || {}),
+            ...(resolve(options.params) || {}),
+        });
 
         return await this.http.get(url, {
             baseURL: resolve(options.base),

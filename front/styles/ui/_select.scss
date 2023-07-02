@@ -60,7 +60,8 @@
     }
   }
 
-  &__toggle, &__clear {
+  &__toggle,
+  &__clear {
     @extend %action;
   }
 }

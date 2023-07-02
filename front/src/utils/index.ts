@@ -18,9 +18,9 @@
  */
 
 import { Moment } from "moment";
-import cloneDeep from "lodash/cloneDeep"
+import cloneDeep from "lodash/cloneDeep";
 
-export * from "./object"
+export * from "./object";
 
 let performance;
 
@@ -30,38 +30,51 @@ try {
     console.log("no performance");
 }
 
-type Simplify<T> = string |
-    T extends string   ? string :
-    T extends number   ? number :
-    T extends boolean  ? boolean :
-    T extends Moment   ? string :
-    T extends Array<infer K> ? Array<Simplify<K>>  :
-    T extends (infer K)[] ? Simplify<K>[] :
-    T extends Record<string, unknown> ? Jsonified<T> : T;
+type Simplify<T> = string | T extends string
+    ? string
+    : T extends number
+    ? number
+    : T extends boolean
+    ? boolean
+    : T extends Moment
+    ? string
+    : T extends Array<infer K>
+    ? Array<Simplify<K>>
+    : T extends (infer K)[]
+    ? Simplify<K>[]
+    : T extends Record<string, unknown>
+    ? Jsonified<T>
+    : T;
 
-export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> }
-export type Optionalify<T> = { [K in keyof T]?: T[K] }
+export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> };
+export type Optionalify<T> = { [K in keyof T]?: T[K] };
 export type Dictionary<T> = { [key: string]: T };
 export type Supplier<T> = T | (() => T);
 
 export type Index = string | symbol | number;
-export type FetchingState = 'fetching' | 'ready' | 'error' | 'not-initialized';
+export type FetchingState = "fetching" | "ready" | "error" | "not-initialized";
 
 export type MakeOptional<T, K extends keyof T> = Optionalify<Pick<T, K>> & Omit<T, K>;
 
-export type NestedValue<TSubject, TPath extends NestedKeyof<TSubject>>
-    = TSubject extends object
+export type NestedValue<TSubject, TPath extends NestedKeyof<TSubject>> = TSubject extends object
     ? TPath extends `${infer TParent}.${infer TLeaf}`
         ? TParent extends keyof TSubject
             ? NestedValue<TSubject[TParent], TLeaf & NestedKeyof<TSubject[TParent]>>
             : never
-        : TPath extends keyof TSubject ? TSubject[TPath] : never
-    : never
+        : TPath extends keyof TSubject
+        ? TSubject[TPath]
+        : never
+    : never;
 
-export type NestedKeyof<TObj>
-    = TObj extends object
-    ? (keyof TObj | { [TKey in keyof TObj]: `${TKey & string}.${NestedKeyof<TObj[TKey]>}` }[keyof TObj]) & string
-    : never
+export type NestedKeyof<TObj> = TObj extends object
+    ? (
+          | keyof TObj
+          | {
+                [TKey in keyof TObj]: `${TKey & string}.${NestedKeyof<TObj[TKey]>}`;
+            }[keyof TObj]
+      ) &
+          string
+    : never;
 
 export interface Converter<T, U> {
     convert: (value: T) => U;
@@ -72,23 +85,24 @@ export interface TwoWayConverter<T, U> extends Converter<T, U> {
 }
 
 export const identityConverter: TwoWayConverter<any, any> = {
-    convert: (value) => value,
-    convertBack: (value) => value,
-}
+    convert: value => value,
+    convertBack: value => value,
+};
 
 export function signed(number: number): string {
     return number > 0 ? `+${number}` : number.toString();
 }
 
-export function ensureArray<T>(x: T[]|T): T[] {
-    return x instanceof Array ? x : [ x ];
+export function ensureArray<T>(x: T[] | T): T[] {
+    return x instanceof Array ? x : [x];
 }
 
-export function set<
-    TObject extends object,
-    TPath extends NestedKeyof<TObject>
->(object: TObject, path: TPath, value: unknown): void {
-    const segments = path.split('.');
+export function set<TObject extends object, TPath extends NestedKeyof<TObject>>(
+    object: TObject,
+    path: TPath,
+    value: unknown
+): void {
+    const segments = path.split(".");
 
     let current: object = object;
     while (segments.length > 1) {
@@ -98,11 +112,11 @@ export function set<
     current[segments.shift()] = value;
 }
 
-export function get<
-    TObject extends object,
-    TPath extends NestedKeyof<TObject>
->(object: TObject, path: TPath): NestedValue<TObject, TPath> {
-    const segments = path.split('.');
+export function get<TObject extends object, TPath extends NestedKeyof<TObject>>(
+    object: TObject,
+    path: TPath
+): NestedValue<TObject, TPath> {
+    const segments = path.split(".");
 
     let current: object = object;
     while (segments.length > 1) {
@@ -119,7 +133,7 @@ export function distinct<T>(value: T, index: number, array: T[]) {
 export function time<T>(action: () => T, name?: string) {
     const start = performance.now();
     const result = action();
-    console.debug(`${name || 'this'} operation took ${performance.now() - start}ms`);
+    console.debug(`${name || "this"} operation took ${performance.now() - start}ms`);
 
     return result;
 }
@@ -130,9 +144,9 @@ export function unique<T, U>(array: T[], criterion: (item: T) => U = identity) {
     const result: T[] = [];
     const known = new Set<U>();
 
-    const entries = array.map(item => [ criterion(item), item ]) as [ U, T ][];
+    const entries = array.map(item => [criterion(item), item]) as [U, T][];
 
-    for (const [ key, item ] of entries) {
+    for (const [key, item] of entries) {
         if (known.has(key)) {
             continue;
         }
@@ -146,12 +160,11 @@ export function unique<T, U>(array: T[], criterion: (item: T) => U = identity) {
 
 export const supply: <T>(x: T) => () => T = x => () => cloneDeep(x);
 
-type Pattern<TResult, TArgs extends unknown[]> = [
-    (...args: TArgs) => boolean,
-    ((...args: TArgs) => TResult) | TResult,
-]
+type Pattern<TResult, TArgs extends unknown[]> = [(...args: TArgs) => boolean, ((...args: TArgs) => TResult) | TResult];
 
-export function match<TResult, TArgs extends unknown[]>(...patterns: Pattern<TResult, TArgs>[]): (...args: TArgs) => TResult {
+export function match<TResult, TArgs extends unknown[]>(
+    ...patterns: Pattern<TResult, TArgs>[]
+): (...args: TArgs) => TResult {
     return (...args: TArgs) => {
         for (const [pattern, action] of patterns) {
             if (pattern(...args)) {
@@ -160,7 +173,7 @@ export function match<TResult, TArgs extends unknown[]>(...patterns: Pattern<TRe
         }
 
         throw new Error(`No pattern matches args: ${JSON.stringify(args)}`);
-    }
+    };
 }
 
 match.default = (..._args: unknown[]) => true;
@@ -177,14 +190,11 @@ export const delay = (milliseconds: number): Promise<void> => new Promise(resolv
 
 export function createBackoff(timeout: number): (counter: number, callback: () => void) => number {
     return (counter: number, callback: () => void): number => {
-        const k = Math.round(2**(counter - 1) + Math.random() * (2**counter - 2**(counter - 1)));
-        return setTimeout(callback, timeout * (Math.max(1, k))) as unknown as number;
-    }
+        const k = Math.round(2 ** (counter - 1) + Math.random() * (2 ** counter - 2 ** (counter - 1)));
+        return setTimeout(callback, timeout * Math.max(1, k)) as unknown as number;
+    };
 }
 
 export function slice<T>(list: T[], first: (value: T) => boolean, last?: (value: T) => boolean): T[] {
-    return list.slice(
-        list.findIndex(first),
-        last && list.findIndex(last),
-    )
+    return list.slice(list.findIndex(first), last && list.findIndex(last));
 }

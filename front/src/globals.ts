@@ -22,9 +22,9 @@ import { Vue } from "vue-class-component";
 import moment from "moment";
 
 export default function install(app: App) {
-    app.config.globalProperties.$isTouch = 'ontouchstart' in window || navigator['msMaxTouchPoints'] > 0;
+    app.config.globalProperties.$isTouch = "ontouchstart" in window || navigator["msMaxTouchPoints"] > 0;
     app.config.globalProperties.$hasSlot = function (this: Vue, slot: string): boolean {
         return !!this.$slots[slot];
-    }
+    };
     app.config.globalProperties.$moment = moment;
 }

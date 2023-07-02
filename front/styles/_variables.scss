@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-$border-radius:    0;
+$border-radius: 0;
 $border-radius-lg: $border-radius;
 $border-radius-sm: $border-radius;
 
@@ -35,36 +35,51 @@ $custom-control-indicator-active-bg: $dark;
 $small-font-size: $font-size-base * 0.8;
 
 $line-types: (
-  'trolleybus': #419517,
-  'tram':       #cd2e12,
-  'bus':        $primary,
-  'train':      $yellow,
-  'unknown':    $dark
+  "trolleybus": #419517,
+  "tram": #cd2e12,
+  "bus": $primary,
+  "train": $yellow,
+  "unknown": $dark,
 );
 
-$default-spacing: .5rem;
+$default-spacing: 0.5rem;
 
-$alert-margin-bottom:    $default-spacing;
+$alert-margin-bottom: $default-spacing;
 $headings-margin-bottom: $default-spacing;
 
-$container-max-widths: map-merge($container-max-widths, ( xl: 1320px ));
+$container-max-widths: map-merge(
+  $container-max-widths,
+  (
+    xl: 1320px,
+  )
+);
 
 $link-color: #005ea8;
 $grid-gutter-width: $spacer * 2;
 
 @mixin headings {
-  h1, h2, h3, h4, h5, h6 {
-    @content
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @content;
   }
 }
 
 @mixin direct-headings {
-  > h1, > h2, > h3, > h4, > h5, > h6 {
-    @content
+  > h1,
+  > h2,
+  > h3,
+  > h4,
+  > h5,
+  > h6 {
+    @content;
   }
 }
 
-@mixin spacing($spacing: .25em) {
+@mixin spacing($spacing: 0.25em) {
   margin-left: $spacing;
   &:first-child {
     margin-left: 0;
@@ -73,17 +88,21 @@ $grid-gutter-width: $spacer * 2;
 
 @mixin no-scrollbars {
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 
-  &::-webkit-scrollbar { /* WebKit */
+  &::-webkit-scrollbar {
+    /* WebKit */
     width: 0;
     height: 0;
   }
 }
 
 @mixin active {
-  &:hover, &:active, &:focus, #{&}--active {
-    @content
+  &:hover,
+  &:active,
+  &:focus,
+  #{&}--active {
+    @content;
   }
 }
 
@@ -96,9 +115,9 @@ $grid-gutter-width: $spacer * 2;
 }
 
 @mixin position($position, $top: inherit, $right: inherit, $bottom: inherit, $left: inherit) {
-  $right:  if($right == inherit, $top, $right);
+  $right: if($right == inherit, $top, $right);
   $bottom: if($bottom == inherit, $top, $bottom);
-  $left:   if($left == inherit, $right, $left);
+  $left: if($left == inherit, $right, $left);
 
   position: $position;
 

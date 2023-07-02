@@ -18,7 +18,7 @@ import { StoreDefinition } from "@/store/initializer";
 export default defineComponent({
     name: "DeparturesList",
     components: {
-        DeparturesDeparture
+        DeparturesDeparture,
     },
     props: {
         departures: {
@@ -30,10 +30,10 @@ export default defineComponent({
     setup(props) {
         const store = useStore<StoreDefinition>();
 
-        const departures = computed(() => props.departures || store.state.departures.departures)
+        const departures = computed(() => props.departures || store.state.departures.departures);
 
         // eslint-disable-next-line vue/no-dupe-keys
         return { departures };
-    }
-})
+    },
+});
 </script>

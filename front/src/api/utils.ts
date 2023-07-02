@@ -27,21 +27,21 @@ type ParamValuePair = [string, string];
 
 export function query(params: UrlParams = {}) {
     function* simplify(name: string, param: UrlParamValue): IterableIterator<ParamValuePair> {
-        if (typeof param === 'string') {
+        if (typeof param === "string") {
             yield [name, param];
-        } else if (typeof param === 'boolean') {
+        } else if (typeof param === "boolean") {
             if (param) {
-                yield [name, '1'];
+                yield [name, "1"];
             }
-        } else if (typeof param === 'number') {
+        } else if (typeof param === "number") {
             yield [name, param.toString()];
         } else if (param instanceof Array) {
             for (const entry of param) {
-                yield* simplify(`${ name }[]`, entry);
+                yield* simplify(`${name}[]`, entry);
             }
         } else if (typeof param === "object") {
             for (const [key, entry] of Object.entries(param)) {
-                yield* simplify(`${ name }[${ key }]`, entry);
+                yield* simplify(`${name}[${key}]`, entry);
             }
         }
     }
@@ -53,7 +53,9 @@ export function query(params: UrlParams = {}) {
         }
     }
 
-    return Object.values(simplified).map(entry => entry.map(encodeURIComponent).join('=')).join('&');
+    return Object.values(simplified)
+        .map(entry => entry.map(encodeURIComponent).join("="))
+        .join("&");
 }
 
 export function prepare(url: string, params: Dictionary<string> = {}) {
@@ -63,9 +65,9 @@ export function prepare(url: string, params: Dictionary<string> = {}) {
     while ((group = regex.exec(url))) {
         const name = group[1];
 
-        url = url.replace(new RegExp(`\\{${ name }\\}`, 'gi'), params[name]);
+        url = url.replace(new RegExp(`\\{${name}\\}`, "gi"), params[name]);
         delete params[name];
     }
 
-    return Object.keys(params).length > 0 ? `${ url }?${ query(params) }` : url;
+    return Object.keys(params).length > 0 ? `${url}?${query(params)}` : url;
 }

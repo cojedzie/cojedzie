@@ -40,12 +40,13 @@ export function shuffle<T>(array: T[]): T[] {
 
 export function normal(mean?: number, sigma?: number) {
     if (typeof mean === "undefined") {
-        let u = 0, v = 0;
+        let u = 0,
+            v = 0;
 
         while (u === 0) u = Math.random();
         while (v === 0) v = Math.random();
 
-        return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
     } else {
         return mean + normal() * sigma;
     }

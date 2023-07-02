@@ -23,13 +23,13 @@ import { VuexActionHandler, VuexMutationHandler } from "vuex";
 import { StoreDefinition } from "@/store/initializer";
 
 export interface RootState {
-    stops: Stop[],
-    provider: Jsonified<Provider>,
+    stops: Stop[];
+    provider: Jsonified<Provider>;
 }
 
 export interface SavedState {
-    version: 1,
-    stops: string[],
+    version: 1;
+    stops: string[];
 }
 
 export interface LoadProviderActionPayload {
@@ -42,50 +42,50 @@ export const state: RootState = {
 };
 
 export type RootActionTree = {
-    loadProvider: VuexActionHandler<StoreDefinition, LoadProviderActionPayload, void>,
-    load: VuexActionHandler<StoreDefinition, SavedState, void>,
-    save: VuexActionHandler<StoreDefinition, never, Promise<SavedState>>,
-}
+    loadProvider: VuexActionHandler<StoreDefinition, LoadProviderActionPayload, void>;
+    load: VuexActionHandler<StoreDefinition, SavedState, void>;
+    save: VuexActionHandler<StoreDefinition, never, Promise<SavedState>>;
+};
 
 export type RootMutationTree = {
-    add: VuexMutationHandler<RootState, Stop[]>,
-    replace: VuexMutationHandler<RootState, Stop[]>,
-    remove: VuexMutationHandler<RootState, Stop>,
-    clear: VuexMutationHandler<RootState>,
-    setProvider: VuexMutationHandler<RootState, Jsonified<Provider>>,
-}
+    add: VuexMutationHandler<RootState, Stop[]>;
+    replace: VuexMutationHandler<RootState, Stop[]>;
+    remove: VuexMutationHandler<RootState, Stop>;
+    clear: VuexMutationHandler<RootState>;
+    setProvider: VuexMutationHandler<RootState, Jsonified<Provider>>;
+};
 
 export const mutations: RootMutationTree = {
-    add:     (state, stops) => state.stops = [...state.stops, ...ensureArray(stops)],
-    replace: (state, stops) => state.stops = stops,
-    remove:  (state, stop) => state.stops = state.stops.filter(s => s != stop),
-    clear:   (state) => state.stops = [],
-    setProvider: (state, provider) => state.provider = provider,
+    add: (state, stops) => (state.stops = [...state.stops, ...ensureArray(stops)]),
+    replace: (state, stops) => (state.stops = stops),
+    remove: (state, stop) => (state.stops = state.stops.filter(s => s != stop)),
+    clear: state => (state.stops = []),
+    setProvider: (state, provider) => (state.provider = provider),
 };
 
 export type RootMutationsTree = typeof mutations;
 
 export const actions: RootActionTree = {
     async loadProvider({ commit }, { provider }) {
-        const response = await this.$api.get('v1_provider_details', {
+        const response = await this.$api.get("v1_provider_details", {
             params: { provider },
-            version: '^1.0',
+            version: "^1.0",
         });
 
-        commit('setProvider', response.data);
+        commit("setProvider", response.data);
     },
     async load({ commit }, { stops }: SavedState) {
         if (stops.length > 0) {
             const response = await this.$api.get("v1_stop_list", {
                 query: { id: stops },
-                version: "^1.0"
+                version: "^1.0",
             });
 
-            commit('replace', response.data);
+            commit("replace", response.data);
         }
     },
     save: async ({ state }): Promise<SavedState> => ({
         version: 1,
-        stops: state.stops.map(stop => stop.id)
-    })
+        stops: state.stops.map(stop => stop.id),
+    }),
 };

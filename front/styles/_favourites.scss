@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@include media-breakpoint-up('sm') {
+@include media-breakpoint-up("sm") {
   .favourite-add-form {
     width: 300px;
   }
@@ -59,7 +59,7 @@
 
   &::after {
     content: ", ";
-    margin-right: .5em;
+    margin-right: 0.5em;
   }
 
   &:last-child::after {

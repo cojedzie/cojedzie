@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-@mixin vue-animation($name, $animation: .5s ease-in-out) {
+@mixin vue-animation($name, $animation: 0.5s ease-in-out) {
   .#{$name}-enter-active {
     animation: #{$name}-in $animation;
     animation-fill-mode: backwards;
@@ -29,25 +29,25 @@
   }
 
   @keyframes #{$name}-in {
-    @content
+    @content;
   }
 }
 
 @include vue-animation(fade, 250ms ease-in-out) {
   0% {
-    opacity: 0
+    opacity: 0;
   }
   100% {
-    opacity: 1
+    opacity: 1;
   }
 }
 
 @include vue-animation(tooltip, 100ms ease-in-out) {
   0% {
-    opacity: 0
+    opacity: 0;
   }
   100% {
-    opacity: 1
+    opacity: 1;
   }
 }
 

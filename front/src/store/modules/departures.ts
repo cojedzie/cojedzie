@@ -18,8 +18,8 @@
  */
 
 import { Departure, Line } from "../../model";
-import moment from 'moment'
-import common, { CommonMutations, CommonMutationTree, CommonState } from './common'
+import moment from "moment";
+import common, { CommonMutations, CommonMutationTree, CommonState } from "./common";
 import { resolve } from "@/utils";
 import { NamespacedVuexModule, VuexActionHandler, VuexMutationHandler } from "vuex";
 
@@ -32,28 +32,28 @@ export enum DeparturesMutations {
 }
 
 export interface DeparturesState extends CommonState {
-    departures: Departure[],
+    departures: Departure[];
 }
 
 export type DeparturesMutationTree = {
-    [DeparturesMutations.ListReceived]: VuexMutationHandler<DeparturesState, Departure[]>,
-}
+    [DeparturesMutations.ListReceived]: VuexMutationHandler<DeparturesState, Departure[]>;
+};
 
 export type DeparturesActionTree = {
-    [DeparturesActions.Update]: VuexActionHandler<DeparturesModule>,
-}
+    [DeparturesActions.Update]: VuexActionHandler<DeparturesModule>;
+};
 
 const mutations: DeparturesMutationTree = {
     [DeparturesMutations.ListReceived]: (state, departures) => {
         state.departures = departures;
         state.lastUpdate = moment();
-        state.state      = 'ready';
-    }
-}
+        state.state = "ready";
+    },
+};
 
 const actions: DeparturesActionTree = {
     async [DeparturesActions.Update]({ commit }) {
-        const count = this.state['departures-settings'].displayedEntriesCount;
+        const count = this.state["departures-settings"].displayedEntriesCount;
         const stops = this.state.stops;
 
         if (stops.length == 0) {
@@ -63,46 +63,48 @@ const actions: DeparturesActionTree = {
         commit(CommonMutations.Fetching);
 
         try {
-            const response = await this.$api.get('v1_departure_list', {
+            const response = await this.$api.get("v1_departure_list", {
                 version: "^1.0",
                 query: {
                     stop: stops.map(stop => stop.id),
                     limit: count || 8,
-                }
+                },
             });
 
             const departures = response.data;
 
             commit(
                 DeparturesMutations.ListReceived,
-                departures.map((departure): Departure => ({
-                    ...departure,
-                    line: departure.line as Line,
-                    scheduled: moment.parseZone(departure.scheduled).local(),
-                    estimated: departure.estimated && moment.parseZone(departure.estimated).local(),
-                }))
+                departures.map(
+                    (departure): Departure => ({
+                        ...departure,
+                        line: departure.line as Line,
+                        scheduled: moment.parseZone(departure.scheduled).local(),
+                        estimated: departure.estimated && moment.parseZone(departure.estimated).local(),
+                    })
+                )
             );
         } catch (response) {
             commit(CommonMutations.Error, JSON.stringify(response));
         }
-    }
-}
+    },
+};
 
 export type DeparturesModule = NamespacedVuexModule<
     DeparturesState & CommonState,
     DeparturesMutationTree & CommonMutationTree,
     DeparturesActionTree
->
+>;
 
 export const departures: DeparturesModule = {
     namespaced: true,
     state: () => ({
-        departures: [ ],
-        ...resolve(common.state)
+        departures: [],
+        ...resolve(common.state),
     }),
     mutations: {
         ...mutations,
-        ...common.mutations
+        ...common.mutations,
     },
     actions,
 };

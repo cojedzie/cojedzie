@@ -29,13 +29,13 @@ export interface Line {
     operator?: Identity<Operator> | Operator;
     night: boolean;
     fast: boolean;
-    $type: 'vnd.cojedzie.line';
+    $type: "vnd.cojedzie.line";
 }
 
 export interface Operator {
     id: string;
     name: string;
-    $type: 'vnd.cojedzie.operator';
+    $type: "vnd.cojedzie.operator";
 }
 
 export interface Track {
@@ -43,5 +43,5 @@ export interface Track {
     description: string;
     line: Line;
     destination?: Stop;
-    stops?: Stop[]
+    stops?: Stop[];
 }

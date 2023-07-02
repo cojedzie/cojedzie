@@ -23,12 +23,14 @@
 
     color: black;
 
-    &:hover, &:active, &:focus {
+    &:hover,
+    &:active,
+    &:focus {
       text-decoration: none;
     }
 
     &:focus {
-      outline: 2px solid rgba($blue, .2);
+      outline: 2px solid rgba($blue, 0.2);
     }
   }
 

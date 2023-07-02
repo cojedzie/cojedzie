@@ -52,11 +52,12 @@
     z-index: 1000;
     padding: 0.5rem 1rem;
     background: white;
-    box-shadow: rgba(black, .3) 0 1px 3px;
+    box-shadow: rgba(black, 0.3) 0 1px 3px;
     border-bottom-left-radius: 3px;
   }
 
-  &__lines, &__destination-lines {
+  &__lines,
+  &__destination-lines {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
@@ -80,13 +81,14 @@
     display: grid;
     grid-template-columns: min-content auto min-content;
     grid-template-rows: 1fr 1fr;
-    grid-template-areas: "icon name         actions"
-                         "icon destinations actions";
+    grid-template-areas:
+      "icon name         actions"
+      "icon destinations actions";
     gap: 0.25rem;
     padding: math.div($ui-dialog-margin, 4) $ui-dialog-margin;
 
     &:nth-child(2n) {
-      background: rgba(black, .03);
+      background: rgba(black, 0.03);
     }
 
     .ui-icon {
@@ -136,7 +138,7 @@
   right: 2rem;
 }
 
-@include media-breakpoint-down('sm') {
+@include media-breakpoint-down("sm") {
   .stop-details-dialog {
     height: 100%;
     max-height: 100%;

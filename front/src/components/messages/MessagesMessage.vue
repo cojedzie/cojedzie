@@ -21,17 +21,23 @@
         <div v-if="validFrom || validTo" class="message__validity">
             ważne
             <template v-if="validFrom">
-                od {{
+                od
+                {{
                     validFrom.isSame(today, "day")
-                        ? validFrom.isSame(validTo) ? validFrom.calendar('LT') : validFrom.calendar().toLowerCase()
-                        : validFrom.format('LL')
+                        ? validFrom.isSame(validTo)
+                            ? validFrom.calendar("LT")
+                            : validFrom.calendar().toLowerCase()
+                        : validFrom.format("LL")
                 }}
             </template>
             <template v-if="validTo">
-                do {{
+                do
+                {{
                     validTo.isSame(today, "day")
-                        ? validTo.isSame(validFrom) ? validTo.calendar('LT') : validTo.calendar().toLowerCase()
-                        : validTo.format('LL')
+                        ? validTo.isSame(validFrom)
+                            ? validTo.calendar("LT")
+                            : validTo.calendar().toLowerCase()
+                        : validTo.format("LL")
                 }}
             </template>
         </div>
@@ -49,7 +55,7 @@ export default {
     props: {
         message: {
             type: String,
-            required: true
+            required: true,
         },
         lines: {
             type: Array as PropType<Line[]>,
@@ -64,7 +70,7 @@ export default {
         type: {
             type: String as PropType<MessageType>,
             required: false,
-            default: () => "unknown"
+            default: () => "unknown",
         },
         validFrom: {
             type: Object as PropType<Moment>,
@@ -79,14 +85,14 @@ export default {
         tag: {
             type: String,
             required: false,
-            default: "div"
-        }
+            default: "div",
+        },
     },
     setup() {
         return {
             today: moment(),
-            moment
+            moment,
         };
-    }
-}
+    },
+};
 </script>

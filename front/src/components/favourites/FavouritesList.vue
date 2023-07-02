@@ -16,9 +16,7 @@
                     </div>
                 </button>
                 <button class="btn btn-action" @click="remove(favourite)">
-                    <ui-tooltip placement="left">
-                        usuń
-                    </ui-tooltip>
+                    <ui-tooltip placement="left"> usuń </ui-tooltip>
                     <ui-icon icon="delete" />
                 </button>
             </li>
@@ -41,7 +39,7 @@ import { Stop } from "@/model";
 export default class FavouritesList extends Vue {
     @Favourites.State favourites: Favourite[];
     @Favourites.Mutation remove: (fav: Favourite) => void;
-    @Mutation('replace') setStops: (stops: Stop[]) => void;
+    @Mutation("replace") setStops: (stops: Stop[]) => void;
 
     choose(favourite: Favourite) {
         this.setStops(favourite.stops);

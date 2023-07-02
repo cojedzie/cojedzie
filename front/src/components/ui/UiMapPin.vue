@@ -1,6 +1,6 @@
 <template>
     <l-marker v-bind="markerProps">
-        <l-icon :icon-anchor="[ 16, 48.67 ]">
+        <l-icon :icon-anchor="[16, 48.67]">
             <ui-pin v-bind="{ ...uiPinProps, ...$attrs }">
                 <slot />
             </ui-pin>
@@ -10,19 +10,19 @@
 
 <script lang="ts">
 import UiPin, { UiPinProps } from "@/components/ui/UiPin.vue";
-import { LIcon, LMarker } from "@vue-leaflet/vue-leaflet"
+import { LIcon, LMarker } from "@vue-leaflet/vue-leaflet";
 import { computed, defineComponent } from "vue";
 import { pick } from "lodash";
 
 export type UiMapProps = {
-    variant: string,
-}
+    variant: string;
+};
 
 export default defineComponent({
     name: "UiMapPin",
     components: {
         UiPin,
-        LIcon
+        LIcon,
     },
     inheritAttrs: false,
     props: {
@@ -30,13 +30,13 @@ export default defineComponent({
         ...LMarker.props,
     },
     setup(props) {
-        const uiPinProps = computed(() => pick(props, Object.keys(UiPin.props)))
-        const markerProps = computed(() => pick(props, Object.keys(LMarker.props)))
+        const uiPinProps = computed(() => pick(props, Object.keys(UiPin.props)));
+        const markerProps = computed(() => pick(props, Object.keys(LMarker.props)));
 
         return {
             uiPinProps,
-            markerProps
-        }
-    }
-})
+            markerProps,
+        };
+    },
+});
 </script>

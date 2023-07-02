@@ -1,5 +1,12 @@
 <template>
-    <span class="line__symbol flex" :class="{ [`line--${line.type}`]: true, 'line--night': line.night, 'line--fast': line.fast }">
+    <span
+        class="line__symbol flex"
+        :class="{
+            [`line--${line.type}`]: true,
+            'line--night': line.night,
+            'line--fast': line.fast,
+        }"
+    >
         <span class="flex align-items-stretch">
             <slot v-if="!simple" name="icon">
                 <span class="icon">

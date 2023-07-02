@@ -1,14 +1,14 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
 import UiTooltip from "./UiTooltip.vue";
 import { centered } from "@/stories/decorators";
-import * as UiTooltipStories from './UiTooltip.stories';
+import * as UiTooltipStories from "./UiTooltip.stories";
 
 <Meta of={UiTooltipStories} />
 
 # UiTooltip
 
 <Canvas>
-  <Story of={UiTooltipStories.Default} />
+    <Story of={UiTooltipStories.Default} />
 </Canvas>
 
 <ArgsTable story="Default" />
@@ -16,5 +16,5 @@ import * as UiTooltipStories from './UiTooltip.stories';
 ## Other stories
 
 <Canvas>
-  <Story of={UiTooltipStories.WithHtmlContent} />
+    <Story of={UiTooltipStories.WithHtmlContent} />
 </Canvas>

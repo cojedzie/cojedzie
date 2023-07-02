@@ -17,22 +17,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { createDecorator, Vue } from 'vue-class-component'
+import { createDecorator, Vue } from "vue-class-component";
 
 export interface Decorator<TArgs extends unknown[], FArgs extends unknown[], TRet, FRet> {
     decorate(f: (...farg: FArgs) => unknown, ...args: TArgs): (...farg: FArgs) => TRet;
 
-    (...args: TArgs): (target, name: string | symbol, descriptor: TypedPropertyDescriptor<(...farg: FArgs) => FRet>) => void;
+    (...args: TArgs): (
+        target,
+        name: string | symbol,
+        descriptor: TypedPropertyDescriptor<(...farg: FArgs) => FRet>
+    ) => void;
 }
 
-export function decorator<TArgs extends unknown[], FArgs extends unknown[], TRet, FRet>
-    (decorate: (f: (...farg: FArgs) => FRet, ...args: TArgs) => (...farg: FArgs) => TRet)
-    : Decorator<TArgs, FArgs, TRet, FRet> {
-
+export function decorator<TArgs extends unknown[], FArgs extends unknown[], TRet, FRet>(
+    decorate: (f: (...farg: FArgs) => FRet, ...args: TArgs) => (...farg: FArgs) => TRet
+): Decorator<TArgs, FArgs, TRet, FRet> {
     const factory = function (this: Decorator<TArgs, FArgs, TRet, FRet>, ...args: TArgs) {
         return (target, name: string | symbol, descriptor: PropertyDescriptor) => {
             descriptor.value = decorate(descriptor.value, ...args);
-        }
+        };
     } as Decorator<TArgs, FArgs, TRet, FRet>;
     factory.decorate = decorate;
 
@@ -42,19 +45,19 @@ export function decorator<TArgs extends unknown[], FArgs extends unknown[], TRet
 export const throttle = decorator(function (decorated, time: number) {
     let timeout;
     return function (this: unknown, ...args) {
-        if (typeof timeout === 'undefined') {
+        if (typeof timeout === "undefined") {
             timeout = setTimeout(() => {
                 decorated.call(this, ...args);
                 timeout = undefined;
             }, time);
         }
-    }
+    };
 });
 
 export const debounce = decorator(function (decorated, time: number) {
     let timeout;
     return function (this: unknown, ...args) {
-        if (typeof timeout !== 'undefined') {
+        if (typeof timeout !== "undefined") {
             clearTimeout(timeout);
         }
 
@@ -62,31 +65,35 @@ export const debounce = decorator(function (decorated, time: number) {
             timeout = undefined;
             decorated.call(this, ...args);
         }, time);
-    }
+    };
 });
 
-export const condition = decorator(function <TArgs extends unknown[], TReturn>(decorated: (...args: TArgs) => TReturn, predicate: (...args: TArgs) => boolean) {
+export const condition = decorator(function <TArgs extends unknown[], TReturn>(
+    decorated: (...args: TArgs) => TReturn,
+    predicate: (...args: TArgs) => boolean
+) {
     return function (this: unknown, ...args: TArgs) {
         if (predicate(...args)) {
             return decorated(...args);
         }
-    }
+    };
 });
 
-export const notify = (name?: string) => createDecorator((options, key) => {
-    const symbol = Symbol(key);
+export const notify = (name?: string) =>
+    createDecorator((options, key) => {
+        const symbol = Symbol(key);
 
-    if (typeof options.computed === 'undefined') {
-        options.computed = {};
-    }
-
-    options.computed[key] = {
-        get: function (this: Vue) {
-            return this[symbol];
-        },
-        set: function (this: Vue, value: unknown) {
-            this[symbol] = value;
-            this.$emit(name ? name : `update:${key}`, value);
+        if (typeof options.computed === "undefined") {
+            options.computed = {};
         }
-    }
-});
+
+        options.computed[key] = {
+            get: function (this: Vue) {
+                return this[symbol];
+            },
+            set: function (this: Vue, value: unknown) {
+                this[symbol] = value;
+                this.$emit(name ? name : `update:${key}`, value);
+            },
+        };
+    });

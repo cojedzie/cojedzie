@@ -1,10 +1,5 @@
 <template>
-    <ui-select
-        v-slot="{ option: track }"
-        class="track-picker"
-        :options="tracks"
-        allow-clearing
-    >
+    <ui-select v-slot="{ option: track }" class="track-picker" :options="tracks" allow-clearing>
         <line-symbol :line="track.line" class="track-picker__line" />
         <span class="track-picker__description">{{ track.description }}</span>
         <ul class="track-picker__stops">
@@ -25,7 +20,7 @@ defineProps({
         type: Array as PropType<Track[]>,
         required: true,
     },
-})
+});
 </script>
 
 <style lang="scss">
@@ -38,8 +33,7 @@ defineProps({
         grid-template-columns: min-content 1fr;
         grid-template-areas:
             "l d"
-            "s s"
-        ;
+            "s s";
     }
 
     &__description {

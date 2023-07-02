@@ -16,10 +16,10 @@
             </template>
 
             <template v-if="!showRelativeTime">
-                <span v-if="timeDiffers" :class="[ 'departure__time', 'departure__time--delayed']">
-                    {{ departure.scheduled.format('HH:mm') }}
+                <span v-if="timeDiffers" :class="['departure__time', 'departure__time--delayed']">
+                    {{ departure.scheduled.format("HH:mm") }}
                 </span>
-                {{ ' ' }}
+                {{ " " }}
                 <span
                     v-if="departure.delay < 0 || departure.delay > 30"
                     class="badge"
@@ -27,8 +27,8 @@
                 >
                     {{ $f.signed(departure.delay) }}s
                 </span>
-                {{ ' ' }}
-                <span class="departure__time">{{ time.format('HH:mm') }}</span>
+                {{ " " }}
+                <span class="departure__time">{{ time.format("HH:mm") }}</span>
             </template>
             <template v-else>
                 {{ $f.duration(timeLeft).humanize(true) }}
@@ -48,7 +48,12 @@
         </div>
     </div>
     <ui-fold :visible="showTrip">
-        <trip-schedule v-if="trip" :schedule="trip.schedule" :current="departure.stop" :class="[ `trip--${departure.line.type}` ]" />
+        <trip-schedule
+            v-if="trip"
+            :schedule="trip.schedule"
+            :current="departure.stop"
+            :class="[`trip--${departure.line.type}`]"
+        />
         <div v-else class="text-center">
             <ui-icon icon="spinner" />
         </div>
@@ -73,12 +78,12 @@ function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
             ...scheduled,
             arrival: moment.parseZone(scheduled.arrival).local(),
             departure: moment.parseZone(scheduled.departure).local(),
-        }))
+        })),
     };
 }
 
 function useDepartureSetting(store: VuexStore<StoreDefinition>, setting: keyof DeparturesSettingsState) {
-    return computed(() => store.state['departures-settings'][setting]);
+    return computed(() => store.state["departures-settings"][setting]);
 }
 
 export default {
@@ -86,8 +91,8 @@ export default {
     props: {
         departure: {
             type: Object as PropType<Departure>,
-            required: true
-        }
+            required: true,
+        },
     },
     setup(props) {
         const store = useStore<StoreDefinition>();
@@ -99,26 +104,28 @@ export default {
         const timeLeft = computed(() => moment.duration(time.value.diff(moment())));
         const timeDiffers = computed(() => {
             const { departure } = props;
-            return departure.estimated && departure.scheduled.format('HH:mm') !== departure.estimated.format('HH:mm');
-        })
+            return departure.estimated && departure.scheduled.format("HH:mm") !== departure.estimated.format("HH:mm");
+        });
 
         const trip = computed(() => {
             const trip = scheduledTrip.value;
 
-            return trip && {
-                ...trip,
-                schedule: trip.schedule.map(stop => ({
-                    ...stop,
-                    arrival: stop.arrival.clone().add(props.departure.delay, 'seconds'),
-                    departure: stop.departure.clone().add(props.departure.delay, 'seconds'),
-                }))
-            };
-        })
+            return (
+                trip && {
+                    ...trip,
+                    schedule: trip.schedule.map(stop => ({
+                        ...stop,
+                        arrival: stop.arrival.clone().add(props.departure.delay, "seconds"),
+                        departure: stop.departure.clone().add(props.departure.delay, "seconds"),
+                    })),
+                }
+            );
+        });
 
-        const relativeTimes = useDepartureSetting(store, 'relativeTimes');
-        const relativeTimesLimit = useDepartureSetting(store, 'relativeTimesLimit');
-        const relativeTimesLimitEnabled = useDepartureSetting(store, 'relativeTimesLimitEnabled');
-        const relativeTimesForScheduled = useDepartureSetting(store, 'relativeTimesForScheduled');
+        const relativeTimes = useDepartureSetting(store, "relativeTimes");
+        const relativeTimesLimit = useDepartureSetting(store, "relativeTimesLimit");
+        const relativeTimesLimitEnabled = useDepartureSetting(store, "relativeTimesLimitEnabled");
+        const relativeTimesForScheduled = useDepartureSetting(store, "relativeTimesForScheduled");
 
         const showRelativeTime = computed(() => {
             if (!unref(relativeTimes)) {
@@ -140,17 +147,17 @@ export default {
                 return;
             }
 
-            const response = await api.get('v1_trip_details', {
+            const response = await api.get("v1_trip_details", {
                 params: { id: props.departure.trip?.id },
-                version: "^1.0"
-            })
+                version: "^1.0",
+            });
 
             if (response.status === 200) {
                 scheduledTrip.value = convertTripDtoToTrip(response.data);
             }
         }
 
-        watch(showTrip, downloadTrips)
+        watch(showTrip, downloadTrips);
 
         return {
             showTrip,
@@ -162,8 +169,8 @@ export default {
             relativeTimesLimit,
             relativeTimesLimitEnabled,
             relativeTimes,
-            relativeTimesForScheduled
-        }
-    }
-}
+            relativeTimesForScheduled,
+        };
+    },
+};
 </script>

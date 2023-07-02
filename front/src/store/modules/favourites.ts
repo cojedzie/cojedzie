@@ -38,16 +38,16 @@ export enum FavouritesMutations {
 }
 
 export type FavouritesMutationTree = {
-    [FavouritesMutations.Add]: VuexMutationHandler<FavouritesState, Favourite>,
-    [FavouritesMutations.Remove]: VuexMutationHandler<FavouritesState, Favourite>,
-}
+    [FavouritesMutations.Add]: VuexMutationHandler<FavouritesState, Favourite>;
+    [FavouritesMutations.Remove]: VuexMutationHandler<FavouritesState, Favourite>;
+};
 
-export type FavouritesModule = NamespacedVuexModule<FavouritesState, FavouritesMutationTree>
+export type FavouritesModule = NamespacedVuexModule<FavouritesState, FavouritesMutationTree>;
 
 const favourites: FavouritesModule = {
     namespaced: true,
     state: supply({
-        favourites: []
+        favourites: [],
     }),
     mutations: {
         [FavouritesMutations.Add](state, favourite: Favourite) {
@@ -61,8 +61,8 @@ const favourites: FavouritesModule = {
         },
         [FavouritesMutations.Remove](state, favourite: Favourite) {
             state.favourites = state.favourites.filter(f => f != favourite);
-        }
-    }
+        },
+    },
 };
 
 export default favourites;

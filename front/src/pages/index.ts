@@ -17,5 +17,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from "./MainPage.vue"
-export * from "./ProviderChooserPage.vue"
+export * from "./MainPage.vue";
+export * from "./ProviderChooserPage.vue";

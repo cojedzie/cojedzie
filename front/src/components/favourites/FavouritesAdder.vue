@@ -10,7 +10,7 @@
                     class="form-control form-control-sm"
                     placeholder="np. Z pracy"
                     :class="{ 'is-invalid': errors.name.length > 0 }"
-                >
+                />
                 <div v-if="errors.name.length > 0" class="invalid-feedback">
                     <p v-for="error in errors.name" :key="error.name">
                         {{ error }}
@@ -25,12 +25,8 @@
         </ul>
         <div class="favourite-add-form__actions">
             <template v-if="confirmation">
-                <button class="btn btn-xs btn-danger" type="submit">
-                    nadpisz
-                </button>
-                <button class="btn btn-xs btn-action" @click="$emit('close')">
-                    anuluj
-                </button>
+                <button class="btn btn-xs btn-danger" type="submit">nadpisz</button>
+                <button class="btn btn-xs btn-action" @click="$emit('close')">anuluj</button>
             </template>
             <template v-else>
                 <button class="btn btn-xs btn-primary" type="submit">
@@ -55,8 +51,8 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
     return {
         id: uuid.v4(),
         name,
-        stops
-    }
+        stops,
+    };
 }
 
 @Options({ name: "FavouritesAdder" })
@@ -70,7 +66,7 @@ export default class FavouritesAdder extends Vue {
 
     @Favourites.Mutation add: (favourite: Favourite) => void;
 
-    @Watch('name')
+    @Watch("name")
     handleNameChange() {
         this.confirmation = false;
     }
@@ -80,9 +76,9 @@ export default class FavouritesAdder extends Vue {
 
         if (this.validate(favourite)) {
             this.add(favourite);
-            this.name = '';
+            this.name = "";
 
-            this.$emit('saved', favourite);
+            this.$emit("saved", favourite);
         }
     }
 
@@ -93,14 +89,21 @@ export default class FavouritesAdder extends Vue {
             errors.name.push("Musisz podać nazwę.");
         }
 
-        if (this.$store.state.favourites.favourites.filter(other => other.name == favourite.name).length > 0 && !this.confirmation) {
+        if (
+            this.$store.state.favourites.favourites.filter(other => other.name == favourite.name).length > 0 &&
+            !this.confirmation
+        ) {
             errors.name.push("Istnieje już zapisana grupa przystanków o takiej nazwie.");
             this.confirmation = true;
         }
 
         this.errors = errors;
 
-        return Object.entries(errors).map(a => a[1]).reduce((acc, cur) => [...acc, ...cur]).length == 0;
+        return (
+            Object.entries(errors)
+                .map(a => a[1])
+                .reduce((acc, cur) => [...acc, ...cur]).length == 0
+        );
     }
 }
 </script>

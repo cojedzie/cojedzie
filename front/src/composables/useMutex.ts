@@ -66,9 +66,9 @@ export function createMutex(): Mutex {
                 acquire,
                 release,
                 toggle,
-            }
-        }
-    }
+            };
+        },
+    };
 }
 
 export function useMutex(mutex: Mutex, symbol = Symbol()): MutexInstance {

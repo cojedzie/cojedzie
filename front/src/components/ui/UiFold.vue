@@ -32,11 +32,11 @@ export default class UiFold extends Vue {
 
     data() {
         return {
-            state: this.visible ? "expanded" : "folded"
-        }
+            state: this.visible ? "expanded" : "folded",
+        };
     }
 
-    @Watch('visible')
+    @Watch("visible")
     private resize() {
         if (this.visible) {
             this.expand();
@@ -76,18 +76,18 @@ export default class UiFold extends Vue {
                 break;
 
             case "expanded":
-                root.style.height = `${ root.clientHeight }px`;
+                root.style.height = `${root.clientHeight}px`;
 
                 // DOM must be updated and style must be applied in order for this to work
                 setTimeout(() => {
-                    root.style.height = '0px';
+                    root.style.height = "0px";
                     this.state = "folding";
-                })
+                });
                 break;
 
             case "expanding":
                 // reverse process
-                root.style.height = '0px';
+                root.style.height = "0px";
                 this.state = "folding";
                 break;
         }
@@ -95,7 +95,7 @@ export default class UiFold extends Vue {
 
     private expand() {
         const root = this.$el as HTMLDivElement;
-        const inner = this.$refs['inner'] as HTMLDivElement;
+        const inner = this.$refs["inner"] as HTMLDivElement;
         const state = this.state;
 
         switch (state) {
@@ -106,7 +106,7 @@ export default class UiFold extends Vue {
 
             case "folded":
             case "folding":
-                root.style.height = inner.clientHeight + 'px';
+                root.style.height = inner.clientHeight + "px";
                 this.state = "expanding";
                 break;
         }

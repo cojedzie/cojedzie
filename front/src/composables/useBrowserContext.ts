@@ -19,10 +19,10 @@
 
 export type BrowserContext = {
     isTouch: boolean;
-}
+};
 
 export function useBrowserContext(): BrowserContext {
     return {
-        isTouch: 'ontouchstart' in window || navigator['msMaxTouchPoints'] > 0
-    }
+        isTouch: "ontouchstart" in window || navigator["msMaxTouchPoints"] > 0,
+    };
 }

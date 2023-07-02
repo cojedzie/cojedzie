@@ -17,13 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-export { default as UiDialog } from './UiDialog.vue'
-export { default as UiFold } from './UiFold.vue';
-export { default as UiTooltip } from './UiTooltip.vue'
-export { default as UiPin } from './UiPin.vue'
-export { default as UiMapPin } from './UiMapPin.vue'
-export { default as UiIcon } from './UiIcon.vue';
-export { default as UiHelp } from './UiHelp.vue';
-export { default as UiNumericInput } from './UiNumericInput.vue';
-export { default as UiSwitch } from './UiSwitch.vue';
+export { default as UiDialog } from "./UiDialog.vue";
+export { default as UiFold } from "./UiFold.vue";
+export { default as UiTooltip } from "./UiTooltip.vue";
+export { default as UiPin } from "./UiPin.vue";
+export { default as UiMapPin } from "./UiMapPin.vue";
+export { default as UiIcon } from "./UiIcon.vue";
+export { default as UiHelp } from "./UiHelp.vue";
+export { default as UiNumericInput } from "./UiNumericInput.vue";
+export { default as UiSwitch } from "./UiSwitch.vue";

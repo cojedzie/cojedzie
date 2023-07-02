@@ -48,7 +48,8 @@
 
 @import "storybook/_icon-catalog.scss";
 
-html, body {
+html,
+body {
   overscroll-behavior-y: contain;
 }
 
@@ -67,12 +68,12 @@ body {
     position: relative;
 
     > * {
-      transition: opacity .3s ease-in-out;
+      transition: opacity 0.3s ease-in-out;
     }
   }
 
   main::after {
-    transition: opacity .3s ease-in-out;
+    transition: opacity 0.3s ease-in-out;
     position: absolute;
     top: 2rem;
     bottom: 2rem;
@@ -109,8 +110,8 @@ body {
 
     font-size: $font-size-sm;
     padding: $alert-padding-y $alert-padding-y;
-    transition: all .5s ease;
-    opacity: .15;
+    transition: all 0.5s ease;
+    opacity: 0.15;
     filter: grayscale(100%);
 
     &:hover {
@@ -124,7 +125,7 @@ body {
 
     > * {
       flex: 1 1 auto;
-      padding: .4rem 0;
+      padding: 0.4rem 0;
     }
   }
 }
@@ -137,7 +138,7 @@ pre {
   color: white;
 }
 
-@include media-breakpoint-up('md') {
+@include media-breakpoint-up("md") {
   #app {
     padding-top: 2rem;
   }
@@ -146,4 +147,3 @@ pre {
     flex: 0 1 auto;
   }
 }
-

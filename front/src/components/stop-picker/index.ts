@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2021 Kacper Donat
  *
@@ -18,6 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { default as StopPickerEntry } from "./StopPickerEntry.vue"
-export { default as StopPickerHistory } from "./StopPickerHistory.vue"
-export { default as StopPicker } from "./StopPicker.vue"
+export { default as StopPickerEntry } from "./StopPickerEntry.vue";
+export { default as StopPickerHistory } from "./StopPickerHistory.vue";
+export { default as StopPicker } from "./StopPicker.vue";

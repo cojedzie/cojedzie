@@ -20,21 +20,22 @@ export default defineComponent({
     props: {
         icon: {
             type: [String, Object] as PropType<PredefinedIcon | IconDefinition>,
-            validator: (value: PredefinedIcon | IconDefinition) => typeof value === "object" || Object.keys(icons).includes(value),
+            validator: (value: PredefinedIcon | IconDefinition) =>
+                typeof value === "object" || Object.keys(icons).includes(value),
             required: true,
-        }
+        },
     },
     setup(props, { attrs: $attrs }) {
-        const definition = computed<Icon>(
-            () => typeof props.icon === "string"
-                ? icons[props.icon] || icons['unknown']
+        const definition = computed<Icon>(() =>
+            typeof props.icon === "string"
+                ? icons[props.icon] || icons["unknown"]
                 : { icon: props.icon as IconDefinition, type: "simple" }
-        )
+        );
 
-        const attrs = computed(() => ({ ...definition.value, ...$attrs }))
+        const attrs = computed(() => ({ ...definition.value, ...$attrs }));
         const type = computed(() => definition.value.type);
 
-        return { definition, attrs, type }
-    }
-})
+        return { definition, attrs, type };
+    },
+});
 </script>

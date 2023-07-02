@@ -54,7 +54,8 @@ header {
   display: none;
 }
 
-header::before, #swagger-ui.api-platform .opblock.opblock-get .opblock-summary-method {
+header::before,
+#swagger-ui.api-platform .opblock.opblock-get .opblock-summary-method {
   background: #005ea8;
 }
 

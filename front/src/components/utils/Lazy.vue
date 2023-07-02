@@ -11,10 +11,10 @@ import { Options, Vue } from "vue-class-component";
 @Options({ name: "Lazy" })
 export class Lazy extends Vue {
     @Prop(Boolean)
-    public    activate: boolean;
-    protected visible:  boolean = false;
+    public activate: boolean;
+    protected visible: boolean = false;
 
-    @Watch('activate')
+    @Watch("activate")
     private onVisibilityChange(value, old) {
         this.visible = value || old;
     }

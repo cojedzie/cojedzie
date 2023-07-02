@@ -23,52 +23,52 @@ import { Jsonified, supply, TwoWayConverter } from "@/utils";
 import { NamespacedVuexModule, VuexGetter, VuexMutationHandler } from "vuex";
 
 export interface HistoryEntry {
-    stop: Stop,
-    date: Moment,
+    stop: Stop;
+    date: Moment;
 }
 
 export interface HistorySettings {
-    maxEntries: number,
+    maxEntries: number;
 }
 
 export interface HistoryState {
-    entries: Jsonified<HistoryEntry>[],
-    settings: HistorySettings,
+    entries: Jsonified<HistoryEntry>[];
+    settings: HistorySettings;
 }
 
 export enum HistoryMutations {
     Clear = "clear",
     Push = "push",
-    SaveSettings = "saveSettings"
+    SaveSettings = "saveSettings",
 }
 
 export type HistoryMutationTree = {
-    [HistoryMutations.Clear]: VuexMutationHandler<HistoryState>,
-    [HistoryMutations.Push]: VuexMutationHandler<HistoryState, HistoryEntry>,
-    [HistoryMutations.SaveSettings]: VuexMutationHandler<HistoryState, Partial<HistorySettings>>,
-}
+    [HistoryMutations.Clear]: VuexMutationHandler<HistoryState>;
+    [HistoryMutations.Push]: VuexMutationHandler<HistoryState, HistoryEntry>;
+    [HistoryMutations.SaveSettings]: VuexMutationHandler<HistoryState, Partial<HistorySettings>>;
+};
 
 export type HistoryGetterTree = {
-    all: VuexGetter<HistoryModule, HistoryEntry[]>,
-    latest: VuexGetter<HistoryModule, (count: number) => HistoryEntry[]>,
-}
+    all: VuexGetter<HistoryModule, HistoryEntry[]>;
+    latest: VuexGetter<HistoryModule, (count: number) => HistoryEntry[]>;
+};
 
-export type HistoryModule = NamespacedVuexModule<HistoryState, HistoryMutationTree, undefined, HistoryGetterTree>
+export type HistoryModule = NamespacedVuexModule<HistoryState, HistoryMutationTree, undefined, HistoryGetterTree>;
 
 export const historyEntrySerializer: TwoWayConverter<HistoryEntry, Jsonified<HistoryEntry>> = {
     convert(entry: HistoryEntry): Jsonified<HistoryEntry> {
         return {
             ...entry,
             date: entry.date.toISOString(),
-        }
+        };
     },
     convertBack(serialized: Jsonified<HistoryEntry>): HistoryEntry {
         return {
             ...serialized,
             date: moment(serialized.date),
-        }
-    }
-}
+        };
+    },
+};
 
 export const history: HistoryModule = {
     namespaced: true,
@@ -76,7 +76,7 @@ export const history: HistoryModule = {
         entries: [],
         settings: {
             maxEntries: 10,
-        }
+        },
     }),
     mutations: {
         [HistoryMutations.Clear](state: HistoryState) {
@@ -92,12 +92,15 @@ export const history: HistoryModule = {
         },
         [HistoryMutations.SaveSettings](state: HistoryState, settings: Partial<HistorySettings>) {
             Object.assign(state.settings, settings);
-        }
+        },
     },
     getters: {
         all: ({ entries, settings }) => entries.slice(0, settings.maxEntries).map(historyEntrySerializer.convertBack),
-        latest: ({ entries }) => n => entries.slice(0, n).map(historyEntrySerializer.convertBack),
-    }
-}
+        latest:
+            ({ entries }) =>
+            n =>
+                entries.slice(0, n).map(historyEntrySerializer.convertBack),
+    },
+};
 
 export default history;

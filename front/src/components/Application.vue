@@ -12,7 +12,7 @@ import { router } from "@/routes";
 @Options({ router, store })
 export default class Application extends Vue {
     mounted() {
-        this.$el.classList.remove('not-ready');
+        this.$el.classList.remove("not-ready");
     }
 }
 </script>

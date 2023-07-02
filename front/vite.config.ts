@@ -26,17 +26,20 @@ import SvgIconLoader from "./src/svg-icon-loader";
 import viteImagemin from "vite-plugin-imagemin";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
-const dist = path.resolve(__dirname, './build/public');
+const dist = path.resolve(__dirname, "./build/public");
 
-function readSecret(path: string): string|undefined {
+function readSecret(path: string): string | undefined {
     try {
-        return readFileSync(path, { encoding: 'utf-8' });
+        return readFileSync(path, { encoding: "utf-8" });
     } catch {
         return undefined;
     }
 }
 
-const sentryAuthToken= readSecret(process.env.SENTRY_AUTH_TOKEN_FILE || '/run/secrets/sentry-auth-token') || process.env.SENTRY_AUTH_TOKEN || false;
+const sentryAuthToken =
+    readSecret(process.env.SENTRY_AUTH_TOKEN_FILE || "/run/secrets/sentry-auth-token") ||
+    process.env.SENTRY_AUTH_TOKEN ||
+    false;
 
 export default defineConfig({
     build: {
@@ -44,9 +47,7 @@ export default defineConfig({
         sourcemap: true,
         manifest: true,
         rollupOptions: {
-            input: [
-                path.resolve(__dirname, './src/app.ts'),
-            ],
+            input: [path.resolve(__dirname, "./src/app.ts")],
         },
     },
     define: {
@@ -59,34 +60,33 @@ export default defineConfig({
         VitePWA({}),
         viteImagemin(),
         SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
-        sentryAuthToken && sentryVitePlugin({
-            org: process.env.SENTRY_ORG || "cojedzie",
-            project: process.env.SENTRY_PROJECT || "frontend-vue",
-            authToken: sentryAuthToken,
-            sourcemaps: {
-                assets: `${dist}/**`
-            },
-            release: process.env.COJEDZIE_VERSION,
-        }),
+        sentryAuthToken &&
+            sentryVitePlugin({
+                org: process.env.SENTRY_ORG || "cojedzie",
+                project: process.env.SENTRY_PROJECT || "frontend-vue",
+                authToken: sentryAuthToken,
+                sourcemaps: {
+                    assets: `${dist}/**`,
+                },
+                release: process.env.COJEDZIE_VERSION,
+            }),
     ],
-    publicDir: path.resolve(__dirname, './public'),
+    publicDir: path.resolve(__dirname, "./public"),
     resolve: {
         alias: [
             {
-                find: '@resources',
-                replacement: path.resolve(__dirname, "./resources")
+                find: "@resources",
+                replacement: path.resolve(__dirname, "./resources"),
             },
             {
-                find: '@styles',
-                replacement: path.resolve(__dirname, "./styles")
+                find: "@styles",
+                replacement: path.resolve(__dirname, "./styles"),
             },
             {
-                find: '@',
-                replacement: path.resolve(__dirname, "./src")
+                find: "@",
+                replacement: path.resolve(__dirname, "./src"),
             },
-        ]
+        ],
     },
-    test: {
-
-    }
-})
+    test: {},
+});

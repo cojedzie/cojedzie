@@ -28,30 +28,30 @@ import { AxiosResponse } from "axios";
 import { NamespacedVuexModule, VuexActionHandler, VuexGetter, VuexMutationHandler } from "vuex";
 import { createHttpClient } from "@/api/client/http";
 
-const EventSource = (typeof window !== "undefined" && window.EventSource);
+const EventSource = typeof window !== "undefined" && window.EventSource;
 
 export type NetworkingEndpoints = {
-    v1_network_nodes: Endpoint<never, Jsonified<ApiNode>[]>,
-    v1_status_health: Endpoint<never, Jsonified<unknown>>,
-}
+    v1_network_nodes: Endpoint<never, Jsonified<ApiNode>[]>;
+    v1_status_health: Endpoint<never, Jsonified<unknown>>;
+};
 
 export const networkingEndpoints: NetworkingEndpoints = {
     v1_network_nodes: {
-        template: '/api/v1/network/nodes',
-        version: '1.0'
+        template: "/api/v1/network/nodes",
+        version: "1.0",
     },
     v1_status_health: {
-        template: '/api/v1/status/health',
-        version: '1.0',
-    }
-}
+        template: "/api/v1/status/health",
+        version: "1.0",
+    },
+};
 
 export const networkingClient = new StaticClient({
     endpoints: networkingEndpoints,
     http: createHttpClient({
         baseURL: window.CoJedzie.api.hub,
-    })
-})
+    }),
+});
 
 export const nodeBackoff = createBackoff(5000);
 export const sseBackoff = createBackoff(1000);
@@ -84,30 +84,35 @@ export interface NetworkNodeState extends NetworkNode {
 }
 
 export interface NetworkState {
-    nodes: Dictionary<NetworkNodeState>,
+    nodes: Dictionary<NetworkNodeState>;
 }
 
 export type NetworkMutationTree = {
-    [NetworkMutations.NodeJoined]: VuexMutationHandler<NetworkState, ApiNode>
-    [NetworkMutations.NodeLeft]: VuexMutationHandler<NetworkState, string>
-    [NetworkMutations.NodeSuspended]: VuexMutationHandler<NetworkState, string>
-    [NetworkMutations.NodeResumed]: VuexMutationHandler<NetworkState, string>
-    [NetworkMutations.NodeFailed]: VuexMutationHandler<NetworkState, string>
-    [NetworkMutations.NodeRecovered]: VuexMutationHandler<NetworkState, string>
-    [NetworkMutations.NodeListUpdated]: VuexMutationHandler<NetworkState, ApiNode[]>
-}
+    [NetworkMutations.NodeJoined]: VuexMutationHandler<NetworkState, ApiNode>;
+    [NetworkMutations.NodeLeft]: VuexMutationHandler<NetworkState, string>;
+    [NetworkMutations.NodeSuspended]: VuexMutationHandler<NetworkState, string>;
+    [NetworkMutations.NodeResumed]: VuexMutationHandler<NetworkState, string>;
+    [NetworkMutations.NodeFailed]: VuexMutationHandler<NetworkState, string>;
+    [NetworkMutations.NodeRecovered]: VuexMutationHandler<NetworkState, string>;
+    [NetworkMutations.NodeListUpdated]: VuexMutationHandler<NetworkState, ApiNode[]>;
+};
 
 export type NetworkActionTree = {
-    [NetworkActions.Update]: VuexActionHandler<NetworkModule>,
-    [NetworkActions.NodeFailed]: VuexActionHandler<NetworkModule, string>,
-    [NetworkActions.NodeCheck]: VuexActionHandler<NetworkModule, string>,
-}
+    [NetworkActions.Update]: VuexActionHandler<NetworkModule>;
+    [NetworkActions.NodeFailed]: VuexActionHandler<NetworkModule, string>;
+    [NetworkActions.NodeCheck]: VuexActionHandler<NetworkModule, string>;
+};
 
 export type NetworkGetterTree = {
-    available: VuexGetter<NetworkModule, NetworkNode[]>
-}
+    available: VuexGetter<NetworkModule, NetworkNode[]>;
+};
 
-export type NetworkModule = NamespacedVuexModule<NetworkState, NetworkMutationTree, NetworkActionTree, NetworkGetterTree>;
+export type NetworkModule = NamespacedVuexModule<
+    NetworkState,
+    NetworkMutationTree,
+    NetworkActionTree,
+    NetworkGetterTree
+>;
 
 const emptyNetworkNode: NetworkNodeState = {
     id: "",
@@ -117,14 +122,14 @@ const emptyNetworkNode: NetworkNodeState = {
     failuresTotal: 0,
     available: true,
     suspended: false,
-}
+};
 
 const apiNodeConverter: Converter<ApiNode, NetworkNode> = {
     convert: (node: ApiNode): NetworkNode => ({
         ...node,
         endpoints: Object.fromEntries(node.endpoints.map(endpoint => [endpoint.name, endpoint])),
-    })
-}
+    }),
+};
 
 const mutations: NetworkMutationTree = {
     [NetworkMutations.NodeJoined]: (state, node) => {
@@ -132,8 +137,8 @@ const mutations: NetworkMutationTree = {
 
         state.nodes[node.id] = {
             ...base,
-            ...(apiNodeConverter.convert(node)),
-        }
+            ...apiNodeConverter.convert(node),
+        };
     },
     [NetworkMutations.NodeLeft]: (state, id) => {
         delete state.nodes[id];
@@ -184,24 +189,26 @@ const mutations: NetworkMutationTree = {
                     const base = state.nodes[node.id] || emptyNetworkNode;
                     return {
                         ...base,
-                        ...(apiNodeConverter.convert(node)),
-                    }
+                        ...apiNodeConverter.convert(node),
+                    };
                 })
-                .map(node => [ node.id, node ])
-        )
+                .map(node => [node.id, node])
+        );
     },
-}
+};
 
 const actions: NetworkActionTree = {
     async [NetworkActions.Update]({ commit }) {
         try {
-            const response = await networkingClient.get("v1_network_nodes", { version: "^1.0" });
+            const response = await networkingClient.get("v1_network_nodes", {
+                version: "^1.0",
+            });
 
-        if (Object.prototype.hasOwnProperty.call(response.headers, 'Set-Cookie')) {
-            document.cookie = response.headers['Set-Cookie'];
-        }
+            if (Object.prototype.hasOwnProperty.call(response.headers, "Set-Cookie")) {
+                document.cookie = response.headers["Set-Cookie"];
+            }
 
-        const hub = getMercureHub(response);
+            const hub = getMercureHub(response);
 
             if (hub && !listener.connected) {
                 listener.initialize(hub, update => {
@@ -222,7 +229,7 @@ const actions: NetworkActionTree = {
                 });
             }
 
-            commit(NetworkMutations.NodeListUpdated, response.data as ApiNode[])
+            commit(NetworkMutations.NodeListUpdated, response.data as ApiNode[]);
         } catch (err) {
             console.log("Could not get network nodes");
         }
@@ -236,7 +243,9 @@ const actions: NetworkActionTree = {
         }
 
         commit(NetworkMutations.NodeFailed, id);
-        nodeBackoff(node.failures, () => { dispatch(NetworkActions.NodeCheck, id); })
+        nodeBackoff(node.failures, () => {
+            dispatch(NetworkActions.NodeCheck, id);
+        });
     },
     async [NetworkActions.NodeCheck]({ commit, state, dispatch }, id) {
         const node = state.nodes[id];
@@ -249,20 +258,22 @@ const actions: NetworkActionTree = {
         try {
             await networkingClient.get("v1_status_health", {
                 version: "^1.0",
-                base: node.url
-            })
+                base: node.url,
+            });
 
             commit(NetworkMutations.NodeRecovered, id);
         } catch {
             commit(NetworkMutations.NodeFailed, id);
-            nodeBackoff(node.failures, () => { dispatch(NetworkActions.NodeCheck, id); })
+            nodeBackoff(node.failures, () => {
+                dispatch(NetworkActions.NodeCheck, id);
+            });
         }
-    }
-}
+    },
+};
 
 const getters: NetworkGetterTree = {
-    available: state => Object.values(state.nodes).filter(node => node.available && !node.suspended)
-}
+    available: state => Object.values(state.nodes).filter(node => node.available && !node.suspended),
+};
 
 class NetworkNodeUpdateListener {
     sse: EventSource;
@@ -280,7 +291,7 @@ class NetworkNodeUpdateListener {
         }
 
         this.handler = handler;
-        this.url     = url;
+        this.url = url;
 
         this.connect();
     }
@@ -300,9 +311,9 @@ class NetworkNodeUpdateListener {
             return;
         }
 
-        this.sse = new EventSource(this.url + '?' + query({ topic: 'network/nodes' }));
-        this.sse.addEventListener('message', this.handleUpdateEvent.bind(this));
-        this.sse.addEventListener('error', this.handleConnectionError.bind(this));
+        this.sse = new EventSource(this.url + "?" + query({ topic: "network/nodes" }));
+        this.sse.addEventListener("message", this.handleUpdateEvent.bind(this));
+        this.sse.addEventListener("error", this.handleConnectionError.bind(this));
     }
 
     handleUpdateEvent(event: MessageEvent) {
@@ -325,15 +336,15 @@ class NetworkNodeUpdateListener {
 
 const listener: NetworkNodeUpdateListener = new NetworkNodeUpdateListener();
 
-const getMercureHub = (response: AxiosResponse): string|undefined => {
-    const link = response.headers['link'];
+const getMercureHub = (response: AxiosResponse): string | undefined => {
+    const link = response.headers["link"];
 
-    if (typeof link === 'undefined') {
+    if (typeof link === "undefined") {
         return undefined;
     }
 
     return link.match(/<([^>]+)>;\s+rel=(?:mercure|"[^"]*mercure[^"]*")/)[1];
-}
+};
 
 export const network: NetworkModule = {
     namespaced: true,
@@ -343,6 +354,6 @@ export const network: NetworkModule = {
     }),
     mutations,
     actions,
-}
+};
 
 export default network;

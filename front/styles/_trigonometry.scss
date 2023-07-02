@@ -24,7 +24,7 @@
 //      http://japborst.net/posts/sass-sines-and-cosines //
 ///////////////////////////////////////////////////////////
 
-@use 'sass:math';
+@use "sass:math";
 
 $_precision: 5;
 
@@ -35,7 +35,7 @@ $_precision: 5;
       $value: $value * $base;
     }
   }
-  @if $exp < 1{
+  @if $exp < 1 {
     @for $i from 0 through -$exp {
       $value: math.div($value, $base);
     }
@@ -45,7 +45,7 @@ $_precision: 5;
 
 @function fact($num) {
   $fact: 1;
-  @if $num > 0{
+  @if $num > 0 {
     @for $i from 1 through $num {
       $fact: $fact * $i;
     }
@@ -63,7 +63,7 @@ $_precision: 5;
   @return $angle;
 }
 
-@function sin($angle){
+@function sin($angle) {
   $a: _to_unitless_rad($angle);
   $sin: $a;
   @for $n from 1 through $_precision {
@@ -72,15 +72,15 @@ $_precision: 5;
   @return $sin;
 }
 
-@function cos($angle){
+@function cos($angle) {
   $a: _to_unitless_rad($angle);
   $cos: 1;
   @for $n from 1 through $_precision {
-    $cos: $cos + math.div(pow(-1,$n), fact(2*$n)) * pow($a,2*$n);
+    $cos: $cos + math.div(pow(-1, $n), fact(2 * $n)) * pow($a, 2 * $n);
   }
   @return $cos;
 }
 
-@function tan($angle){
+@function tan($angle) {
   @return math.div(sin($angle), cos($angle));
 }

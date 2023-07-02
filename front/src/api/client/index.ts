@@ -24,36 +24,44 @@ import { AxiosInstance, AxiosResponse } from "axios";
 import store from "@/store";
 
 export type RequestOptions<TParams extends Record<string, unknown>> = {
-    version: string,
-    query?: Supplier<string | UrlParams>,
-    headers?: Supplier<{ [name: string]: string }>,
-} & (Record<string, unknown> extends TParams ? { params?: Supplier<TParams> } : { params: Supplier<TParams> })
+    version: string;
+    query?: Supplier<string | UrlParams>;
+    headers?: Supplier<{ [name: string]: string }>;
+} & (Record<string, unknown> extends TParams ? { params?: Supplier<TParams> } : { params: Supplier<TParams> });
 
-export type BoundRequestOptions<TParams extends EndpointParams<Record<string, never>, never>, TBoundParams extends string>
-    = RequestOptions<MakeOptional<TParams, keyof TParams & TBoundParams>>
+export type BoundRequestOptions<
+    TParams extends EndpointParams<Record<string, never>, never>,
+    TBoundParams extends string
+> = RequestOptions<MakeOptional<TParams, keyof TParams & TBoundParams>>;
 
 export interface ApiClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> {
     get<TEndpoint extends keyof TEndpoints>(
         endpoint: TEndpoint,
-        options: BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams>,
+        options: BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams>
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>>;
 }
 
-export interface ApiClientRequestInfo<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints = keyof TEndpoints> {
-    endpoint: TEndpoint,
-    url: string,
-    options: RequestOptions<EndpointParams<TEndpoints, TEndpoint>>
+export interface ApiClientRequestInfo<
+    TEndpoints extends EndpointCollection,
+    TEndpoint extends keyof TEndpoints = keyof TEndpoints
+> {
+    endpoint: TEndpoint;
+    url: string;
+    options: RequestOptions<EndpointParams<TEndpoints, TEndpoint>>;
 }
 
-export type ApiClientStartRequestEventHandler<TEndpoints extends EndpointCollection>
-    = (request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>) => void
+export type ApiClientStartRequestEventHandler<TEndpoints extends EndpointCollection> = (
+    request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>
+) => void;
 
-export type ApiClientResponseEventHandler<TEndpoints extends EndpointCollection>
-    = (response: unknown, request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>) => void
+export type ApiClientResponseEventHandler<TEndpoints extends EndpointCollection> = (
+    response: unknown,
+    request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>
+) => void;
 
 export interface ApiClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never> {
-    bound?: Supplier<{ [name in TBoundParams]: string }>
-    http?: AxiosInstance
+    bound?: Supplier<{ [name in TBoundParams]: string }>;
+    http?: AxiosInstance;
 
     onRequestStart?: ApiClientStartRequestEventHandler<TEndpoints>;
     onRequestEnd?: ApiClientResponseEventHandler<TEndpoints>;

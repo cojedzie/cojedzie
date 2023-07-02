@@ -23,16 +23,16 @@ export interface SentryConfig {
     replaysErrorSampleRate?: number;
     tracesSampleRate?: number;
     dsn: string;
-    tags: { [tag: string]: string }
+    tags: { [tag: string]: string };
 }
 
 export interface ApiConfig {
-    base?: string,
-    hub?: string,
+    base?: string;
+    hub?: string;
 }
 
 export interface MapTilerConfig {
-    key: string
+    key: string;
 }
 
 export interface AppConfig {

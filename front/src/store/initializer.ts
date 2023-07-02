@@ -32,10 +32,10 @@ import { LoadBalancerImplementation } from "@/api/loadbalancer";
 import { Endpoints, endpoints } from "@/api/endpoints";
 import { ApiClient } from "@/api/client";
 
-declare module 'vuex' {
+declare module "vuex" {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
     interface VuexStore<TDefinition extends VuexStoreDefinition> {
-        $api: ApiClient<Endpoints, "provider">
+        $api: ApiClient<Endpoints, "provider">;
     }
 }
 
@@ -50,27 +50,27 @@ export type State = {
 } & RootState;
 
 export type StoreOptions = {
-    plugins?: VuexPlugin<any>[],
-    state?: any,
-    modules?: any,
-    apiClientOptions?: Partial<LoadBalancedClientOptions<Endpoints>>
-}
+    plugins?: VuexPlugin<any>[];
+    state?: any;
+    modules?: any;
+    apiClientOptions?: Partial<LoadBalancedClientOptions<Endpoints>>;
+};
 
 export type StoreDefinition = {
-    state: VuexStateProvider<RootState>,
-    actions: RootActionTree,
-    mutations: RootMutationsTree,
+    state: VuexStateProvider<RootState>;
+    actions: RootActionTree;
+    mutations: RootMutationsTree;
     modules: {
-        messages: typeof messages,
-        departures: typeof departures,
-        favourites: typeof favourites,
-        'departures-settings': typeof departureSettings,
-        'messages-settings': typeof messagesSettings,
-        history: typeof history,
-        network: typeof network,
-    },
-    plugins: VuexPlugin<any>[],
-}
+        messages: typeof messages;
+        departures: typeof departures;
+        favourites: typeof favourites;
+        "departures-settings": typeof departureSettings;
+        "messages-settings": typeof messagesSettings;
+        history: typeof history;
+        network: typeof network;
+    };
+    plugins: VuexPlugin<any>[];
+};
 
 export function createStore(options?: StoreOptions) {
     const store = createVuexStore<StoreDefinition>({
@@ -81,11 +81,11 @@ export function createStore(options?: StoreOptions) {
             messages,
             departures,
             favourites,
-            'departures-settings': departureSettings,
-            'messages-settings': messagesSettings,
+            "departures-settings": departureSettings,
+            "messages-settings": messagesSettings,
             history,
             network,
-            ...(options?.modules || {})
+            ...(options?.modules || {}),
         },
         plugins: options?.plugins || [],
     }) as Store<StoreDefinition>;
@@ -99,5 +99,3 @@ export function createStore(options?: StoreOptions) {
 
     return store;
 }
-
-

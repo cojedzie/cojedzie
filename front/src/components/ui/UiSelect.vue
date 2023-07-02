@@ -1,13 +1,15 @@
 <template>
-    <div class="ui-select" :class="{'ui-select--active': isOpen}" @keydown="handleKeyboardNavigation">
+    <div class="ui-select" :class="{ 'ui-select--active': isOpen }" @keydown="handleKeyboardNavigation">
         <div class="ui-select__control" tabindex="0" ref="controlElement">
-            <div class="ui-select__option ui-select__option--selected" :class="{ 'ui-select__option--empty': !modelValue }" @click="open()">
+            <div
+                class="ui-select__option ui-select__option--selected"
+                :class="{ 'ui-select__option--empty': !modelValue }"
+                @click="open()"
+            >
                 <slot v-if="modelValue" :option="(modelValue as T)">
                     {{ modelValue }}
                 </slot>
-                <slot v-else name="empty">
-                    Brak wyboru
-                </slot>
+                <slot v-else name="empty"> Brak wyboru </slot>
             </div>
             <button v-if="allowClearing" class="ui-select__clear" @click="clear">
                 <ui-icon icon="clear" />
@@ -25,7 +27,9 @@
                                 v-for="(option, index) in options"
                                 :key="option"
                                 class="ui-select__option"
-                                :class="{ 'ui-select__option--hovered': index === selectedIndex }"
+                                :class="{
+                                    'ui-select__option--hovered': index === selectedIndex,
+                                }"
                                 @click="select(option, index)"
                                 @mouseenter="hover(option, index)"
                             >
@@ -43,7 +47,7 @@
 
 <script setup lang="ts" generic="T">
 import { ref, reactive, PropType } from "vue";
-import { onClickOutside } from "@vueuse/core"
+import { onClickOutside } from "@vueuse/core";
 import { usePopper } from "@/composables/usePopper";
 import { Placement } from "popper.js";
 
@@ -66,36 +70,40 @@ const props = defineProps({
     placement: {
         type: String as PropType<Placement>,
         default: "bottom-start",
-    }
-})
+    },
+});
 
 defineSlots<{
-    default?: (props: { option: T }) => any
+    default?: (props: { option: T }) => any;
 }>();
 
 const optionsPopupElement = ref<HTMLElement>(null);
 const controlElement = ref<HTMLElement>(null);
 
-usePopper(controlElement, optionsPopupElement, reactive({
-    placement: props.placement
-}))
+usePopper(
+    controlElement,
+    optionsPopupElement,
+    reactive({
+        placement: props.placement,
+    })
+);
 
 onClickOutside(optionsPopupElement, () => {
     close();
-})
+});
 
 const emit = defineEmits<{
-    (type: "update:modelValue", value: T, index: number): void,
-    (type: "hover", value: T, index: number): void,
-    (type: "clear", value: T),
+    (type: "update:modelValue", value: T, index: number): void;
+    (type: "hover", value: T, index: number): void;
+    (type: "clear", value: T);
 }>();
 
 const isOpen = ref<boolean>(false);
 const selectedIndex = ref<number | null>(null);
 
 function clear() {
-    emit('update:modelValue', null, -1);
-    emit('clear', props.modelValue as T);
+    emit("update:modelValue", null, -1);
+    emit("clear", props.modelValue as T);
 
     selectedIndex.value = null;
 
@@ -103,7 +111,7 @@ function clear() {
 }
 
 function select(item: T, index: number) {
-    emit('update:modelValue', item, index);
+    emit("update:modelValue", item, index);
 
     selectedIndex.value = null;
 
@@ -111,7 +119,7 @@ function select(item: T, index: number) {
 }
 
 function hover(item: T, index: number) {
-    emit('hover', item, index);
+    emit("hover", item, index);
 
     selectedIndex.value = index;
 }
@@ -122,7 +130,6 @@ function toggle() {
 
 function open() {
     isOpen.value = true;
-
 }
 
 function close() {
@@ -154,5 +161,4 @@ function handleKeyboardNavigation(e: KeyboardEvent) {
 
     e.preventDefault();
 }
-
 </script>

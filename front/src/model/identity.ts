@@ -20,4 +20,4 @@
 export type Identity<T extends { $type: string }> = {
     id: string;
     $type: T["$type"];
-}
+};

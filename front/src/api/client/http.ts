@@ -24,8 +24,8 @@ export function createHttpClient(options: AxiosRequestConfig = {}) {
     return axios.create({
         paramsSerializer: query,
         timeout: 3000,
-        ...options
-    })
+        ...options,
+    });
 }
 
 export const http = createHttpClient();

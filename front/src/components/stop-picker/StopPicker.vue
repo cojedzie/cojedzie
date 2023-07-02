@@ -1,6 +1,11 @@
 <template>
     <div class="finder">
-        <input class="form-control form-control--framed" :value="filter" placeholder="Zacznij pisać nazwę aby szukać..." @input="filter = $event.target.value">
+        <input
+            class="form-control form-control--framed"
+            :value="filter"
+            placeholder="Zacznij pisać nazwę aby szukać..."
+            @input="filter = $event.target.value"
+        />
 
         <div v-if="filter.length < 3" class="mt-2">
             <favourites-list />
@@ -59,53 +64,51 @@ import StopPickerHistory from "./StopPickerHistory.vue";
 
 @Options({
     name: "StopPicker",
-    components: { StopPickerEntry, StopPickerHistory }
+    components: { StopPickerEntry, StopPickerHistory },
 })
 export default class StopPicker extends Vue {
     protected found?: StopGroups = {};
 
-    public state: FetchingState = 'ready';
+    public state: FetchingState = "ready";
     public filter: string = "";
 
     @Prop({ default: [], type: Array })
     public blacklist: Stop[];
 
-    @Mutation(`history/${ HistoryMutations.Push }`) pushToHistory: (entry: HistoryEntry) => void;
+    @Mutation(`history/${HistoryMutations.Push}`) pushToHistory: (entry: HistoryEntry) => void;
 
     get filtered(): StopGroups {
-        const groups = map(
-            this.found,
-            (group: StopGroup) =>
-                group.filter(stop => !this.blacklist.some(blacklisted => blacklisted.id === stop.id))
+        const groups = map(this.found, (group: StopGroup) =>
+            group.filter(stop => !this.blacklist.some(blacklisted => blacklisted.id === stop.id))
         ) as StopGroups;
 
         return filter(groups, group => group.length > 0);
     }
 
-    @Watch('filter')
+    @Watch("filter")
     @debounce(400)
     async fetch() {
         if (this.filter.length < 3) {
             return;
         }
 
-        this.state = 'fetching';
+        this.state = "fetching";
         try {
-            const response = await api.get('v1_stop_group_list', {
+            const response = await api.get("v1_stop_group_list", {
                 query: {
                     name: this.filter,
-                    'embed': 'destinations'
+                    embed: "destinations",
                 },
                 version: "^1.0",
             });
 
-            this.found = response.data.reduce((accumulator, {
-                name,
-                stops
-            }) => Object.assign(accumulator, { [name]: stops }), {});
-            this.state = 'ready';
+            this.found = response.data.reduce(
+                (accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }),
+                {}
+            );
+            this.state = "ready";
         } catch (error) {
-            this.state = 'error';
+            this.state = "error";
         }
     }
 
@@ -113,9 +116,9 @@ export default class StopPicker extends Vue {
         this.pushToHistory({
             date: this.$moment(),
             stop: stop,
-        })
+        });
 
-        this.$emit('select', stop);
+        this.$emit("select", stop);
     }
 }
 </script>

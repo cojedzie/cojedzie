@@ -22,7 +22,7 @@ import StopPickerEntry from "./StopPickerEntry.vue";
 
 @Options({
     name: "StopPickerHistory",
-    components: { StopPickerEntry }
+    components: { StopPickerEntry },
 })
 export default class StopPickerHistory extends Vue {
     @History.Getter all: HistoryEntry[];

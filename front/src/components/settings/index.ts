@@ -17,5 +17,5 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { default as SettingsMessages } from "./SettingsMessages.vue"
-export { default as SettingsDepartures } from "./SettingsDepartures.vue"
+export { default as SettingsMessages } from "./SettingsMessages.vue";
+export { default as SettingsDepartures } from "./SettingsDepartures.vue";

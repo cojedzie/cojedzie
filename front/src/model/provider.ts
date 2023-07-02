@@ -34,5 +34,5 @@ export function convertProviderDtoToProvider(dto: Jsonified<Provider>): Provider
     return {
         ...dto,
         lastUpdate: moment.parseZone(dto.lastUpdate).local(),
-    }
+    };
 }

@@ -20,7 +20,7 @@
 .map__label-box {
   @extend .ui-popup;
 
-  padding: .5rem;
+  padding: 0.5rem;
   background: white;
   transform-origin: 50% 50%;
   transform: translateX(-50%);
@@ -35,7 +35,7 @@
     transform: translateX(-50%) scale(1.1);
   }
 
-  @include flex-with-spacing(.5rem);
+  @include flex-with-spacing(0.5rem);
 }
 
 .map__icon {

@@ -13,9 +13,7 @@
                 <div class="stop-details-dialog__lines">
                     <line-symbol v-for="line in lines" :key="line.id" :line="line" />
                 </div>
-                <h3 class="ui-modal__heading">
-                    Kierunki
-                </h3>
+                <h3 class="ui-modal__heading">Kierunki</h3>
                 <ul class="stop-details-dialog__destinations">
                     <li
                         v-for="possibleDestination in stop.destinations"
@@ -28,18 +26,26 @@
                             <line-symbol v-for="line in possibleDestination.lines" :key="line.id" :line="line" />
                         </div>
                         <div class="stop-details-dialog__actions">
-                            <button class="btn btn-action" :class="{'btn-toggled': destination?.id == possibleDestination.stop.id}" @click="destination = possibleDestination.stop">
-                                <ui-icon :icon="destination?.id == possibleDestination.stop.id ? 'map-marked:selected' : 'map-marked'" />
+                            <button
+                                class="btn btn-action"
+                                :class="{
+                                    'btn-toggled': destination?.id == possibleDestination.stop.id,
+                                }"
+                                @click="destination = possibleDestination.stop"
+                            >
+                                <ui-icon
+                                    :icon="
+                                        destination?.id == possibleDestination.stop.id
+                                            ? 'map-marked:selected'
+                                            : 'map-marked'
+                                    "
+                                />
                             </button>
                         </div>
                     </li>
                 </ul>
             </div>
-            <ui-map
-                ref="map"
-                :zoom="17"
-                class="stop-details-modal__map"
-            >
+            <ui-map ref="map" :zoom="17" class="stop-details-modal__map">
                 <l-feature-group ref="features">
                     <stop-pin :stop="stop" :type="selectedTrack?.line.type ?? type" />
 
@@ -58,7 +64,12 @@
                         </stop-pin>
                     </template>
 
-                    <stop-pin v-if="destination" :stop="destination" variant="outline" :type="selectedTrack?.line.type ?? type">
+                    <stop-pin
+                        v-if="destination"
+                        :stop="destination"
+                        variant="outline"
+                        :type="selectedTrack?.line.type ?? type"
+                    >
                         <template #icon>
                             <ui-icon icon="target" />
                         </template>
@@ -76,7 +87,7 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { getStopType, HasDestinations, Line, Stop, Track } from "@/model";
-import { LFeatureGroup } from '@vue-leaflet/vue-leaflet';
+import { LFeatureGroup } from "@vue-leaflet/vue-leaflet";
 import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
 import { Map, LatLngExpression, point, PointExpression } from "leaflet";
 import StopPin from "@/components/stop/StopPin.vue";
@@ -87,12 +98,12 @@ import { slice } from "@/utils";
 import useService from "@/composables/useService";
 
 type OffsetOptions = {
-    zoom?: number,
-}
+    zoom?: number;
+};
 
 const offset = (map: Map, point: LatLngExpression, by: PointExpression, options: OffsetOptions = {}) => {
-    return map.unproject(map.project(point, options.zoom).subtract(by), options.zoom)
-}
+    return map.unproject(map.project(point, options.zoom).subtract(by), options.zoom);
+};
 
 export default defineComponent({
     name: "StopDetailsDialog",
@@ -102,13 +113,13 @@ export default defineComponent({
         stop: {
             type: Object as PropType<Stop & HasDestinations>,
             required: true,
-        }
+        },
     },
     setup(props) {
         const { data: tracks, status } = useDataFromEndpoint("v1_stop_tracks", {
             params: { stop: props.stop.id as string },
             version: "1.0",
-        })
+        });
 
         const trackRepository = useService(TrackRepository.service);
 
@@ -117,30 +128,42 @@ export default defineComponent({
 
         const bounds = computed(() => features.value?.leafletObject?.getBounds?.());
 
-        const lines = computed(
-            () => tracks.value
+        const lines = computed(() =>
+            tracks.value
                 ? Object.values(
-                    tracks.value
-                        .map(t => t.track.line)
-                        .reduce((lines, line: Line) => Object.assign(lines, { [line.symbol]: line }), {} as Record<string, Line>)
-                )
+                      tracks.value
+                          .map(t => t.track.line)
+                          .reduce(
+                              (lines, line: Line) => Object.assign(lines, { [line.symbol]: line }),
+                              {} as Record<string, Line>
+                          )
+                  )
                 : []
-        )
+        );
 
         const tracksForDestination = computedAsync(
-            async () => destination.value && props.stop ? await trackRepository.getTracksForDestination(props.stop, destination.value) : null,
+            async () =>
+                destination.value && props.stop
+                    ? await trackRepository.getTracksForDestination(props.stop, destination.value)
+                    : null,
             null,
             { lazy: true }
-        )
+        );
 
         const selectedTrack = ref<Track>(null);
         const destination = ref<Stop & HasDestinations>(null);
 
-        const stopsToDestination = computed(() => slice(selectedTrack.value?.stops ?? [], s => s.id == props.stop.id, s => s.id == destination.value.id).slice(1))
+        const stopsToDestination = computed(() =>
+            slice(
+                selectedTrack.value?.stops ?? [],
+                s => s.id == props.stop.id,
+                s => s.id == destination.value.id
+            ).slice(1)
+        );
 
         watch(destination, () => {
             selectedTrack.value = null;
-        })
+        });
 
         watch(bounds, async bounds => {
             const leaflet: Map = map.value?.leafletObject;
@@ -149,18 +172,30 @@ export default defineComponent({
                 return;
             }
 
-            const zoom = bounds && leaflet.getBoundsZoom
-                ? Math.min(leaflet.getBoundsZoom(bounds, false, point([ 50, 100 ])) - 0.5, 17)
-                : 17;
+            const zoom =
+                bounds && leaflet.getBoundsZoom
+                    ? Math.min(leaflet.getBoundsZoom(bounds, false, point([50, 100])) - 0.5, 17)
+                    : 17;
 
             const center: LatLngExpression = bounds?.getCenter() || props.stop.location;
 
-            leaflet.setView?.(offset(leaflet, center, [ 0, 40 ], { zoom }), zoom);
-        })
+            leaflet.setView?.(offset(leaflet, center, [0, 40], { zoom }), zoom);
+        });
 
         const type = computed(() => getStopType(props.stop));
 
-        return { lines, status, destination, selectedTrack, stopsToDestination, features, map, bounds, tracksForDestination, type }
-    }
-})
+        return {
+            lines,
+            status,
+            destination,
+            selectedTrack,
+            stopsToDestination,
+            features,
+            map,
+            bounds,
+            tracksForDestination,
+            type,
+        };
+    },
+});
 </script>

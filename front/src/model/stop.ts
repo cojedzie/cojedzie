@@ -29,28 +29,28 @@ export interface Stop {
     onDemand?: boolean;
     variant?: string;
     group?: string;
-    $type: 'vnd.cojedzie.stop';
+    $type: "vnd.cojedzie.stop";
 }
 
 export type HasDestinations = {
     destinations?: Destination[];
-}
+};
 
 export type StopWithDestinations = Stop & HasDestinations;
 
 export type Destination = {
     stop: Stop;
-    lines: Line[]
-}
+    lines: Line[];
+};
 
 export type StopGroup = Stop[];
 
 export type StopGroups = {
     [name: string]: StopGroup;
-}
+};
 
 export function getStopTypes(stop: StopWithDestinations) {
-    return uniq(stop.destinations.flatMap(destination => destination.lines.map(line => line.type)))
+    return uniq(stop.destinations.flatMap(destination => destination.lines.map(line => line.type)));
 }
 
 export function getStopType(stop: StopWithDestinations): LineType {

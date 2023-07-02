@@ -21,36 +21,27 @@ import { Store } from "vuex";
 import { StoreDefinition } from "@/store/initializer";
 import { choice, choices } from "@/utils/random";
 
-const possibleStopQueries = [
-    'Cieszy',
-    'Wilan',
-    'Plac Komo',
-    'Dworzec Gł',
-    'Łosto',
-    'Żabian',
-    'Uniwers',
-    'Kope',
-]
+const possibleStopQueries = ["Cieszy", "Wilan", "Plac Komo", "Dworzec Gł", "Łosto", "Żabian", "Uniwers", "Kope"];
 
 export default async function basic(store: Store<StoreDefinition>) {
-    await store.dispatch('loadProvider', { provider: 'trojmiasto' });
+    await store.dispatch("loadProvider", { provider: "trojmiasto" });
 
-    const stops = await store.$api.get('v1_stop_list', {
-        version: '^1.0',
-        query: { name: choice(possibleStopQueries) }
-    })
+    const stops = await store.$api.get("v1_stop_list", {
+        version: "^1.0",
+        query: { name: choice(possibleStopQueries) },
+    });
 
-    store.commit('add', choices(stops.data, (Math.random() * 3) | 0))
+    store.commit("add", choices(stops.data, (Math.random() * 3) | 0));
 
     const departuresUpdate = async () => {
-        await store.dispatch('departures/update');
+        await store.dispatch("departures/update");
         setTimeout(departuresUpdate, 20000);
-    }
+    };
 
     const messagesUpdate = async () => {
-        await store.dispatch('messages/update');
+        await store.dispatch("messages/update");
         setTimeout(messagesUpdate, 20000);
-    }
+    };
 
     departuresUpdate();
     messagesUpdate();

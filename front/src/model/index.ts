@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from './stop'
-export * from './departure'
-export * from './line'
-export * from './error'
-export * from './identity'
-export * from './common'
-export * from './provider'
+export * from "./stop";
+export * from "./departure";
+export * from "./line";
+export * from "./error";
+export * from "./identity";
+export * from "./common";
+export * from "./provider";

@@ -17,30 +17,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'vite/modulepreload-polyfill';
+import "vite/modulepreload-polyfill";
 
-import '@styles/main.scss'
+import "@styles/main.scss";
 
-import { Store } from 'vuex';
-import { dragscrollNext } from 'vue-dragscroll';
+import { Store } from "vuex";
+import { dragscrollNext } from "vue-dragscroll";
 import { StoreDefinition } from "@/store/initializer";
-import { Vue } from "vue-class-component"
+import { Vue } from "vue-class-component";
 
 import moment from "moment";
-import 'moment/dist/locale/pl'
+import "moment/dist/locale/pl";
 
-moment.locale('pl')
+moment.locale("pl");
 
 import components, { app } from "@/components";
-import filters from '@/filters'
-import globals from '@/globals'
-import { install as api } from '@/api';
-import { install as sentry } from '@/sentry';
-import container from '@/services'
+import filters from "@/filters";
+import globals from "@/globals";
+import { install as api } from "@/api";
+import { install as sentry } from "@/sentry";
+import container from "@/services";
 import { router } from "@/routes";
-import { signed } from './utils';
+import { signed } from "./utils";
 
-app.use(sentry)
+app.use(sentry);
 app.use(api);
 app.use(filters);
 app.use(components);
@@ -49,33 +49,33 @@ app.use(router);
 
 app.directive("dragscroll", dragscrollNext);
 
-declare module '@vue/runtime-core' {
+declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         $isTouch: boolean;
         $hasSlot: (slot: string) => string;
         $moment: typeof moment;
         $store: Store<StoreDefinition>;
         $f: {
-            signed: typeof signed,
-            duration: typeof moment.duration,
-        }
+            signed: typeof signed;
+            duration: typeof moment.duration;
+        };
     }
 }
 
-Vue.registerHooks(['removed']);
+Vue.registerHooks(["removed"]);
 
 // async dependencies
 (async function () {
-    const { migrate } = await import('./store/migrations');
+    const { migrate } = await import("./store/migrations");
     await migrate("vuex");
-    const { default: store } = await import('./store');
+    const { default: store } = await import("./store");
 
     app.use(store);
-    app.use(container)
+    app.use(container);
 
     // todo figure out better way
     const fragment = document.createDocumentFragment();
-    const root = document.getElementById('root');
+    const root = document.getElementById("root");
     app.mount(fragment as unknown as Element);
     root.parentNode.replaceChild(fragment, root);
 })();

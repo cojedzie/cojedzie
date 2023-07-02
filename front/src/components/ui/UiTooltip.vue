@@ -29,11 +29,11 @@ const longPressTimeout = 1000;
 
 export const openedTooltips = new Set<{ show: Ref<boolean> }>();
 
-document.addEventListener('touchstart', () => {
+document.addEventListener("touchstart", () => {
     for (const tooltip of openedTooltips.values()) {
         tooltip.show.value = false;
     }
-})
+});
 
 export default defineComponent({
     name: "UiTooltip",
@@ -63,11 +63,11 @@ export default defineComponent({
         const root = shallowRef<HTMLElement>(null);
         const show = ref<boolean>(false);
         const anchor = computed(() => root.value?.parentElement);
-        const isVisible = computed(() => show.value || props.permanent)
+        const isVisible = computed(() => show.value || props.permanent);
 
         const { isTouch } = useBrowserContext();
 
-        let events: Record<string, (event: Event) => void> = {}
+        let events: Record<string, (event: Event) => void> = {};
 
         const exposed = { show };
 
@@ -79,7 +79,7 @@ export default defineComponent({
             } else {
                 openedTooltips.delete(exposed);
             }
-        })
+        });
 
         function registerEventListeners() {
             for (const [event, handler] of Object.entries(events)) {
@@ -103,50 +103,50 @@ export default defineComponent({
             if (props.triggers.includes("hover") && !isTouch) {
                 let timeout;
 
-                events['mouseenter'] = () => {
+                events["mouseenter"] = () => {
                     timeout = setTimeout(() => {
-                        show.value = !blocked
+                        show.value = !blocked;
                     }, props.delay);
                 };
 
-                events['mouseleave'] = () => {
+                events["mouseleave"] = () => {
                     clearTimeout(timeout);
-                    show.value = false
+                    show.value = false;
                 };
             }
 
             if (props.triggers.includes("focus") || (props.triggers.includes("hover") && isTouch)) {
                 if (isTouch) {
-                    events['touchstart'] = () => {
+                    events["touchstart"] = () => {
                         // this is to prevent showing tooltips after tap
                         blocked = true;
-                        setTimeout(() => blocked = false, longPressTimeout - 50);
-                    }
+                        setTimeout(() => (blocked = false), longPressTimeout - 50);
+                    };
                 }
 
-                events['focus'] = () => {
+                events["focus"] = () => {
                     show.value = !blocked;
                 };
 
-                events['blur'] = () => {
-                    show.value = false
+                events["blur"] = () => {
+                    show.value = false;
                 };
             }
 
             if (props.triggers.includes("long-press") && isTouch) {
                 let timeout;
 
-                events['touchstart'] = () => {
+                events["touchstart"] = () => {
                     timeout = setTimeout(() => {
-                        show.value = true
+                        show.value = true;
                     }, longPressTimeout);
 
                     // this is to prevent showing tooltips after tap
                     blocked = true;
-                    setTimeout(() => blocked = false, longPressTimeout - 50);
+                    setTimeout(() => (blocked = false), longPressTimeout - 50);
                 };
 
-                events['touchend'] = ev => {
+                events["touchend"] = ev => {
                     clearTimeout(timeout);
 
                     if (show.value) {
@@ -155,19 +155,19 @@ export default defineComponent({
                     }
                 };
 
-                events['blur'] = () => {
-                    show.value = false
+                events["blur"] = () => {
+                    show.value = false;
                 };
             }
 
             registerEventListeners();
         }
 
-        watch([ () => props.triggers, anchor ], updateTriggers, { deep: true })
+        watch([() => props.triggers, anchor], updateTriggers, { deep: true });
 
         onBeforeUnmount(removeEventListeners);
 
         return { root, isVisible, anchor };
-    }
-})
+    },
+});
 </script>

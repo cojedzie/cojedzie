@@ -30,7 +30,7 @@
   margin-bottom: 0;
 
   > li {
-    border-bottom: 1px dotted rgba($dark, .5);
+    border-bottom: 1px dotted rgba($dark, 0.5);
     padding: 0.5rem 0.25rem;
 
     transition: background-color 100ms ease-in-out;
@@ -63,7 +63,7 @@
       transition: background-color ease 200ms;
 
       &:hover {
-        background-color: rgba(theme-color-level($color, $alert-bg-level), .5);
+        background-color: rgba(theme-color-level($color, $alert-bg-level), 0.5);
       }
     }
   }
@@ -92,12 +92,13 @@
   align-items: center;
 
   > .text {
-    margin-left: .2rem;
-    margin-right: .2rem;
+    margin-left: 0.2rem;
+    margin-right: 0.2rem;
     display: inline-block;
     margin-bottom: 0;
 
-    &:last-child, & + .text {
+    &:last-child,
+    & + .text {
       margin-right: 0;
     }
 
@@ -135,7 +136,7 @@ $section-safe-margin: 0.5rem;
 
     font-size: medium;
     background: transparent;
-    padding: .5rem .75rem;
+    padding: 0.5rem 0.75rem;
 
     line-height: $btn-line-height;
 
@@ -144,14 +145,14 @@ $section-safe-margin: 0.5rem;
     }
 
     > .btn {
-      margin-top: -.5rem;
-      margin-bottom: -.5rem;
+      margin-top: -0.5rem;
+      margin-bottom: -0.5rem;
     }
   }
 }
 
 .icon {
-  padding: .5rem 0.75rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .invalid-feedback p {

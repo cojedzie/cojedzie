@@ -17,17 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
-import 'mapbox-gl-leaflet'
-import * as L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import "mapbox-gl-leaflet";
+import * as L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
+import iconUrl from "leaflet/dist/images/marker-icon.png";
+import shadowUrl from "leaflet/dist/images/marker-shadow.png";
 
-delete L.Icon.Default.prototype['_getIconUrl'];
+delete L.Icon.Default.prototype["_getIconUrl"];
 
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 
@@ -44,21 +44,21 @@ export const LVectorLayer = defineComponent({
     },
     mounted(): void {
         // @ts-ignore
-        this['leafletObject'] = L.mapboxGL({
+        this["leafletObject"] = L.mapboxGL({
             style: this.url,
-            attribution: this.attribution
+            attribution: this.attribution,
         });
 
         this.$nextTick(() => {
-            const map = this.$parent['leafletObject'];
+            const map = this.$parent["leafletObject"];
 
-            this['leafletObject'].addTo(map);
-        })
+            this["leafletObject"].addTo(map);
+        });
     },
     beforeUmount(): void {
-        this.$parent['leafletObject'].removeLayer(this['leafletObject'])
+        this.$parent["leafletObject"].removeLayer(this["leafletObject"]);
     },
     render: () => null,
 });
 
-export { LMap, LTileLayer, LMarker, LIcon, LControl, LPopup } from '@vue-leaflet/vue-leaflet';
+export { LMap, LTileLayer, LMarker, LIcon, LControl, LPopup } from "@vue-leaflet/vue-leaflet";
