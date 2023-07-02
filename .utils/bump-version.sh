@@ -19,6 +19,30 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+DO_COMMIT=1
+DO_TAG=1
+
+options=$(getopt -l "no-commit,no-tag" -o "CT" -- "$@")
+eval set -- "$options"
+
+while true;
+do
+  case "$1" in
+    --no-commit|-C)
+      NO_COMMIT=0
+      shift
+      ;;
+    --no-tag|-T)
+      NO_TAG=0
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+  esac
+done
+
 ROOTDIR=$(realpath "$(dirname "$0")/..")
 
 FILES_TO_UPDATE=("$ROOTDIR/api/composer.json" "$ROOTDIR/front/package.json")
@@ -29,7 +53,10 @@ for FILE in "${FILES_TO_UPDATE[@]}"; do
   cp $TMPFILE $FILE
 done
 
-git reset .
-git add "${FILES_TO_UPDATE[@]}"
-git commit -m "release: $1"
-git tag "v$1"
+if [ $DO_COMMIT -eq 1 ]; then
+  git reset .
+  git add "${FILES_TO_UPDATE[@]}"
+  git commit -m "release: $1"
+
+  [ $DO_TAG -eq 1 ] && git tag "v$1"
+fi
