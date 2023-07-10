@@ -33,7 +33,6 @@ use function App\Functions\class_name;
 class FederationConnectCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-
     protected static $defaultName        = 'federation:connect';
     protected static $defaultDescription = 'Connect this node into the federation network.';
 

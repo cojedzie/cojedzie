@@ -3,11 +3,9 @@
 namespace App\Serialization\Normalizer;
 
 use App\Dto\Links;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class LinksNormalizer implements NormalizerInterface, CacheableSupportsMethodInterface
 {
@@ -20,7 +18,7 @@ class LinksNormalizer implements NormalizerInterface, CacheableSupportsMethodInt
     {
         return $this->normalizer->normalize($object, $format, [
             ...$context,
-            AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
+            AbstractObjectNormalizer::SKIP_NULL_VALUES       => true,
             AbstractObjectNormalizer::PRESERVE_EMPTY_OBJECTS => true,
         ]);
     }

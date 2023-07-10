@@ -35,7 +35,6 @@ use Symfony\Component\Uid\Uuid;
 class FederationRegisterCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-
     protected static $defaultName        = 'federation:register';
     protected static $defaultDescription = 'Register new federated server';
 

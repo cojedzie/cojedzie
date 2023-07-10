@@ -3,10 +3,7 @@
 namespace App\Dto;
 
 use App\Dto\Links\CollectionLinks;
-use App\Utility\IterableUtils;
-use Ds\Collection;
 use Ds\Set;
-use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ContentType('vnd.cojedzie.collection')]

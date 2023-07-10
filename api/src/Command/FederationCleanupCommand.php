@@ -32,7 +32,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class FederationCleanupCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-
     protected static $defaultName        = 'federation:cleanup';
     protected static $defaultDescription = 'Cleanup closed connections from database.';
 

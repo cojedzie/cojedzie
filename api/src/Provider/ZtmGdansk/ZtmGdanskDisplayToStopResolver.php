@@ -14,7 +14,6 @@ class ZtmGdanskDisplayToStopResolver
         private readonly HttpClientInterface $httpClient,
         private readonly CacheInterface $cache,
     ) {
-
     }
 
     public function mapDisplayCodeToStops(string $displayCode)
@@ -40,7 +39,7 @@ class ZtmGdanskDisplayToStopResolver
                         $display['idStop2'],
                         $display['idStop3'],
                         $display['idStop4'],
-                    ], fn ($id) => $id !== 0)
+                    ], fn ($id) => $id !== 0),
                 ];
             }, $json['displays']);
 

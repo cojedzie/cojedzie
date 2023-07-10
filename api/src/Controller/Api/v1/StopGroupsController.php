@@ -50,7 +50,7 @@ class StopGroupsController extends Controller
         return $this->apiResponseFactory->createCollectionResponse(
             $groups,
             context: [
-                'groups' => $this->apiResponseFactory->extractGroupsFromRequirements($requirements)
+                'groups' => $this->apiResponseFactory->extractGroupsFromRequirements($requirements),
             ]
         );
     }

@@ -20,7 +20,6 @@
 
 namespace App\Dto;
 
-use App\Serialization\SerializeAs;
 use Illuminate\Support\Collection;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
@@ -73,7 +72,9 @@ class Line implements Fillable, Referable, Dto
      * Line operator
      * @OA\Property(ref=@Model(type=Operator::class, groups={"reference"}))
      */
-    #[Context(context: [AbstractNormalizer::GROUPS => ['reference']])]
+    #[Context(context: [
+        AbstractNormalizer::GROUPS => ['reference'],
+    ])]
     private Operator $operator;
 
     /**

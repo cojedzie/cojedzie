@@ -22,8 +22,8 @@ namespace App\Provider\Database;
 
 use App\Dto\Stop;
 use App\Entity\StopEntity;
-use App\Filter\Handler\Database\GenericWithDatabaseHandler;
 use App\Filter\Handler\Database\EmbedDestinationsDatabaseHandler;
+use App\Filter\Handler\Database\GenericWithDatabaseHandler;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\Requirement;
 use App\Provider\StopRepository;

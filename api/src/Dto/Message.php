@@ -22,7 +22,6 @@ namespace App\Dto;
 
 use Carbon\Carbon;
 use OpenApi\Annotations as OA;
-use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ContentType('vnd.cojedzie.message')]
 class Message implements Fillable, Dto, Referable, HasRefs
@@ -62,7 +61,6 @@ class Message implements Fillable, Dto, Referable, HasRefs
      * @OA\Property(type="string", format="date-time")
      */
     private ?Carbon $validTo = null;
-
     private MessageRefs $refs;
 
     public function __construct()

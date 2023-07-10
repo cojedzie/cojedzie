@@ -31,7 +31,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class FederationConnectionsListCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-
     protected static $defaultName        = 'federation:connections:list';
     protected static $defaultDescription = 'List federated connections';
 

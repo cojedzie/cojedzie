@@ -15,7 +15,6 @@ use Symfony\Component\Uid\Uuid;
 class FederationConnectionsDescribeCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-
     protected static $defaultName        = 'federation:connections:describe';
     protected static $defaultDescription = 'Describe federation connection';
 

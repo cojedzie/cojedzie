@@ -16,7 +16,7 @@ class ProviderContext
 
     public function getProvider(): ?Provider
     {
-        $request = $this->requestStack->getCurrentRequest();
+        $request  = $this->requestStack->getCurrentRequest();
         $provider = $request->attributes->get('provider');
 
         return $this->providerResolver->resolve($provider);

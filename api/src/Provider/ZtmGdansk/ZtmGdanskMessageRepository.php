@@ -26,14 +26,12 @@ use App\Dto\Stop;
 use App\Entity\ProviderEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\InMemory\InMemoryRepository;
-use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Service\HandlerProviderFactory;
 use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Ds\Map;
 use Ds\Set;
 use Illuminate\Support\Collection;
@@ -42,7 +40,6 @@ use Psr\Cache\CacheItemPoolInterface;
 class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRepository
 {
     final public const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
-
     private ProviderEntity $provider;
 
     public function __construct(
@@ -109,7 +106,6 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
 
                 $messagesBySymbol[$symbol]->add($message);
             }
-
         }
 
         $linesBySymbol = $this->connection

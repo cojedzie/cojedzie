@@ -2,8 +2,6 @@
 
 namespace App\Dto;
 
-use Ds\Set;
-
 class MessageRefs implements Refs
 {
     public function __construct(

@@ -56,7 +56,15 @@ class FederationController extends Controller
      *     @OA\JsonContent(ref=@Model(type=CreateFederatedConnectionCommandType::class))
      * )
      */
-    #[Route(path: '/connections', name: 'connect', methods: ['POST'], options: ['version' => '1.0', 'sentry_trace_sample' => 0.1])]
+    #[Route(
+        path: '/connections',
+        name: 'connect',
+        methods: ['POST'],
+        options: [
+            'version'             => '1.0',
+            'sentry_trace_sample' => 0.1,
+        ]
+    )]
     public function connect(Request $request, EntityManagerInterface $manager, MessageBusInterface $bus)
     {
         $form = $this->createForm(

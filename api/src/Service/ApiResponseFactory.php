@@ -6,7 +6,6 @@ use App\Dto\CollectionResult;
 use App\Dto\Links\CollectionLinks;
 use App\Dto\Links\Link;
 use App\Filter\Requirement\Embed;
-use App\Filter\Requirement\Requirement;
 use App\Utility\IterableUtils;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;

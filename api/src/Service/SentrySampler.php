@@ -2,9 +2,8 @@
 
 namespace App\Service;
 
-use App\Utility\CustomSentrySampleRateInterface;
 use App\Context\ConsoleCommandContext;
-use Psr\Cache\CacheItemPoolInterface;
+use App\Utility\CustomSentrySampleRateInterface;
 use Sentry\Tracing\SamplingContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -12,7 +11,6 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class SentrySampler
 {
-
     public function __construct(
         private float $sampleRate,
         private RequestStack $requestStack,
@@ -37,7 +35,7 @@ class SentrySampler
     private function getDynamicSampleRate(SamplingContext $context)
     {
         if ($context->getTransactionContext()->getOp() === 'http.server') {
-            $request = $this->requestStack->getCurrentRequest();
+            $request   = $this->requestStack->getCurrentRequest();
             $routeName = $request->attributes->get('_route');
 
             $options = $this->cache->get(
@@ -46,7 +44,7 @@ class SentrySampler
             );
 
             return array_key_exists('sentry_sample_rate', $options)
-                ? (float)$options['sentry_sample_rate']
+                ? (float) $options['sentry_sample_rate']
                 : 1.0;
         }
 
@@ -59,7 +57,7 @@ class SentrySampler
         }
 
         if ($context->getTransactionContext()->getOp() === 'queue.task') {
-            return (float)$context->getTransactionContext()->getMetadata()->getSamplingRate();
+            return (float) $context->getTransactionContext()->getMetadata()->getSamplingRate();
         }
 
         // just use default sampling rate

@@ -32,7 +32,6 @@ use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionIn
 class FederationDisconnectCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-
     protected static $defaultName        = 'federation:disconnect';
     protected static $defaultDescription = 'Disconnect this node into the federation network.';
 

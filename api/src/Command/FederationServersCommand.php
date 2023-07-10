@@ -31,7 +31,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class FederationServersCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-
     protected static $defaultName        = 'federation:servers';
     protected static $defaultDescription = 'Get list of all federated servers.';
 

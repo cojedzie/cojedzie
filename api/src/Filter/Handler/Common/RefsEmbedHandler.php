@@ -59,7 +59,7 @@ class RefsEmbedHandler implements PostProcessingHandler
 
         foreach ($entitiesToLoad as $type => $identifiers) {
             $repository = $this->getRepositoryForType($type);
-            $entities = $repository->all(new IdConstraint($identifiers))->keyBy(t\getter('id'));
+            $entities   = $repository->all(new IdConstraint($identifiers))->keyBy(t\getter('id'));
         }
 
         foreach ($items as $dto) {

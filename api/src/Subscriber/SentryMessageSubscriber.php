@@ -26,8 +26,8 @@ class SentryMessageSubscriber implements EventSubscriberInterface
     {
         return [
             WorkerMessageReceivedEvent::class => ['handleMessageReceived', -10000],
-            WorkerMessageHandledEvent::class => ['handleMessageDone', -10000],
-            WorkerMessageFailedEvent::class => ['handleMessageDone', -10000],
+            WorkerMessageHandledEvent::class  => ['handleMessageDone', -10000],
+            WorkerMessageFailedEvent::class   => ['handleMessageDone', -10000],
         ];
     }
 
@@ -43,7 +43,7 @@ class SentryMessageSubscriber implements EventSubscriberInterface
         }
 
         $currentSpan = $this->hub->getSpan();
-        $message = $event->getEnvelope()->getMessage();
+        $message     = $event->getEnvelope()->getMessage();
 
         if ($currentSpan !== null) {
             $context = new SpanContext();
