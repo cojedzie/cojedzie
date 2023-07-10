@@ -12,7 +12,7 @@ tasks:
   exec:
     desc: Execute command on one of available containers
     cmds:
-      - docker-compose exec {{.FLAGS}} -u {{.USER}} {{.SERVICE}} {{.CLI_ARGS}}
+      - docker compose run {{.FLAGS}} -u {{.USER}} {{.SERVICE}} {{.CLI_ARGS}}
 
   dependencies:
     deps:
@@ -22,12 +22,12 @@ tasks:
   dependencies:api:
     desc: Installs api dependencies (composer)
     cmds:
-      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api composer install
+      - docker compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api composer install
 
   dependencies:frontend:
     desc: Installs api dependencies (composer)
     cmds:
-      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend yarn install
+      - docker compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend yarn install
 
   lint:
     deps:
@@ -36,7 +36,7 @@ tasks:
   lint:eslint:
     desc: Lint frontend using ES Lint
     cmds:
-      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend node_modules/.bin/eslint {{.CLI_ARGS}}
+      - docker compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend node_modules/.bin/eslint {{.CLI_ARGS}}
 
   reformat:
     deps:
@@ -46,12 +46,12 @@ tasks:
   reformat:api:
     desc: Reformat API with ECS
     cmds:
-      - docker-compose run --rm -e APP_RUNAS="{{.USER}}" -e APP_MODE=performance api vendor/bin/ecs --fix
+      - docker compose run --rm -e APP_RUNAS="{{.USER}}" -e APP_MODE=performance api vendor/bin/ecs --fix
 
   reformat:frontend:
     desc: Reformat Frontend with Prettier
     cmds:
-      - docker-compose run --rm -u {{.USER}} frontend node_modules/.bin/prettier . --write
+      - docker compose run --rm -u {{.USER}} frontend node_modules/.bin/prettier . --write
 
   test:
     deps:
@@ -60,7 +60,7 @@ tasks:
   test:api:
     desc: Test API component with phpunit
     cmds:
-      - docker-compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api bin/phpunit {{.CLI_ARGS}}
+      - docker compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api bin/phpunit {{.CLI_ARGS}}
 
   benchmark:
     deps:
@@ -72,7 +72,7 @@ tasks:
       REPORT: default
     cmds:
       - >
-        docker-compose run 
+        docker compose run 
         --rm -e APP_MODE=performance {{.DOCKER_FLAGS}} 
         api vendor/bin/phpbench 
         --php-config="opcache.enable: 1, opcache.enable_cli: 1{{if .PHP_CONFIG}}, {{end}}{{.PHP_CONFIG}}"
@@ -84,7 +84,7 @@ tasks:
       REPORT: default
     cmds:
       - >
-        docker-compose run 
+        docker compose run 
         --rm {{.DOCKER_FLAGS}} 
         api vendor/bin/phpbench 
         xdebug:profile tests {{.CLI_ARGS}}
@@ -92,34 +92,34 @@ tasks:
   npx:
     desc: Execute yarn command
     cmds:
-      - docker-compose run --rm {{.FLAGS}} -u {{.USER}} frontend npx {{.CLI_ARGS}}
+      - docker compose run --rm {{.FLAGS}} -u {{.USER}} frontend npx {{.CLI_ARGS}}
 
   yarn:
     desc: Execute yarn command
     cmds:
-      - docker-compose run --rm {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
+      - docker compose run --rm {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
 
   console:
     desc: Execute command in the symfony console
     cmds:
-      - docker-compose exec {{.FLAGS}} -u {{.USER}} api bin/console {{.CLI_ARGS}}
+      - docker compose run {{.FLAGS}} -u {{.USER}} api bin/console {{.CLI_ARGS}}
 
   composer:
     desc: Execute command in the symfony console
     cmds:
-      - docker-compose exec {{.FLAGS}} -u {{.USER}} -e HOME=/tmp api composer {{.CLI_ARGS}}
+      - docker-compose run {{.FLAGS}} -u {{.USER}} -e HOME=/tmp api composer {{.CLI_ARGS}}
 
   api:migrations:generate:
     desc: Generate migrations for all database engines
     cmds:
-      - cmd: docker-compose exec -e DATABASE_URL="{{.SQLITE_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+      - cmd: docker compose exec -e DATABASE_URL="{{.SQLITE_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
         ignore_error: true
-      - cmd: docker-compose exec -e DATABASE_URL="{{.MYSQL_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+      - cmd: docker compose exec -e DATABASE_URL="{{.MYSQL_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
         ignore_error: true
-      - cmd: docker-compose exec -e DATABASE_URL="{{.POSTGRES_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+      - cmd: docker compose exec -e DATABASE_URL="{{.POSTGRES_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
         ignore_error: true
 
   api:update:
     desc: Update data from data providers
     cmds:
-      - docker-compose run {{.FLAGS}} -e APP_MODE={{default "performance" .APP_MODE}} api bin/console app:update
+      - docker compose run {{.FLAGS}} -e APP_MODE={{default "performance" .APP_MODE}} api bin/console app:update
