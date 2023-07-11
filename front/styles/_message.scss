@@ -20,7 +20,7 @@ $message-type-color: (
   display: grid;
   grid-template:
     "i m m" auto
-    "i v l" auto
+    "i v v" auto
     "i s l" auto
     / min-content minmax(0, 1fr) max-content;
 
@@ -63,13 +63,27 @@ $message-type-color: (
 
     > ul {
       display: inline-block;
-      margin: 0;
+      margin: 0 0 -0.325rem;
       padding: 0;
 
       > li {
         display: inline-block;
         margin-right: 0.325rem;
+        margin-bottom: 0.325rem;
       }
+    }
+  }
+
+  @include media-breakpoint-down('md') {
+    grid-template:
+      "i m m" auto
+      "i v v" auto
+      "i s s" auto
+      "i l l" auto
+      / min-content minmax(0, 1fr) max-content max-content;
+
+    &__lines {
+      margin-top: 0.5rem;
     }
   }
 
