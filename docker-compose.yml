@@ -107,7 +107,7 @@ services:
       USE_FORWARDED_HEADERS: 1
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeMe!'
       MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeMe!'
-    command: /usr/bin/caddy run -config /etc/caddy/Caddyfile.dev
+    command: /usr/bin/caddy run --config /etc/caddy/Caddyfile.dev
     volumes:
       - caddy_data:/data
       - caddy_config:/config
