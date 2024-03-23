@@ -31,11 +31,13 @@ class StreamifiedParser extends AbstractStreamingParser
     ) {
     }
 
+    #[\Override]
     public function label(): string
     {
         return 'streamified ' . $this->parser->label();
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         $result = $stream->consume($this->parser);

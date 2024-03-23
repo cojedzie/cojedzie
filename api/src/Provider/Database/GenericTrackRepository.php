@@ -30,6 +30,7 @@ use Illuminate\Support\Collection;
 
 class GenericTrackRepository extends DatabaseRepository implements TrackRepository
 {
+    #[\Override]
     public function stops(Requirement ...$requirements): Collection
     {
         $builder = $this->em
@@ -44,6 +45,7 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
         ]);
     }
 
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em

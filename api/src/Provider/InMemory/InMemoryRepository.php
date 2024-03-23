@@ -46,8 +46,10 @@ abstract class InMemoryRepository implements FluentRepository
         return [];
     }
 
+    #[\Override]
     abstract public function all(Requirement ...$requirements): Collection;
 
+    #[\Override]
     public function first(Requirement ...$requirements)
     {
         return $this->all(LimitConstraint::count(1), ...$requirements)->first();

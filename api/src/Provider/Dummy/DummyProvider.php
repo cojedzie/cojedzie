@@ -39,61 +39,73 @@ class DummyProvider implements Provider
     ) {
     }
 
+    #[\Override]
     public function getDepartureRepository(): DepartureRepository
     {
         return $this->departures;
     }
 
+    #[\Override]
     public function getLineRepository(): LineRepository
     {
         throw new NotSupportedException();
     }
 
+    #[\Override]
     public function getStopRepository(): StopRepository
     {
         return $this->stops;
     }
 
+    #[\Override]
     public function getMessageRepository(): MessageRepository
     {
         return new DummyMessageRepository();
     }
 
+    #[\Override]
     public function getTrackRepository(): TrackRepository
     {
         throw new NotSupportedException();
     }
 
+    #[\Override]
     public function getName(): string
     {
         return "Dummy data for debugging";
     }
 
+    #[\Override]
     public function getShortName(): string
     {
         return "dummy";
     }
 
+    #[\Override]
     public function getIdentifier(): string
     {
         return "dummy";
     }
 
+    #[\Override]
     public function getAttribution(): ?string
     {
         return null;
     }
 
+    #[\Override]
     public function getLastUpdate(): ?Carbon
     {
         return null;
     }
 
+    #[\Override]
     public function getLocation(): Location
     {
         return new Location(21.4474, 54.7837);
     }
 
+    #[\Override]
     public function getTripRepository(): TripRepository
     {
         throw new NotSupportedException();

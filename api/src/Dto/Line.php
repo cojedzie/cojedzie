@@ -30,12 +30,12 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 #[ContentType('vnd.cojedzie.line')]
 class Line implements Fillable, Referable, Dto
 {
-    final public const TYPE_TRAM       = 'tram';
-    final public const TYPE_BUS        = 'bus';
-    final public const TYPE_TRAIN      = 'train';
-    final public const TYPE_METRO      = 'metro';
-    final public const TYPE_TROLLEYBUS = 'trolleybus';
-    final public const TYPE_UNKNOWN    = 'unknown';
+    final public const string TYPE_TRAM       = 'tram';
+    final public const string TYPE_BUS        = 'bus';
+    final public const string TYPE_TRAIN      = 'train';
+    final public const string TYPE_METRO      = 'metro';
+    final public const string TYPE_TROLLEYBUS = 'trolleybus';
+    final public const string TYPE_UNKNOWN    = 'unknown';
 
     use FillTrait, ReferableTrait;
 

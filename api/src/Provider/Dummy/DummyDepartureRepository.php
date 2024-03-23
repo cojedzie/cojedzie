@@ -35,6 +35,7 @@ class DummyDepartureRepository implements DepartureRepository
     ) {
     }
 
+    #[\Override]
     public function current(iterable $stops, Requirement ...$requirements)
     {
         return collect([

@@ -31,11 +31,13 @@ class RepeatedParser extends AbstractParser
         $this->repeated = $this->repeated->optional();
     }
 
+    #[\Override]
     public function label(): string
     {
         return "multiple " . $this->repeated->label();
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         $results = [];

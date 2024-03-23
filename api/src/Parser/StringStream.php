@@ -32,6 +32,7 @@ class StringStream implements StreamInterface
         $this->position = new StringPosition();
     }
 
+    #[\Override]
     public function read(int $max = 1): string
     {
         if ($this->eof()) {
@@ -44,6 +45,7 @@ class StringStream implements StreamInterface
         return $slice;
     }
 
+    #[\Override]
     public function peek(int $max = 1): string
     {
         if ($this->eof()) {
@@ -53,6 +55,7 @@ class StringStream implements StreamInterface
         return mb_substr($this->string, $this->position->offset, $max);
     }
 
+    #[\Override]
     public function eof(): bool
     {
         return $this->position->offset >= mb_strlen($this->string);

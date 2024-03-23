@@ -62,6 +62,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
     ) {
     }
 
+    #[\Override]
     public function process(HandleRequirementEvent $event)
     {
         if (!$event instanceof HandleDatabaseRequirementEvent) {
@@ -105,6 +106,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
             ->setParameter($parameter, $reference);
     }
 
+    #[\Override]
     public static function getSubscribedServices(): array
     {
         return [

@@ -23,6 +23,7 @@ class RefsEmbedHandler implements PostProcessingHandler
     ) {
     }
 
+    #[\Override]
     public function postProcess(PostProcessEvent $event): void
     {
         /** @var Embed $requirement */

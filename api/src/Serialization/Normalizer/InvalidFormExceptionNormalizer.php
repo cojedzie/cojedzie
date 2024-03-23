@@ -27,6 +27,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class InvalidFormExceptionNormalizer implements NormalizerInterface
 {
+    #[\Override]
     public function normalize($exception, $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
     {
         /** @var InvalidFormException $exception */
@@ -38,6 +39,7 @@ final class InvalidFormExceptionNormalizer implements NormalizerInterface
         ];
     }
 
+    #[\Override]
     public function supportsNormalization($data, $format = null): bool
     {
         return 'json' === $format && $data instanceof InvalidFormException;

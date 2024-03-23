@@ -46,7 +46,7 @@ use function Kadet\Functional\ref;
 
 class ZtmGdanskDepartureRepository implements DepartureRepository
 {
-    final public const ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
+    final public const string ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
 
     public function __construct(
         private readonly LineRepository $lines,
@@ -55,6 +55,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     ) {
     }
 
+    #[\Override]
     public function current(iterable $stops, Requirement ...$requirements)
     {
         $real = IterableUtils::toCollection($stops)

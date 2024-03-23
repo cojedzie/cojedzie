@@ -32,11 +32,13 @@ class OptionalParser extends AbstractParser
     ) {
     }
 
+    #[\Override]
     public function label(): string
     {
         return 'optional ' . $this->parser->label();
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         $position = $stream->tell();

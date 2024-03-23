@@ -38,6 +38,7 @@ class EmbedParameterBinding implements ParameterBinding
     ) {
     }
 
+    #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
         if (!$request->query->has(self::EMBED_QUERY_PARAMETER)) {
@@ -56,6 +57,7 @@ class EmbedParameterBinding implements ParameterBinding
     }
 
     // fixme: This does not work when parameter is duplicated
+    #[\Override]
     public function getDocumentation(Route $route): iterable
     {
         yield new Parameter(

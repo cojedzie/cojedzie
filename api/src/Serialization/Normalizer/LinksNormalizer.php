@@ -14,6 +14,7 @@ class LinksNormalizer implements NormalizerInterface, CacheableSupportsMethodInt
     ) {
     }
 
+    #[\Override]
     public function normalize($object, string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
     {
         return $this->normalizer->normalize($object, $format, [
@@ -23,11 +24,13 @@ class LinksNormalizer implements NormalizerInterface, CacheableSupportsMethodInt
         ]);
     }
 
+    #[\Override]
     public function supportsNormalization($data, string $format = null): bool
     {
         return $data instanceof Links;
     }
 
+    #[\Override]
     public function hasCacheableSupportsMethod(): bool
     {
         return true;

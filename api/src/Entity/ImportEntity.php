@@ -46,6 +46,7 @@ class ImportEntity implements Fillable, Referable
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?Carbon $finishedAt = null;
 
+    #[\Override]
     public function getId(): ?Uuid
     {
         return $this->id;

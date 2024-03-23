@@ -28,6 +28,7 @@ use Illuminate\Support\Collection;
 
 class GenericOperatorRepository extends DatabaseRepository implements OperatorRepository
 {
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em

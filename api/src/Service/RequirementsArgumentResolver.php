@@ -35,6 +35,7 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
     ) {
     }
 
+    #[\Override]
     public function getArguments(Request $request, callable $controller): array
     {
         $controllerReflection = reflect($controller);

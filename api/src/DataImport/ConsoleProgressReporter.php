@@ -35,6 +35,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
     ) {
     }
 
+    #[\Override]
     public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
     {
         $max = (int) $max;
@@ -61,6 +62,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
         }
     }
 
+    #[\Override]
     public function milestone(string $comment, MilestoneType $type = MilestoneType::Info): void
     {
         [$icon, $color] = match ($type) {
@@ -81,6 +83,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
         $this->output->section()->writeln($message);
     }
 
+    #[\Override]
     public function subtask(string $name): ProgressReporterInterface
     {
         $section = $this->output->section();

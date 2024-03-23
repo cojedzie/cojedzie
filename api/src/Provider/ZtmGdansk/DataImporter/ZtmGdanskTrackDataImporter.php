@@ -35,8 +35,8 @@ use Ds\Set;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
-    final public const TRACKS_URL         = ZtmGdanskProvider::BASE_URL . "/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
-    final public const STOPS_IN_TRACK_URL = ZtmGdanskProvider::BASE_URL . "/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
+    final public const string TRACKS_URL         = ZtmGdanskProvider::BASE_URL . "/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
+    final public const string STOPS_IN_TRACK_URL = ZtmGdanskProvider::BASE_URL . "/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
     private int $trackCount;
 
     public function __construct(
@@ -46,12 +46,14 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     ) {
     }
 
+    #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->importTracksFromZtmApi($reporter->subtask('Import tracks'), $event);
         $this->importStopsInTracksFromZtmApi($reporter->subtask('Import stops in tracks'), $event);
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return [
@@ -233,6 +235,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         }
     }
 
+    #[\Override]
     public function getDescription(): string
     {
         return "[ZTM Gdańsk] Import tracks";

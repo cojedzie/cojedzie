@@ -39,6 +39,7 @@ class ParameterBindingRouteDescriber implements RouteDescriberInterface
 {
     use RouteDescriberTrait;
 
+    #[\Override]
     public function describe(OpenApi $api, Route $route, \ReflectionMethod $reflectionMethod)
     {
         $bindings      = $this->getAllParameterBindingsFromAction($reflectionMethod);

@@ -39,6 +39,7 @@ class UpdateCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function configure()
     {
         $this->addOption(
@@ -49,6 +50,7 @@ class UpdateCommand extends Command
         );
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('async')) {

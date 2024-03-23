@@ -26,11 +26,11 @@ use App\Service\FederatedConnectionChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-final class CheckConnectionMessageHandler implements MessageHandlerInterface
+final readonly class CheckConnectionMessageHandler implements MessageHandlerInterface
 {
     public function __construct(
-        private readonly FederatedConnectionChecker $checker,
-        private readonly EntityManagerInterface $manager
+        private FederatedConnectionChecker $checker,
+        private EntityManagerInterface $manager
     ) {
     }
 

@@ -29,6 +29,7 @@ use Illuminate\Support\Collection;
 
 class DummyMessageRepository implements MessageRepository
 {
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         return collect([
@@ -43,6 +44,7 @@ class DummyMessageRepository implements MessageRepository
         ]));
     }
 
+    #[\Override]
     public function first(Requirement ...$requirements)
     {
         return $this->all(LimitConstraint::count(1), ...$requirements)->first();

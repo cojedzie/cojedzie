@@ -28,6 +28,7 @@ use Illuminate\Support\Collection;
 
 class GenericTripRepository extends DatabaseRepository implements TripRepository
 {
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em

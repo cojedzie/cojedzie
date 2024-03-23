@@ -33,6 +33,7 @@ class AggregateConverter implements Converter, CacheableConverter
     ) {
     }
 
+    #[\Override]
     public function convert($entity, string $type)
     {
         $this->ensureCachedConverters();
@@ -51,6 +52,7 @@ class AggregateConverter implements Converter, CacheableConverter
         return $converter->convert($entity, $type);
     }
 
+    #[\Override]
     public function supports($entity, string $type)
     {
         $this->ensureCachedConverters();
@@ -68,6 +70,7 @@ class AggregateConverter implements Converter, CacheableConverter
         return clone $this->cachedConverters;
     }
 
+    #[\Override]
     public function reset()
     {
         $this->ensureCachedConverters();

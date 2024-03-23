@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 
 class LimitInMemoryHandler implements PostProcessingHandler
 {
+    #[\Override]
     public function postProcess(PostProcessEvent $event)
     {
         /** @var Collection $data */

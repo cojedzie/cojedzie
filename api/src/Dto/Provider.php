@@ -62,6 +62,7 @@ class Provider implements Fillable, Referable, Dto
      */
     private Location $location;
 
+    #[\Override]
     public function getId(): string
     {
         return $this->id;

@@ -44,6 +44,7 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
         parent::__construct(self::$defaultName);
     }
 
+    #[\Override]
     protected function configure()
     {
         $this
@@ -54,6 +55,7 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

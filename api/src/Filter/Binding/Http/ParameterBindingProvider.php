@@ -39,11 +39,13 @@ class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterf
     ) {
     }
 
+    #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
         yield from $this->source()->getRequirementsFromRequest($request);
     }
 
+    #[\Override]
     public function getDocumentation(Route $route): iterable
     {
         yield from $this->source()->getDocumentation($route);

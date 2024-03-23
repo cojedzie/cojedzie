@@ -40,8 +40,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ZtmGdanskProvider implements Provider
 {
-    final public const BASE_URL   = 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource';
-    final public const IDENTIFIER = 'trojmiasto';
+    final public const string BASE_URL   = 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource';
+    final public const string IDENTIFIER = 'trojmiasto';
     private $lines;
     private $departures;
     private $stops;
@@ -49,26 +49,31 @@ class ZtmGdanskProvider implements Provider
     private $trips;
     private ProviderEntity $entity;
 
+    #[\Override]
     public function getName(): string
     {
         return 'MZKZG - Trójmiasto';
     }
 
+    #[\Override]
     public function getShortName(): string
     {
         return 'Trójmiasto';
     }
 
+    #[\Override]
     public function getIdentifier(): string
     {
         return self::IDENTIFIER;
     }
 
+    #[\Override]
     public function getAttribution(): string
     {
         return '<a href="http://ztm.gda.pl/otwarty_ztm">Otwarte Dane</a> Zarządu Transportu Miejskiego w Gdańsku';
     }
 
+    #[\Override]
     public function getLocation(): Location
     {
         return new Location(18.6466, 54.3520);
@@ -102,36 +107,43 @@ class ZtmGdanskProvider implements Provider
         $this->messages->setProvider($provider);
     }
 
+    #[\Override]
     public function getDepartureRepository(): DepartureRepository
     {
         return $this->departures;
     }
 
+    #[\Override]
     public function getLineRepository(): LineRepository
     {
         return $this->lines;
     }
 
+    #[\Override]
     public function getStopRepository(): StopRepository
     {
         return $this->stops;
     }
 
+    #[\Override]
     public function getMessageRepository(): MessageRepository
     {
         return $this->messages;
     }
 
+    #[\Override]
     public function getTrackRepository(): TrackRepository
     {
         return $this->tracks;
     }
 
+    #[\Override]
     public function getTripRepository(): TripRepository
     {
         return $this->trips;
     }
 
+    #[\Override]
     public function getLastUpdate(): ?Carbon
     {
         $this->refreshProviderEntity();

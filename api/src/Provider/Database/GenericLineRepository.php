@@ -28,6 +28,7 @@ use Illuminate\Support\Collection;
 
 class GenericLineRepository extends DatabaseRepository implements LineRepository
 {
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em

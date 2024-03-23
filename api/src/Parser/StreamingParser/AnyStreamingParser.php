@@ -33,11 +33,13 @@ class AnyStreamingParser extends AbstractStreamingParser
         $this->parsers = $parsers;
     }
 
+    #[\Override]
     public function label(): string
     {
         return implode(' or ', array_map(fn ($parser) => $parser->label(), $this->parsers));
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream): \Generator
     {
         $position = $stream->tell();

@@ -34,8 +34,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
-    final public const RESOURCE_URL     = ZtmGdanskProvider::BASE_URL . "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
-    final public const GDYNIA_STOPS_URL = "https://zkmgdynia.pl/stopsAPI/stopsList";
+    final public const string RESOURCE_URL     = ZtmGdanskProvider::BASE_URL . "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
+    final public const string GDYNIA_STOPS_URL = "https://zkmgdynia.pl/stopsAPI/stopsList";
 
     public function __construct(
         private readonly Connection $connection,
@@ -45,6 +45,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     ) {
     }
 
+    #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->connection->beginTransaction();
@@ -152,6 +153,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
         );
     }
 
+    #[\Override]
     public function getDescription(): string
     {
         return "[ZTM Gdańsk] Import stops";

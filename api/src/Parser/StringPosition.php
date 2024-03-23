@@ -29,6 +29,7 @@ class StringPosition implements PositionInterface
     ) {
     }
 
+    #[\Override]
     public function advance($slice, int $length = null)
     {
         $length = $length ?: strlen((string) $slice);
@@ -52,6 +53,7 @@ class StringPosition implements PositionInterface
         }
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return "{$this->line}:{$this->column}";

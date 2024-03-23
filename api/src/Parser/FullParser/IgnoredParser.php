@@ -30,11 +30,13 @@ class IgnoredParser extends AbstractParser
     ) {
     }
 
+    #[\Override]
     public function label(): string
     {
         return sprintf("ignored %s", $this->parser->label());
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         $stream->skip($this->parser);

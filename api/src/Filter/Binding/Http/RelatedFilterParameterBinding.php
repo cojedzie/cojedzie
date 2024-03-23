@@ -51,6 +51,7 @@ class RelatedFilterParameterBinding implements ParameterBinding
         $this->relationship = $relationship ?: $this->resource;
     }
 
+    #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
         $value = RequestUtils::get($request, $this->parameter, $this->from);
@@ -68,6 +69,7 @@ class RelatedFilterParameterBinding implements ParameterBinding
         );
     }
 
+    #[\Override]
     public function getDocumentation(Route $route): iterable
     {
         $fromAttributes = in_array('attributes', $this->from) &&

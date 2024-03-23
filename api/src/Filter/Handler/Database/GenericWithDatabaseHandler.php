@@ -60,6 +60,7 @@ class GenericWithDatabaseHandler implements ModifierHandler
     ) {
     }
 
+    #[\Override]
     public function process(HandleRequirementEvent $event)
     {
         if (!$event instanceof HandleDatabaseRequirementEvent) {

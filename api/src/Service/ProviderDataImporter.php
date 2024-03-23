@@ -38,6 +38,7 @@ class ProviderDataImporter implements DataImporter
     ) {
     }
 
+    #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $existing = $this->connection->createQueryBuilder()
@@ -65,21 +66,25 @@ class ProviderDataImporter implements DataImporter
         }
     }
 
+    #[\Override]
     public function isOutdated(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return [];
     }
 
+    #[\Override]
     public function getPriority(): int
     {
         return 1024;
     }
 
+    #[\Override]
     public function getDescription(): string
     {
         return 'Synchronise provider entities';

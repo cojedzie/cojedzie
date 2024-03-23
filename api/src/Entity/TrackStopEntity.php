@@ -54,6 +54,7 @@ class TrackStopEntity implements Fillable, Referable
     #[ORM\Column(name: 'sequence', type: 'integer')]
     private int $order;
 
+    #[\Override]
     public function getId(): ?int
     {
         return $this->id;

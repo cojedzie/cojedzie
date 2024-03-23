@@ -31,7 +31,7 @@ use Ds\Set;
 
 class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 {
-    final public const RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json";
+    final public const string RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json";
 
     public function __construct(
         private readonly Connection $connection,
@@ -40,6 +40,7 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
     ) {
     }
 
+    #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->connection->beginTransaction();
@@ -103,6 +104,7 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
         }
     }
 
+    #[\Override]
     public function getDescription(): string
     {
         return "[ZTM Gdańsk] Import operators";

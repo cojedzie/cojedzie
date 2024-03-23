@@ -31,11 +31,13 @@ class ReducedStreamingParser extends AbstractStreamingParser
     ) {
     }
 
+    #[\Override]
     public function label(): string
     {
         return $this->parser->label();
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream): \Generator
     {
         $results = ($this->parser)($stream);

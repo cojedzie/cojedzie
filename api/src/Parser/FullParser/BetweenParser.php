@@ -35,6 +35,7 @@ class BetweenParser extends AbstractParser
         $this->right = $right ?: $this->left;
     }
 
+    #[\Override]
     public function label(): string
     {
         return sprintf(
@@ -45,6 +46,7 @@ class BetweenParser extends AbstractParser
         );
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         $stream->skip($this->left);

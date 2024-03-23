@@ -24,6 +24,7 @@ use App\Utility\CustomSentrySampleRateInterface;
 
 final class UpdateDataMessage implements CustomSentrySampleRateInterface
 {
+    #[\Override]
     public function getSentrySampleRate(): float
     {
         return 0.01;

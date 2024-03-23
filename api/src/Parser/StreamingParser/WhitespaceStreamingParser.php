@@ -24,11 +24,13 @@ use App\Parser\StreamInterface;
 
 class WhitespaceStreamingParser extends AbstractStreamingParser
 {
+    #[\Override]
     public function label(): string
     {
         return 'whitespace';
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream): \Generator
     {
         $output = "";

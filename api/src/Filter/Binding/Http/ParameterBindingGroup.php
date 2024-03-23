@@ -34,6 +34,7 @@ class ParameterBindingGroup implements ParameterBinding
         $this->bindings = $bindings;
     }
 
+    #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
         foreach ($this->bindings as $binding) {
@@ -41,6 +42,7 @@ class ParameterBindingGroup implements ParameterBinding
         }
     }
 
+    #[\Override]
     public function getDocumentation(Route $route): iterable
     {
         foreach ($this->bindings as $binding) {

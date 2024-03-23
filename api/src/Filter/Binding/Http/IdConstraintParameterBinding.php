@@ -43,6 +43,7 @@ class IdConstraintParameterBinding implements ParameterBinding
     ) {
     }
 
+    #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
         if ($value = RequestUtils::get($request, $this->parameter, $this->from)) {
@@ -50,6 +51,7 @@ class IdConstraintParameterBinding implements ParameterBinding
         }
     }
 
+    #[\Override]
     public function getDocumentation(Route $route): iterable
     {
         $fromAttributes = in_array('attributes', $this->from) &&

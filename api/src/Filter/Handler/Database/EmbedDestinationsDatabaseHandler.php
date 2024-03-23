@@ -49,6 +49,7 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
         }
     }
 
+    #[\Override]
     public function postProcess(PostProcessEvent $event)
     {
         $provider = $event->getMeta()['provider'];

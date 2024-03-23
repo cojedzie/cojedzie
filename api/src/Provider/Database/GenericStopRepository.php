@@ -31,6 +31,7 @@ use Illuminate\Support\Collection;
 
 class GenericStopRepository extends DatabaseRepository implements StopRepository
 {
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em
@@ -46,6 +47,7 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
         ]);
     }
 
+    #[\Override]
     protected static function getHandlers()
     {
         return array_merge(parent::getHandlers(), [

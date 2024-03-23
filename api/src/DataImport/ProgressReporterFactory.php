@@ -48,6 +48,7 @@ class ProgressReporterFactory implements EventSubscriberInterface
         return new LoggerProgressReporter($this->logger);
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [

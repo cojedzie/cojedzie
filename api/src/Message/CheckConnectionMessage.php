@@ -23,10 +23,10 @@ namespace App\Message;
 use App\Utility\CustomSentrySampleRateInterface;
 use Symfony\Component\Uid\Uuid;
 
-final class CheckConnectionMessage implements CustomSentrySampleRateInterface
+final readonly class CheckConnectionMessage implements CustomSentrySampleRateInterface
 {
     public function __construct(
-        private readonly Uuid $connectionId
+        private Uuid $connectionId
     ) {
     }
 
@@ -35,6 +35,7 @@ final class CheckConnectionMessage implements CustomSentrySampleRateInterface
         return $this->connectionId;
     }
 
+    #[\Override]
     public function getSentrySampleRate(): float
     {
         return 0.01;

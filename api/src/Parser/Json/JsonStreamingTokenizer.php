@@ -37,11 +37,13 @@ use App\Parser\StreamInterface;
 
 class JsonStreamingTokenizer extends AbstractStreamingParser
 {
+    #[\Override]
     public function label(): string
     {
         return 'JSON';
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         $input = $stream->peek(1);

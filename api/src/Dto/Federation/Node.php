@@ -33,10 +33,10 @@ class Node implements Fillable, Dto
 {
     use FillTrait;
 
-    final public const TYPE_HUB       = 'hub';
-    final public const TYPE_FEDERATED = 'federated';
+    final public const string TYPE_HUB       = 'hub';
+    final public const string TYPE_FEDERATED = 'federated';
 
-    final public const TYPES = [self::TYPE_HUB, self::TYPE_FEDERATED];
+    final public const array TYPES = [self::TYPE_HUB, self::TYPE_FEDERATED];
 
     /**
      * Unique identifier for node.

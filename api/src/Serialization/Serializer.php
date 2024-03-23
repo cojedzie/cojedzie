@@ -14,6 +14,7 @@ class Serializer implements SerializerInterface, NormalizerInterface
     ) {
     }
 
+    #[\Override]
     public function serialize($data, string $format, array $context = []): string
     {
         $this->setDefaultContextProperties($context);
@@ -21,6 +22,7 @@ class Serializer implements SerializerInterface, NormalizerInterface
         return $this->decorated->serialize($data, $format, $context);
     }
 
+    #[\Override]
     public function deserialize($data, string $type, string $format, array $context = []): mixed
     {
         $this->setDefaultContextProperties($context);
@@ -44,11 +46,13 @@ class Serializer implements SerializerInterface, NormalizerInterface
         $context[AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER] ??= fn ($entity) => ['id' => $entity->getId()];
     }
 
+    #[\Override]
     public function normalize($object, string $format = null, array $context = []): array
     {
         return $this->decorated->normalize($object, $format, $context);
     }
 
+    #[\Override]
     public function supportsNormalization($data, string $format = null): bool
     {
         return $this->decorated->supportsNormalization($data, $format);
