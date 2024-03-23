@@ -29,7 +29,7 @@ use App\Filter\Requirement\Requirement;
 use App\Provider\TripRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @OA\Tag(name="Trips")

@@ -115,9 +115,6 @@ class LineEntity implements Fillable, Entity
         return $this->tracks;
     }
 
-    /**
-     * @return OperatorEntity
-     */
     public function getOperator(): ?OperatorEntity
     {
         return $this->operator;

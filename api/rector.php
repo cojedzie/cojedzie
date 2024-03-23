@@ -13,11 +13,11 @@ return RectorConfig::configure()
     ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     ->withParallel()
     ->withSets([
-        LevelSetList::UP_TO_PHP_81,
+        LevelSetList::UP_TO_PHP_83,
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         PHPUnitSetList::PHPUNIT_CODE_QUALITY,
         PHPUnitSetList::PHPUNIT_90,
-        SymfonySetList::SYMFONY_60,
+        SymfonySetList::SYMFONY_64,
     ]);

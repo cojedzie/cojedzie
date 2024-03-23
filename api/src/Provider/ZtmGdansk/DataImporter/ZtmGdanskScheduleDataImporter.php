@@ -89,7 +89,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->join('track', 'trip', 'trip', 'trip.track_id = track.id')
             ->select('trip.id')
             ->where('track.line_id = :lid')
-            ;
+        ;
 
         $this->connection->createQueryBuilder()
             ->delete('trip')
@@ -97,7 +97,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->setParameter('ids', $tripIds, Connection::PARAM_STR_ARRAY)
             ->setParameter('lid', $lineId)
             ->execute()
-            ;
+        ;
 
         $url = sprintf(
             "%s?%s",

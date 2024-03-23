@@ -39,7 +39,7 @@ final class CheckConnectionMessageHandler implements MessageHandlerInterface
         $connection = $this->manager
             ->getRepository(FederatedConnectionEntity::class)
             ->find($message->getConnectionId())
-            ;
+        ;
 
         $this->checker->check($connection);
     }

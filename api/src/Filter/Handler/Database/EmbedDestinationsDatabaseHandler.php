@@ -79,7 +79,7 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
             },
             collect()
         )->map(
-            fn (Collection $tracks)               => $tracks
+            fn (Collection $tracks) => $tracks
                 ->groupBy(fn (TrackEntity $track) => $track->getFinal()->getStop()->getId())
                 ->map(
                     fn (Collection $tracks, $id) => Destination::createFromArray([

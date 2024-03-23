@@ -26,8 +26,6 @@ use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * Class Stop
- *
  * @package App\Model
  */
 #[ContentType('vnd.cojedzie.stop')]

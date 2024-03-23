@@ -81,12 +81,13 @@ class FieldFilterParameterBinding implements ParameterBinding
     public function getRequirementsFromRequest(Request $request): iterable
     {
         foreach ($request->query as $parameter => $value) {
-            @[ $name, $operator ] = explode(':', $parameter);
+            @[$name, $operator] = explode(':', $parameter);
 
             $operator = match (true) {
                 is_string($operator) && array_key_exists($operator, $this->operators) => $this->operators[$operator],
-                is_null($operator) => $this->defaultOperator,
-                default            => throw InvalidOperatorException::unsupported($operator, array_keys($this->operators), $this->parameter),
+                is_null($operator)                                                    => $this->defaultOperator,
+
+                default => throw InvalidOperatorException::unsupported($operator, array_keys($this->operators), $this->parameter),
             };
 
             if ($name === $this->parameter) {
@@ -133,7 +134,7 @@ class FieldFilterParameterBinding implements ParameterBinding
                     ],
                 ),
                 function (Parameter $parameter) use ($operator) {
-                    $parameter->mergeProperties((object) $this->getDocumentationForOperator($operator), );
+                    $parameter->mergeProperties((object) $this->getDocumentationForOperator($operator));
                 }
             );
         }
@@ -161,7 +162,8 @@ class FieldFilterParameterBinding implements ParameterBinding
         return match (true) {
             is_callable($this->documentation) => ($this->documentation)($operator),
             is_array($this->documentation)    => $this->documentation,
-            default                           => throw InvalidArgumentException::invalidType(
+
+            default => throw InvalidArgumentException::invalidType(
                 parameter: 'documentation',
                 value: $this->documentation,
                 expected: ['array', 'callable(FieldFilterOperator): array']

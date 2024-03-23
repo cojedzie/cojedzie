@@ -4,7 +4,7 @@ ARG REGISTRY=docker.io
 FROM $REGISTRY/cojedzie/base:$BASE_VERSION as base
 RUN mv /var/www/vendor /opt/vendor
 
-FROM php:8.1-cli-alpine
+FROM php:8.3-cli-alpine
 
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 

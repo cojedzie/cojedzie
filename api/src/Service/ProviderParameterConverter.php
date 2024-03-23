@@ -29,11 +29,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ProviderParameterConverter implements ParamConverterInterface
 {
-    /**
-     * ProviderParameterConverter constructor.
-     *
-     * @param $resolver
-     */
     public function __construct(
         private readonly ProviderResolver $resolver
     ) {

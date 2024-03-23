@@ -37,11 +37,6 @@ use const Kadet\Functional\_;
 
 class RepositoryParameterConverter implements ParamConverterInterface
 {
-    /**
-     * ProviderParameterConverter constructor.
-     *
-     * @param $resolver
-     */
     public function __construct(
         private readonly ProviderResolver $resolver
     ) {

@@ -33,7 +33,7 @@ class ImportFilterParameterBinding extends FieldFilterParameterBinding
             field: 'import',
             operators: FieldFilterParameterBinding::EQUALITY_OPERATORS,
             documentation: fn (FieldFilterOperator $operator) => [
-                'description'                      => match ($operator) {
+                'description' => match ($operator) {
                     FieldFilterOperator::Equals    => 'Select records created or updated with specific import',
                     FieldFilterOperator::NotEquals => 'Select records not created or updated with specific import',
                     default                        => throw new \Exception('Unexpected match value')

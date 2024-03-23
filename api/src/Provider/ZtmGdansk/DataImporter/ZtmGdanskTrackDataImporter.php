@@ -217,7 +217,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         foreach ($all as $trackId => $stops) {
             $generator = new SequenceGenerator();
 
-            yield $trackId       => $stops
+            yield $trackId => $stops
                 ->map(fn ($stop) => [
                     'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
                     'track_id' => $trackId,

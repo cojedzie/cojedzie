@@ -135,9 +135,6 @@ class Line implements Fillable, Referable, Dto
         $this->tracks = collect($tracks);
     }
 
-    /**
-     * @return Operator
-     */
     public function getOperator(): ?Operator
     {
         return $this->operator;

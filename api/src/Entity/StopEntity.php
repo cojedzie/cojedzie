@@ -40,7 +40,6 @@ class StopEntity implements Entity, Fillable
 
     /**
      * Stop name
-     * @var string
      */
     #[ORM\Column(type: 'string', length: 255)]
     private string $name;

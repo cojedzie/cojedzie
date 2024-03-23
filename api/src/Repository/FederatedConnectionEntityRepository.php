@@ -73,7 +73,7 @@ class FederatedConnectionEntityRepository extends ServiceEntityRepository
             ->execute([
                 'state' => FederatedConnectionEntity::STATE_READY,
             ])
-            ;
+        ;
     }
 
     public function deleteClosedConnections()

@@ -5,7 +5,6 @@ namespace App\Tests\ZtmGdansk;
 use App\Dto\Message;
 use App\Provider\ZtmGdansk\ZtmGdanskMessageLineExtractor;
 use PHPUnit\Framework\TestCase;
-
 use function App\Functions\setup;
 
 class ZtmGdanskMessageLineExtractorTest extends TestCase

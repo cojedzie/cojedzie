@@ -67,7 +67,7 @@ class StatusService
                 'template' => $route->getPath(),
             ]))
             ->values()
-            ;
+        ;
     }
 
     public function getTimeStatus()

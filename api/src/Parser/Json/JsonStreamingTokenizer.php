@@ -65,7 +65,7 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
                 public function __construct()
                 {
                     $this->objectStart = FullParser::string('{')->map(fn () => new ObjectStartToken());
-                    $this->objectEnd = FullParser::string('}')->map(fn () => new ObjectEndToken());
+                    $this->objectEnd   = FullParser::string('}')->map(fn () => new ObjectEndToken());
                 }
 
                 public function label(): string
@@ -96,7 +96,7 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
                 public function __construct()
                 {
                     $this->arrayStart = FullParser::string('[')->map(fn () => new ArrayStartToken());
-                    $this->arrayEnd = FullParser::string(']')->map(fn () => new ArrayEndToken());
+                    $this->arrayEnd   = FullParser::string(']')->map(fn () => new ArrayEndToken());
                 }
 
                 public function label(): string
@@ -150,8 +150,8 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
                     $result = [];
                     while (($input = $stream->read(1)) !== '"') {
-                        $result[]                         = match ($input) {
-                            '\\'     => match ($character = $stream->read(1)) {
+                        $result[] = match ($input) {
+                            '\\' => match ($character = $stream->read(1)) {
                                 '\\' => '\\',
                                 '/'  => '/',
                                 't'  => "\t",
@@ -223,7 +223,7 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
                         $first == 'f' || $first == 't'                => yield $stream->consume($this->boolean),
                         $first == 'n'                                 => yield $stream->consume($this->null),
                         ctype_digit((string) $first) || $first == '-' => yield $stream->consume($this->number),
-                        default                                       => throw UnexpectedTokenException::createWithExpected($first, '[, {, ", true, false, null or digit', $stream->tell()),
+                        default => throw UnexpectedTokenException::createWithExpected($first, '[, {, ", true, false, null or digit', $stream->tell()),
                     };
 
                     return true;
@@ -245,7 +245,7 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
         return $parser
             ?? $parser = FullParser::choice(
-                FullParser::string('true')->map(fn ()  => true),
+                FullParser::string('true')->map(fn () => true),
                 FullParser::string('false')->map(fn () => false),
             );
     }
