@@ -26,7 +26,7 @@ use App\Parser\StreamInterface;
 class TransformedStreamingParser extends AbstractStreamingParser
 {
     public function __construct(
-        private StreamingParserInterface $parser,
+        private readonly StreamingParserInterface $parser,
         private $transform,
     ) {
     }

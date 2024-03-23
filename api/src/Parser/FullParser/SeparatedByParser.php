@@ -27,7 +27,7 @@ use JetBrains\PhpStorm\Pure;
 class SeparatedByParser extends AbstractParser
 {
     public function __construct(
-        private ParserInterface $value,
+        private readonly ParserInterface $value,
         private ParserInterface $separator
     ) {
         $this->separator = $this->separator->optional();

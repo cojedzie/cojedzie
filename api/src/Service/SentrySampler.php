@@ -12,11 +12,11 @@ use Symfony\Contracts\Cache\CacheInterface;
 class SentrySampler
 {
     public function __construct(
-        private float $sampleRate,
-        private RequestStack $requestStack,
-        private ConsoleCommandContext $consoleCommandContext,
-        private RouterInterface $router,
-        private CacheInterface $cache,
+        private readonly float $sampleRate,
+        private readonly RequestStack $requestStack,
+        private readonly ConsoleCommandContext $consoleCommandContext,
+        private readonly RouterInterface $router,
+        private readonly CacheInterface $cache,
     ) {
     }
 

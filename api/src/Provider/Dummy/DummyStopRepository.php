@@ -47,7 +47,7 @@ class DummyStopRepository implements StopRepository
 
     public function getManyById($ids): Collection
     {
-        return collect($ids)->map(f\ref([$this, 'getById']));
+        return collect($ids)->map(f\ref($this->getById(...)));
     }
 
     public function findByName(string $name): Collection

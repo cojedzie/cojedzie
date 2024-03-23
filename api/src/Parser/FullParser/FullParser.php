@@ -44,7 +44,7 @@ final class FullParser
     {
         $regex = sprintf('/%s/%s', $pattern, $flags);
         return new PredicateParser(
-            fn ($char) => preg_match($regex, $char),
+            fn ($char) => preg_match($regex, (string) $char),
             1,
             $pattern,
         );

@@ -14,14 +14,14 @@ class Serializer implements SerializerInterface, NormalizerInterface
     ) {
     }
 
-    public function serialize($data, string $format, array $context = [])
+    public function serialize($data, string $format, array $context = []): string
     {
         $this->setDefaultContextProperties($context);
 
         return $this->decorated->serialize($data, $format, $context);
     }
 
-    public function deserialize($data, string $type, string $format, array $context = [])
+    public function deserialize($data, string $type, string $format, array $context = []): mixed
     {
         $this->setDefaultContextProperties($context);
 

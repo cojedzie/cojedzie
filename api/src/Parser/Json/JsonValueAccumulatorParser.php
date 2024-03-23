@@ -61,8 +61,8 @@ class JsonValueAccumulatorParser extends AbstractParser
 
         return $parser
             ?? $parser = new class() extends AbstractParser {
-                private ParserInterface $arrayStart;
-                private ParserInterface $arrayEnd;
+                private readonly ParserInterface $arrayStart;
+                private readonly ParserInterface $arrayEnd;
 
                 public function __construct()
                 {
@@ -92,9 +92,9 @@ class JsonValueAccumulatorParser extends AbstractParser
 
         return $parser
             ?? $parser = new class() extends AbstractParser {
-                private ParserInterface $objectStart;
-                private ParserInterface $objectEnd;
-                private ParserInterface $key;
+                private readonly ParserInterface $objectStart;
+                private readonly ParserInterface $objectEnd;
+                private readonly ParserInterface $key;
 
                 public function __construct()
                 {

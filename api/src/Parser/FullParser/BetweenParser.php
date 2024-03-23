@@ -25,16 +25,14 @@ use App\Parser\StreamInterface;
 
 class BetweenParser extends AbstractParser
 {
-    private ParserInterface $left;
-    private ParserInterface $right;
+    private readonly ParserInterface $right;
 
     public function __construct(
-        private ParserInterface $value,
-        ParserInterface $left,
+        private readonly ParserInterface $value,
+        private readonly ParserInterface $left,
         ParserInterface $right = null,
     ) {
-        $this->left  = $left;
-        $this->right = $right ?: $left;
+        $this->right = $right ?: $this->left;
     }
 
     public function label(): string

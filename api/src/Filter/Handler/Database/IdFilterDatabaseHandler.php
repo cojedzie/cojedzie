@@ -47,7 +47,7 @@ class IdFilterDatabaseHandler implements ModifierHandler
         $provider = $event->getMeta()['provider'];
 
         $id     = $modifier->getId();
-        $mapper = apply([$this->id, 'generate'], $provider);
+        $mapper = apply($this->id->generate(...), $provider);
 
         $builder
             ->andWhere($modifier->isMultiple() ? "{$alias} in (:id)" : "{$alias} = :id")

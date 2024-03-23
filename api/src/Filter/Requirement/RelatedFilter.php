@@ -26,7 +26,7 @@ use App\Utility\IterableUtils;
 class RelatedFilter implements Requirement
 {
     private array|Referable $reference;
-    private ?string $relationship;
+    private readonly ?string $relationship;
 
     public function __construct(iterable|Referable $reference, ?string $relationship = null)
     {

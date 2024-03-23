@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
 class SentryMessageSubscriber implements EventSubscriberInterface
 {
-    private ?Span $span;
+    private ?Span $span = null;
 
     public function __construct(
         private readonly HubInterface $hub

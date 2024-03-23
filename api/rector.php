@@ -2,40 +2,22 @@
 
 declare(strict_types=1);
 
-use Rector\Core\Configuration\Option;
+use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
-use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
-use Rector\Php80\Rector\Class_\DoctrineAnnotationClassToAttributeRector;
-use Rector\Php80\ValueObject\AnnotationToAttribute;
+use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\LevelSetList;
-use Rector\Set\ValueObject\SetList;
-use Rector\Symfony\Set\SensiolabsSetList;
 use Rector\Symfony\Set\SymfonySetList;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    // get parameters
-    $parameters = $containerConfigurator->parameters();
-    $services = $containerConfigurator->services();
-
-    $parameters->set(Option::PATHS, [__DIR__.'/src']);
-    $parameters->set(Option::AUTO_IMPORT_NAMES, true);
-    $parameters->set(Option::IMPORT_SHORT_CLASSES, false);
-
-    // Define what rule sets will be applied
-    $containerConfigurator->import(LevelSetList::UP_TO_PHP_81);
-
-    $containerConfigurator->import(DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES);
-    $containerConfigurator->import(SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES);
-    $containerConfigurator->import(SymfonySetList::SYMFONY_CODE_QUALITY);
-    $containerConfigurator->import(SymfonySetList::SYMFONY_60);
-    $containerConfigurator->import(SensiolabsSetList::FRAMEWORK_EXTRA_61);
-
-    $services
-        ->set(DoctrineAnnotationClassToAttributeRector::class)
-        ->configure([
-            DoctrineAnnotationClassToAttributeRector::REMOVE_ANNOTATIONS => false,
-        ]);
-
-    $services->set(AnnotationToAttributeRector::class);
-};
+return RectorConfig::configure()
+    ->withPaths([__DIR__ . '/src', __DIR__ . '/tests'])
+    ->withImportNames(importShortClasses: false, removeUnusedImports: true)
+    ->withParallel()
+    ->withSets([
+        LevelSetList::UP_TO_PHP_81,
+        DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
+        SymfonySetList::SYMFONY_CODE_QUALITY,
+        PHPUnitSetList::PHPUNIT_CODE_QUALITY,
+        PHPUnitSetList::PHPUNIT_90,
+        SymfonySetList::SYMFONY_60,
+    ]);

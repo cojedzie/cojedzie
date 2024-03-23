@@ -26,7 +26,7 @@ use App\Parser\StreamInterface;
 class IgnoredParser extends AbstractParser
 {
     public function __construct(
-        private ParserInterface $parser
+        private readonly ParserInterface $parser
     ) {
     }
 

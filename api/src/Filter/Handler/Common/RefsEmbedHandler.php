@@ -3,9 +3,12 @@
 namespace App\Filter\Handler\Common;
 
 use App\Context\ProviderContext;
+use App\Dto\CollectionResult;
+use App\Dto\Dto;
 use App\Dto\HasRefs;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\PostProcessingHandler;
+use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
 use App\Provider\FluentRepository;
 use App\Service\ContentTypeResolver;
@@ -22,14 +25,14 @@ class RefsEmbedHandler implements PostProcessingHandler
 
     public function postProcess(PostProcessEvent $event): void
     {
-        /** @var \App\Filter\Requirement\Embed $requirement */
+        /** @var Embed $requirement */
         $requirement = $event->getRequirement();
 
         if (!str_starts_with($requirement->getRelationship(), '$refs.')) {
             return;
         }
 
-        /** @var iterable<\App\Dto\Dto> $subject */
+        /** @var iterable<Dto> $subject */
         $items = $event->getData();
 
         $name = substr($requirement->getRelationship(), 6);
@@ -46,7 +49,7 @@ class RefsEmbedHandler implements PostProcessingHandler
                 continue;
             }
 
-            /** @var \App\Dto\CollectionResult $collection */
+            /** @var CollectionResult $collection */
             $collection = $refs->{$name};
 
             foreach ($collection->getItems() as $item) {
@@ -73,7 +76,7 @@ class RefsEmbedHandler implements PostProcessingHandler
                 continue;
             }
 
-            /** @var \App\Dto\CollectionResult $collection */
+            /** @var CollectionResult $collection */
             $collection = $refs->{$name};
             $collection->setItems(
                 $collection->getItems()->map(fn ($dto) => $entities[$dto->getId()] ?? null)->filter()

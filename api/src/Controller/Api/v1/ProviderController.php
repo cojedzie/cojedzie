@@ -56,7 +56,7 @@ class ProviderController extends Controller
     {
         $providers = $resolver
             ->all()
-            ->map(f\partial(f\ref([$converter, 'convert']), f\_, Dto::class))
+            ->map(f\partial(f\ref($converter->convert(...)), f\_, Dto::class))
             ->values()
             ->toArray()
         ;

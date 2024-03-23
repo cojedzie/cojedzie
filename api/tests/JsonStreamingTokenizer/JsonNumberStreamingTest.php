@@ -30,14 +30,14 @@ class JsonNumberStreamingTest extends TestCase
     {
         $stream = new StringStream('0');
 
-        $this->assertSame(0.0, $stream->consume(JsonStreamingTokenizer::number()));
+        $this->assertEqualsWithDelta(0.0, $stream->consume(JsonStreamingTokenizer::number()), PHP_FLOAT_EPSILON);
     }
 
     public function testSimpleInteger()
     {
         $stream = new StringStream('123');
 
-        $this->assertSame(123.0, $stream->consume(JsonStreamingTokenizer::number()));
+        $this->assertEqualsWithDelta(123.0, $stream->consume(JsonStreamingTokenizer::number()), PHP_FLOAT_EPSILON);
     }
 
     public function testSimpleNegativeInteger()
@@ -51,7 +51,7 @@ class JsonNumberStreamingTest extends TestCase
     {
         $stream = new StringStream('21.37');
 
-        $this->assertSame(21.37, $stream->consume(JsonStreamingTokenizer::number()));
+        $this->assertEqualsWithDelta(21.37, $stream->consume(JsonStreamingTokenizer::number()), PHP_FLOAT_EPSILON);
     }
 
     public function testSimpleNegativeFraction()

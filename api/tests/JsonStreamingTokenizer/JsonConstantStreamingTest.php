@@ -30,20 +30,20 @@ class JsonConstantStreamingTest extends TestCase
     {
         $stream = new StringStream("true");
 
-        $this->assertSame(true, $stream->consume(JsonStreamingTokenizer::boolean()));
+        $this->assertTrue($stream->consume(JsonStreamingTokenizer::boolean()));
     }
 
     public function testFalseValue()
     {
         $stream = new StringStream("false");
 
-        $this->assertSame(false, $stream->consume(JsonStreamingTokenizer::boolean()));
+        $this->assertFalse($stream->consume(JsonStreamingTokenizer::boolean()));
     }
 
     public function testNullValue()
     {
         $stream = new StringStream("null");
 
-        $this->assertSame(null, $stream->consume(JsonStreamingTokenizer::null()));
+        $this->assertNull($stream->consume(JsonStreamingTokenizer::null()));
     }
 }

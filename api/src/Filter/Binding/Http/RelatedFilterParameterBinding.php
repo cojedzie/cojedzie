@@ -59,7 +59,7 @@ class RelatedFilterParameterBinding implements ParameterBinding
             return;
         }
 
-        $related = explode(',', $value);
+        $related = explode(',', (string) $value);
         $related = array_map($this->resource::reference(...), $related);
 
         yield new RelatedFilter(

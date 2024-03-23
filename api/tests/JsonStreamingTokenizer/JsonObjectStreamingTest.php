@@ -21,6 +21,8 @@
 namespace App\Tests\JsonStreamingTokenizer;
 
 use App\Parser\Json\JsonStreamingTokenizer;
+use App\Parser\Json\JsonToken\ObjectEndToken;
+use App\Parser\Json\JsonToken\ObjectStartToken;
 use App\Parser\StringStream;
 use App\Tests\Utils\JsonTokenizerAssertions;
 use App\Tests\Utils\StreamTestAssertions;
@@ -37,8 +39,8 @@ class JsonObjectStreamingTest extends TestCase
 
         $this->assertStream(
             $parser($stream),
-            fn ($token) => $this->assertInstanceOf(\App\Parser\Json\JsonToken\ObjectStartToken::class, $token),
-            fn ($token) => $this->assertInstanceOf(\App\Parser\Json\JsonToken\ObjectEndToken::class, $token),
+            fn ($token) => $this->assertInstanceOf(ObjectStartToken::class, $token),
+            fn ($token) => $this->assertInstanceOf(ObjectEndToken::class, $token),
         );
     }
 
@@ -49,10 +51,10 @@ class JsonObjectStreamingTest extends TestCase
 
         $this->assertStream(
             $parser($stream),
-            fn ($token) => $this->assertInstanceOf(\App\Parser\Json\JsonToken\ObjectStartToken::class, $token),
+            fn ($token) => $this->assertInstanceOf(ObjectStartToken::class, $token),
             fn ($token) => $this->assertTokenKey("foo", $token),
             fn ($token) => $this->assertTokenValue("bar", $token),
-            fn ($token) => $this->assertInstanceOf(\App\Parser\Json\JsonToken\ObjectEndToken::class, $token),
+            fn ($token) => $this->assertInstanceOf(ObjectEndToken::class, $token),
         );
     }
 
@@ -63,12 +65,12 @@ class JsonObjectStreamingTest extends TestCase
 
         $this->assertStream(
             $parser($stream),
-            fn ($token) => $this->assertInstanceOf(\App\Parser\Json\JsonToken\ObjectStartToken::class, $token),
+            fn ($token) => $this->assertInstanceOf(ObjectStartToken::class, $token),
             fn ($token) => $this->assertTokenKey("foo", $token),
             fn ($token) => $this->assertTokenValue("bar", $token),
             fn ($token) => $this->assertTokenKey("baz", $token),
             fn ($token) => $this->assertTokenValue("foo", $token),
-            fn ($token) => $this->assertInstanceOf(\App\Parser\Json\JsonToken\ObjectEndToken::class, $token),
+            fn ($token) => $this->assertInstanceOf(ObjectEndToken::class, $token),
         );
     }
 }

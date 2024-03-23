@@ -58,7 +58,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
     public function current(iterable $stops, Requirement ...$requirements)
     {
         $real = IterableUtils::toCollection($stops)
-            ->flatMap(ref([$this, 'getRealDepartures']))
+            ->flatMap(ref($this->getRealDepartures(...)))
             ->sortBy(t\property('estimated'))
         ;
 
@@ -95,7 +95,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
                 'scheduled' => $scheduled,
                 'estimated' => $estimated,
                 'stop'      => $stop,
-                'display'   => trim($delay['headsign']),
+                'display'   => trim((string) $delay['headsign']),
                 'vehicle'   => $this->reference->get(Vehicle::class, $delay['vehicleCode']),
                 'line'      => $lines->get($delay['routeId']) ?: Line::createFromArray([
                     'symbol' => $delay['routeId'],

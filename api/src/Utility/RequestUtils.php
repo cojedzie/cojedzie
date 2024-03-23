@@ -36,7 +36,7 @@ final class RequestUtils
             $bag = $request->$source;
 
             if ($bag->has($parameter)) {
-                return $bag->get($parameter);
+                return $bag->all()[$parameter];
             }
         }
 

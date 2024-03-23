@@ -26,7 +26,7 @@ class CallbackStreamingParser extends AbstractStreamingParser
 {
     public function __construct(
         private $callback,
-        private string $label
+        private readonly string $label
     ) {
     }
 

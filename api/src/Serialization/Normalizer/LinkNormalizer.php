@@ -14,7 +14,7 @@ class LinkNormalizer implements NormalizerInterface, CacheableSupportsMethodInte
     ) {
     }
 
-    public function normalize($object, string $format = null, array $context = [])
+    public function normalize($object, string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
     {
         $base = $this->normalizer->normalize($object, $format, $context);
 

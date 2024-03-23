@@ -41,23 +41,20 @@ class FederationContext implements LoggerAwareInterface
      */
     private readonly ?Uuid $serverId;
 
-    /**
-     * Base URL for hub managing federated servers.
-     */
-    private readonly string $hubBaseUrl;
-
-    /**
-     * Base URL for this specific connection.
-     */
-    private readonly ?string $advertisedUrl;
-
-    public function __construct(?string $connectionId, ?string $serverId, string $hubBaseUrl, ?string $advertisedUrl)
-    {
+    public function __construct(
+        ?string $connectionId,
+        ?string $serverId,
+        /**
+         * Base URL for hub managing federated servers.
+         */
+        private readonly string $hubBaseUrl,
+        /**
+         * Base URL for this specific connection.
+         */
+        private readonly ?string $advertisedUrl
+    ) {
         $this->connectionId = $connectionId ? Uuid::fromString($connectionId) : null;
         $this->serverId     = $serverId ? Uuid::fromString($serverId) : null;
-
-        $this->hubBaseUrl    = $hubBaseUrl;
-        $this->advertisedUrl = $advertisedUrl;
     }
 
     public function isFederated(): bool

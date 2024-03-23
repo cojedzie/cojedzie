@@ -53,8 +53,8 @@ final class EntityReferenceFactory
     {
         return match (true) {
             $object instanceof Referable  => $this->createEntityReference($object, $provider),
-            is_array($object)             => array_map(partial(ref([$this, 'createEntityReference']), _, $provider), $object),
-            $object instanceof Collection => $object->map(partial(ref([$this, 'createEntityReference']), _, $provider)),
+            is_array($object)             => array_map(partial(ref($this->createEntityReference(...)), _, $provider), $object),
+            $object instanceof Collection => $object->map(partial(ref($this->createEntityReference(...)), _, $provider)),
             default                       => throw InvalidArgumentException::invalidType(
                 'object',
                 $object,

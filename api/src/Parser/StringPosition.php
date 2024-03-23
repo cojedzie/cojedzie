@@ -31,7 +31,7 @@ class StringPosition implements PositionInterface
 
     public function advance($slice, int $length = null)
     {
-        $length = $length ?: strlen($slice);
+        $length = $length ?: strlen((string) $slice);
 
         if ($length === 1) {
             $nl = $slice === "\n";
@@ -41,18 +41,18 @@ class StringPosition implements PositionInterface
                 column: $nl ? 1 : $this->column + 1
             );
         } else {
-            $lines = preg_split('/\R/', $slice);
+            $lines = preg_split('/\R/', (string) $slice);
             $last  = end($lines);
 
             return new StringPosition(
                 offset: $this->offset + $length,
                 line: $this->line + count($lines) - 1,
-                column: count($lines) > 1 ? 1 + strlen($last) : $this->column + strlen($last),
+                column: count($lines) > 1 ? 1 + strlen((string) $last) : $this->column + strlen((string) $last),
             );
         }
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return "{$this->line}:{$this->column}";
     }

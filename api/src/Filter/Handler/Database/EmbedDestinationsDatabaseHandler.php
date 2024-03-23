@@ -55,7 +55,7 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
         $stops    = $event
             ->getData()
             ->map(t\property('id'))
-            ->map(f\apply([$this->id, 'generate'], $provider))
+            ->map(f\apply($this->id->generate(...), $provider))
             ->all();
 
         $destinations = collect(
@@ -87,7 +87,7 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
                         'lines' => $tracks
                             ->map(t\property('line'))
                             ->unique(t\property('id'))
-                            ->map(f\partial(f\ref([$this->converter, 'convert']), f\_, Dto::class))
+                            ->map(f\partial(f\ref($this->converter->convert(...)), f\_, Dto::class))
                             ->values(),
                     ])
                 )->values()

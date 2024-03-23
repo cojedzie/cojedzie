@@ -52,8 +52,8 @@ class JsonStreamingParserTest extends TestCase
         $this->assertStream(
             $parser($stream),
             fn ($value) => $this->assertSame('1', $value),
-            fn ($value) => $this->assertEquals(['foo' => 'bar'], $value),
-            fn ($value) => $this->assertEquals(['baz'], $value),
+            fn ($value) => $this->assertSame(['foo' => 'bar'], $value),
+            fn ($value) => $this->assertSame(['baz'], $value),
         );
     }
 }

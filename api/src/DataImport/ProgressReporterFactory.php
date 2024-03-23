@@ -64,6 +64,6 @@ class ProgressReporterFactory implements EventSubscriberInterface
             $this->isConsole = true;
         }
 
-        $this->isMessageConsumer = str_starts_with($event->getCommand()->getName(), 'messenger:');
+        $this->isMessageConsumer = str_starts_with((string) $event->getCommand()->getName(), 'messenger:');
     }
 }

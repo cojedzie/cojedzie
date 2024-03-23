@@ -41,6 +41,6 @@ abstract class AbstractDataImporter implements DataImporter
 
     public function getDescription(): string
     {
-        return $this::class;
+        return static::class;
     }
 }

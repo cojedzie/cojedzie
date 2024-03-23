@@ -31,7 +31,7 @@ use function Kadet\Functional\reflect;
 class RequirementsArgumentResolver implements ArgumentResolverInterface
 {
     public function __construct(
-        private ArgumentResolverInterface $resolver
+        private readonly ArgumentResolverInterface $resolver
     ) {
     }
 

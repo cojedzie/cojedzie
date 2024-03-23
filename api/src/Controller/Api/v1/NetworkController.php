@@ -74,7 +74,7 @@ class NetworkController extends Controller
         $discovery->addLink($request);
 
         $nodes = collect($connectionRepository->findAllReadyConnections())
-            ->map(f\partial(f\ref([$converter, 'convert']), f\_, Dto::class))
+            ->map(f\partial(f\ref($converter->convert(...)), f\_, Dto::class))
             ->prepend($this->getSelfNode())
         ;
 

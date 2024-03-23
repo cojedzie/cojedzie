@@ -34,7 +34,7 @@ class WhitespaceStreamingParser extends AbstractStreamingParser
         $output = "";
 
         while ($input = $stream->peek(1)) {
-            if (ctype_space($input)) {
+            if (ctype_space((string) $input)) {
                 // skip whitespace
                 $output .= $stream->read(1);
             } else {

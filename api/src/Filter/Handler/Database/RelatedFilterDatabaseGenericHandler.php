@@ -105,7 +105,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
             ->setParameter($parameter, $reference);
     }
 
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return [
             TrackByStopDatabaseHandler::class,

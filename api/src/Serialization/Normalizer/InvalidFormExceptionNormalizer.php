@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class InvalidFormExceptionNormalizer implements NormalizerInterface
 {
-    public function normalize($exception, $format = null, array $context = [])
+    public function normalize($exception, $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
     {
         /** @var InvalidFormException $exception */
 

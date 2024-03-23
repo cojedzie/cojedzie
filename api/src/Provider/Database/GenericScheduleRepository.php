@@ -66,9 +66,9 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ]);
 
         return $schedule->map(function (TripStopEntity $entity) use ($stop) {
-            $trip = $entity->getTrip();
+            $trip  = $entity->getTrip();
             $track = $trip->getTrack();
-            $line = $track->getLine();
+            $line  = $track->getLine();
             /** @var StopEntity $last */
             $last = $entity->getTrip()->getTrack()->getStopsInTrack()->last()->getStop();
 

@@ -70,7 +70,7 @@ class TrackStopsController extends Controller
             'description' => 'Select only records related to the specified stop.',
         ]
     )]
-    #[ParameterBindingProvider([__CLASS__, 'getParameterBindings'])]
+    #[ParameterBindingProvider([self::class, 'getParameterBindings'])]
     public function list(
         TrackRepository $trackRepository,
         array $requirements

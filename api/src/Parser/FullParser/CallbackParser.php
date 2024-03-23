@@ -26,7 +26,7 @@ class CallbackParser extends AbstractParser
 {
     public function __construct(
         private $callback,
-        private string $label
+        private readonly string $label
     ) {
     }
 

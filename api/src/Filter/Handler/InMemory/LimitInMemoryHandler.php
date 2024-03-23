@@ -4,14 +4,16 @@ namespace App\Filter\Handler\InMemory;
 
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\PostProcessingHandler;
+use App\Filter\Requirement\LimitConstraint;
+use Illuminate\Support\Collection;
 
 class LimitInMemoryHandler implements PostProcessingHandler
 {
     public function postProcess(PostProcessEvent $event)
     {
-        /** @var \Illuminate\Support\Collection $data */
+        /** @var Collection $data */
         $data = $event->getData();
-        /** @var \App\Filter\Requirement\LimitConstraint $modifier */
+        /** @var LimitConstraint $modifier */
         $modifier = $event->getRequirement();
 
         $event->setData(

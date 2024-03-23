@@ -61,62 +61,49 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
             ? $this->convert($entity, $type)
             : $this->parent->convert($entity, $type);
 
-        switch (true) {
-            case $entity instanceof OperatorEntity:
-                $result->fill([
-                    'name'  => $entity->getName(),
-                    'phone' => $entity->getPhone(),
-                    'email' => $entity->getEmail(),
-                    'url'   => $entity->getEmail(),
-                ]);
-                break;
-
-            case $entity instanceof LineEntity:
-                $result->fill([
-                    'id'       => $this->id->of($entity),
-                    'symbol'   => $entity->getSymbol(),
-                    'type'     => $entity->getType(),
-                    'operator' => $convert($entity->getOperator()),
-                    'night'    => $entity->isNight(),
-                    'fast'     => $entity->isFast(),
-                    'tracks'   => $this->collection($entity->getTracks())->map($convert),
-                ]);
-                break;
-
-            case $entity instanceof TrackEntity:
-                $result->fill([
-                    'variant'     => $entity->getVariant(),
-                    'description' => $entity->getDescription(),
-                    'stops'       => $this->collection($entity->getStopsInTrack())
-                        ->map(t\property('stop'))
-                        ->map($convert),
-                    'line'        => $convert($entity->getLine()),
-                    'destination' => $convert($entity->getFinal()->getStop()),
-                ]);
-                break;
-
-            case $entity instanceof StopEntity:
-                $result->fill([
-                    'name'        => $entity->getName(),
-                    'variant'     => $entity->getVariant(),
-                    'description' => $entity->getDescription(),
-                    'group'       => $entity->getGroup(),
-                    'location'    => new Location(
-                        $entity->getLongitude(),
-                        $entity->getLatitude()
-                    ),
-                ]);
-                break;
-
-            case $entity instanceof TripEntity:
-                $result->fill([
-                    'variant'  => $entity->getVariant(),
-                    'note'     => $entity->getNote(),
-                    'schedule' => $this->collection($entity->getStops())->map($convert),
-                    'track'    => $convert($entity->getTrack()),
-                ]);
-                break;
-        }
+        match (true) {
+            $entity instanceof OperatorEntity => $result->fill([
+                'name'  => $entity->getName(),
+                'phone' => $entity->getPhone(),
+                'email' => $entity->getEmail(),
+                'url'   => $entity->getEmail(),
+            ]),
+            $entity instanceof LineEntity => $result->fill([
+                'id'       => $this->id->of($entity),
+                'symbol'   => $entity->getSymbol(),
+                'type'     => $entity->getType(),
+                'operator' => $convert($entity->getOperator()),
+                'night'    => $entity->isNight(),
+                'fast'     => $entity->isFast(),
+                'tracks'   => $this->collection($entity->getTracks())->map($convert),
+            ]),
+            $entity instanceof TrackEntity => $result->fill([
+                'variant'     => $entity->getVariant(),
+                'description' => $entity->getDescription(),
+                'stops'       => $this->collection($entity->getStopsInTrack())
+                    ->map(t\property('stop'))
+                    ->map($convert),
+                'line'        => $convert($entity->getLine()),
+                'destination' => $convert($entity->getFinal()->getStop()),
+            ]),
+            $entity instanceof StopEntity => $result->fill([
+                'name'        => $entity->getName(),
+                'variant'     => $entity->getVariant(),
+                'description' => $entity->getDescription(),
+                'group'       => $entity->getGroup(),
+                'location'    => new Location(
+                    $entity->getLongitude(),
+                    $entity->getLatitude()
+                ),
+            ]),
+            $entity instanceof TripEntity => $result->fill([
+                'variant'  => $entity->getVariant(),
+                'note'     => $entity->getNote(),
+                'schedule' => $this->collection($entity->getStops())->map($convert),
+                'track'    => $convert($entity->getTrack()),
+            ]),
+            default => $result,
+        };
 
         return $result;
     }

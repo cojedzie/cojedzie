@@ -31,6 +31,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
@@ -65,7 +66,7 @@ class FederationController extends Controller
             'sentry_trace_sample' => 0.1,
         ]
     )]
-    public function connect(Request $request, EntityManagerInterface $manager, MessageBusInterface $bus)
+    public function connect(Request $request, EntityManagerInterface $manager, MessageBusInterface $bus): JsonResponse
     {
         $form = $this->createForm(
             CreateFederatedConnectionCommandType::class,
@@ -115,12 +116,11 @@ class FederationController extends Controller
      */
     #[Route(path: '/connections/{connection}', name: 'disconnect', methods: ['DELETE'], options: ['version' => '1.0'])]
     public function disconnect(
-        Request $request,
         FederatedConnectionEntity $connection,
         EntityManagerInterface $manager,
         HubInterface $hub,
         FederatedConnectionUpdateFactory $updateFactory
-    ) {
+    ): JsonResponse {
         if (in_array(
             $connection->getState(),
             [

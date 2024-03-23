@@ -38,7 +38,7 @@ use function get_debug_type;
 class JsonStreamingParser extends AbstractStreamingParser
 {
     public function __construct(
-        private BranchPathDecider $decider
+        private readonly BranchPathDecider $decider
     ) {
     }
 
@@ -62,8 +62,8 @@ class JsonStreamingParser extends AbstractStreamingParser
             PathDecision::Consume  => JsonValueAccumulatorParser::value()->streamify(),
             PathDecision::Continue => new class($path, $this) extends AbstractStreamingParser {
                 public function __construct(
-                    private string $path,
-                    private JsonStreamingParser $json,
+                    private readonly string $path,
+                    private readonly JsonStreamingParser $json,
                 ) {
                 }
 
@@ -98,13 +98,13 @@ class JsonStreamingParser extends AbstractStreamingParser
     public function object(string $path = ""): ParserInterface
     {
         return new class($path, $this) extends AbstractParser {
-            private ParserInterface $objectStart;
-            private ParserInterface $objectEnd;
-            private ParserInterface $key;
+            private readonly ParserInterface $objectStart;
+            private readonly ParserInterface $objectEnd;
+            private readonly ParserInterface $key;
 
             public function __construct(
-                private string $path,
-                private JsonStreamingParser $json,
+                private readonly string $path,
+                private readonly JsonStreamingParser $json,
             ) {
                 $this->objectStart = JsonStreamingParser::token(ObjectStartToken::class);
                 $this->objectEnd   = JsonStreamingParser::token(ObjectEndToken::class);
@@ -132,12 +132,12 @@ class JsonStreamingParser extends AbstractStreamingParser
     public function array(string $path = ""): ParserInterface
     {
         return new class($path, $this) extends AbstractParser {
-            private ParserInterface $arrayStart;
-            private ParserInterface $arrayEnd;
+            private readonly ParserInterface $arrayStart;
+            private readonly ParserInterface $arrayEnd;
 
             public function __construct(
-                private string $path,
-                private JsonStreamingParser $json,
+                private readonly string $path,
+                private readonly JsonStreamingParser $json,
             ) {
                 $this->arrayStart = JsonStreamingParser::token(ArrayStartToken::class);
                 $this->arrayEnd   = JsonStreamingParser::token(ArrayEndToken::class);
@@ -177,7 +177,7 @@ class JsonStreamingParser extends AbstractStreamingParser
         return $parsers[$class]
             ?? $parsers[$class] = new class($class) extends AbstractParser {
                 public function __construct(
-                    private string $class
+                    private readonly string $class
                 ) {
                 }
 

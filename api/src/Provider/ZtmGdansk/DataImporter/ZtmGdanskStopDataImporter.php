@@ -119,9 +119,9 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']) => [
                 'name'    => $name,
                 'variant' => trim(
-                    $stop['zoneName'] == 'Gdańsk'
+                    (string) ($stop['zoneName'] == 'Gdańsk'
                         ? $stop['stopCode'] ?? $stop['subName']
-                        : $gdyniaStopVariants[$stop['stopId']] ?? ''
+                        : $gdyniaStopVariants[$stop['stopId']] ?? '')
                 ) ?: null,
                 'latitude'   => $stop['stopLat'],
                 'longitude'  => $stop['stopLon'],

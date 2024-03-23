@@ -23,7 +23,7 @@ namespace App\Parser\Json;
 class BranchPathDecider implements PathDeciderInterface
 {
     private bool $visited = false;
-    private string $pattern;
+    private readonly string $pattern;
 
     public function __construct(string $branch)
     {

@@ -59,13 +59,13 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
         return $parser
             ?? $parser = new class() extends AbstractStreamingParser {
-                private ParserInterface $objectEnd;
-                private ParserInterface $objectStart;
+                private readonly ParserInterface $objectEnd;
+                private readonly ParserInterface $objectStart;
 
                 public function __construct()
                 {
                     $this->objectStart = FullParser::string('{')->map(fn () => new ObjectStartToken());
-                    $this->objectEnd   = FullParser::string('}')->map(fn () => new ObjectEndToken());
+                    $this->objectEnd = FullParser::string('}')->map(fn () => new ObjectEndToken());
                 }
 
                 public function label(): string
@@ -90,13 +90,13 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
         return $parser
             ?? $parser = new class() extends AbstractStreamingParser {
-                private ParserInterface $arrayStart;
-                private ParserInterface $arrayEnd;
+                private readonly ParserInterface $arrayStart;
+                private readonly ParserInterface $arrayEnd;
 
                 public function __construct()
                 {
                     $this->arrayStart = FullParser::string('[')->map(fn () => new ArrayStartToken());
-                    $this->arrayEnd   = FullParser::string(']')->map(fn () => new ArrayEndToken());
+                    $this->arrayEnd = FullParser::string(']')->map(fn () => new ArrayEndToken());
                 }
 
                 public function label(): string
@@ -132,7 +132,7 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
         return $parser
             ?? new class() extends AbstractParser {
-                private ParserInterface $quote;
+                private readonly ParserInterface $quote;
 
                 public function __construct()
                 {
@@ -150,7 +150,7 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
                     $result = [];
                     while (($input = $stream->read(1)) !== '"') {
-                        $result[] = match ($input) {
+                        $result[]                         = match ($input) {
                             '\\'     => match ($character = $stream->read(1)) {
                                 '\\' => '\\',
                                 '/'  => '/',
@@ -160,7 +160,7 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
                                 'b'  => mb_chr(8),
                                 'n'  => "\n",
                                 '"'  => '"',
-                                'u'  => mb_chr(hexdec($stream->read(4))),
+                                'u'  => mb_chr(hexdec((string) $stream->read(4))),
                                 // no break
                                 default => throw UnexpectedTokenException::create("Undefined escape sequence \\$character", $stream->tell()),
                             },
@@ -190,12 +190,12 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
         return $parser
             ?? $parser = new class() extends AbstractStreamingParser {
-                private ParserInterface $array;
-                private ParserInterface $object;
-                private ParserInterface $string;
-                private ParserInterface $boolean;
-                private ParserInterface $null;
-                private ParserInterface $number;
+                private readonly ParserInterface $array;
+                private readonly ParserInterface $object;
+                private readonly ParserInterface $string;
+                private readonly ParserInterface $boolean;
+                private readonly ParserInterface $null;
+                private readonly ParserInterface $number;
 
                 public function __construct()
                 {
@@ -217,13 +217,13 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
                     $first = $stream->peek(1);
 
                     match (true) {
-                        $first == '['                        => yield from $stream->consume($this->array),
-                        $first == '{'                        => yield from $stream->consume($this->object),
-                        $first == '"'                        => yield $stream->consume($this->string),
-                        $first == 'f' || $first == 't'       => yield $stream->consume($this->boolean),
-                        $first == 'n'                        => yield $stream->consume($this->null),
-                        ctype_digit($first) || $first == '-' => yield $stream->consume($this->number),
-                        default                              => throw UnexpectedTokenException::createWithExpected($first, '[, {, ", true, false, null or digit', $stream->tell()),
+                        $first == '['                                 => yield from $stream->consume($this->array),
+                        $first == '{'                                 => yield from $stream->consume($this->object),
+                        $first == '"'                                 => yield $stream->consume($this->string),
+                        $first == 'f' || $first == 't'                => yield $stream->consume($this->boolean),
+                        $first == 'n'                                 => yield $stream->consume($this->null),
+                        ctype_digit((string) $first) || $first == '-' => yield $stream->consume($this->number),
+                        default                                       => throw UnexpectedTokenException::createWithExpected($first, '[, {, ", true, false, null or digit', $stream->tell()),
                     };
 
                     return true;
@@ -265,8 +265,8 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
 
         return $parser
             ?? new class() extends AbstractStreamingParser {
-                private ParserInterface $colon;
-                private ParserInterface $key;
+                private readonly ParserInterface $colon;
+                private readonly ParserInterface $key;
 
                 public function __construct()
                 {

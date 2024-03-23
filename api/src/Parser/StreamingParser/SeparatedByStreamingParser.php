@@ -29,7 +29,7 @@ use JetBrains\PhpStorm\Pure;
 class SeparatedByStreamingParser extends AbstractStreamingParser
 {
     public function __construct(
-        private StreamingParserInterface $value,
+        private readonly StreamingParserInterface $value,
         private ParserInterface $separator
     ) {
         $this->separator = $this->separator->optional();

@@ -45,7 +45,7 @@ final class StreamingParser
     {
         $regex = sprintf('/%s/%s', $pattern, $flags);
         return new PredicateStreamingParser(
-            fn ($char) => preg_match($regex, $char),
+            fn ($char) => preg_match($regex, (string) $char),
             1,
             $pattern,
         );

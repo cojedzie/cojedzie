@@ -182,7 +182,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         foreach ($this->jsonStreamer->stream(self::TRACKS_URL, sprintf('%s.trips', date('Y-m-d'))) as $track) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['id']) => [
                 'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['routeId']),
-                'description' => preg_replace('/\(\d+\)/', '', $track['tripHeadsign']),
+                'description' => preg_replace('/\(\d+\)/', '', (string) $track['tripHeadsign']),
             ];
         }
     }

@@ -25,7 +25,7 @@ use App\Parser\StreamInterface;
 
 class SequenceStreamingParser extends AbstractStreamingParser
 {
-    private array $parsers;
+    private readonly array $parsers;
 
     public function __construct(StreamingParserInterface ...$parsers)
     {

@@ -134,7 +134,7 @@ abstract class DatabaseRepository implements Repository
         $query    = $builder->getQuery();
 
         $paginator = new Paginator($query);
-        $result    = collect($paginator)->map(\Closure::fromCallable([$this, 'convert']));
+        $result    = collect($paginator)->map(\Closure::fromCallable($this->convert(...)));
 
         return $reducers->reduce(fn ($result, $reducer) => $reducer($result), $result);
     }

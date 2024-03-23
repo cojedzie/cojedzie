@@ -71,7 +71,7 @@ class FieldFilterDatabaseHandler implements ModifierHandler
 
         if (!$modifier->isCaseSensitive()) {
             $where = sprintf('LOWER(%s)', $where);
-            $value = is_array($value) ? array_map(fn ($x) => mb_strtolower($x), $value) : mb_strtolower($value);
+            $value = is_array($value) ? array_map(fn ($x) => mb_strtolower((string) $x), $value) : mb_strtolower((string) $value);
         }
 
         $value = match ($operator) {

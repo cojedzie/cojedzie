@@ -29,19 +29,17 @@ class ZtmGdanskDisplayToStopResolver
             $item->expiresAfter(new \DateInterval('P1D'));
 
             $response = $this->httpClient->request('GET', self::DISPLAY_CODES_URL);
-            $json = json_decode($response->getContent(), true);
+            $json     = json_decode($response->getContent(), true);
 
-            $entries = array_map(function (array $display) {
-                return [
-                    $display['displayCode'],
-                    array_filter([
-                        $display['idStop1'],
-                        $display['idStop2'],
-                        $display['idStop3'],
-                        $display['idStop4'],
-                    ], fn ($id) => $id !== 0),
-                ];
-            }, $json['displays']);
+            $entries = array_map(fn (array $display) => [
+                $display['displayCode'],
+                array_filter([
+                    $display['idStop1'],
+                    $display['idStop2'],
+                    $display['idStop3'],
+                    $display['idStop4'],
+                ], fn ($id) => $id !== 0),
+            ], $json['displays']);
 
             return array_combine(
                 array_column($entries, 0),

@@ -59,7 +59,7 @@ class MessagesController extends Controller
      * )
      */
     #[Route(path: '', name: 'all', methods: ['GET'], options: ['version' => '1.1'])]
-    #[ParameterBindingProvider([__CLASS__, 'getParameterBinding'])]
+    #[ParameterBindingProvider([self::class, 'getParameterBinding'])]
     public function all(
         MessageRepository $messageRepository,
         iterable $requirements

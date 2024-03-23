@@ -3,24 +3,26 @@
 declare(strict_types=1);
 
 use PhpCsFixer\Fixer\ArrayNotation\ArraySyntaxFixer;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $parameters = $containerConfigurator->parameters();
+return static function (ECSConfig $config): void {
+    $parameters = $config->parameters();
     $parameters->set(Option::PATHS, [
-        __DIR__.'/src',
-        __DIR__.'/tests',
+        __DIR__ . '/src',
+        __DIR__ . '/ecs.php',
+        __DIR__ . '/rector.php',
+        __DIR__ . '/tests',
     ]);
 
-    $services = $containerConfigurator->services();
+    $services = $config->services();
 
     // run and fix, one by one
-    $containerConfigurator->import(SetList::SPACES);
-    $containerConfigurator->import(SetList::ARRAY);
-    $containerConfigurator->import(SetList::DOCBLOCK);
-    $containerConfigurator->import(SetList::PSR_12);
+    $config->import(SetList::SPACES);
+    $config->import(SetList::ARRAY);
+    $config->import(SetList::DOCBLOCK);
+    $config->import(SetList::PSR_12);
 
     $services->remove(\PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer::class);
     $services->remove(\PhpCsFixer\Fixer\ClassNotation\SingleTraitInsertPerStatementFixer::class);
@@ -50,7 +52,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->call('configure', [
             [
                 'elements' => [
-                    'method' => 'one',
+                    'method'   => 'one',
                     'property' => 'only_if_meta',
                 ],
             ],

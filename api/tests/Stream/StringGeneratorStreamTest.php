@@ -30,18 +30,18 @@ class StringGeneratorStreamTest extends TestCase
     {
         $stream = $this->createStream(['12', '3456', '789']);
 
-        $this->assertEquals('123', $stream->read(3));
-        $this->assertEquals('456', $stream->read(3));
-        $this->assertEquals('789', $stream->read(3));
+        $this->assertSame('123', $stream->read(3));
+        $this->assertSame('456', $stream->read(3));
+        $this->assertSame('789', $stream->read(3));
     }
 
     public function testStreamCanBePeekedContinuously()
     {
         $stream = $this->createStream(['12', '3456', '789']);
 
-        $this->assertEquals('123', $stream->peek(3));
-        $this->assertEquals('123', $stream->read(3));
-        $this->assertEquals('45678', $stream->peek(5));
+        $this->assertSame('123', $stream->peek(3));
+        $this->assertSame('123', $stream->read(3));
+        $this->assertSame('45678', $stream->peek(5));
     }
 
     public function testStreamCorrectlyDetectsEof()
@@ -58,7 +58,7 @@ class StringGeneratorStreamTest extends TestCase
     {
         $stream = $this->createStream(['1', '2', '3']);
 
-        $this->assertEquals('123', $stream->read(3));
+        $this->assertSame('123', $stream->read(3));
         $this->expectException(EndOfStreamException::class);
 
         $stream->read(1);
@@ -68,7 +68,7 @@ class StringGeneratorStreamTest extends TestCase
     {
         $stream = $this->createStream(['1', '2', '3']);
 
-        $this->assertEquals('123', $stream->read(3));
+        $this->assertSame('123', $stream->read(3));
         $this->expectException(EndOfStreamException::class);
 
         $stream->peek(1);
@@ -80,11 +80,11 @@ class StringGeneratorStreamTest extends TestCase
 
         $stream->read(3);
         $position = $stream->tell();
-        $this->assertEquals(3, $position->offset);
+        $this->assertSame(3, $position->offset);
 
         $stream->read(3);
         $position = $stream->tell();
-        $this->assertEquals(6, $position->offset);
+        $this->assertSame(6, $position->offset);
     }
 
     private function createGeneratorFromChunks(array $chunks)

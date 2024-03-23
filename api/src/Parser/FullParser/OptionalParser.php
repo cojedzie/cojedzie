@@ -28,7 +28,7 @@ use App\Parser\StreamInterface;
 class OptionalParser extends AbstractParser
 {
     public function __construct(
-        private ParserInterface $parser,
+        private readonly ParserInterface $parser,
     ) {
     }
 

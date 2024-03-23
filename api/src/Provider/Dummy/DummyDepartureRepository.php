@@ -50,8 +50,8 @@ class DummyDepartureRepository implements DepartureRepository
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
         ])->map(function ($departure) {
             [$symbol, $type, $display, $vehicle] = $departure;
-            $scheduled = new Carbon();
-            $estimated = (clone $scheduled)->addSeconds(40);
+            $scheduled                           = new Carbon();
+            $estimated                           = (clone $scheduled)->addSeconds(40);
 
             return Departure::createFromArray([
                 'scheduled' => $scheduled,

@@ -17,7 +17,7 @@ class ZtmGdanskMessageLineExtractor
         $set = new Set();
 
         foreach ($matches[1] as $match) {
-            $lines = preg_split('/\s*([,;]|i|oraz)\s*/i', trim($match));
+            $lines = preg_split('/\s*([,;]|i|oraz)\s*/i', trim((string) $match));
             $set->add(...$lines);
         }
 

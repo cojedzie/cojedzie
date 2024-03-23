@@ -30,24 +30,24 @@ class StringStreamTest extends TestCase
     {
         $stream = new StringStream('1234567890');
 
-        $this->assertEquals('123', $stream->read(3));
-        $this->assertEquals('456', $stream->read(3));
+        $this->assertSame('123', $stream->read(3));
+        $this->assertSame('456', $stream->read(3));
     }
 
     public function testStreamAllowsPeekingWithoutReading()
     {
         $stream = new StringStream('1234567890');
 
-        $this->assertEquals('123', $stream->peek(3));
-        $this->assertEquals('123', $stream->peek(3));
-        $this->assertEquals('123', $stream->read(3));
+        $this->assertSame('123', $stream->peek(3));
+        $this->assertSame('123', $stream->peek(3));
+        $this->assertSame('123', $stream->read(3));
     }
 
     public function testStreamReportsEndOfStreamCorrectly()
     {
         $stream = new StringStream('123');
 
-        $this->assertEquals('123', $stream->read(3));
+        $this->assertSame('123', $stream->read(3));
         $this->assertTrue($stream->eof());
     }
 
@@ -55,7 +55,7 @@ class StringStreamTest extends TestCase
     {
         $stream = new StringStream('123');
 
-        $this->assertEquals('123', $stream->read(3));
+        $this->assertSame('123', $stream->read(3));
         $this->expectException(EndOfStreamException::class);
 
         $stream->read(1);
@@ -65,7 +65,7 @@ class StringStreamTest extends TestCase
     {
         $stream = new StringStream('123');
 
-        $this->assertEquals('123', $stream->read(3));
+        $this->assertSame('123', $stream->read(3));
         $this->expectException(EndOfStreamException::class);
 
         $stream->peek(1);
@@ -77,10 +77,10 @@ class StringStreamTest extends TestCase
 
         $stream->read(3);
         $position = $stream->tell();
-        $this->assertEquals(3, $position->offset);
+        $this->assertSame(3, $position->offset);
 
         $stream->read(3);
         $position = $stream->tell();
-        $this->assertEquals(6, $position->offset);
+        $this->assertSame(6, $position->offset);
     }
 }

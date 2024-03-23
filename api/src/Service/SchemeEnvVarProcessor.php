@@ -24,14 +24,14 @@ use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
 
 class SchemeEnvVarProcessor implements EnvVarProcessorInterface
 {
-    public function getEnv(string $prefix, string $name, \Closure $getEnv)
+    public function getEnv(string $prefix, string $name, \Closure $getEnv): string
     {
         $env = $getEnv($name);
 
-        return strstr($env, ':', true);
+        return strstr((string) $env, ':', true);
     }
 
-    public static function getProvidedTypes()
+    public static function getProvidedTypes(): array
     {
         return [
             'scheme' => 'string',

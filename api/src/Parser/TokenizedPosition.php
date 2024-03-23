@@ -32,8 +32,8 @@ class TokenizedPosition implements PositionInterface
         return new static(offset: $this->offset + count($slice));
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->offset;
+        return (string) $this->offset;
     }
 }

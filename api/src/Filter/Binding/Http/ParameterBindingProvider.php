@@ -32,7 +32,7 @@ use function App\Functions\memoize;
 class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterface
 {
     use ContainerAwareTrait;
-    private ?ParameterBinding $memoized;
+    private ?ParameterBinding $memoized = null;
 
     public function __construct(
         private readonly mixed $source

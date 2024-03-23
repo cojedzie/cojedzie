@@ -27,8 +27,8 @@ class PredicateStreamingParser extends AbstractStreamingParser
 {
     public function __construct(
         private $predicate,
-        private int $length,
-        private string $label
+        private readonly int $length,
+        private readonly string $label
     ) {
     }
 
