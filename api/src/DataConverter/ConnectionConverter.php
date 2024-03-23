@@ -33,6 +33,7 @@ class ConnectionConverter implements Converter
     ) {
     }
 
+    #[\Override]
     public function convert($entity, string $type)
     {
         /** @var FederatedConnectionEntity $entity */
@@ -49,6 +50,7 @@ class ConnectionConverter implements Converter
         ]);
     }
 
+    #[\Override]
     public function supports($entity, string $type)
     {
         return $entity instanceof FederatedConnectionEntity

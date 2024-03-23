@@ -42,6 +42,7 @@ class RepositoryParameterConverter implements ParamConverterInterface
     ) {
     }
 
+    #[\Override]
     public function apply(Request $request, ParamConverter $configuration)
     {
         if (!$request->attributes->has('provider')) {
@@ -88,6 +89,7 @@ class RepositoryParameterConverter implements ParamConverterInterface
         }
     }
 
+    #[\Override]
     public function supports(ParamConverter $configuration)
     {
         $supports = any(array_map(curry('is_a', 3)(_, _, true), [

@@ -35,6 +35,7 @@ class FileStringStream implements StreamInterface
         $this->position = new StringPosition();
     }
 
+    #[\Override]
     public function read(int $max = 1)
     {
         $result = $this->peek($max);
@@ -46,6 +47,7 @@ class FileStringStream implements StreamInterface
         return $result;
     }
 
+    #[\Override]
     public function peek(int $max = 1)
     {
         if ($this->eof()) {
@@ -61,6 +63,7 @@ class FileStringStream implements StreamInterface
         return $max == 1 ? $this->buffer[0] : substr($this->buffer, 0, $max);
     }
 
+    #[\Override]
     public function eof(): bool
     {
         return feof($this->handle) && empty($this->buffer);

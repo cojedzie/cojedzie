@@ -33,9 +33,9 @@ use Ds\Set;
 
 class ZtmGdanskLineDataImporter extends AbstractDataImporter
 {
-    final public const RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
+    final public const string RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
 
-    final public const ZTM_TYPE_MAPPING = [
+    final public const array ZTM_TYPE_MAPPING = [
         2 => LineModel::TYPE_TRAM,
         5 => LineModel::TYPE_TROLLEYBUS,
     ];
@@ -47,6 +47,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     ) {
     }
 
+    #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->connection->beginTransaction();
@@ -104,6 +105,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         $this->connection->commit();
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return [
@@ -147,6 +149,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         return self::ZTM_TYPE_MAPPING[$line['agencyId']] ?? LineModel::TYPE_BUS;
     }
 
+    #[\Override]
     public function getDescription(): string
     {
         return "[ZTM Gdańsk] Import lines";

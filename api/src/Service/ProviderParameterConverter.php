@@ -34,6 +34,7 @@ class ProviderParameterConverter implements ParamConverterInterface
     ) {
     }
 
+    #[\Override]
     public function apply(Request $request, ParamConverter $configuration)
     {
         $provider = $request->get('provider');
@@ -46,6 +47,7 @@ class ProviderParameterConverter implements ParamConverterInterface
         }
     }
 
+    #[\Override]
     public function supports(ParamConverter $configuration)
     {
         return $configuration->getName() === 'provider' && is_a($configuration->getClass(), Provider::class, true);

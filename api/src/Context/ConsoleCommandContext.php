@@ -11,6 +11,7 @@ class ConsoleCommandContext implements EventSubscriberInterface
 {
     private ?Command $currentCommand = null;
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [

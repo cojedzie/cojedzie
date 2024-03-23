@@ -25,6 +25,7 @@ class FederationConnectionsDescribeCommand extends Command implements CustomSent
         parent::__construct();
     }
 
+    #[\Override]
     protected function configure()
     {
         $this
@@ -33,6 +34,7 @@ class FederationConnectionsDescribeCommand extends Command implements CustomSent
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

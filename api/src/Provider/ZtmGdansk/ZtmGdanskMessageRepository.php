@@ -39,7 +39,7 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRepository
 {
-    final public const MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
+    final public const string MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
     private ProviderEntity $provider;
 
     public function __construct(
@@ -55,6 +55,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         parent::__construct($handlerProviderFactory);
     }
 
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         $messagesFromApi = $this->getZtmMessages();

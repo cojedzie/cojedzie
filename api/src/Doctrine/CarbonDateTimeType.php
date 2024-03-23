@@ -27,6 +27,7 @@ use Doctrine\DBAL\Types\DateTimeType;
 
 class CarbonDateTimeType extends DateTimeType
 {
+    #[\Override]
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
         if ($value instanceof \DateTimeInterface) {
@@ -40,6 +41,7 @@ class CarbonDateTimeType extends DateTimeType
         return parent::convertToDatabaseValue($value, $platform);
     }
 
+    #[\Override]
     public function convertToPHPValue($value, AbstractPlatform $platform): ?Carbon
     {
         if (null === $value || $value instanceof Carbon) {

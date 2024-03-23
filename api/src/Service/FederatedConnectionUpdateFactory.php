@@ -28,12 +28,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class FederatedConnectionUpdateFactory
 {
-    final public const TOPIC = 'network/nodes';
+    final public const string TOPIC = 'network/nodes';
 
-    final public const EVENT_NODE_JOINED  = 'node-joined';
-    final public const EVENT_NODE_LEFT    = 'node-left';
-    final public const EVENT_NODE_SUSPEND = 'node-suspend';
-    final public const EVENT_NODE_RESUME  = 'node-resume';
+    final public const string EVENT_NODE_JOINED  = 'node-joined';
+    final public const string EVENT_NODE_LEFT    = 'node-left';
+    final public const string EVENT_NODE_SUSPEND = 'node-suspend';
+    final public const string EVENT_NODE_RESUME  = 'node-resume';
 
     public function __construct(
         private readonly SerializerInterface $serializer,

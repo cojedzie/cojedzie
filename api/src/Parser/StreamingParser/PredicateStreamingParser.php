@@ -32,11 +32,13 @@ class PredicateStreamingParser extends AbstractStreamingParser
     ) {
     }
 
+    #[\Override]
     public function label(): string
     {
         return $this->label;
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream): \Generator
     {
         $input = $stream->peek($this->length);

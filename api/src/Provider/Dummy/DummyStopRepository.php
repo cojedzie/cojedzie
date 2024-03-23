@@ -55,10 +55,12 @@ class DummyStopRepository implements StopRepository
         return collect();
     }
 
+    #[\Override]
     public function first(Requirement ...$requirements)
     {
     }
 
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         return collect();

@@ -24,6 +24,7 @@ use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
 
 class SchemeEnvVarProcessor implements EnvVarProcessorInterface
 {
+    #[\Override]
     public function getEnv(string $prefix, string $name, \Closure $getEnv): string
     {
         $env = $getEnv($name);
@@ -31,6 +32,7 @@ class SchemeEnvVarProcessor implements EnvVarProcessorInterface
         return strstr((string) $env, ':', true);
     }
 
+    #[\Override]
     public static function getProvidedTypes(): array
     {
         return [

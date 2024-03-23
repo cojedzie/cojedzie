@@ -26,6 +26,7 @@ use App\Provider\Provider;
 
 class ProviderConverter implements Converter
 {
+    #[\Override]
     public function convert($entity, string $type)
     {
         /** @var Provider $entity */
@@ -40,6 +41,7 @@ class ProviderConverter implements Converter
         ]);
     }
 
+    #[\Override]
     public function supports($entity, string $type)
     {
         return $entity instanceof Provider

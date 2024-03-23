@@ -42,6 +42,7 @@ class FederationDisconnectCommand extends Command implements CustomSentrySampleR
         parent::__construct(self::$defaultName);
     }
 
+    #[\Override]
     protected function configure()
     {
         $this
@@ -49,6 +50,7 @@ class FederationDisconnectCommand extends Command implements CustomSentrySampleR
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

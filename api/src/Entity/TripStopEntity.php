@@ -66,6 +66,7 @@ class TripStopEntity implements Fillable, Referable
     #[ORM\Column(type: 'datetime', nullable: false)]
     private Carbon $departure;
 
+    #[\Override]
     public function getId(): ?int
     {
         return $this->id;

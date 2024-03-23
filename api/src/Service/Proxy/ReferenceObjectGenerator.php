@@ -27,6 +27,7 @@ use ReflectionClass;
 
 class ReferenceObjectGenerator implements ProxyGeneratorInterface
 {
+    #[\Override]
     public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator)
     {
         $interfaces = [

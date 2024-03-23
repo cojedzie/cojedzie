@@ -36,6 +36,7 @@ class ReferenceFactory extends AbstractBaseFactory
         return $object;
     }
 
+    #[\Override]
     protected function getGenerator(): ProxyGeneratorInterface
     {
         return new ReferenceObjectGenerator();

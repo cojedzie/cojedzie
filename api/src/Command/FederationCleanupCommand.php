@@ -41,11 +41,13 @@ class FederationCleanupCommand extends Command implements CustomSentrySampleRate
         parent::__construct(self::$defaultName);
     }
 
+    #[\Override]
     protected function configure()
     {
         $this->setDescription(self::$defaultDescription);
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

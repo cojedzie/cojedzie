@@ -35,6 +35,7 @@ class SeparatedByStreamingParser extends AbstractStreamingParser
         $this->separator = $this->separator->optional();
     }
 
+    #[\Override]
     public function label(): string
     {
         return sprintf(
@@ -45,6 +46,7 @@ class SeparatedByStreamingParser extends AbstractStreamingParser
     }
 
     #[Pure]
+    #[\Override]
     public function map(callable $transform): StreamingParserInterface
     {
         return new static(
@@ -53,6 +55,7 @@ class SeparatedByStreamingParser extends AbstractStreamingParser
         );
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream): \Generator
     {
         do {

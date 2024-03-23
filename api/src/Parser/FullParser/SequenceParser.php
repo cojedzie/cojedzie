@@ -32,11 +32,13 @@ class SequenceParser extends AbstractParser
         $this->parsers = $parsers;
     }
 
+    #[\Override]
     public function label(): string
     {
         return implode(' then ', array_map(fn (ParserInterface $parser) => $parser->label(), $this->parsers));
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         return array_map($stream->consume(...), $this->parsers);

@@ -41,35 +41,35 @@ class FederatedConnectionEntity implements Referable, Fillable
     /**
      * Connection is new and awaiting it's first check.
      */
-    final public const STATE_NEW = "new";
+    final public const string STATE_NEW = "new";
 
     /**
      * Connection is open and ready to accept connections.
      */
-    final public const STATE_READY = "ready";
+    final public const string STATE_READY = "ready";
 
     /**
      * Connection is open but is not accepting connections. It can happen when for example node is synchronising data.
      */
-    final public const STATE_SUSPENDED = "suspended";
+    final public const string STATE_SUSPENDED = "suspended";
 
     /**
      * Connection has some problems and should be checked later.
      */
-    final public const STATE_BACKOFF = "backoff";
+    final public const string STATE_BACKOFF = "backoff";
 
     /**
      * Connection failed too many times and was closed.
      */
-    final public const STATE_ERROR = "error";
+    final public const string STATE_ERROR = "error";
 
     /**
      * Connection was closed by the server.
      */
-    final public const STATE_CLOSED = "closed";
+    final public const string STATE_CLOSED = "closed";
 
-    final public const OPEN_STATES   = [self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF];
-    final public const CLOSED_STATES = [self::STATE_ERROR, self::STATE_CLOSED];
+    final public const array OPEN_STATES   = [self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF];
+    final public const array CLOSED_STATES = [self::STATE_ERROR, self::STATE_CLOSED];
 
     /**
      * Unique identifier for this particular connection.
@@ -143,6 +143,7 @@ class FederatedConnectionEntity implements Referable, Fillable
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $lastStatus = null;
 
+    #[\Override]
     public function getId(): Uuid
     {
         return $this->id;

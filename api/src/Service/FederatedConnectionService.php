@@ -32,8 +32,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class FederatedConnectionService
 {
-    final public const ENDPOINT_CONNECT    = '/api/v1/federation/connections';
-    final public const ENDPOINT_DISCONNECT = '/api/v1/federation/connections/{id}';
+    final public const string ENDPOINT_CONNECT    = '/api/v1/federation/connections';
+    final public const string ENDPOINT_DISCONNECT = '/api/v1/federation/connections/{id}';
 
     public function __construct(
         private readonly FederationContext $context,

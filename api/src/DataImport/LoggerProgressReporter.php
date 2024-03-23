@@ -25,8 +25,8 @@ use Psr\Log\LogLevel;
 
 class LoggerProgressReporter implements ProgressReporterInterface
 {
-    private const PROGRESS_REPORT_MINIMAL_INTERVAL = 5;
-    private float $lastProgressReported            = 0;
+    private const int PROGRESS_REPORT_MINIMAL_INTERVAL = 5;
+    private float $lastProgressReported                = 0;
 
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -34,6 +34,7 @@ class LoggerProgressReporter implements ProgressReporterInterface
     ) {
     }
 
+    #[\Override]
     public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
     {
         if (!$finished && !$this->shouldLogProgressMessage()) {
@@ -55,6 +56,7 @@ class LoggerProgressReporter implements ProgressReporterInterface
         $this->lastProgressReported = microtime(true);
     }
 
+    #[\Override]
     public function milestone(string $comment, MilestoneType $type = MilestoneType::Info): void
     {
         $this->logger->log(
@@ -68,6 +70,7 @@ class LoggerProgressReporter implements ProgressReporterInterface
         );
     }
 
+    #[\Override]
     public function subtask(string $name): ProgressReporterInterface
     {
         return new self(

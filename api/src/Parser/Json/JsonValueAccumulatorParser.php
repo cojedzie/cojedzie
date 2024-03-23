@@ -33,11 +33,13 @@ use App\Parser\StreamInterface;
 
 class JsonValueAccumulatorParser extends AbstractParser
 {
+    #[\Override]
     public function label(): string
     {
         return 'JSON value';
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         return $stream->consume(self::value());

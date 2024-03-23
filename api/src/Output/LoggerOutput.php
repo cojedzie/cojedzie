@@ -35,6 +35,7 @@ class LoggerOutput extends Output
         parent::__construct($verbosity, $decorated, $formatter);
     }
 
+    #[\Override]
     protected function doWrite(string $message, bool $newline)
     {
         $this->logger->info($message);

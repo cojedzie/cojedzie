@@ -43,6 +43,7 @@ class FederationConnectCommand extends Command implements CustomSentrySampleRate
         parent::__construct(self::$defaultName);
     }
 
+    #[\Override]
     protected function configure()
     {
         $this
@@ -50,6 +51,7 @@ class FederationConnectCommand extends Command implements CustomSentrySampleRate
         ;
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

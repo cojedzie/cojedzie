@@ -44,6 +44,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     /**
      * @param Entity $entity
      */
+    #[\Override]
     public function convert($entity, string $type)
     {
         if (array_key_exists($key = $entity::class . ':' . $this->getId($entity), $this->cache)) {
@@ -158,12 +159,14 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         return $this->reference->get($class, ['id' => $id]);
     }
 
+    #[\Override]
     public function supports($entity, string $type)
     {
         return $entity instanceof Entity
             && ($type === Dto::class || is_subclass_of($type, Dto::class, true));
     }
 
+    #[\Override]
     public function reset()
     {
         $this->cache = [];

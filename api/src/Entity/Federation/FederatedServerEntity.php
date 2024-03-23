@@ -81,6 +81,7 @@ class FederatedServerEntity implements Referable, Fillable
         $this->connections = new ArrayCollection();
     }
 
+    #[\Override]
     public function getId(): Uuid
     {
         return $this->id;

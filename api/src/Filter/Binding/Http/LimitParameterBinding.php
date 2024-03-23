@@ -31,8 +31,8 @@ use function App\Functions\clamp;
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER)]
 class LimitParameterBinding implements ParameterBinding
 {
-    private const LIMIT_QUERY_PARAMETER  = 'limit';
-    private const OFFSET_QUERY_PARAMETER = 'offset';
+    private const string LIMIT_QUERY_PARAMETER  = 'limit';
+    private const string OFFSET_QUERY_PARAMETER = 'offset';
 
     public function __construct(
         public readonly int $defaultLimit = 20,
@@ -40,6 +40,7 @@ class LimitParameterBinding implements ParameterBinding
     ) {
     }
 
+    #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
         yield new LimitConstraint(
@@ -48,6 +49,7 @@ class LimitParameterBinding implements ParameterBinding
         );
     }
 
+    #[\Override]
     public function getDocumentation(Route $route): iterable
     {
         yield new Parameter(

@@ -27,6 +27,7 @@ use App\Filter\Requirement\LimitConstraint;
 
 class LimitDatabaseHandler implements ModifierHandler
 {
+    #[\Override]
     public function process(HandleRequirementEvent $event)
     {
         if (!$event instanceof HandleDatabaseRequirementEvent) {

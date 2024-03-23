@@ -12,6 +12,7 @@ class MetadataLoader implements LoaderInterface
     ) {
     }
 
+    #[\Override]
     public function loadClassMetadata(ClassMetadataInterface $classMetadata): bool
     {
         $loaded = $this->decorated->loadClassMetadata($classMetadata);

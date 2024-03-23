@@ -78,6 +78,7 @@ class FieldFilterParameterBinding implements ParameterBinding
     ) {
     }
 
+    #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
         foreach ($request->query as $parameter => $value) {
@@ -101,6 +102,7 @@ class FieldFilterParameterBinding implements ParameterBinding
         }
     }
 
+    #[\Override]
     public function getDocumentation(Route $route): iterable
     {
         yield setup(new Parameter(

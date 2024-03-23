@@ -42,11 +42,13 @@ class JsonStreamingParser extends AbstractStreamingParser
     ) {
     }
 
+    #[\Override]
     public function label(): string
     {
         return 'JSON streaming values';
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream): \Generator
     {
         try {

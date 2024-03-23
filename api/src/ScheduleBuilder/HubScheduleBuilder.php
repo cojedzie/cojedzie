@@ -31,6 +31,7 @@ class HubScheduleBuilder implements ScheduleBuilder
     ) {
     }
 
+    #[\Override]
     public function buildSchedule(Schedule $schedule): void
     {
         if ($this->federationContext->isHub()) {

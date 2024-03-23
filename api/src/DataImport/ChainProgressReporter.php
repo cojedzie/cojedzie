@@ -29,6 +29,7 @@ class ChainProgressReporter implements ProgressReporterInterface
         $this->reporters = $reporters;
     }
 
+    #[\Override]
     public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
     {
         foreach ($this->reporters as $reporter) {
@@ -36,6 +37,7 @@ class ChainProgressReporter implements ProgressReporterInterface
         }
     }
 
+    #[\Override]
     public function milestone(string $comment, MilestoneType $type = MilestoneType::Info): void
     {
         foreach ($this->reporters as $reporter) {
@@ -43,6 +45,7 @@ class ChainProgressReporter implements ProgressReporterInterface
         }
     }
 
+    #[\Override]
     public function subtask(string $name): ProgressReporterInterface
     {
         $reporters = array_map(

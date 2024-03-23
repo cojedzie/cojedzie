@@ -34,7 +34,7 @@ use Ds\Set;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
-    final public const SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
+    final public const string SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
 
     public function __construct(
         private readonly Connection $connection,
@@ -43,6 +43,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     ) {
     }
 
+    #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $existingLineIdsQueryResult = $this->connection->createQueryBuilder()
@@ -177,6 +178,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         }
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return [
@@ -186,6 +188,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         ];
     }
 
+    #[\Override]
     public function getDescription(): string
     {
         return "[ZTM Gdańsk] Import schedule";

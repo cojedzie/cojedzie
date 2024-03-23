@@ -29,10 +29,10 @@ class Message implements Fillable, Dto, Referable, HasRefs
     use FillTrait;
     use ReferableTrait;
 
-    final public const TYPE_INFO      = 'info';
-    final public const TYPE_BREAKDOWN = 'breakdown';
-    final public const TYPE_UNKNOWN   = 'unknown';
-    final public const TYPES          = [
+    final public const string TYPE_INFO      = 'info';
+    final public const string TYPE_BREAKDOWN = 'breakdown';
+    final public const string TYPE_UNKNOWN   = 'unknown';
+    final public const array TYPES           = [
         self::TYPE_UNKNOWN,
         self::TYPE_INFO,
         self::TYPE_BREAKDOWN,
@@ -108,6 +108,7 @@ class Message implements Fillable, Dto, Referable, HasRefs
         $this->validTo = $validTo;
     }
 
+    #[\Override]
     public function getRefs(): MessageRefs
     {
         return $this->refs;

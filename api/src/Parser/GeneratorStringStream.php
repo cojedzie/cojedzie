@@ -34,6 +34,7 @@ class GeneratorStringStream implements StreamInterface
         $this->position = new StringPosition();
     }
 
+    #[\Override]
     public function read(int $max = 1)
     {
         $result = $this->peek($max);
@@ -44,6 +45,7 @@ class GeneratorStringStream implements StreamInterface
         return $result;
     }
 
+    #[\Override]
     public function peek(int $max = 1)
     {
         $this->fillBuffer($max);
@@ -55,6 +57,7 @@ class GeneratorStringStream implements StreamInterface
         return substr($this->buffer, $this->offset, $max);
     }
 
+    #[\Override]
     public function eof(): bool
     {
         return empty($this->buffer) && !$this->generator->valid();

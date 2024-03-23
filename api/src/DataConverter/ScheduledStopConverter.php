@@ -30,6 +30,7 @@ class ScheduledStopConverter implements Converter, RecursiveConverter
 {
     use RecursiveConverterTrait;
 
+    #[\Override]
     public function convert($entity, string $type)
     {
         if ($entity instanceof TrackStopEntity) {
@@ -54,6 +55,7 @@ class ScheduledStopConverter implements Converter, RecursiveConverter
         return null;
     }
 
+    #[\Override]
     public function supports($entity, string $type)
     {
         return ($entity instanceof TripStopEntity || $entity instanceof TrackStopEntity)

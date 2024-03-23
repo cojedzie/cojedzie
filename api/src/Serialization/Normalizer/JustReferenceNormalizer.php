@@ -31,6 +31,7 @@ class JustReferenceNormalizer implements NormalizerInterface, CacheableSupportsM
     ) {
     }
 
+    #[\Override]
     public function normalize($object, string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
     {
         return $this->normalizer->normalize(
@@ -43,11 +44,13 @@ class JustReferenceNormalizer implements NormalizerInterface, CacheableSupportsM
         );
     }
 
+    #[\Override]
     public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof JustReference;
     }
 
+    #[\Override]
     public function hasCacheableSupportsMethod(): bool
     {
         return true;

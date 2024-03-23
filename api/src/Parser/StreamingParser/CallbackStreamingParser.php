@@ -30,11 +30,13 @@ class CallbackStreamingParser extends AbstractStreamingParser
     ) {
     }
 
+    #[\Override]
     public function label(): string
     {
         return $this->label;
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream): \Generator
     {
         $generator = ($this->callback)($stream);

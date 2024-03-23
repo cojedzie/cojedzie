@@ -33,6 +33,7 @@ use Illuminate\Support\Collection;
 
 class GenericScheduleRepository extends DatabaseRepository implements ScheduleRepository
 {
+    #[\Override]
     public function getDeparturesForStop(
         Stop $stop,
         Carbon $from,
@@ -84,6 +85,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
         });
     }
 
+    #[\Override]
     public function all(Requirement ...$requirements): Collection
     {
         $builder = $this->em

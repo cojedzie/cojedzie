@@ -32,11 +32,13 @@ class SequenceStreamingParser extends AbstractStreamingParser
         $this->parsers = $parsers;
     }
 
+    #[\Override]
     public function label(): string
     {
         return implode(' then ', array_map(fn ($consumer) => $consumer->label(), $this->parsers));
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         foreach ($this->parsers as $parser) {

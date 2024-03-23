@@ -30,6 +30,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CreateFederatedConnectionCommandType extends AbstractType
 {
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -54,6 +55,7 @@ class CreateFederatedConnectionCommandType extends AbstractType
         ;
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

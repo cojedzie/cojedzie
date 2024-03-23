@@ -30,6 +30,7 @@ class BranchPathDecider implements PathDeciderInterface
         $this->pattern = ".$branch.*";
     }
 
+    #[\Override]
     public function decide(string $path): PathDecision
     {
         if (fnmatch($this->pattern, $path)) {

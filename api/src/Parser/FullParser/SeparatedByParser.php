@@ -33,6 +33,7 @@ class SeparatedByParser extends AbstractParser
         $this->separator = $this->separator->optional();
     }
 
+    #[\Override]
     public function label(): string
     {
         return sprintf(
@@ -43,6 +44,7 @@ class SeparatedByParser extends AbstractParser
     }
 
     #[Pure]
+    #[\Override]
     public function map(callable $transform): ParserInterface
     {
         return new static(
@@ -51,6 +53,7 @@ class SeparatedByParser extends AbstractParser
         );
     }
 
+    #[\Override]
     public function __invoke(StreamInterface $stream)
     {
         $results = [];

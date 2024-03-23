@@ -27,11 +27,13 @@ class TokenizedPosition implements PositionInterface
     ) {
     }
 
+    #[\Override]
     public function advance($slice)
     {
         return new static(offset: $this->offset + count($slice));
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return (string) $this->offset;

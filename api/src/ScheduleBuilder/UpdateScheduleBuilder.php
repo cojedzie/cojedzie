@@ -25,6 +25,7 @@ use Zenstruck\ScheduleBundle\Schedule\ScheduleBuilder;
 
 class UpdateScheduleBuilder implements ScheduleBuilder
 {
+    #[\Override]
     public function buildSchedule(Schedule $schedule): void
     {
         $schedule
