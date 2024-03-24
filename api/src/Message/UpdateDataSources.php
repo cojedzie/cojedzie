@@ -18,21 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\ScheduleBuilder;
+namespace App\Message;
 
-use Zenstruck\ScheduleBundle\Schedule;
-use Zenstruck\ScheduleBundle\Schedule\ScheduleBuilder;
+use App\Utility\CustomSentrySampleRateInterface;
 
-class UpdateScheduleBuilder implements ScheduleBuilder
+final class UpdateDataSources implements CustomSentrySampleRateInterface
 {
     #[\Override]
-    public function buildSchedule(Schedule $schedule): void
+    public function getSentrySampleRate(): float
     {
-        $schedule
-            ->addCommand('app:update', '--async')
-            ->description('Synchronise data from external sources.')
-            ->daily()
-            ->at(4)
-        ;
+        return 0.01;
     }
 }

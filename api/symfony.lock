@@ -114,9 +114,6 @@
     "doctrine/sql-formatter": {
         "version": "1.1.1"
     },
-    "dragonmantank/cron-expression": {
-        "version": "v2.3.1"
-    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
@@ -739,9 +736,6 @@
     },
     "webmozart/path-util": {
         "version": "2.3.0"
-    },
-    "zenstruck/schedule-bundle": {
-        "version": "v1.1.2"
     },
     "zircote/swagger-php": {
         "version": "2.0.14"

@@ -18,26 +18,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Message;
+namespace App\MessageHandler;
 
-use App\Utility\CustomSentrySampleRateInterface;
-use Symfony\Component\Uid\Uuid;
+use App\Message\UpdateDataSources;
+use App\Service\DataUpdater;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final readonly class CheckConnectionMessage implements CustomSentrySampleRateInterface
+#[AsMessageHandler]
+final class UpdateDataSourcesMessageHandler implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     public function __construct(
-        private Uuid $connectionId
+        private readonly DataUpdater $updater
     ) {
     }
 
-    public function getConnectionId(): Uuid
+    public function __invoke(UpdateDataSources $message)
     {
-        return $this->connectionId;
-    }
-
-    #[\Override]
-    public function getSentrySampleRate(): float
-    {
-        return 0.01;
+        try {
+            $this->updater->update();
+        } catch (\Exception $exception) {
+            $this->logger->critical($exception->getMessage(), [
+                'backtrace' => $exception->getTraceAsString(),
+            ]);
+        }
     }
 }

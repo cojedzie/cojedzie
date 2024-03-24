@@ -45,12 +45,12 @@
     "symfony/property-info": "6.4.*",
     "symfony/redis-messenger": "6.4.*",
     "symfony/runtime": "6.4.*",
+    "symfony/scheduler": "6.4.*",
     "symfony/serializer": "6.4.*",
     "symfony/twig-bundle": "^6.4",
     "symfony/uid": "6.4.*",
     "symfony/validator": "6.4.*",
-    "symfony/yaml": "^6.4",
-    "zenstruck/schedule-bundle": "^1.2"
+    "symfony/yaml": "^6.4"
   },
   "config": {
     "preferred-install": {

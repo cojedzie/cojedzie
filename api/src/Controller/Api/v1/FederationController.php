@@ -24,7 +24,7 @@ use App\Controller\Controller;
 use App\Entity\Federation\FederatedConnectionEntity;
 use App\Exception\InvalidFormException;
 use App\Form\CreateFederatedConnectionCommandType;
-use App\Message\CheckConnectionMessage;
+use App\Message\CheckFederatedConnection;
 use App\Service\FederatedConnectionUpdateFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -93,7 +93,7 @@ class FederationController extends Controller
         $manager->flush();
 
         $bus->dispatch(
-            new CheckConnectionMessage($connection->getId()),
+            new CheckFederatedConnection($connection->getId()),
             [new DelayStamp(10000)]
         );
 

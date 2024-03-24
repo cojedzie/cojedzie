@@ -31,6 +31,14 @@ function encapsulate($value)
     };
 }
 
+/**
+ * @template T
+ *
+ * @param T $value
+ * @param callable<void, T> $callback
+ *
+ * @return mixed
+ */
 function setup($value, $callback)
 {
     $callback($value);

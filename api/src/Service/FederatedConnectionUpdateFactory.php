@@ -41,27 +41,27 @@ class FederatedConnectionUpdateFactory
     ) {
     }
 
-    public function createNodeJoinedUpdate(FederatedConnectionEntity $connection)
+    public function createNodeJoinedUpdate(FederatedConnectionEntity $connection): Update
     {
         return $this->createUpdate(self::EVENT_NODE_JOINED, $connection);
     }
 
-    public function createNodeLeftUpdate(FederatedConnectionEntity $connection)
+    public function createNodeLeftUpdate(FederatedConnectionEntity $connection): Update
     {
         return $this->createUpdate(self::EVENT_NODE_LEFT, $connection);
     }
 
-    public function createNodeSuspendUpdate(FederatedConnectionEntity $connection)
+    public function createNodeSuspendUpdate(FederatedConnectionEntity $connection): Update
     {
         return $this->createUpdate(self::EVENT_NODE_SUSPEND, $connection);
     }
 
-    public function createNodeResumeUpdate(FederatedConnectionEntity $connection)
+    public function createNodeResumeUpdate(FederatedConnectionEntity $connection): Update
     {
         return $this->createUpdate(self::EVENT_NODE_RESUME, $connection);
     }
 
-    private function createUpdate($event, FederatedConnectionEntity $connection)
+    private function createUpdate($event, FederatedConnectionEntity $connection): Update
     {
         return new Update(
             self::TOPIC,

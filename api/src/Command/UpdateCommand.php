@@ -20,7 +20,7 @@
 
 namespace App\Command;
 
-use App\Message\UpdateDataMessage;
+use App\Message\UpdateDataSources;
 use App\Service\DataUpdater;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,17 +30,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class UpdateCommand extends Command
 {
-    protected static $defaultName = 'app:update';
-
     public function __construct(
         private readonly DataUpdater $updater,
         private readonly MessageBusInterface $bus
     ) {
-        parent::__construct();
+        parent::__construct('app:update');
     }
 
     #[\Override]
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption(
             'async',
@@ -54,7 +52,7 @@ class UpdateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('async')) {
-            $this->bus->dispatch(new UpdateDataMessage());
+            $this->bus->dispatch(new UpdateDataSources());
             $output->writeln("Update request sent to message queue.");
         } else {
             $this->updater->update();

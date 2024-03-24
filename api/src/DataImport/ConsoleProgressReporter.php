@@ -50,9 +50,8 @@ class ConsoleProgressReporter implements ProgressReporterInterface
             $this->updateProgressBarMessage();
         }
 
-        if ($comment !== @$this->progressBar->getMessage()) {
+        if ($comment !== self::getCurrentComment($this->progressBar)) {
             $this->progressBar->setMessage($comment);
-            $this->updateProgressBarMessage();
         }
 
         $this->progressBar->setProgress($progress);
@@ -102,7 +101,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
         );
     }
 
-    private function updateProgressBarMessage()
+    private function updateProgressBarMessage(): void
     {
         $format = $this->indentation();
 
@@ -112,19 +111,19 @@ class ConsoleProgressReporter implements ProgressReporterInterface
             $format .= '[%bar%] %current% %elapsed:6s% %memory:6s%';
         }
 
-        if (@$this->progressBar->getMessage()) {
+        if (self::getCurrentComment($this->progressBar)) {
             $format .= ' %message%';
         }
 
         $this->progressBar->setFormat($format);
     }
 
-    private function indentation()
+    private function indentation(): string
     {
         return str_repeat('  ', $this->depth);
     }
 
-    private function getSectionColor()
+    private function getSectionColor(): string
     {
         return match (true) {
             $this->depth === 0 => 'green',
@@ -132,5 +131,15 @@ class ConsoleProgressReporter implements ProgressReporterInterface
             $this->depth === 2 => 'bright-yellow',
             $this->depth >= 3  => 'yellow'
         };
+    }
+
+    // https://github.com/symfony/symfony/issues/54386
+    private static function getCurrentComment(ProgressBar $progressBar): ?string
+    {
+        try {
+            return @$progressBar->getMessage();
+        } catch (\TypeError $e) {
+            return null;
+        }
     }
 }

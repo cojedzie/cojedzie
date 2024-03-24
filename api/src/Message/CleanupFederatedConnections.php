@@ -18,29 +18,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\MessageHandler;
+namespace App\Message;
 
-use App\Entity\Federation\FederatedConnectionEntity;
-use App\Message\CheckConnectionMessage;
-use App\Service\FederatedConnectionChecker;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use App\Utility\CustomSentrySampleRateInterface;
 
-final readonly class CheckConnectionMessageHandler implements MessageHandlerInterface
+final readonly class CleanupFederatedConnections implements CustomSentrySampleRateInterface
 {
-    public function __construct(
-        private FederatedConnectionChecker $checker,
-        private EntityManagerInterface $manager
-    ) {
-    }
-
-    public function __invoke(CheckConnectionMessage $message)
+    #[\Override]
+    public function getSentrySampleRate(): float
     {
-        $connection = $this->manager
-            ->getRepository(FederatedConnectionEntity::class)
-            ->find($message->getConnectionId())
-        ;
-
-        $this->checker->check($connection);
+        return 0.01;
     }
 }

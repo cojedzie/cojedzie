@@ -20,29 +20,28 @@
 
 namespace App\MessageHandler;
 
-use App\Message\UpdateDataMessage;
-use App\Service\DataUpdater;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use App\Entity\Federation\FederatedConnectionEntity;
+use App\Message\CheckFederatedConnection;
+use App\Service\FederatedConnectionChecker;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class UpdateDataMessageHandler implements MessageHandlerInterface, LoggerAwareInterface
+#[AsMessageHandler]
+final readonly class CheckFederatedConnectionMessageHandler
 {
-    use LoggerAwareTrait;
-
     public function __construct(
-        private readonly DataUpdater $updater
+        private FederatedConnectionChecker $checker,
+        private EntityManagerInterface $manager
     ) {
     }
 
-    public function __invoke(UpdateDataMessage $message)
+    public function __invoke(CheckFederatedConnection $message): void
     {
-        try {
-            $this->updater->update();
-        } catch (\Exception $exception) {
-            $this->logger->critical($exception->getMessage(), [
-                'backtrace' => $exception->getTraceAsString(),
-            ]);
-        }
+        $connection = $this->manager
+            ->getRepository(FederatedConnectionEntity::class)
+            ->find($message->getConnectionId())
+        ;
+
+        $this->checker->check($connection);
     }
 }

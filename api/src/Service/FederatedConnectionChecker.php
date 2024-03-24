@@ -56,11 +56,11 @@ class FederatedConnectionChecker
     ) {
     }
 
-    public function check(FederatedConnectionEntity $connection, bool $force = false)
+    public function check(FederatedConnectionEntity $connection, bool $force = false): void
     {
         $now = Carbon::now();
 
-        // For closed connection this method is noop, it should not even be called but it's hard to predict and control.
+        // For closed connection this method is noop, it should not even be called, but it's hard to predict and control.
         if ($connection->isClosed()) {
             return;
         }
@@ -100,7 +100,7 @@ class FederatedConnectionChecker
         }
     }
 
-    private function validateResponse(ResponseInterface $response, FederatedConnectionEntity $connection)
+    private function validateResponse(ResponseInterface $response, FederatedConnectionEntity $connection): void
     {
         $headers = $response->getHeaders();
 
@@ -120,7 +120,7 @@ class FederatedConnectionChecker
         }
     }
 
-    private function handleFailure(FederatedConnectionEntity $connection)
+    private function handleFailure(FederatedConnectionEntity $connection): void
     {
         $connection->increaseFailureCount();
 
