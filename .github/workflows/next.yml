@@ -1,0 +1,40 @@
+name: Deploy to next env
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: next
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: registry.kadet.net
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Build and push
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: >
+          .utils/build-images.sh 
+          --registry registry.kadet.net 
+          --tag next
+          ${{ github.ref == 'refs/heads/master' && '--push' }}
+
+  deployment:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy via kadet.net API Server
+        uses: kadet1090/swarm-deploy-action@v1
+        with:
+          api-token: ${{ secrets.API_SERVER_TOKEN }}
+          service: ${{ vars.API_SERVER_SERVICE }}
