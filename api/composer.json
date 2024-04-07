@@ -16,6 +16,7 @@
     "doctrine/doctrine-bundle": "^2.5",
     "doctrine/doctrine-migrations-bundle": "^3.3",
     "doctrine/orm": "^2",
+    "dragonmantank/cron-expression": "^3.3",
     "illuminate/collections": "^8.83",
     "kadet/functional": "dev-master",
     "nelmio/api-doc-bundle": "^4.2",
