@@ -14,6 +14,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY composer.json composer.lock ./
 
+# Temporarily allow super-user for composer, this should be removed later
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 RUN apk add git && \
     composer install --no-dev --no-scripts --no-plugins --prefer-dist --no-progress --no-interaction && \
     composer dump-autoload --optimize && \
@@ -33,7 +36,7 @@ ENV PATH=$PATH:/var/www/bin
 VOLUME /var/db
 
 RUN mkdir -p /var/db
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer run-script post-install-cmd
+RUN composer run-script post-install-cmd
 
 # This image is not meant to be run, just to prepare all required files
 CMD ["/bin/false"]

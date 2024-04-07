@@ -41,6 +41,8 @@ const sentryAuthToken =
     process.env.SENTRY_AUTH_TOKEN ||
     false;
 
+const isSentryEnabled = sentryAuthToken && process.env.COJEDZIE_VERSION;
+
 export default defineConfig({
     build: {
         outDir: `${dist}/`,
@@ -60,7 +62,7 @@ export default defineConfig({
         VitePWA({}),
         viteImagemin(),
         SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
-        sentryAuthToken &&
+        isSentryEnabled &&
             sentryVitePlugin({
                 org: process.env.SENTRY_ORG || "cojedzie",
                 project: process.env.SENTRY_PROJECT || "frontend-vue",

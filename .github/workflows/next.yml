@@ -4,34 +4,56 @@ on:
   workflow_dispatch:
   push:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: next
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           registry: registry.kadet.net
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Expose actions cache variables
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
       - name: Build and push
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: >
-          .utils/build-images.sh 
-          --registry registry.kadet.net 
-          --tag next
-          ${{ github.ref == 'refs/heads/master' && '--push' }}
+        run: |
+          .utils/build-images.sh \
+            --build-registry localhost:5000 \
+            --publish-registry registry.kadet.net \
+            --tag next \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            ${{ github.ref == 'refs/heads/master' && '--push' }};
 
   deployment:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: build
+    environment: next
     steps:
       - name: Deploy via kadet.net API Server
         uses: kadet1090/swarm-deploy-action@v1
