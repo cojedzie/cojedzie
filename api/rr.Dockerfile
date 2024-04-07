@@ -1,4 +1,4 @@
-FROM php:8.1-cli-alpine
+FROM php:8.3-cli-alpine
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -20,5 +20,5 @@ COPY --from=spiralscout/roadrunner:2.8.0 /usr/bin/rr /usr/bin/rr
 
 EXPOSE 8080
 
-ENTRYPOINT ["./bin/docker-dev-entrypoint.sh"]
+ENTRYPOINT ["./bin/docker-entrypoint.sh"]
 CMD ["./bin/docker-init.sh", "rr", "serve"]

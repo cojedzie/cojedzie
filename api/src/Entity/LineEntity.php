@@ -63,7 +63,7 @@ class LineEntity implements Fillable, Entity
     private OperatorEntity $operator;
 
     #[ORM\OneToMany(targetEntity: TrackEntity::class, mappedBy: 'line')]
-    private readonly Collection $tracks;
+    private Collection $tracks;
 
     public function __construct()
     {

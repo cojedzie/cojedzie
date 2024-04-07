@@ -67,7 +67,7 @@ class FederatedServerEntity implements Referable, Fillable
      */
     #[ORM\OneToMany(targetEntity: FederatedConnectionEntity::class, cascade: ['persist'], mappedBy: 'server', orphanRemoval: true)]
     #[Groups(['connections', 'all'])]
-    private readonly Collection $connections;
+    private Collection $connections;
 
     /**
      * Secret for that server required for authenticating some endpoints.
