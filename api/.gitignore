@@ -25,3 +25,7 @@
 .phpunit.result.cache
 /.phpbench/
 ###< phpunit/phpunit ###
+
+###> friends-of-behat/symfony-extension ###
+/behat.php
+###< friends-of-behat/symfony-extension ###

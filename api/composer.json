@@ -28,6 +28,7 @@
     "sentry/sentry-symfony": ">=5.0 <5.14",
     "symfony/amqp-messenger": "7.4.*",
     "symfony/asset": "^7.4",
+    "symfony/clock": "7.4.*",
     "symfony/console": "^7.4",
     "symfony/doctrine-messenger": "7.4.*",
     "symfony/dotenv": "7.4.*",
@@ -109,7 +110,10 @@
     }
   ],
   "require-dev": {
+    "behat/behat": "^4.0",
+    "dama/doctrine-test-bundle": "^8.2",
     "doctrine/doctrine-fixtures-bundle": "^3.6 || ^4.0",
+    "friends-of-behat/symfony-extension": "^2.7",
     "phpbench/phpbench": "^1.4",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9.6",
