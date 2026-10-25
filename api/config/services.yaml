@@ -22,7 +22,6 @@ parameters:
   # Upstream open data, endpoint paths and dataset resource ids live in the classes using them
   env(ZTM_GDANSK_API_URL): 'https://ckan2.multimediagdansk.pl' # departures, displayMessages, stopTimes
   env(ZTM_GDANSK_DATASET_URL): 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource' # stops, lines, tracks, operators, displays
-  env(ZKM_GDYNIA_API_URL): 'https://zkmgdynia.pl' # stops of ZKM Gdynia
 
 services:
   # default configuration for services in *this* file

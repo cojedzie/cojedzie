@@ -226,8 +226,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 ->map(fn ($stop) => [
                     'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
                     'track_id' => $trackId,
-                    // HACK! Gdynia has 0 based sequence
-                    'sequence' => $stop['stopSequence'] + (int) ($stop['stopId'] > 30000),
+                    'sequence' => $stop['stopSequence'],
                 ])
                 ->filter(fn ($stop) => $existingStopIds->contains($stop['stop_id']))
                 ->sorted(fn ($a, $b) => $a['sequence'] <=> $b['sequence'])

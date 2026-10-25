@@ -56,7 +56,7 @@ and the departures scenarios.
 
 **Upstream addresses** are configuration, defaults in `config/services.yaml`: `ZTM_GDANSK_API_URL` (departures,
 `displayMessages`, `stopTimes`), `ZTM_GDANSK_DATASET_URL` (ZTM's open-data dataset: stops, lines, tracks,
-operators, displays) and `ZKM_GDYNIA_API_URL` (Gdynia stops). Classes add their own endpoint path or dataset
+operators, displays). Classes add their own endpoint path or dataset
 resource id (`*_PATH` constants) and receive the base via `#[Autowire(env: …)]`.
 
 Adding a provider: implement `Provider`, reuse `Generic*Repository` with `withProvider($entity)` for DB-backed
