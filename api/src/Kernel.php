@@ -20,12 +20,8 @@
 
 namespace App;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-
-AnnotationReader::addGlobalIgnoredName('mixin');
-AnnotationReader::addGlobalIgnoredName('alias');
 
 class Kernel extends BaseKernel
 {

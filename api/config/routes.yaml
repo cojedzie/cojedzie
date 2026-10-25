@@ -1,5 +1,5 @@
 api_v1:
   resource: ../src/Controller/Api/v1
-  type: annotation
+  type: attribute
   name_prefix: v1_
   prefix: /api/v1
