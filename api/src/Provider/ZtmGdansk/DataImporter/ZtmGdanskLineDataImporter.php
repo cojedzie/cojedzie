@@ -30,10 +30,11 @@ use App\Service\JsonStreamer;
 use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskLineDataImporter extends AbstractDataImporter
 {
-    final public const string RESOURCE_URL = ZtmGdanskProvider::BASE_URL . "/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
+    final public const string RESOURCE_PATH = "/22313c56-5acf-41c7-a5fd-dc5dc72b3851/download/routes.json";
 
     final public const array ZTM_TYPE_MAPPING = [
         2 => LineModel::TYPE_TRAM,
@@ -43,7 +44,9 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     public function __construct(
         private readonly Connection $connection,
         private readonly JsonStreamer $jsonStreamer,
-        private readonly IdUtils $idUtils
+        private readonly IdUtils $idUtils,
+        #[Autowire(env: 'ZTM_GDANSK_DATASET_URL')]
+        private readonly string $datasetUrl,
     ) {
     }
 
@@ -125,7 +128,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 ->iterateColumn()
         );
 
-        foreach ($this->jsonStreamer->stream(self::RESOURCE_URL, sprintf('%s.routes', date('Y-m-d'))) as $line) {
+        foreach ($this->jsonStreamer->stream($this->datasetUrl . self::RESOURCE_PATH, sprintf('%s.routes', date('Y-m-d'))) as $line) {
             $symbol   = $line['routeShortName'];
             $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
 

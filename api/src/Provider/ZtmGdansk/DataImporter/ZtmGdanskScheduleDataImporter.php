@@ -31,15 +31,18 @@ use Carbon\Carbon;
 use Cerbero\JsonObjects\JsonObjectsException;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
-    final public const string SCHEDULE_URL = "http://ckan2.multimediagdansk.pl/stopTimes";
+    final public const string SCHEDULE_PATH = "/stopTimes";
 
     public function __construct(
         private readonly Connection $connection,
         private readonly IdUtils $idUtils,
         private readonly JsonStreamer $jsonStreamer,
+        #[Autowire(env: 'ZTM_GDANSK_API_URL')]
+        private readonly string $apiUrl,
     ) {
     }
 
@@ -102,7 +105,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 
         $url = sprintf(
             "%s?%s",
-            self::SCHEDULE_URL,
+            $this->apiUrl . self::SCHEDULE_PATH,
             http_build_query([
                 'date'    => date('Y-m-d'),
                 'routeId' => $this->idUtils->strip($lineId),

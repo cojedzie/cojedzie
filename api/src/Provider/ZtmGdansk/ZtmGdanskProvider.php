@@ -43,7 +43,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskProvider implements Provider
 {
-    final public const string BASE_URL   = 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource';
     final public const string IDENTIFIER = 'trojmiasto';
     private $lines;
     private $departures;
@@ -92,8 +91,8 @@ class ZtmGdanskProvider implements Provider
         private readonly ZtmGdanskMessageRepository $messages,
         ReferenceFactory $referenceFactory,
         ClockInterface $clock,
-        #[Autowire(env: 'ZTM_GDANSK_ESTIMATES_URL')]
-        string $estimatesUrl,
+        #[Autowire(env: 'ZTM_GDANSK_API_URL')]
+        string $apiUrl,
     ) {
         $provider = $this->refreshProviderEntity();
 
@@ -106,7 +105,7 @@ class ZtmGdanskProvider implements Provider
         $this->lines      = $lines;
         $this->departures = new RealtimeScheduleDepartureRepository(
             $schedule,
-            new ZtmGdanskRealtimeDepartureRepository($lines, $referenceFactory, $estimatesUrl),
+            new ZtmGdanskRealtimeDepartureRepository($lines, $referenceFactory, $apiUrl),
             $clock,
         );
         $this->stops  = $stops;

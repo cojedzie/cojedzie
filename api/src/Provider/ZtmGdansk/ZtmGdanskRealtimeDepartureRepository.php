@@ -42,10 +42,12 @@ use function Kadet\Functional\ref;
 #[Exclude] // built by ZtmGdanskProvider with its own line repository and the configured URL
 class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
 {
+    final public const string DEPARTURES_PATH = '/departures';
+
     public function __construct(
         private readonly LineRepository $lines,
         private readonly ReferenceFactory $reference,
-        private readonly string $estimatesUrl,
+        private readonly string $apiUrl,
     ) {
     }
 
@@ -60,7 +62,7 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
     private function getRealDepartures(Stop $stop)
     {
         // without the API (unreachable or answering garbage) the timetable is shown on its own
-        $response = @file_get_contents($this->estimatesUrl . "?stopId=" . $stop->getId());
+        $response = @file_get_contents($this->apiUrl . self::DEPARTURES_PATH . "?stopId=" . $stop->getId());
         if ($response === false) {
             return collect();
         }

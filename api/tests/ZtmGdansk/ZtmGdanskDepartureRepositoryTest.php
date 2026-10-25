@@ -212,7 +212,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             new ZtmGdanskRealtimeDepartureRepository(
                 $this->lineRepository(),
                 self::getContainer()->get(ReferenceFactory::class),
-                estimatesUrl: EstimatesStream::URL,
+                apiUrl: EstimatesStream::URL,
             ),
             new MockClock(Carbon::now()->toDateTimeImmutable()),
         );
