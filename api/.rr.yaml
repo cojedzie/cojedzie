@@ -1,12 +1,14 @@
-version: '2.7'
+version: "3"
 
 server:
   command: "php public/index.php"
   env:
-    APP_RUNTIME: Baldinof\RoadRunnerBundle\Runtime\Runtime
+    - APP_RUNTIME: Baldinof\RoadRunnerBundle\Runtime\Runtime
 
 http:
   address: 0.0.0.0:8080
+  pool:
+    debug: false
   middleware: [ "static", "gzip" ]
   uploads:
     forbid: [ ".php", ".exe", ".bat" ]

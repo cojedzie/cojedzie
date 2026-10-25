@@ -29,6 +29,7 @@ class LinksNormalizer implements NormalizerInterface
         return $data instanceof Links;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [Links::class => true];

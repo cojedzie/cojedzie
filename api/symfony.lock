@@ -14,12 +14,6 @@
     "cerbero/json-objects": {
         "version": "v1.1.2"
     },
-    "clue/stream-filter": {
-        "version": "v1.6.0"
-    },
-    "composer/semver": {
-        "version": "3.2.9"
-    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -111,14 +105,8 @@
     "doctrine/sql-formatter": {
         "version": "1.1.1"
     },
-    "guzzlehttp/promises": {
-        "version": "1.5.2"
-    },
     "guzzlehttp/psr7": {
         "version": "2.4.3"
-    },
-    "http-interop/http-factory-guzzle": {
-        "version": "1.2.0"
     },
     "illuminate/collections": {
         "version": "v8.35.1"
@@ -195,24 +183,6 @@
     "php-ds/php-ds": {
         "version": "v1.4.0"
     },
-    "php-http/client-common": {
-        "version": "2.6.0"
-    },
-    "php-http/discovery": {
-        "version": "1.14.3"
-    },
-    "php-http/httplug": {
-        "version": "2.3.0"
-    },
-    "php-http/message": {
-        "version": "1.13.0"
-    },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
-    },
-    "php-http/promise": {
-        "version": "1.1.0"
-    },
     "phpbench/container": {
         "version": "2.2.1"
     },
@@ -274,9 +244,6 @@
     },
     "psr/event-dispatcher": {
         "version": "1.0.0"
-    },
-    "psr/http-client": {
-        "version": "1.0.1"
     },
     "psr/http-factory": {
         "version": "1.0.1"
@@ -353,9 +320,6 @@
     "seld/jsonlint": {
         "version": "1.8.3"
     },
-    "sentry/sdk": {
-        "version": "3.3.0"
-    },
     "sentry/sentry": {
         "version": "3.12.1"
     },
@@ -371,14 +335,8 @@
             "config/packages/sentry.yaml"
         ]
     },
-    "spiral/goridge": {
-        "version": "v2.4.5"
-    },
     "spiral/roadrunner": {
         "version": "v1.8.4"
-    },
-    "spiral/roadrunner-cli": {
-        "version": "v2.1.0"
     },
     "spiral/roadrunner-http": {
         "version": "v2.0.4"
@@ -546,9 +504,6 @@
     "symfony/options-resolver": {
         "version": "v4.1.12"
     },
-    "symfony/password-hasher": {
-        "version": "v5.4.19"
-    },
     "symfony/phpunit-bridge": {
         "version": "6.0",
         "recipe": {
@@ -615,8 +570,17 @@
     "symfony/runtime": {
         "version": "v5.4.5"
     },
-    "symfony/security-core": {
-        "version": "v5.4.19"
+    "symfony/scheduler": {
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.2",
+            "ref": "caea3c928ee9e1b21288fd76aef36f16ea355515"
+        },
+        "files": [
+            "src/Schedule.php"
+        ]
     },
     "symfony/serializer": {
         "version": "v4.1.3"

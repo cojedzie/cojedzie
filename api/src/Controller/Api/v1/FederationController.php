@@ -28,8 +28,8 @@ use App\Message\CheckFederatedConnection;
 use App\Service\FederatedConnectionUpdateFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,19 +41,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Controller used for managing resources related to the federation feature.
- *
- * @OA\Tag(name="Federation")
  */
 #[Route(path: '/federation', name: 'federation_')]
+#[OA\Tag(name: 'Federation')]
 class FederationController extends Controller
 {
     // fixme: add access control
     /**
      * Create new connection under some server.
-     *
-     * @OA\RequestBody(
-     *     @OA\JsonContent(ref=@Model(type=CreateFederatedConnectionCommandType::class))
-     * )
      */
     #[Route(
         path: '/connections',
@@ -64,6 +59,7 @@ class FederationController extends Controller
             'sentry_trace_sample' => 0.1,
         ]
     )]
+    #[OA\RequestBody(content: new OA\JsonContent(ref: new Model(type: CreateFederatedConnectionCommandType::class)))]
     public function connect(Request $request, EntityManagerInterface $manager, MessageBusInterface $bus): JsonResponse
     {
         $form = $this->createForm(
@@ -103,16 +99,9 @@ class FederationController extends Controller
 
     /**
      * Mark specified connection as closed.
-     *
-     * @OA\Parameter(
-     *     name="connection",
-     *     description="Identifier of connection to be closed",
-     *     in="path",
-     *     example="a0b562d1-e0ce-4fc0-96e4-8d28a370a9e1",
-     *     @OA\Schema(type="string", format="uuid")
-     * )
      */
     #[Route(path: '/connections/{connection}', name: 'disconnect', methods: ['DELETE'], options: ['version' => '1.0'])]
+    #[OA\Parameter(name: 'connection', description: 'Identifier of connection to be closed', in: 'path', example: 'a0b562d1-e0ce-4fc0-96e4-8d28a370a9e1', schema: new OA\Schema(type: 'string', format: 'uuid'))]
     public function disconnect(
         FederatedConnectionEntity $connection,
         EntityManagerInterface $manager,

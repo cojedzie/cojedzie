@@ -2,16 +2,18 @@
 
 namespace App\Serialization;
 
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class Serializer implements SerializerInterface, NormalizerInterface, DenormalizerInterface
+class Serializer implements SerializerInterface, NormalizerInterface, DenormalizerInterface, EncoderInterface, DecoderInterface
 {
     public function __construct(
-        private readonly SerializerInterface&NormalizerInterface&DenormalizerInterface $decorated,
+        private readonly SerializerInterface&NormalizerInterface&DenormalizerInterface&EncoderInterface&DecoderInterface $decorated,
     ) {
     }
 
@@ -71,8 +73,33 @@ class Serializer implements SerializerInterface, NormalizerInterface, Denormaliz
         return $this->decorated->supportsDenormalization($data, $type, $format, $context);
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return $this->decorated->getSupportedTypes($format);
+    }
+
+    #[\Override]
+    public function encode(mixed $data, string $format, array $context = []): string
+    {
+        return $this->decorated->encode($data, $format, $context);
+    }
+
+    #[\Override]
+    public function supportsEncoding(string $format, array $context = []): bool
+    {
+        return $this->decorated->supportsEncoding($format, $context);
+    }
+
+    #[\Override]
+    public function decode(string $data, string $format, array $context = []): mixed
+    {
+        return $this->decorated->decode($data, $format, $context);
+    }
+
+    #[\Override]
+    public function supportsDecoding(string $format, array $context = []): bool
+    {
+        return $this->decorated->supportsDecoding($format, $context);
     }
 }

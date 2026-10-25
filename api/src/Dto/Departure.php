@@ -22,8 +22,8 @@ namespace App\Dto;
 
 use App\Serialization\SerializeAs;
 use Carbon\Carbon;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -40,28 +40,28 @@ class Departure implements Fillable, Dto
 
     /**
      * Information about line.
-     * @OA\Property(ref=@Model(type=Line::class))
      */
+    #[OA\Property(ref: new Model(type: Line::class))]
     private Line $line;
 
     /**
      * Information about line.
-     * @OA\Property(ref=@Model(type=Track::class, groups={"reference"}))
      */
     #[Context(context: [
         AbstractNormalizer::GROUPS => ['reference'],
     ])]
     #[SerializeAs(['Default' => 'Reference'])]
+    #[OA\Property(ref: new Model(type: Track::class, groups: ['reference']))]
     private ?Track $track = null;
 
     /**
      * Information about line.
-     * @OA\Property(ref=@Model(type=Trip::class, groups={"reference"}))
      */
     #[Context(context: [
         AbstractNormalizer::GROUPS => ['reference'],
     ])]
     #[SerializeAs(['Default' => 'Reference'])]
+    #[OA\Property(ref: new Model(type: Trip::class, groups: ['reference']))]
     private ?Trip $trip = null;
 
     /**
@@ -76,20 +76,20 @@ class Departure implements Fillable, Dto
 
     /**
      * Displayed destination.
-     * @OA\Property(example="Łostowice Świętokrzyska")
      */
+    #[OA\Property(example: 'Łostowice Świętokrzyska')]
     private ?string $display = null;
 
     /**
      * Estimated time of departure, null if case of no realtime data.
-     * @OA\Property(type="string", format="date-time")
      */
+    #[OA\Property(type: 'string', format: 'date-time')]
     private ?Carbon $estimated = null;
 
     /**
      * Scheduled time of departure.
-     * @OA\Property(type="string", format="date-time")
      */
+    #[OA\Property(type: 'string', format: 'date-time')]
     private Carbon $scheduled;
 
     public function getKey(): ?string
@@ -188,9 +188,7 @@ class Departure implements Fillable, Dto
         $this->trip = $trip;
     }
 
-    /**
-     * @OA\Property(type="int")
-     */
+    #[OA\Property(type: 'int')]
     public function getDelay(): ?int
     {
         return $this->getEstimated()

@@ -23,16 +23,15 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\Service\ApiResponseFactory;
 use App\Service\StatusService;
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Controller responsible for sharing information about status of this particular node.
- *
- * @OA\Tag(name="Status")
  */
 #[Route(path: '/status', name: 'status_')]
+#[OA\Tag(name: 'Status')]
 class StatusController extends Controller
 {
     public function __construct(

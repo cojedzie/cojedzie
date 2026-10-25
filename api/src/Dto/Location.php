@@ -20,23 +20,23 @@
 
 namespace App\Dto;
 
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class Location implements Dto
 {
     /**
      * Locations longitude.
-     * @OA\Property(example=18.6452)
      */
     #[SerializedName('lng')]
+    #[OA\Property(example: '18.6452')]
     private float $longitude;
 
     /**
      * Locations latitude.
-     * @OA\Property(example=54.3475)
      */
     #[SerializedName('lat')]
+    #[OA\Property(example: '54.3475')]
     private float $latitude;
 
     public function __construct(float $longitude = 0.0, float $latitude = 0.0)

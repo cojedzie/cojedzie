@@ -73,13 +73,6 @@ services:
 
   ProxyManager\Configuration: '@proxy.config'
 
-  # Sentry configuration
-  Sentry\Integration\IgnoreErrorsIntegration:
-    arguments:
-      $options:
-        ignore_exceptions:
-          - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-
   # converter
   App\DataConverter\AggregateConverter:
     arguments:
@@ -89,7 +82,7 @@ services:
 
   # other servces
   App\Service\ProviderResolver:
-    arguments: [ !tagged app.provider, '%kernel.debug%' ]
+    arguments: [ !tagged_iterator app.provider, '%kernel.debug%' ]
 
   App\Service\HandlerProvider:
     arguments: [ !tagged_locator app.handler ]

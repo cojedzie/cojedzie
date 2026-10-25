@@ -18,7 +18,7 @@ class ApiDescriber implements DescriberInterface
     }
 
     #[\Override]
-    public function describe(OpenApi $api)
+    public function describe(OpenApi $api): void
     {
         $version = $this->status->getVersionStatus();
 

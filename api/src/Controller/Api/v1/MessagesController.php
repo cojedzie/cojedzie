@@ -33,33 +33,22 @@ use App\Filter\Binding\Http\ParameterBindingProvider;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
 use App\Provider\MessageRepository;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Messages")
- * @OA\Parameter(ref="#/components/parameters/provider")
- */
 #[Route(path: '/{provider}/messages', name: 'message_')]
+#[OA\Tag(name: 'Messages')]
+#[OA\Parameter(ref: '#/components/parameters/provider')]
 class MessagesController extends Controller
 {
     /**
      * Obtain messages.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="List of messages valid at time of request",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Message::class)))
-     * )
      */
     #[Route(path: '', name: 'all', methods: ['GET'], options: ['version' => '1.1'])]
     #[ParameterBindingProvider([self::class, 'getParameterBinding'])]
+    #[OA\Response(response: 200, description: 'List of messages valid at time of request', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Message::class)))])]
     public function all(
         MessageRepository $messageRepository,
         iterable $requirements

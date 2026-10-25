@@ -25,8 +25,8 @@ use App\Dto\Fillable;
 use App\Dto\FillTrait;
 use App\Dto\Status\Endpoint;
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Uid\Uuid;
 
 class Node implements Fillable, Dto
@@ -40,30 +40,28 @@ class Node implements Fillable, Dto
 
     /**
      * Unique identifier for node.
-     *
-     * @OA\Property(type="string", example="a022a57b-866c-4f59-a3cf-2271d958552c")
      */
+    #[OA\Property(type: 'string', example: 'a022a57b-866c-4f59-a3cf-2271d958552c')]
     private Uuid $id;
 
     /**
      * Base URL address for this particular connection.
-     * @OA\Property(type="string", format="url", example="https://cojedzie.pl")
      */
+    #[OA\Property(type: 'string', format: 'url', example: 'https://cojedzie.pl')]
     private string $url;
 
     /**
      * Type of the node.
-     *
-     * @OA\Property(type="string", format="url", example=Node::TYPE_HUB, enum=Node::TYPES)
      */
+    #[OA\Property(type: 'string', format: 'url', example: Node::TYPE_HUB, enum: Node::TYPES)]
     private string $type;
 
     /**
      * All endpoints offered by this node.
      *
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
      * @var Collection<Endpoint>
      */
+    #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Endpoint::class)))]
     private Collection $endpoints;
 
     public function getId(): Uuid

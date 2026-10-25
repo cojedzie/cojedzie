@@ -37,10 +37,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * Resolves provider repository arguments of controllers from the {provider} route attribute.
  */
 #[AutoconfigureTag('controller.argument_value_resolver', ['priority' => 150])]
-final class RepositoryValueResolver implements ValueResolverInterface
+final readonly class RepositoryValueResolver implements ValueResolverInterface
 {
     public function __construct(
-        private readonly ProviderResolver $resolver
+        private ProviderResolver $resolver
     ) {
     }
 

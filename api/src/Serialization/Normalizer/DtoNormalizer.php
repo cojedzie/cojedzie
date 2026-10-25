@@ -4,7 +4,6 @@ namespace App\Serialization\Normalizer;
 
 use App\Event\PostNormalizationEvent;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer as SymfonyObjectNormalizer;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -12,7 +11,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
 {
     public function __construct(
-        private readonly SymfonyObjectNormalizer $decorated,
+        private readonly NormalizerInterface $decorated,
         private readonly EventDispatcherInterface $dispatcher,
     ) {
     }
@@ -48,6 +47,7 @@ class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
         return $this->decorated->supportsNormalization($data, $format, $context);
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return $this->decorated->getSupportedTypes($format);
@@ -56,7 +56,9 @@ class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
     #[\Override]
     public function setSerializer(SerializerInterface $serializer): void
     {
-        $this->decorated->setSerializer($serializer);
+        if ($this->decorated instanceof SerializerAwareInterface) {
+            $this->decorated->setSerializer($serializer);
+        }
     }
 
     private function isEmpty(mixed $value)

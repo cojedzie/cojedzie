@@ -45,6 +45,7 @@ final class InvalidFormExceptionNormalizer implements NormalizerInterface
         return 'json' === $format && $data instanceof InvalidFormException;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [InvalidFormException::class => 'json' === $format];

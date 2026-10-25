@@ -28,33 +28,22 @@ use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Requirement\IdConstraint;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Departures")
- * @OA\Parameter(ref="#/components/parameters/provider")
- */
 #[Route(path: '/{provider}/departures', name: 'departure_')]
+#[OA\Tag(name: 'Departures')]
+#[OA\Parameter(ref: '#/components/parameters/provider')]
 class DeparturesController extends Controller
 {
     /**
      * List departures.
-     *
-     * @OA\Response(
-     *     description="List of departures valid at time of request",
-     *     response=200,
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Departure::class)))
-     * )
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.1'])]
     #[LimitParameterBinding]
+    #[OA\Response(description: 'List of departures valid at time of request', response: 200, content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Departure::class)))])]
     public function stops(
         DepartureRepository $departureRepository,
         StopRepository $stopRepository,

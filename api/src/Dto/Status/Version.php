@@ -2,23 +2,21 @@
 
 namespace App\Dto\Status;
 
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 
 class Version
 {
     public function __construct(
         /**
          * Version of the software running on this instance.
-         *
-         * @OA\Property(type="string", format="version", example="v2022.3.0")
          */
+        #[OA\Property(type: 'string', format: 'version', example: 'v2022.3.0')]
         private string $version,
 
         /**
          * Exact revision of the software running on this instance.
-         *
-         * @OA\Property(type="string", format="revision", example="43a97fd1f515bb49737fded905ad326fa8cb35b7")
          */
+        #[OA\Property(type: 'string', format: 'revision', example: '43a97fd1f515bb49737fded905ad326fa8cb35b7')]
         private string $revision,
     ) {
     }

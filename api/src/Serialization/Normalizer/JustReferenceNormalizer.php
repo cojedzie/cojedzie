@@ -49,6 +49,7 @@ class JustReferenceNormalizer implements NormalizerInterface
         return $data instanceof JustReference;
     }
 
+    #[\Override]
     public function getSupportedTypes(?string $format): array
     {
         return [JustReference::class => true];

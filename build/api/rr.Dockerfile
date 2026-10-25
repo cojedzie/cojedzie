@@ -3,7 +3,7 @@ ARG REGISTRY=docker.io
 
 FROM $REGISTRY/cojedzie/base:${BASE_VERSION} as base
 
-COPY --from=spiralscout/roadrunner:2.8.0 /usr/bin/rr /usr/bin/rr
+COPY --from=ghcr.io/roadrunner-server/roadrunner:2025.1.15 /usr/bin/rr /usr/bin/rr
 
 EXPOSE 8080
 
