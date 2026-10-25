@@ -18,6 +18,7 @@ in `frontend/`).
 | [api/dto-and-entities.md](api/dto-and-entities.md) | Entity vs DTO model, ids, converters, reference DTOs, serialization groups |
 | [api/data-import.md](api/data-import.md) | `app:update`, data importers, Doctrine entities and per-engine migrations |
 | [api/federation.md](api/federation.md) | Federated API nodes, hub, endpoint versioning |
+| [api/testing.md](api/testing.md) | PHPUnit and Behat suites, fake `test` provider, writing contract scenarios |
 
 ### Frontend (`frontend/`)
 
