@@ -198,6 +198,7 @@ do
       ;;
     *)
       >&2 echo "$1 is not a valid image to build"
+      exit 1
   esac
   shift
 done

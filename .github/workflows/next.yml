@@ -49,7 +49,7 @@ jobs:
             --tag next \
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
-            ${{ github.ref == 'refs/heads/master' && '--push' }};
+            ${{ github.ref == 'refs/heads/master' && '--push' || '' }};
 
   deployment:
     if: github.ref == 'refs/heads/master'
