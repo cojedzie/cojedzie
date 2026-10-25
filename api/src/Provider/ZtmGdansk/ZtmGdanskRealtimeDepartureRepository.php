@@ -57,10 +57,15 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
 
     private function getRealDepartures(Stop $stop)
     {
+        // without estimates (API unreachable or answering garbage) the timetable is shown on its own
+        $response = @file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId());
+        if ($response === false) {
+            return collect();
+        }
+
         try {
-            $estimates = file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId());
-            $estimates = json_decode($estimates, true, 512, JSON_THROW_ON_ERROR)['delay'];
-        } catch (\Error) {
+            $estimates = json_decode($response, true, 512, JSON_THROW_ON_ERROR)['delay'] ?? [];
+        } catch (\JsonException) {
             return collect();
         }
 
