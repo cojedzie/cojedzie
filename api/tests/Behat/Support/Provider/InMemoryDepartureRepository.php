@@ -27,23 +27,20 @@ use App\Dto\Departure;
 use App\Dto\Dto;
 use App\Dto\Stop;
 use App\Entity\LineEntity;
-use App\Entity\StopEntity;
-use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
 use App\Service\IdUtils;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Clock\ClockInterface;
 
 /**
- * Departures given by scenarios. Implements the behaviour every provider's departure repository must have:
- * departures of the given stops, merged, ordered by departure time, without the ones that already left.
+ * Live departures given by scenarios: what a realtime source reports for each requested stop. Joining them with the
+ * timetable, ordering and filtering is left to RealtimeScheduleDepartureRepository, as for real providers.
  */
 final class InMemoryDepartureRepository implements DepartureRepository
 {
     /**
-     * @var list<array{stop: string, line: string, scheduled: Carbon, estimated: ?Carbon, display: ?string}>
+     * @var list<array{stop: string, line: string, scheduled: Carbon, estimated: Carbon, display: ?string}>
      */
     private array $departures = [];
 
@@ -51,11 +48,10 @@ final class InMemoryDepartureRepository implements DepartureRepository
         private readonly EntityManagerInterface $em,
         private readonly Converter $converter,
         private readonly IdUtils $ids,
-        private readonly ClockInterface $clock,
     ) {
     }
 
-    public function add(string $stopId, string $lineSymbol, Carbon $scheduled, ?Carbon $estimated, ?string $display): void
+    public function add(string $stopId, string $lineSymbol, Carbon $scheduled, Carbon $estimated, ?string $display): void
     {
         $this->departures[] = [
             'stop'      => $stopId,
@@ -74,36 +70,23 @@ final class InMemoryDepartureRepository implements DepartureRepository
     #[\Override]
     public function current(iterable $stops, Requirement ...$requirements)
     {
-        $now = Carbon::instance($this->clock->now());
-
-        // per stop it is given, like real providers do, so repeated stops would show up as repeated departures
-        $departures = collect($stops)
-            ->flatMap(fn (Stop $stop) => collect($this->departures)->where('stop', $stop->getId()))
-            ->map($this->createDeparture(...))
-            ->filter(fn (Departure $departure) => $departure->getDeparture()->greaterThan($now))
-            ->sortBy(fn (Departure $departure) => $departure->getDeparture()->getTimestamp())
+        return collect($stops)
+            ->flatMap(fn (Stop $stop) => collect($this->departures)
+                ->where('stop', $stop->getId())
+                ->map(fn (array $departure) => $this->createDeparture($departure, $stop)))
             ->values();
-
-        foreach ($requirements as $requirement) {
-            if ($requirement instanceof LimitConstraint) {
-                $departures = $departures->slice($requirement->getOffset(), $requirement->getCount())->values();
-            }
-        }
-
-        return $departures;
     }
 
-    private function createDeparture(array $departure): Departure
+    private function createDeparture(array $departure, Stop $stop): Departure
     {
         $line = $this->em->find(LineEntity::class, $this->ids->generate(TestProvider::IDENTIFIER, $departure['line']));
-        $stop = $this->em->find(StopEntity::class, $this->ids->generate(TestProvider::IDENTIFIER, $departure['stop']));
 
         return Departure::createFromArray([
             'key'       => sprintf('%s::%s', $departure['line'], $departure['scheduled']->format('H:i')),
             'line'      => $this->converter->convert($line, Dto::class),
-            'stop'      => $this->converter->convert($stop, Dto::class),
+            'stop'      => $stop,
             'scheduled' => $departure['scheduled']->clone()->tz('UTC'),
-            'estimated' => $departure['estimated']?->clone()->tz('UTC'),
+            'estimated' => $departure['estimated']->clone()->tz('UTC'),
             'display'   => $departure['display'],
         ]);
     }
