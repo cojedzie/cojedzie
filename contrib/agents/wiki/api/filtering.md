@@ -32,7 +32,9 @@ schedule repository with `RelatedFilter($stop, Stop::class)`, `FieldFilter('depa
 
 A `ParameterBinding` has two jobs: `getRequirementsFromRequest(Request)` and `getDocumentation(Route)` (OpenAPI
 parameters, collected by `Describer/ParameterBindingRouteDescriber`). So declaring a binding both parses the
-request **and** documents the parameter — never document filter parameters by hand.
+request **and** documents the parameter — never document filter parameters by hand. A `schema` given as an
+array in a binding's `documentation` is turned into `Schema`/`Items` objects and passed to the `Parameter`
+constructor (see the swagger-php notes in [architecture.md](architecture.md#api-docs)).
 
 | Binding | Request syntax → requirement |
 |---|---|

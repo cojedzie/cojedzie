@@ -46,8 +46,33 @@ data, and add `DataImporter`s (see [data-import.md](data-import.md)).
 
 ## API docs
 
-OpenAPI via NelmioApiDocBundle using `@OA\...` docblock annotations on controllers and DTOs, with custom
-describers in `src/Describer`.
+OpenAPI via NelmioApiDocBundle 5 / swagger-php 5 using `#[OA\...]` attributes (`OpenApi\Attributes as OA`,
+`Nelmio\ApiDocBundle\Attribute\Model`) on controllers and DTOs, with custom describers in `src/Describer`.
+Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagger.json`.
+
+- Nested annotations must be passed to constructors by name (`items:`, `schema:`, `content: [...]`): positional
+  nested arguments are a PHP error, and `OA\Response` has no `schema` (use `content: new OA\JsonContent(...)`).
+- swagger-php only links an annotation to its parent when it is passed to the parent's constructor. A `Schema`
+  attached later (e.g. via `mergeProperties()`) ends up as an unnamed entry in `components.schemas` and fails
+  validation, which makes `/api/swagger.json` return 500 in debug.
+
+## Runtime and dependency notes
+
+- Symfony 7.4 / PHP 8.5. Defaults that Symfony 7 changed (`http_method_override`, `handle_all_throwables`,
+  UUID version, `property_info.with_constructor_extractor`, Doctrine `controller_resolver.auto_mapping`) are
+  pinned to their 6.4 values in `config/packages/`; flip them deliberately. `doctrine.orm.enable_lazy_ghost_objects`
+  is still off (belongs with ORM 3).
+- `ext-ds` is pinned to 1.8.0 in every Dockerfile: ds 2.0 removes `Ds\Collection`, `Ds\Deque`, `Ds\Vector`.
+- RoadRunner 2025.1 (`ghcr.io/roadrunner-server/roadrunner`) with baldinof/roadrunner-bundle 3; `.rr.yaml` is
+  config v3. Workers run with `display_errors=stderr`: anything PHP prints to stdout breaks the worker protocol
+  (e.g. the PHP 8.4+ implicit-nullable deprecation in `kadet/functional`'s `curry()`).
+- `sentry/sentry-symfony` is capped below 5.14 until a roadrunner-bundle release after 3.4.0 (its Sentry
+  tracing listener decorator lacks `collectKernelResponseData`, which makes every request 500).
+- Mercure hub config pins `protocol_version: '0.x'` (mercure-bundle 0.6 defaults to 1.0). HMAC JWT secrets must be
+  at least 256 bits; the dev `!ChangeMe!` secret makes `/api/v1/network/nodes` fail when it creates the cookie.
+- The serializer decorator `App\Serialization\Serializer` must implement every interface of Symfony's
+  serializer (incl. encoder/decoder): the profiler wraps it in `TraceableSerializer`.
+- Kernel tests (`KernelTestCase`) work in the `test` env; `tests/` mirrors `src/`.
 
 ## Notable directories
 
