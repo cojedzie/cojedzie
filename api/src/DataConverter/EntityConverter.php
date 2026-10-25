@@ -92,10 +92,9 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
                 'variant'     => $entity->getVariant(),
                 'description' => $entity->getDescription(),
                 'group'       => $entity->getGroup(),
-                'location'    => new Location(
-                    $entity->getLongitude(),
-                    $entity->getLatitude()
-                ),
+                'location'    => $entity->getLongitude() !== null && $entity->getLatitude() !== null
+                    ? new Location($entity->getLongitude(), $entity->getLatitude())
+                    : null,
             ]),
             $entity instanceof TripEntity => $result->fill([
                 'variant'  => $entity->getVariant(),
