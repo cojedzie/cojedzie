@@ -82,7 +82,6 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     protected function tearDown(): void
     {
         Carbon::setTestNow();
-        EstimatesStream::unregister();
         parent::tearDown();
     }
 
@@ -198,7 +197,11 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     {
         return new RealtimeScheduleDepartureRepository(
             $this->scheduleRepository(),
-            new ZtmGdanskRealtimeDepartureRepository($this->lineRepository(), self::getContainer()->get(ReferenceFactory::class)),
+            new ZtmGdanskRealtimeDepartureRepository(
+                $this->lineRepository(),
+                self::getContainer()->get(ReferenceFactory::class),
+                estimatesUrl: EstimatesStream::URL,
+            ),
             new MockClock(Carbon::now()->toDateTimeImmutable()),
         );
     }

@@ -32,18 +32,19 @@ use App\Service\Proxy\ReferenceFactory;
 use App\Utility\IterableUtils;
 use Carbon\Carbon;
 use Kadet\Functional\Transforms as t;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use function Kadet\Functional\ref;
 
 /**
  * Live departures (with estimates) of the given stops from ZTM Gdańsk's delays API.
  */
+#[Exclude] // built by ZtmGdanskProvider with its own line repository and the configured URL
 class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
 {
-    final public const string ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
-
     public function __construct(
         private readonly LineRepository $lines,
-        private readonly ReferenceFactory $reference
+        private readonly ReferenceFactory $reference,
+        private readonly string $estimatesUrl,
     ) {
     }
 
@@ -58,7 +59,7 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
     private function getRealDepartures(Stop $stop)
     {
         // without estimates (API unreachable or answering garbage) the timetable is shown on its own
-        $response = @file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId());
+        $response = @file_get_contents($this->estimatesUrl . "?stopId=" . $stop->getId());
         if ($response === false) {
             return collect();
         }

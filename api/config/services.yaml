@@ -19,6 +19,9 @@ parameters:
 
   env(SENTRY_ENVIRONMENT): '%kernel.environment%'
 
+  # ZTM Gdańsk live departure estimates (delays API)
+  env(ZTM_GDANSK_ESTIMATES_URL): 'http://ckan2.multimediagdansk.pl/delays'
+
 services:
   # default configuration for services in *this* file
   _defaults:
