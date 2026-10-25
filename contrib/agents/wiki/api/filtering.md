@@ -24,7 +24,7 @@ Marker interface `Requirement`; all implementations are immutable.
 | `LimitConstraint($offset, $count)` | Pagination. `LimitConstraint::count(n)` shorthand. |
 | `Embed($relationship)` | Load an optional relation into the result (e.g. `destinations`, `track`, `$refs.stops`). |
 
-Requirements are also used **internally** between repositories — e.g. `ZtmGdanskDepartureRepository` queries the
+Requirements are also used **internally** between repositories — e.g. `Database\RealtimeScheduleDepartureRepository` queries the
 schedule repository with `RelatedFilter($stop, Stop::class)`, `FieldFilter('departure', $time, GreaterOrEqual)`,
 `Embed('track')`, `Embed('destination')`, and doubles the requested `LimitConstraint` before merging realtime data.
 
