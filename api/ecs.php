@@ -9,7 +9,9 @@ use PhpCsFixer\Fixer\ClassNotation\SingleTraitInsertPerStatementFixer;
 use PhpCsFixer\Fixer\Import\NoUnusedImportsFixer;
 use PhpCsFixer\Fixer\Operator\BinaryOperatorSpacesFixer;
 use PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer;
+use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer;
+use Symplify\CodingStandard\Fixer\Commenting\MergeDocBlockStartFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
@@ -33,6 +35,9 @@ return ECSConfig::configure()
         SingleTraitInsertPerStatementFixer::class,
         ConstantCaseFixer::class,
         ArrayOpenerAndCloserNewlineFixer::class,
+        // Added to the sets in ECS 13; would rewrite the license header of every file
+        MergeDocBlockStartFixer::class,
+        BlankLineAfterOpeningTagFixer::class,
     ])
     ->withConfiguredRule(ArraySyntaxFixer::class, ['syntax' => 'short'])
     ->withConfiguredRule(BinaryOperatorSpacesFixer::class, [
