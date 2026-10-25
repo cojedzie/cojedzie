@@ -12,3 +12,7 @@ Feature: Unknown provider
       | departures  |
       | stop-groups |
       | stops       |
+
+  Scenario: An unknown provider is reported even when the query is malformed too
+    When I request "/api/v1/nope/stops?limit=abc"
+    Then the response status should be 404
