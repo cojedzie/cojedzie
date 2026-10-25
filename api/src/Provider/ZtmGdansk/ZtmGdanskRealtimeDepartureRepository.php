@@ -82,7 +82,8 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
                 'display'   => trim((string) $delay['headsign']),
                 'vehicle'   => $this->reference->get(Vehicle::class, $delay['vehicleCode']),
                 'line'      => $lines->get($delay['routeId']) ?: Line::createFromArray([
-                    'symbol' => $delay['routeId'],
+                    'id'     => (string) $delay['routeId'],
+                    'symbol' => (string) $delay['routeId'],
                     'type'   => Line::TYPE_UNKNOWN,
                 ]),
             ]);

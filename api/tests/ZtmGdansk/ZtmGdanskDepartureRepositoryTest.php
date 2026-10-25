@@ -163,6 +163,18 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
         $this->assertSame(['12:10', '12:20'], array_map(fn (Departure $d) => $this->local($d->getScheduled()), $departures));
     }
 
+    public function testEstimateForLineUnknownToTimetableIsShown(): void
+    {
+        $this->scheduled('6', '12:20', 'Łostowice', 'trip-6-1220');
+        $this->estimate('99', '12:10', 0, 'Zajezdnia');
+
+        $departures = $this->departures();
+
+        $this->assertCount(2, $departures);
+        $this->assertSame('99', $departures[0]->getLine()->getSymbol());
+        $this->assertSame('Zajezdnia', $departures[0]->getDisplay());
+    }
+
     /**
      * @return list<Departure>
      */
