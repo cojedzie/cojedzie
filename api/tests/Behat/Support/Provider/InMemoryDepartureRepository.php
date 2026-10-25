@@ -74,11 +74,11 @@ final class InMemoryDepartureRepository implements DepartureRepository
     #[\Override]
     public function current(iterable $stops, Requirement ...$requirements)
     {
-        $stopIds = collect($stops)->map(fn (Stop $stop) => $stop->getId())->unique()->all();
-        $now     = Carbon::instance($this->clock->now());
+        $now = Carbon::instance($this->clock->now());
 
-        $departures = collect($this->departures)
-            ->filter(fn (array $departure) => in_array($departure['stop'], $stopIds, true))
+        // per stop it is given, like real providers do, so repeated stops would show up as repeated departures
+        $departures = collect($stops)
+            ->flatMap(fn (Stop $stop) => collect($this->departures)->where('stop', $stop->getId()))
             ->map($this->createDeparture(...))
             ->filter(fn (Departure $departure) => $departure->getDeparture()->greaterThan($now))
             ->sortBy(fn (Departure $departure) => $departure->getDeparture()->getTimestamp())
