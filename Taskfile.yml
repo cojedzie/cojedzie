@@ -56,11 +56,20 @@ tasks:
   test:
     deps:
       - task: test:api
+      - task: test:behat
 
   test:api:
     desc: Test API component with phpunit
     cmds:
       - docker compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api bin/phpunit {{.CLI_ARGS}}
+
+  test:behat:
+    desc: Run Behat scenarios against a fresh test database
+    cmds:
+      - docker compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api sh -c '
+          mkdir -p var/db && rm -f var/db/test.db &&
+          bin/console --env=test doctrine:migrations:migrate -n -q &&
+          vendor/bin/behat {{.CLI_ARGS}}'
 
   benchmark:
     deps:
