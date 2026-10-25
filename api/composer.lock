@@ -2133,7 +2133,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.kadet.net/kadet/functional-php.git",
-                "reference": "0b58a4c6207d6e7b95902bb81e49b9ec207fc909"
+                "reference": "12918eb3cb701b03792fea5ea479f13d0652a075"
             },
             "require": {
                 "php": ">=7.1"
@@ -2163,7 +2163,7 @@
                 }
             ],
             "description": "Functional library for PHP",
-            "time": "2018-09-08T09:28:23+00:00"
+            "time": "2026-10-25T15:01:51+00:00"
         },
         {
             "name": "laminas/laminas-code",
