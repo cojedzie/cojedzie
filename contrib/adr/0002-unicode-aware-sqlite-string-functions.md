@@ -1,6 +1,6 @@
 # 0002. Unicode-aware string functions on SQLite
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-25
 - **Applies to:** `api/src/Doctrine/**`, `api/src/Filter/Handler/Database/**`, any DQL/SQL using string functions
 

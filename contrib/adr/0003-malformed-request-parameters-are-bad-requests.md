@@ -1,6 +1,6 @@
 # 0003. Malformed request parameters are rejected with 400
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-25
 - **Applies to:** `api/src/Filter/Binding/Http/**`, `api/src/Controller/Api/v1/**`
 
