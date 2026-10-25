@@ -5,7 +5,6 @@ doctrine:
     dbal:
         driver: 'pdo_sqlite'
         url: '%env(resolve:DATABASE_URL)%'
-        use_savepoints: true
         logging: '%kernel.debug%'
         profiling: '%kernel.debug%'
         types:
@@ -23,3 +22,9 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+
+when@test:
+    doctrine:
+        dbal:
+            # dama/doctrine-test-bundle rolls every scenario back using savepoints
+            use_savepoints: true
