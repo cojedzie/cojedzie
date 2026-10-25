@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace App\Tests\ZtmGdansk\Support;
 
 /**
- * Serves recorded ZTM estimates for "ztmtest://delays?stopId=<id>", used as the repository's estimates URL so it
+ * Serves recorded ZTM departures (format of the TRISTAR "departures" API) for "ztmtest://departures?stopId=<id>", used as the repository's estimates URL so it
  * never reaches the network.
  */
 final class EstimatesStream
 {
-    public const string URL = 'ztmtest://delays';
+    public const string URL = 'ztmtest://departures';
 
     private const string SCHEME = 'ztmtest';
 
@@ -67,7 +67,10 @@ final class EstimatesStream
 
         parse_str((string) parse_url($path, PHP_URL_QUERY), $query);
 
-        $this->body = json_encode(['delay' => self::$estimates[$query['stopId'] ?? ''] ?? []], JSON_THROW_ON_ERROR);
+        $this->body = json_encode([
+            'lastUpdate' => '2026-10-20T10:00:00Z',
+            'departures' => self::$estimates[$query['stopId'] ?? ''] ?? [],
+        ], JSON_THROW_ON_ERROR);
 
         return true;
     }

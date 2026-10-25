@@ -174,6 +174,18 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
         $this->assertSame('Zajezdnia', $departures[0]->getDisplay());
     }
 
+    public function testScheduledEntryOfTheApiHasNoEstimate(): void
+    {
+        $this->scheduledByApi('12', '12:10', 'Oliwa');
+
+        $departures = $this->departures();
+
+        $this->assertCount(1, $departures);
+        $this->assertNull($departures[0]->getEstimated());
+        $this->assertSame('12:10', $this->local($departures[0]->getScheduled()));
+        $this->assertSame('Oliwa', $departures[0]->getDisplay());
+    }
+
     public function testTimetableIsShownWhenEstimatesAreUnavailable(): void
     {
         $this->scheduled('6', '12:20', 'Łostowice', 'trip-6-1220');
@@ -227,12 +239,42 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
 
     private function estimate(string $line, string $time, int $delay, string $headsign): void
     {
+        $scheduled = Carbon::parse('2026-10-20 ' . $time, self::ZONE)->tz('UTC');
+
         EstimatesStream::$estimates[$this->stop->getId()][] = [
+            'id'              => sprintf('T1R%s', $line),
             'routeId'         => (int) $line,
-            'theoreticalTime' => $time,
-            'delayInSeconds'  => $delay,
+            'routeShortName'  => $line,
+            'tripId'          => 1,
             'headsign'        => $headsign,
-            'vehicleCode'     => 1,
+            'status'          => 'REALTIME',
+            'theoreticalTime' => $scheduled->toIso8601ZuluString(),
+            'estimatedTime'   => $scheduled->clone()->addSeconds($delay)->toIso8601ZuluString(),
+            'delayInSeconds'  => $delay,
+            'vehicleCode'     => 1234,
+            'vehicleId'       => 1,
+        ];
+    }
+
+    /**
+     * An entry the API knows only from its timetable.
+     */
+    private function scheduledByApi(string $line, string $time, string $headsign): void
+    {
+        $scheduled = Carbon::parse('2026-10-20 ' . $time, self::ZONE)->tz('UTC')->toIso8601ZuluString();
+
+        EstimatesStream::$estimates[$this->stop->getId()][] = [
+            'id'              => sprintf('T2R%s', $line),
+            'routeId'         => (int) $line,
+            'routeShortName'  => $line,
+            'tripId'          => 2,
+            'headsign'        => $headsign,
+            'status'          => 'SCHEDULED',
+            'theoreticalTime' => $scheduled,
+            'estimatedTime'   => $scheduled,
+            'delayInSeconds'  => null,
+            'vehicleCode'     => null,
+            'vehicleId'       => null,
         ];
     }
 

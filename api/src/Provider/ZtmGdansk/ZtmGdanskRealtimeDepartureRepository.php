@@ -36,7 +36,8 @@ use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use function Kadet\Functional\ref;
 
 /**
- * Live departures (with estimates) of the given stops from ZTM Gdańsk's delays API.
+ * Live departures of the given stops from ZTM Gdańsk's TRISTAR departures API: estimates for vehicles on the way,
+ * timetable-only entries without an estimate.
  */
 #[Exclude] // built by ZtmGdanskProvider with its own line repository and the configured URL
 class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
@@ -58,38 +59,39 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
 
     private function getRealDepartures(Stop $stop)
     {
-        // without estimates (API unreachable or answering garbage) the timetable is shown on its own
+        // without the API (unreachable or answering garbage) the timetable is shown on its own
         $response = @file_get_contents($this->estimatesUrl . "?stopId=" . $stop->getId());
         if ($response === false) {
             return collect();
         }
 
         try {
-            $estimates = json_decode($response, true, 512, JSON_THROW_ON_ERROR)['delay'] ?? [];
+            $departures = collect(json_decode($response, true, 512, JSON_THROW_ON_ERROR)['departures'] ?? []);
         } catch (\JsonException) {
             return collect();
         }
 
-        $estimates = collect($estimates);
+        $lines = $this->lines
+            ->all(new IdConstraint($departures->map(fn ($departure) => (string) $departure['routeId'])->unique()))
+            ->keyBy(t\property('id'));
 
-        $lines = $estimates->map(fn ($delay) => $delay['routeId'])->unique();
-
-        $lines = $this->lines->all(new IdConstraint($lines))->keyBy(t\property('id'));
-
-        return collect($estimates)->map(function ($delay) use ($stop, $lines) {
-            $scheduled = new Carbon($delay['theoreticalTime'], 'Europe/Warsaw')->tz('UTC');
-            $estimated = (clone $scheduled)->addSeconds($delay['delayInSeconds']);
+        return $departures->map(function (array $departure) use ($stop, $lines) {
+            $scheduled = new Carbon($departure['theoreticalTime'])->tz('UTC');
+            // entries the API knows only from its own timetable carry no estimate
+            $realtime = ($departure['status'] ?? null) === 'REALTIME' && $departure['delayInSeconds'] !== null;
 
             return Departure::createFromArray([
-                'key'       => sprintf('%s::%s', $delay['routeId'], $scheduled->format('H:i')),
+                'key'       => sprintf('%s::%s', $departure['routeId'], $scheduled->format('H:i')),
                 'scheduled' => $scheduled,
-                'estimated' => $estimated,
+                'estimated' => $realtime ? new Carbon($departure['estimatedTime'])->tz('UTC') : null,
                 'stop'      => $stop,
-                'display'   => trim((string) $delay['headsign']),
-                'vehicle'   => $this->reference->get(Vehicle::class, $delay['vehicleCode']),
-                'line'      => $lines->get($delay['routeId']) ?: Line::createFromArray([
-                    'id'     => (string) $delay['routeId'],
-                    'symbol' => (string) $delay['routeId'],
+                'display'   => trim((string) $departure['headsign']),
+                'vehicle'   => $departure['vehicleCode'] !== null
+                    ? $this->reference->get(Vehicle::class, $departure['vehicleCode'])
+                    : null,
+                'line'      => $lines->get((string) $departure['routeId']) ?: Line::createFromArray([
+                    'id'     => (string) $departure['routeId'],
+                    'symbol' => (string) ($departure['routeShortName'] ?? $departure['routeId']),
                     'type'   => Line::TYPE_UNKNOWN,
                 ]),
             ]);
