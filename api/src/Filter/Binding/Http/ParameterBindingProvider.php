@@ -22,16 +22,13 @@ namespace App\Filter\Binding\Http;
 
 use App\Exception\InvalidArgumentException;
 use Attribute;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 use function App\Functions\memoize;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
-class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterface
+class ParameterBindingProvider implements ParameterBinding
 {
-    use ContainerAwareTrait;
     private ?ParameterBinding $memoized = null;
 
     public function __construct(
@@ -56,11 +53,10 @@ class ParameterBindingProvider implements ParameterBinding, ContainerAwareInterf
         return memoize($this->memoized, fn () => match (true) {
             is_callable($this->source)           => ($this->source)(),
             class_exists($this->source)          => new $this->source(),
-            $this->container->has($this->source) => $this->container->get($this->source),
             default                              => throw InvalidArgumentException::invalidType(
                 'source',
                 $this->source,
-                ['class-name', 'service id', 'callable']
+                ['class-name', 'callable']
             ),
         });
     }

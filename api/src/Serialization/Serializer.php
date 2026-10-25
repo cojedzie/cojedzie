@@ -4,13 +4,14 @@ namespace App\Serialization;
 
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class Serializer implements SerializerInterface, NormalizerInterface
+class Serializer implements SerializerInterface, NormalizerInterface, DenormalizerInterface
 {
     public function __construct(
-        private readonly SerializerInterface&NormalizerInterface $decorated,
+        private readonly SerializerInterface&NormalizerInterface&DenormalizerInterface $decorated,
     ) {
     }
 
@@ -47,14 +48,31 @@ class Serializer implements SerializerInterface, NormalizerInterface
     }
 
     #[\Override]
-    public function normalize($object, string $format = null, array $context = []): array
+    public function normalize($object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         return $this->decorated->normalize($object, $format, $context);
     }
 
     #[\Override]
-    public function supportsNormalization($data, string $format = null): bool
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
-        return $this->decorated->supportsNormalization($data, $format);
+        return $this->decorated->supportsNormalization($data, $format, $context);
+    }
+
+    #[\Override]
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
+    {
+        return $this->decorated->denormalize($data, $type, $format, $context);
+    }
+
+    #[\Override]
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
+    {
+        return $this->decorated->supportsDenormalization($data, $type, $format, $context);
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return $this->decorated->getSupportedTypes($format);
     }
 }
