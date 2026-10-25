@@ -69,7 +69,7 @@ tasks:
       - docker compose run --rm -e HOME=/tmp {{.FLAGS}} -u {{.USER}} api sh -c '
           mkdir -p var/db && rm -f var/db/test.db &&
           bin/console --env=test doctrine:migrations:migrate -n -q &&
-          vendor/bin/behat {{.CLI_ARGS}}'
+          vendor/bin/behat --no-interaction {{.CLI_ARGS}}'
 
   benchmark:
     deps:
