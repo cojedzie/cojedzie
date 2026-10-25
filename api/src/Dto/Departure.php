@@ -192,7 +192,7 @@ class Departure implements Fillable, Dto
     public function getDelay(): ?int
     {
         return $this->getEstimated()
-            ? $this->getScheduled()->diffInSeconds($this->getEstimated(), false)
+            ? (int) $this->getScheduled()->diffInSeconds($this->getEstimated(), false)
             : null;
     }
 }
