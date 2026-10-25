@@ -206,8 +206,8 @@ done
 if [[ "$BUILD_REGISTRY" != "$PUBLISH_REGISTRY" ]] && [[ $PUSH -eq 1 ]]; then
   for BUILT_TAG in "${BUILT_TAGS[@]}"; do
     PUBLISH_TAG=${BUILT_TAG//$BUILD_REGISTRY/$PUBLISH_REGISTRY}
-    run docker tag "$BUILT_TAG" "$PUBLISH_TAG"
-    run docker push "$BUILT_TAG"
+    # images built with buildx live only in the build registry, so copy them between registries
+    run docker buildx imagetools create --tag "$PUBLISH_TAG" "$BUILT_TAG"
   done
 else
   echo "Created tags:"
