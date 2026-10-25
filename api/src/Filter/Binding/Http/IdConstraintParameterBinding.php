@@ -20,6 +20,7 @@
 
 namespace App\Filter\Binding\Http;
 
+use App\Filter\Binding\Http\Exception\InvalidParameterException;
 use App\Filter\Requirement\IdConstraint;
 use App\Utility\RequestUtils;
 use Attribute;
@@ -40,6 +41,7 @@ class IdConstraintParameterBinding implements ParameterBinding
         public readonly array $from = ['query'],
         public readonly bool $isMultiple = false,
         public readonly array $documentation = [],
+        public readonly bool $required = false,
     ) {
     }
 
@@ -48,6 +50,8 @@ class IdConstraintParameterBinding implements ParameterBinding
     {
         if ($value = RequestUtils::get($request, $this->parameter, $this->from)) {
             yield new IdConstraint(id: $this->isMultiple ? explode(',', (string) $value) : $value);
+        } elseif ($this->required) {
+            throw InvalidParameterException::invalid($this->parameter, 'at least one value is required');
         }
     }
 
@@ -64,6 +68,7 @@ class IdConstraintParameterBinding implements ParameterBinding
             new Parameter(
                 name: $this->parameter,
                 in: $fromAttributes ? 'path' : 'query',
+                required: $this->required ?: null,
                 explode: false,
                 schema: $this->isMultiple
                     ? $schema
