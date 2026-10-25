@@ -36,6 +36,8 @@ Don't write one for local implementation details that the code and the wiki alre
 | ADR | Title | Status |
 |---|---|---|
 | [0001](0001-behavioural-tests-with-behat.md) | Behavioural tests with Behat | Accepted |
+| [0002](0002-unicode-aware-sqlite-string-functions.md) | Unicode-aware string functions on SQLite | Proposed |
+| [0003](0003-malformed-request-parameters-are-bad-requests.md) | Malformed request parameters are rejected with 400 | Proposed |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
