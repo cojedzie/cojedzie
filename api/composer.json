@@ -5,7 +5,7 @@
   "version": "2023.1.4",
   "license": "AGPL-3.0-only",
   "require": {
-    "php": "^8.3",
+    "php": "^8.5",
     "ext-ctype": "*",
     "ext-iconv": "*",
     "ext-json": "*",
@@ -16,7 +16,7 @@
     "doctrine/orm": "^2",
     "dragonmantank/cron-expression": "^3.3",
     "friendsofphp/proxy-manager-lts": "^1.0",
-    "illuminate/collections": "^8.83",
+    "illuminate/collections": "^12.0",
     "kadet/functional": "dev-master",
     "nelmio/api-doc-bundle": "^5.0",
     "nelmio/cors-bundle": "^2.5",
