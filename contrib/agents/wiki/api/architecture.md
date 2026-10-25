@@ -53,4 +53,4 @@ describers in `src/Describer`.
 
 - `src/Parser` + `tests/JsonStreaming*` — a custom streaming JSON tokenizer/parser (commit scope
   `streaming-parser`) used to import large provider JSON files without loading them into memory.
-- `src/Service/Proxy` — ProxyManager-generated lazy entity references (`ReferenceFactory`).
+- `src/Service/Proxy` — `friendsofphp/proxy-manager-lts`-generated lazy entity references (`ReferenceFactory`).

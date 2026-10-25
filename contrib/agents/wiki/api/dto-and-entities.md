@@ -78,9 +78,10 @@ A DTO that stands for an object without its data, carrying only `id`:
 
 - `Referable::reference($id)` (`ReferableTrait`) creates a plain DTO with only `id` filled. Bindings use it for
   `RelatedFilter`.
-- `Service/Proxy/ReferenceFactory::get($class, $id)` creates a generated subclass (ProxyManager,
+- `Service/Proxy/ReferenceFactory::get($class, $id)` creates a generated subclass (`friendsofphp/proxy-manager-lts`,
   `ReferenceObjectGenerator`) that also implements `Dto\JustReference`. `EntityConverter` uses it for unloaded
-  proxies. `JustReferenceNormalizer` serializes these with group `reference`, i.e. just `{ "id": ... }`.
+  proxies. `JustReferenceNormalizer` serializes these with group `reference`, i.e. just `{ "id": ..., "$type": ... }`
+  (pinned by `tests/Service/Proxy/ReferenceFactoryTest`).
 
 The reverse direction is `Service/EntityReferenceFactory::create($dto|array|Collection, $provider)`. It turns
 `Line`/`Stop`/`Track` DTOs into `EntityManager::getReference()` proxies with prefixed ids, which DB handlers
