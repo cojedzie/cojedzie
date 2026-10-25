@@ -73,7 +73,7 @@ final class StreamingParser
     }
 
     #[Pure]
-    public static function between(StreamingParserInterface $consumer, ParserInterface $left, ParserInterface $right = null)
+    public static function between(StreamingParserInterface $consumer, ParserInterface $left, ?ParserInterface $right = null)
     {
         return new BetweenStreamingParser($consumer, $left, $right);
     }

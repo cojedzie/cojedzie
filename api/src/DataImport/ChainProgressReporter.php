@@ -30,7 +30,7 @@ class ChainProgressReporter implements ProgressReporterInterface
     }
 
     #[\Override]
-    public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
+    public function progress(float $progress, ?float $max = null, ?string $comment = null, bool $finished = false): void
     {
         foreach ($this->reporters as $reporter) {
             $reporter->progress($progress, $max, $comment, $finished);

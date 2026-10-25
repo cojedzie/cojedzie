@@ -88,7 +88,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         $lines = $this->lines->all(new IdConstraint($lines))->keyBy(t\property('id'));
 
         return collect($estimates)->map(function ($delay) use ($stop, $lines) {
-            $scheduled = (new Carbon($delay['theoreticalTime'], 'Europe/Warsaw'))->tz('UTC');
+            $scheduled = new Carbon($delay['theoreticalTime'], 'Europe/Warsaw')->tz('UTC');
             $estimated = (clone $scheduled)->addSeconds($delay['delayInSeconds']);
 
             return Departure::createFromArray([

@@ -31,7 +31,7 @@ class BetweenStreamingParser extends AbstractStreamingParser
     public function __construct(
         private readonly StreamingParserInterface $value,
         private readonly ParserInterface $left,
-        ParserInterface $right = null,
+        ?ParserInterface $right = null,
     ) {
         $this->right = $right ?: $this->left;
     }

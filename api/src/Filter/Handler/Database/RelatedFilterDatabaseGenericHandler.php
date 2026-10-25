@@ -75,7 +75,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         $alias    = $event->getMeta()['alias'];
         $type     = $event->getMeta()['type'];
 
-        if (!array_key_exists($type, $this->mapping)) {
+        if (!array_key_exists((string) $type, $this->mapping)) {
             throw new \InvalidArgumentException(
                 sprintf("Relationship filtering for %s is not supported.", $type)
             );

@@ -30,7 +30,7 @@ class LoggerOutput extends Output
         private readonly LoggerInterface $logger,
         ?int $verbosity = self::VERBOSITY_NORMAL,
         bool $decorated = false,
-        OutputFormatterInterface $formatter = null
+        ?OutputFormatterInterface $formatter = null
     ) {
         parent::__construct($verbosity, $decorated, $formatter);
     }

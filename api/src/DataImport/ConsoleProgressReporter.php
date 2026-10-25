@@ -36,7 +36,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
     }
 
     #[\Override]
-    public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
+    public function progress(float $progress, ?float $max = null, ?string $comment = null, bool $finished = false): void
     {
         $max = (int) $max;
 

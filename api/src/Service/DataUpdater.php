@@ -90,7 +90,7 @@ class DataUpdater
             ];
 
             foreach ($importer->getDependencies() as $dependency) {
-                if (!array_key_exists($dependency, $dependants)) {
+                if (!array_key_exists((string) $dependency, $dependants)) {
                     $dependants[$dependency] = [];
                 }
 

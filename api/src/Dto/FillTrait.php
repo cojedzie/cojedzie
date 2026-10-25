@@ -30,7 +30,7 @@ trait FillTrait
                     $this->{$setter}($value);
                     break;
 
-                case property_exists($this, $name) && (new \ReflectionProperty($this, $name))->isPublic():
+                case property_exists($this, $name) && new \ReflectionProperty($this, $name)->isPublic():
                     $this->$name = $value;
                     break;
             }

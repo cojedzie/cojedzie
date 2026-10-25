@@ -35,7 +35,7 @@ class LoggerProgressReporter implements ProgressReporterInterface
     }
 
     #[\Override]
-    public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void
+    public function progress(float $progress, ?float $max = null, ?string $comment = null, bool $finished = false): void
     {
         if (!$finished && !$this->shouldLogProgressMessage()) {
             return;

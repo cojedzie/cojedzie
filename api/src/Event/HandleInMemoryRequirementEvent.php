@@ -35,7 +35,7 @@ class HandleInMemoryRequirementEvent extends HandleRequirementEvent
         parent::__construct($modifier, $repository, $meta);
     }
 
-    public function addPredicate(callable $predicate, string $name = null)
+    public function addPredicate(callable $predicate, ?string $name = null)
     {
         if ($name) {
             $this->predicates[$name] = $predicate;

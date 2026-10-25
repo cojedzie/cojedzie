@@ -25,7 +25,7 @@ interface ProgressReporterInterface
     /**
      * Updates progress of the whole task.
      */
-    public function progress(float $progress, float $max = null, string $comment = null, bool $finished = false): void;
+    public function progress(float $progress, ?float $max = null, ?string $comment = null, bool $finished = false): void;
 
     /**
      * Marks milestone in the process.
