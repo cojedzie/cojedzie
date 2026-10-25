@@ -20,13 +20,13 @@
 
 namespace App\Filter\Binding\Http;
 
+use App\Filter\Binding\Http\Exception\InvalidParameterException;
 use App\Filter\Requirement\LimitConstraint;
 use Attribute;
 use OpenApi\Attributes\Parameter;
 use OpenApi\Attributes\Schema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
-use function App\Functions\clamp;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER)]
 class LimitParameterBinding implements ParameterBinding
@@ -44,9 +44,26 @@ class LimitParameterBinding implements ParameterBinding
     public function getRequirementsFromRequest(Request $request): iterable
     {
         yield new LimitConstraint(
-            offset: $request->query->get(self::OFFSET_QUERY_PARAMETER, 0),
-            count: clamp($request->query->get(self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), min: 0, max: $this->maxLimit),
+            offset: self::nonNegativeInteger($request, self::OFFSET_QUERY_PARAMETER, 0),
+            count: min(self::nonNegativeInteger($request, self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), $this->maxLimit),
         );
+    }
+
+    private static function nonNegativeInteger(Request $request, string $parameter, int $default): int
+    {
+        if (!$request->query->has($parameter)) {
+            return $default;
+        }
+
+        $value = filter_var($request->query->get($parameter), FILTER_VALIDATE_INT, [
+            'options' => [
+                'min_range' => 0,
+            ],
+        ]);
+
+        return $value === false
+            ? throw InvalidParameterException::invalid($parameter, 'expected a non-negative integer')
+            : $value;
     }
 
     #[\Override]

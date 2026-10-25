@@ -20,9 +20,9 @@
 
 namespace App\Filter\Binding\Http\Exception;
 
-class InvalidOperatorException extends \RuntimeException
+class InvalidOperatorException extends InvalidParameterException
 {
-    public static function unsupported(string $operator, array $supported, string $parameter): self
+    public static function unsupported(string $operator, array $supported, string $parameter): static
     {
         return new static(
             sprintf(
