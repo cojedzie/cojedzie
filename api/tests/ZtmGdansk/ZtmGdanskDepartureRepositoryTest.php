@@ -31,18 +31,20 @@ use App\Dto\Trip;
 use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\Requirement;
+use App\Provider\Database\RealtimeScheduleDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
-use App\Provider\ZtmGdansk\ZtmGdanskDepartureRepository;
+use App\Provider\ZtmGdansk\ZtmGdanskRealtimeDepartureRepository;
 use App\Service\Proxy\ReferenceFactory;
 use App\Tests\ZtmGdansk\Support\EstimatesStream;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\MockClock;
 
 /**
- * Pins how live estimates are joined with the timetable, before that logic is moved out of the ZTM provider.
+ * Pins how ZTM's live estimates are joined with the timetable by the shared joining repository.
  */
 final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
 {
@@ -171,10 +173,10 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
 
     private function repository(): DepartureRepository
     {
-        return new ZtmGdanskDepartureRepository(
-            $this->lineRepository(),
+        return new RealtimeScheduleDepartureRepository(
             $this->scheduleRepository(),
-            self::getContainer()->get(ReferenceFactory::class)
+            new ZtmGdanskRealtimeDepartureRepository($this->lineRepository(), self::getContainer()->get(ReferenceFactory::class)),
+            new MockClock(Carbon::now()->toDateTimeImmutable()),
         );
     }
 

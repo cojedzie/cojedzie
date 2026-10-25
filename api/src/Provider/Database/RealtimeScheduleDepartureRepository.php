@@ -18,92 +18,56 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Provider\ZtmGdansk;
+namespace App\Provider\Database;
 
 use App\Dto\Departure;
-use App\Dto\Line;
 use App\Dto\ScheduledStop;
 use App\Dto\Stop;
-use App\Dto\Vehicle;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
-use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
-use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
-use App\Service\Proxy\ReferenceFactory;
-use App\Utility\IterableUtils;
 use App\Utility\ModifierUtils;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Kadet\Functional\Transforms as t;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use function App\Functions\setup;
-use function Kadet\Functional\ref;
 
-class ZtmGdanskDepartureRepository implements DepartureRepository
+/**
+ * Departures from a timetable joined with live departures from another repository: a live departure replaces the
+ * timetable entry of the same line and scheduled time, live departures without one are kept, and departures that
+ * already left are dropped. Providers can change how entries are matched or merged by overriding pair() and merge().
+ */
+#[Exclude] // built by each provider from its own schedule and live source
+class RealtimeScheduleDepartureRepository implements DepartureRepository
 {
-    final public const string ESTIMATES_URL = 'http://ckan2.multimediagdansk.pl/delays';
-
     public function __construct(
-        private readonly LineRepository $lines,
         private readonly ScheduleRepository $schedule,
-        private readonly ReferenceFactory $reference
+        private readonly DepartureRepository $realtime,
+        private readonly ClockInterface $clock,
     ) {
     }
 
     #[\Override]
     public function current(iterable $stops, Requirement ...$requirements)
     {
-        $real = IterableUtils::toCollection($stops)
-            ->flatMap(ref($this->getRealDepartures(...)))
+        $real = collect($this->realtime->current($stops))
             ->sortBy(t\property('estimated'))
         ;
 
-        $now       = Carbon::now()->second(0);
+        $now       = Carbon::instance($this->clock->now())->second(0);
         $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
         $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractRequirements($requirements));
 
         $result = $this->pair($scheduled, $real)->filter(fn (Departure $departure) => $departure->getDeparture() > $now);
 
         return $this->processResultWithRequirements($result, $requirements)->values();
-    }
-
-    private function getRealDepartures(Stop $stop)
-    {
-        try {
-            $estimates = file_get_contents(static::ESTIMATES_URL . "?stopId=" . $stop->getId());
-            $estimates = json_decode($estimates, true, 512, JSON_THROW_ON_ERROR)['delay'];
-        } catch (\Error) {
-            return collect();
-        }
-
-        $estimates = collect($estimates);
-
-        $lines = $estimates->map(fn ($delay) => $delay['routeId'])->unique();
-
-        $lines = $this->lines->all(new IdConstraint($lines))->keyBy(t\property('id'));
-
-        return collect($estimates)->map(function ($delay) use ($stop, $lines) {
-            $scheduled = new Carbon($delay['theoreticalTime'], 'Europe/Warsaw')->tz('UTC');
-            $estimated = (clone $scheduled)->addSeconds($delay['delayInSeconds']);
-
-            return Departure::createFromArray([
-                'key'       => sprintf('%s::%s', $delay['routeId'], $scheduled->format('H:i')),
-                'scheduled' => $scheduled,
-                'estimated' => $estimated,
-                'stop'      => $stop,
-                'display'   => trim((string) $delay['headsign']),
-                'vehicle'   => $this->reference->get(Vehicle::class, $delay['vehicleCode']),
-                'line'      => $lines->get($delay['routeId']) ?: Line::createFromArray([
-                    'symbol' => $delay['routeId'],
-                    'type'   => Line::TYPE_UNKNOWN,
-                ]),
-            ]);
-        })->values();
     }
 
     private function getScheduledDepartures($stop, Carbon $time, Requirement ...$requirements)
@@ -117,7 +81,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         );
     }
 
-    private function pair(Collection $schedule, Collection $real)
+    protected function pair(Collection $schedule, Collection $real): Collection
     {
         $key = function ($departure) {
             if ($departure instanceof Departure) {
@@ -165,7 +129,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         });
     }
 
-    private function merge(?Departure $real, ?ScheduledStop $scheduled)
+    protected function merge(?Departure $real, ?ScheduledStop $scheduled): Departure
     {
         if (!$real) {
             return $this->convertScheduledStopToDeparture($scheduled);
@@ -182,7 +146,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         });
     }
 
-    private function convertScheduledStopToDeparture(ScheduledStop $stop): Departure
+    protected function convertScheduledStopToDeparture(ScheduledStop $stop): Departure
     {
         return setup(new Departure(), function (Departure $converted) use ($stop) {
             $converted->setDisplay($this->extractDisplayFromScheduledStop($stop));
@@ -194,7 +158,7 @@ class ZtmGdanskDepartureRepository implements DepartureRepository
         });
     }
 
-    private function extractDisplayFromScheduledStop(ScheduledStop $stop)
+    protected function extractDisplayFromScheduledStop(ScheduledStop $stop)
     {
         return $stop->getTrack()->getDestination()->getName();
     }

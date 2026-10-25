@@ -27,6 +27,7 @@ use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\Database\GenericTripRepository;
+use App\Provider\Database\RealtimeScheduleDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
@@ -37,6 +38,7 @@ use App\Provider\TripRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 class ZtmGdanskProvider implements Provider
 {
@@ -87,7 +89,8 @@ class ZtmGdanskProvider implements Provider
         GenericScheduleRepository $schedule,
         GenericTripRepository $trips,
         private readonly ZtmGdanskMessageRepository $messages,
-        ReferenceFactory $referenceFactory
+        ReferenceFactory $referenceFactory,
+        ClockInterface $clock,
     ) {
         $provider = $this->refreshProviderEntity();
 
@@ -98,11 +101,15 @@ class ZtmGdanskProvider implements Provider
         $trips    = $trips->withProvider($provider);
 
         $this->lines      = $lines;
-        $this->departures = new ZtmGdanskDepartureRepository($lines, $schedule, $referenceFactory);
-        $this->stops      = $stops;
-        $this->tracks     = $tracks;
-        $this->entity     = $provider;
-        $this->trips      = $trips;
+        $this->departures = new RealtimeScheduleDepartureRepository(
+            $schedule,
+            new ZtmGdanskRealtimeDepartureRepository($lines, $referenceFactory),
+            $clock,
+        );
+        $this->stops  = $stops;
+        $this->tracks = $tracks;
+        $this->entity = $provider;
+        $this->trips  = $trips;
 
         $this->messages->setProvider($provider);
     }
