@@ -1,4 +1,10 @@
 services:
+    # frozen by scenarios, see App\Tests\Behat\Support\FrozenTime
+    clock:
+        class: Symfony\Component\Clock\MockClock
+
+    Symfony\Component\Clock\MockClock: '@clock'
+
     _defaults:
         autowire: true
         autoconfigure: true
