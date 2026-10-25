@@ -32,6 +32,13 @@ use function App\Functions\encapsulate;
 
 class FieldFilterDatabaseHandler implements ModifierHandler
 {
+    private const string LIKE_ESCAPE = '!';
+
+    private const array PATTERN_OPERATORS = [
+        FieldFilterOperator::Contains,
+        FieldFilterOperator::BeginsWith,
+        FieldFilterOperator::EndsWith,
+    ];
     protected $mapping = [
         Stop::class => [
             'name' => 'name',
@@ -75,6 +82,17 @@ class FieldFilterDatabaseHandler implements ModifierHandler
             $value = is_array($value) ? array_map(fn ($x) => mb_strtolower((string) $x), $value) : mb_strtolower((string) $value);
         }
 
+        $pattern = in_array($operator, self::PATTERN_OPERATORS, true);
+
+        if ($pattern) {
+            // wildcard characters in the searched value are meant literally
+            $value = str_replace(
+                [self::LIKE_ESCAPE, '%', '_'],
+                [self::LIKE_ESCAPE . self::LIKE_ESCAPE, self::LIKE_ESCAPE . '%', self::LIKE_ESCAPE . '_'],
+                (string) $value
+            );
+        }
+
         $value = match ($operator) {
             FieldFilterOperator::Contains   => "%$value%",
             FieldFilterOperator::BeginsWith => "$value%",
@@ -83,7 +101,13 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         };
 
         $builder
-            ->andWhere(sprintf("%s %s %s", $where, $this->mapFieldFilterOperatorToDatabase($operator), $parameter))
+            ->andWhere(sprintf(
+                "%s %s %s%s",
+                $where,
+                $this->mapFieldFilterOperatorToDatabase($operator),
+                $parameter,
+                $pattern ? sprintf(" ESCAPE '%s'", self::LIKE_ESCAPE) : ''
+            ))
             ->setParameter($parameter, $value)
         ;
     }
