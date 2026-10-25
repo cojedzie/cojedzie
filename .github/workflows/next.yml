@@ -9,6 +9,34 @@ permissions:
   contents: read
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ds-1.8.0, intl, bcmath, zip, sockets, pdo_sqlite, amqp, redis
+          coverage: none
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Prepare test database
+        run: |
+          mkdir -p var/db
+          rm -f var/db/test.db
+          bin/console --env=test doctrine:migrations:migrate --no-interaction --quiet
+      - name: PHPUnit
+        run: bin/phpunit --log-junit var/junit/phpunit.xml
+      - name: Behat
+        run: >
+          vendor/bin/behat --no-interaction --fail-on-behat-deprecations --tags='~@wip'
+          --format=progress --out=std --format=junit --out=var/junit/behat
+
   build:
     runs-on: ubuntu-latest
     services:
