@@ -44,7 +44,7 @@ class ProviderDataImporter implements DataImporter
         $existing = $this->connection->createQueryBuilder()
             ->from('provider', 'p')
             ->select('id')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
 
         foreach ($this->providers as $provider) {

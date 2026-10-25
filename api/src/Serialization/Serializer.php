@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class Serializer implements SerializerInterface, NormalizerInterface
 {
     public function __construct(
-        private readonly SerializerInterface & NormalizerInterface $decorated,
+        private readonly SerializerInterface&NormalizerInterface $decorated,
     ) {
     }
 

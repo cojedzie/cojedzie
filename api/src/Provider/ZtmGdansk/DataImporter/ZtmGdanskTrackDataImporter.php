@@ -208,7 +208,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
                 // allow only stops from current import
                 ->setParameter('import_id', $event->import->getId(), 'uuid')
-                ->execute()
+                ->executeQuery()
                 ->iterateColumn()
         );
 

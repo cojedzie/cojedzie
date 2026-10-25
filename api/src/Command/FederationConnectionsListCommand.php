@@ -23,16 +23,16 @@ namespace App\Command;
 use App\Entity\Federation\FederatedConnectionEntity;
 use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'federation:connections:list', description: 'List federated connections')]
 class FederationConnectionsListCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-    protected static $defaultName        = 'federation:connections:list';
-    protected static $defaultDescription = 'List federated connections';
 
     public function __construct(
         private readonly EntityManagerInterface $manager
@@ -41,7 +41,7 @@ class FederationConnectionsListCommand extends Command implements CustomSentrySa
     }
 
     #[\Override]
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription(self::$defaultDescription)

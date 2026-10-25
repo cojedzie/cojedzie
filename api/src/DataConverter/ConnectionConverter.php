@@ -37,7 +37,6 @@ class ConnectionConverter implements Converter
     public function convert($entity, string $type)
     {
         /** @var FederatedConnectionEntity $entity */
-
         $status = $entity->getLastStatus() ?
             $this->serializer->deserialize($entity->getLastStatus(), Aggregated::class, 'json')
             : null;

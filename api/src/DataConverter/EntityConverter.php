@@ -20,7 +20,7 @@
 
 namespace App\DataConverter;
 
-use App\Dto\{Dto, Line, Location, Operator, ScheduledStop, Stop, Track, Trip};
+use App\Dto\{Dto, Line, Location, Operator, Stop, Track, Trip};
 use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
 use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
@@ -114,7 +114,6 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     {
         if ($entity instanceof Proxy) {
             $id = (new \ReflectionClass(get_parent_class($entity)))->getProperty('id');
-            $id->setAccessible(true);
 
             return $id->getValue($entity);
         }

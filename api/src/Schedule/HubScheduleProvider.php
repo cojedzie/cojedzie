@@ -60,7 +60,7 @@ class HubScheduleProvider implements ScheduleProviderInterface
     }
 
     #[\Override]
-    public function getSchedule(): \Symfony\Component\Scheduler\Schedule
+    public function getSchedule(): Schedule
     {
         return $this->schedule ??= (new Schedule())
             ->with(

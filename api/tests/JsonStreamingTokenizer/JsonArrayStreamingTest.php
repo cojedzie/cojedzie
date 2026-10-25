@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\JsonStreamingTokenizer;
 
 use App\Parser\Json\JsonStreamingTokenizer;
@@ -10,7 +12,7 @@ use App\Tests\Utils\JsonTokenizerAssertions;
 use App\Tests\Utils\StreamTestAssertions;
 use PHPUnit\Framework\TestCase;
 
-class JsonArrayStreamingTest extends TestCase
+final class JsonArrayStreamingTest extends TestCase
 {
     use JsonTokenizerAssertions, StreamTestAssertions;
 

@@ -53,7 +53,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->where('l.import_id = :import_id')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
             ->setParameter('import_id', $event->import->getId(), 'uuid')
-            ->execute();
+            ->executeQuery();
 
         $existingLineIds   = $existingLineIdsQueryResult->iterateColumn();
         $existingLineCount = $existingLineIdsQueryResult->rowCount();
@@ -64,7 +64,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
                 ->select('id')
                 ->where('s.provider_id = :provider_id')
                 ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-                ->execute()
+                ->executeQuery()
                 ->iterateColumn()
         );
 
@@ -97,7 +97,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->where(sprintf('id in (%s)', $tripIds->getSQL()))
             ->setParameter('ids', $tripIds, Connection::PARAM_STR_ARRAY)
             ->setParameter('lid', $lineId)
-            ->execute()
+            ->executeStatement()
         ;
 
         $url = sprintf(

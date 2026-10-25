@@ -64,9 +64,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         foreach ($messagesFromApi as $messageApiDto) {
             $id = $this->generateIdFromApi($messageApiDto);
 
-            if (!isset($messages[$id])) {
-                $messages[$id] = $this->createMessageFromZtm($messageApiDto);
-            }
+            $messages[$id] ??= $this->createMessageFromZtm($messageApiDto);
 
             $message = $messages[$id];
 
@@ -117,7 +115,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
             ->andWhere('provider_id = :provider')
             ->setParameter('provider', $this->provider->getId())
             ->setParameter('symbols', $messagesBySymbol->keys()->toArray(), Connection::PARAM_STR_ARRAY)
-            ->execute()
+            ->executeQuery()
             ->iterateKeyValue();
 
         foreach ($linesBySymbol as $symbol => $id) {

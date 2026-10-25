@@ -23,6 +23,7 @@ namespace App\Command;
 use App\Context\FederationContext;
 use App\Service\FederatedConnectionService;
 use App\Utility\CustomSentrySampleRateInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,11 +31,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 use function App\Functions\class_name;
 
+#[AsCommand(name: 'federation:connect', description: 'Connect this node into the federation network.')]
 class FederationConnectCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-    protected static $defaultName        = 'federation:connect';
-    protected static $defaultDescription = 'Connect this node into the federation network.';
 
     public function __construct(
         private readonly FederationContext $federationContext,
@@ -44,7 +44,7 @@ class FederationConnectCommand extends Command implements CustomSentrySampleRate
     }
 
     #[\Override]
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription(self::$defaultDescription)

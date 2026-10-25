@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * Copyright (C) 2022 Kacper Donat
  *
@@ -17,7 +20,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 namespace App\Tests\JsonStreamingTokenizer;
 
 use App\Parser\Json\JsonStreamingTokenizer;
@@ -28,7 +30,7 @@ use App\Tests\Utils\JsonTokenizerAssertions;
 use App\Tests\Utils\StreamTestAssertions;
 use PHPUnit\Framework\TestCase;
 
-class JsonObjectStreamingTest extends TestCase
+final class JsonObjectStreamingTest extends TestCase
 {
     use JsonTokenizerAssertions, StreamTestAssertions;
 

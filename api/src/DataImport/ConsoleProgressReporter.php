@@ -138,7 +138,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
     {
         try {
             return @$progressBar->getMessage();
-        } catch (\TypeError $e) {
+        } catch (\TypeError) {
             return null;
         }
     }

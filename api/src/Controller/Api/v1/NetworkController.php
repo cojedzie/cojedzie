@@ -41,8 +41,6 @@ use Symfony\Component\Uid\NilUuid;
 /**
  * Controller used for managing resources related to the federation feature.
  *
- * @package App\Controller
- *
  * @OA\Tag(name="Network")
  */
 #[Route(path: '/network', name: 'network_', options: ['sentry_trace_sample' => 0.01])]

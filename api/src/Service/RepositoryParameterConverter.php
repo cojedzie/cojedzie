@@ -92,7 +92,7 @@ class RepositoryParameterConverter implements ParamConverterInterface
     #[\Override]
     public function supports(ParamConverter $configuration)
     {
-        $supports = any(array_map(curry('is_a', 3)(_, _, true), [
+        $supports = any(array_map(curry(is_a(...), 3)(_, _, true), [
             StopRepository::class,
             LineRepository::class,
             DepartureRepository::class,
