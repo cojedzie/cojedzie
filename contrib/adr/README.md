@@ -35,6 +35,7 @@ Don't write one for local implementation details that the code and the wiki alre
 
 | ADR | Title | Status |
 |---|---|---|
+| [0001](0001-behavioural-tests-with-behat.md) | Behavioural tests with Behat | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
