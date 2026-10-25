@@ -31,22 +31,17 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ds\Set;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
-    final public const string RESOURCE_PATH     = "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
-    final public const string GDYNIA_STOPS_PATH = "/stopsAPI/stopsList";
+    final public const string RESOURCE_PATH = "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
 
     public function __construct(
         private readonly Connection $connection,
         private readonly JsonStreamer $jsonStreamer,
-        private readonly HttpClientInterface $client,
         private readonly IdUtils $idUtils,
         #[Autowire(env: 'ZTM_GDANSK_DATASET_URL')]
         private readonly string $datasetUrl,
-        #[Autowire(env: 'ZKM_GDYNIA_API_URL')]
-        private readonly string $gdyniaApiUrl,
     ) {
     }
 
@@ -113,8 +108,6 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
     private function getStopsFromZtmApi()
     {
-        $gdyniaStopVariants = $this->getVariantsForGdyniaStops();
-
         foreach ($this->jsonStreamer->stream($this->datasetUrl . self::RESOURCE_PATH, sprintf('%s.stops', date('Y-m-d'))) as $stop) {
             // skip stops that are technical
             if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
@@ -123,39 +116,14 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
             $name = trim($stop['stopName'] ?? $stop['stopDesc']);
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']) => [
-                'name'    => $name,
-                'variant' => trim(
-                    (string) ($stop['zoneName'] == 'Gdańsk'
-                        ? $stop['stopCode'] ?? $stop['subName']
-                        : $gdyniaStopVariants[$stop['stopId']] ?? '')
-                ) ?: null,
+                'name'       => $name,
+                'variant'    => trim((string) ($stop['stopCode'] ?? $stop['subName'])) ?: null,
                 'latitude'   => $stop['stopLat'],
                 'longitude'  => $stop['stopLon'],
                 'on_demand'  => (bool) $stop['onDemand'],
                 'group_name' => $name,
             ];
         }
-    }
-
-    private function getVariantsForGdyniaStops(): array
-    {
-        $stops = $this->client->request('GET', $this->gdyniaApiUrl . self::GDYNIA_STOPS_PATH)->toArray();
-
-        $entries = array_map(
-            fn ($stop) => isset($stop['stopId']) ? [
-                $stop['stopId'],
-                preg_replace('/^.*?(\d+)$/', '$1', $stop['stopName'] ?? ''),
-            ] : null,
-            $stops
-        );
-        $entries = array_filter($entries);
-
-        return array_filter(
-            array_combine(
-                array_column($entries, 0),
-                array_column($entries, 1),
-            )
-        );
     }
 
     #[\Override]
