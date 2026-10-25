@@ -55,14 +55,22 @@ final class DepartureContext implements Context
     public function thereAreDepartures(TableNode $departures): void
     {
         foreach ($departures->getHash() as $departure) {
+            $this->data->trip($departure['line'], $departure['stop'], $this->time->at($departure['scheduled']), $departure['display']);
+
+            if ($departure['estimated'] !== '') {
+                $this->live($departure, ($departure['live display'] ?? '') ?: $departure['display']);
+            }
+        }
+
+        $this->data->flush();
+    }
+
+    #[Given('there are live departures not in the timetable:')]
+    public function thereAreLiveDeparturesNotInTheTimetable(TableNode $departures): void
+    {
+        foreach ($departures->getHash() as $departure) {
             $this->data->line($departure['line']);
-            $this->departures->add(
-                $departure['stop'],
-                $departure['line'],
-                $this->time->at($departure['scheduled']),
-                $departure['estimated'] !== '' ? $this->time->at($departure['estimated']) : null,
-                ($departure['display'] ?? '') ?: null,
-            );
+            $this->live($departure, $departure['display']);
         }
 
         $this->data->flush();
@@ -101,10 +109,33 @@ final class DepartureContext implements Context
         );
     }
 
+    #[Then('the departures should go to:')]
+    public function theDeparturesShouldGoTo(TableNode $expected): void
+    {
+        $actual = array_map(
+            fn (array $departure) => ['line' => $departure['line']['symbol'],
+                'display'                    => $departure['display']],
+            $this->departures(),
+        );
+
+        Assert::assertSame($expected->getHash(), $actual, 'Actual: ' . json_encode($actual, JSON_UNESCAPED_UNICODE));
+    }
+
     #[Then('I should see no departures')]
     public function iShouldSeeNoDepartures(): void
     {
         Assert::assertSame([], $this->departures());
+    }
+
+    private function live(array $departure, string $display): void
+    {
+        $this->departures->add(
+            $departure['stop'],
+            $departure['line'],
+            $this->time->at($departure['scheduled']),
+            $this->time->at($departure['estimated']),
+            $display,
+        );
     }
 
     private function request(string $stops, array $query = []): void

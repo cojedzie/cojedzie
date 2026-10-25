@@ -33,11 +33,13 @@ transaction that is rolled back (`dama/doctrine-test-bundle`; needs `use_savepoi
 
 - Stops, lines and tracks are stored in the test database by `TestData` and read through the **real** generic
   Doctrine repositories, so name filters and `embed=destinations` run the production code.
-- Departures come from `InMemoryDepartureRepository`, which implements the contract every provider must meet:
-  departures of the given stops only, merged, ordered by departure time (estimate, else schedule), departures
-  before "now" dropped, `limit`/`offset` applied. Scenarios about these document the contract. They test the
-  fake, not ZTM Gdańsk code; the ZTM joining logic belongs in unit tests. A future step is to back departures
-  with the database schedule as well.
+- Departures go through `App\Provider\Database\RealtimeScheduleDepartureRepository`, the same joining ZTM uses:
+  the timetable is real trips in the test database (written by `TestData::trip()`, read by
+  `GenericScheduleRepository`), and `InMemoryDepartureRepository` is the live source with the scenario's estimates.
+  So ordering, past departures, `limit` and matching estimates to the timetable run production code. ZTM-specific
+  parts (its delays API) are covered by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest` instead.
+- A departure row's `display` becomes the trip's destination stop (`destination-<slug>`); a live headsign can
+  differ via the optional `live display` column, and the timetable's destination wins when both exist.
 - Entity ids are `test::<id>`; the API returns `<id>`. Use readable ids (`brama-wyzynna-01`).
 
 ## Writing scenarios
@@ -45,7 +47,9 @@ transaction that is rolled back (`dama/doctrine-test-bundle`; needs `use_savepoi
 - Data goes in tables in domain words:
   - `Given there are stops:` (`id | name | variant`)
   - `Given line 6 runs through "a, b, c"` (creates the line and a track; destinations come from tracks)
-  - `Given there are departures:` (`stop | line | scheduled | estimated | display`)
+  - `Given there are departures:` (`stop | line | scheduled | estimated | display [| live display]`): timetable
+    entries; a non-empty estimate also adds a live departure
+  - `Given there are live departures not in the timetable:` (same columns): live data without a timetable entry
 - `Given the current time is "2026-10-25 12:00" in "Europe/Warsaw"` freezes `MockClock` and Carbon. Times in
   tables are `HH:MM` in that zone, taken as the nearest such moment around now, so `00:05` at 23:55 is the next
   day.

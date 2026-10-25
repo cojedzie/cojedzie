@@ -29,10 +29,13 @@ use App\Entity\ProviderEntity;
 use App\Entity\StopEntity;
 use App\Entity\TrackEntity;
 use App\Entity\TrackStopEntity;
+use App\Entity\TripEntity;
+use App\Entity\TripStopEntity;
 use App\Service\IdUtils;
 use App\Tests\Behat\Support\Provider\TestProvider;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
  * Builds the database data of the fake "test" provider from scenario tables.
@@ -53,6 +56,12 @@ final class TestData
      */
     private array $stops = [];
     private int $tracks  = 0;
+    private int $trips   = 0;
+
+    /**
+     * @var array<string, TrackEntity> tracks of departures, by line, stop and destination
+     */
+    private array $routes = [];
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -119,6 +128,49 @@ final class TestData
         $track->setStopsInTrack($stopsInTrack);
 
         return $track;
+    }
+
+    /**
+     * A timetable entry: a trip of the line leaving the stop at the given time towards a destination stop named
+     * like the departure's display.
+     */
+    public function trip(string $lineSymbol, string $stopId, Carbon $departure, string $display): TripEntity
+    {
+        $destination = 'destination-' . new AsciiSlugger()->slug($display)->lower();
+        if (!isset($this->stops[$destination])) {
+            $this->stop($destination, $display);
+        }
+
+        $route = sprintf('%s|%s|%s', $lineSymbol, $stopId, $destination);
+        $track = $this->routes[$route] ??= $this->track($lineSymbol, [$stopId, $destination]);
+
+        $trip = new TripEntity();
+        $trip->fill([
+            'id'       => $this->ids->generate(TestProvider::IDENTIFIER, sprintf('trip-%d', ++$this->trips)),
+            'track'    => $track,
+            'operator' => $this->operator(),
+        ]);
+        $this->persist($trip);
+
+        $times = [$departure, $departure->clone()->addMinutes(5)];
+        $stops = [];
+        foreach ([$stopId, $destination] as $order => $id) {
+            $stop = new TripStopEntity();
+            $stop->fill([
+                'stop'      => $this->stops[$id] ?? throw new \InvalidArgumentException("Unknown stop '$id'."),
+                'trip'      => $trip,
+                'order'     => $order + 1,
+                'arrival'   => $times[$order]->clone()->tz('UTC'),
+                'departure' => $times[$order]->clone()->tz('UTC'),
+            ]);
+            $stop->setImport($this->import());
+
+            $this->em->persist($stop);
+            $stops[] = $stop;
+        }
+        $trip->setStops($stops);
+
+        return $trip;
     }
 
     public function flush(): void

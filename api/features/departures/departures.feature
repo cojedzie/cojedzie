@@ -110,3 +110,25 @@ Feature: Departures
       | line | stop             | scheduled | estimated | delay |
       | N3   | brama-wyzynna-01 | 23:58     |           |       |
       | N1   | brama-wyzynna-01 | 00:05     |           |       |
+
+  Scenario: A live departure without a timetable entry is shown
+    Given there are departures:
+      | stop             | line | scheduled | estimated | display   |
+      | brama-wyzynna-01 | 6    | 12:10     |           | Łostowice |
+    And there are live departures not in the timetable:
+      | stop             | line | scheduled | estimated | display |
+      | brama-wyzynna-01 | 12   | 12:05     | 12:06     | Oliwa   |
+    When I ask for departures from "brama-wyzynna-01"
+    Then I should see departures:
+      | line | stop             | scheduled | estimated | delay |
+      | 12   | brama-wyzynna-01 | 12:05     | 12:06     | 60    |
+      | 6    | brama-wyzynna-01 | 12:10     |           |       |
+
+  Scenario: The destination comes from the timetable
+    Given there are departures:
+      | stop             | line | scheduled | estimated | display   | live display |
+      | brama-wyzynna-01 | 6    | 12:05     | 12:07     | Łostowice | Lostowice    |
+    When I ask for departures from "brama-wyzynna-01"
+    Then the departures should go to:
+      | line | display   |
+      | 6    | Łostowice |

@@ -26,9 +26,11 @@ use App\Dto\Location;
 use App\Entity\ProviderEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\Database\GenericLineRepository;
+use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\Database\GenericTripRepository;
+use App\Provider\Database\RealtimeScheduleDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
@@ -39,6 +41,7 @@ use App\Provider\TripRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\Collection;
+use Psr\Clock\ClockInterface;
 
 /**
  * Provider used only by behavioural tests; its data is defined by scenarios.
@@ -54,14 +57,17 @@ final class TestProvider implements Provider
         private readonly GenericStopRepository $stops,
         private readonly GenericTrackRepository $tracks,
         private readonly GenericTripRepository $trips,
-        private readonly InMemoryDepartureRepository $departures,
+        private readonly GenericScheduleRepository $schedule,
+        private readonly InMemoryDepartureRepository $live,
+        private readonly ClockInterface $clock,
     ) {
     }
 
     #[\Override]
     public function getDepartureRepository(): DepartureRepository
     {
-        return $this->departures;
+        // the timetable from the database joined with live departures, the same way real providers do it
+        return new RealtimeScheduleDepartureRepository($this->schedule->withProvider($this->entity()), $this->live, $this->clock);
     }
 
     #[\Override]
