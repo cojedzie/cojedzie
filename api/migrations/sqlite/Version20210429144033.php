@@ -30,17 +30,17 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20210429144033 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return '';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
 
-        $this->addSql('DROP INDEX IDX_D3AF7DF01844E6B7');
+        $this->addSql('DROP INDEX IF EXISTS IDX_D3AF7DF01844E6B7');
         $this->addSql('CREATE TEMPORARY TABLE __temp__federated_connection AS SELECT id, server_id, url, opened_at, closed_at, last_check, next_check, failures, failures_total, state FROM federated_connection');
         $this->addSql('DROP TABLE federated_connection');
         $this->addSql('CREATE TABLE federated_connection (id BLOB NOT NULL --(DC2Type:uuid)
@@ -52,12 +52,12 @@ final class Version20210429144033 extends AbstractMigration
         $this->addSql('ALTER TABLE federated_server ADD COLUMN secret VARCHAR(255) NOT NULL default \'\'');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
 
-        $this->addSql('DROP INDEX IDX_D3AF7DF01844E6B7');
+        $this->addSql('DROP INDEX IF EXISTS IDX_D3AF7DF01844E6B7');
         $this->addSql('CREATE TEMPORARY TABLE __temp__federated_connection AS SELECT id, server_id, url, opened_at, closed_at, last_check, next_check, failures, failures_total, state FROM federated_connection');
         $this->addSql('DROP TABLE federated_connection');
         $this->addSql('CREATE TABLE federated_connection (id BLOB NOT NULL, url VARCHAR(255) NOT NULL, opened_at DATETIME NOT NULL, closed_at DATETIME DEFAULT NULL, last_check DATETIME DEFAULT NULL, next_check DATETIME NOT NULL, failures INTEGER NOT NULL, failures_total INTEGER NOT NULL, state VARCHAR(255) NOT NULL, server_id BLOB DEFAULT NULL --,,,,(DC2Type:uuid)
