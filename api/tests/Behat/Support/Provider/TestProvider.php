@@ -54,13 +54,14 @@ final class TestProvider implements Provider
         private readonly GenericStopRepository $stops,
         private readonly GenericTrackRepository $tracks,
         private readonly GenericTripRepository $trips,
+        private readonly InMemoryDepartureRepository $departures,
     ) {
     }
 
     #[\Override]
     public function getDepartureRepository(): DepartureRepository
     {
-        throw new \LogicException('The test provider has no departures yet.');
+        return $this->departures;
     }
 
     #[\Override]

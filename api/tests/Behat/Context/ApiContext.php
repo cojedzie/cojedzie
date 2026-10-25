@@ -74,8 +74,20 @@ final class ApiContext implements Context
     {
         $json = $this->client->json();
 
-        Assert::assertIsList($json);
+        Assert::assertTrue(is_array($json) && array_is_list($json), "Expected a JSON list.");
         Assert::assertCount($count, $json);
+    }
+
+    #[Then('every item\'s :field should have the fields:')]
+    public function everyItemsFieldShouldHaveTheFields(string $field, TableNode $fields): void
+    {
+        foreach ($this->client->json() as $index => $item) {
+            Assert::assertIsArray($item[$field] ?? null, sprintf('Item %d has no object "%s".', $index, $field));
+
+            foreach (array_slice($fields->getColumn(0), 1) as $name) {
+                Assert::assertArrayHasKey($name, $item[$field], sprintf('Item %d "%s" has no field "%s".', $index, $field, $name));
+            }
+        }
     }
 
     #[Then('every item should have the fields:')]

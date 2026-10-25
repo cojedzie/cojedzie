@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Kernel;
 use App\Tests\Behat\Context\ApiContext;
+use App\Tests\Behat\Context\DepartureContext;
 use App\Tests\Behat\Context\StopContext;
+use App\Tests\Behat\Context\TimeContext;
 use Behat\Config\Config;
 use Behat\Config\Extension;
 use Behat\Config\Profile;
@@ -23,6 +25,8 @@ return (new Config())
                     ->withContexts(
                         ApiContext::class,
                         StopContext::class,
+                        TimeContext::class,
+                        DepartureContext::class,
                     )
             )
             ->withExtension(new Extension(SymfonyExtension::class, [
