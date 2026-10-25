@@ -24,7 +24,10 @@ namespace App\Tests\Serialization;
 
 use App\Dto\Links\Link;
 use App\Dto\Links\PaginationLinks;
+use App\Serialization\Serializer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Serializer\DataCollector\SerializerDataCollector;
+use Symfony\Component\Serializer\Debug\TraceableSerializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 final class LinksSerializationTest extends KernelTestCase
@@ -61,5 +64,15 @@ final class LinksSerializationTest extends KernelTestCase
             '{"self":{"href":"/a"},"next":{"href":"/b"}}',
             $this->serializer->serialize(new PaginationLinks(self: new Link('/a'), next: new Link('/b')), 'json')
         );
+    }
+
+    public function testSerializerCanBeTracedByProfiler(): void
+    {
+        $traced = new TraceableSerializer(
+            self::getContainer()->get(Serializer::class),
+            new SerializerDataCollector(),
+        );
+
+        $this->assertJsonStringEqualsJsonString('{"href":"/a"}', $traced->serialize(new Link('/a'), 'json'));
     }
 }

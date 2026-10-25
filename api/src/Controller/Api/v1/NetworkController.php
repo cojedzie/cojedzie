@@ -28,8 +28,8 @@ use App\Repository\FederatedConnectionEntityRepository;
 use App\Service\ApiResponseFactory;
 use App\Service\StatusService;
 use Kadet\Functional as f;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\Authorization;
@@ -40,10 +40,9 @@ use Symfony\Component\Uid\NilUuid;
 
 /**
  * Controller used for managing resources related to the federation feature.
- *
- * @OA\Tag(name="Network")
  */
 #[Route(path: '/network', name: 'network_', options: ['sentry_trace_sample' => 0.01])]
+#[OA\Tag(name: 'Network')]
 class NetworkController extends Controller
 {
     public function __construct(
@@ -54,14 +53,8 @@ class NetworkController extends Controller
         parent::__construct($apiResponseFactory);
     }
 
-    /**
-     * @OA\Response(
-     *     response=200,
-     *     description="Nodes that are currently available in the network.",
-     *     @OA\JsonContent(ref=@Model(type=Node::class))
-     * )
-     */
     #[Route(path: '/nodes', name: 'nodes', methods: ['GET'], options: ['version' => '1.0'])]
+    #[OA\Response(response: 200, description: 'Nodes that are currently available in the network.', content: new OA\JsonContent(ref: new Model(type: Node::class)))]
     public function nodes(
         FederatedConnectionEntityRepository $connectionRepository,
         Converter $converter,

@@ -28,7 +28,7 @@ use Symfony\Component\Uid\Uuid;
 class FederatedSeverFixtures extends Fixture
 {
     #[\Override]
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $server = FederatedServerEntity::createFromArray([
             'id'         => Uuid::fromString('a7cd192a-3dca-4fc8-b35d-91f2d6e10632'),

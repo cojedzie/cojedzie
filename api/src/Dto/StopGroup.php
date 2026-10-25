@@ -21,26 +21,23 @@
 namespace App\Dto;
 
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 
 #[ContentType('vnd.cojedzie.trip')]
 class StopGroup implements Dto
 {
     /**
      * Name of stop group.
-     * @OA\Property(example="Jasień PKM")
      */
+    #[OA\Property(example: 'Jasień PKM')]
     private string $name;
 
     /**
      * All stops in group.
      * @var Collection<Stop>
-     * @OA\Property(
-     *     type="array",
-     *     @OA\Items(ref=@Model(type=Stop::class, groups={"Default", "WithDestinations"}))
-     * )
      */
+    #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Stop::class, groups: ['Default', 'WithDestinations'])))]
     private Collection $stops;
 
     public function __construct()

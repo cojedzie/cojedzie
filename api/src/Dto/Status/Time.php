@@ -22,23 +22,21 @@ namespace App\Dto\Status;
 
 use App\Dto\Dto;
 use Carbon\Carbon;
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 use function App\Functions\setup;
 
 class Time implements Dto
 {
     /**
      * Current date and time on node.
-     *
-     * @OA\Property(type="string", format="date-time")
      */
+    #[OA\Property(type: 'string', format: 'date-time')]
     private Carbon $current;
 
     /**
      * Timezone for this node.
-     *
-     * @OA\Property(type="string", format="timezone", example="Europe/Warsaw")
      */
+    #[OA\Property(type: 'string', format: 'timezone', example: 'Europe/Warsaw')]
     private string $timezone;
 
     public static function createFromDateTime(Carbon $now)

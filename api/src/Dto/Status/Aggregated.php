@@ -24,8 +24,8 @@ use App\Dto\Dto;
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 
 class Aggregated implements Fillable, Dto
 {
@@ -34,25 +34,22 @@ class Aggregated implements Fillable, Dto
     public function __construct(
         /**
          * Time status for this node.
-         *
-         * @OA\Property(ref=@Model(type=Time::class))
          */
+        #[OA\Property(ref: new Model(type: Time::class))]
         private Time $time,
 
         /**
          * Version of the software on this ndoe.
-         *
-         * @OA\Property(ref=@Model(type=Version::class))
          */
+        #[OA\Property(ref: new Model(type: Version::class))]
         private Version $version,
 
         /**
          * All endpoints defined for this node.
          *
-         * @OA\Property(type="array", @OA\Items(ref=@Model(type=Endpoint::class)))
-         *
          * @var Collection<Endpoint>
          */
+        #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Endpoint::class)))]
         private Collection $endpoints,
     ) {
     }

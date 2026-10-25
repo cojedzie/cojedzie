@@ -21,8 +21,8 @@
 namespace App\Dto;
 
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 
 #[ContentType('vnd.cojedzie.track')]
 class Track implements Referable, Fillable, Dto
@@ -31,8 +31,8 @@ class Track implements Referable, Fillable, Dto
 
     /**
      * Line variant describing track, for example 'a'
-     * @OA\Property(example="a")
      */
+    #[OA\Property(example: 'a')]
     private ?string $variant = null;
 
     /**
@@ -42,21 +42,21 @@ class Track implements Referable, Fillable, Dto
 
     /**
      * Line reference
-     * @OA\Property(ref=@Model(type=Line::class, groups={"Default"}))
      */
+    #[OA\Property(ref: new Model(type: Line::class, groups: ['Default']))]
     private ?Line $line = null;
 
     /**
      * Stops in track
      * @var Collection<Stop>
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Stop::class)))
      */
+    #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Stop::class)))]
     private Collection $stops;
 
     /**
      * Destination stop of this track
-     * @OA\Property(ref=@Model(type=Stop::class))
      */
+    #[OA\Property(ref: new Model(type: Stop::class))]
     private ?Stop $destination = null;
 
     public function __construct()

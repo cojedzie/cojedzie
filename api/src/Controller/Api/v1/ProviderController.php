@@ -26,32 +26,21 @@ use App\Dto\{CollectionResult, Dto, Provider};
 use App\Exception\NonExistentServiceException;
 use App\Service\ProviderResolver;
 use Kadet\Functional as f;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Providers")
- */
 #[Route(path: '/providers', name: 'provider_')]
+#[OA\Tag(name: 'Providers')]
 class ProviderController extends Controller
 {
     /**
      * List available data providers.
-     *
-     * @OA\Response(
-     *     description="List of available data providers.",
-     *     response=200,
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Provider::class)))
-     * )
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
+    #[OA\Response(description: 'List of available data providers.', response: 200, content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Provider::class)))])]
     public function index(ProviderResolver $resolver, Converter $converter): Response
     {
         $providers = $resolver
@@ -66,17 +55,9 @@ class ProviderController extends Controller
 
     /**
      * Get information about specific data provider
-     *
-     * @OA\Response(
-     *     description="Data provider details.",
-     *     response=200,
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.provider+json",
-     *          @OA\Schema(ref=@Model(type=Provider::class))
-     *     ),
-     * )
      */
     #[Route(path: '/{provider}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
+    #[OA\Response(description: 'Data provider details.', response: 200, content: new OA\MediaType(mediaType: 'application/vnd.cojedzie.provider+json', schema: new OA\Schema(ref: new Model(type: Provider::class))))]
     public function one(ProviderResolver $resolver, Converter $converter, $provider)
     {
         try {

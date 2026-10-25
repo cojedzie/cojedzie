@@ -16,5 +16,5 @@ when@prod:
       release: '%env(COJEDZIE_VERSION)%'
       environment: '%env(resolve:SENTRY_ENVIRONMENT)%'
       traces_sampler: App\Service\SentrySampler
-      integrations:
-        - 'Sentry\Integration\IgnoreErrorsIntegration'
+      ignore_exceptions:
+        - Symfony\Component\HttpKernel\Exception\NotFoundHttpException

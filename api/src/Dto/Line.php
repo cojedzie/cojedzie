@@ -21,8 +21,8 @@
 namespace App\Dto;
 
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -41,21 +41,14 @@ class Line implements Fillable, Referable, Dto
 
     /**
      * Line symbol, for example '10', or 'A'
-     * @OA\Property(example="10")
      */
+    #[OA\Property(example: '10')]
     private string $symbol;
 
     /**
      * Line type tram, bus or whatever.
-     * @OA\Property(type="string", enum={
-     *     Line::TYPE_BUS,
-     *     Line::TYPE_UNKNOWN,
-     *     Line::TYPE_METRO,
-     *     Line::TYPE_TRAIN,
-     *     Line::TYPE_TRAM,
-     *     Line::TYPE_TROLLEYBUS
-     * })
      */
+    #[OA\Property(type: 'string', enum: [Line::TYPE_BUS, Line::TYPE_UNKNOWN, Line::TYPE_METRO, Line::TYPE_TRAIN, Line::TYPE_TRAM, Line::TYPE_TROLLEYBUS])]
     private string $type;
 
     /**
@@ -70,19 +63,19 @@ class Line implements Fillable, Referable, Dto
 
     /**
      * Line operator
-     * @OA\Property(ref=@Model(type=Operator::class, groups={"reference"}))
      */
     #[Context(context: [
         AbstractNormalizer::GROUPS => ['reference'],
     ])]
+    #[OA\Property(ref: new Model(type: Operator::class, groups: ['reference']))]
     private Operator $operator;
 
     /**
      * Tracks for this line
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Track::class)))
      * @var Collection<Track>
      */
     #[Groups(['full'])]
+    #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Track::class)))]
     private Collection $tracks;
 
     public function getSymbol(): string

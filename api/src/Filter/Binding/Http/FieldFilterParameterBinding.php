@@ -25,10 +25,11 @@ use App\Filter\Binding\Http\Exception\InvalidOperatorException;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
 use Attribute;
+use OpenApi\Attributes\Items;
 use OpenApi\Attributes\Parameter;
+use OpenApi\Attributes\Schema;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
-use function App\Functions\setup;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class FieldFilterParameterBinding implements ParameterBinding
@@ -105,10 +106,11 @@ class FieldFilterParameterBinding implements ParameterBinding
     #[\Override]
     public function getDocumentation(Route $route): iterable
     {
-        yield setup(new Parameter(
+        yield $this->createParameter($this->defaultOperator, new Parameter(
             name: $this->parameter,
             in: 'query',
             explode: false,
+            schema: $this->getSchemaForOperator($this->defaultOperator),
             x: [
                 'group' => $this->parameter,
                 'alias' => [
@@ -116,28 +118,25 @@ class FieldFilterParameterBinding implements ParameterBinding
                 ],
                 'operator' => FieldFilterParameterBinding::mapOperatorToDescription($this->defaultOperator),
             ],
-        ), function (Parameter $parameter) {
-            $parameter->mergeProperties((object) $this->getDocumentationForOperator($this->defaultOperator));
-        });
+        ));
 
         foreach ($this->operators as $suffix => $operator) {
             if ($operator === $this->defaultOperator) {
                 continue;
             }
 
-            yield setup(
+            yield $this->createParameter(
+                $operator,
                 new Parameter(
                     name: sprintf("%s:%s", $this->parameter, $suffix),
                     in: 'query',
                     explode: false,
+                    schema: $this->getSchemaForOperator($operator),
                     x: [
                         'group'    => $this->parameter,
                         'operator' => FieldFilterParameterBinding::mapOperatorToDescription($operator),
                     ],
                 ),
-                function (Parameter $parameter) use ($operator) {
-                    $parameter->mergeProperties((object) $this->getDocumentationForOperator($operator));
-                }
             );
         }
     }
@@ -157,6 +156,36 @@ class FieldFilterParameterBinding implements ParameterBinding
             FieldFilterOperator::BeginsWith     => 'begins with substring',
             FieldFilterOperator::EndsWith       => 'ends with substring',
         };
+    }
+
+    private function createParameter(FieldFilterOperator $operator, Parameter $parameter): Parameter
+    {
+        $documentation = $this->getDocumentationForOperator($operator);
+        unset($documentation['schema']);
+
+        $parameter->mergeProperties((object) $documentation);
+
+        return $parameter;
+    }
+
+    /**
+     * Schemas must reach swagger-php through constructors, otherwise they are not attached to their parent and
+     * end up as unnamed component schemas.
+     */
+    private function getSchemaForOperator(FieldFilterOperator $operator): ?\OpenApi\Annotations\Schema
+    {
+        $schema = $this->getDocumentationForOperator($operator)['schema'] ?? null;
+
+        return is_array($schema) ? self::createSchema($schema) : $schema;
+    }
+
+    private static function createSchema(array $schema, string $class = Schema::class): \OpenApi\Annotations\Schema
+    {
+        if (is_array($schema['items'] ?? null)) {
+            $schema['items'] = self::createSchema($schema['items'], Items::class);
+        }
+
+        return new $class(...$schema);
     }
 
     private function getDocumentationForOperator(FieldFilterOperator $operator): array

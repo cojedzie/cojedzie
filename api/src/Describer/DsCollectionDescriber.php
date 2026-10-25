@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 class DsCollectionDescriber implements ModelDescriberInterface
 {
     #[\Override]
-    public function describe(Model $model, Schema $schema)
+    public function describe(Model $model, Schema $schema): void
     {
         $schema->type  = 'array';
         $schema->items = new Items(type: 'object');

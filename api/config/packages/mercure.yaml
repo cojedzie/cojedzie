@@ -3,6 +3,8 @@ mercure:
         default:
             url: '%env(MERCURE_URL)%'
             public_url: '%env(MERCURE_PUBLIC_URL)%'
+            # Keep the JWT/cookie shape used before mercure-bundle 0.6
+            protocol_version: '0.x'
             jwt:
                 secret: '%env(MERCURE_JWT_SECRET)%'
                 publish: '*'

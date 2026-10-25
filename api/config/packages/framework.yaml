@@ -8,6 +8,8 @@ framework:
     uid:
         default_uuid_version: 6
         time_based_uuid_version: 6
+    property_info:
+        with_constructor_extractor: false
 
     php_errors:
         log: true

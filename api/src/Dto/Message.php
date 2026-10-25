@@ -21,7 +21,7 @@
 namespace App\Dto;
 
 use Carbon\Carbon;
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 
 #[ContentType('vnd.cojedzie.message')]
 class Message implements Fillable, Dto, Referable, HasRefs
@@ -40,26 +40,26 @@ class Message implements Fillable, Dto, Referable, HasRefs
 
     /**
      * Message content.
-     * @OA\Property(example="Tram accident on Haller alley, possible delays on lines: 2, 3, 4, 5.")
      */
+    #[OA\Property(example: 'Tram accident on Haller alley, possible delays on lines: 2, 3, 4, 5.')]
     private string $message;
 
     /**
      * Message type, see TYPE_* constants
-     * @OA\Property(type="string", enum={ Message::TYPE_INFO, Message::TYPE_BREAKDOWN, Message::TYPE_UNKNOWN })
      */
+    #[OA\Property(type: 'string', enum: [Message::TYPE_INFO, Message::TYPE_BREAKDOWN, Message::TYPE_UNKNOWN])]
     private string $type = self::TYPE_UNKNOWN;
 
     /**
      * Message validity time span start
-     * @OA\Property(type="string", format="date-time")
      */
+    #[OA\Property(type: 'string', format: 'date-time')]
     private ?Carbon $validFrom = null;
 
     /**
      * Message validity time span end
-     * @OA\Property(type="string", format="date-time")
      */
+    #[OA\Property(type: 'string', format: 'date-time')]
     private ?Carbon $validTo = null;
     private MessageRefs $refs;
 

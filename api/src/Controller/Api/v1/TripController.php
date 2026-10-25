@@ -27,32 +27,22 @@ use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\Requirement;
 use App\Provider\TripRepository;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Trips")
- * @OA\Parameter(ref="#/components/parameters/provider")
- */
 #[Route(path: '/{provider}/trips', name: 'trip_')]
+#[OA\Tag(name: 'Trips')]
+#[OA\Parameter(ref: '#/components/parameters/provider')]
 class TripController extends Controller
 {
     /**
      * Get information about specific trip.
      *
-     * @OA\Response(
-     *     response=200,
-     *     description="Trip details.",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.trip+json",
-     *          @OA\Schema(ref=@Model(type=Trip::class))
-     *     )
-     * )
-     *
      * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '/{id}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
+    #[OA\Response(response: 200, description: 'Trip details.', content: new OA\MediaType(mediaType: 'application/vnd.cojedzie.trip+json', schema: new OA\Schema(ref: new Model(type: Trip::class))))]
     public function one(
         #[IdConstraintParameterBinding(from: ['attributes'])]
         IdConstraint $id,

@@ -23,7 +23,7 @@ namespace App\Dto\Status;
 use App\Dto\Dto;
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 
 class Endpoint implements Fillable, Dto
 {
@@ -31,33 +31,26 @@ class Endpoint implements Fillable, Dto
 
     /**
      * Name of the endpoint, machine-readable
-     *
-     * @OA\Property(type="string", example="v1_provider_list")
      */
+    #[OA\Property(type: 'string', example: 'v1_provider_list')]
     private string $name;
 
     /**
      * Route template for that endpoint.
-     *
-     * @OA\Property(type="string", example="/api/v1/providers")
      */
+    #[OA\Property(type: 'string', example: '/api/v1/providers')]
     private string $template;
 
     /**
      * Maximum version supported for that endpoint.
-     *
-     * @OA\Property(type="string", format="version", example="1.0")
      */
+    #[OA\Property(type: 'string', format: 'version', example: '1.0')]
     private string $version;
 
     /**
      * Methods supported for that endpoint.
-     *
-     * @OA\Property(
-     *     type="array",
-     *     @OA\Items(type="string", enum={"GET", "POST", "DELETE", "PUT", "PATCH"})
-     * )
      */
+    #[OA\Property(type: 'array', items: new OA\Items(type: 'string', enum: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH']))]
     private array $methods;
 
     public function getName(): string

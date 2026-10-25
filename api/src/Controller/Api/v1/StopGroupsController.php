@@ -10,35 +10,24 @@ use App\Filter\Binding\Http\ParameterBindingProvider;
 use App\Filter\Requirement\Requirement;
 use App\Provider\StopRepository;
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Stops")
- * @OA\Parameter(ref="#/components/parameters/provider")
- */
 #[Route(path: '/{provider}/stop-groups', name: 'stop_group_')]
+#[OA\Tag(name: 'Stops')]
+#[OA\Parameter(ref: '#/components/parameters/provider')]
 class StopGroupsController extends Controller
 {
     /**
      * List stop groups.
      *
-     * @OA\Response(
-     *     response=200,
-     *     description="List of stop groups.",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\Schema(type="array", @OA\Items(ref=@Model(type=StopGroup::class)))
-     * )
-     *
      * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([StopsController::class, 'getParameterBinding'])]
+    #[OA\Response(response: 200, description: 'List of stop groups.', content: [new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: StopGroup::class))), new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class)))])]
     public function groups(
         StopRepository $stopRepository,
         iterable $requirements

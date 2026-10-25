@@ -33,30 +33,18 @@ use App\Filter\Binding\Http\ParameterBindingProvider;
 use App\Filter\Binding\Http\RelatedFilterParameterBinding;
 use App\Filter\Requirement\Requirement;
 use App\Provider\TrackRepository;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Tracks")
- * @OA\Parameter(ref="#/components/parameters/provider")
- */
 #[Route(path: '/{provider}/tracks', name: 'track_')]
+#[OA\Tag(name: 'Tracks')]
+#[OA\Parameter(ref: '#/components/parameters/provider')]
 class TracksController extends Controller
 {
     /**
      * List tracks.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Returns all tracks for specific provider, e.g. ZTM Gdańsk.",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Track::class)))
-     * )
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.1'])]
     #[RelatedFilterParameterBinding(Stop::class, 'stop', relationship: 'stop')]
@@ -65,6 +53,7 @@ class TracksController extends Controller
     #[EmbedParameterBinding(['stops'])]
     #[IdConstraintParameterBinding]
     #[LimitParameterBinding]
+    #[OA\Response(response: 200, description: 'Returns all tracks for specific provider, e.g. ZTM Gdańsk.', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Track::class)))])]
     public function index(
         TrackRepository $trackRepository,
         array $requirements
@@ -77,20 +66,11 @@ class TracksController extends Controller
     /**
      * List stops in specific track.
      *
-     * @OA\Response(
-     *     response=200,
-     *     description="List of track stops matching given criteria.",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=TrackStop::class)))
-     * )
-     *
      * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '/{track}/stops', name: 'stops_in_track', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([TrackStopsController::class, 'getParameterBindings'])]
+    #[OA\Response(response: 200, description: 'List of track stops matching given criteria.', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: TrackStop::class)))])]
     public function stops(
         TrackRepository $trackRepository,
         array $requirements

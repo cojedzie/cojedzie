@@ -35,30 +35,18 @@ use App\Filter\Binding\Http\RelatedFilterParameterBinding;
 use App\Filter\Requirement\FieldFilterOperator;
 use App\Filter\Requirement\Requirement;
 use App\Provider\TrackRepository;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Tracks")
- * @OA\Parameter(ref="#/components/parameters/provider")
- */
 #[Route(path: '/{provider}/track-stops', name: 'track_stops_')]
+#[OA\Tag(name: 'Tracks')]
+#[OA\Parameter(ref: '#/components/parameters/provider')]
 class TrackStopsController extends Controller
 {
     /**
      * List track stops.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="List of track stops matching given criteria.",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=TrackStop::class)))
-     * )
      *
      * @psalm-param iterable<Requirement> $requirements
      */
@@ -71,6 +59,7 @@ class TrackStopsController extends Controller
         ]
     )]
     #[ParameterBindingProvider([self::class, 'getParameterBindings'])]
+    #[OA\Response(response: 200, description: 'List of track stops matching given criteria.', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: TrackStop::class)))])]
     public function list(
         TrackRepository $trackRepository,
         array $requirements

@@ -16,7 +16,7 @@ RUN ln -snf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime && \
 
 WORKDIR /var/www
 
-COPY --from=spiralscout/roadrunner:2.8.0 /usr/bin/rr /usr/bin/rr
+COPY --from=ghcr.io/roadrunner-server/roadrunner:2025.1.15 /usr/bin/rr /usr/bin/rr
 
 EXPOSE 8080
 

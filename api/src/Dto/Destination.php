@@ -21,8 +21,8 @@
 namespace App\Dto;
 
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 
 class Destination implements Fillable, Dto
 {
@@ -34,9 +34,9 @@ class Destination implements Fillable, Dto
     private Stop $stop;
 
     /**
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Line::class, groups={"Default"})))
      * @var Collection<Line>
      */
+    #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Line::class, groups: ['Default'])))]
     private Collection $lines;
 
     public function __construct()

@@ -42,35 +42,24 @@ use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @OA\Tag(name="Stops")
- * @OA\Parameter(ref="#/components/parameters/provider")
- */
 #[Route(path: '/{provider}/stops', name: 'stop_')]
+#[OA\Tag(name: 'Stops')]
+#[OA\Parameter(ref: '#/components/parameters/provider')]
 class StopsController extends Controller
 {
     /**
      * List stops.
      *
-     * @OA\Response(
-     *     response=200,
-     *     description="List of stops matching given criteria.",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Stop::class)))
-     * )
-     *
      * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.1'])]
     #[ParameterBindingProvider([self::class, 'getParameterBinding'])]
+    #[OA\Response(response: 200, description: 'List of stops matching given criteria.', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Stop::class)))])]
     public function index(
         StopRepository $stopRepository,
         array $requirements
@@ -82,17 +71,9 @@ class StopsController extends Controller
 
     /**
      * Get information about specific stop.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Stop details.",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.stop+json",
-     *          @OA\Schema(ref=@Model(type=Stop::class))
-     *     ),
-     * )
      */
     #[Route(path: '/{stop}', name: 'details', methods: ['GET'], options: ['version' => '1.2'])]
+    #[OA\Response(response: 200, description: 'Stop details.', content: new OA\MediaType(mediaType: 'application/vnd.cojedzie.stop+json', schema: new OA\Schema(ref: new Model(type: Stop::class))))]
     public function one(
         StopRepository $stopRepository,
         #[IdConstraintParameterBinding(parameter: 'stop', from: ['attributes'])]
@@ -108,18 +89,9 @@ class StopsController extends Controller
 
     /**
      * List tracks containing specific stop.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="List of tracks",
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Track::class)))
-     * )
      */
     #[Route(path: '/{stop}/tracks', name: 'tracks', methods: ['GET'], options: ['version' => '1.1'])]
+    #[OA\Response(response: 200, description: 'List of tracks', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Track::class)))])]
     public function tracks(
         TrackRepository $trackRepository,
         #[RelatedFilterParameterBinding(parameter: 'stop', resource: Stop::class, from: ['attributes'])]
@@ -132,19 +104,10 @@ class StopsController extends Controller
 
     /**
      * List departures for given stop.
-     *
-     * @OA\Response(
-     *     description="List of departures valid at the time of the request",
-     *     response=200,
-     *     @OA\MediaType(
-     *          mediaType="application/vnd.cojedzie.collection+json",
-     *          @OA\Schema(ref=@Model(type=CollectionResult::class))
-     *     ),
-     *     @OA\JsonContent(type="array", @OA\Items(ref=@Model(type=Departure::class)))
-     * )
      */
     #[Route(path: '/{stop}/departures', name: 'departures', methods: ['GET'], options: ['version' => '1.2'])]
     #[LimitParameterBinding]
+    #[OA\Response(description: 'List of departures valid at the time of the request', response: 200, content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Departure::class)))])]
     public function departures(
         DepartureRepository $departureRepository,
         StopRepository $stopRepository,

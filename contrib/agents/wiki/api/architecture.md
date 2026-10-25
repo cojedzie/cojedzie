@@ -1,6 +1,6 @@
 # API architecture (`api/`)
 
-Symfony 6.4 / PHP 8.3, namespace `App\` → `api/src/`. Global helper functions are autoloaded from
+Symfony 7.4 / PHP 8.3, namespace `App\` → `api/src/`. Global helper functions are autoloaded from
 `src/Functions/index.php`. Functional helpers come from `kadet/functional` (`p\`, `t\` namespaces) and
 collections from `illuminate/collections` (`collect()`).
 

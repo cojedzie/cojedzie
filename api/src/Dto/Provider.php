@@ -21,7 +21,7 @@
 namespace App\Dto;
 
 use Carbon\Carbon;
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 
 #[ContentType('vnd.cojedzie.provider')]
 class Provider implements Fillable, Referable, Dto
@@ -30,26 +30,26 @@ class Provider implements Fillable, Referable, Dto
 
     /**
      * Short identifier of provider, ex. "trojmiasto"
-     * @OA\Property(example="trojmiasto")
      */
+    #[OA\Property(example: 'trojmiasto')]
     private string $id;
 
     /**
      * Full name of the provider, ex. "MZKZG Trójmiasto"
-     * @OA\Property(example="MZKZG Trójmiasto")
      */
+    #[OA\Property(example: 'MZKZG Trójmiasto')]
     private string $name;
 
     /**
      * Short name of the provider for easier identification, ex. "Trójmiasto" or "Warszawa"
-     * @OA\Property(example="Trójmiasto")
      */
+    #[OA\Property(example: 'Trójmiasto')]
     private string $shortName;
 
     /**
      * Attribution to be presented for this provider, can contain HTML tags.
-     * @OA\Property(example="Copyright by XYZ inc.")
      */
+    #[OA\Property(example: 'Copyright by XYZ inc.')]
     private ?string $attribution = null;
 
     /**

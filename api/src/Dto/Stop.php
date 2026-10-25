@@ -21,8 +21,8 @@
 namespace App\Dto;
 
 use Illuminate\Support\Collection;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ContentType('vnd.cojedzie.stop')]
@@ -32,9 +32,8 @@ class Stop implements Referable, Fillable, Dto
 
     /**
      * Stop name
-     *
-     * @OA\Property(example="Jasień PKM")
      */
+    #[OA\Property(example: 'Jasień PKM')]
     private string $name;
 
     /**
@@ -44,9 +43,8 @@ class Stop implements Referable, Fillable, Dto
 
     /**
      * Optional stop variant - for example number of shed.
-     *
-     * @OA\Property(example="01")
      */
+    #[OA\Property(example: '01')]
     private ?string $variant = null;
 
     /**
@@ -56,26 +54,23 @@ class Stop implements Referable, Fillable, Dto
 
     /**
      * True if stop is available only on demand
-     *
-     * @OA\Property(example=false)
      */
+    #[OA\Property(example: false)]
     private bool $onDemand = false;
 
     /**
      * Name of group that this stop is part of.
-     *
-     * @OA\Property(example="Jasień PKM")
      */
+    #[OA\Property(example: 'Jasień PKM')]
     private ?string $group = null;
 
     /**
      * Collection of possible destination stops.
      *
-     * @OA\Property(type="array", @OA\Items(ref=@Model(type=Destination::class, groups={"default"})))
-     *
      * @var Collection<Destination>
      */
     #[Groups(['embed:destinations'])]
+    #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Destination::class, groups: ['default'])))]
     private Collection $destinations;
 
     public function __construct()
