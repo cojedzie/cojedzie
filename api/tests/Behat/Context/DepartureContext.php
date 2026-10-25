@@ -88,6 +88,13 @@ final class DepartureContext implements Context
         $this->request($stops, ['limit' => $limit]);
     }
 
+    #[When('I ask for :limit departures from :stops after skipping :offset')]
+    public function iAskForDeparturesAfterSkipping(int $limit, string $stops, int $offset): void
+    {
+        $this->request($stops, ['limit' => $limit,
+            'offset'                    => $offset]);
+    }
+
     #[Then('I should see departures:')]
     public function iShouldSeeDepartures(TableNode $expected): void
     {

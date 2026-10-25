@@ -61,8 +61,9 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
             ->sortBy(t\property('estimated'))
         ;
 
-        $now       = Carbon::instance($this->clock->now())->second(0);
-        $first     = $real->map(t\getter('scheduled'))->min() ?? $now;
+        $now = Carbon::instance($this->clock->now())->second(0);
+        // timetable from now, or earlier when a live departure was scheduled before now (it is late)
+        $first     = $real->map(t\getter('scheduled'))->push($now)->min();
         $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractRequirements($requirements));
 
         $result = $this->pair($scheduled, $real)->filter(fn (Departure $departure) => $departure->getDeparture() > $now);
@@ -86,13 +87,15 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
         $key = function ($departure) {
             if ($departure instanceof Departure) {
                 return sprintf(
-                    "%s::%s",
+                    "%s::%s::%s",
+                    $departure->getStop()->getId(),
                     $departure->getLine()->getId(),
                     $departure->getScheduled()->format("H:i")
                 );
             } elseif ($departure instanceof ScheduledStop) {
                 return sprintf(
-                    "%s::%s",
+                    "%s::%s::%s",
+                    $departure->getStop()->getId(),
                     $departure->getTrack()->getLine()->getId(),
                     $departure->getDeparture()->format("H:i")
                 );
@@ -169,7 +172,8 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
 
         /** @var LimitConstraint $limit */
         if ($limit = ModifierUtils::getOfType($requirements, LimitConstraint::class)) {
-            $result[] = new LimitConstraint($limit->getOffset(), $limit->getCount() * 2);
+            // the offset is applied once, to the joined departures
+            $result[] = new LimitConstraint(0, ($limit->getOffset() + $limit->getCount()) * 2);
         } else {
             $result[] = LimitConstraint::count(16);
         }

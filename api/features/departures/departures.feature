@@ -132,3 +132,38 @@ Feature: Departures
     Then the departures should go to:
       | line | display   |
       | 6    | Łostowice |
+
+  Scenario: Timetable departures before the first live estimate are shown
+    Given there are departures:
+      | stop             | line | scheduled | estimated | display   |
+      | brama-wyzynna-01 | 12   | 12:02     |           | Oliwa     |
+      | brama-wyzynna-01 | 6    | 12:05     | 12:06     | Łostowice |
+    When I ask for departures from "brama-wyzynna-01"
+    Then I should see departures:
+      | line | stop             | scheduled | estimated | delay |
+      | 12   | brama-wyzynna-01 | 12:02     |           |       |
+      | 6    | brama-wyzynna-01 | 12:05     | 12:06     | 60    |
+
+  Scenario: The same line at the same time at two stops gives two departures
+    Given there are departures:
+      | stop             | line | scheduled | estimated | display   |
+      | brama-wyzynna-01 | 6    | 12:05     |           | Łostowice |
+      | brama-wyzynna-02 | 6    | 12:05     | 12:06     | Łostowice |
+    When I ask for departures from "brama-wyzynna-01, brama-wyzynna-02"
+    Then I should see departures:
+      | line | stop             | scheduled | estimated | delay |
+      | 6    | brama-wyzynna-01 | 12:05     |           |       |
+      | 6    | brama-wyzynna-02 | 12:05     | 12:06     | 60    |
+
+  Scenario: Departures can be paged
+    Given there are departures:
+      | stop             | line | scheduled | estimated | display |
+      | brama-wyzynna-01 | 6    | 12:01     |           | A       |
+      | brama-wyzynna-01 | 6    | 12:11     |           | A       |
+      | brama-wyzynna-01 | 6    | 12:21     |           | A       |
+      | brama-wyzynna-01 | 6    | 12:31     |           | A       |
+    When I ask for 2 departures from "brama-wyzynna-01" after skipping 1
+    Then I should see departures:
+      | line | stop             | scheduled | estimated | delay |
+      | 6    | brama-wyzynna-01 | 12:11     |           |       |
+      | 6    | brama-wyzynna-01 | 12:21     |           |       |
