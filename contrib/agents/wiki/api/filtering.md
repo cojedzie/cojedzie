@@ -32,7 +32,10 @@ schedule repository with `RelatedFilter($stop, Stop::class)`, `FieldFilter('depa
 
 A `ParameterBinding` has two jobs: `getRequirementsFromRequest(Request)` and `getDocumentation(Route)` (OpenAPI
 parameters, collected by `Describer/ParameterBindingRouteDescriber`). So declaring a binding both parses the
-request **and** documents the parameter — never document filter parameters by hand. A `schema` given as an
+request **and** documents the parameter — never document filter parameters by hand. Bindings are also where
+input is validated ([ADR 0003](../../../adr/0003-malformed-request-parameters-are-bad-requests.md)): malformed values
+throw `InvalidParameterException` (400), required parameters are declared on the binding (`required: true`), and
+controllers never check requirements themselves. Requirement objects refuse invalid state in their constructors. A `schema` given as an
 array in a binding's `documentation` is turned into `Schema`/`Items` objects and passed to the `Parameter`
 constructor (see the swagger-php notes in [architecture.md](architecture.md#api-docs)).
 

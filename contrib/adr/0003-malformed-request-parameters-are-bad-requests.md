@@ -27,7 +27,13 @@ rules:
 
 - `limit` and `offset` must be integers ≥ 0; `limit` above the maximum is clamped; `limit=0` gives an empty list.
 - Unknown filter operators are rejected (`InvalidOperatorException` extends `InvalidParameterException`).
-- A parameter an endpoint can't work without (e.g. `stop` for departures) is rejected when missing.
+- A parameter an endpoint can't work without (e.g. `stop` for departures) is declared required on its binding
+  (`IdConstraintParameterBinding(required: true)`), which rejects it when missing.
+- Requirements are validated in the filter layer, never in controllers: bindings turn malformed input into 400s,
+  and requirement objects (`LimitConstraint`, …) refuse invalid values in their constructors, so an invalid
+  requirement can't exist.
+- A wrong path wins over a wrong query: an unknown `{provider}` is a 404 before any parameter is parsed
+  (`App\Subscriber\ProviderSubscriber`).
 
 ## Consequences
 
@@ -43,3 +49,6 @@ rules:
   `api/features/contract/parameter-errors.feature` (and `filter-values.feature` for field filters); a new endpoint
   using a shared binding adds its rows there.
 - No endpoint answers 500 for any combination of malformed parameters.
+- Controllers don't check requirements or parameters (no `if ($requirement === null) throw …`); a required
+  parameter is declared on its binding.
+- Requirement classes reject invalid state in their constructors (exceptions, not silent correction).
