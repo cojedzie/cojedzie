@@ -111,7 +111,9 @@ class TrackEntity implements Entity, Fillable
     {
         $this->stopsInTrack = IterableUtils::toArrayCollection($stopsInTrack);
 
-        $this->final = $this->stopsInTrack->last();
+        if (!$this->stopsInTrack->isEmpty()) {
+            $this->final = $this->stopsInTrack->last();
+        }
     }
 
     public function getFinal(): TrackStopEntity
