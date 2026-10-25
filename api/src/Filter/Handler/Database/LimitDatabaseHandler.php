@@ -42,5 +42,10 @@ class LimitDatabaseHandler implements ModifierHandler
             ->setFirstResult($modifier->getOffset())
             ->setMaxResults($modifier->getCount())
         ;
+
+        // Doctrine treats a maximum of 0 results as no maximum at all
+        if ($modifier->getCount() === 0) {
+            $builder->andWhere('1 = 0');
+        }
     }
 }
