@@ -30,9 +30,9 @@ enum ValueTokenType
     public static function createFromValue($value): ValueTokenType
     {
         return match (gettype($value)) {
-            'string'  => self::String,
-            'boolean' => self::Boolean,
-            'NULL'    => self::Null,
+            'string'            => self::String,
+            'boolean'           => self::Boolean,
+            'NULL'              => self::Null,
             'double', 'integer' => self::Number,
         };
     }

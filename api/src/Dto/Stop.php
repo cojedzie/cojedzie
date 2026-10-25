@@ -25,9 +25,6 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @package App\Model
- */
 #[ContentType('vnd.cojedzie.stop')]
 class Stop implements Referable, Fillable, Dto
 {

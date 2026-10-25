@@ -24,16 +24,16 @@ use App\Entity\Federation\FederatedConnectionEntity;
 use App\Repository\FederatedConnectionEntityRepository;
 use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'federation:cleanup', description: 'Cleanup closed connections from database.')]
 class FederationCleanupCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-    protected static $defaultName        = 'federation:cleanup';
-    protected static $defaultDescription = 'Cleanup closed connections from database.';
 
     public function __construct(
         private readonly EntityManagerInterface $manager,
@@ -42,7 +42,7 @@ class FederationCleanupCommand extends Command implements CustomSentrySampleRate
     }
 
     #[\Override]
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription(self::$defaultDescription);
     }

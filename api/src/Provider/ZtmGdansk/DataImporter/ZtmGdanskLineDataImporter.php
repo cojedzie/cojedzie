@@ -121,7 +121,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 ->select('id')
                 ->where('o.provider_id = :provider_id')
                 ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-                ->execute()
+                ->executeQuery()
                 ->iterateColumn()
         );
 

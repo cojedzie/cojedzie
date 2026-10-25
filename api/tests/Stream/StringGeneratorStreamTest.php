@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * Copyright (C) 2022 Kacper Donat
  *
@@ -17,14 +20,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 namespace App\Tests\Stream;
 
 use App\Parser\Exception\EndOfStreamException;
 use App\Parser\GeneratorStringStream;
 use PHPUnit\Framework\TestCase;
 
-class StringGeneratorStreamTest extends TestCase
+final class StringGeneratorStreamTest extends TestCase
 {
     public function testStreamCanBeReadContinuously()
     {

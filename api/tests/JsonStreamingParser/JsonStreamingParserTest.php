@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * Copyright (C) 2022 Kacper Donat
  *
@@ -17,7 +20,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 namespace App\Tests\JsonStreamingParser;
 
 use App\Parser\Json\BranchPathDecider;
@@ -28,7 +30,7 @@ use App\Parser\TokenizedStream;
 use App\Tests\Utils\StreamTestAssertions;
 use PHPUnit\Framework\TestCase;
 
-class JsonStreamingParserTest extends TestCase
+final class JsonStreamingParserTest extends TestCase
 {
     use StreamTestAssertions;
 

@@ -23,6 +23,7 @@ namespace App\Command;
 use App\Entity\Federation\FederatedServerEntity;
 use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,11 +33,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\String\ByteString;
 use Symfony\Component\Uid\Uuid;
 
+#[AsCommand(name: 'federation:register', description: 'Register new federated server')]
 class FederationRegisterCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
-    protected static $defaultName        = 'federation:register';
-    protected static $defaultDescription = 'Register new federated server';
 
     public function __construct(
         private readonly EntityManagerInterface $manager
@@ -45,7 +45,7 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
     }
 
     #[\Override]
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription(self::$defaultDescription)

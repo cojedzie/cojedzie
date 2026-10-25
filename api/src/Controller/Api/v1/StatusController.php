@@ -30,8 +30,6 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Controller responsible for sharing information about status of this particular node.
  *
- * @package App\Controller
- *
  * @OA\Tag(name="Status")
  */
 #[Route(path: '/status', name: 'status_')]

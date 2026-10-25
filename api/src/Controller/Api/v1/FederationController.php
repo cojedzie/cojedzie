@@ -42,8 +42,6 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Controller used for managing resources related to the federation feature.
  *
- * @package App\Controller
- *
  * @OA\Tag(name="Federation")
  */
 #[Route(path: '/federation', name: 'federation_')]
