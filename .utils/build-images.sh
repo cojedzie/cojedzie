@@ -104,13 +104,22 @@ build () {
     ARGS+=("--push")
   fi
 
+  # GitHub Actions cache keeps one entry per scope, so every image needs its own
+  CACHE_ARGS=()
+  for ARG in "${REST[@]}"; do
+    if [[ "$ARG" == type=gha* ]] && [[ "$ARG" != *scope=* ]]; then
+      ARG="$ARG,scope=$IMAGE$SUFFIX"
+    fi
+    CACHE_ARGS+=("$ARG")
+  done
+
   echo "Building $IMAGE $VARIANT"
   run docker buildx build \
     --build-arg "BASE_VERSION=${TAGS[0]}" \
     --build-arg "REGISTRY=$BUILD_REGISTRY" \
     --build-arg "COJEDZIE_VERSION=$(git describe --tags)" \
     --build-arg "COJEDZIE_REVISION=$(git rev-parse HEAD)" \
-    "${REST[@]}" "${ARGS[@]}" "$@" "$CONTEXT"
+    "${CACHE_ARGS[@]}" "${ARGS[@]}" "$@" "$CONTEXT"
 }
 
 options=$(getopt -l "help,dry,registry:,tag:,push,no-base,cache-from:,cache-to:,build-registry:,publish-registry:" -o "hdr:t:pB" -- "$@")
