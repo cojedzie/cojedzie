@@ -175,6 +175,17 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
         $this->assertSame('Zajezdnia', $departures[0]->getDisplay());
     }
 
+    public function testTimetableIsShownWhenEstimatesAreUnavailable(): void
+    {
+        $this->scheduled('6', '12:20', 'Łostowice', 'trip-6-1220');
+        EstimatesStream::$unavailable = true;
+
+        $departures = $this->departures();
+
+        $this->assertCount(1, $departures);
+        $this->assertNull($departures[0]->getEstimated());
+    }
+
     /**
      * @return list<Departure>
      */

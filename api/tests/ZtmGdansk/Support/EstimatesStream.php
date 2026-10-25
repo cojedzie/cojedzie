@@ -36,6 +36,11 @@ final class EstimatesStream
     public static array $estimates = [];
 
     /**
+     * When set, every request fails like an unreachable API.
+     */
+    public static bool $unavailable = false;
+
+    /**
      * @var resource|null
      */
     public $context;
@@ -47,7 +52,8 @@ final class EstimatesStream
         stream_wrapper_unregister(self::SCHEME);
         stream_wrapper_register(self::SCHEME, self::class);
 
-        self::$estimates = [];
+        self::$estimates   = [];
+        self::$unavailable = false;
     }
 
     public static function unregister(): void
@@ -57,6 +63,10 @@ final class EstimatesStream
 
     public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
     {
+        if (self::$unavailable) {
+            return false;
+        }
+
         parse_str((string) parse_url($path, PHP_URL_QUERY), $query);
 
         $this->body = json_encode(['delay' => self::$estimates[$query['stopId'] ?? ''] ?? []], JSON_THROW_ON_ERROR);
