@@ -86,3 +86,5 @@ jobs:
         with:
           api-token: ${{ secrets.API_SERVER_TOKEN }}
           service: ${{ vars.API_SERVER_SERVICE }}
+          # without it the action sends "vars": null
+          vars: '{}'
