@@ -62,7 +62,7 @@ class HubScheduleProvider implements ScheduleProviderInterface
     #[\Override]
     public function getSchedule(): Schedule
     {
-        return $this->schedule ??= (new Schedule())
+        return $this->schedule ??= new Schedule()
             ->with(
                 RecurringMessage::every('1 minute', new CallbackMessageProvider($this->generateCheckConnectionMessages(...), 'federation:check')),
                 RecurringMessage::cron('@daily', new CleanupFederatedConnections())

@@ -72,7 +72,7 @@ final class FullParser
     }
 
     #[Pure]
-    public static function between(ParserInterface $consumer, ParserInterface $left, ParserInterface $right = null)
+    public static function between(ParserInterface $consumer, ParserInterface $left, ?ParserInterface $right = null)
     {
         return new BetweenParser($consumer, $left, $right);
     }

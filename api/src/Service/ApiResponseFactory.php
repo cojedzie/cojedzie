@@ -28,7 +28,7 @@ class ApiResponseFactory
         int $status = Response::HTTP_OK,
         array $headers = [],
         array $context = [],
-        Request $request = null,
+        ?Request $request = null,
     ): Response {
         if ($contentType = $this->contentTypeResolver->getContentType($data)) {
             $headers['Content-Type'] = sprintf(
@@ -50,7 +50,7 @@ class ApiResponseFactory
         int $status = Response::HTTP_OK,
         array $headers = [],
         array $context = [],
-        Request $request = null,
+        ?Request $request = null,
     ): Response {
         $request ??= $this->requestStack->getCurrentRequest();
 

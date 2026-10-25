@@ -30,7 +30,7 @@ class InvalidFormException extends HttpException
         private readonly FormInterface $form,
         int $statusCode = Response::HTTP_BAD_REQUEST,
         string $message = 'Submitted form contains invalid parameters.',
-        \Throwable $previous = null,
+        ?\Throwable $previous = null,
         array $headers = [],
         ?int $code = 0
     ) {

@@ -113,7 +113,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     private function getId(Entity $entity)
     {
         if ($entity instanceof Proxy) {
-            $id = (new \ReflectionClass(get_parent_class($entity)))->getProperty('id');
+            $id = new \ReflectionClass(get_parent_class($entity))->getProperty('id');
 
             return $id->getValue($entity);
         }

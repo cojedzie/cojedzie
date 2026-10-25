@@ -53,7 +53,7 @@ function memoize(&$value, $callback)
 
 function class_name($object): string
 {
-    return (new \ReflectionObject($object))->getName();
+    return new \ReflectionObject($object)->getName();
 }
 
 /**

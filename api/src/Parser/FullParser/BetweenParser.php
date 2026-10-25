@@ -30,7 +30,7 @@ class BetweenParser extends AbstractParser
     public function __construct(
         private readonly ParserInterface $value,
         private readonly ParserInterface $left,
-        ParserInterface $right = null,
+        ?ParserInterface $right = null,
     ) {
         $this->right = $right ?: $this->left;
     }
