@@ -38,9 +38,8 @@ autoconfigured and tagged by `_instanceof` in `config/services.yaml`.
 
 - `ZtmGdansk` (identifier `trojmiasto`) — the real provider. Static data (lines, stops, tracks, schedule,
   operators) lives in the DB via the `Database\Generic*Repository` classes bound with `withProvider()`;
-  live departures (`ZtmGdanskRealtimeDepartureRepository`, TRISTAR `departures` API, URL from
-  `ZTM_GDANSK_ESTIMATES_URL`, default in `config/services.yaml`) and messages are fetched from ZTM Gdańsk open
-  data. `REALTIME` entries carry estimates; `SCHEDULED` ones are the API's own timetable and fill gaps in the
+  live departures (`ZtmGdanskRealtimeDepartureRepository`, TRISTAR `departures` API) and messages are fetched
+  from ZTM Gdańsk open data. `REALTIME` entries carry estimates; `SCHEDULED` ones are the API's own timetable and fill gaps in the
   imported timetable. The legacy `delays` endpoint is no longer used.
 - `Dummy` — fake data for development. `test` — fake provider for Behat (see [testing.md](testing.md)).
 
@@ -54,6 +53,11 @@ Entries are matched per stop (`stop::line::HH:MM`), the timetable is read from n
 departure, and `offset` is applied once to the joined list. A live source that fails returns no estimates, so
 departures fall back to the timetable. Behaviour is pinned by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest`
 and the departures scenarios.
+
+**Upstream addresses** are configuration, defaults in `config/services.yaml`: `ZTM_GDANSK_API_URL` (departures,
+`displayMessages`, `stopTimes`), `ZTM_GDANSK_DATASET_URL` (ZTM's open-data dataset: stops, lines, tracks,
+operators, displays) and `ZKM_GDYNIA_API_URL` (Gdynia stops). Classes add their own endpoint path or dataset
+resource id (`*_PATH` constants) and receive the base via `#[Autowire(env: …)]`.
 
 Adding a provider: implement `Provider`, reuse `Generic*Repository` with `withProvider($entity)` for DB-backed
 data, and add `DataImporter`s (see [data-import.md](data-import.md)).

@@ -32,17 +32,20 @@ use App\Utility\SequenceGenerator;
 use Doctrine\DBAL\Connection;
 use Ds\Deque;
 use Ds\Set;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
-    final public const string TRACKS_URL         = ZtmGdanskProvider::BASE_URL . "/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
-    final public const string STOPS_IN_TRACK_URL = ZtmGdanskProvider::BASE_URL . "/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
+    final public const string TRACKS_PATH         = "/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json";
+    final public const string STOPS_IN_TRACK_PATH = "/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json";
     private int $trackCount;
 
     public function __construct(
         private readonly Connection $connection,
         private readonly IdUtils $idUtils,
         private readonly JsonStreamer $jsonStreamer,
+        #[Autowire(env: 'ZTM_GDANSK_DATASET_URL')]
+        private readonly string $datasetUrl,
     ) {
     }
 
@@ -181,7 +184,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTracksFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream(self::TRACKS_URL, sprintf('%s.trips', date('Y-m-d'))) as $track) {
+        foreach ($this->jsonStreamer->stream($this->datasetUrl . self::TRACKS_PATH, sprintf('%s.trips', date('Y-m-d'))) as $track) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['id']) => [
                 'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['routeId']),
                 'description' => preg_replace('/\(\d+\)/', '', (string) $track['tripHeadsign']),
@@ -192,7 +195,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $all = CollectionUtils::groupBy(
-            $this->jsonStreamer->stream(self::STOPS_IN_TRACK_URL, sprintf('%s.stopsInTrip', date('Y-m-d'))),
+            $this->jsonStreamer->stream($this->datasetUrl . self::STOPS_IN_TRACK_PATH, sprintf('%s.stopsInTrip', date('Y-m-d'))),
             fn ($stop) => $this->idUtils->generate(
                 ZtmGdanskProvider::IDENTIFIER,
                 sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])

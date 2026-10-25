@@ -36,10 +36,11 @@ use Ds\Map;
 use Ds\Set;
 use Illuminate\Support\Collection;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRepository
 {
-    final public const string MESSAGES_URL = "http://ckan2.multimediagdansk.pl/displayMessages";
+    final public const string MESSAGES_PATH = "/displayMessages";
     private ProviderEntity $provider;
 
     public function __construct(
@@ -50,7 +51,9 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         private readonly ReferenceFactory $referenceFactory,
         private readonly Connection $connection,
         private readonly IdUtils $idUtils,
-        HandlerProviderFactory $handlerProviderFactory
+        HandlerProviderFactory $handlerProviderFactory,
+        #[Autowire(env: 'ZTM_GDANSK_API_URL')]
+        private readonly string $apiUrl,
     ) {
         parent::__construct($handlerProviderFactory);
     }
@@ -133,7 +136,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         $item = $this->cache->getItem('ztm-gdansk.messages');
 
         if (!$item->isHit()) {
-            $messages = json_decode(file_get_contents(static::MESSAGES_URL), true, 512, JSON_THROW_ON_ERROR);
+            $messages = json_decode(file_get_contents($this->apiUrl . self::MESSAGES_PATH), true, 512, JSON_THROW_ON_ERROR);
 
             $item->expiresAfter(60);
             $item->set($messages['displaysMsg']);

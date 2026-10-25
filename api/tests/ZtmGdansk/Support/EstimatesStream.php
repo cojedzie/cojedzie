@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace App\Tests\ZtmGdansk\Support;
 
 /**
- * Serves recorded ZTM departures (format of the TRISTAR "departures" API) for "ztmtest://departures?stopId=<id>", used as the repository's estimates URL so it
+ * Serves recorded ZTM departures (format of the TRISTAR "departures" API) for "ztmtest://api/departures?stopId=<id>", used as the repository's API URL so it
  * never reaches the network.
  */
 final class EstimatesStream
 {
-    public const string URL = 'ztmtest://departures';
+    public const string URL = 'ztmtest://api';
 
     private const string SCHEME = 'ztmtest';
 
