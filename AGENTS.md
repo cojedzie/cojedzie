@@ -50,6 +50,7 @@ Before working on a task, read the page(s) matching its topic. Pages are split i
 | DTOs, entities, ids, converters, serialization groups | `contrib/agents/wiki/api/dto-and-entities.md` |
 | `app:update`, importers, entities, migrations | `contrib/agents/wiki/api/data-import.md` |
 | Federated nodes, hub, endpoint versions | `contrib/agents/wiki/api/federation.md` |
+| API tests, Behat scenarios, fake test provider | `contrib/agents/wiki/api/testing.md` |
 | Vue app, Express server, store, API client, node load balancing, Storybook | `contrib/agents/wiki/frontend/architecture.md` |
 
 `contrib/agents/wiki/README.md` is the index. When you learn something non-obvious during a session, update the
@@ -65,6 +66,8 @@ task dependencies                 # composer install + yarn install
 task test:api                     # phpunit (all API tests)
 task test:api -- --filter JsonStreamingParserTest   # single test class/method
 task test:api -- tests/ZtmGdansk  # single directory
+task test:behat                   # Behat API contract scenarios (fresh SQLite test DB)
+task test:behat -- features/departures              # single area
 docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm vitest   # frontend tests (vitest)
 task yarn -- test:app --run test/container.test.ts                                # single frontend test
 task lint                         # eslint (frontend)
