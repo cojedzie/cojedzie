@@ -1,7 +1,7 @@
 version: "3"
 
 server:
-  command: "php public/index.php"
+  command: "php -d display_errors=stderr public/index.php"
   env:
     - APP_RUNTIME: Baldinof\RoadRunnerBundle\Runtime\Runtime
 
