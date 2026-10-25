@@ -35,7 +35,6 @@ Feature: Stop search
     When I search for stops named "Kraków"
     Then I should see no stop groups
 
-  @wip
   Scenario: Search term is trimmed
     When I search for stops named " Oliwa "
     Then I should see stop groups:
@@ -59,3 +58,42 @@ Feature: Stop search
   Scenario: The beginning of a name must match its start
     When I search for stops whose name begins with "Wyżynna"
     Then I should see no stop groups
+
+  Scenario Outline: Search ignores the case of Polish letters
+    When I search for stops named "<term>"
+    Then I should see stop groups:
+      | name     | stops       |
+      | Żabianka | zabianka-01 |
+
+    Examples:
+      | term     |
+      | żabianka |
+      | ŻABIANKA |
+      | Żabianka |
+
+  Scenario: A lowercase Polish first letter finds the stop
+    Given there are stops:
+      | id           | name      | variant |
+      | lostowice-01 | Łostowice | 01      |
+    When I search for stops whose name begins with "łost"
+    Then I should see stop groups:
+      | name      | stops        |
+      | Łostowice | lostowice-01 |
+
+  Scenario Outline: Wildcard characters are searched for literally
+    When I search for stops named "<term>"
+    Then I should see no stop groups
+
+    Examples:
+      | term |
+      | %    |
+      | _    |
+
+  Scenario: A name containing a wildcard character can be found
+    Given there are stops:
+      | id             | name         | variant |
+      | sto-procent-01 | 100% Kultury | 01      |
+    When I search for stops named "100%"
+    Then I should see stop groups:
+      | name         | stops          |
+      | 100% Kultury | sto-procent-01 |
