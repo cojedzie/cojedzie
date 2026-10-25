@@ -50,11 +50,14 @@ transaction that is rolled back (`dama/doctrine-test-bundle`; needs `use_savepoi
   tables are `HH:MM` in that zone, taken as the nearest such moment around now, so `00:05` at 23:55 is the next
   day.
 - Empty cell = `null` (estimate, delay). Delay is in seconds.
+- Gherkin trims table cells, so leading or trailing spaces in a cell never reach a step. Put such values in a
+  step string or URL-encode them in a path (`stops?name=%20Oliwa%20`).
 - Assertions compare whole tables in order and print the actual JSON on failure (Behat 4 doesn't show PHPUnit
   diffs: `behat/phpunit-assertions-extension` 1.0 is incompatible with Behat 4.0).
 - A scenario that exposes a bug is written first and fails. Mark it `@wip` only until its fix lands.
 - ADR 0001: changed endpoint behaviour needs a scenario. Shared parameters are covered once for all endpoints in
-  `features/contract/parameter-errors.feature`; add a row when an endpoint gets a limit binding.
+  `features/contract/parameter-errors.feature` and `filter-values.feature`; add rows when an endpoint gets a
+  limit or field filter binding.
 
 ## Contract decisions pinned by scenarios
 
