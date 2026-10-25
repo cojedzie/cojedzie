@@ -37,7 +37,7 @@ transaction that is rolled back (`dama/doctrine-test-bundle`; needs `use_savepoi
   the timetable is real trips in the test database (written by `TestData::trip()`, read by
   `GenericScheduleRepository`), and `InMemoryDepartureRepository` is the live source with the scenario's estimates.
   So ordering, past departures, `limit` and matching estimates to the timetable run production code. ZTM-specific
-  parts (its delays API) are covered by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest` instead.
+  parts (its TRISTAR departures API) are covered by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest` instead.
 - A departure row's `display` becomes the trip's destination stop (`destination-<slug>`); a live headsign can
   differ via the optional `live display` column, and the timetable's destination wins when both exist.
 - Entity ids are `test::<id>`; the API returns `<id>`. Use readable ids (`brama-wyzynna-01`).
