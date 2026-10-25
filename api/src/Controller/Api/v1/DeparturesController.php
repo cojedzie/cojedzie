@@ -23,7 +23,6 @@ namespace App\Controller\Api\v1;
 use App\Controller\Controller;
 use App\Dto\CollectionResult;
 use App\Dto\Departure;
-use App\Filter\Binding\Http\Exception\InvalidParameterException;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Binding\Http\LimitParameterBinding;
 use App\Filter\Requirement\IdConstraint;
@@ -52,15 +51,12 @@ class DeparturesController extends Controller
             parameter: 'stop',
             documentation: [
                 'description' => 'Stop identifiers as provided by data provider.',
-            ]
+            ],
+            required: true,
         )]
-        ?IdConstraint $stops,
+        IdConstraint $stops,
         array $requirements
     ): Response {
-        if ($stops === null) {
-            throw InvalidParameterException::invalid('stop', 'at least one stop is required');
-        }
-
         $stops      = $stopRepository->all($stops);
         $departures = $departureRepository->current($stops, ...$requirements);
 

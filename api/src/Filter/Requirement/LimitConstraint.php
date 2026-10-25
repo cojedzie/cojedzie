@@ -20,6 +20,7 @@
 
 namespace App\Filter\Requirement;
 
+use App\Exception\InvalidArgumentException;
 use JetBrains\PhpStorm\Pure;
 
 class LimitConstraint implements Requirement
@@ -29,6 +30,9 @@ class LimitConstraint implements Requirement
         private readonly int $offset = 0,
         private readonly ?int $count = null
     ) {
+        if ($offset < 0 || ($count !== null && $count < 0)) {
+            throw new InvalidArgumentException(sprintf('Offset and count must not be negative, %d and %d given.', $offset, $count));
+        }
     }
 
     public function getOffset(): int
