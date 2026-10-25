@@ -23,12 +23,14 @@ declare(strict_types=1);
 namespace App\Tests\ZtmGdansk\Support;
 
 /**
- * Takes over the http:// scheme while registered and serves recorded ZTM estimates for "…?stopId=<id>", so the
- * repository never reaches the network.
+ * Serves recorded ZTM estimates for "ztmtest://delays?stopId=<id>", used as the repository's estimates URL so it
+ * never reaches the network.
  */
 final class EstimatesStream
 {
-    private const string SCHEME = 'http';
+    public const string URL = 'ztmtest://delays';
+
+    private const string SCHEME = 'ztmtest';
 
     /**
      * @var array<string, list<array<string, mixed>>> estimates by stop id
@@ -49,16 +51,12 @@ final class EstimatesStream
 
     public static function register(): void
     {
-        stream_wrapper_unregister(self::SCHEME);
-        stream_wrapper_register(self::SCHEME, self::class);
+        if (!in_array(self::SCHEME, stream_get_wrappers(), true)) {
+            stream_wrapper_register(self::SCHEME, self::class);
+        }
 
         self::$estimates   = [];
         self::$unavailable = false;
-    }
-
-    public static function unregister(): void
-    {
-        stream_wrapper_restore(self::SCHEME);
     }
 
     public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool

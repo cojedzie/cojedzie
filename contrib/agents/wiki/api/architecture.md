@@ -38,7 +38,8 @@ autoconfigured and tagged by `_instanceof` in `config/services.yaml`.
 
 - `ZtmGdansk` (identifier `trojmiasto`) — the real provider. Static data (lines, stops, tracks, schedule,
   operators) lives in the DB via the `Database\Generic*Repository` classes bound with `withProvider()`;
-  live estimates (`ZtmGdanskRealtimeDepartureRepository`) and messages are fetched from ZTM Gdańsk open data.
+  live estimates (`ZtmGdanskRealtimeDepartureRepository`, URL from `ZTM_GDANSK_ESTIMATES_URL`, default in
+  `config/services.yaml`) and messages are fetched from ZTM Gdańsk open data.
 - `Dummy` — fake data for development. `test` — fake provider for Behat (see [testing.md](testing.md)).
 
 **Departures** of DB-backed providers come from `Database\RealtimeScheduleDepartureRepository`, built by the
