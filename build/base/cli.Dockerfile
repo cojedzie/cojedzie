@@ -12,7 +12,9 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds-1.8.0 amqp redis && \
     echo "opcache.enable_cli=1" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.jit_buffer_size=100m" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini && \
-    echo "opcache.jit=tracing" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini;
+    echo "opcache.jit=tracing" >> $PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini && \
+    # Never print errors to stdout, it ends up in responses (fpm) or command output (cli)
+    echo "display_errors=stderr" >> $PHP_INI_DIR/conf.d/zz-errors.ini;
 
 WORKDIR /var/www
 
