@@ -38,8 +38,18 @@ autoconfigured and tagged by `_instanceof` in `config/services.yaml`.
 
 - `ZtmGdansk` (identifier `trojmiasto`) — the real provider. Static data (lines, stops, tracks, schedule,
   operators) lives in the DB via the `Database\Generic*Repository` classes bound with `withProvider()`;
-  departures and messages are fetched live from ZTM Gdańsk open data.
-- `Dummy` — fake data for development.
+  live estimates (`ZtmGdanskRealtimeDepartureRepository`) and messages are fetched from ZTM Gdańsk open data.
+- `Dummy` — fake data for development. `test` — fake provider for Behat (see [testing.md](testing.md)).
+
+**Departures** of DB-backed providers come from `Database\RealtimeScheduleDepartureRepository`, built by the
+provider from its schedule repository, a live source and the clock. The live source is any `DepartureRepository`
+returning departures with estimates for the given stops; there is no separate realtime interface. The class joins
+the two: a live departure replaces the timetable entry with the same line and scheduled minute (keeping the
+timetable's destination, track and trip), live departures without a timetable entry are kept, departures that
+left are dropped, then ordering and `limit`/`offset`. Override `pair()`/`merge()` in a subclass to change matching.
+Its behaviour is pinned by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest` and the departures scenarios.
+Known gaps (inherited from the ZTM code): timetable-only departures earlier than the first live estimate are not
+returned, the pairing key ignores the stop, and `offset` is applied twice.
 
 Adding a provider: implement `Provider`, reuse `Generic*Repository` with `withProvider($entity)` for DB-backed
 data, and add `DataImporter`s (see [data-import.md](data-import.md)).
