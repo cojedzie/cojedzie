@@ -65,7 +65,8 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
 - `ext-ds` is pinned to 1.8.0 in every Dockerfile: ds 2.0 removes `Ds\Collection`, `Ds\Deque`, `Ds\Vector`.
 - RoadRunner 2025.1 (`ghcr.io/roadrunner-server/roadrunner`) with baldinof/roadrunner-bundle 3; `.rr.yaml` is
   config v3. Workers run with `display_errors=stderr`: anything PHP prints to stdout breaks the worker protocol
-  (e.g. the PHP 8.4+ implicit-nullable deprecation in `kadet/functional`'s `curry()`).
+  (e.g. a deprecation raised while autoloading, before Symfony's error handler is set up). The runtime images
+  set `display_errors` to `Off` (fpm) / `stderr` (cli) for the same reason.
 - `sentry/sentry-symfony` is capped below 5.14 until a roadrunner-bundle release after 3.4.0 (its Sentry
   tracing listener decorator lacks `collectKernelResponseData`, which makes every request 500).
 - Mercure hub config pins `protocol_version: '0.x'` (mercure-bundle 0.6 defaults to 1.0). HMAC JWT secrets must be
