@@ -4,10 +4,9 @@ namespace App\Serialization\Normalizer;
 
 use App\Dto\Links\Link;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class LinkNormalizer implements NormalizerInterface, CacheableSupportsMethodInterface
+class LinkNormalizer implements NormalizerInterface
 {
     public function __construct(
         private readonly DtoNormalizer $normalizer
@@ -15,7 +14,7 @@ class LinkNormalizer implements NormalizerInterface, CacheableSupportsMethodInte
     }
 
     #[\Override]
-    public function normalize($object, string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
+    public function normalize($object, ?string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
     {
         $base = $this->normalizer->normalize($object, $format, $context);
 
@@ -28,14 +27,13 @@ class LinkNormalizer implements NormalizerInterface, CacheableSupportsMethodInte
     }
 
     #[\Override]
-    public function supportsNormalization($data, string $format = null): bool
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Link;
     }
 
-    #[\Override]
-    public function hasCacheableSupportsMethod(): bool
+    public function getSupportedTypes(?string $format): array
     {
-        return true;
+        return [Link::class => true];
     }
 }

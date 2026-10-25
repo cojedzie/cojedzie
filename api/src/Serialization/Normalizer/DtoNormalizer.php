@@ -18,7 +18,7 @@ class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
     }
 
     #[\Override]
-    public function normalize($object, string $format = null, array $context = []): array|\ArrayObject
+    public function normalize($object, ?string $format = null, array $context = []): array|\ArrayObject
     {
         $normalized = $this->decorated->normalize($object, $format, $context);
 
@@ -43,13 +43,18 @@ class DtoNormalizer implements NormalizerInterface, SerializerAwareInterface
     }
 
     #[\Override]
-    public function supportsNormalization($data, string $format = null): bool
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
-        return $this->decorated->supportsNormalization($data, $format);
+        return $this->decorated->supportsNormalization($data, $format, $context);
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return $this->decorated->getSupportedTypes($format);
     }
 
     #[\Override]
-    public function setSerializer(SerializerInterface $serializer)
+    public function setSerializer(SerializerInterface $serializer): void
     {
         $this->decorated->setSerializer($serializer);
     }

@@ -166,7 +166,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     }
 
     #[\Override]
-    public function reset()
+    public function reset(): void
     {
         $this->cache = [];
     }
