@@ -8,9 +8,11 @@ collections from `illuminate/collections` (`collect()`).
 
 1. **Routes** — `config/routes.yaml` loads `src/Controller/Api/v1` with prefix `/api/v1` and route-name prefix `v1_`.
    Most routes are `/{provider}/...`.
-2. **Provider resolution** — `Service/RepositoryParameterConverter` reads the `{provider}` route attribute,
-   resolves it via `Service/ProviderResolver` (all services tagged `app.provider`, keyed by `getIdentifier()`),
-   and injects the matching repository (`StopRepository`, `LineRepository`, ...) into the controller action.
+2. **Provider resolution** — `Service/RepositoryValueResolver` (a controller argument value resolver) reads the
+   `{provider}` route attribute, resolves it via `Service/ProviderResolver` (all services tagged `app.provider`,
+   keyed by `getIdentifier()`), and injects the matching repository (`StopRepository`, `LineRepository`, ...)
+   into the controller action. Unknown providers give a 404. The `provider` attribute stays a string, because
+   `Context/ProviderContext` resolves it again.
    `DummyProvider` is only available when `kernel.debug` is on.
 3. **Requirements** — query/route parameters are turned into `Filter\Requirement\*` objects
    (`IdConstraint`, `FieldFilter`, `RelatedFilter`, `LimitConstraint`, `Embed`). Bindings are declared with
