@@ -27,7 +27,6 @@
     "php-ds/php-ds": "^1.4",
     "phpdocumentor/reflection-docblock": "^5.3",
     "phpstan/phpdoc-parser": "^1.2",
-    "sensio/framework-extra-bundle": "^6.2",
     "sentry/sentry-symfony": "^4.8",
     "spiral/roadrunner": "^2.8",
     "symfony/amqp-messenger": "6.4.*",
