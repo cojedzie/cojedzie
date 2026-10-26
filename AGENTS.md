@@ -93,6 +93,8 @@ task benchmark:api                # phpbench
   with prettier — both via docker compose, so containers must be buildable.
 - Source files carry the AGPL-3.0 license header (copy from a neighbouring file).
 - PHP code style: ECS (`api/ecs.php`); Rector config in `api/rector.php`. Overridden methods use `#[\Override]`.
-- Releases: `.utils/bump-version.sh` (supports `--no-commit`, `--no-tag`), changelog via `standard-changelog`.
+- Releases: run the `Release` workflow (`.github/workflows/release.yml`) with a version, see ADR 0005. It tags a
+  tested `master` commit, builds and publishes all images, creates the GitHub Release with notes from
+  `.utils/release-notes.sh`, and deploys to `production` after approval. No version is committed.
 - CI (`.github/workflows/next.yml`) builds images with `.utils/build-images.sh` and deploys `master` to the
   `next` environment.
