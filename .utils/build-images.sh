@@ -5,7 +5,8 @@ BUILD=$(dirname $0)/../build
 ROOT=$BUILD/..
 
 BUILD_REGISTRY="docker.io"
-PUBLISH_REGISTRY="docker.io"
+# images are copied to every publish registry, the first one is used to report digests
+PUBLISH_REGISTRIES=()
 TAGS=()
 DRY=0
 PUSH=0
@@ -21,7 +22,7 @@ declare -A MAIN_TAGS
 export DOCKER_BUILDKIT=1
 
 usage () {
-  echo "usage: $0 [-h|--help] [-d|--dry] [--no-base|-B] [--default-only|-D] [-p|--push] [-r|--registry registry] [--temp-registry registry] [-t|--tag tag] [--cache-to cache] [--cache-from cache] [--digests file] -- images...";
+  echo "usage: $0 [-h|--help] [-d|--dry] [--no-base|-B] [--default-only|-D] [-p|--push] [-r|--registry registry] [--build-registry registry] [--publish-registry registry]... [-t|--tag tag] [--cache-to cache] [--cache-from cache] [--digests file] -- images...";
 }
 
 run () {
@@ -162,7 +163,7 @@ do
       ;;
     -r|--registry)
       BUILD_REGISTRY="$2"
-      PUBLISH_REGISTRY="$2"
+      PUBLISH_REGISTRIES=("$2")
       shift 2
       ;;
     --build-registry)
@@ -170,7 +171,7 @@ do
       shift 2
       ;;
     --publish-registry)
-      PUBLISH_REGISTRY="$2"
+      PUBLISH_REGISTRIES+=("$2")
       shift 2
       ;;
     -d|--dry)
@@ -186,6 +187,11 @@ do
       break;
   esac
 done
+
+if [ ${#PUBLISH_REGISTRIES[@]} -eq 0 ]; then
+  PUBLISH_REGISTRIES=("$BUILD_REGISTRY")
+fi
+PUBLISH_REGISTRY=${PUBLISH_REGISTRIES[0]}
 
 # set default tags if user have not provided any
 if [ ${#TAGS[@]} -eq 0 ]; then
@@ -228,11 +234,15 @@ do
   shift
 done
 
-if [[ "$BUILD_REGISTRY" != "$PUBLISH_REGISTRY" ]] && [[ $PUSH -eq 1 ]]; then
-  for BUILT_TAG in "${BUILT_TAGS[@]}"; do
-    PUBLISH_TAG=${BUILT_TAG//$BUILD_REGISTRY/$PUBLISH_REGISTRY}
-    # images built with buildx live only in the build registry, so copy them between registries
-    run docker buildx imagetools create --tag "$PUBLISH_TAG" "$BUILT_TAG"
+if [[ "${PUBLISH_REGISTRIES[*]}" != "$BUILD_REGISTRY" ]] && [[ $PUSH -eq 1 ]]; then
+  for REGISTRY in "${PUBLISH_REGISTRIES[@]}"; do
+    [[ "$REGISTRY" == "$BUILD_REGISTRY" ]] && continue
+
+    for BUILT_TAG in "${BUILT_TAGS[@]}"; do
+      PUBLISH_TAG=${BUILT_TAG//$BUILD_REGISTRY/$REGISTRY}
+      # images built with buildx live only in the build registry, so copy them between registries
+      run docker buildx imagetools create --tag "$PUBLISH_TAG" "$BUILT_TAG" || exit 1
+    done
   done
 else
   echo "Created tags:"
