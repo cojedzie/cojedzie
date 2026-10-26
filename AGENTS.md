@@ -96,5 +96,6 @@ task benchmark:api                # phpbench
 - Releases: run the `Release` workflow (`.github/workflows/release.yml`) with a version, see ADR 0005. It tags a
   tested `master` commit, builds and publishes all images, creates the GitHub Release with notes from
   `.utils/release-notes.sh`, and deploys to `production` after approval. No version is committed.
-- CI (`.github/workflows/next.yml`) builds images with `.utils/build-images.sh` and deploys `master` to the
-  `next` environment.
+- CI (`.github/workflows/ci.yml`) runs the tests (job `test`, a required check) and builds the `next` images with
+  `.utils/build-images.sh` on every push, pushing them only from `master`. `deploy-next.yml` then deploys each
+  successful `master` run to the `next` environment, pinned by digest; run it manually to redeploy.

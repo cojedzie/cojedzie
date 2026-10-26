@@ -2,8 +2,8 @@
 
 Two suites. PHPUnit (`api/tests/`, not `tests/Behat`) for units. Behat (`api/features/`) for the **API contract**,
 i.e. what consumers (the frontend) may rely on, decided in
-[ADR 0001](../../../adr/0001-behavioural-tests-with-behat.md). CI runs both on every push and PR (job `test` in
-`.github/workflows/next.yml`; `@wip` scenarios excluded).
+[ADR 0001](../../../adr/0001-behavioural-tests-with-behat.md). CI runs both on every push (job `test` in
+`.github/workflows/ci.yml`; `@wip` scenarios excluded).
 
 ```bash
 task test:api                                  # PHPUnit
