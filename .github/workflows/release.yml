@@ -48,7 +48,7 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "previous=$previous" >> "$GITHUB_OUTPUT"
-      # the test job of the next workflow already ran on every master commit
+      # the test job of the CI workflow already ran on every master commit
       - name: Require passing tests
         env:
           GH_TOKEN: ${{ github.token }}

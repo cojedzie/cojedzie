@@ -1,0 +1,56 @@
+name: Deploy to next
+
+on:
+  # every successful CI run on master; run manually to redeploy the latest one
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency: deploy-next
+
+jobs:
+  deployment:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    environment: next
+    steps:
+      - name: Find CI run
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          if [[ -z "$RUN_ID" ]]; then
+            RUN_ID=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch master --event push \
+              --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          if [[ -z "$RUN_ID" ]]; then
+            echo "::error::No successful CI run on master"
+            exit 1
+          fi
+          echo "id=$RUN_ID" >> "$GITHUB_OUTPUT"
+      - name: Download image digests
+        uses: actions/download-artifact@v8
+        with:
+          name: digests
+          run-id: ${{ steps.run.outputs.id }}
+          github-token: ${{ github.token }}
+      - name: Read image digests
+        id: digests
+        run: cat digests.txt >> "$GITHUB_OUTPUT"
+      - name: Deploy via kadet.net API Server
+        uses: kadet1090/swarm-deploy-action@v1
+        with:
+          api-token: ${{ secrets.API_SERVER_TOKEN }}
+          service: ${{ vars.API_SERVER_SERVICE }}
+          # pin images by digest, so the service never runs an older image cached under the same tag
+          vars: |
+            cojedzie_api_version: ${{ steps.digests.outputs.api }}
+            cojedzie_worker_version: ${{ steps.digests.outputs.worker }}
+            cojedzie_front_version: ${{ steps.digests.outputs.front }}
