@@ -54,7 +54,7 @@ departure, and `offset` is applied once to the joined list. A live source that f
 departures fall back to the timetable. Behaviour is pinned by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest`
 and the departures scenarios.
 
-**Upstream addresses** are configuration, grouped in `ZtmGdansk\ZtmGdanskConfig` (injected where needed, one
+**Upstream addresses** are configuration ([ADR 0004](../../../adr/0004-upstream-data-addresses-are-configuration.md)), grouped in `ZtmGdansk\ZtmGdanskConfig` (injected where needed, one
 environment variable each, defaults in `config/services.yaml`): `ZTM_GDANSK_API_URL` is the TRISTAR API base
 (classes add `/departures`, `/displayMessages`, `/stopTimes`); every dataset file has its own full URL, because its
 resource id changes over time (`ZTM_GDANSK_STOPS_URL`, `_ROUTES_URL`, `_TRIPS_URL`, `_STOPS_IN_TRIPS_URL`,
