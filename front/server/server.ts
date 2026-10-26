@@ -24,9 +24,8 @@ import request from "request";
 import type { SentryConfig } from "../src/composables/useAppConfig";
 import { matchesUA } from "browserslist-useragent";
 
-const { version: versionFromPackageJson } = require("../../package.json");
-
-const version = process.env.COJEDZIE_VERSION || `v${versionFromPackageJson}`;
+// set by image builds from git describe
+const version = process.env.COJEDZIE_VERSION || "dev";
 const port = parseInt(process.env.COJEDZIE_PORT) || 3000;
 const host = process.env.COJEDZIE_HOST || "0.0.0.0";
 const api = process.env.COJEDZIE_API || "https://cojedzie.pl";
