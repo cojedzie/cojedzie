@@ -10,14 +10,18 @@ TAGS=()
 DRY=0
 PUSH=0
 BUILD_BASE=1
+DEFAULT_ONLY=0
+DIGESTS=""
 REST=()
 
 BUILT_TAGS=()
+# image name => its main tag (default variant or the only one), used to report digests
+declare -A MAIN_TAGS
 
 export DOCKER_BUILDKIT=1
 
 usage () {
-  echo "usage: $0 [-h|--help] [-d|--dry] [--no-base|-B] [-p|--push] [-r|--registry registry] [--temp-registry registry] [-t|--tag tag] [--cache-to cache] [--cache-from cache] -- images...";
+  echo "usage: $0 [-h|--help] [-d|--dry] [--no-base|-B] [--default-only|-D] [-p|--push] [-r|--registry registry] [--temp-registry registry] [-t|--tag tag] [--cache-to cache] [--cache-from cache] [--digests file] -- images...";
 }
 
 run () {
@@ -96,6 +100,10 @@ build () {
     fi
   done
 
+  if [[ $REGISTER -eq 1 ]] && { [[ $IS_DEFAULT -eq 1 ]] || [[ -z "$VARIANT" ]]; }; then
+    MAIN_TAGS[$IMAGE]="${TAGS[0]}"
+  fi
+
   if [[ ! -z "$SENTRY_AUTH_TOKEN" ]]; then
     ARGS+=("--secret" "id=sentry-auth-token,env=SENTRY_AUTH_TOKEN")
   fi
@@ -122,7 +130,7 @@ build () {
     "${CACHE_ARGS[@]}" "${ARGS[@]}" "$@" "$CONTEXT"
 }
 
-options=$(getopt -l "help,dry,registry:,tag:,push,no-base,cache-from:,cache-to:,build-registry:,publish-registry:" -o "hdr:t:pB" -- "$@")
+options=$(getopt -l "help,dry,registry:,tag:,push,no-base,default-only,digests:,cache-from:,cache-to:,build-registry:,publish-registry:" -o "hdr:t:pBD" -- "$@")
 eval set -- "$options"
 
 while true;
@@ -143,6 +151,14 @@ do
     -B|--no-base)
       BUILD_BASE=0
       shift
+      ;;
+    -D|--default-only)
+      DEFAULT_ONLY=1
+      shift
+      ;;
+    --digests)
+      DIGESTS="$2"
+      shift 2
       ;;
     -r|--registry)
       BUILD_REGISTRY="$2"
@@ -182,7 +198,7 @@ fi
 
 if [ $BUILD_BASE -eq 1 ]; then
   build --no-register base $ROOT/api/ || exit 1
-  build --no-register --variant fpm base $ROOT/api/ || exit 1
+  [[ $DEFAULT_ONLY -eq 0 ]] && { build --no-register --variant fpm base $ROOT/api/ || exit 1; }
   build --no-register --variant cli base $ROOT/api/ || exit 1
 fi
 
@@ -191,7 +207,7 @@ do
   case "$1" in
     api)
       build api $BUILD/api/ --variant rr --default || exit 1
-      build api $BUILD/api/ --variant fpm || exit 1
+      [[ $DEFAULT_ONLY -eq 0 ]] && { build api $BUILD/api/ --variant fpm || exit 1; }
       ;;
     standalone)
       build standalone $BUILD/standalone/ --variant rr --default || exit 1
@@ -221,4 +237,13 @@ if [[ "$BUILD_REGISTRY" != "$PUBLISH_REGISTRY" ]] && [[ $PUSH -eq 1 ]]; then
 else
   echo "Created tags:"
   printf " - %s\n" "${BUILT_TAGS[@]}"
+fi
+
+# write <image>=<tag>@<digest> of every pushed image, so deployments can pin the exact build
+if [[ -n "$DIGESTS" ]] && [[ $PUSH -eq 1 ]] && [[ $DRY -eq 0 ]]; then
+  for IMAGE in "${!MAIN_TAGS[@]}"; do
+    TAG=${MAIN_TAGS[$IMAGE]}
+    DIGEST=$(docker buildx imagetools inspect "$PUBLISH_REGISTRY/cojedzie/$IMAGE:$TAG" --format '{{ .Manifest.Digest }}') || exit 1
+    echo "$IMAGE=$TAG@$DIGEST" | tee -a "$DIGESTS"
+  done
 fi
