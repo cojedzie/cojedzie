@@ -1,3 +1,8 @@
+# Changelog
+
+Release notes for 2026.1.0 and later are published in [GitHub Releases](https://github.com/cojedzie/cojedzie/releases).
+This file keeps the history of earlier releases.
+
 ## [2022.3.1](https://github.com/cojedzie/cojedzie/compare/v2022.3.0...v2022.3.1) (2022-10-01)
 
 
