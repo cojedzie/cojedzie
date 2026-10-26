@@ -39,7 +39,6 @@ use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskProvider implements Provider
 {
@@ -91,8 +90,7 @@ class ZtmGdanskProvider implements Provider
         private readonly ZtmGdanskMessageRepository $messages,
         ReferenceFactory $referenceFactory,
         ClockInterface $clock,
-        #[Autowire(env: 'ZTM_GDANSK_API_URL')]
-        string $apiUrl,
+        ZtmGdanskConfig $config,
     ) {
         $provider = $this->refreshProviderEntity();
 
@@ -105,7 +103,7 @@ class ZtmGdanskProvider implements Provider
         $this->lines      = $lines;
         $this->departures = new RealtimeScheduleDepartureRepository(
             $schedule,
-            new ZtmGdanskRealtimeDepartureRepository($lines, $referenceFactory, $apiUrl),
+            new ZtmGdanskRealtimeDepartureRepository($lines, $referenceFactory, $config),
             $clock,
         );
         $this->stops  = $stops;

@@ -47,7 +47,7 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
     public function __construct(
         private readonly LineRepository $lines,
         private readonly ReferenceFactory $reference,
-        private readonly string $apiUrl,
+        private readonly ZtmGdanskConfig $config,
     ) {
     }
 
@@ -62,7 +62,7 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
     private function getRealDepartures(Stop $stop)
     {
         // without the API (unreachable or answering garbage) the timetable is shown on its own
-        $response = @file_get_contents($this->apiUrl . self::DEPARTURES_PATH . "?stopId=" . $stop->getId());
+        $response = @file_get_contents($this->config->apiUrl . self::DEPARTURES_PATH . "?stopId=" . $stop->getId());
         if ($response === false) {
             return collect();
         }

@@ -23,6 +23,7 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
+use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -31,7 +32,6 @@ use Carbon\Carbon;
 use Cerbero\JsonObjects\JsonObjectsException;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
@@ -41,8 +41,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         private readonly Connection $connection,
         private readonly IdUtils $idUtils,
         private readonly JsonStreamer $jsonStreamer,
-        #[Autowire(env: 'ZTM_GDANSK_API_URL')]
-        private readonly string $apiUrl,
+        private readonly ZtmGdanskConfig $config,
     ) {
     }
 
@@ -105,7 +104,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 
         $url = sprintf(
             "%s?%s",
-            $this->apiUrl . self::SCHEDULE_PATH,
+            $this->config->apiUrl . self::SCHEDULE_PATH,
             http_build_query([
                 'date'    => date('Y-m-d'),
                 'routeId' => $this->idUtils->strip($lineId),

@@ -35,6 +35,7 @@ use App\Provider\Database\RealtimeScheduleDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
+use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskRealtimeDepartureRepository;
 use App\Service\Proxy\ReferenceFactory;
 use App\Tests\ZtmGdansk\Support\EstimatesStream;
@@ -212,7 +213,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             new ZtmGdanskRealtimeDepartureRepository(
                 $this->lineRepository(),
                 self::getContainer()->get(ReferenceFactory::class),
-                apiUrl: EstimatesStream::URL,
+                self::config(),
             ),
             new MockClock(Carbon::now()->toDateTimeImmutable()),
         );
@@ -281,6 +282,19 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     private function local(?Carbon $time): ?string
     {
         return $time?->clone()->tz(self::ZONE)->format('H:i');
+    }
+
+    private static function config(): ZtmGdanskConfig
+    {
+        return new ZtmGdanskConfig(
+            apiUrl: EstimatesStream::URL,
+            stopsUrl: '',
+            routesUrl: '',
+            tripsUrl: '',
+            stopsInTripsUrl: '',
+            agenciesUrl: '',
+            displaysUrl: '',
+        );
     }
 
     private function lineRepository(): LineRepository
