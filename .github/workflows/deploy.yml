@@ -1,0 +1,81 @@
+name: Deploy
+
+on:
+  # next: every successful CI run on master
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+  # production: called by the Release workflow
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      run-id:
+        description: Run whose image digests are deployed
+        type: string
+        required: true
+  # redeploy by hand
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        required: true
+      run-id:
+        description: Run whose image digests are deployed; empty for the latest CI (next) or Release (production) run
+        type: string
+        required: false
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  deployment:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'next' }}
+    concurrency: deploy-${{ inputs.environment || 'next' }}
+    steps:
+      - name: Find run with image digests
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ENVIRONMENT: ${{ inputs.environment || 'next' }}
+          RUN_ID: ${{ inputs.run-id || github.event.workflow_run.id }}
+        run: |
+          if [[ -z "$RUN_ID" ]]; then
+            case "$ENVIRONMENT" in
+              next) WORKFLOW=ci.yml ;;
+              production) WORKFLOW=release.yml ;;
+              *) echo "::error::No workflow builds images for $ENVIRONMENT"; exit 1 ;;
+            esac
+            RUN_ID=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$WORKFLOW" --branch master \
+              --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          if [[ -z "$RUN_ID" ]]; then
+            echo "::error::No successful $WORKFLOW run on master"
+            exit 1
+          fi
+          echo "id=$RUN_ID" >> "$GITHUB_OUTPUT"
+      - name: Download image digests
+        uses: actions/download-artifact@v8
+        with:
+          name: digests
+          # artifacts of the current run (a release) are downloaded directly, other runs through the API
+          run-id: ${{ steps.run.outputs.id != format('{0}', github.run_id) && steps.run.outputs.id || '' }}
+          github-token: ${{ steps.run.outputs.id != format('{0}', github.run_id) && github.token || '' }}
+      - name: Read image digests
+        id: digests
+        run: cat digests.txt >> "$GITHUB_OUTPUT"
+      - name: Deploy via kadet.net API Server
+        uses: kadet1090/swarm-deploy-action@v1
+        with:
+          api-token: ${{ secrets.API_SERVER_TOKEN }}
+          service: ${{ vars.API_SERVER_SERVICE }}
+          # pin images by digest, so the service never runs an older image cached under the same tag
+          vars: |
+            cojedzie_api_version: ${{ steps.digests.outputs.api }}
+            cojedzie_worker_version: ${{ steps.digests.outputs.worker }}
+            cojedzie_front_version: ${{ steps.digests.outputs.front }}
