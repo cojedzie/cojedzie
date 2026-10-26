@@ -23,6 +23,7 @@ import path from "path";
 import { readFileSync } from "fs";
 import { VitePWA } from "vite-plugin-pwa";
 import SvgIconLoader from "./src/svg-icon-loader";
+import StaticImages from "./src/static-images";
 import viteImagemin from "vite-plugin-imagemin";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
@@ -62,6 +63,7 @@ export default defineConfig({
         VitePWA({}),
         viteImagemin(),
         SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
+        StaticImages({ source: path.resolve(__dirname, "./resources/images"), target: "images" }),
         isSentryEnabled &&
             sentryVitePlugin({
                 org: process.env.SENTRY_ORG || "cojedzie",
