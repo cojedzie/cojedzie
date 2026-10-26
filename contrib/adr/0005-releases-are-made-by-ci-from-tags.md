@@ -1,6 +1,6 @@
 # 0005. Releases are made by CI from tags
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-26
 - **Applies to:** `.github/workflows/**`, `.utils/build-images.sh`, `.utils/release-notes.sh`, version metadata in
   `api/composer.json` and `front/package.json`
