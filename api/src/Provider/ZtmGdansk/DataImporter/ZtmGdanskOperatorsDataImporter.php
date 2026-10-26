@@ -22,24 +22,21 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
+use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 {
-    final public const string RESOURCE_PATH = "/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json";
-
     public function __construct(
         private readonly Connection $connection,
         private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils,
-        #[Autowire(env: 'ZTM_GDANSK_DATASET_URL')]
-        private readonly string $datasetUrl,
+        private readonly ZtmGdanskConfig $config,
     ) {
     }
 
@@ -97,7 +94,7 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 
     private function getOperatorsFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream($this->datasetUrl . self::RESOURCE_PATH, 'agency') as $operator) {
+        foreach ($this->jsonStreamer->stream($this->config->agenciesUrl, 'agency') as $operator) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $operator['agencyId']) => [
                 'name'  => $operator['agencyName'],
                 'email' => $operator['agencyEmail'] ?? null,

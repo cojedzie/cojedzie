@@ -54,10 +54,11 @@ departure, and `offset` is applied once to the joined list. A live source that f
 departures fall back to the timetable. Behaviour is pinned by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest`
 and the departures scenarios.
 
-**Upstream addresses** are configuration, defaults in `config/services.yaml`: `ZTM_GDANSK_API_URL` (departures,
-`displayMessages`, `stopTimes`), `ZTM_GDANSK_DATASET_URL` (ZTM's open-data dataset: stops, lines, tracks,
-operators, displays). Classes add their own endpoint path or dataset
-resource id (`*_PATH` constants) and receive the base via `#[Autowire(env: …)]`.
+**Upstream addresses** are configuration, grouped in `ZtmGdansk\ZtmGdanskConfig` (injected where needed, one
+environment variable each, defaults in `config/services.yaml`): `ZTM_GDANSK_API_URL` is the TRISTAR API base
+(classes add `/departures`, `/displayMessages`, `/stopTimes`); every dataset file has its own full URL, because its
+resource id changes over time (`ZTM_GDANSK_STOPS_URL`, `_ROUTES_URL`, `_TRIPS_URL`, `_STOPS_IN_TRIPS_URL`,
+`_AGENCIES_URL`, `_DISPLAYS_URL`).
 
 Adding a provider: implement `Provider`, reuse `Generic*Repository` with `withProvider($entity)` for DB-backed
 data, and add `DataImporter`s (see [data-import.md](data-import.md)).

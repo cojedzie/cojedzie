@@ -22,6 +22,7 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
+use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
@@ -30,18 +31,14 @@ use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ds\Set;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
-    final public const string RESOURCE_PATH = "/4c4025f0-01bf-41f7-a39f-d156d201b82b/download/stops.json";
-
     public function __construct(
         private readonly Connection $connection,
         private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils,
-        #[Autowire(env: 'ZTM_GDANSK_DATASET_URL')]
-        private readonly string $datasetUrl,
+        private readonly ZtmGdanskConfig $config,
     ) {
     }
 
@@ -108,7 +105,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
     private function getStopsFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream($this->datasetUrl . self::RESOURCE_PATH, sprintf('%s.stops', date('Y-m-d'))) as $stop) {
+        foreach ($this->jsonStreamer->stream($this->config->stopsUrl, sprintf('%s.stops', date('Y-m-d'))) as $stop) {
             // skip stops that are technical
             if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
                 continue;
