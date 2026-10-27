@@ -74,7 +74,7 @@ class SentryMessageSubscriber implements EventSubscriberInterface
         if ($this->span) {
             $this->span->finish();
             $this->span = null;
-            $this->hub->getClient()->flush()->wait(false);
+            $this->hub->getClient()?->flush();
         }
     }
 }
