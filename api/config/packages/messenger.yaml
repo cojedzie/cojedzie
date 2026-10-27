@@ -6,3 +6,7 @@ framework:
     transports:
       main: '%env(resolve:APP_EVENT_QUEUE)%'
       sync: 'sync://'
+
+    # the worker consumes main, see COJEDZIE_WORKER_QUEUES
+    routing:
+      App\Message\UpdateDataSources: main

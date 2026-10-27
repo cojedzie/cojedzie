@@ -22,7 +22,7 @@ class DefaultScheduleProvider implements ScheduleProviderInterface
             ->with(
                 RecurringMessage::cron(
                     self::UPDATE_SCHEDULE,
-                    new RedispatchMessage(new UpdateDataSources(), 'async')
+                    new RedispatchMessage(new UpdateDataSources(), 'main')
                 )
             );
     }
