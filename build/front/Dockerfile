@@ -1,4 +1,4 @@
-FROM node:16 as build
+FROM node:24 as build
 
 WORKDIR /app
 COPY package.json yarn.lock ./
@@ -19,7 +19,7 @@ RUN --mount=type=secret,id=sentry-auth-token yarn run build:app
 RUN yarn run build:server
 
 # server dependencies step
-FROM node:16 as prod-dependencies
+FROM node:24 as prod-dependencies
 
 WORKDIR /app
 
@@ -28,7 +28,7 @@ COPY package.json yarn.lock ./
 # install dependencies
 RUN yarn install --production --frozen-lockfile
 
-FROM node:16-slim
+FROM node:24-slim
 
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 

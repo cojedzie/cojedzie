@@ -72,7 +72,7 @@ export default defineConfig({
                 sourcemaps: {
                     assets: `${dist}/**`,
                 },
-                release: process.env.COJEDZIE_VERSION,
+                release: { name: process.env.COJEDZIE_VERSION },
             }),
     ],
     publicDir: path.resolve(__dirname, "./public"),
