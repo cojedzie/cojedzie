@@ -5,6 +5,10 @@ when@prod:
     register_error_listener: false # Disables the ErrorListener to avoid duplicated log in sentry
     register_error_handler: false # Disables the ErrorListener, ExceptionListener and FatalErrorListener integrations of the base PHP SDK
 
+    messenger:
+      # workers handle many messages, keep their scopes, logs and breadcrumbs apart
+      isolate_context_by_message: true
+
     tracing:
       console:
         excluded_commands:
@@ -16,5 +20,12 @@ when@prod:
       release: '%env(COJEDZIE_VERSION)%'
       environment: '%env(resolve:SENTRY_ENVIRONMENT)%'
       traces_sampler: App\Service\SentrySampler
+      enable_logs: true
       ignore_exceptions:
         - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+
+  services:
+    # minimum level of logs sent to Sentry Logs, see the sentry_logs handler in prod/monolog.yaml
+    Sentry\SentryBundle\Monolog\LogsHandler:
+      arguments:
+        - !php/const Monolog\Logger::INFO
