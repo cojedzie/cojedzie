@@ -35,7 +35,8 @@ use PhpBench\Attributes\Warmup;
  * same pipeline over records decoded beforehand, so it shows the collection cost without parsing.
  *
  * phpbench reports the peak memory of the whole process, so the set-up resets it: the peak is the fixture kept in
- * memory plus the subject.
+ * memory plus the subject. The baseline subject of each group does no work, so its peak is the memory the subject
+ * doesn't own: the variant's own memory is its peak minus the baseline's.
  */
 final class TrackStopsBench
 {
@@ -59,6 +60,12 @@ final class TrackStopsBench
     }
 
     #[Groups(['import']), BeforeMethods('setUp'), Revs(1), Iterations(5), Warmup(1)]
+    public function benchBaselineEndToEnd(): void
+    {
+        TrackStopsVariants::consume([]);
+    }
+
+    #[Groups(['import']), BeforeMethods('setUp'), Revs(1), Iterations(5), Warmup(1)]
     public function benchCurrentEndToEnd(): void
     {
         TrackStopsVariants::consume(TrackStopsVariants::current(TrackStopsVariants::records(), $this->existingStopIds, $this->ids));
@@ -74,6 +81,12 @@ final class TrackStopsBench
     public function benchLazyEndToEnd(): void
     {
         TrackStopsVariants::consume(TrackStopsVariants::lazy(TrackStopsVariants::records(), $this->existingStopIds, $this->ids));
+    }
+
+    #[Groups(['import-pipeline']), BeforeMethods('setUpDecoded'), Revs(5), Iterations(10), Warmup(1)]
+    public function benchBaselinePipeline(): void
+    {
+        TrackStopsVariants::consume([]);
     }
 
     #[Groups(['import-pipeline']), BeforeMethods('setUpDecoded'), Revs(5), Iterations(10), Warmup(1)]
