@@ -17,6 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import "./instrument";
+import * as Sentry from "@sentry/node";
 import express, { Express, Request, Response } from "express";
 import path from "path";
 import fs from "fs";
@@ -227,6 +229,8 @@ async function createServer(): Promise<Express> {
     } else {
         server.get("/:provider?/*", renderPageAction());
     }
+
+    Sentry.setupExpressErrorHandler(server);
 
     return server;
 }

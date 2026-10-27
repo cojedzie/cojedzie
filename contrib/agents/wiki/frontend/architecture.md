@@ -14,6 +14,11 @@ otherwise it serves the built assets using the Vite `manifest.json`.
 
 Runtime config reaches components via `composables/useAppConfig`.
 
+Sentry: the browser (`src/sentry.ts`, project `frontend-vue`) is configured from `SENTRY_DSN` and friends passed
+through that runtime config; the Express server reports to its own project (`frontend-server`) from
+`SENTRY_SERVER_DSN`. `server/instrument.ts` initialises it and must stay the first import of `server.ts`, so Sentry
+can instrument Express. Node is 24 in every image and compose service (Sentry SDK 11 needs 20.19+).
+
 ## Structure worth knowing
 
 - `src/api` — typed endpoint map (`endpoints.ts`), HTTP / static / load-balanced clients, load balancer
