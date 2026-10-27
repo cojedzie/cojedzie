@@ -4,27 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53b1b40f124d2372326a50bf40ce7734",
+    "content-hash": "fabf819760a4159b983829df18dcb164",
     "packages": [
         {
             "name": "baldinof/roadrunner-bundle",
-            "version": "3.4.0",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Baldinof/roadrunner-bundle.git",
-                "reference": "c4d990c7e63254ecca73639eb2747423ff7f7dda"
+                "reference": "8cb32b8739cf8da93fcc4032418a2e0ab185c441"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Baldinof/roadrunner-bundle/zipball/c4d990c7e63254ecca73639eb2747423ff7f7dda",
-                "reference": "c4d990c7e63254ecca73639eb2747423ff7f7dda",
+                "url": "https://api.github.com/repos/Baldinof/roadrunner-bundle/zipball/8cb32b8739cf8da93fcc4032418a2e0ab185c441",
+                "reference": "8cb32b8739cf8da93fcc4032418a2e0ab185c441",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.1",
                 "psr/log": "^2.0 || ^3.0",
                 "spiral/goridge": "^4.0",
-                "spiral/roadrunner": "^2023.1.0 || ^2024.1.0 || ^2025.1.0",
+                "spiral/roadrunner": "^2023.1.0 || ^2024.1.0 || ^2025.1.0 || ^3.0",
                 "spiral/roadrunner-http": "^4.0",
                 "spiral/roadrunner-worker": "^3.0.0",
                 "symfony/config": "^5.4 || ^6.0 || ^7.0 || ^8.0",
@@ -48,7 +48,7 @@
                 "nyholm/psr7": "^1.2",
                 "phpspec/prophecy": "^1.11",
                 "phpspec/prophecy-phpunit": "^2.0",
-                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^9.6",
                 "sentry/sentry-symfony": "^4.5 || ^5.0",
                 "spiral/roadrunner-grpc": "^3.0.0",
@@ -87,7 +87,7 @@
             "description": "A RoadRunner worker as a Symfony Bundle",
             "support": {
                 "issues": "https://github.com/Baldinof/roadrunner-bundle/issues",
-                "source": "https://github.com/Baldinof/roadrunner-bundle/tree/3.4.0"
+                "source": "https://github.com/Baldinof/roadrunner-bundle/tree/3.5.0"
             },
             "funding": [
                 {
@@ -95,7 +95,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-12T09:47:57+00:00"
+            "time": "2026-10-26T07:50:42+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -4013,23 +4013,23 @@
         },
         {
             "name": "sentry/sentry-symfony",
-            "version": "5.13.0",
+            "version": "5.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-symfony.git",
-                "reference": "788345e0b80bab5aa8eaa693b178ae0b8eecf918"
+                "reference": "6bd9934008e97efb418dcfd05eb44df548eaab80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-symfony/zipball/788345e0b80bab5aa8eaa693b178ae0b8eecf918",
-                "reference": "788345e0b80bab5aa8eaa693b178ae0b8eecf918",
+                "url": "https://api.github.com/repos/getsentry/sentry-symfony/zipball/6bd9934008e97efb418dcfd05eb44df548eaab80",
+                "reference": "6bd9934008e97efb418dcfd05eb44df548eaab80",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/psr7": "^2.1.1|^3.0",
                 "jean85/pretty-package-versions": "^1.5||^2.0",
                 "php": "^7.2||^8.0",
-                "sentry/sentry": "^4.31.0",
+                "sentry/sentry": "^4.34.0",
                 "symfony/cache-contracts": "^1.1||^2.4||^3.0",
                 "symfony/config": "^4.4.20||^5.0.11||^6.0||^7.0||^8.0",
                 "symfony/console": "^4.4.20||^5.0.11||^6.0||^7.0||^8.0",
@@ -4099,7 +4099,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-symfony/issues",
-                "source": "https://github.com/getsentry/sentry-symfony/tree/5.13.0"
+                "source": "https://github.com/getsentry/sentry-symfony/tree/5.14.0"
             },
             "funding": [
                 {
@@ -4111,7 +4111,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-08-28T10:41:44+00:00"
+            "time": "2026-10-08T13:18:44+00:00"
         },
         {
             "name": "spiral/roadrunner",
