@@ -95,7 +95,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         foreach ($messages as $message) {
             $lines = $this->lineExtractor->extractLinesFromMessage($message);
 
-            if (empty($lines)) {
+            if ($lines->isEmpty()) {
                 continue;
             }
 
