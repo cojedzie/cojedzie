@@ -21,6 +21,7 @@
 namespace App\Parser;
 
 use App\Parser\Exception\EndOfStreamException;
+use App\Parser\Exception\StreamOpenException;
 
 class FileStringStream implements StreamInterface
 {
@@ -31,7 +32,14 @@ class FileStringStream implements StreamInterface
 
     public function __construct(string $filename)
     {
-        $this->handle   = fopen($filename, 'rb');
+        // an unavailable source (e.g. an upstream returning 404) must fail here, not on the first read
+        $handle = @fopen($filename, 'rb');
+
+        if ($handle === false) {
+            throw new StreamOpenException(sprintf('Cannot open "%s": %s', $filename, error_get_last()['message'] ?? 'unknown error'));
+        }
+
+        $this->handle   = $handle;
         $this->position = new StringPosition();
     }
 
@@ -71,6 +79,8 @@ class FileStringStream implements StreamInterface
 
     public function __destruct()
     {
-        fclose($this->handle);
+        if (is_resource($this->handle)) {
+            fclose($this->handle);
+        }
     }
 }
