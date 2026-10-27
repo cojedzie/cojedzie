@@ -20,9 +20,8 @@
 
 namespace App\Utility;
 
-use Ds\Deque;
 use Ds\Map;
-use Ds\Sequence;
+use Ds\Seq;
 
 final class CollectionUtils
 {
@@ -30,7 +29,7 @@ final class CollectionUtils
      * Groups items using given function.
      *
      * @template T
-     * @template U of Sequence<int, T>
+     * @template U of Seq<int, T>
      *
      * @psalm-param iterable<T> $collection
      * @psalm-param Closure(T): string $grouping
@@ -38,7 +37,7 @@ final class CollectionUtils
      *
      * @return Map<string, U<T>>
      */
-    public static function groupBy(iterable $collection, callable $grouping, string $container = Deque::class): Map
+    public static function groupBy(iterable $collection, callable $grouping, string $container = Seq::class): Map
     {
         $result = new Map();
 
@@ -62,11 +61,11 @@ final class CollectionUtils
      * @psalm-param iterable<T> $collection
      * @psalm-param Closure(T, string|int): U|U[] $map
      *
-     * @return Sequence<U>
+     * @return Seq<U>
      */
-    public static function flatMap(iterable $collection, callable $map): Sequence
+    public static function flatMap(iterable $collection, callable $map): Seq
     {
-        $result = new ($collection instanceof Sequence ? $collection::class : Deque::class)();
+        $result = new Seq();
 
         foreach ($collection as $key => $item) {
             $mapped = $map($item, $key);

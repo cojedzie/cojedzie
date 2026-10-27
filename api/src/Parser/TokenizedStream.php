@@ -20,12 +20,12 @@
 
 namespace App\Parser;
 
-use Ds\Deque;
+use Ds\Seq;
 
 class TokenizedStream implements StreamInterface
 {
     use ConsumableTrait;
-    private Deque $buffer;
+    private Seq $buffer;
     private \Generator $generator;
     private TokenizedPosition $position;
 
@@ -33,7 +33,7 @@ class TokenizedStream implements StreamInterface
         private StreamInterface $decorated,
         private ParserInterface $parser
     ) {
-        $this->buffer    = new Deque();
+        $this->buffer    = new Seq();
         $this->generator = ($this->parser)($this->decorated);
         $this->position  = new TokenizedPosition(0);
     }

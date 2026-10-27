@@ -31,7 +31,7 @@ use App\Utility\CollectionUtils;
 use App\Utility\IterableUtils;
 use App\Utility\SequenceGenerator;
 use Doctrine\DBAL\Connection;
-use Ds\Deque;
+use Ds\Seq;
 use Ds\Set;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
@@ -214,7 +214,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
         /**
          * @var string $trackId
-         * @var Deque<array> $stops
+         * @var Seq<array> $stops
          */
         foreach ($all as $trackId => $stops) {
             $generator = new SequenceGenerator();
