@@ -86,8 +86,8 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   config v3. Workers run with `display_errors=stderr`: anything PHP prints to stdout breaks the worker protocol
   (e.g. a deprecation raised while autoloading, before Symfony's error handler is set up). The runtime images
   set `display_errors` to `Off` (fpm) / `stderr` (cli) for the same reason.
-- `sentry/sentry-symfony` is capped below 5.14 until a roadrunner-bundle release after 3.4.0 (its Sentry
-  tracing listener decorator lacks `collectKernelResponseData`, which makes every request 500).
+- sentry-symfony 5.14+ needs roadrunner-bundle 3.5+: older bundles decorate Sentry's tracing listener without
+  `collectKernelResponseData`, which makes every request 500.
 - Mercure hub config pins `protocol_version: '0.x'` (mercure-bundle 0.6 defaults to 1.0). HMAC JWT secrets must be
   at least 256 bits; the dev `!ChangeMe!` secret makes `/api/v1/network/nodes` fail when it creates the cookie.
 - The serializer decorator `App\Serialization\Serializer` must implement every interface of Symfony's
