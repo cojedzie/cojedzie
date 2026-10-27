@@ -29,18 +29,22 @@ class SentrySampler
         }
 
         // otherwise use dynamic sample rate which should be relative to main one
-        return max(1.0, $this->sampleRate * $this->getDynamicSampleRate($context));
+        return min(1.0, $this->sampleRate * $this->getDynamicSampleRate($context));
     }
 
     private function getDynamicSampleRate(SamplingContext $context)
     {
         if ($context->getTransactionContext()->getOp() === 'http.server') {
-            $request   = $this->requestStack->getCurrentRequest();
-            $routeName = $request->attributes->get('_route');
+            $routeName = $this->requestStack->getCurrentRequest()?->attributes->get('_route');
+
+            // unmatched requests (404) have no route to take options from
+            if ($routeName === null) {
+                return 1.0;
+            }
 
             $options = $this->cache->get(
                 sprintf('route-options-%s', $routeName),
-                fn () => $this->router->getRouteCollection()->get($routeName)->getOptions()
+                fn () => $this->router->getRouteCollection()->get($routeName)?->getOptions() ?? []
             );
 
             return array_key_exists('sentry_sample_rate', $options)
