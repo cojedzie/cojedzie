@@ -57,9 +57,12 @@ final class DeparturePairingVariants
                 return $this->pair($schedule, $real);
             }
 
-            public function mergeDepartures(?Departure $real, ?ScheduledStop $scheduled): Departure
+            /**
+             * @param array{estimated: ?Departure, scheduled: ?ScheduledStop} $pair
+             */
+            public function mergePair(array $pair): Departure
             {
-                return $this->merge($real, $scheduled);
+                return $this->merge($pair['estimated'], $pair['scheduled']);
             }
         };
     }
@@ -104,7 +107,7 @@ final class DeparturePairingVariants
 
         return $pairs
             |> c\concat($unmatched)
-            |> c\map(fn (array $pair) => $this->repository->mergeDepartures($pair['estimated'], $pair['scheduled']))
+            |> c\map($this->repository->mergePair(...))
             |> c\sortBy(fn (Departure $departure) => ($departure->getEstimated() ?? $departure->getScheduled())->getTimestamp())
             |> c\toArray();
     }
@@ -133,7 +136,7 @@ final class DeparturePairingVariants
                 'estimated' => null,
                 'scheduled' => $scheduled,
             ]))
-            |> lazy\map(fn (array $pair) => $this->repository->mergeDepartures($pair['estimated'], $pair['scheduled']))
+            |> lazy\map($this->repository->mergePair(...))
             |> c\sortBy(fn (Departure $departure) => ($departure->getEstimated() ?? $departure->getScheduled())->getTimestamp())
             |> c\toArray();
     }
@@ -142,8 +145,8 @@ final class DeparturePairingVariants
      * Departures at stop S1 of lines L1..L8, every 2 minutes from 08:00, so no two of them share a time.
      *
      * The first `round($realtime * $matchRatio)` realtime departures have the line and the scheduled time of a
-     * scheduled stop, the rest are scheduled a minute after one, so they match nothing. Realtime departures are
-     * estimated 0 to 4 minutes late and display `Realtime {n}`, the schedule displays `Dest {n}`.
+     * scheduled stop, the rest are scheduled a minute after one, so they match nothing. Every realtime departure,
+     * matched or not, is estimated 0 to 4 minutes late and displays `Realtime {n}`; the schedule displays `Dest {n}`.
      *
      * @return array{0: list<ScheduledStop>, 1: list<Departure>}
      */
