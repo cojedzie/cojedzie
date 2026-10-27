@@ -21,6 +21,9 @@ declare -A MAIN_TAGS
 
 export DOCKER_BUILDKIT=1
 
+# release name used by the images and by Sentry
+VERSION=$(git describe --tags)
+
 usage () {
   echo "usage: $0 [-h|--help] [-d|--dry] [--no-base|-B] [--default-only|-D] [-p|--push] [-r|--registry registry] [--build-registry registry] [--publish-registry registry]... [-t|--tag tag] [--cache-to cache] [--cache-from cache] [--digests file] -- images...";
 }
@@ -126,7 +129,7 @@ build () {
   run docker buildx build \
     --build-arg "BASE_VERSION=${TAGS[0]}" \
     --build-arg "REGISTRY=$BUILD_REGISTRY" \
-    --build-arg "COJEDZIE_VERSION=$(git describe --tags)" \
+    --build-arg "COJEDZIE_VERSION=$VERSION" \
     --build-arg "COJEDZIE_REVISION=$(git rev-parse HEAD)" \
     "${CACHE_ARGS[@]}" "${ARGS[@]}" "$@" "$CONTEXT"
 }
@@ -249,8 +252,10 @@ else
   printf " - %s\n" "${BUILT_TAGS[@]}"
 fi
 
-# write <image>=<tag>@<digest> of every pushed image, so deployments can pin the exact build
+# write <image>=<tag>@<digest> of every pushed image, so deployments can pin the exact build,
+# and version=<version> they were built as, so deployments can be reported to Sentry
 if [[ -n "$DIGESTS" ]] && [[ $PUSH -eq 1 ]] && [[ $DRY -eq 0 ]]; then
+  echo "version=$VERSION" | tee -a "$DIGESTS"
   for IMAGE in "${!MAIN_TAGS[@]}"; do
     TAG=${MAIN_TAGS[$IMAGE]}
     DIGEST=$(docker buildx imagetools inspect "$PUBLISH_REGISTRY/cojedzie/$IMAGE:$TAG" --format '{{ .Manifest.Digest }}') || exit 1

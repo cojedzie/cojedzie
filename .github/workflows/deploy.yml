@@ -79,3 +79,16 @@ jobs:
             cojedzie_api_version: ${{ steps.digests.outputs.api }}
             cojedzie_worker_version: ${{ steps.digests.outputs.worker }}
             cojedzie_front_version: ${{ steps.digests.outputs.front }}
+      # marks the release as deployed to the environment; the front build already created it with source maps
+      - name: Report deployment to Sentry
+        uses: getsentry/action-release@v3
+        # a deployment that went through must not fail on reporting
+        continue-on-error: true
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: cojedzie
+        with:
+          release: ${{ steps.digests.outputs.version }}
+          environment: ${{ inputs.environment || 'next' }}
+          projects: api frontend-vue frontend-server
+          set_commits: skip
