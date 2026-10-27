@@ -22,7 +22,7 @@ namespace App\Describer;
 
 use App\Filter\Binding\Http\ParameterBinding;
 use App\Utility\CollectionUtils;
-use Ds\Sequence;
+use Ds\Seq;
 use Ds\Set;
 use Nelmio\ApiDocBundle\OpenApiPhp\Util;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberInterface;
@@ -59,7 +59,7 @@ class ParameterBindingRouteDescriber implements RouteDescriberInterface
         }
     }
 
-    private function getDocumentationForParameterBindings(iterable $bindings, Route $route): Sequence
+    private function getDocumentationForParameterBindings(iterable $bindings, Route $route): Seq
     {
         $context            = Generator::$context;
         Generator::$context = new Context();

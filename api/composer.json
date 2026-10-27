@@ -21,7 +21,7 @@
     "nelmio/cors-bundle": "^2.5",
     "nesbot/carbon": "^3.0",
     "nyholm/psr7": "^1.5",
-    "php-ds/php-ds": "^1.4",
+    "php-ds/php-ds": "^2.0",
     "phpdocumentor/reflection-docblock": "^5.3",
     "phpstan/phpdoc-parser": "^1.2",
     "sentry/sentry-symfony": "^5.14",

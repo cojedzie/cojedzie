@@ -2,7 +2,9 @@
 
 namespace App\Describer;
 
-use Ds\Collection;
+use Ds\Map;
+use Ds\Seq;
+use Ds\Set;
 use Nelmio\ApiDocBundle\Model\Model;
 use Nelmio\ApiDocBundle\ModelDescriber\ModelDescriberInterface;
 use OpenApi\Annotations\Schema;
@@ -22,9 +24,8 @@ class DsCollectionDescriber implements ModelDescriberInterface
     #[\Override]
     public function supports(Model $model): bool
     {
-        return is_subclass_of(
-            $model->getType()->getClassName(),
-            Collection::class
-        );
+        $class = $model->getType()->getClassName();
+
+        return in_array($class, [Seq::class, Map::class, Set::class], true);
     }
 }
