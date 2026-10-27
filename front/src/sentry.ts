@@ -15,12 +15,12 @@ export function install(app: App) {
         dsn: config.dsn,
 
         integrations: [
-            new Sentry.BrowserTracing({
-                routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-                tracePropagationTargets: [window.CoJedzie.api.base, window.CoJedzie.api.hub, /^\//],
-            }),
-            new Sentry.Replay(),
+            Sentry.browserTracingIntegration({ router }),
+            Sentry.replayIntegration(),
+            Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
         ],
+
+        tracePropagationTargets: [window.CoJedzie.api.base, window.CoJedzie.api.hub, /^\//],
 
         release: window.CoJedzie.version,
         environment: config.environment,

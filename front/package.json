@@ -15,8 +15,8 @@
     "@egoist/vue-to-react": "^1.2.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/vue-fontawesome": "^3.0.0-4",
-    "@sentry/vite-plugin": "^0.7.2",
-    "@sentry/vue": "^7.52.1",
+    "@sentry/vite-plugin": "^11.9.0",
+    "@sentry/vue": "^11.9.0",
     "@storybook/addon-actions": "7.0.*",
     "@storybook/addon-essentials": "7.0.*",
     "@storybook/addon-links": "7.0.*",
@@ -84,6 +84,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "7",
+    "@sentry/node": "^11.9.0",
     "@vueuse/core": "^9.2.0",
     "browserslist": "^4.21.5",
     "browserslist-useragent": "^4.0.0",

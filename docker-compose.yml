@@ -45,7 +45,7 @@ services:
       - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
   frontend:
-    image: node:16
+    image: node:24
     working_dir: /app
     environment:
       - COJEDZIE_MODE=development
@@ -60,7 +60,7 @@ services:
     command: ["node", "build/server/server.js"]
 
   storybook:
-    image: node:16
+    image: node:24
     working_dir: /app
     environment:
       - STORYBOOK_BASE_HREF=/storybook/

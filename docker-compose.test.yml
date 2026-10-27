@@ -1,6 +1,6 @@
 services:
   vitest:
-    image: node:16
+    image: node:24
     working_dir: /app
     environment:
       - COJEDZIE_MODE=development
