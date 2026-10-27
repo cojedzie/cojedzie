@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12d49eaaa92f0db7f0f6eaf979dac487",
+    "content-hash": "6751418c6ef8f006f8b73122ec0b0779",
     "packages": [
         {
             "name": "baldinof/roadrunner-bundle",
@@ -2129,20 +2129,23 @@
         },
         {
             "name": "kadet/functional",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://git.kadet.net/kadet/functional-php.git",
-                "reference": "12918eb3cb701b03792fea5ea479f13d0652a075"
+                "reference": "dc1b684978476aa4403c80534081340c8d22527c"
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=8.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7.0",
-                "psy/psysh": "@stable"
+                "php-ds/php-ds": "^2.0",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^11.5"
             },
-            "default-branch": true,
+            "suggest": {
+                "php-ds/php-ds": "^2.0 (or ext-ds) for Seq/Map/Set results"
+            },
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -2150,7 +2153,24 @@
                 },
                 "files": [
                     "./src/functions.php",
-                    "./src/Predicates/index.php"
+                    "./src/Internal/functions.php",
+                    "./src/Predicates/index.php",
+                    "./src/Collections/Internal/containers.php",
+                    "./src/Collections/Internal/queries.php",
+                    "./src/Collections/Lazy/transforms.php",
+                    "./src/Collections/transforms.php",
+                    "./src/Collections/collectors.php",
+                    "./src/Collections/queries.php"
+                ]
+            },
+            "scripts": {
+                "test": [
+                    "phpunit",
+                    "phpunit -c phpunit.no-ds.xml"
+                ],
+                "phpstan": [
+                    "phpstan analyse",
+                    "phpstan analyse -c phpstan.types.neon"
                 ]
             },
             "license": [
@@ -2163,7 +2183,7 @@
                 }
             ],
             "description": "Functional library for PHP",
-            "time": "2026-10-25T15:01:51+00:00"
+            "time": "2026-10-27T22:13:07+00:00"
         },
         {
             "name": "laminas/laminas-code",
@@ -13474,9 +13494,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "kadet/functional": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
