@@ -12,6 +12,7 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
 #[AsSchedule]
 class DefaultScheduleProvider implements ScheduleProviderInterface
 {
+    public const string UPDATE_SCHEDULE = '0 5 * * *';
     private Schedule $schedule;
 
     #[\Override]
@@ -20,7 +21,7 @@ class DefaultScheduleProvider implements ScheduleProviderInterface
         return $this->schedule ??= new Schedule()
             ->with(
                 RecurringMessage::cron(
-                    '0 5 * * *',
+                    self::UPDATE_SCHEDULE,
                     new RedispatchMessage(new UpdateDataSources(), 'async')
                 )
             );

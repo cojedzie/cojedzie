@@ -88,6 +88,11 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   set `display_errors` to `Off` (fpm) / `stderr` (cli) for the same reason.
 - sentry-symfony 5.14+ needs roadrunner-bundle 3.5+: older bundles decorate Sentry's tracing listener without
   `collectKernelResponseData`, which makes every request 500.
+- Sentry (prod only, `config/packages/sentry.yaml`): `App\Service\SentrySampler` samples traces at
+  `SENTRY_SAMPLE_RATE`, scaled by a route's `sentry_sample_rate` option or a message's/command's
+  `CustomSentrySampleRateInterface`. Logs from `info` up go to Sentry Logs (`sentry_logs` handler in
+  `prod/monolog.yaml`, deprecations excluded). `UpdateDataSourcesMessageHandler` sends check-ins to the
+  `update-data-sources` cron monitor, its schedule is `DefaultScheduleProvider::UPDATE_SCHEDULE`.
 - Mercure hub config pins `protocol_version: '0.x'` (mercure-bundle 0.6 defaults to 1.0). HMAC JWT secrets must be
   at least 256 bits; the dev `!ChangeMe!` secret makes `/api/v1/network/nodes` fail when it creates the cookie.
 - The serializer decorator `App\Serialization\Serializer` must implement every interface of Symfony's
