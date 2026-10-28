@@ -95,6 +95,13 @@ class DataUpdater
         }
 
         while (!empty($nodes)) {
+            if (!array_any($nodes, fn ($node) => empty($node['dependencies']))) {
+                throw new \LogicException(sprintf(
+                    'Importers %s depend on importers that are missing or depend on them.',
+                    implode(', ', array_keys($nodes)),
+                ));
+            }
+
             $next = $nodes;
             foreach ($nodes as $name => $node) {
                 if (empty($node['dependencies'])) {

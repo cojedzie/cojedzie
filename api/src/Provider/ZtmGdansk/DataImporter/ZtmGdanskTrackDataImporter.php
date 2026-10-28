@@ -49,7 +49,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     }
 
     #[\Override]
-    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
         $this->importTracksFromZtmApi($reporter->subtask('Import tracks'), $event);
         $this->importStopsInTracksFromZtmApi($reporter->subtask('Import stops in tracks'), $event);
