@@ -50,6 +50,12 @@ class DtoNormalizer implements NormalizerInterface, DenormalizerInterface, Seria
         return $this->decorated->supportsNormalization($data, $format, $context);
     }
 
+    /**
+     * Wraps `Seq` properties of the denormalized class back into a Seq, see getSeqCallbacks().
+     *
+     * A callback supplied by the caller for a `Seq` attribute replaces the Seq wrapping, as caller callbacks take
+     * precedence over the ones added here.
+     */
     #[\Override]
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
