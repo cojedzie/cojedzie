@@ -48,10 +48,10 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
         $count = $this->connection->transactional(fn () => $this->upserter->upsert(
-            'stop',
-            $this->getStopsFromZtmApi(),
-            ZtmGdanskProvider::IDENTIFIER,
-            $event->import,
+            table: 'stop',
+            rows: $this->getStopsFromZtmApi(),
+            providerId: ZtmGdanskProvider::IDENTIFIER,
+            import: $event->import,
             types: ['on_demand' => ParameterType::BOOLEAN],
             reporter: $reporter,
         ));

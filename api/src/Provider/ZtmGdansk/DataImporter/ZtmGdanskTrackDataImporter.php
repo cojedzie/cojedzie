@@ -67,10 +67,10 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     private function importTracksFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
         $this->trackCount = $this->connection->transactional(fn () => $this->upserter->upsert(
-            'track',
-            $this->getTracksFromZtmApi(),
-            ZtmGdanskProvider::IDENTIFIER,
-            $event->import,
+            table: 'track',
+            rows: $this->getTracksFromZtmApi(),
+            providerId: ZtmGdanskProvider::IDENTIFIER,
+            import: $event->import,
             reporter: $reporter,
         ));
 
