@@ -150,6 +150,15 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ], $this->trackStops());
     }
 
+    public function testReimportWithOnlyUnknownStopsClearsTrackStops(): void
+    {
+        $this->import($this->event, [$this->trip(1)], [$this->stopInTrip(1, 100, 1)]);
+
+        $this->import($this->nextImport(), [$this->trip(1)], [$this->stopInTrip(1, 999, 1)]);
+
+        $this->assertSame([], $this->trackStops());
+    }
+
     /**
      * Starts the next import, with the stops imported again by it, as the stop importer runs before this one.
      */

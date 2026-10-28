@@ -36,9 +36,11 @@ final class TrackStopsVariantsTest extends TestCase
     public function testVariantsProduceIdenticalOutput(): void
     {
         $this->assertSame($this->materialize('materialized'), $this->materialize('lazy'));
+        $this->assertSame($this->materialize('materialized'), $this->materialize('compact'));
+        $this->assertSame($this->materialize('materialized'), $this->materialize('compactLazy'));
     }
 
-    public function testImporterMatchesMaterializedVariant(): void
+    public function testImporterMatchesCompactVariant(): void
     {
         $ids      = new IdUtils();
         $importer = new ZtmGdanskTrackDataImporter(
@@ -59,7 +61,7 @@ final class TrackStopsVariantsTest extends TestCase
         }
 
         $this->assertNotEmpty($result);
-        $this->assertSame($this->materialize('materialized'), $result);
+        $this->assertSame($this->materialize('compact'), $result);
     }
 
     /**
