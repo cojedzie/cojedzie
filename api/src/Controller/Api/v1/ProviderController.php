@@ -25,7 +25,7 @@ use App\DataConverter\Converter;
 use App\Dto\{CollectionResult, Dto, Provider};
 use App\Exception\NonExistentServiceException;
 use App\Service\ProviderResolver;
-use Kadet\Functional as f;
+use Kadet\Functional\Collections as c;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,12 +43,10 @@ class ProviderController extends Controller
     #[OA\Response(description: 'List of available data providers.', response: 200, content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Provider::class)))])]
     public function index(ProviderResolver $resolver, Converter $converter): Response
     {
-        $providers = $resolver
-            ->all()
-            ->map(f\partial(f\ref($converter->convert(...)), f\_, Dto::class))
-            ->values()
-            ->toArray()
-        ;
+        $providers = $resolver->all()
+            |> c\map(fn ($provider) => $converter->convert($provider, Dto::class))
+            |> c\values()
+            |> c\toArray();
 
         return $this->apiResponseFactory->createCollectionResponse($providers);
     }

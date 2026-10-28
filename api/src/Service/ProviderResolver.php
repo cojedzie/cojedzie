@@ -23,20 +23,24 @@ namespace App\Service;
 use App\Exception\NonExistentServiceException;
 use App\Provider\Dummy\DummyProvider;
 use App\Provider\Provider;
-use Illuminate\Support\Collection;
+use Ds\Map;
+use Kadet\Functional\Collections as c;
 use Kadet\Functional\Predicates as p;
 use Kadet\Functional\Transforms as t;
 
 class ProviderResolver
 {
-    private $providers;
+    /**
+     * @var Map<string, Provider>
+     */
+    private Map $providers;
 
     public function __construct($providers, bool $debug)
     {
-        $this->providers = collect($providers)->keyBy(t\property('identifier'));
+        $this->providers = $providers |> c\keyBy(t\property('identifier'));
 
         if (!$debug) {
-            $this->providers = $this->providers->filter(p\instance(DummyProvider::class)->negate());
+            $this->providers = $this->providers |> c\reject(p\instance(DummyProvider::class));
         }
     }
 
@@ -46,11 +50,11 @@ class ProviderResolver
             return null;
         }
 
-        if (!$this->providers->has($name)) {
+        if (!$this->providers->hasKey($name)) {
             $message = sprintf(
                 "Provider '%s' doesn't exist, you can choose from: %s",
                 $name,
-                $this->providers->keys()->implode(', ')
+                $this->providers->keys()->join(', ')
             );
 
             throw new NonExistentServiceException($message);
@@ -60,10 +64,10 @@ class ProviderResolver
     }
 
     /**
-     * @return Provider[]
+     * @return Map<string, Provider>
      */
-    public function all(): Collection
+    public function all(): Map
     {
-        return clone $this->providers;
+        return $this->providers->copy();
     }
 }
