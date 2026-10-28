@@ -12,7 +12,7 @@ tasks:
   exec:
     desc: Execute command on one of available containers
     cmds:
-      - docker compose run {{.FLAGS}} -u {{.USER}} {{.SERVICE}} {{.CLI_ARGS}}
+      - docker compose run --rm {{.FLAGS}} -u {{.USER}} {{.SERVICE}} {{.CLI_ARGS}}
 
   dependencies:
     deps:
@@ -111,7 +111,7 @@ tasks:
   console:
     desc: Execute command in the symfony console
     cmds:
-      - docker compose run {{.FLAGS}} -u {{.USER}} api bin/console {{.CLI_ARGS}}
+      - docker compose run --rm {{.FLAGS}} -u {{.USER}} api bin/console {{.CLI_ARGS}}
 
   composer:
     desc: Execute command in the symfony console
@@ -131,4 +131,4 @@ tasks:
   api:update:
     desc: Update data from data providers
     cmds:
-      - docker compose run {{.FLAGS}} -e APP_MODE={{default "performance" .APP_MODE}} api bin/console app:update {{.CLI_ARGS}}
+      - docker compose run --rm {{.FLAGS}} -e APP_MODE={{default "performance" .APP_MODE}} api bin/console app:update {{.CLI_ARGS}}
