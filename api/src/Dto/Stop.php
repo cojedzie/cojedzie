@@ -23,7 +23,7 @@ namespace App\Dto;
 use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ContentType('vnd.cojedzie.stop')]
 class Stop implements Referable, Fillable, Dto

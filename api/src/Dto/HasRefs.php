@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 interface HasRefs
 {

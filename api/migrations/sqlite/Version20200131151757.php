@@ -38,7 +38,7 @@ final class Version20200131151757 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('CREATE TEMPORARY TABLE __temp__stop AS SELECT id, provider_id, name, description, variant, latitude, longitude, on_demand FROM stop');
         $this->addSql('DROP TABLE stop');
@@ -51,7 +51,7 @@ final class Version20200131151757 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('DROP INDEX IF EXISTS group_idx');
         $this->addSql('CREATE TEMPORARY TABLE __temp__stop AS SELECT id, name, description, variant, latitude, longitude, on_demand, provider_id FROM stop');

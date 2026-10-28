@@ -48,13 +48,13 @@ class TripEntity implements Entity, Fillable
     /**
      * Variant of track, for example some alternative route
      */
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $variant = null;
 
     /**
      * Description of variant
      */
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $note = null;
 
     /**

@@ -34,7 +34,7 @@ class StopEntity implements Entity, Fillable
     /**
      * Identifier for stop coming from provider
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     #[ORM\Id]
     private string $id;
 

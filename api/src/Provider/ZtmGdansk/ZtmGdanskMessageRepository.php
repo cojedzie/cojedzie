@@ -31,6 +31,7 @@ use App\Service\HandlerProviderFactory;
 use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Map;
 use Ds\Seq;
@@ -116,7 +117,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
             ->andWhere('symbol IN (:symbols)')
             ->andWhere('provider_id = :provider')
             ->setParameter('provider', $this->provider->getId())
-            ->setParameter('symbols', $messagesBySymbol->keys()->toArray(), Connection::PARAM_STR_ARRAY)
+            ->setParameter('symbols', $messagesBySymbol->keys()->toArray(), ArrayParameterType::STRING)
             ->executeQuery()
             ->iterateKeyValue();
 

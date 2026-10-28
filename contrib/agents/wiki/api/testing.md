@@ -14,7 +14,7 @@ task test:behat -- --tags='~@wip'              # what CI runs
 
 `task test:behat` deletes `api/var/db/test.db` and rebuilds it from the **SQLite migrations**, so a broken
 migration fails the run (that's how two SQLite migration bugs were found). Every scenario then runs in a
-transaction that is rolled back (`dama/doctrine-test-bundle`; needs `use_savepoints: true`).
+transaction that is rolled back (`dama/doctrine-test-bundle`, using savepoints, which DBAL 4 always enables).
 
 ## Layout
 

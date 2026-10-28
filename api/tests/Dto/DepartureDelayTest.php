@@ -24,6 +24,7 @@ namespace App\Tests\Dto;
 
 use App\Dto\Departure;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class DepartureDelayTest extends TestCase
@@ -36,9 +37,7 @@ final class DepartureDelayTest extends TestCase
         yield 'sub-second part is dropped' => ['2026-10-25 12:05:00', '2026-10-25 12:07:00.600', 120];
     }
 
-    /**
-     * @dataProvider delays
-     */
+    #[DataProvider('delays')]
     public function testDelayIsSignedWholeSeconds(string $scheduled, string $estimated, int $expected): void
     {
         $departure = new Departure();

@@ -29,7 +29,7 @@ trait ReferableEntityTrait
      *
      * @noRector Rector\Php81\Rector\Property\ReadOnlyPropertyRector
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     #[ORM\Id]
     private string $id;
 

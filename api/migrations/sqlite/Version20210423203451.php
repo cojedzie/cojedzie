@@ -30,14 +30,14 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20210423203451 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return 'Create entities related to federated servers.';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('CREATE TABLE federated_connection (id BLOB NOT NULL --(DC2Type:uuid)
         , server_id BLOB DEFAULT NULL --(DC2Type:uuid)
@@ -47,9 +47,9 @@ final class Version20210423203451 extends AbstractMigration
         , email VARCHAR(255) NOT NULL, maintainer VARCHAR(255) DEFAULT NULL, allowed_url VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('DROP TABLE federated_connection');
         $this->addSql('DROP TABLE federated_server');

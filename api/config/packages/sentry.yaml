@@ -25,6 +25,13 @@ when@prod:
         - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
 
   services:
+    # errors as Sentry issues, see the sentry handler in prod/monolog.yaml
+    app.sentry_issues:
+      class: Sentry\Monolog\Handler
+      arguments:
+        - '@Sentry\State\HubInterface'
+        - !php/const Monolog\Logger::ERROR
+
     # Sentry Logs handlers, see sentry_logs_* in prod/monolog.yaml: info from our own channels, warnings and
     # above from the rest (framework channels log every request and message at info, tracing covers those)
     app.sentry_logs.info:

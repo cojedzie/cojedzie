@@ -1,6 +1,6 @@
 # API architecture (`api/`)
 
-Symfony 7.4 / PHP 8.5, namespace `App\` → `api/src/`. Global helper functions are autoloaded from
+Symfony 8.1 / PHP 8.5, namespace `App\` → `api/src/`. Global helper functions are autoloaded from
 `src/Functions/index.php`. Functional helpers come from `kadet/functional` (`p\`, `t\` namespaces). Collections
 are php-ds values (`Ds\Seq`, `Ds\Map`, `Ds\Set`) transformed with `kadet/functional`'s `c\` functions and `|>`;
 see [collections.md](collections.md).
@@ -66,7 +66,7 @@ data, and add `DataImporter`s (see [data-import.md](data-import.md)).
 
 ## API docs
 
-OpenAPI via NelmioApiDocBundle 5 / swagger-php 5 using `#[OA\...]` attributes (`OpenApi\Attributes as OA`,
+OpenAPI via NelmioApiDocBundle 5.13 / swagger-php 6 using `#[OA\...]` attributes (`OpenApi\Attributes as OA`,
 `Nelmio\ApiDocBundle\Attribute\Model`) on controllers and DTOs, with custom describers in `src/Describer`.
 Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagger.json`.
 
@@ -75,13 +75,26 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
 - swagger-php only links an annotation to its parent when it is passed to the parent's constructor. A `Schema`
   attached later (e.g. via `mergeProperties()`) ends up as an unnamed entry in `components.schemas` and fails
   validation, which makes `/api/swagger.json` return 500 in debug.
+- Nelmio uses `symfony/type-info` (Symfony 8 has no `PropertyInfo\Type`): custom describers read
+  `Model::getTypeInfo()`, never the legacy `Model::getType()`, which fails on Symfony 8.
 
 ## Runtime and dependency notes
 
-- Symfony 7.4 / PHP 8.5. Defaults that Symfony 7 changed (`http_method_override`, `handle_all_throwables`,
-  UUID version, `property_info.with_constructor_extractor`, Doctrine `controller_resolver.auto_mapping`) are
-  pinned to their 6.4 values in `config/packages/`; flip them deliberately. `doctrine.orm.enable_lazy_ghost_objects`
-  is still off (belongs with ORM 3).
+- Symfony 8.1 / PHP 8.5, Doctrine ORM 3 / DBAL 4 / DoctrineBundle 3, PHPUnit 13. Defaults that Symfony 7
+  changed (`http_method_override`, `handle_all_throwables`, UUID version,
+  `property_info.with_constructor_extractor`) are pinned to their 6.4 values in `config/packages/`; flip them
+  deliberately.
+- DoctrineBundle 3 forbids `controller_resolver.auto_mapping`: an entity controller argument whose route
+  parameter isn't `{id}` needs `#[MapEntity(id: '<param>')]` (see `FederationController::disconnect`).
+- ORM 3 uses PHP native lazy objects, so there are no proxy subclasses: test for an unloaded entity with
+  `new \ReflectionClass($entity)->isUninitializedLazyObject($entity)`. Reading the id doesn't load it.
+- Symfony attributes live in `...\Attribute\` namespaces (`Serializer\Attribute\Groups`, ...). The old
+  `...\Annotation\` classes are gone, and PHP silently ignores an attribute whose class doesn't exist, so a stale
+  import drops serialization groups without any error.
+- DBAL 4 has no default `VARCHAR` length on MySQL/MariaDB: string columns declare `length: 255` explicitly
+  (which also keeps the existing schema). Migrations check the platform with `instanceof` (e.g.
+  `SQLitePlatform`), since `AbstractPlatform::getName()` is gone. DBAL 4 no longer writes `(DC2Type:...)`
+  column comments, so a schema diff against a database migrated earlier lists those columns.
 - `ext-ds` 2.0 is installed with PIE in every PHP image (`build/base/Dockerfile`, `build/base/fpm.Dockerfile`,
   `build/base/cli.Dockerfile`, `api/Dockerfile`, `api/rr.Dockerfile`). amqp and redis are in all of them except
   `api/rr.Dockerfile`, and the dev images (`api/Dockerfile`, `api/rr.Dockerfile`) add xdebug. `php-ds/php-ds` 2.0 is
