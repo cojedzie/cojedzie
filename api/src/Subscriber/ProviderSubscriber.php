@@ -31,10 +31,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Rejects requests for an unknown {provider} before controller arguments (and their query parameters) are
  * resolved, so a wrong path is reported as 404 even when the query is malformed as well.
  */
-final class ProviderSubscriber implements EventSubscriberInterface
+final readonly class ProviderSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ProviderResolver $providers,
+        private ProviderResolver $providers,
     ) {
     }
 

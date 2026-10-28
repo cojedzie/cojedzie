@@ -73,7 +73,7 @@ final class SentrySamplerTest extends TestCase
         $context = SamplingContext::getDefault(new TransactionContext());
         $context->setParentSampled(true);
 
-        $this->assertSame(1.0, ($this->sampler)($context));
+        $this->assertEqualsWithDelta(1.0, ($this->sampler)($context), PHP_FLOAT_EPSILON);
     }
 
     public function testScalesConfiguredRateByQueueTaskRate(): void

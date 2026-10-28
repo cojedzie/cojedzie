@@ -33,7 +33,6 @@ use Sentry\Transport\Result;
 use Sentry\Transport\ResultStatus;
 use Sentry\Transport\TransportInterface;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
 final class SentryMessageSubscriberTest extends TestCase
@@ -71,7 +70,7 @@ final class SentryMessageSubscriberTest extends TestCase
         $envelope   = new Envelope(new UpdateDataSources());
 
         $subscriber->handleMessageReceived(new WorkerMessageReceivedEvent($envelope, 'main'));
-        $subscriber->handleMessageDone(new WorkerMessageHandledEvent($envelope, 'main'));
+        $subscriber->handleMessageDone();
 
         $this->assertCount(1, $transport->sent);
         $this->assertSame(EventType::transaction(), $transport->sent[0]->getType());

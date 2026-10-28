@@ -28,10 +28,10 @@ use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Carbon\Carbon;
 
-final class TimeContext implements Context
+final readonly class TimeContext implements Context
 {
     public function __construct(
-        private readonly FrozenTime $time,
+        private FrozenTime $time,
     ) {
     }
 

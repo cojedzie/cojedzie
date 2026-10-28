@@ -38,7 +38,7 @@ use Kadet\Functional\Collections\Lazy as lazy;
  * Every variant returns the merged departures as a list sorted by departure time and does exactly the same work, so
  * they can be compared. All of them merge through the repository's own merge().
  */
-final class DeparturePairingVariants
+final readonly class DeparturePairingVariants
 {
     private const int LINES    = 8;
     private const string START = '2026-01-01 08:00';

@@ -23,6 +23,7 @@ namespace App\Tests\DataImport;
 
 use App\DataImport\TableUpserter;
 use App\Event\DataUpdateEvent;
+use Doctrine\DBAL\Exception;
 
 final class TableUpserterTest extends ImporterTestCase
 {
@@ -81,7 +82,7 @@ final class TableUpserterTest extends ImporterTestCase
                     'no_such_column'       => 1],
             ]));
             $this->fail('The upsert should have failed.');
-        } catch (\Doctrine\DBAL\Exception) {
+        } catch (Exception) {
         }
 
         $this->assertSame([], $this->rows('operator', 'id'));

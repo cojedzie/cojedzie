@@ -44,8 +44,8 @@ final class ProviderResolverTest extends TestCase
     {
         $providers = [$this->provider('a'), $this->provider('dummy', DummyProvider::class)];
 
-        $this->assertSame(['a', 'dummy'], array_keys(iterator_to_array((new ProviderResolver($providers, true))->all())));
-        $this->assertSame(['a'], array_keys(iterator_to_array((new ProviderResolver($providers, false))->all())));
+        $this->assertSame(['a', 'dummy'], array_keys(iterator_to_array(new ProviderResolver($providers, true)->all())));
+        $this->assertSame(['a'], array_keys(iterator_to_array(new ProviderResolver($providers, false)->all())));
     }
 
     public function testResolveFindsProviderOrReturnsNullForEmptyName(): void
@@ -63,7 +63,7 @@ final class ProviderResolverTest extends TestCase
         $resolver = new ProviderResolver([$this->provider('a'), $this->provider('b')], true);
 
         $this->expectException(NonExistentServiceException::class);
-        $this->expectExceptionMessage("Provider 'x' doesn't exist, you can choose from: a, b");
+        $this->expectExceptionMessageIsOrContains("Provider 'x' doesn't exist, you can choose from: a, b");
 
         $resolver->resolve('x');
     }

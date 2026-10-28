@@ -46,20 +46,20 @@ use Psr\Clock\ClockInterface;
 /**
  * Provider used only by behavioural tests; its data is defined by scenarios.
  */
-final class TestProvider implements Provider
+final readonly class TestProvider implements Provider
 {
     public const string IDENTIFIER = 'test';
     public const string NAME       = 'Test City';
 
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly GenericLineRepository $lines,
-        private readonly GenericStopRepository $stops,
-        private readonly GenericTrackRepository $tracks,
-        private readonly GenericTripRepository $trips,
-        private readonly GenericScheduleRepository $schedule,
-        private readonly InMemoryDepartureRepository $live,
-        private readonly ClockInterface $clock,
+        private EntityManagerInterface $em,
+        private GenericLineRepository $lines,
+        private GenericStopRepository $stops,
+        private GenericTrackRepository $tracks,
+        private GenericTripRepository $trips,
+        private GenericScheduleRepository $schedule,
+        private InMemoryDepartureRepository $live,
+        private ClockInterface $clock,
     ) {
     }
 

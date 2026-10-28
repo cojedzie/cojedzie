@@ -110,12 +110,12 @@ abstract class ImporterTestCase extends KernelTestCase
     {
         $reporter = $this->createStub(ProgressReporterInterface::class);
         $reporter->method('subtask')->willReturnCallback(fn () => $this->reporter());
-        $reporter->method('progress')->willReturnCallback(function (float $progress, ?float $max = null) {
+        $reporter->method('progress')->willReturnCallback(function (float $progress, ?float $max = null): void {
             if ($max !== null) {
                 $this->progressTotals[] = $max;
             }
         });
-        $reporter->method('milestone')->willReturnCallback(function (string $comment, MilestoneType $type = MilestoneType::Info) {
+        $reporter->method('milestone')->willReturnCallback(function (string $comment, MilestoneType $type = MilestoneType::Info): void {
             if ($type === MilestoneType::Warning) {
                 $this->warnings[] = $comment;
             }
