@@ -23,13 +23,15 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
+use App\Parser\Exception\EndOfStreamException;
+use App\Parser\Exception\StreamOpenException;
+use App\Parser\Exception\UnexpectedTokenException;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Carbon\Carbon;
-use Cerbero\JsonObjects\JsonObjectsException;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
@@ -55,7 +57,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->from('line', 'l')
             ->select('id')
             ->where('l.provider_id = :provider_id')
-            ->where('l.import_id = :import_id')
+            ->andWhere('l.import_id = :import_id')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
             ->setParameter('import_id', $event->import->getId(), 'uuid')
             ->executeQuery();
@@ -76,11 +78,8 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $count = 0;
         foreach ($existingLineIds as $lineId) {
             try {
-                $this->connection->beginTransaction();
-                $this->importScheduleOfLine($event, $lineId, $existingStopIds);
-                $this->connection->commit();
-            } catch (JsonObjectsException $exception) {
-                $this->connection->rollBack();
+                $this->connection->transactional(fn () => $this->importScheduleOfLine($event, $lineId, $existingStopIds));
+            } catch (StreamOpenException|UnexpectedTokenException|EndOfStreamException $exception) {
                 $reporter->milestone("Failed to import line " . $lineId . ": " . $exception->getMessage(), MilestoneType::Warning);
             }
             $reporter->progress($count++, max: $existingLineCount, comment: sprintf("Imported line %s", $lineId));
@@ -123,11 +122,14 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 
             $this->connection->insert(
                 'trip_stop',
-                $columns,
+                [
+                    ...$columns,
+                    'import_id' => $event->import->getId(),
+                ],
                 [
                     'arrival'   => 'datetime',
                     'departure' => 'datetime',
-                    'import_id' => $event->import->getId(),
+                    'import_id' => 'uuid',
                 ]
             );
         };

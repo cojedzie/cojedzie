@@ -200,7 +200,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 ->from('stop', 's')
                 ->select('id')
                 ->where('s.provider_id = :provider_id')
-                ->where('s.import_id = :import_id')
+                ->andWhere('s.import_id = :import_id')
                 ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
                 // allow only stops from current import
                 ->setParameter('import_id', $event->import->getId(), 'uuid')
