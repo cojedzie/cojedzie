@@ -14,7 +14,7 @@
     "doctrine/orm": "^3.7",
     "dragonmantank/cron-expression": "^3.3",
     "friendsofphp/proxy-manager-lts": "^1.0",
-    "kadet/functional": "^1.0.1",
+    "kadet/functional": "^1.1.0",
     "nelmio/api-doc-bundle": "^5.13",
     "nelmio/cors-bundle": "^2.5",
     "nesbot/carbon": "^3.0",
