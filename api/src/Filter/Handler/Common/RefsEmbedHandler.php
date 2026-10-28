@@ -81,7 +81,9 @@ class RefsEmbedHandler implements PostProcessingHandler
             /** @var CollectionResult $collection */
             $collection = $refs->{$name};
             $collection->setItems(
-                $collection->getItems()->map(fn ($dto) => $entities->get($dto->getId(), null))->filter()
+                $collection->getItems()
+                    |> c\map(fn ($dto) => $entities->get($dto->getId(), null))
+                    |> c\filter()
             );
         }
     }
