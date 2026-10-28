@@ -63,7 +63,7 @@ class TokenizedStream implements StreamInterface
     #[\Override]
     public function eof(): bool
     {
-        return empty($this->buffer) && !$this->generator->valid();
+        return $this->buffer->isEmpty() && !$this->generator->valid();
     }
 
     #[\Override]
