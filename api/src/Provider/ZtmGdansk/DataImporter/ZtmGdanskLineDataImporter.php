@@ -127,7 +127,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 ->iterateColumn()
         );
 
-        foreach ($this->jsonStreamer->stream($this->config->routesUrl, sprintf('%s.routes', $this->clock->now()->format('Y-m-d'))) as $line) {
+        foreach ($this->jsonStreamer->stream($this->config->routesUrl, sprintf('%s.routes', ZtmGdanskProvider::feedDate($this->clock))) as $line) {
             $symbol   = $line['routeShortName'];
             $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
 

@@ -108,7 +108,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             "%s?%s",
             $this->config->apiUrl . self::SCHEDULE_PATH,
             http_build_query([
-                'date'    => $this->clock->now()->format('Y-m-d'),
+                'date'    => ZtmGdanskProvider::feedDate($this->clock),
                 'routeId' => $this->idUtils->strip($lineId),
             ])
         );
@@ -164,7 +164,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             }
 
             $base = Carbon::create(1899, 12, 30, 00, 00, 00);
-            $date = Carbon::createFromFormat('Y-m-d', $stop['date'], 'Europe/Warsaw')->setTime(00, 00, 00);
+            $date = Carbon::createFromFormat('Y-m-d', $stop['date'], ZtmGdanskProvider::TIMEZONE)->setTime(00, 00, 00);
 
             $arrival   = $base->diff(Carbon::createFromTimeString($stop['arrivalTime']));
             $departure = $base->diff(Carbon::createFromTimeString($stop['departureTime']));

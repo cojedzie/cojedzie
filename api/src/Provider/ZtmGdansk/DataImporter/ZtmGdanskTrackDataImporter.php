@@ -182,7 +182,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTracksFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream($this->config->tripsUrl, sprintf('%s.trips', $this->clock->now()->format('Y-m-d'))) as $track) {
+        foreach ($this->jsonStreamer->stream($this->config->tripsUrl, sprintf('%s.trips', ZtmGdanskProvider::feedDate($this->clock))) as $track) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['id']) => [
                 'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['routeId']),
                 'description' => preg_replace('/\(\d+\)/', '', (string) $track['tripHeadsign']),
@@ -192,7 +192,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
-        $records = $this->jsonStreamer->stream($this->config->stopsInTripsUrl, sprintf('%s.stopsInTrip', $this->clock->now()->format('Y-m-d')));
+        $records = $this->jsonStreamer->stream($this->config->stopsInTripsUrl, sprintf('%s.stopsInTrip', ZtmGdanskProvider::feedDate($this->clock)));
 
         $existingStopIds = new Set(
             $this->connection->createQueryBuilder()
