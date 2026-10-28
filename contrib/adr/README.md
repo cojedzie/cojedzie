@@ -41,6 +41,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0004](0004-upstream-data-addresses-are-configuration.md) | Upstream data addresses are configuration | Accepted |
 | [0005](0005-releases-are-made-by-ci-from-tags.md) | Releases are made by CI from tags | Accepted |
 | [0006](0006-collections-are-php-ds-values-with-kadet-functional-pipelines.md) | Collections are php-ds values with kadet/functional pipelines | Accepted |
+| [0007](0007-imported-rows-are-upserted-portably.md) | Imported rows are upserted portably, importers are tested on recorded feeds | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
