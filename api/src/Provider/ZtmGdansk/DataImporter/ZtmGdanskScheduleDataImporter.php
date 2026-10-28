@@ -32,7 +32,6 @@ use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Carbon\Carbon;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
 use Psr\Clock\ClockInterface;
@@ -51,19 +50,17 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     }
 
     #[\Override]
-    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
-        $existingLineIdsQueryResult = $this->connection->createQueryBuilder()
+        $existingLineIds = $this->connection->createQueryBuilder()
             ->from('line', 'l')
             ->select('id')
             ->where('l.provider_id = :provider_id')
             ->andWhere('l.import_id = :import_id')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
             ->setParameter('import_id', $event->import->getId(), 'uuid')
-            ->executeQuery();
-
-        $existingLineIds   = $existingLineIdsQueryResult->iterateColumn();
-        $existingLineCount = $existingLineIdsQueryResult->rowCount();
+            ->executeQuery()
+            ->fetchFirstColumn();
 
         $existingStopIds = new Set(
             $this->connection->createQueryBuilder()
@@ -82,7 +79,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             } catch (StreamOpenException|UnexpectedTokenException|EndOfStreamException $exception) {
                 $reporter->milestone("Failed to import line " . $lineId . ": " . $exception->getMessage(), MilestoneType::Warning);
             }
-            $reporter->progress($count++, max: $existingLineCount, comment: sprintf("Imported line %s", $lineId));
+            $reporter->progress($count++, max: count($existingLineIds), comment: sprintf("Imported line %s", $lineId));
         }
         $reporter->progress($count, comment: 'Imported all lines', finished: true);
     }
@@ -99,7 +96,6 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $this->connection->createQueryBuilder()
             ->delete('trip')
             ->where(sprintf('id in (%s)', $tripIds->getSQL()))
-            ->setParameter('ids', $tripIds, ArrayParameterType::STRING)
             ->setParameter('lid', $lineId)
             ->executeStatement()
         ;

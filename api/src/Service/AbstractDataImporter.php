@@ -25,21 +25,9 @@ use App\DataImport\DataImporter;
 abstract class AbstractDataImporter implements DataImporter
 {
     #[\Override]
-    public function isOutdated(): bool
-    {
-        return true;
-    }
-
-    #[\Override]
     public function getDependencies(): array
     {
         return [ProviderDataImporter::class];
-    }
-
-    #[\Override]
-    public function getPriority(): int
-    {
-        return 0;
     }
 
     #[\Override]

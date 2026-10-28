@@ -48,6 +48,13 @@ abstract class ImporterTestCase extends KernelTestCase
      */
     protected array $warnings = [];
 
+    /**
+     * Totals reported with progress, the max argument of each call that had one.
+     *
+     * @var list<float>
+     */
+    protected array $progressTotals = [];
+
     #[\Override]
     protected function setUp(): void
     {
@@ -97,12 +104,17 @@ abstract class ImporterTestCase extends KernelTestCase
     }
 
     /**
-     * A reporter that records warnings into $warnings.
+     * A reporter that records warnings into $warnings and progress totals into $progressTotals.
      */
     protected function reporter(): ProgressReporterInterface
     {
         $reporter = $this->createStub(ProgressReporterInterface::class);
         $reporter->method('subtask')->willReturnCallback(fn () => $this->reporter());
+        $reporter->method('progress')->willReturnCallback(function (float $progress, ?float $max = null) {
+            if ($max !== null) {
+                $this->progressTotals[] = $max;
+            }
+        });
         $reporter->method('milestone')->willReturnCallback(function (string $comment, MilestoneType $type = MilestoneType::Info) {
             if ($type === MilestoneType::Warning) {
                 $this->warnings[] = $comment;

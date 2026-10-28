@@ -101,6 +101,16 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertCount(1, $this->warnings);
     }
 
+    public function testProgressTotalIsTheNumberOfLines(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+        $this->line(self::PROVIDER . '::8');
+
+        $this->importer(fn () => [])->import($this->reporter(), $this->event);
+
+        $this->assertSame([2.0, 2.0], $this->progressTotals);
+    }
+
     private function line(string $id): void
     {
         [$provider, $symbol] = explode('::', $id);
