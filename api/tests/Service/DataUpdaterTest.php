@@ -53,6 +53,25 @@ final class DataUpdaterTest extends KernelTestCase
         }
     }
 
+    public function testUnresolvableDependenciesFail(): void
+    {
+        self::bootKernel();
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->getConnection()->beginTransaction();
+
+        try {
+            $stops = $this->importer('stops', ['App\\NoSuchImporter'], new \ArrayObject());
+
+            $this->expectException(\LogicException::class);
+            $this->expectExceptionMessage($stops::class);
+
+            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$stops])->update();
+        } finally {
+            $em->getConnection()->rollBack();
+        }
+    }
+
     private function importer(string $name, array $dependencies, \ArrayObject $log): DataImporter
     {
         // each anonymous class declaration is a distinct class, dependencies are given by class name
@@ -79,21 +98,9 @@ abstract class RecordingImporter implements DataImporter
     }
 
     #[\Override]
-    public function isOutdated(): bool
-    {
-        return true;
-    }
-
-    #[\Override]
     public function getDependencies(): array
     {
         return $this->dependencies;
-    }
-
-    #[\Override]
-    public function getPriority(): int
-    {
-        return 0;
     }
 
     #[\Override]

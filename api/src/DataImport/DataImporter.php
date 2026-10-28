@@ -24,13 +24,9 @@ use App\Event\DataUpdateEvent;
 
 interface DataImporter
 {
-    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event);
-
-    public function isOutdated(): bool;
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void;
 
     public function getDependencies(): array;
-
-    public function getPriority(): int;
 
     public function getDescription(): string;
 }
