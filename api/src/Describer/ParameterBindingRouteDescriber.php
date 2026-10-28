@@ -21,9 +21,9 @@
 namespace App\Describer;
 
 use App\Filter\Binding\Http\ParameterBinding;
-use App\Utility\CollectionUtils;
 use Ds\Seq;
 use Ds\Set;
+use Kadet\Functional\Collections as c;
 use Nelmio\ApiDocBundle\OpenApiPhp\Util;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberInterface;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
@@ -64,7 +64,8 @@ class ParameterBindingRouteDescriber implements RouteDescriberInterface
         $context            = Generator::$context;
         Generator::$context = new Context();
 
-        $documentation = CollectionUtils::flatMap($bindings, fn (ParameterBinding $binding) => yield from $binding->getDocumentation($route));
+        $documentation = new Seq($bindings)
+            |> c\flatMap(fn (ParameterBinding $binding) => $binding->getDocumentation($route));
 
         Generator::$context = $context;
 

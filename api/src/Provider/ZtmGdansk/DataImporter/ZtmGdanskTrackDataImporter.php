@@ -27,12 +27,11 @@ use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
-use App\Utility\CollectionUtils;
 use App\Utility\IterableUtils;
 use App\Utility\SequenceGenerator;
 use Doctrine\DBAL\Connection;
-use Ds\Seq;
 use Ds\Set;
+use Kadet\Functional\Collections as c;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
@@ -191,13 +190,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
-        $all = CollectionUtils::groupBy(
-            $this->jsonStreamer->stream($this->config->stopsInTripsUrl, sprintf('%s.stopsInTrip', date('Y-m-d'))),
-            fn ($stop) => $this->idUtils->generate(
-                ZtmGdanskProvider::IDENTIFIER,
-                sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
-            )
-        );
+        $records = $this->jsonStreamer->stream($this->config->stopsInTripsUrl, sprintf('%s.stopsInTrip', date('Y-m-d')));
 
         $existingStopIds = new Set(
             $this->connection->createQueryBuilder()
@@ -212,22 +205,36 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 ->iterateColumn()
         );
 
-        /**
-         * @var string $trackId
-         * @var Seq<array> $stops
-         */
+        yield from $this->groupTrackStops($records, $existingStopIds);
+    }
+
+    /**
+     * Groups the stops in trips by track, keeps the stops that exist and numbers them in order of their sequence.
+     *
+     * @param iterable<array> $records
+     *
+     * @return iterable<string, iterable<array{stop_id: string, track_id: string, sequence: int}>>
+     */
+    private function groupTrackStops(iterable $records, Set $existingStopIds): iterable
+    {
+        $all = $records
+            |> c\groupBy(fn ($stop) => $this->idUtils->generate(
+                ZtmGdanskProvider::IDENTIFIER,
+                sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
+            ));
+
         foreach ($all as $trackId => $stops) {
             $generator = new SequenceGenerator();
 
             yield $trackId => $stops
-                ->map(fn ($stop) => [
+                |> c\map(fn ($stop) => [
                     'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
                     'track_id' => $trackId,
                     'sequence' => $stop['stopSequence'],
                 ])
-                ->filter(fn ($stop) => $existingStopIds->contains($stop['stop_id']))
-                ->sorted(fn ($a, $b) => $a['sequence'] <=> $b['sequence'])
-                ->map(fn ($stop) => [
+                |> c\filter(fn ($stop) => $existingStopIds->contains($stop['stop_id']))
+                |> c\sortBy(fn ($stop) => $stop['sequence'])
+                |> c\map(fn ($stop) => [
                     ...$stop,
                     'sequence' => $generator->next(),
                 ]);
