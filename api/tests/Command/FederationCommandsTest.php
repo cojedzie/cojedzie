@@ -24,6 +24,8 @@ namespace App\Tests\Command;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
 
 final class FederationCommandsTest extends KernelTestCase
 {
@@ -53,5 +55,30 @@ final class FederationCommandsTest extends KernelTestCase
         $this->assertSame($name, $command->getName());
         $this->assertNotEmpty($command->getDescription());
         $this->assertNotEmpty($command->getHelp() . $command->getSynopsis());
+    }
+
+    /**
+     * An allowed URL without a host would let the server's connections point anywhere.
+     */
+    #[DataProvider('urlsWithoutHost')]
+    public function testRegisterRefusesAnAllowedUrlWithoutHost(string $url): void
+    {
+        $tester = new CommandTester(new Application(self::bootKernel())->find('federation:register'));
+
+        $status = $tester->execute([
+            'email'       => 'maintainer@example.com',
+            'allowed-url' => $url,
+        ]);
+
+        $this->assertSame(Command::INVALID, $status);
+        $this->assertStringNotContainsString('Server Secret', $tester->getDisplay());
+    }
+
+    public static function urlsWithoutHost(): iterable
+    {
+        yield 'scheme only' => ['https://'];
+        yield 'broken scheme' => ['http:/'];
+        yield 'not a url' => ['node.example'];
+        yield 'not http' => ['ftp://node.example'];
     }
 }

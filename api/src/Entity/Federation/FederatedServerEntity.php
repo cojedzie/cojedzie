@@ -63,7 +63,7 @@ class FederatedServerEntity implements Referable, Fillable, UserInterface, Passw
     private ?string $maintainer = null;
 
     /**
-     * Allowed URL associated with this federated server, could be a regex pattern.
+     * URL prefix the connections of this server must start with, see allows().
      */
     #[ORM\Column(type: 'string', length: 255)]
     private string $allowedUrl;
@@ -127,6 +127,17 @@ class FederatedServerEntity implements Referable, Fillable, UserInterface, Passw
     public function setAllowedUrl(string $allowedUrl): void
     {
         $this->allowedUrl = $allowedUrl;
+    }
+
+    /**
+     * Whether a connection at the URL is allowed: the URL is the allowed one or continues it with a path, so
+     * https://node.example allows https://node.example/v2 but not https://node.example.evil.com.
+     */
+    public function allows(string $url): bool
+    {
+        $base = rtrim($this->allowedUrl, '/');
+
+        return rtrim($url, '/') === $base || str_starts_with($url, $base . '/');
     }
 
     public function getConnections(): Collection

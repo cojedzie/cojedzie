@@ -36,6 +36,7 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
@@ -74,7 +75,7 @@ class FederationController extends Controller
 
         $form = $this->createForm(CreateFederatedConnectionCommandType::class, $connection);
 
-        $form->submit($request->request->all(), false);
+        $form->submit($request->request->all());
 
         if (!$form->isSubmitted()) {
             throw new BadRequestException();
@@ -82,6 +83,10 @@ class FederationController extends Controller
 
         if (!$form->isValid()) {
             throw new InvalidFormException($form);
+        }
+
+        if (!$server->allows($connection->getUrl())) {
+            throw new AccessDeniedHttpException(sprintf('Server %s cannot connect at this URL.', $server->getUserIdentifier()));
         }
 
         $connection->setOpenedAt(Carbon::now());
