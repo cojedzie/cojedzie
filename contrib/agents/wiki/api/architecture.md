@@ -1,8 +1,9 @@
 # API architecture (`api/`)
 
 Symfony 7.4 / PHP 8.5, namespace `App\` → `api/src/`. Global helper functions are autoloaded from
-`src/Functions/index.php`. Functional helpers come from `kadet/functional` (`p\`, `t\` namespaces) and
-collections from `illuminate/collections` (`collect()`).
+`src/Functions/index.php`. Functional helpers come from `kadet/functional` (`p\`, `t\` namespaces). Collections
+are php-ds values (`Ds\Seq`, `Ds\Map`, `Ds\Set`) transformed with `kadet/functional`'s `c\` functions and `|>`;
+see [collections.md](collections.md).
 
 ## Request flow
 
@@ -81,8 +82,9 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   UUID version, `property_info.with_constructor_extractor`, Doctrine `controller_resolver.auto_mapping`) are
   pinned to their 6.4 values in `config/packages/`; flip them deliberately. `doctrine.orm.enable_lazy_ghost_objects`
   is still off (belongs with ORM 3).
-- `ext-ds` 2.0 is installed with PIE (together with amqp, redis and xdebug) in the Dockerfiles. 2.0 has no
-  `Ds\Collection`, `Ds\Deque` or `Ds\Vector`; the code uses `Ds\Seq`, `Ds\Map` and `Ds\Set`.
+- `ext-ds` 2.0 is installed with PIE, together with amqp and redis, in the base image (`build/base/Dockerfile`) and
+  the dev image (`api/Dockerfile`, which also adds xdebug). `php-ds/php-ds` 2.0 is required as the polyfill
+  fallback. 2.0 has no `Ds\Collection`, `Ds\Deque` or `Ds\Vector`; the code uses `Ds\Seq`, `Ds\Map` and `Ds\Set`.
 - RoadRunner 2025.1 (`ghcr.io/roadrunner-server/roadrunner`) with baldinof/roadrunner-bundle 3; `.rr.yaml` is
   config v3. Workers run with `display_errors=stderr`: anything PHP prints to stdout breaks the worker protocol
   (e.g. a deprecation raised while autoloading, before Symfony's error handler is set up). The runtime images
