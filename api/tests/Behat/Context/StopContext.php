@@ -70,6 +70,21 @@ final class StopContext implements Context
             'embed'           => 'destinations']);
     }
 
+    #[When('I list stops named :name with destinations')]
+    public function iListStopsNamedWithDestinations(string $name): void
+    {
+        $this->client->get(sprintf('/api/v1/%s/stops', TestProvider::IDENTIFIER), [
+            'name'  => $name,
+            'embed' => 'destinations',
+        ]);
+    }
+
+    #[When('I look up stop :id')]
+    public function iLookUpStop(string $id): void
+    {
+        $this->client->get(sprintf('/api/v1/%s/stops/%s', TestProvider::IDENTIFIER, $id));
+    }
+
     #[When('I search for stops whose name begins with :prefix')]
     public function iSearchForStopsWhoseNameBeginsWith(string $prefix): void
     {
@@ -141,13 +156,21 @@ final class StopContext implements Context
         return $this->client->json();
     }
 
+    /**
+     * Finds the stop in the last response: stop groups, a list of stops or a single stop.
+     */
     private function stop(string $id): array
     {
-        foreach ($this->groups() as $group) {
-            foreach ($group['stops'] as $stop) {
-                if ($stop['id'] === $id) {
-                    return $stop;
-                }
+        $response = $this->groups();
+        $stops    = match (true) {
+            array_key_exists('id', $response)             => [$response],
+            array_key_exists('stops', $response[0] ?? []) => array_merge(...array_column($response, 'stops')),
+            default                                       => $response,
+        };
+
+        foreach ($stops as $stop) {
+            if ($stop['id'] === $id) {
+                return $stop;
             }
         }
 

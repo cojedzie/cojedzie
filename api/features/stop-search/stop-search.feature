@@ -59,6 +59,19 @@ Feature: Stop search
       | oliwa-01    | 6     |
     And stop "brama-wyzynna-02" should have no destinations
 
+  Scenario: Listed stops come with their destinations when asked
+    When I list stops named "Brama Wyżynna" with destinations
+    Then stop "brama-wyzynna-01" should have destinations:
+      | destination | lines |
+      | oliwa-01    | 6     |
+    And stop "brama-wyzynna-02" should have no destinations
+
+  Scenario: A stop looked up by id comes with its destinations
+    When I look up stop "brama-wyzynna-01"
+    Then stop "brama-wyzynna-01" should have destinations:
+      | destination | lines |
+      | oliwa-01    | 6     |
+
   Scenario: Search by the beginning of a name
     When I search for stops whose name begins with "Brama"
     Then I should see stop groups:
