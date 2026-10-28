@@ -29,6 +29,7 @@ use App\Filter\Requirement\Requirement;
 use App\Provider\TripRepository;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/{provider}/trips', name: 'trip_')]
@@ -43,6 +44,7 @@ class TripController extends Controller
      */
     #[Route(path: '/{id}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
     #[OA\Response(response: 200, description: 'Trip details.', content: new OA\MediaType(mediaType: 'application/vnd.cojedzie.trip+json', schema: new OA\Schema(ref: new Model(type: Trip::class))))]
+    #[OA\Response(response: 404, description: 'Trip not found.')]
     public function one(
         #[IdConstraintParameterBinding(from: ['attributes'])]
         IdConstraint $id,
@@ -52,6 +54,10 @@ class TripController extends Controller
             $id,
             new Embed('schedule')
         );
+
+        if ($trip === null) {
+            throw new NotFoundHttpException('Trip not found.');
+        }
 
         return $this->apiResponseFactory->createResponse($trip);
     }

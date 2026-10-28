@@ -69,6 +69,7 @@ see `features/contract/nested-references.feature`) never happen in tests.
 ## Contract decisions pinned by scenarios
 
 - Unknown provider → 404 everywhere.
+- Unknown stop or trip id on a detail endpoint (`stops/{stop}`, `trips/{id}`) → 404, not `200 null`.
 - Malformed `limit`/`offset` (not a non-negative integer), unknown filter operators (`name:bogus`) and departures
   without any `stop` → 400. `limit` above the maximum is clamped; `limit=0` → empty list.
 - Unknown and repeated stop ids in `stop[]` are ignored.

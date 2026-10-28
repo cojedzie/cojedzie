@@ -45,6 +45,7 @@ use App\Provider\TrackRepository;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/{provider}/stops', name: 'stop_')]
@@ -79,6 +80,7 @@ class StopsController extends Controller
      */
     #[Route(path: '/{stop}', name: 'details', methods: ['GET'], options: ['version' => '1.2'])]
     #[OA\Response(response: 200, description: 'Stop details.', content: new OA\MediaType(mediaType: 'application/vnd.cojedzie.stop+json', schema: new OA\Schema(ref: new Model(type: Stop::class))))]
+    #[OA\Response(response: 404, description: 'Stop not found.')]
     public function one(
         StopRepository $stopRepository,
         #[IdConstraintParameterBinding(parameter: 'stop', from: ['attributes'])]
@@ -86,6 +88,10 @@ class StopsController extends Controller
     ): Response {
         $embed = new Embed("destinations");
         $stop  = $stopRepository->first($id, $embed);
+
+        if ($stop === null) {
+            throw new NotFoundHttpException('Stop not found.');
+        }
 
         return $this->apiResponseFactory->createResponse(
             $stop,
