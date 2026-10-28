@@ -31,6 +31,7 @@ use App\Service\JsonStreamer;
 use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
+use Psr\Clock\ClockInterface;
 
 class ZtmGdanskLineDataImporter extends AbstractDataImporter
 {
@@ -44,6 +45,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils,
         private readonly ZtmGdanskConfig $config,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -125,7 +127,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 ->iterateColumn()
         );
 
-        foreach ($this->jsonStreamer->stream($this->config->routesUrl, sprintf('%s.routes', date('Y-m-d'))) as $line) {
+        foreach ($this->jsonStreamer->stream($this->config->routesUrl, sprintf('%s.routes', $this->clock->now()->format('Y-m-d'))) as $line) {
             $symbol   = $line['routeShortName'];
             $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
 
