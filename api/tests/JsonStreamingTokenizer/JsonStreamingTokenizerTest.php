@@ -24,13 +24,12 @@ namespace App\Tests\JsonStreamingTokenizer;
 
 use App\Parser\GeneratorStringStream;
 use App\Parser\Json\JsonStreamingTokenizer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class JsonStreamingTokenizerTest extends TestCase
 {
-    /**
-     * @dataProvider jsonFileProvider
-     */
+    #[DataProvider('jsonFileProvider')]
     public function testJsonFileShouldParseCorrectly(string $filename)
     {
         $stream = $this->createStreamFromJsonFile($filename);
@@ -43,7 +42,7 @@ final class JsonStreamingTokenizerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function jsonFileProvider(): \Generator
+    public static function jsonFileProvider(): \Generator
     {
         yield 'Wikipedia example' => [__DIR__ . '/stubs/test_1.json'];
         yield 'ZTM Updates' => [__DIR__ . '/stubs/ztm_stop_updates.json'];

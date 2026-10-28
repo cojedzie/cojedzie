@@ -28,7 +28,7 @@ use App\Serialization\SerializeAs;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
-use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Uid\Uuid;
 
@@ -91,7 +91,7 @@ class FederatedConnectionEntity implements Referable, Fillable
     /**
      * Base URL address for this particular connection.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $url;
 
     /**
@@ -134,7 +134,7 @@ class FederatedConnectionEntity implements Referable, Fillable
      * Current state of the connection.
      * @see self::STATE_*
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $state = self::STATE_NEW;
 
     /**

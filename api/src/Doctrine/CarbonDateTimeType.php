@@ -22,8 +22,8 @@ namespace App\Doctrine;
 
 use Carbon\Carbon;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
 
 class CarbonDateTimeType extends DateTimeType
 {
@@ -55,9 +55,9 @@ class CarbonDateTimeType extends DateTimeType
         );
 
         if (!$converted) {
-            throw ConversionException::conversionFailedFormat(
+            throw InvalidFormat::new(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeFormatString()
             );
         }

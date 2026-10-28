@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 /*
  * Copyright (C) 2021 Kacper Donat
  *
@@ -28,10 +29,10 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20190111212909 extends AbstractMigration
 {
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('CREATE TABLE trip_stop (stop_id VARCHAR(255) NOT NULL, trip_id VARCHAR(255) NOT NULL, sequence INTEGER NOT NULL, arrival DATETIME NOT NULL, departure DATETIME NOT NULL, PRIMARY KEY(stop_id, trip_id, sequence))');
         $this->addSql('CREATE INDEX IDX_926E85DD3902063D ON trip_stop (stop_id)');
@@ -42,10 +43,10 @@ final class Version20190111212909 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_7656F53BA53A8AA ON trip (provider_id)');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('DROP TABLE trip_stop');
         $this->addSql('DROP TABLE trip');

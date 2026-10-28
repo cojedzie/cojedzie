@@ -35,13 +35,13 @@ class ProviderEntity implements Fillable, Referable
     /**
      * Provider short name, for example. ZTM Gdańsk
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
     /**
      * Class that handles that provider
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private $class;
 
     /**

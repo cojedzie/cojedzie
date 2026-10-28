@@ -62,8 +62,8 @@ Repositories call `$converter->convert($entity, Dto::class)`.
 
 `EntityConverter` handles most entities. Three behaviours matter:
 
-1. **Only loaded data is converted.** An uninitialized Doctrine proxy becomes a *reference DTO* (see below), and
-   an uninitialized `PersistentCollection` becomes an empty `Seq`. Lazy loading is never triggered. **So
+1. **Only loaded data is converted.** An uninitialized (lazy) Doctrine entity becomes a *reference DTO* (see
+   below), and an uninitialized `PersistentCollection` becomes an empty `Seq`. Lazy loading is never triggered. **So
    the query decides the output shape**, and an `Embed` requirement (`GenericWithDatabaseHandler` joins and
    selects the association) is how a relation gets into the response. If a relation comes back empty or as
    `{id}` only, the query didn't fetch it.
@@ -80,7 +80,7 @@ A DTO that stands for an object without its data, carrying only `id`:
   `RelatedFilter`.
 - `Service/Proxy/ReferenceFactory::get($class, $id)` creates a generated subclass (`friendsofphp/proxy-manager-lts`,
   `ReferenceObjectGenerator`) that also implements `Dto\JustReference`. `EntityConverter` uses it for unloaded
-  proxies. `JustReferenceNormalizer` serializes these with group `reference`, i.e. just `{ "id": ..., "$type": ... }`
+  entities. `JustReferenceNormalizer` serializes these with group `reference`, i.e. just `{ "id": ..., "$type": ... }`
   (pinned by `tests/Service/Proxy/ReferenceFactoryTest`).
 
 The reverse direction is `Service/EntityReferenceFactory::create($dto|array|Seq, $provider)`. It turns

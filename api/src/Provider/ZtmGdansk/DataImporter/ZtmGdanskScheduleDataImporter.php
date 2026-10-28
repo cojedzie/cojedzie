@@ -30,6 +30,7 @@ use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Carbon\Carbon;
 use Cerbero\JsonObjects\JsonObjectsException;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
 use Psr\Clock\ClockInterface;
@@ -99,7 +100,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $this->connection->createQueryBuilder()
             ->delete('trip')
             ->where(sprintf('id in (%s)', $tripIds->getSQL()))
-            ->setParameter('ids', $tripIds, Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $tripIds, ArrayParameterType::STRING)
             ->setParameter('lid', $lineId)
             ->executeStatement()
         ;

@@ -28,6 +28,7 @@ use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use App\Utility\IterableUtils;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ds\Set;
@@ -58,9 +59,9 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
         $count = 0;
         foreach (IterableUtils::batch($this->getStopsFromZtmApi(), 100) as $batch) {
-            $query->setParameter('ids', array_keys($batch), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('ids', array_keys($batch), ArrayParameterType::STRING);
 
-            $existing = new Set($query->execute()->iterateColumn());
+            $existing = new Set($query->executeQuery()->iterateColumn());
 
             foreach ($batch as $id => $stop) {
                 if ($existing->contains($id)) {

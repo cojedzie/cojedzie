@@ -25,7 +25,6 @@ use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, Tri
 use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
-use Doctrine\ORM\Proxy\Proxy;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
@@ -48,11 +47,11 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
     #[\Override]
     public function convert($entity, string $type)
     {
-        if (array_key_exists($key = $entity::class . ':' . $this->getId($entity), $this->cache)) {
+        if (array_key_exists($key = $entity::class . ':' . $entity->getId(), $this->cache)) {
             return $this->cache[$key];
         }
 
-        if ($entity instanceof Proxy && !$entity->__isInitialized()) {
+        if (new \ReflectionClass($entity)->isUninitializedLazyObject($entity)) {
             return $this->reference($entity);
         }
 
@@ -109,18 +108,6 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         return $result;
     }
 
-    // HACK to not trigger doctrine stupid lazy loading.
-    private function getId(Entity $entity)
-    {
-        if ($entity instanceof Proxy) {
-            $id = new \ReflectionClass(get_parent_class($entity))->getProperty('id');
-
-            return $id->getValue($entity);
-        }
-
-        return $entity->getId();
-    }
-
     /**
      * Uninitialized collections are converted to an empty Seq, so lazy loading is never triggered.
      */
@@ -155,7 +142,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
 
     private function reference(Entity $entity)
     {
-        $id    = $this->id->strip($this->getId($entity));
+        $id    = $this->id->strip($entity->getId());
         $class = $this->getModelClassForEntity($entity);
 
         return $this->reference->get($class, ['id' => $id]);

@@ -26,8 +26,8 @@ use App\Dto\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
@@ -46,19 +46,19 @@ class FederatedServerEntity implements Referable, Fillable
     /**
      * Contact email to person responsible for this federated server.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $email;
 
     /**
      * The name of federated server maintainer, could be full name but nicknames are allowed also.
      */
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $maintainer = null;
 
     /**
      * Allowed URL associated with this federated server, could be a regex pattern.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $allowedUrl;
 
     /**
@@ -72,7 +72,7 @@ class FederatedServerEntity implements Referable, Fillable
     /**
      * Secret for that server required for authenticating some endpoints.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Ignore]
     private string $secret;
 

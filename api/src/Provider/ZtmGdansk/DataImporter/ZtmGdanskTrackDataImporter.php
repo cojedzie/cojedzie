@@ -29,6 +29,7 @@ use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use App\Utility\IterableUtils;
 use App\Utility\SequenceGenerator;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
 use Kadet\Functional\Collections as c;
@@ -77,8 +78,8 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $count = 0;
         foreach (IterableUtils::batch($this->getTracksFromZtmApi(), 100) as $batch) {
             $ids = array_keys($batch);
-            $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
-            $existing = new Set($query->execute()->iterateColumn());
+            $query->setParameter('ids', $ids, ArrayParameterType::STRING);
+            $existing = new Set($query->executeQuery()->iterateColumn());
 
             foreach ($batch as $id => $track) {
                 if ($existing->contains($id)) {
@@ -144,7 +145,8 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $count = 0;
         foreach ($this->getTrackStopsFromZtmApi($reporter, $event) as $trackId => $stops) {
             // clean all stops related with this track
-            $deleteStopsPreparedQuery->executeQuery(['tid' => $trackId]);
+            $deleteStopsPreparedQuery->bindValue('tid', $trackId);
+            $deleteStopsPreparedQuery->executeStatement();
             $hasStops = false;
 
             foreach ($stops as $stop) {
@@ -169,10 +171,9 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             }
 
             // set final id on track to last stop
-            $updateFinalStopInTrackPreparedQuery->executeQuery([
-                'tid' => $trackId,
-                'sid' => $this->connection->lastInsertId(),
-            ]);
+            $updateFinalStopInTrackPreparedQuery->bindValue('tid', $trackId);
+            $updateFinalStopInTrackPreparedQuery->bindValue('sid', $this->connection->lastInsertId());
+            $updateFinalStopInTrackPreparedQuery->executeStatement();
         }
 
         $reporter->progress($count, comment: 'Imported stops for all tracks', finished: true);

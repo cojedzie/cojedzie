@@ -29,6 +29,7 @@ use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use App\Utility\IterableUtils;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
 use Psr\Clock\ClockInterface;
@@ -63,8 +64,8 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
 
         $count = 0;
         foreach (IterableUtils::batch($this->getLinesFromZtmApi(), 100) as $batch) {
-            $query->setParameter('ids', array_keys($batch), Connection::PARAM_STR_ARRAY);
-            $existing = new Set($query->execute()->iterateColumn());
+            $query->setParameter('ids', array_keys($batch), ArrayParameterType::STRING);
+            $existing = new Set($query->executeQuery()->iterateColumn());
 
             foreach ($batch as $id => $line) {
                 if ($existing->contains($id)) {
