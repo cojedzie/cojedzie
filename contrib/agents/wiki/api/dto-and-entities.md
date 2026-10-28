@@ -109,4 +109,6 @@ bind as query parameters. Supporting another DTO in `RelatedFilter` requires add
   groups are set. On denormalization Symfony turns a `Seq<T>` property into a `T[]` array, so `DtoNormalizer`
   adds denormalization callbacks that wrap it back into a `Seq` (pinned by `DsCollectionSerializationTest`).
   A `@var Seq<T>` property without an explicit `#[OA\Property]` type is documented by nelmio as `oneOf`
-  array/object of `T` (`DsCollectionDescriber`). Collection conventions: [collections.md](collections.md).
+  array/object of `T`, derived from the property-info type. `DsCollectionDescriber` only covers bare
+  `Seq`/`Map`/`Set` models (`type: array`, `items: {type: object}`). Collection conventions:
+  [collections.md](collections.md).

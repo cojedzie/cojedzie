@@ -32,14 +32,16 @@ more than raw speed, as long as it doesn't regress noticeably.
    is a fluent layer over php-ds 2.0.
 4. **kuaukutsu/ds-collection**, a fluent layer over php-ds. It supports only php-ds `^1.3`, while the API runs php-ds
    2.0 (`Seq`, `Map`, `Set`; no `Vector`, `Deque` or `Collection`).
-5. **Curried, data-last functions over php-ds values, chained with `|>`**, added to `kadet/functional` (the owner's
+5. **Typed collection classes** (`StopCollection` and similar). Rejected as a non-goal: a class per element type
+   is boilerplate that php-ds generics in docblocks (`Seq<Stop>`) already cover for static analysis.
+6. **Curried, data-last functions over php-ds values, chained with `|>`**, added to `kadet/functional` (the owner's
    library, already a dependency) as `Kadet\Functional\Collections`. One model: the data stays a plain `Ds\Seq`,
    `Map` or `Set`, and the functions return the same kind of container they get. The library offers an eager
    (`c\`) and a lazy (`Collections\Lazy`) flavour, and the benchmark below picked the default.
 
 ## Decision
 
-We will use option 5. Collections in the API are php-ds 2.0 values (`Ds\Seq` for lists, `Ds\Map` for keyed data,
+We will use option 6. Collections in the API are php-ds 2.0 values (`Ds\Seq` for lists, `Ds\Map` for keyed data,
 `Ds\Set` for sets), transformed with the eager `Kadet\Functional\Collections` functions (`use ... as c;`) chained
 with `|>`. `illuminate/collections` is removed.
 
@@ -59,12 +61,12 @@ Rules that come with it:
 ### Benchmark verdict
 
 The gate (phpbench, `api/tests/Benchmark/Collections`, PHP 8.5 with ext-ds 2.0, opcache on, Xdebug off) compared
-the old code, the eager pipeline and the lazy pipeline on two paths. Each number is the median of three runs.
+the old code, the eager pipeline and the lazy pipeline on two paths. Import times are the median of three runs.
 
 **Import** (`ZtmGdanskTrackDataImporter`: stream `stopsInTrip`, group by track, filter known stops, sort, renumber).
 "Improvement" was the larger relative gain in time or own memory (peak minus a no-op baseline), provided the other
-did not get worse by more than 5%. Lazy would have needed more than 5% to be chosen, and above 15% it would have
-been the default.
+did not get worse by more than 5%. An improvement of 5% or less meant eager by default, 5–15% was a grey zone
+where the owner decides, and above 15% meant lazy by default.
 
 | Variant | Time | Own memory |
 |---|---:|---:|
@@ -81,7 +83,7 @@ measured the eager importer 1.6–2.0% faster than the old code end to end, with
 
 **Request path** (`RealtimeScheduleDepartureRepository::pair()`, eager `c\` against Illuminate). The limit was 5%
 slower. The first run was over it (+13.4% at production size, +32.4% at stress size), and most of the gap came from
-`c\sortBy` calling a userland comparator. kadet/functional 1.0.1 sorts natively. After that:
+`c\sortBy` calling a userland comparator. kadet/functional 1.0.1 sorts natively. After that (ranges across runs):
 
 | Set | Eager vs Illuminate | Lazy vs Illuminate |
 |---|---:|---:|
