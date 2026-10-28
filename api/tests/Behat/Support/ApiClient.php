@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat\Support;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -36,6 +37,7 @@ final class ApiClient
 
     public function __construct(
         private readonly KernelInterface $kernel,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 
@@ -46,6 +48,9 @@ final class ApiClient
 
     public function request(string $method, string $uri, array $query = []): Response
     {
+        // a real request starts with an empty identity map, so relations its query doesn't fetch stay lazy
+        $this->em->clear();
+
         $request = Request::create($uri, $method, $query);
         $request->headers->set('Accept', 'application/json');
 
