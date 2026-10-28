@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace App\Tests\ZtmGdansk;
 
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
 
@@ -38,9 +39,7 @@ final class ZtmGdanskFeedDateTest extends TestCase
         yield 'summer, after midnight in Warsaw' => ['2026-07-01 22:30', '2026-07-02'];
     }
 
-    /**
-     * @dataProvider moments
-     */
+    #[DataProvider('moments')]
     public function testFeedDateIsTodayInWarsaw(string $utc, string $expected): void
     {
         $clock = new MockClock($utc, 'UTC');

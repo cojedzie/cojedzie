@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -19,7 +19,7 @@ final class Version20261025200000 extends AbstractMigration
     #[\Override]
     public function up(Schema $schema): void
     {
-        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof SqlitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
         // databases created with doctrine:schema:create instead of migrations already have the column
         $this->skipIf($schema->getTable('provider')->hasColumn('import_id'), 'provider.import_id already exists.');
 
@@ -30,7 +30,7 @@ final class Version20261025200000 extends AbstractMigration
     #[\Override]
     public function down(Schema $schema): void
     {
-        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof SqlitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('DROP INDEX IDX_92C4739CB6A263D9');
         $this->addSql('ALTER TABLE provider DROP COLUMN import_id');

@@ -20,7 +20,7 @@
 
 namespace App\Dto;
 
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 trait ReferableTrait
 {

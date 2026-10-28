@@ -22,7 +22,7 @@ namespace App\Dto;
 
 use App\Serialization\SerializeAs;
 use Ds\Seq;
-use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[ContentType('vnd.cojedzie.trip')]

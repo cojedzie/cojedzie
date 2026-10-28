@@ -30,15 +30,15 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20200314112552 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return '';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('CREATE TEMPORARY TABLE __temp__trip_stop AS SELECT stop_id, trip_id, sequence, arrival, departure FROM trip_stop');
         $this->addSql('DROP TABLE trip_stop');
@@ -47,10 +47,10 @@ final class Version20200314112552 extends AbstractMigration
         $this->addSql('DROP TABLE __temp__trip_stop');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SQLitePlatform, 'Migration can only be executed safely on \'sqlite\'.');
 
         $this->addSql('CREATE TEMPORARY TABLE __temp__trip_stop AS SELECT sequence, arrival, departure, stop_id, trip_id FROM trip_stop');
         $this->addSql('DROP TABLE trip_stop');

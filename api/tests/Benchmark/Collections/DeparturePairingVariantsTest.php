@@ -21,6 +21,7 @@
 namespace App\Tests\Benchmark\Collections;
 
 use App\Dto\Departure;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class DeparturePairingVariantsTest extends TestCase
@@ -31,9 +32,7 @@ final class DeparturePairingVariantsTest extends TestCase
         yield 'stress' => [512, 256];
     }
 
-    /**
-     * @dataProvider sizes
-     */
+    #[DataProvider('sizes')]
     public function testVariantsProduceIdenticalOutput(int $scheduled, int $realtime): void
     {
         $variants          = new DeparturePairingVariants();
@@ -45,9 +44,7 @@ final class DeparturePairingVariantsTest extends TestCase
         $this->assertSame($materialized, $this->describe($variants->lazy($schedule, $real)));
     }
 
-    /**
-     * @dataProvider sizes
-     */
+    #[DataProvider('sizes')]
     public function testProductionPairMatchesMaterializedVariant(int $scheduled, int $realtime): void
     {
         $variants          = new DeparturePairingVariants();

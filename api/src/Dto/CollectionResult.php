@@ -4,7 +4,7 @@ namespace App\Dto;
 
 use App\Dto\Links\CollectionLinks;
 use Ds\Set;
-use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ContentType('vnd.cojedzie.collection')]
 class CollectionResult

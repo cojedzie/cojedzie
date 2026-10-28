@@ -6,15 +6,15 @@ namespace App\Tests\ZtmGdansk;
 
 use App\Dto\Message;
 use App\Provider\ZtmGdansk\ZtmGdanskMessageLineExtractor;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use function App\Functions\setup;
 
 final class ZtmGdanskMessageLineExtractorTest extends TestCase
 {
-    /**
-     * @dataProvider messageProvider
-     * @testdox $message yields $expected lines.
-     */
+    #[DataProvider('messageProvider')]
+    #[TestDox('$message yields $expected lines.')]
     public function testExtractsLinesFromMessage(string $message, $expected)
     {
         $lineExtractor    = new ZtmGdanskMessageLineExtractor();

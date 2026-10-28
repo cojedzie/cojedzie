@@ -21,7 +21,7 @@
 namespace App\Dto;
 
 use OpenApi\Attributes as OA;
-use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 class Location implements Dto
 {

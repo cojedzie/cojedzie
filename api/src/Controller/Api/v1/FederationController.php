@@ -30,6 +30,7 @@ use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -103,6 +104,7 @@ class FederationController extends Controller
     #[Route(path: '/connections/{connection}', name: 'disconnect', methods: ['DELETE'], options: ['version' => '1.0'])]
     #[OA\Parameter(name: 'connection', description: 'Identifier of connection to be closed', in: 'path', example: 'a0b562d1-e0ce-4fc0-96e4-8d28a370a9e1', schema: new OA\Schema(type: 'string', format: 'uuid'))]
     public function disconnect(
+        #[MapEntity(id: 'connection')]
         FederatedConnectionEntity $connection,
         EntityManagerInterface $manager,
         HubInterface $hub,
