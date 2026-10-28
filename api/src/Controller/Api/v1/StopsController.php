@@ -66,7 +66,12 @@ class StopsController extends Controller
     ): Response {
         $stops = $stopRepository->all(...$requirements);
 
-        return $this->apiResponseFactory->createCollectionResponse($stops);
+        return $this->apiResponseFactory->createCollectionResponse(
+            $stops,
+            context: [
+                'groups' => $this->apiResponseFactory->extractGroupsFromRequirements($requirements),
+            ]
+        );
     }
 
     /**
@@ -79,12 +84,15 @@ class StopsController extends Controller
         #[IdConstraintParameterBinding(parameter: 'stop', from: ['attributes'])]
         IdConstraint $id
     ): Response {
-        $stop = $stopRepository->first(
-            $id,
-            new Embed("destinations")
-        );
+        $embed = new Embed("destinations");
+        $stop  = $stopRepository->first($id, $embed);
 
-        return $this->apiResponseFactory->createResponse($stop);
+        return $this->apiResponseFactory->createResponse(
+            $stop,
+            context: [
+                'groups' => $this->apiResponseFactory->extractGroupsFromRequirements([$embed]),
+            ]
+        );
     }
 
     /**
