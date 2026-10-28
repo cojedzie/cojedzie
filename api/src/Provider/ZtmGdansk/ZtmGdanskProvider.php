@@ -43,12 +43,25 @@ use Psr\Clock\ClockInterface;
 class ZtmGdanskProvider implements Provider
 {
     final public const string IDENTIFIER = 'trojmiasto';
+
+    /**
+     * Time zone of the ZTM Gdańsk feeds: their data is keyed by local dates.
+     */
+    final public const string TIMEZONE = 'Europe/Warsaw';
     private $lines;
     private $departures;
     private $stops;
     private $tracks;
     private $trips;
     private ProviderEntity $entity;
+
+    /**
+     * Today's date in the feeds' time zone, which selects the day of a feed to import.
+     */
+    public static function feedDate(ClockInterface $clock): string
+    {
+        return $clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->format('Y-m-d');
+    }
 
     #[\Override]
     public function getName(): string
