@@ -40,7 +40,8 @@ use App\Provider\ZtmGdansk\ZtmGdanskRealtimeDepartureRepository;
 use App\Service\Proxy\ReferenceFactory;
 use App\Tests\ZtmGdansk\Support\EstimatesStream;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\MockClock;
 
@@ -203,7 +204,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
      */
     private function departures(Requirement ...$requirements): array
     {
-        return array_values(collect($this->repository()->current([$this->stop], ...$requirements))->all());
+        return $this->repository()->current([$this->stop], ...$requirements) |> c\toArray();
     }
 
     private function repository(): DepartureRepository
@@ -310,11 +311,11 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             #[\Override]
             public function first(Requirement ...$requirements)
             {
-                return $this->all(...$requirements)->first();
+                return $this->all(...$requirements) |> c\first();
             }
 
             #[\Override]
-            public function all(Requirement ...$requirements): Collection
+            public function all(Requirement ...$requirements): Seq
             {
                 $ids = [];
                 foreach ($requirements as $requirement) {
@@ -323,7 +324,10 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
                     }
                 }
 
-                return collect($this->lines)->only($ids)->values();
+                return $this->lines
+                    |> c\filter(fn (Line $line, int|string $symbol) => in_array((string) $symbol, $ids, true))
+                    |> c\values()
+                    |> c\toSeq();
             }
         };
     }
@@ -339,21 +343,21 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             }
 
             #[\Override]
-            public function getDeparturesForStop(Stop $stop, Carbon $from, int $count = self::DEFAULT_DEPARTURES_COUNT): Collection
+            public function getDeparturesForStop(Stop $stop, Carbon $from, int $count = self::DEFAULT_DEPARTURES_COUNT): Seq
             {
-                return collect();
+                return new Seq();
             }
 
             #[\Override]
             public function first(Requirement ...$requirements)
             {
-                return $this->all(...$requirements)->first();
+                return $this->all(...$requirements) |> c\first();
             }
 
             #[\Override]
-            public function all(Requirement ...$requirements): Collection
+            public function all(Requirement ...$requirements): Seq
             {
-                return collect($this->schedule);
+                return new Seq($this->schedule);
             }
         };
     }

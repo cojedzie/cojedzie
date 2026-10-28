@@ -26,12 +26,12 @@ use App\Entity\TrackEntity;
 use App\Entity\TrackStopEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\TrackRepository;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 class GenericTrackRepository extends DatabaseRepository implements TrackRepository
 {
     #[\Override]
-    public function stops(Requirement ...$requirements): Collection
+    public function stops(Requirement ...$requirements): Seq
     {
         $builder = $this->em
             ->createQueryBuilder()
@@ -46,7 +46,7 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
     }
 
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
         $builder = $this->em
             ->createQueryBuilder()

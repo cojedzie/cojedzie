@@ -16,8 +16,9 @@ use App\Filter\Requirement\Requirement;
 use App\Provider\FluentRepository;
 use App\Service\HandlerProvider;
 use App\Service\HandlerProviderFactory;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Kadet\Functional as f;
+use Kadet\Functional\Collections as c;
 
 abstract class InMemoryRepository implements FluentRepository
 {
@@ -47,17 +48,17 @@ abstract class InMemoryRepository implements FluentRepository
     }
 
     #[\Override]
-    abstract public function all(Requirement ...$requirements): Collection;
+    abstract public function all(Requirement ...$requirements): Seq;
 
     #[\Override]
     public function first(Requirement ...$requirements)
     {
-        return $this->all(LimitConstraint::count(1), ...$requirements)->first();
+        return $this->all(LimitConstraint::count(1), ...$requirements) |> c\first();
     }
 
-    protected function filterAndProcessResults(Collection $result, array $requirements): Collection
+    protected function filterAndProcessResults(Seq $result, array $requirements): Seq
     {
-        $reducers = collect();
+        $reducers = [];
         $filters  = [];
 
         foreach ($requirements as $modifier) {
@@ -72,7 +73,7 @@ abstract class InMemoryRepository implements FluentRepository
             }
 
             if ($handler instanceof PostProcessingHandler) {
-                $reducers[] = function ($result) use ($modifier, $handler) {
+                $reducers[] = function (Seq $result) use ($modifier, $handler) {
                     $event = new PostProcessEvent($result, $modifier, $this);
 
                     $handler->postProcess($event);
@@ -82,8 +83,8 @@ abstract class InMemoryRepository implements FluentRepository
             }
         }
 
-        $result = $result->filter(f\all(...$filters));
+        $result = $result |> c\filter(f\all(...$filters));
 
-        return $reducers->reduce(fn ($result, $reducer) => $reducer($result), $result);
+        return $reducers |> c\reduce(fn (Seq $result, \Closure $reducer) => $reducer($result), $result);
     }
 }

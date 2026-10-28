@@ -36,7 +36,7 @@ use Kadet\Functional\Collections\Lazy as lazy;
  * departures request, written with each collection flavour.
  *
  * Every variant returns the merged departures as a list sorted by departure time and does exactly the same work, so
- * they can be compared. The ports merge through the repository's own merge().
+ * they can be compared. All of them merge through the repository's own merge().
  */
 final class DeparturePairingVariants
 {
@@ -52,11 +52,6 @@ final class DeparturePairingVariants
             {
             }
 
-            public function pairDepartures(Collection $schedule, Collection $real): Collection
-            {
-                return $this->pair($schedule, $real);
-            }
-
             /**
              * @param array{estimated: ?Departure, scheduled: ?ScheduledStop} $pair
              */
@@ -68,7 +63,7 @@ final class DeparturePairingVariants
     }
 
     /**
-     * Today's code: the repository's own pair().
+     * The repository's pair() before the migration to php-ds, with Illuminate collections.
      *
      * @param Collection<int, ScheduledStop> $schedule
      * @param Collection<int, Departure>     $real
@@ -77,7 +72,32 @@ final class DeparturePairingVariants
      */
     public function illuminate(Collection $schedule, Collection $real): array
     {
-        return $this->repository->pairDepartures($schedule, $real)->values()->all();
+        $schedule = $schedule->keyBy(self::key(...))->all();
+        $real     = $real->keyBy(self::key(...));
+
+        return $real->map(function (Departure $real, $key) use (&$schedule) {
+            $scheduled = null;
+
+            if (array_key_exists($key, $schedule)) {
+                $scheduled = $schedule[$key];
+                unset($schedule[$key]);
+            }
+
+            return [
+                'estimated' => $real,
+                'scheduled' => $scheduled,
+            ];
+        })->merge(
+            collect($schedule)->map(fn (ScheduledStop $scheduled) => [
+                'estimated' => null,
+                'scheduled' => $scheduled,
+            ])
+        )->map(
+            $this->repository->mergePair(...)
+        )->sortBy(function (Departure $departure) {
+            $time = $departure->getEstimated() ?? $departure->getScheduled();
+            return $time->getTimestamp();
+        })->values()->all();
     }
 
     /**

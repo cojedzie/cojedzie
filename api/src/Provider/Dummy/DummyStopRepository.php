@@ -23,8 +23,8 @@ namespace App\Provider\Dummy;
 use App\Dto\Stop;
 use App\Filter\Requirement\Requirement;
 use App\Provider\StopRepository;
-use Illuminate\Support\Collection;
-use Kadet\Functional as f;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 class DummyStopRepository implements StopRepository
 {
@@ -32,9 +32,9 @@ class DummyStopRepository implements StopRepository
     ) {
     }
 
-    public function getAll(): Collection
+    public function getAll(): Seq
     {
-        return collect();
+        return new Seq();
     }
 
     public function getById($id): ?Stop
@@ -45,14 +45,14 @@ class DummyStopRepository implements StopRepository
         ]);
     }
 
-    public function getManyById($ids): Collection
+    public function getManyById($ids): Seq
     {
-        return collect($ids)->map(f\ref($this->getById(...)));
+        return $ids |> c\toSeq() |> c\map($this->getById(...));
     }
 
-    public function findByName(string $name): Collection
+    public function findByName(string $name): Seq
     {
-        return collect();
+        return new Seq();
     }
 
     #[\Override]
@@ -61,8 +61,8 @@ class DummyStopRepository implements StopRepository
     }
 
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
-        return collect();
+        return new Seq();
     }
 }

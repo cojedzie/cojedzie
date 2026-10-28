@@ -24,12 +24,12 @@ use App\Dto\Operator;
 use App\Entity\OperatorEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\OperatorRepository;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 class GenericOperatorRepository extends DatabaseRepository implements OperatorRepository
 {
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
         $builder = $this->em
             ->createQueryBuilder()

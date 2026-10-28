@@ -25,18 +25,19 @@ use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\Requirement;
 use App\Provider\MessageRepository;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 class DummyMessageRepository implements MessageRepository
 {
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
-        return collect([
+        return new Seq([
             Message::TYPE_INFO,
             Message::TYPE_UNKNOWN,
             Message::TYPE_BREAKDOWN,
-        ])->map(fn ($type) => Message::createFromArray([
+        ]) |> c\map(fn ($type) => Message::createFromArray([
             'message'   => 'Lorem ipsum dolor sit amet.',
             'type'      => $type,
             'validFrom' => Carbon::now(),
@@ -47,6 +48,6 @@ class DummyMessageRepository implements MessageRepository
     #[\Override]
     public function first(Requirement ...$requirements)
     {
-        return $this->all(LimitConstraint::count(1), ...$requirements)->first();
+        return $this->all(LimitConstraint::count(1), ...$requirements) |> c\first();
     }
 }

@@ -29,7 +29,8 @@ use App\Entity\TripStopEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\ScheduleRepository;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 class GenericScheduleRepository extends DatabaseRepository implements ScheduleRepository
 {
@@ -38,7 +39,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
         Stop $stop,
         Carbon $from,
         int $count = ScheduleRepository::DEFAULT_DEPARTURES_COUNT
-    ): Collection {
+    ): Seq {
         $query = $this->em
             ->createQueryBuilder()
             ->select('ts', 't')
@@ -50,7 +51,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ->setMaxResults($count)
             ->getQuery();
 
-        $schedule = collect($query->execute([
+        $schedule = new Seq($query->execute([
             'from' => $from,
             'stop' => $this->reference(StopEntity::class, $stop),
         ]));
@@ -63,10 +64,12 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
             ->where('t.id in (:tracks)')
             ->getQuery()
             ->execute([
-                ':tracks' => $schedule->map(fn (TripStopEntity $stop) => $stop->getTrip()->getTrack()->getId())->all(),
+                ':tracks' => $schedule
+                    |> c\map(fn (TripStopEntity $stop) => $stop->getTrip()->getTrack()->getId())
+                    |> c\toArray(),
             ]);
 
-        return $schedule->map(function (TripStopEntity $entity) use ($stop) {
+        return $schedule |> c\map(function (TripStopEntity $entity) use ($stop) {
             $trip  = $entity->getTrip();
             $track = $trip->getTrack();
             $line  = $track->getLine();
@@ -86,7 +89,7 @@ class GenericScheduleRepository extends DatabaseRepository implements ScheduleRe
     }
 
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
         $builder = $this->em
             ->createQueryBuilder()

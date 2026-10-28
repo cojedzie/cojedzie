@@ -27,12 +27,12 @@ use App\Filter\Handler\Database\GenericWithDatabaseHandler;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\Requirement;
 use App\Provider\StopRepository;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 class GenericStopRepository extends DatabaseRepository implements StopRepository
 {
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
         $builder = $this->em
             ->createQueryBuilder()

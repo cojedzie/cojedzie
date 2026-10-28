@@ -20,17 +20,21 @@
 
 namespace App\Provider;
 
+use App\Dto\Departure;
 use App\Dto\Stop;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 interface ScheduleRepository extends FluentRepository
 {
     public const DEFAULT_DEPARTURES_COUNT = 16;
 
+    /**
+     * @return Seq<Departure>
+     */
     public function getDeparturesForStop(
         Stop $stop,
         Carbon $from,
         int $count = ScheduleRepository::DEFAULT_DEPARTURES_COUNT
-    ): Collection;
+    ): Seq;
 }

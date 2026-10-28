@@ -24,12 +24,12 @@ use App\Dto\Line;
 use App\Entity\LineEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\LineRepository;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 class GenericLineRepository extends DatabaseRepository implements LineRepository
 {
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
         $builder = $this->em
             ->createQueryBuilder()

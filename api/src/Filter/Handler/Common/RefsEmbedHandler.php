@@ -13,6 +13,7 @@ use App\Filter\Requirement\IdConstraint;
 use App\Provider\FluentRepository;
 use App\Service\ContentTypeResolver;
 use Ds\Set;
+use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
 
 class RefsEmbedHandler implements PostProcessingHandler
@@ -63,7 +64,7 @@ class RefsEmbedHandler implements PostProcessingHandler
 
         foreach ($entitiesToLoad as $type => $identifiers) {
             $repository = $this->getRepositoryForType($type);
-            $entities   = $repository->all(new IdConstraint($identifiers))->keyBy(t\getter('id'));
+            $entities   = $repository->all(new IdConstraint($identifiers)) |> c\keyBy(t\getter('id'));
         }
 
         foreach ($items as $dto) {
@@ -80,7 +81,7 @@ class RefsEmbedHandler implements PostProcessingHandler
             /** @var CollectionResult $collection */
             $collection = $refs->{$name};
             $collection->setItems(
-                $collection->getItems()->map(fn ($dto) => $entities[$dto->getId()] ?? null)->filter()
+                $collection->getItems()->map(fn ($dto) => $entities->get($dto->getId(), null))->filter()
             );
         }
     }

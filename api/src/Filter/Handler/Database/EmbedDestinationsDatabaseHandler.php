@@ -24,13 +24,16 @@ use App\DataConverter\CacheableConverter;
 use App\DataConverter\Converter;
 use App\Dto\Destination;
 use App\Dto\Dto;
+use App\Dto\Stop;
+use App\Entity\LineEntity;
 use App\Entity\TrackEntity;
+use App\Entity\TrackStopEntity;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\PostProcessingHandler;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use Illuminate\Support\Collection;
-use Kadet\Functional as f;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
 
 class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
@@ -53,49 +56,42 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
     public function postProcess(PostProcessEvent $event)
     {
         $provider = $event->getMeta()['provider'];
-        $stops    = $event
-            ->getData()
-            ->map(t\property('id'))
-            ->map(f\apply($this->id->generate(...), $provider))
-            ->all();
+        $stops    = $event->getData()
+            |> c\map(fn (Stop $stop) => $this->id->generate($provider, $stop->getId()))
+            |> c\toArray();
 
-        $destinations = collect(
-            $this->em->createQueryBuilder()
-                ->select('t', 'tl', 'f', 'fs', 'ts')
-                ->from(TrackEntity::class, 't')
-                ->join('t.stopsInTrack', 'ts')
-                ->join('t.line', 'tl')
-                ->where('ts.stop IN (:stops)')
-                ->join('t.final', 'f')
-                ->join('f.stop', 'fs')
-                ->getQuery()
-                ->execute(['stops' => $stops])
-        )->reduce(
-            function ($grouped, TrackEntity $track) {
-                foreach ($track->getStopsInTrack()->map(t\property('stop'))->map(t\property('id')) as $stop) {
-                    $grouped[$stop] = ($grouped[$stop] ?? collect())->add($track);
-                }
+        $tracks = $this->em->createQueryBuilder()
+            ->select('t', 'tl', 'f', 'fs', 'ts')
+            ->from(TrackEntity::class, 't')
+            ->join('t.stopsInTrack', 'ts')
+            ->join('t.line', 'tl')
+            ->where('ts.stop IN (:stops)')
+            ->join('t.final', 'f')
+            ->join('f.stop', 'fs')
+            ->getQuery()
+            ->execute(['stops' => $stops]);
 
-                return $grouped;
-            },
-            collect()
-        )->map(
-            fn (Collection $tracks) => $tracks
-                ->groupBy(fn (TrackEntity $track) => $track->getFinal()->getStop()->getId())
-                ->map(
-                    fn (Collection $tracks, $id) => Destination::createFromArray([
-                        'stop'  => $this->converter->convert($tracks->first()->getFinal()->getStop(), Dto::class),
-                        'lines' => $tracks
-                            ->map(t\property('line'))
-                            ->unique(t\property('id'))
-                            ->map(f\partial(f\ref($this->converter->convert(...)), f\_, Dto::class))
-                            ->values(),
-                    ])
-                )->values()
-        );
+        $destinations = $tracks
+            |> c\flatMap(fn (TrackEntity $track) => $track->getStopsInTrack()
+                |> c\map(fn (TrackStopEntity $stop) => [
+                    'stop'  => $stop->getStop()->getId(),
+                    'track' => $track,
+                ]))
+            |> c\groupBy(fn (array $entry) => $entry['stop'])
+            |> c\map(fn (Seq $entries) => $entries
+                |> c\map(fn (array $entry) => $entry['track'])
+                |> c\groupBy(fn (TrackEntity $track) => $track->getFinal()->getStop()->getId())
+                |> c\map(fn (Seq $tracks) => Destination::createFromArray([
+                    'stop'  => $this->converter->convert(($tracks |> c\first())->getFinal()->getStop(), Dto::class),
+                    'lines' => $tracks
+                        |> c\map(t\property('line'))
+                        |> c\uniqueBy(t\property('id'))
+                        |> c\map(fn (LineEntity $line) => $this->converter->convert($line, Dto::class)),
+                ]))
+                |> c\values());
 
         foreach ($event->getData() as $stop) {
-            $stop->setDestinations($destinations[$this->id->generate($provider, $stop->getId())] ?? collect());
+            $stop->setDestinations($destinations->get($this->id->generate($provider, $stop->getId()), new Seq()));
         }
     }
 }
