@@ -24,7 +24,7 @@ use App\Dto\Dto;
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
 use App\Dto\Status\Endpoint;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Uid\Uuid;
@@ -59,10 +59,15 @@ class Node implements Fillable, Dto
     /**
      * All endpoints offered by this node.
      *
-     * @var Collection<Endpoint>
+     * @var Seq<Endpoint>
      */
     #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Endpoint::class)))]
-    private Collection $endpoints;
+    private Seq $endpoints;
+
+    public function __construct()
+    {
+        $this->endpoints = new Seq();
+    }
 
     public function getId(): Uuid
     {
@@ -84,14 +89,14 @@ class Node implements Fillable, Dto
         $this->url = $url;
     }
 
-    public function getEndpoints(): Collection
+    public function getEndpoints(): Seq
     {
         return $this->endpoints;
     }
 
-    public function setEndpoints(Collection $endpoints): void
+    public function setEndpoints(iterable $endpoints): void
     {
-        $this->endpoints = $endpoints;
+        $this->endpoints = new Seq($endpoints);
     }
 
     public function getType(): string

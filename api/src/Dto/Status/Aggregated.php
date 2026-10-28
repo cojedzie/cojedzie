@@ -23,7 +23,7 @@ namespace App\Dto\Status;
 use App\Dto\Dto;
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
@@ -47,21 +47,21 @@ class Aggregated implements Fillable, Dto
         /**
          * All endpoints defined for this node.
          *
-         * @var Collection<Endpoint>
+         * @var Seq<Endpoint>
          */
         #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Endpoint::class)))]
-        private Collection $endpoints,
+        private Seq $endpoints,
     ) {
     }
 
-    public function getEndpoints(): Collection
+    public function getEndpoints(): Seq
     {
         return $this->endpoints;
     }
 
-    public function setEndpoints(Collection $endpoints): void
+    public function setEndpoints(iterable $endpoints): void
     {
-        $this->endpoints = $endpoints;
+        $this->endpoints = new Seq($endpoints);
     }
 
     public function getTime(): Time

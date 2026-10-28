@@ -20,7 +20,7 @@
 
 namespace App\Dto;
 
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
@@ -48,10 +48,10 @@ class Track implements Referable, Fillable, Dto
 
     /**
      * Stops in track
-     * @var Collection<Stop>
+     * @var Seq<Stop>
      */
     #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Stop::class)))]
-    private Collection $stops;
+    private Seq $stops;
 
     /**
      * Destination stop of this track
@@ -61,7 +61,7 @@ class Track implements Referable, Fillable, Dto
 
     public function __construct()
     {
-        $this->setStops([]);
+        $this->stops = new Seq();
     }
 
     public function getVariant(): ?string
@@ -94,14 +94,14 @@ class Track implements Referable, Fillable, Dto
         $this->line = $line;
     }
 
-    public function getStops(): Collection
+    public function getStops(): Seq
     {
         return $this->stops;
     }
 
-    public function setStops($stops = [])
+    public function setStops(iterable $stops = []): void
     {
-        return $this->stops = collect($stops);
+        $this->stops = new Seq($stops);
     }
 
     public function getDestination(): ?Stop
