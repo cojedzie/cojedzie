@@ -55,12 +55,19 @@ class DataUpdater
         try {
             $this->import();
         } finally {
-            ini_set('memory_limit', $limit);
+            // PHP refuses a limit below the memory in use; the worker's own --memory-limit then stops it instead
+            $previous = ini_parse_quantity($limit);
+            if ($previous === -1 || memory_get_usage(true) < $previous) {
+                ini_set('memory_limit', $limit);
+            }
         }
     }
 
     private function import(): void
     {
+        // resolved before anything is written, so a dependency error doesn't leave a partial import behind
+        $importers = iterator_to_array($this->getDataUpdatersInTopologicalOrder(), false);
+
         // create import etity
         $import = new ImportEntity();
         $import->setStartedAt(Carbon::now());
@@ -72,7 +79,7 @@ class DataUpdater
         $event    = new DataUpdateEvent(import: $import);
 
         /** @var DataImporter $updater */
-        foreach ($this->getDataUpdatersInTopologicalOrder() as $updater) {
+        foreach ($importers as $updater) {
             $updater->import(
                 reporter: $reporter->subtask($updater->getDescription()),
                 event: $event,
@@ -123,7 +130,7 @@ class DataUpdater
                     yield $node['value'];
 
                     foreach ($dependants[$name] ?? [] as $dependant) {
-                        $next[$dependant]['dependencies'] = array_filter($nodes[$dependant]['dependencies'], fn ($item) => $item !== $name);
+                        $next[$dependant]['dependencies'] = array_filter($next[$dependant]['dependencies'], fn ($item) => $item !== $name);
                     }
 
                     unset($next[$name]);
