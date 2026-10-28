@@ -13,7 +13,7 @@ Everything related to agentic workflows is stored in `contrib/agents/`, not in v
 - `contrib/agents/wiki/` — project knowledge base (see below).
 - `contrib/agents/skills/` — skills in the Agent Skills format (`<name>/SKILL.md`). `.claude/skills` is a
   symlink to this directory. `commit` creates commits without AI attribution; `adr-compliance` checks a branch
-  or commit range against the ADRs.
+  or commit range against the ADRs; `test-cleanup` removes tests that only served implementation.
 - `contrib/agents/specs/` and `contrib/agents/plans/` — design specs and implementation plans. This overrides
   the superpowers plugin defaults (`docs/superpowers/specs/`, `docs/superpowers/plans/`); keep its file naming.
   They are **temporary**, see below.
@@ -34,7 +34,8 @@ Specs and plans are valid only while their task is in progress. They must not re
      decisions (chosen approach, rejected alternatives and why) as ADRs in `contrib/adr/`. Commit these
      like any other change.
   2. **Check compliance**: run the `adr-compliance` skill on the branch.
-  3. **Rebase the branch** to remove the spec/plan commits (and any later edits to those files), so the docs
+  3. **Clean up tests**: run the `test-cleanup` skill, so only tests worth keeping reach `master`.
+  4. **Rebase the branch** to remove the spec/plan commits (and any later edits to those files), so the docs
      never appear in the merged history. Rewriting history and force-pushing need the user's confirmation.
 - Nothing may be lost: if a spec contains something worth keeping that fits neither the wiki nor an ADR, ask
   the user where it belongs instead of dropping it.
