@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace App\Tests\ZtmGdansk\DataImporter;
 
+use App\DataImport\TableUpserter;
 use App\Dto\Line;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskLineDataImporter;
@@ -95,6 +96,7 @@ final class ZtmGdanskLineDataImporterTest extends ImporterTestCase
     {
         new ZtmGdanskLineDataImporter(
             $this->connection,
+            new TableUpserter($this->connection),
             new StubJsonStreamer(fn () => $routes),
             new IdUtils(),
             $this->config(),

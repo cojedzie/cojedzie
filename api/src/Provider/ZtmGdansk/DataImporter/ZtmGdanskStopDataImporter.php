@@ -21,23 +21,22 @@
 namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\TableUpserter;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
-use App\Utility\IterableUtils;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
-use Ds\Set;
 use Psr\Clock\ClockInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
     public function __construct(
         private readonly Connection $connection,
+        private readonly TableUpserter $upserter,
         private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils,
         private readonly ZtmGdanskConfig $config,
@@ -48,62 +47,16 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
-        $this->connection->beginTransaction();
-
-        $query = $this->connection->createQueryBuilder()
-            ->from('stop', 's')
-            ->select('id')
-            ->where('s.provider_id = :provider_id')
-            ->andWhere('s.id IN (:ids)')
-            ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER);
-
-        $count = 0;
-        foreach (IterableUtils::batch($this->getStopsFromZtmApi(), 100) as $batch) {
-            $query->setParameter('ids', array_keys($batch), ArrayParameterType::STRING);
-
-            $existing = new Set($query->executeQuery()->iterateColumn());
-
-            foreach ($batch as $id => $stop) {
-                if ($existing->contains($id)) {
-                    $this->connection->update(
-                        'stop',
-                        [
-                            ...$stop,
-                            'import_id' => $event->import->getId(),
-                        ],
-                        [
-                            'id'          => $id,
-                            'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                        ],
-                        [
-                            'on_demand' => ParameterType::BOOLEAN,
-                            'import_id' => 'uuid',
-                        ]
-                    );
-                } else {
-                    $this->connection->insert(
-                        'stop',
-                        array_merge(
-                            [
-                                'id'          => $id,
-                                'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                                'import_id'   => $event->import->getId(),
-                            ],
-                            $stop
-                        ),
-                        [
-                            'on_demand' => ParameterType::BOOLEAN,
-                            'import_id' => 'uuid',
-                        ]
-                    );
-                }
-            }
-
-            $reporter->progress($count += is_countable($batch) ? count($batch) : 0);
-        }
+        $count = $this->connection->transactional(fn () => $this->upserter->upsert(
+            'stop',
+            $this->getStopsFromZtmApi(),
+            ZtmGdanskProvider::IDENTIFIER,
+            $event->import,
+            types: ['on_demand' => ParameterType::BOOLEAN],
+            reporter: $reporter,
+        ));
 
         $reporter->progress($count, comment: 'OK', finished: true);
-        $this->connection->commit();
     }
 
     private function getStopsFromZtmApi()

@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace App\Tests\ZtmGdansk\DataImporter;
 
+use App\DataImport\TableUpserter;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskTrackDataImporter;
 use App\Service\IdUtils;
@@ -167,6 +168,7 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
 
         new ZtmGdanskTrackDataImporter(
             $this->connection,
+            new TableUpserter($this->connection),
             new IdUtils(),
             new StubJsonStreamer(fn (string $url) => $url === $config->tripsUrl ? $trips : $stopsInTrips),
             $config,
