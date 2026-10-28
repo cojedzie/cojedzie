@@ -57,11 +57,19 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
 
     private function applyRequirementToParameter(Request $request, ReflectionParameter $parameter, array $resolved): array|false
     {
-        $types = $parameter->getType() instanceof \ReflectionNamedType
-            ? [$parameter->getType()]
-            : $parameter->getType()->getTypes();
+        $type  = $parameter->getType();
+        $types = match (true) {
+            $type instanceof \ReflectionNamedType                                               => [$type],
+            $type instanceof \ReflectionUnionType, $type instanceof \ReflectionIntersectionType => $type->getTypes(),
+            // an untyped parameter takes no requirement
+            default => [],
+        };
 
         foreach ($types as $type) {
+            if (!$type instanceof \ReflectionNamedType) {
+                continue;
+            }
+
             $class = $type->getName();
             if ($class === "iterable" || $class === "array") {
                 $request->attributes->set($parameter->getName(), $resolved);
