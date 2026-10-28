@@ -26,6 +26,7 @@ use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 class DataUpdater
 {
@@ -43,7 +44,8 @@ class DataUpdater
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ProgressReporterFactory $progressReporterFactory,
-        private readonly iterable $importers
+        private readonly iterable $importers,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -70,7 +72,7 @@ class DataUpdater
 
         // create import etity
         $import = new ImportEntity();
-        $import->setStartedAt(Carbon::now());
+        $import->setStartedAt(Carbon::instance($this->clock->now()));
 
         $this->em->persist($import);
         $this->em->flush();
@@ -87,7 +89,7 @@ class DataUpdater
         }
 
         // mark import event as finished and flush it to db
-        $import->setFinishedAt(Carbon::now());
+        $import->setFinishedAt(Carbon::instance($this->clock->now()));
         $this->em->flush();
 
         $reporter->milestone(sprintf('Peak memory: %d MB', memory_get_peak_usage(true) >> 20));

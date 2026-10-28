@@ -29,6 +29,7 @@ use App\Service\DataUpdater;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\MockClock;
 
 final class DataUpdaterTest extends KernelTestCase
 {
@@ -44,10 +45,11 @@ final class DataUpdaterTest extends KernelTestCase
             $lines = $this->importer('lines', [], $log);
             $stops = $this->importer('stops', [$lines::class], $log);
 
-            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$stops, $lines])->update();
+            $this->updater($em, [$stops, $lines])->update();
 
             $this->assertSame(['lines', 'stops'], array_column($log->getArrayCopy(), 0));
-            $this->assertNotNull($log[0][1]->import->getFinishedAt());
+            $this->assertSame('2026-10-28 12:00:00', $log[0][1]->import->getStartedAt()->format('Y-m-d H:i:s'));
+            $this->assertSame('2026-10-28 12:00:00', $log[0][1]->import->getFinishedAt()->format('Y-m-d H:i:s'));
         } finally {
             $em->getConnection()->rollBack();
         }
@@ -63,7 +65,7 @@ final class DataUpdaterTest extends KernelTestCase
         $limit = ini_get('memory_limit');
 
         try {
-            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [])->update();
+            $this->updater($em, [])->update();
 
             $this->assertSame($limit, ini_get('memory_limit'));
         } finally {
@@ -106,7 +108,7 @@ final class DataUpdaterTest extends KernelTestCase
         });
 
         try {
-            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$hoarder])->update();
+            $this->updater($em, [$hoarder])->update();
 
             $this->assertSame([], $errors);
         } finally {
@@ -131,7 +133,7 @@ final class DataUpdaterTest extends KernelTestCase
             $lines    = $this->importer('lines', [$provider::class], $log);
             $tracks   = $this->importer('tracks', [$stops::class, $lines::class], $log);
 
-            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$tracks, $lines, $stops, $provider])->update();
+            $this->updater($em, [$tracks, $lines, $stops, $provider])->update();
 
             $order = array_column($log->getArrayCopy(), 0);
             $this->assertSame('provider', $order[0]);
@@ -155,7 +157,7 @@ final class DataUpdaterTest extends KernelTestCase
             $stops = $this->importer('stops', ['App\\NoSuchImporter'], $log);
 
             try {
-                new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$lines, $stops])->update();
+                $this->updater($em, [$lines, $stops])->update();
                 $this->fail('The update should have failed.');
             } catch (\LogicException $exception) {
                 $this->assertStringContainsString($stops::class, $exception->getMessage());
@@ -166,6 +168,16 @@ final class DataUpdaterTest extends KernelTestCase
         } finally {
             $em->getConnection()->rollBack();
         }
+    }
+
+    private function updater(EntityManagerInterface $em, array $importers): DataUpdater
+    {
+        return new DataUpdater(
+            $em,
+            new ProgressReporterFactory(new NullLogger()),
+            $importers,
+            new MockClock('2026-10-28 12:00:00'),
+        );
     }
 
     private function importer(string $name, array $dependencies, \ArrayObject $log): DataImporter
