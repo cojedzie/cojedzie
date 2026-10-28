@@ -23,8 +23,8 @@ namespace App\Tests\Benchmark\Collections;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
-use App\Utility\CollectionUtils;
 use App\Utility\SequenceGenerator;
+use Ds\Map;
 use Ds\Seq;
 use Ds\Set;
 use Kadet\Functional\Collections as c;
@@ -44,11 +44,12 @@ final class TrackStopsVariants
     private static ?array $decodedRecords = null;
 
     /**
-     * Verbatim copy of today's code: CollectionUtils::groupBy() and Ds\Seq methods.
+     * Verbatim copy of the pre-migration code: groupBy() and Ds\Seq methods. Frozen for the last comparison
+     * benchmark, removed together with groupBy() in the final migration task.
      */
     public static function current(iterable $records, Set $existingStopIds, IdUtils $ids): iterable
     {
-        $all = CollectionUtils::groupBy(
+        $all = self::groupBy(
             $records,
             fn ($stop) => $ids->generate(
                 ZtmGdanskProvider::IDENTIFIER,
@@ -76,6 +77,28 @@ final class TrackStopsVariants
                     'sequence' => $generator->next(),
                 ]);
         }
+    }
+
+    /**
+     * Frozen copy of the removed CollectionUtils::groupBy(): a Map of Seq in encounter order.
+     *
+     * @return Map<string, Seq>
+     */
+    private static function groupBy(iterable $collection, callable $grouping): Map
+    {
+        $result = new Map();
+
+        foreach ($collection as $value) {
+            $group = $grouping($value);
+
+            if (!$result->hasKey($group)) {
+                $result[$group] = new Seq();
+            }
+
+            $result[$group]->push($value);
+        }
+
+        return $result;
     }
 
     /**
