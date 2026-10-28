@@ -80,6 +80,7 @@ class FederatedConnectionChecker
             $this->validateResponse($response, $connection);
 
             $connection->setLastStatus($response->getContent());
+            $connection->resetFailureCount();
 
             if ($connection->getState() === FederatedConnectionEntity::STATE_NEW) {
                 $this->hub->publish($this->updateFactory->createNodeJoinedUpdate($connection));
@@ -108,6 +109,10 @@ class FederatedConnectionChecker
             $serverIdHeader = strtolower(FederationHeadersSubscriber::SERVER_ID_HEADER),
             $headers
         )) {
+            if (!Uuid::isValid($headers[$serverIdHeader][0])) {
+                throw new FederationException(sprintf("Malformed server id %s.", $headers[$serverIdHeader][0]));
+            }
+
             $serverId = Uuid::fromString($headers[$serverIdHeader][0]);
 
             if (!$serverId->equals($connection->getServer()->getId())) {
@@ -141,14 +146,11 @@ class FederatedConnectionChecker
     {
         // k is multiplier of check interval.
         // We pick random number between consecutive powers of 2, for example, if we failed 4 times in row we pick
-        // random number between 2^3 = 8 and 2^4 = 16
+        // random number between 2^3 = 8 and 2^4 = 16, without failures k is 1
         $k = random_int(
-            2 ** ($connection->getFailures() - 1),
+            max(1, 2 ** $connection->getFailures() >> 1),
             2 ** $connection->getFailures()
         );
-
-        // k should be at least 1
-        $k = max(1, $k);
 
         return Carbon::now()->addSeconds($k * self::CHECK_INTERVAL);
     }
