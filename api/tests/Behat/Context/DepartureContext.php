@@ -35,13 +35,13 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use PHPUnit\Framework\Assert;
 
-final class DepartureContext implements Context
+final readonly class DepartureContext implements Context
 {
     public function __construct(
-        private readonly InMemoryDepartureRepository $departures,
-        private readonly TestData $data,
-        private readonly FrozenTime $time,
-        private readonly ApiClient $client,
+        private InMemoryDepartureRepository $departures,
+        private TestData $data,
+        private FrozenTime $time,
+        private ApiClient $client,
     ) {
     }
 

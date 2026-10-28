@@ -32,10 +32,10 @@ use PHPUnit\Framework\Assert;
 /**
  * HTTP-level vocabulary, meant only for features in features/contract.
  */
-final class ApiContext implements Context
+final readonly class ApiContext implements Context
 {
     public function __construct(
-        private readonly ApiClient $client,
+        private ApiClient $client,
     ) {
     }
 

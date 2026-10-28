@@ -56,7 +56,7 @@ final class FileStringStreamTest extends TestCase
     public function testFailsWithSourceWhenFileCannotBeOpened(): void
     {
         $this->expectException(StreamOpenException::class);
-        $this->expectExceptionMessage('/nonexistent/agencies.json');
+        $this->expectExceptionMessageIsOrContains('/nonexistent/agencies.json');
 
         new FileStringStream('/nonexistent/agencies.json');
     }

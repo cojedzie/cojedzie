@@ -32,11 +32,11 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use PHPUnit\Framework\Assert;
 
-final class StopContext implements Context
+final readonly class StopContext implements Context
 {
     public function __construct(
-        private readonly TestData $data,
-        private readonly ApiClient $client,
+        private TestData $data,
+        private ApiClient $client,
     ) {
     }
 

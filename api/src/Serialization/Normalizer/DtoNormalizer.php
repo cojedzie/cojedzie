@@ -102,7 +102,7 @@ class DtoNormalizer implements NormalizerInterface, DenormalizerInterface, Seria
         }
 
         $callbacks = [];
-        foreach ((new \ReflectionClass($class))->getProperties() as $property) {
+        foreach (new \ReflectionClass($class)->getProperties() as $property) {
             if (self::isSeqProperty($class, $property->getName())) {
                 $callbacks[$property->getName()] = self::wrapInSeq(...);
             }
@@ -122,7 +122,7 @@ class DtoNormalizer implements NormalizerInterface, DenormalizerInterface, Seria
             return false;
         }
 
-        $type = (new \ReflectionProperty($class, $property))->getType();
+        $type = new \ReflectionProperty($class, $property)->getType();
 
         return $type instanceof \ReflectionNamedType && $type->getName() === Seq::class;
     }

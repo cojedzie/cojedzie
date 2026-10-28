@@ -136,7 +136,7 @@ final class DsCollectionSerializationTest extends KernelTestCase
     private function describe(string $class): array
     {
         $generator  = self::getContainer()->get('nelmio_api_doc.generator.default');
-        $describers = (new \ReflectionProperty($generator, 'modelDescribers'))->getValue($generator);
+        $describers = new \ReflectionProperty($generator, 'modelDescribers')->getValue($generator);
 
         $api      = new OpenApi([]);
         $registry = new ModelRegistry($describers, $api);

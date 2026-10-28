@@ -302,9 +302,9 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     {
         $lines = $this->lines;
 
-        return new class($lines) implements LineRepository {
+        return new readonly class($lines) implements LineRepository {
             public function __construct(
-                private readonly array $lines
+                private array $lines
             ) {
             }
 
@@ -320,7 +320,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
                 $ids = [];
                 foreach ($requirements as $requirement) {
                     if ($requirement instanceof IdConstraint) {
-                        $ids = array_map('strval', (array) $requirement->getId());
+                        $ids = array_map(strval(...), (array) $requirement->getId());
                     }
                 }
 
@@ -336,9 +336,9 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     {
         $schedule = $this->schedule;
 
-        return new class($schedule) implements ScheduleRepository {
+        return new readonly class($schedule) implements ScheduleRepository {
             public function __construct(
-                private readonly array $schedule
+                private array $schedule
             ) {
             }
 

@@ -92,9 +92,9 @@ final class RealtimeScheduleDepartureRepositoryTest extends TestCase
         [$schedule, $real] = DeparturePairingVariants::fixture(32, 16);
 
         return new RealtimeScheduleDepartureRepository(
-            new class($schedule) implements ScheduleRepository {
+            new readonly class($schedule) implements ScheduleRepository {
                 public function __construct(
-                    private readonly array $schedule
+                    private array $schedule
                 ) {
                 }
 
@@ -116,9 +116,9 @@ final class RealtimeScheduleDepartureRepositoryTest extends TestCase
                     return new Seq($this->schedule);
                 }
             },
-            new class($real) implements DepartureRepository {
+            new readonly class($real) implements DepartureRepository {
                 public function __construct(
-                    private readonly array $real
+                    private array $real
                 ) {
                 }
 
