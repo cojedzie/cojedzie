@@ -51,7 +51,12 @@ class FederationContext implements LoggerAwareInterface
         /**
          * Base URL for this specific connection.
          */
-        private readonly ?string $advertisedUrl
+        private readonly ?string $advertisedUrl,
+        /**
+         * Secret the hub authenticates this server with, together with the server ID.
+         */
+        #[\SensitiveParameter]
+        private readonly ?string $serverSecret = null,
     ) {
         $this->connectionId = $connectionId ? Uuid::fromString($connectionId) : null;
         $this->serverId     = $serverId ? Uuid::fromString($serverId) : null;
@@ -82,6 +87,11 @@ class FederationContext implements LoggerAwareInterface
         }
 
         return $this->serverId;
+    }
+
+    public function getServerSecret(): ?string
+    {
+        return $this->serverSecret;
     }
 
     public function getConnectionId(): ?Uuid

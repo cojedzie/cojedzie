@@ -58,9 +58,9 @@ class FederatedConnectionService
             'POST',
             $this->context->getHubBaseUrl() . static::ENDPOINT_CONNECT,
             [
-                'body' => [
-                    'server_id' => $this->context->getServerId()->toRfc4122(),
-                    'url'       => $this->context->getAdvertisedUrl(),
+                'auth_basic' => $this->credentials(),
+                'body'       => [
+                    'url' => $this->context->getAdvertisedUrl(),
                 ],
             ]
         );
@@ -81,11 +81,18 @@ class FederatedConnectionService
             $this->context->getHubBaseUrl() . FederatedConnectionService::ENDPOINT_DISCONNECT
         );
 
-        $response = $this->http->request(
-            'DELETE',
-            $url
-        );
+        $response = $this->http->request('DELETE', $url, [
+            'auth_basic' => $this->credentials(),
+        ]);
 
         return $response->getStatusCode() === Response::HTTP_OK;
+    }
+
+    /**
+     * @return array{string, string} the server ID and secret the hub authenticates this server with
+     */
+    private function credentials(): array
+    {
+        return [$this->context->getServerId()->toRfc4122(), (string) $this->context->getServerSecret()];
     }
 }
