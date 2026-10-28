@@ -1,9 +1,14 @@
 FROM php:8.5-cli-alpine
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=ghcr.io/php/pie:bin /pie /usr/local/bin/pie
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql ds-1.8.0 xdebug;
+RUN install-php-extensions bcmath intl opcache zip sockets pdo_pgsql pdo_mysql;
+RUN apk add --no-cache --virtual .pie-deps $PHPIZE_DEPS linux-headers && \
+    pie install php-ds/ext-ds:^2.0 && \
+    pie install xdebug/xdebug && \
+    apk del --purge .pie-deps;
 RUN apk add git su-exec tini;
 
 # XDebug
