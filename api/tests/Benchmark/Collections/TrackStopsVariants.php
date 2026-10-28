@@ -24,8 +24,6 @@ use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use App\Utility\SequenceGenerator;
-use Ds\Map;
-use Ds\Seq;
 use Ds\Set;
 use Kadet\Functional\Collections as c;
 use Kadet\Functional\Collections\Lazy as lazy;
@@ -42,64 +40,6 @@ final class TrackStopsVariants
     private const string FIXTURE          = __DIR__ . '/../../JsonStreamingTokenizer/stubs/ztm_stops_in_trip.json';
     private const string BRANCH           = '2022-03-07';
     private static ?array $decodedRecords = null;
-
-    /**
-     * Verbatim copy of the pre-migration code: groupBy() and Ds\Seq methods. Frozen for the last comparison
-     * benchmark, removed together with groupBy() in the final migration task.
-     */
-    public static function current(iterable $records, Set $existingStopIds, IdUtils $ids): iterable
-    {
-        $all = self::groupBy(
-            $records,
-            fn ($stop) => $ids->generate(
-                ZtmGdanskProvider::IDENTIFIER,
-                sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
-            )
-        );
-
-        /**
-         * @var string $trackId
-         * @var Seq<array> $stops
-         */
-        foreach ($all as $trackId => $stops) {
-            $generator = new SequenceGenerator();
-
-            yield $trackId => $stops
-                ->map(fn ($stop) => [
-                    'stop_id'  => $ids->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
-                    'track_id' => $trackId,
-                    'sequence' => $stop['stopSequence'],
-                ])
-                ->filter(fn ($stop) => $existingStopIds->contains($stop['stop_id']))
-                ->sorted(fn ($a, $b) => $a['sequence'] <=> $b['sequence'])
-                ->map(fn ($stop) => [
-                    ...$stop,
-                    'sequence' => $generator->next(),
-                ]);
-        }
-    }
-
-    /**
-     * Frozen copy of the removed CollectionUtils::groupBy(): a Map of Seq in encounter order.
-     *
-     * @return Map<string, Seq>
-     */
-    private static function groupBy(iterable $collection, callable $grouping): Map
-    {
-        $result = new Map();
-
-        foreach ($collection as $value) {
-            $group = $grouping($value);
-
-            if (!$result->hasKey($group)) {
-                $result[$group] = new Seq();
-            }
-
-            $result[$group]->push($value);
-        }
-
-        return $result;
-    }
 
     /**
      * Eager kadet/functional collections: every step builds a finished collection.
