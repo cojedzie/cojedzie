@@ -35,10 +35,11 @@ tasks:
       - task: lint:eslint
 
   lint:api:
-    desc: Check API code style (ECS) and pending Rector changes, as CI does
+    desc: Check API code style (ECS), pending Rector changes and PHPStan, as CI does
     cmds:
       - docker compose run --rm -e APP_MODE=performance api vendor/bin/ecs check --no-progress-bar
       - docker compose run --rm -e APP_MODE=performance -u {{.USER}} api vendor/bin/rector process --dry-run --no-progress-bar
+      - docker compose run --rm -u {{.USER}} api vendor/bin/phpstan analyse --no-progress --memory-limit=1G
 
   lint:eslint:
     desc: Lint frontend using ES Lint

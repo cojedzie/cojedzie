@@ -28,6 +28,8 @@ jobs:
         run: vendor/bin/ecs check --no-progress-bar
       - name: Rector
         run: vendor/bin/rector process --dry-run --no-progress-bar
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
       - name: Prepare test database
         run: |
           mkdir -p var/db
