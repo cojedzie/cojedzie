@@ -63,7 +63,7 @@ Repositories call `$converter->convert($entity, Dto::class)`.
 `EntityConverter` handles most entities. Three behaviours matter:
 
 1. **Only loaded data is converted.** An uninitialized Doctrine proxy becomes a *reference DTO* (see below), and
-   an uninitialized `PersistentCollection` becomes an empty collection. Lazy loading is never triggered. **So
+   an uninitialized `PersistentCollection` becomes an empty `Seq`. Lazy loading is never triggered. **So
    the query decides the output shape**, and an `Embed` requirement (`GenericWithDatabaseHandler` joins and
    selects the association) is how a relation gets into the response. If a relation comes back empty or as
    `{id}` only, the query didn't fetch it.
@@ -83,7 +83,7 @@ A DTO that stands for an object without its data, carrying only `id`:
   proxies. `JustReferenceNormalizer` serializes these with group `reference`, i.e. just `{ "id": ..., "$type": ... }`
   (pinned by `tests/Service/Proxy/ReferenceFactoryTest`).
 
-The reverse direction is `Service/EntityReferenceFactory::create($dto|array|Collection, $provider)`. It turns
+The reverse direction is `Service/EntityReferenceFactory::create($dto|array|Seq, $provider)`. It turns
 `Line`/`Stop`/`Track` DTOs into `EntityManager::getReference()` proxies with prefixed ids, which DB handlers
 bind as query parameters. Supporting another DTO in `RelatedFilter` requires adding it to its `$mapping`.
 
@@ -108,5 +108,5 @@ bind as query parameters. Supporting another DTO in `RelatedFilter` requires add
   `DsMapNormalizer`: its `jsonSerialize()` returns a `stdClass`, which the object normalizer empties when
   groups are set. On denormalization Symfony turns a `Seq<T>` property into a `T[]` array, so `DtoNormalizer`
   adds denormalization callbacks that wrap it back into a `Seq` (pinned by `DsCollectionSerializationTest`).
-  An unannotated `@var Seq<T>` property is documented by nelmio as `oneOf` array/object of `T`, the same as
-  Illuminate `Collection<T>` was.
+  A `@var Seq<T>` property without an explicit `#[OA\Property]` type is documented by nelmio as `oneOf`
+  array/object of `T` (`DsCollectionDescriber`). Collection conventions: [collections.md](collections.md).

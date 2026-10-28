@@ -2,7 +2,7 @@
 
 Repositories never take ad-hoc filter arguments. Every query is described by a list of **requirement** value
 objects; HTTP **bindings** create them from the request and **handlers** apply them to a concrete storage
-(Doctrine query builder or an in-memory collection).
+(Doctrine query builder or an in-memory `Ds\Seq`).
 
 ```
 HTTP request ──(Filter/Binding/Http)──▶ Requirement[] ──▶ Repository::all(...$requirements)
@@ -81,7 +81,7 @@ All classes in `src/Filter/Handler` are services tagged `app.handler` and fetche
   - DB: `HandleDatabaseRequirementEvent` gives the `QueryBuilder` and `meta` (`alias`, `entity`, `type` = DTO
     class, `provider` = `ProviderEntity`).
   - In-memory: `HandleInMemoryRequirementEvent` collects predicates (`getPredicates()`), combined with AND.
-- `PostProcessingHandler::postProcess(PostProcessEvent)` — runs after the query on the collection of
+- `PostProcessingHandler::postProcess(PostProcessEvent)` — runs after the query on the `Seq` of
   **converted DTOs** and may replace it with `setData()`. Used by embeds that need a separate query.
 
 A handler may implement both interfaces; handlers ignore event types they don't support (DB handlers `return`
