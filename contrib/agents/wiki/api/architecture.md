@@ -81,7 +81,8 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   UUID version, `property_info.with_constructor_extractor`, Doctrine `controller_resolver.auto_mapping`) are
   pinned to their 6.4 values in `config/packages/`; flip them deliberately. `doctrine.orm.enable_lazy_ghost_objects`
   is still off (belongs with ORM 3).
-- `ext-ds` is pinned to 1.8.0 in every Dockerfile: ds 2.0 removes `Ds\Collection`, `Ds\Deque`, `Ds\Vector`.
+- `ext-ds` 2.0 is installed with PIE (together with amqp, redis and xdebug) in the Dockerfiles. 2.0 has no
+  `Ds\Collection`, `Ds\Deque` or `Ds\Vector`; the code uses `Ds\Seq`, `Ds\Map` and `Ds\Set`.
 - RoadRunner 2025.1 (`ghcr.io/roadrunner-server/roadrunner`) with baldinof/roadrunner-bundle 3; `.rr.yaml` is
   config v3. Workers run with `display_errors=stderr`: anything PHP prints to stdout breaks the worker protocol
   (e.g. a deprecation raised while autoloading, before Symfony's error handler is set up). The runtime images
