@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6751418c6ef8f006f8b73122ec0b0779",
+    "content-hash": "f2b166cd23e9ed5560ff1e55b93a03eb",
     "packages": [
         {
             "name": "baldinof/roadrunner-bundle",
@@ -2129,11 +2129,11 @@
         },
         {
             "name": "kadet/functional",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://git.kadet.net/kadet/functional-php.git",
-                "reference": "dc1b684978476aa4403c80534081340c8d22527c"
+                "reference": "ab3034e2be70490b1a0dc27cb5d2be93f6176793"
             },
             "require": {
                 "php": ">=8.2"
@@ -2183,7 +2183,7 @@
                 }
             ],
             "description": "Functional library for PHP",
-            "time": "2026-10-27T22:13:07+00:00"
+            "time": "2026-10-28T09:05:43+00:00"
         },
         {
             "name": "laminas/laminas-code",
