@@ -75,7 +75,7 @@ The API used `illuminate/collections` until the migration. For reading old code 
 | `->implode(', ')` | `\|> c\join(', ')` |
 | `->has($k)` / `->get($k, $default)` | `$map->hasKey($k)` / `$map->get($k, $default)` |
 | `->all()` / `->toArray()` | `\|> c\toArray()` (or `$seq->toArray()`) |
-| `->where('field', $v)` / `->only($keys)` | `\|> c\filter(p\property('field', p\same($v)))` / `c\filter(fn ($v, $k) => in_array($k, $keys, true))` |
+| `->where('field', $v)` / `->only($keys)` | `\|> c\filter(p\property('field', p\same($v)))` (strict `===`; Illuminate's `where` compares loosely, use `p\equals($v)` for `==`) / `c\filter(fn ($v, $k) => in_array($k, $keys, true))` |
 
 ## Traps
 
