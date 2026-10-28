@@ -67,7 +67,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
                 'name'  => $entity->getName(),
                 'phone' => $entity->getPhone(),
                 'email' => $entity->getEmail(),
-                'url'   => $entity->getEmail(),
+                'url'   => $entity->getUrl(),
             ]),
             $entity instanceof LineEntity => $result->fill([
                 'id'       => $this->id->of($entity),
