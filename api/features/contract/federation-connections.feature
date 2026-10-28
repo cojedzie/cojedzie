@@ -42,3 +42,32 @@ Feature: Federation connections
       {"url": "http://federated:8080", "server_id": "0b6c4e1f-9a43-4a7e-8f0f-1d3c2b5a6e70"}
       """
     Then the response status should be 400
+
+  Scenario Outline: A server connects only under its registered URL
+    Given I authenticate as "a7cd192a-3dca-4fc8-b35d-91f2d6e10632" with password "notarealsecretatall"
+    When I send a "POST" request to "/api/v1/federation/connections" with body:
+      """
+      {"url": "<url>"}
+      """
+    Then the response status should be <status>
+
+    Examples:
+      | url                                | status |
+      | http://federated:8080              | 201    |
+      | http://federated:8080/             | 201    |
+      | http://federated:8080/node-2       | 201    |
+      | http://other:8080                  | 403    |
+      | http://federated:80800             | 403    |
+      | http://federated:8080.evil.example | 400    |
+      | http://federated:8080@evil.example | 403    |
+      |                                    | 400    |
+      | not a url                          | 400    |
+      | ftp://federated:8080               | 400    |
+
+  Scenario: A missing URL is a bad request
+    Given I authenticate as "a7cd192a-3dca-4fc8-b35d-91f2d6e10632" with password "notarealsecretatall"
+    When I send a "POST" request to "/api/v1/federation/connections" with body:
+      """
+      {}
+      """
+    Then the response status should be 400

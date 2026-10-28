@@ -32,6 +32,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\String\ByteString;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsCommand(name: 'federation:register', description: 'Register new federated server')]
 class FederationRegisterCommand extends Command implements CustomSentrySampleRateInterface
@@ -39,7 +41,8 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
     use FederationSampleRateTrait;
 
     public function __construct(
-        private readonly EntityManagerInterface $manager
+        private readonly EntityManagerInterface $manager,
+        private readonly ValidatorInterface $validator,
     ) {
         parent::__construct();
     }
@@ -49,7 +52,7 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
     {
         $this
             ->addArgument('email', InputArgument::REQUIRED, 'Contact e-mail for registered federated server.')
-            ->addArgument('allowed-url', InputArgument::REQUIRED, 'Allowed base URL, could be regex pattern.')
+            ->addArgument('allowed-url', InputArgument::REQUIRED, 'URL prefix the server\'s connections must start with.')
             ->addOption('maintainer', 'm', InputOption::VALUE_OPTIONAL, 'Name of the maintainer for this server.')
         ;
     }
@@ -58,6 +61,17 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        // a URL without a host would let the server's connections point anywhere
+        $violations = $this->validator->validate($input->getArgument('allowed-url'), [
+            new Assert\NotBlank(),
+            new Assert\Url(protocols: ['http', 'https'], requireTld: false),
+        ]);
+
+        if (count($violations) > 0) {
+            $io->error(sprintf('Allowed URL must be an http(s) URL with a host: %s', $violations->get(0)->getMessage()));
+            return Command::INVALID;
+        }
 
         $secret = ByteString::fromRandom(24);
 

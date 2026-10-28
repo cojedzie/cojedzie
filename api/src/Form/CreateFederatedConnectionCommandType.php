@@ -25,6 +25,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateFederatedConnectionCommandType extends AbstractType
 {
@@ -33,9 +34,13 @@ class CreateFederatedConnectionCommandType extends AbstractType
     {
         $builder
             ->add('url', TextType::class, [
+                'constraints' => [
+                    new Assert\NotBlank(),
+                    new Assert\Url(protocols: ['http', 'https'], requireTld: false),
+                ],
                 'documentation' => [
                     'type'        => 'text',
-                    'description' => 'Base URL for this connection.',
+                    'description' => 'Base URL for this connection, must start with the URL the server was registered with.',
                     'example'     => 'https://cojedzie.pl',
                 ],
             ])
