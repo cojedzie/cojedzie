@@ -10,6 +10,7 @@ parameters:
   env(FEDERATION_CONNECTION_ID): null
   env(FEDERATION_SERVER_ID): null
   env(FEDERATION_URL): null
+  env(FEDERATION_SERVER_SECRET): null
 
   env(CORS_ALLOW_ORIGIN): '^https?://.*'
 
@@ -140,3 +141,4 @@ services:
       $connectionId: '%env(FEDERATION_CONNECTION_ID)%'
       $hubBaseUrl: '%env(FEDERATION_HUB)%'
       $advertisedUrl: '%env(FEDERATION_URL)%'
+      $serverSecret: '%env(FEDERATION_SERVER_SECRET)%'
