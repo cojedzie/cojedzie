@@ -52,10 +52,6 @@ class DataUpdater
         $this->em->persist($import);
         $this->em->flush();
 
-        // disable SQL logging to prevent performance issues
-        $connection = $this->em->getConnection();
-        $connection->getConfiguration()->setSQLLogger(null);
-
         $reporter = $this->progressReporterFactory->create();
         $event    = new DataUpdateEvent(import: $import);
 
