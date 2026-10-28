@@ -22,11 +22,11 @@ declare(strict_types=1);
 namespace App\DataImport;
 
 use App\Entity\ImportEntity;
-use App\Utility\IterableUtils;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ds\Set;
+use Kadet\Functional\Collections\Lazy as lazy;
 
 /**
  * Writes imported rows of a provider: inserts the ones that don't exist yet and updates those that do.
@@ -70,11 +70,7 @@ final readonly class TableUpserter
             ->setParameter('provider_id', $providerId);
 
         $count = 0;
-        foreach (IterableUtils::batch($rows, self::BATCH_SIZE) as $batch) {
-            if ($batch === []) {
-                continue;
-            }
-
+        foreach ($rows |> lazy\chunk(self::BATCH_SIZE, preserveKeys: true) as $batch) {
             $query->setParameter('ids', array_keys($batch), ArrayParameterType::STRING);
             $existing = new Set($query->executeQuery()->iterateColumn());
 
