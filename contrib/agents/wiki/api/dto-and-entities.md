@@ -104,3 +104,9 @@ bind as query parameters. Supporting another DTO in `RelatedFilter` requires add
   drops empty `$`-prefixed properties. `Embed('$refs.stops')` is resolved by `RefsEmbedHandler`, which replaces
   the reference items with full DTOs loaded from the provider's repositories.
 - OpenAPI schemas come from `@OA\Property` annotations on DTO properties.
+- php-ds collections: a `Ds\Seq` serializes to a JSON list via `JsonSerializableNormalizer`. A `Ds\Map` needs
+  `DsMapNormalizer`: its `jsonSerialize()` returns a `stdClass`, which the object normalizer empties when
+  groups are set. On denormalization Symfony turns a `Seq<T>` property into a `T[]` array, so `DtoNormalizer`
+  adds denormalization callbacks that wrap it back into a `Seq` (pinned by `DsCollectionSerializationTest`).
+  An unannotated `@var Seq<T>` property is documented by nelmio as `oneOf` array/object of `T`, the same as
+  Illuminate `Collection<T>` was.
