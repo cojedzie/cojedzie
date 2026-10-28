@@ -24,6 +24,7 @@ use App\Dto\Dto;
 use App\Dto\Federation\Node;
 use App\Dto\Status\Aggregated;
 use App\Entity\Federation\FederatedConnectionEntity;
+use Ds\Seq;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ConnectionConverter implements Converter
@@ -44,7 +45,7 @@ class ConnectionConverter implements Converter
         return Node::createFromArray([
             'id'        => $entity->getId(),
             'url'       => $entity->getUrl(),
-            'endpoints' => $status ? $status->getEndpoints() : collect(),
+            'endpoints' => $status ? $status->getEndpoints() : new Seq(),
             'type'      => Node::TYPE_FEDERATED,
         ]);
     }

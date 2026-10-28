@@ -20,7 +20,7 @@
 
 namespace App\Dto;
 
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
@@ -35,14 +35,14 @@ class StopGroup implements Dto
 
     /**
      * All stops in group.
-     * @var Collection<Stop>
+     * @var Seq<Stop>
      */
     #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Stop::class, groups: ['Default', 'WithDestinations'])))]
-    private Collection $stops;
+    private Seq $stops;
 
     public function __construct()
     {
-        $this->stops = new Collection();
+        $this->stops = new Seq();
     }
 
     public function getName(): string
@@ -55,12 +55,12 @@ class StopGroup implements Dto
         $this->name = $name;
     }
 
-    public function setStops($stops)
+    public function setStops(iterable $stops): void
     {
-        $this->stops = new Collection($stops);
+        $this->stops = new Seq($stops);
     }
 
-    public function getStops(): Collection
+    public function getStops(): Seq
     {
         return $this->stops;
     }

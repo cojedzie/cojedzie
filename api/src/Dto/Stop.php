@@ -20,7 +20,7 @@
 
 namespace App\Dto;
 
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -67,15 +67,15 @@ class Stop implements Referable, Fillable, Dto
     /**
      * Collection of possible destination stops.
      *
-     * @var Collection<Destination>
+     * @var Seq<Destination>
      */
     #[Groups(['embed:destinations'])]
     #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Destination::class, groups: ['default'])))]
-    private Collection $destinations;
+    private Seq $destinations;
 
     public function __construct()
     {
-        $this->destinations = collect();
+        $this->destinations = new Seq();
     }
 
     public function getName(): string
@@ -138,13 +138,13 @@ class Stop implements Referable, Fillable, Dto
         $this->group = $group;
     }
 
-    public function getDestinations(): Collection
+    public function getDestinations(): Seq
     {
         return $this->destinations;
     }
 
-    public function setDestinations(Collection $destinations): void
+    public function setDestinations(iterable $destinations): void
     {
-        $this->destinations = $destinations;
+        $this->destinations = new Seq($destinations);
     }
 }

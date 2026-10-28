@@ -26,7 +26,6 @@ use App\Dto\Status\Time;
 use App\Dto\Status\Version;
 use Carbon\Carbon;
 use Ds\Seq;
-use Illuminate\Support\Collection;
 use Kadet\Functional\Collections as c;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -50,8 +49,7 @@ class StatusService
     {
         return new Aggregated(
             time: $this->getTimeStatus(),
-            // Aggregated still holds an Illuminate collection until its property becomes a Seq.
-            endpoints: collect($this->getEndpointsStatus()->toArray()),
+            endpoints: $this->getEndpointsStatus(),
             version: $this->getVersionStatus(),
         );
     }

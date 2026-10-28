@@ -92,8 +92,7 @@ class NetworkController extends Controller
 
         return Node::createFromArray([
             'id'        => new NilUuid(),
-            // Node still holds an Illuminate collection until its property becomes a Seq.
-            'endpoints' => collect($this->status->getEndpointsStatus()->toArray()),
+            'endpoints' => $this->status->getEndpointsStatus(),
             'url'       => $baseUrl,
             'type'      => Node::TYPE_HUB,
         ]);

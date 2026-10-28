@@ -21,7 +21,7 @@
 namespace App\Dto;
 
 use App\Serialization\SerializeAs;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -51,9 +51,9 @@ class Trip implements Referable, Fillable, Dto
 
     /**
      * Stops in track
-     * @var Collection<ScheduledStop>
+     * @var Seq<ScheduledStop>
      */
-    private Collection $schedule;
+    private Seq $schedule;
 
     /**
      * Destination stop of this trip
@@ -62,7 +62,7 @@ class Trip implements Referable, Fillable, Dto
 
     public function __construct()
     {
-        $this->setSchedule([]);
+        $this->schedule = new Seq();
     }
 
     public function getVariant(): ?string
@@ -95,14 +95,14 @@ class Trip implements Referable, Fillable, Dto
         $this->track = $track;
     }
 
-    public function getSchedule(): Collection
+    public function getSchedule(): Seq
     {
         return $this->schedule;
     }
 
-    public function setSchedule($schedule = [])
+    public function setSchedule(iterable $schedule = []): void
     {
-        return $this->schedule = collect($schedule);
+        $this->schedule = new Seq($schedule);
     }
 
     public function getDestination(): ?Stop

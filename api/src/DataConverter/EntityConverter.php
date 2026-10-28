@@ -26,8 +26,9 @@ use App\Service\IdUtils;
 use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Proxy\Proxy;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
-use function collect;
 
 final class EntityConverter implements Converter, RecursiveConverter, CacheableConverter
 {
@@ -76,14 +77,14 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
                 'operator' => $convert($entity->getOperator()),
                 'night'    => $entity->isNight(),
                 'fast'     => $entity->isFast(),
-                'tracks'   => $this->collection($entity->getTracks())->map($convert),
+                'tracks'   => $this->collection($entity->getTracks()) |> c\map($convert),
             ]),
             $entity instanceof TrackEntity => $result->fill([
                 'variant'     => $entity->getVariant(),
                 'description' => $entity->getDescription(),
                 'stops'       => $this->collection($entity->getStopsInTrack())
-                    ->map(t\property('stop'))
-                    ->map($convert),
+                    |> c\map(t\property('stop'))
+                    |> c\map($convert),
                 'line'        => $convert($entity->getLine()),
                 'destination' => $convert($entity->getFinal()->getStop()),
             ]),
@@ -99,7 +100,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
             $entity instanceof TripEntity => $result->fill([
                 'variant'  => $entity->getVariant(),
                 'note'     => $entity->getNote(),
-                'schedule' => $this->collection($entity->getStops())->map($convert),
+                'schedule' => $this->collection($entity->getStops()) |> c\map($convert),
                 'track'    => $convert($entity->getTrack()),
             ]),
             default => $result,
@@ -120,13 +121,16 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         return $entity->getId();
     }
 
-    private function collection($collection)
+    /**
+     * Uninitialized collections are converted to an empty Seq, so lazy loading is never triggered.
+     */
+    private function collection(iterable $collection): Seq
     {
-        if (!$collection instanceof PersistentCollection || $collection->isInitialized()) {
-            return collect($collection);
+        if ($collection instanceof PersistentCollection && !$collection->isInitialized()) {
+            return new Seq();
         }
 
-        return collect();
+        return new Seq($collection);
     }
 
     private function getModelClassForEntity(Entity $entity)
