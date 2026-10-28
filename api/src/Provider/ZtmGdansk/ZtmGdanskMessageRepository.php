@@ -33,8 +33,9 @@ use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
 use Ds\Map;
+use Ds\Seq;
 use Ds\Set;
-use Illuminate\Support\Collection;
+use Kadet\Functional\Collections as c;
 use Psr\Cache\CacheItemPoolInterface;
 
 class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRepository
@@ -57,7 +58,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
     }
 
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
         $messagesFromApi = $this->getZtmMessages();
         $messages        = new Map();
@@ -78,7 +79,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
             }
         }
 
-        $messages = collect($messages->filter())->values();
+        $messages = $messages |> c\filter() |> c\values();
 
         $this->addLineRefsToMessages($messages);
 

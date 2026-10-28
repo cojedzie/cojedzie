@@ -27,6 +27,8 @@ use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
 use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 class DummyDepartureRepository implements DepartureRepository
 {
@@ -36,9 +38,9 @@ class DummyDepartureRepository implements DepartureRepository
     }
 
     #[\Override]
-    public function current(iterable $stops, Requirement ...$requirements)
+    public function current(iterable $stops, Requirement ...$requirements): Seq
     {
-        return collect([
+        return new Seq([
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
@@ -49,7 +51,7 @@ class DummyDepartureRepository implements DepartureRepository
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
             [1, Line::TYPE_TRAM, 'lorem ipsum', 2137],
-        ])->map(function ($departure) {
+        ]) |> c\map(function ($departure) {
             [$symbol, $type, $display, $vehicle] = $departure;
             $scheduled                           = new Carbon();
             $estimated                           = (clone $scheduled)->addSeconds(40);
@@ -63,6 +65,6 @@ class DummyDepartureRepository implements DepartureRepository
                     'type'                                     => $type,
                 ]),
             ]);
-        })->values();
+        });
     }
 }

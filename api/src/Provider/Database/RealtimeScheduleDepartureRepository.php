@@ -33,7 +33,8 @@ use App\Provider\DepartureRepository;
 use App\Provider\ScheduleRepository;
 use App\Utility\ModifierUtils;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
@@ -55,23 +56,22 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
     }
 
     #[\Override]
-    public function current(iterable $stops, Requirement ...$requirements)
+    public function current(iterable $stops, Requirement ...$requirements): Seq
     {
-        $real = collect($this->realtime->current($stops))
-            ->sortBy(t\property('estimated'))
-        ;
+        $real = $this->realtime->current($stops) |> c\sortBy(t\property('estimated'));
 
         $now = Carbon::instance($this->clock->now())->second(0);
         // timetable from now, or earlier when a live departure was scheduled before now (it is late)
-        $first     = $real->map(t\getter('scheduled'))->push($now)->min();
+        $first     = $real |> c\map(t\getter('scheduled')) |> c\append($now) |> c\min();
         $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractRequirements($requirements));
 
-        $result = $this->pair($scheduled, $real)->filter(fn (Departure $departure) => $departure->getDeparture() > $now);
+        $result = $this->pair($scheduled, $real)
+            |> c\filter(fn (Departure $departure) => $departure->getDeparture() > $now);
 
-        return $this->processResultWithRequirements($result, $requirements)->values();
+        return $this->processResultWithRequirements($result, $requirements);
     }
 
-    private function getScheduledDepartures($stop, Carbon $time, Requirement ...$requirements)
+    private function getScheduledDepartures($stop, Carbon $time, Requirement ...$requirements): Seq
     {
         return $this->schedule->all(
             new RelatedFilter($stop, Stop::class),
@@ -82,7 +82,13 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
         );
     }
 
-    protected function pair(Collection $schedule, Collection $real): Collection
+    /**
+     * @param Seq<ScheduledStop> $schedule
+     * @param Seq<Departure>     $real
+     *
+     * @return Seq<Departure>
+     */
+    protected function pair(Seq $schedule, Seq $real): Seq
     {
         $key = function ($departure) {
             if ($departure instanceof Departure) {
@@ -104,32 +110,29 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
             }
         };
 
-        $schedule = $schedule->keyBy($key)->all();
-        $real     = $real->keyBy($key);
+        // a new map, so taking the matched entries out of it leaves the given schedule untouched
+        $schedule = $schedule |> c\keyBy($key);
 
-        return $real->map(function (Departure $real, $key) use (&$schedule) {
-            $scheduled = null;
-
-            if (array_key_exists($key, $schedule)) {
-                $scheduled = $schedule[$key];
-                unset($schedule[$key]);
-            }
-
-            return [
+        $pairs = $real
+            |> c\keyBy($key)
+            |> c\map(fn (Departure $real, string $key) => [
                 'estimated' => $real,
-                'scheduled' => $scheduled,
-            ];
-        })->merge(
-            collect($schedule)->map(fn (ScheduledStop $scheduled) => [
+                'scheduled' => $schedule->remove($key, null),
+            ]);
+
+        $unmatched = $schedule
+            |> c\map(fn (ScheduledStop $scheduled) => [
                 'estimated' => null,
                 'scheduled' => $scheduled,
-            ])
-        )->map(
-            fn ($pair) => $this->merge($pair['estimated'], $pair['scheduled'])
-        )->sortBy(function (Departure $departure) {
-            $time = $departure->getEstimated() ?? $departure->getScheduled();
-            return $time->getTimestamp();
-        });
+            ]);
+
+        return $pairs
+            |> c\concat($unmatched)
+            |> c\map(fn (array $pair) => $this->merge($pair['estimated'], $pair['scheduled']))
+            |> c\sortBy(function (Departure $departure) {
+                $time = $departure->getEstimated() ?? $departure->getScheduled();
+                return $time->getTimestamp();
+            });
     }
 
     protected function merge(?Departure $real, ?ScheduledStop $scheduled): Departure
@@ -181,12 +184,12 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
         return $result;
     }
 
-    private function processResultWithRequirements(Collection $result, iterable $requirements)
+    private function processResultWithRequirements(Seq $result, iterable $requirements): Seq
     {
         foreach ($requirements as $modifier) {
             switch (true) {
                 case $modifier instanceof LimitConstraint:
-                    $result = $result->slice($modifier->getOffset(), $modifier->getCount());
+                    $result = $result |> c\slice($modifier->getOffset(), $modifier->getCount());
                     break;
             }
         }

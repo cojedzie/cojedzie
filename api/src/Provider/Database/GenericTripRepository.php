@@ -24,12 +24,12 @@ use App\Dto\Trip;
 use App\Entity\TripEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\TripRepository;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 class GenericTripRepository extends DatabaseRepository implements TripRepository
 {
     #[\Override]
-    public function all(Requirement ...$requirements): Collection
+    public function all(Requirement ...$requirements): Seq
     {
         $builder = $this->em
             ->createQueryBuilder()

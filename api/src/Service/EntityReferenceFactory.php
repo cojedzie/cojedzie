@@ -30,7 +30,8 @@ use App\Entity\StopEntity;
 use App\Entity\TrackEntity;
 use App\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
-use Illuminate\Support\Collection;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use function Kadet\Functional\partial;
 use function Kadet\Functional\ref;
 use const Kadet\Functional\_;
@@ -54,11 +55,11 @@ final class EntityReferenceFactory
         return match (true) {
             $object instanceof Referable  => $this->createEntityReference($object, $provider),
             is_array($object)             => array_map(partial(ref($this->createEntityReference(...)), _, $provider), $object),
-            $object instanceof Collection => $object->map(partial(ref($this->createEntityReference(...)), _, $provider)),
+            $object instanceof Seq        => $object |> c\map(fn (Referable $referable) => $this->createEntityReference($referable, $provider)),
             default                       => throw InvalidArgumentException::invalidType(
                 'object',
                 $object,
-                [Referable::class, Collection::class, 'array']
+                [Referable::class, Seq::class, 'array']
             ),
         };
     }

@@ -5,23 +5,19 @@ namespace App\Filter\Handler\InMemory;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\PostProcessingHandler;
 use App\Filter\Requirement\LimitConstraint;
-use Illuminate\Support\Collection;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 class LimitInMemoryHandler implements PostProcessingHandler
 {
     #[\Override]
     public function postProcess(PostProcessEvent $event)
     {
-        /** @var Collection $data */
+        /** @var Seq $data */
         $data = $event->getData();
         /** @var LimitConstraint $modifier */
         $modifier = $event->getRequirement();
 
-        $event->setData(
-            $data->slice(
-                offset: $modifier->getOffset(),
-                length: $modifier->getCount(),
-            )
-        );
+        $event->setData($data |> c\slice($modifier->getOffset(), $modifier->getCount()));
     }
 }
