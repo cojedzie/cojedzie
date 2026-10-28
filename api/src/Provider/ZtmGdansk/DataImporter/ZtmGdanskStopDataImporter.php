@@ -31,6 +31,7 @@ use App\Utility\IterableUtils;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ds\Set;
+use Psr\Clock\ClockInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
 {
@@ -39,6 +40,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
         private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils,
         private readonly ZtmGdanskConfig $config,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -105,7 +107,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
     private function getStopsFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream($this->config->stopsUrl, sprintf('%s.stops', date('Y-m-d'))) as $stop) {
+        foreach ($this->jsonStreamer->stream($this->config->stopsUrl, sprintf('%s.stops', $this->clock->now()->format('Y-m-d'))) as $stop) {
             // skip stops that are technical
             if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
                 continue;

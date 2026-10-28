@@ -26,6 +26,7 @@ use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 
 final class TrackStopsVariantsTest extends TestCase
 {
@@ -44,6 +45,7 @@ final class TrackStopsVariantsTest extends TestCase
             $ids,
             new JsonStreamer(),
             new ZtmGdanskConfig('', '', '', '', '', '', ''),
+            new MockClock(),
         );
         $records = \array_slice(TrackStopsVariants::decodedRecords(), 0, self::RECORD_COUNT);
 

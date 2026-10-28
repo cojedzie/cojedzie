@@ -32,6 +32,7 @@ use Carbon\Carbon;
 use Cerbero\JsonObjects\JsonObjectsException;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
+use Psr\Clock\ClockInterface;
 
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
@@ -42,6 +43,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         private readonly IdUtils $idUtils,
         private readonly JsonStreamer $jsonStreamer,
         private readonly ZtmGdanskConfig $config,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -106,7 +108,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             "%s?%s",
             $this->config->apiUrl . self::SCHEDULE_PATH,
             http_build_query([
-                'date'    => date('Y-m-d'),
+                'date'    => $this->clock->now()->format('Y-m-d'),
                 'routeId' => $this->idUtils->strip($lineId),
             ])
         );
