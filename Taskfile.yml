@@ -31,7 +31,14 @@ tasks:
 
   lint:
     deps:
+      - task: lint:api
       - task: lint:eslint
+
+  lint:api:
+    desc: Check API code style (ECS) and pending Rector changes, as CI does
+    cmds:
+      - docker compose run --rm -e APP_MODE=performance api vendor/bin/ecs check --no-progress-bar
+      - docker compose run --rm -e APP_MODE=performance -u {{.USER}} api vendor/bin/rector process --dry-run --no-progress-bar
 
   lint:eslint:
     desc: Lint frontend using ES Lint
@@ -114,9 +121,9 @@ tasks:
       - docker compose run --rm {{.FLAGS}} -u {{.USER}} api bin/console {{.CLI_ARGS}}
 
   composer:
-    desc: Execute command in the symfony console
+    desc: Run composer in the API container
     cmds:
-      - docker-compose run {{.FLAGS}} -u {{.USER}} -e HOME=/tmp api composer {{.CLI_ARGS}}
+      - docker compose run --rm {{.FLAGS}} -u {{.USER}} -e HOME=/tmp api composer {{.CLI_ARGS}}
 
   api:migrations:generate:
     desc: Generate migrations for all database engines
