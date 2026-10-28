@@ -11,9 +11,6 @@
             "config/packages/baldinof_road_runner.yaml"
         ]
     },
-    "cerbero/json-objects": {
-        "version": "v1.1.2"
-    },
     "dama/doctrine-test-bundle": {
         "version": "8.2",
         "recipe": {
@@ -274,9 +271,6 @@
     },
     "rector/rector": {
         "version": "0.12.16"
-    },
-    "salsify/json-streaming-parser": {
-        "version": "v8.1.0"
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"

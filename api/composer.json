@@ -9,7 +9,6 @@
     "ext-iconv": "*",
     "ext-json": "*",
     "baldinof/roadrunner-bundle": "^3.5",
-    "cerbero/json-objects": "^1.1",
     "doctrine/doctrine-bundle": "^3.3",
     "doctrine/doctrine-migrations-bundle": "^3.4",
     "doctrine/orm": "^3.7",
