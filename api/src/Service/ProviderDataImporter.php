@@ -24,17 +24,15 @@ use App\DataImport\DataImporter;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
-use App\Provider\Provider;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 
 class ProviderDataImporter implements DataImporter
 {
-    /**
-     * @param Provider[] $providers
-     */
     public function __construct(
         private readonly Connection $connection,
-        private readonly iterable $providers
+        private readonly ProviderResolver $providers,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -47,11 +45,12 @@ class ProviderDataImporter implements DataImporter
             ->executeQuery()
             ->fetchFirstColumn();
 
-        foreach ($this->providers as $provider) {
+        // the resolver serves the dummy provider only in debug
+        foreach ($this->providers->all() as $provider) {
             $data = [
                 'name'        => $provider->getName(),
                 'class'       => $provider::class,
-                'update_date' => date('Y-m-d H:i:s'),
+                'update_date' => $this->clock->now()->format('Y-m-d H:i:s'),
             ];
 
             $id = $provider->getIdentifier();
