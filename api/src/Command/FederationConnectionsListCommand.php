@@ -38,15 +38,7 @@ class FederationConnectionsListCommand extends Command implements CustomSentrySa
     public function __construct(
         private readonly EntityManagerInterface $manager
     ) {
-        parent::__construct(self::$defaultName);
-    }
-
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->setDescription(self::$defaultDescription)
-        ;
+        parent::__construct();
     }
 
     #[\Override]

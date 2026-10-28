@@ -34,21 +34,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Uid\Uuid;
 
-#[AsCommand(name: 'federation:check', description: 'Get list of all federated servers.')]
+#[AsCommand(name: 'federation:check', description: 'Check health of federated connections.')]
 class FederationCheckCommand extends Command implements CustomSentrySampleRateInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $manager,
         private readonly FederatedConnectionChecker $checker
     ) {
-        parent::__construct(self::$defaultName);
+        parent::__construct();
     }
 
     #[\Override]
     protected function configure(): void
     {
-        $this->setDescription(self::$defaultDescription);
-
         $this->addArgument('connection', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Connections to check');
         $this->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'Check even if before next check time');
     }

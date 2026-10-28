@@ -40,15 +40,7 @@ class FederationConnectCommand extends Command implements CustomSentrySampleRate
         private readonly FederationContext $federationContext,
         private readonly FederatedConnectionService $federatedConnectionService
     ) {
-        parent::__construct(self::$defaultName);
-    }
-
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->setDescription(self::$defaultDescription)
-        ;
+        parent::__construct();
     }
 
     #[\Override]
