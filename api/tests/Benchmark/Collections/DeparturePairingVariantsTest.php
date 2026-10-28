@@ -45,17 +45,18 @@ final class DeparturePairingVariantsTest extends TestCase
         $this->assertSame($materialized, $this->describe($variants->lazy($schedule, $real)));
     }
 
-    public function testMatchedDeparturesAreMerged(): void
+    /**
+     * @dataProvider sizes
+     */
+    public function testProductionPairMatchesMaterializedVariant(int $scheduled, int $realtime): void
     {
-        [$schedule, $real] = DeparturePairingVariants::fixture(32, 16);
+        $variants          = new DeparturePairingVariants();
+        [$schedule, $real] = DeparturePairingVariants::fixture($scheduled, $realtime);
 
-        $merged = array_filter(
-            new DeparturePairingVariants()->materialized($schedule, $real),
-            fn (Departure $departure) => $departure->getEstimated() !== null
-                && str_starts_with($departure->getDisplay(), 'Dest ')
+        $this->assertSame(
+            $this->describe($variants->production($schedule, $real)),
+            $this->describe($variants->materialized($schedule, $real))
         );
-
-        $this->assertCount((int) round(16 * 0.7), $merged);
     }
 
     /**

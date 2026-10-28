@@ -27,6 +27,7 @@ use App\Dto\Stop;
 use App\Dto\Track;
 use App\Provider\Database\RealtimeScheduleDepartureRepository;
 use Carbon\Carbon;
+use Ds\Seq;
 use Kadet\Functional\Collections as c;
 use Kadet\Functional\Collections\Lazy as lazy;
 
@@ -52,6 +53,17 @@ final class DeparturePairingVariants
             }
 
             /**
+             * @param Seq<ScheduledStop> $schedule
+             * @param Seq<Departure>     $real
+             *
+             * @return Seq<Departure>
+             */
+            public function pairPublic(Seq $schedule, Seq $real): Seq
+            {
+                return $this->pair($schedule, $real);
+            }
+
+            /**
              * @param array{estimated: ?Departure, scheduled: ?ScheduledStop} $pair
              */
             public function mergePair(array $pair): Departure
@@ -59,6 +71,19 @@ final class DeparturePairingVariants
                 return $this->merge($pair['estimated'], $pair['scheduled']);
             }
         };
+    }
+
+    /**
+     * The production pair(), to pin the copies in this class to it.
+     *
+     * @param iterable<ScheduledStop> $schedule
+     * @param iterable<Departure>     $real
+     *
+     * @return list<Departure>
+     */
+    public function production(iterable $schedule, iterable $real): array
+    {
+        return $this->repository->pairPublic(new Seq($schedule), new Seq($real))->toArray();
     }
 
     /**
