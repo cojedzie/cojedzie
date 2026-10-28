@@ -61,3 +61,19 @@ migration set: `migrations/sqlite`, `migrations/mysql`, `migrations/postgres`. D
 
 When changing entities, generate migrations for **all three** engines with `task api:migrations:generate`
 (requires the `postgres` and `mysql` compose services to be running, since it uses `docker compose exec`).
+
+The CI job `schema` runs each engine's migrations on an empty database (MariaDB 10.7 and Postgres 14 as service
+containers, SQLite in a file) and then `doctrine:schema:validate`, so a migration missing on one engine fails the
+build. Production runs on MySQL: its migrations must also apply to a database with data. Things learned bringing the
+three in line (2026-10-28, after DBAL 4 dropped the `DC2Type` column comments):
+
+- After generating, apply the migration and run `doctrine:schema:update --dump-sql` again; it must say nothing is
+  left. All three engines converge.
+- `messenger_messages` belongs to the Doctrine Messenger transport, which declares it to the schema
+  (`MessengerTransportDoctrineSchemaListener`) and also creates it on first use (`auto_setup`). Migrations create it
+  only when `$schema->hasTable()` says it is missing.
+- SQLite applies schema changes by rebuilding tables (copy to a temporary table, drop, recreate, copy back); the
+  rows survive, including `track.final_id`.
+- Postgres: the 2021 migrations used `SERIAL` for `track_stop.id` and `trip_stop.id`; DBAL 4 maps them to identity
+  columns. The switch drops the old sequence and moves the identity past the existing ids, or the next insert
+  collides. Postgres also lacked most foreign keys until then.
