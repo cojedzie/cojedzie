@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace App\Tests\Serialization;
 
 use App\Dto\Status\Endpoint;
+use App\Tests\Serialization\Fixture\GroupedValue;
 use App\Tests\Serialization\Fixture\SeqEndpoints;
 use Ds\Map;
 use Ds\Seq;
@@ -30,6 +31,7 @@ use Nelmio\ApiDocBundle\Model\Model;
 use Nelmio\ApiDocBundle\Model\ModelRegistry;
 use OpenApi\Annotations\OpenApi;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\TypeInfo\Type;
 
@@ -64,6 +66,23 @@ final class DsCollectionSerializationTest extends KernelTestCase
         );
     }
 
+    public function testMapOfDtosPassesSerializationGroupsToElements(): void
+    {
+        $map = new Map([
+            'x' => new GroupedValue('a', 'b'),
+        ]);
+
+        $this->assertJsonStringEqualsJsonString(
+            '{"x":{"name":"a"}}',
+            $this->serializer->serialize($map, 'json')
+        );
+
+        $this->assertJsonStringEqualsJsonString(
+            '{"x":{"name":"a","extra":"b"}}',
+            $this->serializer->serialize($map, 'json', [AbstractNormalizer::GROUPS => ['extra']])
+        );
+    }
+
     public function testDtoWithSeqPropertyRoundTrips(): void
     {
         $dto = new SeqEndpoints(new Seq([
@@ -84,8 +103,12 @@ final class DsCollectionSerializationTest extends KernelTestCase
         $json         = $this->serializer->serialize($dto, 'json');
         $deserialized = $this->serializer->deserialize($json, SeqEndpoints::class, 'json');
 
+        // assertEquals() can't see inside a Seq (ext-ds objects have no properties), so compare the elements.
         $this->assertInstanceOf(Seq::class, $deserialized->getEndpoints());
-        $this->assertEquals($dto, $deserialized);
+        $this->assertContainsOnlyInstancesOf(Endpoint::class, $deserialized->getEndpoints());
+        $this->assertEquals($dto->getEndpoints()->toArray(), $deserialized->getEndpoints()->toArray());
+        $this->assertSame('b', $deserialized->getEndpoints()->toArray()[1]->getName());
+        $this->assertSame(['GET', 'POST'], $deserialized->getEndpoints()->toArray()[1]->getMethods());
     }
 
     public function testDescriberDocumentsSeqLikeCollection(): void
