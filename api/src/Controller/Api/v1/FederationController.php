@@ -22,6 +22,7 @@ namespace App\Controller\Api\v1;
 
 use App\Controller\Controller;
 use App\Entity\Federation\FederatedConnectionEntity;
+use App\Entity\Federation\FederatedServerEntity;
 use App\Exception\InvalidFormException;
 use App\Form\CreateFederatedConnectionCommandType;
 use App\Message\CheckFederatedConnection;
@@ -39,6 +40,7 @@ use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 /**
  * Controller used for managing resources related to the federation feature.
@@ -47,9 +49,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[OA\Tag(name: 'Federation')]
 class FederationController extends Controller
 {
-    // fixme: add access control
     /**
-     * Create new connection under some server.
+     * Create new connection for the authenticated server.
      */
     #[Route(
         path: '/connections',
@@ -61,12 +62,17 @@ class FederationController extends Controller
         ]
     )]
     #[OA\RequestBody(content: new OA\JsonContent(ref: new Model(type: CreateFederatedConnectionCommandType::class)))]
-    public function connect(Request $request, EntityManagerInterface $manager, MessageBusInterface $bus): JsonResponse
-    {
-        $form = $this->createForm(
-            CreateFederatedConnectionCommandType::class,
-            new FederatedConnectionEntity()
-        );
+    public function connect(
+        #[CurrentUser]
+        FederatedServerEntity $server,
+        Request $request,
+        EntityManagerInterface $manager,
+        MessageBusInterface $bus
+    ): JsonResponse {
+        $connection = new FederatedConnectionEntity();
+        $connection->setServer($server);
+
+        $form = $this->createForm(CreateFederatedConnectionCommandType::class, $connection);
 
         $form->submit($request->request->all(), false);
 
@@ -78,8 +84,6 @@ class FederationController extends Controller
             throw new InvalidFormException($form);
         }
 
-        /** @var FederatedConnectionEntity $connection */
-        $connection = $form->getData();
         $connection->setOpenedAt(Carbon::now());
         // Give this connection some time to get initialized
         $connection->setNextCheck(Carbon::now()->addSeconds(10));

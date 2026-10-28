@@ -35,6 +35,11 @@ final class ApiClient
 {
     private ?Response $response = null;
 
+    /**
+     * @var array{string, string}|null HTTP Basic credentials sent with every following request
+     */
+    private ?array $credentials = null;
+
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly EntityManagerInterface $em,
@@ -46,12 +51,30 @@ final class ApiClient
         return $this->request(Request::METHOD_GET, $uri, $query);
     }
 
-    public function request(string $method, string $uri, array $query = []): Response
+    public function authenticate(?string $user, ?string $password): void
+    {
+        $this->credentials = $user === null ? null : [$user, (string) $password];
+    }
+
+    /**
+     * @param array<string, string> $headers
+     */
+    public function request(string $method, string $uri, array $query = [], ?string $body = null, array $headers = []): Response
     {
         // a real request starts with an empty identity map, so relations its query doesn't fetch stay lazy
         $this->em->clear();
 
-        $request = Request::create($uri, $method, $query);
+        $server = $body === null ? [] : ['CONTENT_TYPE' => 'application/json'];
+        if ($this->credentials !== null) {
+            $server['HTTP_AUTHORIZATION'] = 'Basic ' . base64_encode(implode(':', $this->credentials));
+        }
+
+        // headers go through the server bag, as PHP passes them, so derived ones (PHP_AUTH_USER, ...) get parsed
+        foreach ($headers as $name => $value) {
+            $server['HTTP_' . strtoupper(str_replace('-', '_', $name))] = $value;
+        }
+
+        $request = Request::create($uri, $method, $query, server: $server, content: $body);
         $request->headers->set('Accept', 'application/json');
 
         return $this->response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, catch: true);
