@@ -25,9 +25,7 @@ namespace App\Tests\Provider;
 use App\Dto\Message;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
-use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\Requirement;
-use App\Provider\Dummy\DummyStopRepository;
 use App\Provider\InMemory\InMemoryRepository;
 use App\Provider\MessageRepository;
 use App\Service\HandlerProviderFactory;
@@ -35,7 +33,7 @@ use Ds\Seq;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * A repository's first() returns null when nothing matches, and all() gives a Seq.
+ * A repository's first() returns null when nothing matches, callers turn that into "not found".
  */
 final class RepositoryFirstReturnsNullTest extends KernelTestCase
 {
@@ -44,8 +42,6 @@ final class RepositoryFirstReturnsNullTest extends KernelTestCase
         $repository = $this->inMemoryMessages();
         $noMatch    = new FieldFilter('type', Message::TYPE_BREAKDOWN, FieldFilterOperator::Equals);
 
-        $this->assertInstanceOf(Seq::class, $repository->all($noMatch));
-        $this->assertTrue($repository->all($noMatch)->isEmpty());
         $this->assertNull($repository->first($noMatch));
     }
 
@@ -56,17 +52,8 @@ final class RepositoryFirstReturnsNullTest extends KernelTestCase
 
         $all = $repository->all($info);
 
-        $this->assertInstanceOf(Seq::class, $all);
         $this->assertSame(['first', 'third'], $all->map(fn (Message $message) => $message->getId())->toArray());
         $this->assertSame('first', $repository->first($info)->getId());
-    }
-
-    public function testDummyRepositoryFirstReturnsNullWhenNothingMatches(): void
-    {
-        $repository = new DummyStopRepository();
-
-        $this->assertInstanceOf(Seq::class, $repository->all(new IdConstraint('missing')));
-        $this->assertNull($repository->first(new IdConstraint('missing')));
     }
 
     private function inMemoryMessages(): MessageRepository

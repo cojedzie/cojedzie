@@ -20,7 +20,11 @@
 
 namespace App\Tests\Benchmark\Collections;
 
+use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskTrackDataImporter;
+use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Service\IdUtils;
+use App\Service\JsonStreamer;
+use Doctrine\DBAL\Connection;
 use Kadet\Functional\Collections as c;
 use PHPUnit\Framework\TestCase;
 
@@ -41,6 +45,28 @@ final class TrackStopsVariantsTest extends TestCase
         $rows = array_sum(array_map(count(...), $this->materialize('current')));
 
         $this->assertLessThan(self::RECORD_COUNT, $rows);
+    }
+
+    public function testImporterMatchesMaterializedVariant(): void
+    {
+        $ids      = new IdUtils();
+        $importer = new ZtmGdanskTrackDataImporter(
+            $this->createStub(Connection::class),
+            $ids,
+            new JsonStreamer(),
+            new ZtmGdanskConfig('', '', '', '', '', '', ''),
+        );
+        $records = \array_slice(TrackStopsVariants::decodedRecords(), 0, self::RECORD_COUNT);
+
+        $step = new \ReflectionMethod($importer, 'groupTrackStops');
+
+        $result = [];
+        foreach ($step->invoke($importer, $records, TrackStopsVariants::existingStopIds($ids)) as $trackId => $rows) {
+            $result[$trackId] = iterator_to_array($rows);
+        }
+
+        $this->assertNotEmpty($result);
+        $this->assertSame($this->materialize('materialized'), $result);
     }
 
     /**
