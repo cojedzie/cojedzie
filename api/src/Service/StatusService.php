@@ -25,7 +25,9 @@ use App\Dto\Status\Endpoint;
 use App\Dto\Status\Time;
 use App\Dto\Status\Version;
 use Carbon\Carbon;
+use Ds\Seq;
 use Illuminate\Support\Collection;
+use Kadet\Functional\Collections as c;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -48,26 +50,27 @@ class StatusService
     {
         return new Aggregated(
             time: $this->getTimeStatus(),
-            endpoints: $this->getEndpointsStatus(),
+            // Aggregated still holds an Illuminate collection until its property becomes a Seq.
+            endpoints: collect($this->getEndpointsStatus()->toArray()),
             version: $this->getVersionStatus(),
         );
     }
 
-    public function getEndpointsStatus(): Collection
+    /**
+     * @return Seq<Endpoint>
+     */
+    public function getEndpointsStatus(): Seq
     {
-        $routes = collect($this->router->getRouteCollection()->all());
-
-        return $routes
-            ->filter(fn (Route $route) => $route->getOption('version'))
-            ->filter(fn (Route $route) => $route->getMethods())
-            ->map(fn (Route $route, $name) => Endpoint::createFromArray([
+        return $this->router->getRouteCollection()->all()
+            |> c\filter(fn (Route $route) => $route->getOption('version'))
+            |> c\filter(fn (Route $route) => $route->getMethods())
+            |> c\map(fn (Route $route, string $name) => Endpoint::createFromArray([
                 'name'     => $name,
                 'version'  => $route->getOption('version') ?: '1.0',
                 'methods'  => $route->getMethods(),
                 'template' => $route->getPath(),
             ]))
-            ->values()
-        ;
+            |> c\toSeq();
     }
 
     public function getTimeStatus()

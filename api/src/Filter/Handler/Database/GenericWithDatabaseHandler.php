@@ -31,6 +31,7 @@ use App\Filter\Requirement\RelatedFilter;
 use App\Service\EntityReferenceFactory;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
+use Kadet\Functional\Collections as c;
 use function Kadet\Functional\Transforms\property;
 
 class GenericWithDatabaseHandler implements ModifierHandler
@@ -82,9 +83,9 @@ class GenericWithDatabaseHandler implements ModifierHandler
         $relationship = $this->mapping[$type][$modifier->getRelationship()];
 
         foreach ($this->getRelationships($relationship, $alias) as [$relationshipPath, $relationshipAlias]) {
-            $selected = collect($builder->getDQLPart('select'))->flatMap(property('parts'));
+            $selected = $builder->getDQLPart('select') |> c\flatMap(property('parts'));
 
-            if ($selected->contains($relationshipAlias)) {
+            if ($selected |> c\contains($relationshipAlias)) {
                 continue;
             }
 

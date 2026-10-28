@@ -27,7 +27,7 @@ use App\Dto\Federation\Node;
 use App\Repository\FederatedConnectionEntityRepository;
 use App\Service\ApiResponseFactory;
 use App\Service\StatusService;
-use Kadet\Functional as f;
+use Kadet\Functional\Collections as c;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,10 +64,10 @@ class NetworkController extends Controller
     ): Response {
         $discovery->addLink($request);
 
-        $nodes = collect($connectionRepository->findAllReadyConnections())
-            ->map(f\partial(f\ref($converter->convert(...)), f\_, Dto::class))
-            ->prepend($this->getSelfNode())
-        ;
+        $nodes = $connectionRepository->findAllReadyConnections()
+            |> c\map(fn ($connection) => $converter->convert($connection, Dto::class))
+            |> c\prepend($this->getSelfNode())
+            |> c\toSeq();
 
         $response = $this->json($nodes);
         $response->headers->setCookie(
@@ -92,7 +92,8 @@ class NetworkController extends Controller
 
         return Node::createFromArray([
             'id'        => new NilUuid(),
-            'endpoints' => $this->status->getEndpointsStatus(),
+            // Node still holds an Illuminate collection until its property becomes a Seq.
+            'endpoints' => collect($this->status->getEndpointsStatus()->toArray()),
             'url'       => $baseUrl,
             'type'      => Node::TYPE_HUB,
         ]);

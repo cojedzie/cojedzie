@@ -20,15 +20,15 @@
 
 namespace App\Utility;
 
+use Kadet\Functional\Collections as c;
 use Kadet\Functional\Predicate;
-use function collect;
 use function Kadet\Functional\Predicates\instance;
 
 final class ModifierUtils
 {
     public static function get(iterable $requirements, Predicate $predicate)
     {
-        return collect($requirements)->first($predicate);
+        return $requirements |> c\first($predicate);
     }
 
     public static function getOfType(iterable $requirements, $class)
@@ -38,11 +38,11 @@ final class ModifierUtils
 
     public static function hasAny(iterable $requirements, Predicate $predicate)
     {
-        return collect($requirements)->contains($predicate);
+        return $requirements |> c\any($predicate);
     }
 
     public static function hasAnyOfType(iterable $requirements, $class)
     {
-        return collect($requirements)->contains(instance($class));
+        return $requirements |> c\any(instance($class));
     }
 }
