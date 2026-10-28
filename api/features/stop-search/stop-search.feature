@@ -20,6 +20,17 @@ Feature: Stop search
       | Brama Oliwska | brama-oliwska-01                   |
       | Brama Wyżynna | brama-wyzynna-01, brama-wyzynna-02 |
 
+  Scenario: Groups are listed by name
+    Given there are stops:
+      | id   | name             | variant |
+      | 1010 | Wrzeszcz PKM     | 01      |
+      | 2020 | Wrzeszcz Kościół | 01      |
+    When I search for stops named "Wrzeszcz"
+    Then I should see stop groups:
+      | name             | stops |
+      | Wrzeszcz Kościół | 2020  |
+      | Wrzeszcz PKM     | 1010  |
+
   Scenario Outline: Search ignores letter case
     When I search for stops named "<term>"
     Then I should see stop groups:

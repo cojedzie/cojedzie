@@ -38,6 +38,9 @@ class GenericStopRepository extends DatabaseRepository implements StopRepository
             ->createQueryBuilder()
             ->from(StopEntity::class, 'stop')
             ->select('stop')
+            // without an explicit order databases differ (Postgres returns insertion order), so groups and pages would too
+            ->orderBy('stop.name', 'ASC')
+            ->addOrderBy('stop.id', 'ASC')
         ;
 
         return $this->allFromQueryBuilder($builder, $requirements, [
