@@ -72,6 +72,76 @@ final class DataUpdaterTest extends KernelTestCase
         }
     }
 
+    public function testMemoryInUseAboveThePreviousLimitIsNotAnError(): void
+    {
+        self::bootKernel();
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->getConnection()->beginTransaction();
+
+        $limit = ini_get('memory_limit');
+        ini_set('memory_limit', (string) (memory_get_usage(true) + (32 << 20)));
+
+        // keeps 64 MB in use after the import, more than the limit before it allowed
+        $hoarder = new class() extends RecordingImporter {
+            public string $data = '';
+
+            public function __construct()
+            {
+                parent::__construct('hoarder', [], new \ArrayObject());
+            }
+
+            #[\Override]
+            public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
+            {
+                $this->data = str_repeat('x', 64 << 20);
+            }
+        };
+
+        $errors = [];
+        set_error_handler(function (int $level, string $message) use (&$errors) {
+            $errors[] = $message;
+
+            return true;
+        });
+
+        try {
+            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$hoarder])->update();
+
+            $this->assertSame([], $errors);
+        } finally {
+            restore_error_handler();
+            $hoarder->data = '';
+            ini_set('memory_limit', $limit);
+            $em->getConnection()->rollBack();
+        }
+    }
+
+    public function testImportersDependingOnSeveralReadyOnesRun(): void
+    {
+        self::bootKernel();
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->getConnection()->beginTransaction();
+
+        try {
+            $log      = new \ArrayObject();
+            $provider = $this->importer('provider', [], $log);
+            $stops    = $this->importer('stops', [$provider::class], $log);
+            $lines    = $this->importer('lines', [$provider::class], $log);
+            $tracks   = $this->importer('tracks', [$stops::class, $lines::class], $log);
+
+            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$tracks, $lines, $stops, $provider])->update();
+
+            $order = array_column($log->getArrayCopy(), 0);
+            $this->assertSame('provider', $order[0]);
+            $this->assertSame('tracks', $order[3]);
+            $this->assertEqualsCanonicalizing(['stops', 'lines'], [$order[1], $order[2]]);
+        } finally {
+            $em->getConnection()->rollBack();
+        }
+    }
+
     public function testUnresolvableDependenciesFail(): void
     {
         self::bootKernel();
@@ -80,12 +150,19 @@ final class DataUpdaterTest extends KernelTestCase
         $em->getConnection()->beginTransaction();
 
         try {
-            $stops = $this->importer('stops', ['App\\NoSuchImporter'], new \ArrayObject());
+            $log   = new \ArrayObject();
+            $lines = $this->importer('lines', [], $log);
+            $stops = $this->importer('stops', ['App\\NoSuchImporter'], $log);
 
-            $this->expectException(\LogicException::class);
-            $this->expectExceptionMessage($stops::class);
+            try {
+                new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$lines, $stops])->update();
+                $this->fail('The update should have failed.');
+            } catch (\LogicException $exception) {
+                $this->assertStringContainsString($stops::class, $exception->getMessage());
+            }
 
-            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [$stops])->update();
+            // the order is resolved before any importer runs
+            $this->assertSame([], $log->getArrayCopy());
         } finally {
             $em->getConnection()->rollBack();
         }
@@ -95,8 +172,10 @@ final class DataUpdaterTest extends KernelTestCase
     {
         // each anonymous class declaration is a distinct class, dependencies are given by class name
         return match ($name) {
-            'lines' => new class($name, $dependencies, $log) extends RecordingImporter {},
-            'stops' => new class($name, $dependencies, $log) extends RecordingImporter {},
+            'provider' => new class($name, $dependencies, $log) extends RecordingImporter {},
+            'lines'    => new class($name, $dependencies, $log) extends RecordingImporter {},
+            'stops'    => new class($name, $dependencies, $log) extends RecordingImporter {},
+            'tracks'   => new class($name, $dependencies, $log) extends RecordingImporter {},
         };
     }
 }
