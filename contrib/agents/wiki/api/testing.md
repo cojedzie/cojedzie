@@ -28,7 +28,7 @@ see `features/contract/nested-references.feature`) never happen in tests.
 | `api/features/contract/` | HTTP-level scenarios: status codes, response fields, parameter errors. |
 | `api/tests/Behat/Context/` | Step definitions (attributes). Contexts never use each other. |
 | `api/tests/Behat/Support/` | Shared per-scenario services: `ApiClient`, `TestData`, `FrozenTime`, the fake provider. |
-| `api/config/services_test.yaml` | Test-only services: everything in `tests/Behat`, `TestProvider` tag, `MockClock` as `clock`. |
+| `api/config/services_test.yaml` | Test-only services: everything in `tests/Behat`, `TestProvider` tag, `MockClock` as `clock`, a Mercure `MockHub` that discards updates. |
 
 ## The fake `test` provider
 
@@ -57,6 +57,11 @@ see `features/contract/nested-references.feature`) never happen in tests.
   tables are `HH:MM` in that zone, taken as the nearest such moment around now, so `00:05` at 23:55 is the next
   day.
 - Empty cell = `null` (estimate, delay). Delay is in seconds.
+- Contract scenarios send other requests with `When I send a "POST" request to "<path>" with body:` (a JSON
+  PyString), `... with header "<name>": "<value>"` or without either. `Given I authenticate as "<user>" with
+  password "<password>"` adds HTTP Basic credentials to every following request of the scenario.
+- Federation: `Given a federated server "<uuid>" allowed at "<url>" with secret "<secret>"` and
+  `Given the server "<uuid>" has an open connection "<uuid>" at "<url>"`. Doctrine fixtures are never loaded.
 - Gherkin trims table cells, so leading or trailing spaces in a cell never reach a step. Put such values in a
   step string or URL-encode them in a path (`stops?name=%20Oliwa%20`).
 - Assertions compare whole tables in order and print the actual JSON on failure (Behat 4 doesn't show PHPUnit
@@ -73,6 +78,9 @@ see `features/contract/nested-references.feature`) never happen in tests.
 - Malformed `limit`/`offset` (not a non-negative integer), unknown filter operators (`name:bogus`) and departures
   without any `stop` → 400. `limit` above the maximum is clamped; `limit=0` → empty list.
 - Unknown and repeated stop ids in `stop[]` are ignored.
+- Federation endpoints: no or wrong credentials → 401 with `WWW-Authenticate: Basic realm="Co Jedzie federation"`;
+  a URL outside the server's registered prefix or another server's connection → 403; a missing or non-http(s)
+  URL → 400.
 - Name filters ignore case including Polish letters (SQLite gets a Unicode `LOWER()` from
   `App\Doctrine\SqliteUnicodeMiddleware`), match `%`/`_` literally (`ESCAPE '!'`) and trim the value.
 - Stop groups come back ordered by stop id.
