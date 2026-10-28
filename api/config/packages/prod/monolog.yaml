@@ -4,11 +4,15 @@ monolog:
             type: sentry
             level: !php/const Monolog\Logger::ERROR
             hub_id: Sentry\State\HubInterface
-        sentry_logs:
+        sentry_logs_app:
             type: service
-            id: Sentry\SentryBundle\Monolog\LogsHandler
-            # deprecations are logged at info level on every request
-            channels: ["!php", "!deprecation"]
+            id: app.sentry_logs.info
+            channels: ["app", "import"]
+        sentry_logs_other:
+            type: service
+            id: app.sentry_logs.warning
+            # php errors reach Sentry as issues through the sentry handler, deprecations go to their own log
+            channels: ["!app", "!import", "!php", "!deprecation"]
         main:
             type: fingers_crossed
             action_level: error

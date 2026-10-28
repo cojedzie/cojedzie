@@ -25,7 +25,13 @@ when@prod:
         - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
 
   services:
-    # minimum level of logs sent to Sentry Logs, see the sentry_logs handler in prod/monolog.yaml
-    Sentry\SentryBundle\Monolog\LogsHandler:
+    # Sentry Logs handlers, see sentry_logs_* in prod/monolog.yaml: info from our own channels, warnings and
+    # above from the rest (framework channels log every request and message at info, tracing covers those)
+    app.sentry_logs.info:
+      class: Sentry\SentryBundle\Monolog\LogsHandler
       arguments:
         - !php/const Monolog\Logger::INFO
+    app.sentry_logs.warning:
+      class: Sentry\SentryBundle\Monolog\LogsHandler
+      arguments:
+        - !php/const Monolog\Logger::WARNING

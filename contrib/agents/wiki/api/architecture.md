@@ -90,9 +90,11 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   `collectKernelResponseData`, which makes every request 500.
 - Sentry (prod only, `config/packages/sentry.yaml`): `App\Service\SentrySampler` samples traces at
   `SENTRY_SAMPLE_RATE`, scaled by a route's `sentry_sample_rate` option or a message's/command's
-  `CustomSentrySampleRateInterface`. Logs from `info` up go to Sentry Logs (`sentry_logs` handler in
-  `prod/monolog.yaml`, deprecations excluded). `UpdateDataSourcesMessageHandler` sends check-ins to the
-  `update-data-sources` cron monitor, its schedule is `DefaultScheduleProvider::UPDATE_SCHEDULE`.
+  `CustomSentrySampleRateInterface`. Sentry Logs get `info` and up from our channels (`app`, `import`) and
+  `warning` and up from the rest (`sentry_logs_*` handlers in `prod/monolog.yaml`, `php` and `deprecation`
+  excluded): framework channels log every request ("Matched route") and message at `info`, which tracing
+  already covers. Add a channel to `sentry_logs_app` to get its `info` logs. `UpdateDataSourcesMessageHandler`
+  sends check-ins to the `update-data-sources` cron monitor, its schedule is `DefaultScheduleProvider::UPDATE_SCHEDULE`.
 - Mercure hub config pins `protocol_version: '0.x'` (mercure-bundle 0.6 defaults to 1.0). HMAC JWT secrets must be
   at least 256 bits; the dev `!ChangeMe!` secret makes `/api/v1/network/nodes` fail when it creates the cookie.
 - The serializer decorator `App\Serialization\Serializer` must implement every interface of Symfony's
