@@ -26,14 +26,21 @@ use App\Dto\Referable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 #[ORM\Table('federated_server')]
-class FederatedServerEntity implements Referable, Fillable
+/**
+ * Signs in to the hub's federation endpoints with its id and secret.
+ */
+class FederatedServerEntity implements Referable, Fillable, UserInterface, PasswordAuthenticatedUserInterface
 {
+    final public const string ROLE = 'ROLE_FEDERATED_SERVER';
+
     use FillTrait;
 
     /**
@@ -135,5 +142,26 @@ class FederatedServerEntity implements Referable, Fillable
     public function setSecret(string $secret): void
     {
         $this->secret = $secret;
+    }
+
+    #[\Override]
+    #[Ignore]
+    public function getUserIdentifier(): string
+    {
+        return $this->id->toRfc4122();
+    }
+
+    #[\Override]
+    #[Ignore]
+    public function getRoles(): array
+    {
+        return [self::ROLE];
+    }
+
+    #[\Override]
+    #[Ignore]
+    public function getPassword(): string
+    {
+        return $this->secret;
     }
 }

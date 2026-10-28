@@ -41,6 +41,7 @@
     "symfony/redis-messenger": "8.1.*",
     "symfony/runtime": "8.1.*",
     "symfony/scheduler": "8.1.*",
+    "symfony/security-bundle": "8.1.*",
     "symfony/serializer": "8.1.*",
     "symfony/twig-bundle": "^8.1",
     "symfony/uid": "8.1.*",

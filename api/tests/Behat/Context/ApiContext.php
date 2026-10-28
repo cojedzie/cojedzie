@@ -24,7 +24,10 @@ namespace App\Tests\Behat\Context;
 
 use App\Tests\Behat\Support\ApiClient;
 use Behat\Behat\Context\Context;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\BeforeScenario;
+use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use PHPUnit\Framework\Assert;
@@ -37,6 +40,36 @@ final readonly class ApiContext implements Context
     public function __construct(
         private ApiClient $client,
     ) {
+    }
+
+    #[BeforeScenario]
+    public function forgetCredentials(): void
+    {
+        $this->client->authenticate(null, null);
+    }
+
+    #[Given('I authenticate as :user with password :password')]
+    public function iAuthenticateAs(string $user, string $password): void
+    {
+        $this->client->authenticate($user, $password);
+    }
+
+    #[When('I send a :method request to :path')]
+    public function iSendARequestTo(string $method, string $path): void
+    {
+        $this->client->request($method, $path);
+    }
+
+    #[When('I send a :method request to :path with body:')]
+    public function iSendARequestToWithBody(string $method, string $path, PyStringNode $body): void
+    {
+        $this->client->request($method, $path, body: $body->getRaw());
+    }
+
+    #[When('I send a :method request to :path with header :name: :value')]
+    public function iSendARequestToWithHeader(string $method, string $path, string $name, string $value): void
+    {
+        $this->client->request($method, $path, headers: [$name => $value]);
     }
 
     #[When('I request :path')]
@@ -67,6 +100,20 @@ final readonly class ApiContext implements Context
         $response = $this->client->lastResponse();
 
         Assert::assertSame($code, $response->getStatusCode(), mb_substr((string) $response->getContent(), 0, 300));
+    }
+
+    #[Then('the response header :name should be :value')]
+    public function theResponseHeaderShouldBe(string $name, string $value): void
+    {
+        Assert::assertSame($value, $this->client->lastResponse()->headers->get($name));
+    }
+
+    #[Then('the response\'s :field should be :value')]
+    public function theResponsesFieldShouldBe(string $field, string $value): void
+    {
+        $actual = $this->client->json()[$field] ?? null;
+
+        Assert::assertSame($value, is_scalar($actual) ? (string) $actual : json_encode($actual), sprintf('"%s" differs.', $field));
     }
 
     #[Then('the response should be a JSON list of :count items')]
