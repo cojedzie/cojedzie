@@ -48,6 +48,7 @@ Before working on a task, read the page(s) matching its topic. Pages are split i
 | API controllers, providers, request flow (overview) | `contrib/agents/wiki/api/architecture.md` |
 | Query parameters, requirements, bindings, filter handlers, embeds | `contrib/agents/wiki/api/filtering.md` |
 | DTOs, entities, ids, converters, serialization groups | `contrib/agents/wiki/api/dto-and-entities.md` |
+| Collections, kadet/functional, php-ds | `contrib/agents/wiki/api/collections.md` |
 | `app:update`, importers, entities, migrations | `contrib/agents/wiki/api/data-import.md` |
 | Federated nodes, hub, endpoint versions | `contrib/agents/wiki/api/federation.md` |
 | API tests, Behat scenarios, fake test provider | `contrib/agents/wiki/api/testing.md` |

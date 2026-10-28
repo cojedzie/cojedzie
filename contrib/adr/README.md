@@ -40,6 +40,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0003](0003-malformed-request-parameters-are-bad-requests.md) | Malformed request parameters are rejected with 400 | Accepted |
 | [0004](0004-upstream-data-addresses-are-configuration.md) | Upstream data addresses are configuration | Accepted |
 | [0005](0005-releases-are-made-by-ci-from-tags.md) | Releases are made by CI from tags | Accepted |
+| [0006](0006-collections-are-php-ds-values-with-kadet-functional-pipelines.md) | Collections are php-ds values with kadet/functional pipelines | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
