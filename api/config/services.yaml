@@ -104,10 +104,6 @@ services:
     arguments:
       $importers: !tagged_iterator app.data_importer
 
-  App\Service\ProviderDataImporter:
-    arguments:
-      $providers: !tagged_iterator app.provider
-
   App\Service\SentrySampler:
     arguments:
       $sampleRate: '%env(float:SENTRY_SAMPLE_RATE)%'
