@@ -20,10 +20,14 @@
 
 namespace App\Provider;
 
+use App\Dto\TrackStop;
 use App\Filter\Requirement\Requirement;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 interface TrackRepository extends FluentRepository
 {
-    public function stops(Requirement ...$requirements): Collection;
+    /**
+     * @return Seq<TrackStop>
+     */
+    public function stops(Requirement ...$requirements): Seq;
 }

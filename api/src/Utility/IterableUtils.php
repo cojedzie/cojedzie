@@ -21,8 +21,6 @@
 namespace App\Utility;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Illuminate\Support\Collection;
-use function collect;
 
 final class IterableUtils
 {
@@ -40,11 +38,6 @@ final class IterableUtils
         return new ArrayCollection(
             IterableUtils::toArray($iterable)
         );
-    }
-
-    public static function toCollection(iterable $iterable): Collection
-    {
-        return collect($iterable);
     }
 
     public static function batch(iterable $iterable, int $size): \Generator

@@ -29,11 +29,11 @@ use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Service\Proxy\ReferenceFactory;
-use App\Utility\IterableUtils;
 use Carbon\Carbon;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
-use function Kadet\Functional\ref;
 
 /**
  * Live departures of the given stops from ZTM Gdańsk's TRISTAR departures API: estimates for vehicles on the way,
@@ -52,32 +52,33 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
     }
 
     #[\Override]
-    public function current(iterable $stops, Requirement ...$requirements)
+    public function current(iterable $stops, Requirement ...$requirements): Seq
     {
-        return IterableUtils::toCollection($stops)
-            ->flatMap(ref($this->getRealDepartures(...)))
-            ->values();
+        return $stops |> c\toSeq() |> c\flatMap($this->getRealDepartures(...));
     }
 
-    private function getRealDepartures(Stop $stop)
+    /**
+     * @return Seq<Departure>
+     */
+    private function getRealDepartures(Stop $stop): Seq
     {
         // without the API (unreachable or answering garbage) the timetable is shown on its own
         $response = @file_get_contents($this->config->apiUrl . self::DEPARTURES_PATH . "?stopId=" . $stop->getId());
         if ($response === false) {
-            return collect();
+            return new Seq();
         }
 
         try {
-            $departures = collect(json_decode($response, true, 512, JSON_THROW_ON_ERROR)['departures'] ?? []);
+            $departures = new Seq(json_decode($response, true, 512, JSON_THROW_ON_ERROR)['departures'] ?? []);
         } catch (\JsonException) {
-            return collect();
+            return new Seq();
         }
 
         $lines = $this->lines
-            ->all(new IdConstraint($departures->map(fn ($departure) => (string) $departure['routeId'])->unique()))
-            ->keyBy(t\property('id'));
+            ->all(new IdConstraint($departures |> c\map(fn (array $departure) => (string) $departure['routeId']) |> c\unique()))
+            |> c\keyBy(t\property('id'));
 
-        return $departures->map(function (array $departure) use ($stop, $lines) {
+        return $departures |> c\map(function (array $departure) use ($stop, $lines) {
             $scheduled = new Carbon($departure['theoreticalTime'])->tz('UTC');
             // entries the API knows only from its own timetable carry no estimate
             $realtime = ($departure['status'] ?? null) === 'REALTIME' && $departure['delayInSeconds'] !== null;
@@ -91,12 +92,12 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
                 'vehicle'   => $departure['vehicleCode'] !== null
                     ? $this->reference->get(Vehicle::class, $departure['vehicleCode'])
                     : null,
-                'line'      => $lines->get((string) $departure['routeId']) ?: Line::createFromArray([
+                'line'      => $lines->get((string) $departure['routeId'], null) ?: Line::createFromArray([
                     'id'     => (string) $departure['routeId'],
                     'symbol' => (string) ($departure['routeShortName'] ?? $departure['routeId']),
                     'type'   => Line::TYPE_UNKNOWN,
                 ]),
             ]);
-        })->values();
+        });
     }
 }

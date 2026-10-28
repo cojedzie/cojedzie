@@ -20,9 +20,14 @@
 
 namespace App\Provider;
 
+use App\Dto\Departure;
 use App\Filter\Requirement\Requirement;
+use Ds\Seq;
 
 interface DepartureRepository extends Repository
 {
-    public function current(iterable $stops, Requirement ...$requirements);
+    /**
+     * @return Seq<Departure>
+     */
+    public function current(iterable $stops, Requirement ...$requirements): Seq;
 }

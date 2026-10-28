@@ -32,6 +32,8 @@ use App\Provider\DepartureRepository;
 use App\Service\IdUtils;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 /**
  * Live departures given by scenarios: what a realtime source reports for each requested stop. Joining them with the
@@ -68,13 +70,13 @@ final class InMemoryDepartureRepository implements DepartureRepository
     }
 
     #[\Override]
-    public function current(iterable $stops, Requirement ...$requirements)
+    public function current(iterable $stops, Requirement ...$requirements): Seq
     {
-        return collect($stops)
-            ->flatMap(fn (Stop $stop) => collect($this->departures)
-                ->where('stop', $stop->getId())
-                ->map(fn (array $departure) => $this->createDeparture($departure, $stop)))
-            ->values();
+        return $stops
+            |> c\toSeq()
+            |> c\flatMap(fn (Stop $stop) => $this->departures
+                |> c\filter(fn (array $departure) => $departure['stop'] === $stop->getId())
+                |> c\map(fn (array $departure) => $this->createDeparture($departure, $stop)));
     }
 
     private function createDeparture(array $departure, Stop $stop): Departure

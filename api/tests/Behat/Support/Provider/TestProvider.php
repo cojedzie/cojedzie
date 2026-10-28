@@ -40,7 +40,7 @@ use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Psr\Clock\ClockInterface;
 
 /**
@@ -93,9 +93,9 @@ final class TestProvider implements Provider
             }
 
             #[\Override]
-            public function all(Requirement ...$requirements): Collection
+            public function all(Requirement ...$requirements): Seq
             {
-                return collect();
+                return new Seq();
             }
         };
     }

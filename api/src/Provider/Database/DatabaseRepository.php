@@ -46,6 +46,8 @@ use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 abstract class DatabaseRepository implements Repository
 {
@@ -95,7 +97,10 @@ abstract class DatabaseRepository implements Repository
         return $this->em->getReference($class, $id);
     }
 
-    protected function processQueryBuilder(QueryBuilder $builder, iterable $requirements, array $meta = [])
+    /**
+     * @return list<\Closure(Seq): Seq>
+     */
+    protected function processQueryBuilder(QueryBuilder $builder, iterable $requirements, array $meta = []): array
     {
         $reducers = [];
 
@@ -111,7 +116,7 @@ abstract class DatabaseRepository implements Repository
             }
 
             if ($handler instanceof PostProcessingHandler) {
-                $reducers[] = function ($result) use ($meta, $modifier, $handler) {
+                $reducers[] = function (Seq $result) use ($meta, $modifier, $handler) {
                     $event = new PostProcessEvent($result, $modifier, $this, array_merge([
                         'provider' => $this->provider,
                     ], $meta));
@@ -123,10 +128,10 @@ abstract class DatabaseRepository implements Repository
             }
         }
 
-        return collect($reducers);
+        return $reducers;
     }
 
-    protected function allFromQueryBuilder(QueryBuilder $builder, iterable $requirements, array $meta = [])
+    protected function allFromQueryBuilder(QueryBuilder $builder, iterable $requirements, array $meta = []): Seq
     {
         $builder->setMaxResults(self::DEFAULT_LIMIT);
 
@@ -134,16 +139,16 @@ abstract class DatabaseRepository implements Repository
         $query    = $builder->getQuery();
 
         $paginator = new Paginator($query);
-        $result    = collect($paginator)->map(\Closure::fromCallable($this->convert(...)));
+        $result    = $paginator |> c\map($this->convert(...));
 
-        return $reducers->reduce(fn ($result, $reducer) => $reducer($result), $result);
+        return $reducers |> c\reduce(fn (Seq $result, \Closure $reducer) => $reducer($result), $result);
     }
 
-    abstract public function all(Requirement ...$requirements);
+    abstract public function all(Requirement ...$requirements): Seq;
 
     public function first(Requirement ...$requirements)
     {
-        return $this->all(LimitConstraint::count(1), ...$requirements)->first();
+        return $this->all(LimitConstraint::count(1), ...$requirements) |> c\first();
     }
 
     /**

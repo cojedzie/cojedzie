@@ -20,12 +20,19 @@
 
 namespace App\Provider;
 
+use App\Dto\Dto;
 use App\Filter\Requirement\Requirement;
-use Illuminate\Support\Collection;
+use Ds\Seq;
 
 interface FluentRepository extends Repository
 {
+    /**
+     * @return Dto|null the first matching record, null when nothing matches
+     */
     public function first(Requirement ...$requirements);
 
-    public function all(Requirement ...$requirements): Collection;
+    /**
+     * @return Seq<Dto>
+     */
+    public function all(Requirement ...$requirements): Seq;
 }

@@ -9,7 +9,8 @@ use App\Dto\StopGroup;
 use App\Filter\Binding\Http\ParameterBindingProvider;
 use App\Filter\Requirement\Requirement;
 use App\Provider\StopRepository;
-use Illuminate\Support\Collection;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +35,7 @@ class StopGroupsController extends Controller
     ): Response {
         $groups = static::group(
             $stopRepository->all(...$requirements)
-        )->toArray();
+        );
 
         return $this->apiResponseFactory->createCollectionResponse(
             $groups,
@@ -44,19 +45,24 @@ class StopGroupsController extends Controller
         );
     }
 
-    public static function group(Collection $stops)
+    /**
+     * @param Seq<Stop> $stops
+     *
+     * @return Seq<StopGroup>
+     */
+    public static function group(Seq $stops): Seq
     {
-        return $stops->groupBy(
-            fn (Stop $stop) => $stop->getGroup()
-        )->map(
-            function ($stops, $key) {
+        return $stops
+            // stops without a group form one named ''
+            |> c\groupBy(fn (Stop $stop) => (string) $stop->getGroup())
+            |> c\map(function (Seq $stops, string $key) {
                 $group = new StopGroup();
 
                 $group->setName($key);
                 $group->setStops($stops);
 
                 return $group;
-            }
-        )->values();
+            })
+            |> c\values();
     }
 }
