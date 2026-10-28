@@ -20,6 +20,9 @@
 
 namespace App\Filter\Binding\Http\Exception;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class InvalidOperatorException extends InvalidParameterException
 {
     public static function unsupported(string $operator, array $supported, string $parameter): static

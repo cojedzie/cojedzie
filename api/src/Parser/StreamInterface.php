@@ -22,8 +22,14 @@ namespace App\Parser;
 
 interface StreamInterface extends ConsumableInterface
 {
+    /**
+     * @phpstan-impure
+     */
     public function read(int $max = 1);
 
+    /**
+     * @phpstan-impure
+     */
     public function peek(int $max = 1);
 
     public function eof(): bool;

@@ -147,6 +147,8 @@ final class TrackStopsVariants
 
     /**
      * Reads every row of every track, forcing lazy results, and returns the number of rows.
+     *
+     * @phpstan-impure it consumes generators
      */
     public static function consume(iterable $tracks): int
     {

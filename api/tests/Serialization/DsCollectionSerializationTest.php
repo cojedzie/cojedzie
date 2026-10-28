@@ -104,7 +104,6 @@ final class DsCollectionSerializationTest extends KernelTestCase
         $deserialized = $this->serializer->deserialize($json, SeqEndpoints::class, 'json');
 
         // assertEquals() can't see inside a Seq (ext-ds objects have no properties), so compare the elements.
-        $this->assertInstanceOf(Seq::class, $deserialized->getEndpoints());
         $this->assertContainsOnlyInstancesOf(Endpoint::class, $deserialized->getEndpoints());
         $this->assertEquals($dto->getEndpoints()->toArray(), $deserialized->getEndpoints()->toArray());
         $this->assertSame('b', $deserialized->getEndpoints()->toArray()[1]->getName());

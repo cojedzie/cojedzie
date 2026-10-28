@@ -23,6 +23,9 @@ namespace App\Parser\Exception;
 use App\Parser\PositionInterface;
 use JetBrains\PhpStorm\Pure;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class UnexpectedTokenException extends \RuntimeException
 {
     #[Pure]

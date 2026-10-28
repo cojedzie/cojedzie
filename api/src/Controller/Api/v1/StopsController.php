@@ -56,7 +56,7 @@ class StopsController extends Controller
     /**
      * List stops.
      *
-     * @psalm-param iterable<Requirement> $requirements
+     * @param list<Requirement> $requirements
      */
     #[Route(path: '', methods: ['GET'], name: 'list', options: ['version' => '1.1'])]
     #[ParameterBindingProvider([self::class, 'getParameterBinding'])]
@@ -139,9 +139,6 @@ class StopsController extends Controller
         return $this->apiResponseFactory->createCollectionResponse($departures);
     }
 
-    /**
-     * @psalm-return ParameterBinding[]
-     */
     public static function getParameterBinding(): ParameterBinding
     {
         return new ParameterBindingGroup(

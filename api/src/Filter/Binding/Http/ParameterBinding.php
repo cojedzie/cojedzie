@@ -21,19 +21,19 @@
 namespace App\Filter\Binding\Http;
 
 use App\Filter\Requirement\Requirement;
-use App\OpenApi;
+use OpenApi\Attributes\Parameter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
 interface ParameterBinding
 {
     /**
-     * @psalm-return iterable<Requirement>
+     * @return iterable<Requirement>
      */
     public function getRequirementsFromRequest(Request $request): iterable;
 
     /**
-     * @return iterable<OpenApi>
+     * @return iterable<Parameter>
      */
     public function getDocumentation(Route $route): iterable;
 }

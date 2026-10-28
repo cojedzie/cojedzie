@@ -12,6 +12,7 @@ use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
 use App\Provider\FluentRepository;
 use App\Service\ContentTypeResolver;
+use Ds\Map;
 use Ds\Set;
 use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
@@ -34,7 +35,7 @@ class RefsEmbedHandler implements PostProcessingHandler
             return;
         }
 
-        /** @var iterable<Dto> $subject */
+        /** @var iterable<Dto> $items */
         $items = $event->getData();
 
         $name = substr($requirement->getRelationship(), 6);
@@ -62,9 +63,11 @@ class RefsEmbedHandler implements PostProcessingHandler
             }
         }
 
+        $entities = new Map();
         foreach ($entitiesToLoad as $type => $identifiers) {
-            $repository = $this->getRepositoryForType($type);
-            $entities   = $repository->all(new IdConstraint($identifiers)) |> c\keyBy(t\getter('id'));
+            $entities->putAll(
+                $this->getRepositoryForType($type)->all(new IdConstraint($identifiers)) |> c\keyBy(t\getter('id'))
+            );
         }
 
         foreach ($items as $dto) {
@@ -95,6 +98,7 @@ class RefsEmbedHandler implements PostProcessingHandler
         return match ($type) {
             'vnd.cojedzie.line' => $provider->getLineRepository(),
             'vnd.cojedzie.stop' => $provider->getStopRepository(),
+            default             => throw new \LogicException(sprintf('References of type %s can\'t be embedded.', $type)),
         };
     }
 }

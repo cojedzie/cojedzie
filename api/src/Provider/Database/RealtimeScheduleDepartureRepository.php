@@ -120,6 +120,7 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
                 'scheduled' => $schedule->remove($key, null),
             ]);
 
+        /** @var Seq<array{estimated: Departure|null, scheduled: ScheduledStop|null}> $unmatched */
         $unmatched = $schedule
             |> c\map(fn (ScheduledStop $scheduled) => [
                 'estimated' => null,
@@ -145,7 +146,7 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
             return $real;
         }
 
-        return setup(clone $real, function (Departure $departure) use ($scheduled, $real) {
+        return setup(clone $real, function (Departure $departure) use ($scheduled) {
             $departure->setDisplay($this->extractDisplayFromScheduledStop($scheduled));
             $departure->setTrack($scheduled->getTrack());
             $departure->setTrip($scheduled->getTrip());
@@ -173,8 +174,9 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
     {
         $result = [];
 
-        /** @var LimitConstraint $limit */
-        if ($limit = ModifierUtils::getOfType($requirements, LimitConstraint::class)) {
+        $limit = ModifierUtils::getOfType($requirements, LimitConstraint::class);
+
+        if ($limit instanceof LimitConstraint) {
             // the offset is applied once, to the joined departures
             $result[] = new LimitConstraint(0, ($limit->getOffset() + $limit->getCount()) * 2);
         } else {

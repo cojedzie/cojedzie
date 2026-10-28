@@ -58,6 +58,7 @@ class DummyStopRepository implements StopRepository
     #[\Override]
     public function first(Requirement ...$requirements)
     {
+        return null;
     }
 
     #[\Override]

@@ -35,9 +35,9 @@ function encapsulate($value)
  * @template T
  *
  * @param T $value
- * @param callable<void, T> $callback
+ * @param callable(T): mixed $callback
  *
- * @return mixed
+ * @return T
  */
 function setup($value, $callback)
 {

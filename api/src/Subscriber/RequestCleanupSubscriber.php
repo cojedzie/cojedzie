@@ -45,7 +45,10 @@ class RequestCleanupSubscriber implements EventSubscriberInterface
 
     public function onTerminate(TerminateEvent $event)
     {
-        $this->registry->reset();
+        // Doctrine's registry is resettable, ManagerRegistry doesn't declare it
+        if ($this->registry instanceof ResetInterface) {
+            $this->registry->reset();
+        }
 
         if ($this->converter instanceof ResetInterface) {
             $this->converter->reset();

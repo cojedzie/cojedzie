@@ -21,7 +21,6 @@
 namespace App\DataImport;
 
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 
 class ConsoleProgressReporter implements ProgressReporterInterface
@@ -29,7 +28,6 @@ class ConsoleProgressReporter implements ProgressReporterInterface
     private ?ProgressBar $progressBar = null;
 
     public function __construct(
-        private readonly InputInterface $input,
         private readonly ConsoleOutputInterface $output,
         private readonly int $depth = 0
     ) {
@@ -54,7 +52,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
             $this->progressBar->setMessage($comment);
         }
 
-        $this->progressBar->setProgress($progress);
+        $this->progressBar->setProgress((int) $progress);
 
         if ($finished) {
             $this->progressBar->finish();
@@ -95,7 +93,6 @@ class ConsoleProgressReporter implements ProgressReporterInterface
         );
 
         return new ConsoleProgressReporter(
-            $this->input,
             $this->output,
             $this->depth + 1,
         );
@@ -129,7 +126,7 @@ class ConsoleProgressReporter implements ProgressReporterInterface
             $this->depth === 0 => 'green',
             $this->depth === 1 => 'bright-green',
             $this->depth === 2 => 'bright-yellow',
-            $this->depth >= 3  => 'yellow'
+            default            => 'yellow',
         };
     }
 

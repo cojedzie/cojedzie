@@ -21,10 +21,14 @@
 namespace App\Provider;
 
 use App\Dto\Departure;
+use App\Dto\ScheduledStop;
 use App\Dto\Stop;
 use Carbon\Carbon;
 use Ds\Seq;
 
+/**
+ * @extends FluentRepository<ScheduledStop>
+ */
 interface ScheduleRepository extends FluentRepository
 {
     public const DEFAULT_DEPARTURES_COUNT = 16;

@@ -32,6 +32,7 @@ use App\Parser\Json\JsonToken\ObjectStartToken;
 use App\Parser\Json\JsonToken\ValueToken;
 use App\Parser\ParserInterface;
 use App\Parser\StreamingParser\AbstractStreamingParser;
+use App\Parser\StreamingParser\StreamingParser;
 use App\Parser\StreamInterface;
 use function get_debug_type;
 
@@ -61,7 +62,7 @@ class JsonStreamingParser extends AbstractStreamingParser
     public function value(string $path = '')
     {
         return match ($this->decider->decide($path)) {
-            PathDecision::Consume  => JsonValueAccumulatorParser::value()->streamify(),
+            PathDecision::Consume  => StreamingParser::streamify(JsonValueAccumulatorParser::value()),
             PathDecision::Continue => new class($path, $this) extends AbstractStreamingParser {
                 public function __construct(
                     private readonly string $path,
@@ -199,12 +200,5 @@ class JsonStreamingParser extends AbstractStreamingParser
                     return $stream->read()->first();
                 }
             };
-    }
-
-    public static function path(string $pattern)
-    {
-        return function ($path) use ($pattern) {
-            static $state = 'waiting';
-        };
     }
 }

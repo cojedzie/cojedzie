@@ -24,6 +24,9 @@ use App\Parser\ParserInterface;
 use App\Parser\StreamInterface;
 use JetBrains\PhpStorm\Pure;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class SeparatedByParser extends AbstractParser
 {
     public function __construct(

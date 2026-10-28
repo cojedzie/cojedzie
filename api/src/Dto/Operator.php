@@ -20,6 +20,9 @@
 
 namespace App\Dto;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 #[ContentType('vnd.cojedzie.operator')]
 class Operator implements Fillable, Referable, Dto
 {

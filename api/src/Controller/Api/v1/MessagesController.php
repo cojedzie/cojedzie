@@ -58,9 +58,6 @@ class MessagesController extends Controller
         return $this->apiResponseFactory->createCollectionResponse($messages);
     }
 
-    /**
-     * @psalm-return ParameterBinding[]
-     */
     public static function getParameterBinding(): ParameterBinding
     {
         $typeFilterSchema = [

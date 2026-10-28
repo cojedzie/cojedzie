@@ -20,10 +20,14 @@
 
 namespace App\Provider;
 
+use App\Dto\Track;
 use App\Dto\TrackStop;
 use App\Filter\Requirement\Requirement;
 use Ds\Seq;
 
+/**
+ * @extends FluentRepository<Track>
+ */
 interface TrackRepository extends FluentRepository
 {
     /**

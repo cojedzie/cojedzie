@@ -20,6 +20,11 @@
 
 namespace App\Provider;
 
+use App\Dto\Operator;
+
+/**
+ * @extends FluentRepository<Operator>
+ */
 interface OperatorRepository extends FluentRepository
 {
 }

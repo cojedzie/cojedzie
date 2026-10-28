@@ -23,13 +23,11 @@ namespace App\DataImport;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProgressReporterFactory implements EventSubscriberInterface
 {
-    private ?InputInterface $input          = null;
     private ?ConsoleOutputInterface $output = null;
     private bool $isMessageConsumer         = false;
     private bool $isConsole                 = false;
@@ -42,7 +40,7 @@ class ProgressReporterFactory implements EventSubscriberInterface
     public function create(): ProgressReporterInterface
     {
         if ($this->isConsole && !$this->isMessageConsumer) {
-            return new ConsoleProgressReporter($this->input, $this->output);
+            return new ConsoleProgressReporter($this->output);
         }
 
         return new LoggerProgressReporter($this->logger);
@@ -59,7 +57,6 @@ class ProgressReporterFactory implements EventSubscriberInterface
     public function handleConsoleCommandEvent(ConsoleCommandEvent $event)
     {
         if ($event->getOutput() instanceof ConsoleOutputInterface) {
-            $this->input = $event->getInput();
             /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
             $this->output    = $event->getOutput();
             $this->isConsole = true;

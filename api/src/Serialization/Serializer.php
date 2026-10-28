@@ -88,7 +88,8 @@ class Serializer implements SerializerInterface, NormalizerInterface, Denormaliz
     #[\Override]
     public function supportsEncoding(string $format, array $context = []): bool
     {
-        return $this->decorated->supportsEncoding($format, $context);
+        // Symfony's serializers take the context, EncoderInterface doesn't declare it
+        return $this->decorated->supportsEncoding($format, $context); // @phpstan-ignore arguments.count
     }
 
     #[\Override]
@@ -100,6 +101,7 @@ class Serializer implements SerializerInterface, NormalizerInterface, Denormaliz
     #[\Override]
     public function supportsDecoding(string $format, array $context = []): bool
     {
-        return $this->decorated->supportsDecoding($format, $context);
+        // Symfony's serializers take the context, DecoderInterface doesn't declare it
+        return $this->decorated->supportsDecoding($format, $context); // @phpstan-ignore arguments.count
     }
 }

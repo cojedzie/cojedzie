@@ -37,7 +37,7 @@ trait FillTrait
         }
     }
 
-    public static function createFromArray(array $vars = [], ...$args): self
+    public static function createFromArray(array $vars = [], ...$args): static
     {
         $reflection  = new \ReflectionClass(static::class);
         $constructor = $reflection->getConstructor();
@@ -46,9 +46,9 @@ trait FillTrait
             ? $reflection->newInstanceWithoutConstructor()
             : $reflection->newInstanceArgs($args);
 
+        /** @var static $object */
         $object->fill($vars);
 
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $object;
     }
 }

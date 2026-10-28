@@ -20,7 +20,6 @@
 
 namespace App\Schedule;
 
-use App\Context\FederationContext;
 use App\Message\CheckFederatedConnection;
 use App\Message\CleanupFederatedConnections;
 use App\Repository\FederatedConnectionEntityRepository;
@@ -36,27 +35,8 @@ class HubScheduleProvider implements ScheduleProviderInterface
     private Schedule $schedule;
 
     public function __construct(
-        private readonly FederationContext $federationContext,
         private readonly FederatedConnectionEntityRepository $federatedConnectionEntityRepository,
     ) {
-    }
-
-    public function buildSchedule(Schedule $schedule): void
-    {
-        if ($this->federationContext->isHub()) {
-            $schedule
-                ->addCommand('federation:check')
-                ->description('Checks health of federated connections.')
-                ->everyMinute()
-            ;
-
-            $schedule
-                ->addCommand('federation:cleanup')
-                ->description('Clean stale connections.')
-                ->daily()
-                ->at(0)
-            ;
-        }
     }
 
     #[\Override]

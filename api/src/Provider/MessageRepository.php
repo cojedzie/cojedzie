@@ -20,6 +20,11 @@
 
 namespace App\Provider;
 
+use App\Dto\Message;
+
+/**
+ * @extends FluentRepository<Message>
+ */
 interface MessageRepository extends FluentRepository
 {
 }
