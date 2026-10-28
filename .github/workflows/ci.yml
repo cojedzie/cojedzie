@@ -42,6 +42,63 @@ jobs:
           vendor/bin/behat --no-interaction --fail-on-behat-deprecations --tags='~@wip'
           --format=progress --out=std --format=junit --out=var/junit/behat
 
+  # every engine's migrations, run on an empty database, must give exactly the schema the mapping describes
+  schema:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: sqlite
+            database: 'sqlite:///%kernel.project_dir%/var/db/schema.db'
+          - engine: mysql
+            database: 'mysql://cojedzie:cojedzie@127.0.0.1:3306/cojedzie?serverVersion=mariadb-10.7.1'
+          - engine: postgres
+            database: 'postgres://cojedzie:cojedzie@127.0.0.1:5432/cojedzie?serverVersion=14'
+    name: schema (${{ matrix.engine }})
+    services:
+      mysql:
+        image: ${{ matrix.engine == 'mysql' && 'mariadb:10.7' || '' }}
+        env:
+          MARIADB_DATABASE: cojedzie
+          MARIADB_USER: cojedzie
+          MARIADB_PASSWORD: cojedzie
+          MARIADB_RANDOM_ROOT_PASSWORD: '1'
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect" --health-interval=5s --health-timeout=5s --health-retries=20
+      postgres:
+        image: ${{ matrix.engine == 'postgres' && 'postgres:14' || '' }}
+        env:
+          POSTGRES_DB: cojedzie
+          POSTGRES_USER: cojedzie
+          POSTGRES_PASSWORD: cojedzie
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready -U cojedzie" --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      DATABASE_URL: ${{ matrix.database }}
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ds-1.8.0, intl, bcmath, zip, sockets, pdo_sqlite, pdo_mysql, pdo_pgsql, amqp, redis
+          coverage: none
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Run migrations
+        run: |
+          mkdir -p var/db
+          bin/console doctrine:migrations:migrate --no-interaction
+      - name: Compare with the mapping
+        run: bin/console doctrine:schema:validate
+
   # images for next, pushed only from master; deployed by the deploy-next workflow
   build:
     runs-on: ubuntu-latest
