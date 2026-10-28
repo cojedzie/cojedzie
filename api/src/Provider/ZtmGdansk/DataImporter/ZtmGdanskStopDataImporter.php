@@ -107,7 +107,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
     private function getStopsFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream($this->config->stopsUrl, sprintf('%s.stops', $this->clock->now()->format('Y-m-d'))) as $stop) {
+        foreach ($this->jsonStreamer->stream($this->config->stopsUrl, sprintf('%s.stops', ZtmGdanskProvider::feedDate($this->clock))) as $stop) {
             // skip stops that are technical
             if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
                 continue;
