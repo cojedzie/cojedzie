@@ -23,6 +23,7 @@ namespace App\Command;
 use App\Entity\Federation\FederatedConnectionEntity;
 use App\Utility\CustomSentrySampleRateInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Kadet\Functional\Collections as c;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -55,15 +56,15 @@ class FederationConnectionsListCommand extends Command implements CustomSentrySa
 
         $repository = $this->manager->getRepository(FederatedConnectionEntity::class);
 
-        $connectionsByServer = collect($repository->findAll())
-            ->groupBy(fn (FederatedConnectionEntity $connection) => $connection->getServer()->getId()->toRfc4122());
+        $connectionsByServer = $repository->findAll()
+            |> c\groupBy(fn (FederatedConnectionEntity $connection) => $connection->getServer()->getId()->toRfc4122());
 
         foreach ($connectionsByServer as $serverId => $connections) {
             $io->writeln("Server $serverId");
             $io->table(
                 ['Connection ID', 'State', 'Url', 'Opened at', 'Closed at', 'Last check', 'Next check', 'Failures (Total)'],
                 $connections
-                    ->map(
+                    |> c\map(
                         fn (FederatedConnectionEntity $connection) => [
                             $connection->getId()->toRfc4122(),
                             $connection->getState(),
@@ -75,7 +76,7 @@ class FederationConnectionsListCommand extends Command implements CustomSentrySa
                             sprintf("%d (%d)", $connection->getFailures(), $connection->getFailuresTotal()),
                         ]
                     )
-                    ->toArray()
+                    |> c\toArray()
             );
         }
 

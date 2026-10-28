@@ -78,6 +78,18 @@ final class ApiContext implements Context
         Assert::assertCount($count, $json);
     }
 
+    #[Then('the response should be a non-empty JSON list')]
+    public function theResponseShouldBeANonEmptyJsonList(): void
+    {
+        $this->assertNonEmptyList($this->client->json(), 'the response');
+    }
+
+    #[Then('the response\'s :field should be a non-empty JSON list')]
+    public function theResponsesFieldShouldBeANonEmptyJsonList(string $field): void
+    {
+        $this->assertNonEmptyList($this->client->json()[$field] ?? null, sprintf('"%s"', $field));
+    }
+
     #[Then('every item\'s :field should have the fields:')]
     public function everyItemsFieldShouldHaveTheFields(string $field, TableNode $fields): void
     {
@@ -106,5 +118,11 @@ final class ApiContext implements Context
                 Assert::assertArrayHasKey($field, $item, sprintf('Item %d has no field "%s".', $index, $field));
             }
         }
+    }
+
+    private function assertNonEmptyList(mixed $value, string $what): void
+    {
+        Assert::assertTrue(is_array($value) && array_is_list($value), sprintf('Expected %s to be a JSON list.', $what));
+        Assert::assertNotEmpty($value, sprintf('Expected %s to have items.', $what));
     }
 }

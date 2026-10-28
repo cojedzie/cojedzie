@@ -20,13 +20,16 @@
 
 namespace App\DataConverter;
 
-use Illuminate\Support\Collection;
-use function collect;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 use function Kadet\Functional\Predicates\instance;
 
 class AggregateConverter implements Converter, CacheableConverter
 {
-    private $cachedConverters;
+    /**
+     * @var Seq<Converter>|null
+     */
+    private ?Seq $cachedConverters = null;
 
     public function __construct(
         private readonly iterable $converters
@@ -39,7 +42,7 @@ class AggregateConverter implements Converter, CacheableConverter
         $this->ensureCachedConverters();
 
         /** @var Converter $converter */
-        $converter = $this->cachedConverters->first(fn (Converter $converter) => $converter->supports($entity, $type));
+        $converter = $this->cachedConverters |> c\first(fn (Converter $converter) => $converter->supports($entity, $type));
 
         if ($converter == null) {
             throw new \InvalidArgumentException(sprintf(
@@ -57,17 +60,17 @@ class AggregateConverter implements Converter, CacheableConverter
     {
         $this->ensureCachedConverters();
 
-        return $this
-            ->cachedConverters
-            ->some(fn (Converter $converter) => $converter->supports($entity, $type))
-        ;
+        return $this->cachedConverters |> c\any(fn (Converter $converter) => $converter->supports($entity, $type));
     }
 
-    public function getConverters(): Collection
+    /**
+     * @return Seq<Converter>
+     */
+    public function getConverters(): Seq
     {
         $this->ensureCachedConverters();
 
-        return clone $this->cachedConverters;
+        return $this->cachedConverters->copy();
     }
 
     #[\Override]
@@ -75,28 +78,26 @@ class AggregateConverter implements Converter, CacheableConverter
     {
         $this->ensureCachedConverters();
 
-        $this
-            ->cachedConverters
-            ->filter(instance(CacheableConverter::class))
-            ->each(function (CacheableConverter $converter) {
+        $this->cachedConverters
+            |> c\filter(instance(CacheableConverter::class))
+            |> c\each(function (CacheableConverter $converter) {
                 $converter->reset();
-            })
-        ;
+            });
     }
 
     public function __clone()
     {
         $this->ensureCachedConverters();
 
-        $this->cachedConverters = $this->cachedConverters->map(fn ($object) => clone $object);
+        $this->cachedConverters = $this->cachedConverters |> c\map(fn ($object) => clone $object);
     }
 
     private function ensureCachedConverters()
     {
         if (!$this->cachedConverters) {
-            $this->cachedConverters = collect($this->converters)
-                ->filter(fn (Converter $converter) => $converter !== $this && !$converter instanceof AggregateConverter)
-                ->each(function (Converter $converter) {
+            $this->cachedConverters = $this->converters
+                |> c\filter(fn (Converter $converter) => $converter !== $this && !$converter instanceof AggregateConverter)
+                |> c\each(function (Converter $converter) {
                     if ($converter instanceof RecursiveConverter) {
                         $converter->setParent($this);
                     }
