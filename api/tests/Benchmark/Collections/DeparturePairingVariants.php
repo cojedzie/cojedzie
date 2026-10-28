@@ -27,7 +27,6 @@ use App\Dto\Stop;
 use App\Dto\Track;
 use App\Provider\Database\RealtimeScheduleDepartureRepository;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Kadet\Functional\Collections as c;
 use Kadet\Functional\Collections\Lazy as lazy;
 
@@ -60,44 +59,6 @@ final class DeparturePairingVariants
                 return $this->merge($pair['estimated'], $pair['scheduled']);
             }
         };
-    }
-
-    /**
-     * The repository's pair() before the migration to php-ds, with Illuminate collections.
-     *
-     * @param Collection<int, ScheduledStop> $schedule
-     * @param Collection<int, Departure>     $real
-     *
-     * @return list<Departure>
-     */
-    public function illuminate(Collection $schedule, Collection $real): array
-    {
-        $schedule = $schedule->keyBy(self::key(...))->all();
-        $real     = $real->keyBy(self::key(...));
-
-        return $real->map(function (Departure $real, $key) use (&$schedule) {
-            $scheduled = null;
-
-            if (array_key_exists($key, $schedule)) {
-                $scheduled = $schedule[$key];
-                unset($schedule[$key]);
-            }
-
-            return [
-                'estimated' => $real,
-                'scheduled' => $scheduled,
-            ];
-        })->merge(
-            collect($schedule)->map(fn (ScheduledStop $scheduled) => [
-                'estimated' => null,
-                'scheduled' => $scheduled,
-            ])
-        )->map(
-            $this->repository->mergePair(...)
-        )->sortBy(function (Departure $departure) {
-            $time = $departure->getEstimated() ?? $departure->getScheduled();
-            return $time->getTimestamp();
-        })->values()->all();
     }
 
     /**

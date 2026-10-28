@@ -66,12 +66,6 @@ final class TrackStopsBench
     }
 
     #[Groups(['import']), BeforeMethods('setUp'), Revs(1), Iterations(5), Warmup(1)]
-    public function benchCurrentEndToEnd(): void
-    {
-        TrackStopsVariants::consume(TrackStopsVariants::current(TrackStopsVariants::records(), $this->existingStopIds, $this->ids));
-    }
-
-    #[Groups(['import']), BeforeMethods('setUp'), Revs(1), Iterations(5), Warmup(1)]
     public function benchMaterializedEndToEnd(): void
     {
         TrackStopsVariants::consume(TrackStopsVariants::materialized(TrackStopsVariants::records(), $this->existingStopIds, $this->ids));
@@ -87,12 +81,6 @@ final class TrackStopsBench
     public function benchBaselinePipeline(): void
     {
         TrackStopsVariants::consume([]);
-    }
-
-    #[Groups(['import-pipeline']), BeforeMethods('setUpDecoded'), Revs(5), Iterations(10), Warmup(1)]
-    public function benchCurrentPipeline(): void
-    {
-        TrackStopsVariants::consume(TrackStopsVariants::current($this->records, $this->existingStopIds, $this->ids));
     }
 
     #[Groups(['import-pipeline']), BeforeMethods('setUpDecoded'), Revs(5), Iterations(10), Warmup(1)]

@@ -22,7 +22,6 @@ namespace App\Tests\Benchmark\Collections;
 
 use App\Dto\Departure;
 use App\Dto\ScheduledStop;
-use Illuminate\Support\Collection;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
@@ -51,16 +50,6 @@ final class DeparturePairingBench
      */
     private array $real;
 
-    /**
-     * @var Collection<int, ScheduledStop>
-     */
-    private Collection $scheduleCollection;
-
-    /**
-     * @var Collection<int, Departure>
-     */
-    private Collection $realCollection;
-
     public function provideSizes(): iterable
     {
         yield 'production' => [
@@ -80,15 +69,8 @@ final class DeparturePairingBench
     {
         $this->variants                = new DeparturePairingVariants();
         [$this->schedule, $this->real] = DeparturePairingVariants::fixture($params['scheduled'], $params['realtime']);
-        $this->scheduleCollection      = collect($this->schedule);
-        $this->realCollection          = collect($this->real);
 
         memory_reset_peak_usage();
-    }
-
-    public function benchIlluminate(): void
-    {
-        $this->variants->illuminate($this->scheduleCollection, $this->realCollection);
     }
 
     public function benchMaterialized(): void

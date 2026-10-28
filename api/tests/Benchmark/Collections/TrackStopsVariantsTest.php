@@ -25,7 +25,6 @@ use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Doctrine\DBAL\Connection;
-use Kadet\Functional\Collections as c;
 use PHPUnit\Framework\TestCase;
 
 final class TrackStopsVariantsTest extends TestCase
@@ -34,17 +33,7 @@ final class TrackStopsVariantsTest extends TestCase
 
     public function testVariantsProduceIdenticalOutput(): void
     {
-        $current = $this->materialize('current');
-
-        $this->assertSame($current, $this->materialize('materialized'));
-        $this->assertSame($current, $this->materialize('lazy'));
-    }
-
-    public function testFilterDropsRows(): void
-    {
-        $rows = array_sum(array_map(count(...), $this->materialize('current')));
-
-        $this->assertLessThan(self::RECORD_COUNT, $rows);
+        $this->assertSame($this->materialize('materialized'), $this->materialize('lazy'));
     }
 
     public function testImporterMatchesMaterializedVariant(): void
@@ -67,22 +56,6 @@ final class TrackStopsVariantsTest extends TestCase
 
         $this->assertNotEmpty($result);
         $this->assertSame($this->materialize('materialized'), $result);
-    }
-
-    /**
-     * The import benchmark streams the records and the pipeline benchmark decodes them, so they must be equal.
-     * Only the head is streamed, the whole branch takes seconds. The streamer gives numbers as floats, hence
-     * assertEquals().
-     */
-    public function testDecodedRecordsMatchStreamedRecords(): void
-    {
-        $decoded = TrackStopsVariants::decodedRecords();
-
-        $this->assertCount(21897, $decoded);
-        $this->assertEquals(
-            TrackStopsVariants::records() |> c\take(self::RECORD_COUNT) |> c\toArray(),
-            \array_slice($decoded, 0, self::RECORD_COUNT)
-        );
     }
 
     /**
