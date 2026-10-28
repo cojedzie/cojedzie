@@ -77,6 +77,18 @@ final class TrackStopsBench
         TrackStopsVariants::consume(TrackStopsVariants::lazy(TrackStopsVariants::records(), $this->existingStopIds, $this->ids));
     }
 
+    #[Groups(['import']), BeforeMethods('setUp'), Revs(1), Iterations(5), Warmup(1)]
+    public function benchCompactEndToEnd(): void
+    {
+        TrackStopsVariants::consume(TrackStopsVariants::compact(TrackStopsVariants::records(), $this->existingStopIds, $this->ids));
+    }
+
+    #[Groups(['import']), BeforeMethods('setUp'), Revs(1), Iterations(5), Warmup(1)]
+    public function benchCompactLazyEndToEnd(): void
+    {
+        TrackStopsVariants::consume(TrackStopsVariants::compactLazy(TrackStopsVariants::records(), $this->existingStopIds, $this->ids));
+    }
+
     #[Groups(['import-pipeline']), BeforeMethods('setUpDecoded'), Revs(5), Iterations(10), Warmup(1)]
     public function benchBaselinePipeline(): void
     {
