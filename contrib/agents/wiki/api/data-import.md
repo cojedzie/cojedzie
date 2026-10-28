@@ -4,13 +4,21 @@
 
 `bin/console app:update` (`Command/UpdateCommand` → `Service/DataUpdater`) creates an `ImportEntity`, then runs
 every `DataImport\DataImporter` (tagged `app.data_importer`) in topological dependency order, reporting progress
-through `ProgressReporterFactory` (console + `import` monolog channel). Memory limit is raised to 4G and the SQL
-logger is disabled during import.
+through `ProgressReporterFactory` (console + `import` monolog channel). An importer whose dependencies are missing
+or circular makes the update fail with a `LogicException` naming it.
+
+Memory: `DataUpdater` raises `memory_limit` for the import only and restores it afterwards, because in production the
+import runs inside a long-lived messenger worker (`--memory-limit=128M`). Every run ends with a `Peak memory: N MB`
+milestone. Measured on 2026-10-28 with a full day of ZTM data (183 lines, 285k scheduled stops, about 8 minutes):
+48 MB peak in `prod`, 906 MB in `dev` with debug, because Doctrine keeps every query for the profiler. The limit
+(2G) is sized for debug, since `task api:update` runs in `dev`. `gc_collect_cycles()` between importers made no
+difference and was removed.
 
 Run it with `task api:update` (uses `APP_MODE=performance` by default).
 
 Scheduling: `src/Schedule` (Symfony Scheduler) plus `Message/UpdateDataSources` handled by
-`MessageHandler/UpdateDataSourcesMessageHandler`; the `worker` and `cron` containers run these in docker.
+`MessageHandler/UpdateDataSourcesMessageHandler`. Production runs them through Messenger workers; the `cron` image
+and its `schedule:run` crontab are leftovers (that command doesn't exist).
 
 `bin/docker-init.sh` runs migrations **and** a synchronous `app:update` on container start whenever migrations
 are out of date.
@@ -18,7 +26,32 @@ are out of date.
 ## Provider importers
 
 ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operators, stops, tracks, schedule).
-`Service/ProviderDataImporter` handles provider entity registration.
+`Service/ProviderDataImporter` registers the providers `ProviderResolver` serves (the dummy provider only in debug).
+
+- Operators, lines, stops and tracks are written with `DataImport\TableUpserter::upsert()`: rows keyed by id, batched
+  by 100, existing ids of the provider updated, new ones inserted, every row stamped with `provider_id` and the
+  current `import_id`. It opens no transaction; each importer wraps its writes in `Connection::transactional()`.
+- Nothing deletes rows that disappeared upstream; that is meant to be a separate garbage-collection procedure.
+- Track stops: the `stopsInTrip` feed is **not ordered by track** (one day of the 2022 fixture: 21,897 rows of 1,332
+  tracks in 21,866 runs), so they are grouped in memory, reduced to track id, stop id and sequence first. Unknown
+  stops are filtered after grouping, so a track whose stops are all unknown still has its old stops cleared.
+  `tests/Benchmark/Collections/TrackStopsBench` measures this step; its variants test checks the importer matches
+  the `compact` variant.
+- The schedule is imported one line per transaction; a line whose feed can't be opened, parsed or read in time
+  (`StreamOpenException`, `UnexpectedTokenException`, `EndOfStreamException`, `StreamReadException`) is skipped with
+  a warning.
+- Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
+
+Tests: `tests/DataImport/ImporterTestCase` runs an importer against the test database inside a transaction rolled
+back after each test, with `StubJsonStreamer` serving inline feed rows. Per ADR 0001, importers are tested there, not
+in Behat. Tests never call upstream: `ZtmGdanskRecordedFeedsTest` imports one day of feeds recorded from ZTM
+(`tests/ZtmGdansk/Resources/<date>/`, with a README on how to record a newer day) through the real parser, to catch
+changes in what ZTM publishes.
+
+ZTM data notes from the 2026-10-28 recording: most routes have `routeType` `UNKNOWN` (only buses and trams are
+typed), so the line type still comes from the agency (2 = tram, 5 = trolleybus); agency 5 (PKT Gdynia) also runs a
+few other lines (e.g. 181) that end up as trolleybuses. `stopTimes` rows carry `passenger`/`nonpassenger` flags the
+schedule importer doesn't use.
 
 ## Database
 

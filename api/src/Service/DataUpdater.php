@@ -31,7 +31,11 @@ class DataUpdater
 {
     final public const string UPDATE_EVENT = 'app.data_update';
 
-    private const string MEMORY_LIMIT = '4G';
+    /**
+     * Measured on 2026-10-28 (a full day of ZTM data): 48 MB peak without debug, 906 MB with it, as Doctrine keeps
+     * every query for the profiler. The import runs in debug through `task api:update`.
+     */
+    private const string MEMORY_LIMIT = '2G';
 
     /**
      * @param DataImporter[] $importers
@@ -73,9 +77,6 @@ class DataUpdater
                 reporter: $reporter->subtask($updater->getDescription()),
                 event: $event,
             );
-
-            // force garbage collection
-            gc_collect_cycles();
         }
 
         // mark import event as finished and flush it to db
