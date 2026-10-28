@@ -85,7 +85,8 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
 - `ext-ds` 2.0 is installed with PIE in every PHP image (`build/base/Dockerfile`, `build/base/fpm.Dockerfile`,
   `build/base/cli.Dockerfile`, `api/Dockerfile`, `api/rr.Dockerfile`). amqp and redis are in all of them except
   `api/rr.Dockerfile`, and the dev images (`api/Dockerfile`, `api/rr.Dockerfile`) add xdebug. `php-ds/php-ds` 2.0 is
-  required as the polyfill fallback. 2.0 has no `Ds\Collection`, `Ds\Deque` or `Ds\Vector`; the code uses `Ds\Seq`, `Ds\Map` and `Ds\Set`.
+  required as the polyfill fallback. 2.0 has no `Ds\Collection`, `Ds\Deque` or `Ds\Vector`; the code uses
+  `Ds\Seq`, `Ds\Map` and `Ds\Set`.
 - RoadRunner 2025.1 (`ghcr.io/roadrunner-server/roadrunner`) with baldinof/roadrunner-bundle 3; `.rr.yaml` is
   config v3. Workers run with `display_errors=stderr`: anything PHP prints to stdout breaks the worker protocol
   (e.g. a deprecation raised while autoloading, before Symfony's error handler is set up). The runtime images
