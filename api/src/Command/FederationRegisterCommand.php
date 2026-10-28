@@ -41,14 +41,13 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
     public function __construct(
         private readonly EntityManagerInterface $manager
     ) {
-        parent::__construct(self::$defaultName);
+        parent::__construct();
     }
 
     #[\Override]
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->addArgument('email', InputArgument::REQUIRED, 'Contact e-mail for registered federated server.')
             ->addArgument('allowed-url', InputArgument::REQUIRED, 'Allowed base URL, could be regex pattern.')
             ->addOption('maintainer', 'm', InputOption::VALUE_OPTIONAL, 'Name of the maintainer for this server.')

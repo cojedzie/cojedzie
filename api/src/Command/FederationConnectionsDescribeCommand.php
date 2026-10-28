@@ -29,7 +29,6 @@ class FederationConnectionsDescribeCommand extends Command implements CustomSent
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->addArgument('id', InputArgument::REQUIRED, 'Connection id')
         ;
     }

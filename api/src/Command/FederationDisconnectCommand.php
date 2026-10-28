@@ -30,7 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 
-#[AsCommand(name: 'federation:disconnect', description: 'Disconnect this node into the federation network.')]
+#[AsCommand(name: 'federation:disconnect', description: 'Disconnect this node from the federation network.')]
 class FederationDisconnectCommand extends Command implements CustomSentrySampleRateInterface
 {
     use FederationSampleRateTrait;
@@ -39,15 +39,7 @@ class FederationDisconnectCommand extends Command implements CustomSentrySampleR
         private readonly FederationContext $federationContext,
         private readonly FederatedConnectionService $federatedConnectionService
     ) {
-        parent::__construct(self::$defaultName);
-    }
-
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->setDescription(self::$defaultDescription)
-        ;
+        parent::__construct();
     }
 
     #[\Override]
