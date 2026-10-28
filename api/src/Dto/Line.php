@@ -20,7 +20,7 @@
 
 namespace App\Dto;
 
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Annotation\Context;
@@ -72,11 +72,16 @@ class Line implements Fillable, Referable, Dto
 
     /**
      * Tracks for this line
-     * @var Collection<Track>
+     * @var Seq<Track>
      */
     #[Groups(['full'])]
     #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Track::class)))]
-    private Collection $tracks;
+    private Seq $tracks;
+
+    public function __construct()
+    {
+        $this->tracks = new Seq();
+    }
 
     public function getSymbol(): string
     {
@@ -118,14 +123,14 @@ class Line implements Fillable, Referable, Dto
         $this->night = $night;
     }
 
-    public function getTracks(): ?Collection
+    public function getTracks(): ?Seq
     {
         return $this->tracks;
     }
 
-    public function setTracks($tracks)
+    public function setTracks(iterable $tracks): void
     {
-        $this->tracks = collect($tracks);
+        $this->tracks = new Seq($tracks);
     }
 
     public function getOperator(): ?Operator

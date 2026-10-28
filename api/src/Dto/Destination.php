@@ -20,7 +20,7 @@
 
 namespace App\Dto;
 
-use Illuminate\Support\Collection;
+use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
@@ -34,14 +34,14 @@ class Destination implements Fillable, Dto
     private Stop $stop;
 
     /**
-     * @var Collection<Line>
+     * @var Seq<Line>
      */
     #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Line::class, groups: ['Default'])))]
-    private Collection $lines;
+    private Seq $lines;
 
     public function __construct()
     {
-        $this->lines = collect();
+        $this->lines = new Seq();
     }
 
     public function getStop(): Stop
@@ -54,13 +54,13 @@ class Destination implements Fillable, Dto
         $this->stop = $stop;
     }
 
-    public function getLines(): Collection
+    public function getLines(): Seq
     {
         return $this->lines;
     }
 
     public function setLines(iterable $lines): void
     {
-        $this->lines = collect($lines);
+        $this->lines = new Seq($lines);
     }
 }

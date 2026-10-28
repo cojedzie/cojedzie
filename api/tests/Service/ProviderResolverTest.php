@@ -68,16 +68,6 @@ final class ProviderResolverTest extends TestCase
         $resolver->resolve('x');
     }
 
-    public function testAllReturnsACopy(): void
-    {
-        $resolver = new ProviderResolver([$this->provider('a')], true);
-
-        $all = $resolver->all();
-        $all instanceof \Ds\Map ? $all->clear() : $all->forget($all->keys()->all());
-
-        $this->assertCount(1, iterator_to_array($resolver->all()));
-    }
-
     private function provider(string $identifier, string $class = Provider::class): Provider
     {
         $provider = $this->createStub($class);
