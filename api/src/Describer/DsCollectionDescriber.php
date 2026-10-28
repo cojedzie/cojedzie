@@ -24,8 +24,6 @@ class DsCollectionDescriber implements ModelDescriberInterface
     #[\Override]
     public function supports(Model $model): bool
     {
-        $class = $model->getType()->getClassName();
-
-        return in_array($class, [Seq::class, Map::class, Set::class], true);
+        return $model->getTypeInfo()->isIdentifiedBy(Seq::class, Map::class, Set::class);
     }
 }
