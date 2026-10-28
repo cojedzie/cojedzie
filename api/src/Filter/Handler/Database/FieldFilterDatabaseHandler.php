@@ -28,6 +28,8 @@ use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\QueryBuilder;
 use function App\Functions\encapsulate;
 
 class FieldFilterDatabaseHandler implements ModifierHandler
@@ -77,7 +79,7 @@ class FieldFilterDatabaseHandler implements ModifierHandler
 
         $where = "{$alias}.{$field}";
 
-        if (!$modifier->isCaseSensitive()) {
+        if (!$modifier->isCaseSensitive() && $this->isTextField($builder, $event->getMeta()['entity'], $field)) {
             $where = sprintf('LOWER(%s)', $where);
             $value = is_array($value) ? array_map(fn ($x) => mb_strtolower((string) $x), $value) : mb_strtolower((string) $value);
         }
@@ -110,6 +112,17 @@ class FieldFilterDatabaseHandler implements ModifierHandler
             ))
             ->setParameter($parameter, $value)
         ;
+    }
+
+    /**
+     * Only text can be matched case-insensitively. LOWER() of a timestamp or an integer doesn't exist on Postgres, and
+     * lowercasing a date turns it into a string that skips its conversion to the database time zone.
+     */
+    private function isTextField(QueryBuilder $builder, string $entity, string $field): bool
+    {
+        $type = $builder->getEntityManager()->getClassMetadata($entity)->getTypeOfField($field);
+
+        return in_array($type, [Types::STRING, Types::TEXT, Types::ASCII_STRING], true);
     }
 
     protected function mapFieldName(string $class, string $field): string
