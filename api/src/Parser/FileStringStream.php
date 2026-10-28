@@ -22,6 +22,7 @@ namespace App\Parser;
 
 use App\Parser\Exception\EndOfStreamException;
 use App\Parser\Exception\StreamOpenException;
+use App\Parser\Exception\StreamReadException;
 
 class FileStringStream implements StreamInterface
 {
@@ -30,10 +31,17 @@ class FileStringStream implements StreamInterface
     private string $buffer  = "";
     private int $bufferSize = 0;
 
-    public function __construct(string $filename)
+    /**
+     * @param float $timeout seconds to wait for an upstream to answer, and for each read from it
+     */
+    public function __construct(string $filename, float $timeout = 60.0)
     {
         // an unavailable source (e.g. an upstream returning 404) must fail here, not on the first read
-        $handle = @fopen($filename, 'rb');
+        $handle = @fopen($filename, 'rb', false, stream_context_create([
+            'http' => [
+                'timeout' => $timeout,
+            ],
+        ]));
 
         if ($handle === false) {
             throw new StreamOpenException(sprintf('Cannot open "%s": %s', $filename, error_get_last()['message'] ?? 'unknown error'));
@@ -64,6 +72,11 @@ class FileStringStream implements StreamInterface
 
         if ($this->bufferSize < $max) {
             $chunk = stream_get_line($this->handle, $max - $this->bufferSize + 1024, PHP_EOL);
+
+            if ($chunk === false && stream_get_meta_data($this->handle)['timed_out']) {
+                throw new StreamReadException('Reading the stream timed out.');
+            }
+
             $this->buffer .= $chunk;
             $this->bufferSize += strlen($chunk);
         }

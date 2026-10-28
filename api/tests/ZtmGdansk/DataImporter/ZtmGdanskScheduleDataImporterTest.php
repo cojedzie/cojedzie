@@ -23,6 +23,7 @@ namespace App\Tests\ZtmGdansk\DataImporter;
 
 use App\Event\DataUpdateEvent;
 use App\Parser\Exception\StreamOpenException;
+use App\Parser\Exception\StreamReadException;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskScheduleDataImporter;
 use App\Service\IdUtils;
 use App\Tests\DataImport\ImporterTestCase;
@@ -95,6 +96,19 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
         $this->importer(fn (string $route) => $route === '6'
             ? throw new StreamOpenException('Cannot open')
+            : [$this->row($route)])->import($this->reporter(), $this->event);
+
+        $this->assertSame([self::PROVIDER . '::8-8-1-1'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
+        $this->assertCount(1, $this->warnings);
+    }
+
+    public function testLineWhoseScheduleStallsIsSkipped(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+        $this->line(self::PROVIDER . '::8');
+
+        $this->importer(fn (string $route) => $route === '6'
+            ? throw new StreamReadException('Reading the stream timed out.')
             : [$this->row($route)])->import($this->reporter(), $this->event);
 
         $this->assertSame([self::PROVIDER . '::8-8-1-1'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
