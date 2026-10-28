@@ -135,15 +135,6 @@
     "guzzlehttp/psr7": {
         "version": "2.4.3"
     },
-    "illuminate/collections": {
-        "version": "v8.35.1"
-    },
-    "illuminate/contracts": {
-        "version": "v8.35.1"
-    },
-    "illuminate/macroable": {
-        "version": "v8.35.1"
-    },
     "jean85/pretty-package-versions": {
         "version": "2.0.5"
     },
@@ -283,9 +274,6 @@
     },
     "psr/log": {
         "version": "1.0.2"
-    },
-    "psr/simple-cache": {
-        "version": "1.0.1"
     },
     "ralouphie/getallheaders": {
         "version": "3.0.3"

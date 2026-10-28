@@ -15,7 +15,6 @@
     "doctrine/orm": "^2",
     "dragonmantank/cron-expression": "^3.3",
     "friendsofphp/proxy-manager-lts": "^1.0",
-    "illuminate/collections": "^12.0",
     "kadet/functional": "^1.0.1",
     "nelmio/api-doc-bundle": "^5.0",
     "nelmio/cors-bundle": "^2.5",
