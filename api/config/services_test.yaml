@@ -14,3 +14,14 @@ services:
 
     App\Tests\Behat\Support\Provider\TestProvider:
         tags: [ app.provider ]
+
+    # scenarios run without a Mercure server
+    mercure.hub.default:
+        class: Symfony\Component\Mercure\MockHub
+        arguments:
+            $url: '%env(MERCURE_URL)%'
+            $publicUrl: '%env(MERCURE_PUBLIC_URL)%'
+            $jwtProvider: !service
+                class: Symfony\Component\Mercure\Jwt\StaticTokenProvider
+                arguments: ['test']
+            $publisher: '@App\Tests\Behat\Support\DiscardedUpdates'

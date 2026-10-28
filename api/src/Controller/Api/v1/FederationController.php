@@ -26,6 +26,7 @@ use App\Entity\Federation\FederatedServerEntity;
 use App\Exception\InvalidFormException;
 use App\Form\CreateFederatedConnectionCommandType;
 use App\Message\CheckFederatedConnection;
+use App\Security\FederatedConnectionVoter;
 use App\Service\FederatedConnectionUpdateFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,6 +43,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Controller used for managing resources related to the federation feature.
@@ -108,8 +110,9 @@ class FederationController extends Controller
     }
 
     /**
-     * Mark specified connection as closed.
+     * Mark specified connection of the authenticated server as closed.
      */
+    #[IsGranted(FederatedConnectionVoter::CLOSE, subject: 'connection')]
     #[Route(path: '/connections/{connection}', name: 'disconnect', methods: ['DELETE'], options: ['version' => '1.0'])]
     #[OA\Parameter(name: 'connection', description: 'Identifier of connection to be closed', in: 'path', example: 'a0b562d1-e0ce-4fc0-96e4-8d28a370a9e1', schema: new OA\Schema(type: 'string', format: 'uuid'))]
     public function disconnect(
