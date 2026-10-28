@@ -71,3 +71,20 @@ Feature: Federation connections
       {}
       """
     Then the response status should be 400
+
+  Scenario: A server closes its own connection
+    Given the server "a7cd192a-3dca-4fc8-b35d-91f2d6e10632" has an open connection "6a1c3d3e-7f0a-4b8e-9d55-2f6b1c0e9a11" at "http://federated:8080"
+    And I authenticate as "a7cd192a-3dca-4fc8-b35d-91f2d6e10632" with password "notarealsecretatall"
+    When I send a "DELETE" request to "/api/v1/federation/connections/6a1c3d3e-7f0a-4b8e-9d55-2f6b1c0e9a11"
+    Then the response status should be 200
+
+  Scenario: A server cannot close another server's connection
+    Given the server "a7cd192a-3dca-4fc8-b35d-91f2d6e10632" has an open connection "6a1c3d3e-7f0a-4b8e-9d55-2f6b1c0e9a11" at "http://federated:8080"
+    And I authenticate as "0b6c4e1f-9a43-4a7e-8f0f-1d3c2b5a6e70" with password "othersecret"
+    When I send a "DELETE" request to "/api/v1/federation/connections/6a1c3d3e-7f0a-4b8e-9d55-2f6b1c0e9a11"
+    Then the response status should be 403
+
+  Scenario: Closing a connection needs credentials
+    Given the server "a7cd192a-3dca-4fc8-b35d-91f2d6e10632" has an open connection "6a1c3d3e-7f0a-4b8e-9d55-2f6b1c0e9a11" at "http://federated:8080"
+    When I send a "DELETE" request to "/api/v1/federation/connections/6a1c3d3e-7f0a-4b8e-9d55-2f6b1c0e9a11"
+    Then the response status should be 401
