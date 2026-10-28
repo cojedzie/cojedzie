@@ -20,6 +20,9 @@
 
 namespace App\Exception;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class InvalidArgumentException extends \InvalidArgumentException
 {
     public static function invalidType($parameter, $value, array $expected = [])

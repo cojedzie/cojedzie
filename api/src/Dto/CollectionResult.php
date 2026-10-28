@@ -6,6 +6,9 @@ use App\Dto\Links\CollectionLinks;
 use Ds\Set;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 #[ContentType('vnd.cojedzie.collection')]
 class CollectionResult
 {

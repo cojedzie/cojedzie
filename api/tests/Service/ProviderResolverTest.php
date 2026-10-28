@@ -68,6 +68,9 @@ final class ProviderResolverTest extends TestCase
         $resolver->resolve('x');
     }
 
+    /**
+     * @param class-string<Provider> $class
+     */
     private function provider(string $identifier, string $class = Provider::class): Provider
     {
         $provider = $this->createStub($class);

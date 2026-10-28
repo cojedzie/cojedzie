@@ -35,11 +35,7 @@ final class JsonStreamingTokenizerTest extends TestCase
         $stream = $this->createStreamFromJsonFile($filename);
         $parser = new JsonStreamingTokenizer();
 
-        foreach ($parser($stream) as $token) {
-            // noop
-        };
-
-        $this->assertTrue(true);
+        $this->assertGreaterThan(0, iterator_count($parser($stream)));
     }
 
     public static function jsonFileProvider(): \Generator

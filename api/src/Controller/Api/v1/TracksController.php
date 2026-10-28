@@ -66,7 +66,7 @@ class TracksController extends Controller
     /**
      * List stops in specific track.
      *
-     * @psalm-param iterable<Requirement> $requirements
+     * @param list<Requirement> $requirements
      */
     #[Route(path: '/{track}/stops', name: 'stops_in_track', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([TrackStopsController::class, 'getParameterBindings'])]

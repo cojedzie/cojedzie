@@ -24,7 +24,7 @@ class StopGroupsController extends Controller
     /**
      * List stop groups.
      *
-     * @psalm-param iterable<Requirement> $requirements
+     * @param list<Requirement> $requirements
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([StopsController::class, 'getParameterBinding'])]

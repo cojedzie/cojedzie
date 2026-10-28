@@ -28,9 +28,6 @@ use App\Event\HandleDatabaseRequirementEvent;
 use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\RelatedFilter;
-use App\Service\EntityReferenceFactory;
-use App\Service\IdUtils;
-use Doctrine\ORM\EntityManagerInterface;
 use Kadet\Functional\Collections as c;
 use function Kadet\Functional\Transforms\property;
 
@@ -53,13 +50,6 @@ class GenericWithDatabaseHandler implements ModifierHandler
             'destination' => 'trip.track.final',
         ],
     ];
-
-    public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly IdUtils $id,
-        private readonly EntityReferenceFactory $references
-    ) {
-    }
 
     #[\Override]
     public function process(HandleRequirementEvent $event)

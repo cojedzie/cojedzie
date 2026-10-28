@@ -23,6 +23,9 @@ namespace App\Dto;
 use Carbon\Carbon;
 use OpenApi\Attributes as OA;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 #[ContentType('vnd.cojedzie.message')]
 class Message implements Fillable, Dto, Referable, HasRefs
 {

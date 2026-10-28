@@ -41,6 +41,7 @@ final class DataUpdaterTest extends KernelTestCase
         $em->getConnection()->beginTransaction();
 
         try {
+            /** @var \ArrayObject<int, array{string, DataUpdateEvent}> $log */
             $log   = new \ArrayObject();
             $lines = $this->importer('lines', [], $log);
             $stops = $this->importer('stops', [$lines::class], $log);
@@ -127,6 +128,7 @@ final class DataUpdaterTest extends KernelTestCase
         $em->getConnection()->beginTransaction();
 
         try {
+            /** @var \ArrayObject<int, array{string, DataUpdateEvent}> $log */
             $log      = new \ArrayObject();
             $provider = $this->importer('provider', [], $log);
             $stops    = $this->importer('stops', [$provider::class], $log);
@@ -152,6 +154,7 @@ final class DataUpdaterTest extends KernelTestCase
         $em->getConnection()->beginTransaction();
 
         try {
+            /** @var \ArrayObject<int, array{string, DataUpdateEvent}> $log */
             $log   = new \ArrayObject();
             $lines = $this->importer('lines', [], $log);
             $stops = $this->importer('stops', ['App\\NoSuchImporter'], $log);
@@ -188,6 +191,7 @@ final class DataUpdaterTest extends KernelTestCase
             'lines'    => new class($name, $dependencies, $log) extends RecordingImporter {},
             'stops'    => new class($name, $dependencies, $log) extends RecordingImporter {},
             'tracks'   => new class($name, $dependencies, $log) extends RecordingImporter {},
+            default    => throw new \LogicException(sprintf('No importer named %s.', $name)),
         };
     }
 }

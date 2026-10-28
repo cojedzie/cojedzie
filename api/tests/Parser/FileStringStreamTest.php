@@ -81,9 +81,10 @@ final class FileStringStreamTest extends TestCase
         $start  = microtime(true);
 
         try {
-            while (true) {
+            while (!$stream->eof()) {
                 $stream->read();
             }
+            $this->fail('A stalled read should time out.');
         } catch (StreamReadException) {
         }
 

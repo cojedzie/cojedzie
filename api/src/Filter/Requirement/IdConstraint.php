@@ -22,7 +22,6 @@
 
 namespace App\Filter\Requirement;
 
-use App\Exception\InvalidArgumentException;
 use App\Utility\IterableUtils;
 
 class IdConstraint implements Requirement
@@ -31,10 +30,6 @@ class IdConstraint implements Requirement
 
     public function __construct(iterable|string $id)
     {
-        if (!is_iterable($id) && !is_string($id)) {
-            throw InvalidArgumentException::invalidType('id', $id, ['string', 'array']);
-        }
-
         $this->id = is_iterable($id) ? IterableUtils::toArray($id) : $id;
     }
 

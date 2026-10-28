@@ -20,6 +20,9 @@
 
 namespace App\Parser;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class TokenizedPosition implements PositionInterface
 {
     public function __construct(

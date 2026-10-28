@@ -25,7 +25,6 @@ use App\Dto\Trip;
 use App\Filter\Binding\Http\IdConstraintParameterBinding;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\IdConstraint;
-use App\Filter\Requirement\Requirement;
 use App\Provider\TripRepository;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -39,8 +38,6 @@ class TripController extends Controller
 {
     /**
      * Get information about specific trip.
-     *
-     * @psalm-param iterable<Requirement> $requirements
      */
     #[Route(path: '/{id}', name: 'details', methods: ['GET'], options: ['version' => '1.0'])]
     #[OA\Response(response: 200, description: 'Trip details.', content: new OA\MediaType(mediaType: 'application/vnd.cojedzie.trip+json', schema: new OA\Schema(ref: new Model(type: Trip::class))))]

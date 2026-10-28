@@ -27,6 +27,9 @@ use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 #[ContentType('vnd.cojedzie.line')]
 class Line implements Fillable, Referable, Dto
 {

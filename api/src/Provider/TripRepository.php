@@ -20,6 +20,11 @@
 
 namespace App\Provider;
 
+use App\Dto\Trip;
+
+/**
+ * @extends FluentRepository<Trip>
+ */
 interface TripRepository extends FluentRepository
 {
 }

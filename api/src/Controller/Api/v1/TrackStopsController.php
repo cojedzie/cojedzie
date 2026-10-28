@@ -48,7 +48,7 @@ class TrackStopsController extends Controller
     /**
      * List track stops.
      *
-     * @psalm-param iterable<Requirement> $requirements
+     * @param list<Requirement> $requirements
      */
     #[Route(name: 'list', methods: ['GET'])]
     #[RelatedFilterParameterBinding(

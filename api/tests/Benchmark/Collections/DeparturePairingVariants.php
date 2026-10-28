@@ -105,6 +105,7 @@ final readonly class DeparturePairingVariants
                 'scheduled' => $schedule->remove($key, null),
             ]);
 
+        /** @var iterable<array{estimated: Departure|null, scheduled: ScheduledStop|null}> $unmatched */
         $unmatched = $schedule
             |> c\map(fn (ScheduledStop $scheduled) => [
                 'estimated' => null,
@@ -131,17 +132,20 @@ final readonly class DeparturePairingVariants
     {
         $schedule = $schedule |> c\keyBy(self::key(...));
 
+        // read only after every real departure took its match out of the schedule
+        /** @var iterable<array{estimated: Departure|null, scheduled: ScheduledStop|null}> $unmatched */
+        $unmatched = $schedule |> lazy\map(fn (ScheduledStop $scheduled) => [
+            'estimated' => null,
+            'scheduled' => $scheduled,
+        ]);
+
         return $real
             |> c\keyBy(self::key(...))
             |> lazy\map(fn (Departure $real, string $key) => [
                 'estimated' => $real,
                 'scheduled' => $schedule->remove($key, null),
             ])
-            // read only after every real departure took its match out of the schedule
-            |> lazy\concat($schedule |> lazy\map(fn (ScheduledStop $scheduled) => [
-                'estimated' => null,
-                'scheduled' => $scheduled,
-            ]))
+            |> lazy\concat($unmatched)
             |> lazy\map($this->repository->mergePair(...))
             |> c\sortBy(fn (Departure $departure) => ($departure->getEstimated() ?? $departure->getScheduled())->getTimestamp())
             |> c\toArray();

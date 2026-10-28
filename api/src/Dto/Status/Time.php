@@ -25,6 +25,9 @@ use Carbon\Carbon;
 use OpenApi\Attributes as OA;
 use function App\Functions\setup;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class Time implements Dto
 {
     /**

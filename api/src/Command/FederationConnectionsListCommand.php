@@ -61,10 +61,10 @@ class FederationConnectionsListCommand extends Command implements CustomSentrySa
                             $connection->getId()->toRfc4122(),
                             $connection->getState(),
                             $connection->getUrl(),
-                            $connection->getOpenedAt() ? $connection->getOpenedAt()->toRfc7231String() : "-",
+                            $connection->getOpenedAt()->toRfc7231String(),
                             $connection->getClosedAt() ? $connection->getClosedAt()->toRfc7231String() : "-",
                             $connection->getLastCheck() ? $connection->getLastCheck()->toRfc7231String() : "-",
-                            $connection->getNextCheck() ? $connection->getNextCheck()->toRfc7231String() : "-",
+                            $connection->getNextCheck()->toRfc7231String(),
                             sprintf("%d (%d)", $connection->getFailures(), $connection->getFailuresTotal()),
                         ]
                     )

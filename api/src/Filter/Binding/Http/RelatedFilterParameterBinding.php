@@ -21,6 +21,7 @@
 namespace App\Filter\Binding\Http;
 
 use App\Dto\Referable;
+use App\Dto\ReferableTrait;
 use App\Filter\Requirement\RelatedFilter;
 use App\Utility\RequestUtils;
 use Attribute;
@@ -61,12 +62,24 @@ class RelatedFilterParameterBinding implements ParameterBinding
         }
 
         $related = explode(',', (string) $value);
-        $related = array_map($this->resource::reference(...), $related);
+        $related = array_map($this->reference(...), $related);
 
         yield new RelatedFilter(
             reference: $related,
             relationship: $this->relationship
         );
+    }
+
+    /**
+     * A reference to the resource, which is a DTO using ReferableTrait.
+     */
+    private function reference(string $id): Referable
+    {
+        if (!method_exists($this->resource, 'reference')) {
+            throw new \LogicException(sprintf('%s can\'t be referenced, it doesn\'t use %s.', $this->resource, ReferableTrait::class));
+        }
+
+        return $this->resource::reference($id);
     }
 
     #[\Override]

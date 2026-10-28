@@ -24,15 +24,18 @@ use App\Dto\Dto;
 use App\Filter\Requirement\Requirement;
 use Ds\Seq;
 
+/**
+ * @template T of Dto = Dto
+ */
 interface FluentRepository extends Repository
 {
     /**
-     * @return Dto|null the first matching record, null when nothing matches
+     * @return T|null the first matching record, null when nothing matches
      */
     public function first(Requirement ...$requirements);
 
     /**
-     * @return Seq<Dto>
+     * @return Seq<T>
      */
     public function all(Requirement ...$requirements): Seq;
 }

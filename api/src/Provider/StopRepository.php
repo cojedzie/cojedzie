@@ -20,6 +20,11 @@
 
 namespace App\Provider;
 
+use App\Dto\Stop;
+
+/**
+ * @extends FluentRepository<Stop>
+ */
 interface StopRepository extends FluentRepository
 {
 }

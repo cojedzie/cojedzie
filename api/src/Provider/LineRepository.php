@@ -20,6 +20,11 @@
 
 namespace App\Provider;
 
+use App\Dto\Line;
+
+/**
+ * @extends FluentRepository<Line>
+ */
 interface LineRepository extends FluentRepository
 {
 }

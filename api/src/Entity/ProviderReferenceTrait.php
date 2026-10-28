@@ -32,9 +32,6 @@ trait ProviderReferenceTrait
         return $this->provider;
     }
 
-    /**
-     * @param ProviderEntity|null $provider
-     */
     public function setProvider(ProviderEntity $provider): void
     {
         $this->provider = $provider;

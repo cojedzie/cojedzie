@@ -34,6 +34,7 @@ enum ValueTokenType
             'boolean'           => self::Boolean,
             'NULL'              => self::Null,
             'double', 'integer' => self::Number,
+            default             => throw new \InvalidArgumentException(sprintf('JSON values are scalars or null, got %s.', get_debug_type($value))),
         };
     }
 }

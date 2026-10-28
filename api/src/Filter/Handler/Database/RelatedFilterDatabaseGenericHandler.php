@@ -31,8 +31,6 @@ use App\Event\HandleRequirementEvent;
 use App\Filter\Handler\ModifierHandler;
 use App\Filter\Requirement\RelatedFilter;
 use App\Service\EntityReferenceFactory;
-use App\Service\IdUtils;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
@@ -56,8 +54,6 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
 
     public function __construct(
         private readonly ContainerInterface $inner,
-        private readonly EntityManagerInterface $em,
-        private readonly IdUtils $id,
         private readonly EntityReferenceFactory $references
     ) {
     }

@@ -24,6 +24,9 @@ use Ds\Seq;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 #[ContentType('vnd.cojedzie.track')]
 class Track implements Referable, Fillable, Dto
 {

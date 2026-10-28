@@ -83,11 +83,11 @@ class FieldFilterParameterBinding implements ParameterBinding
     public function getRequirementsFromRequest(Request $request): iterable
     {
         foreach ($request->query as $parameter => $value) {
-            @[$name, $operator] = explode(':', $parameter);
+            [$name, $operator] = explode(':', $parameter) + [1 => null];
 
             $operator = match (true) {
-                is_string($operator) && array_key_exists($operator, $this->operators) => $this->operators[$operator],
-                is_null($operator)                                                    => $this->defaultOperator,
+                $operator === null                             => $this->defaultOperator,
+                array_key_exists($operator, $this->operators)  => $this->operators[$operator],
 
                 default => throw InvalidOperatorException::unsupported($operator, array_keys($this->operators), $this->parameter),
             };
@@ -172,13 +172,20 @@ class FieldFilterParameterBinding implements ParameterBinding
      * Schemas must reach swagger-php through constructors, otherwise they are not attached to their parent and
      * end up as unnamed component schemas.
      */
-    private function getSchemaForOperator(FieldFilterOperator $operator): ?\OpenApi\Annotations\Schema
+    private function getSchemaForOperator(FieldFilterOperator $operator): ?Schema
     {
         $schema = $this->getDocumentationForOperator($operator)['schema'] ?? null;
 
         return is_array($schema) ? self::createSchema($schema) : $schema;
     }
 
+    /**
+     * @template T of \OpenApi\Annotations\Schema
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
     private static function createSchema(array $schema, string $class = Schema::class): \OpenApi\Annotations\Schema
     {
         if (is_array($schema['items'] ?? null)) {

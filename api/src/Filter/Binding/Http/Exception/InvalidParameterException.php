@@ -24,6 +24,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * A request parameter that can't be turned into a requirement; reported to the client as 400 Bad Request.
+ *
+ * @phpstan-consistent-constructor
  */
 class InvalidParameterException extends BadRequestHttpException
 {
