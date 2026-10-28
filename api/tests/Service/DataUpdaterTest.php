@@ -53,6 +53,25 @@ final class DataUpdaterTest extends KernelTestCase
         }
     }
 
+    public function testMemoryLimitIsRestored(): void
+    {
+        self::bootKernel();
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->getConnection()->beginTransaction();
+
+        $limit = ini_get('memory_limit');
+
+        try {
+            new DataUpdater($em, new ProgressReporterFactory(new NullLogger()), [])->update();
+
+            $this->assertSame($limit, ini_get('memory_limit'));
+        } finally {
+            ini_set('memory_limit', $limit);
+            $em->getConnection()->rollBack();
+        }
+    }
+
     public function testUnresolvableDependenciesFail(): void
     {
         self::bootKernel();
