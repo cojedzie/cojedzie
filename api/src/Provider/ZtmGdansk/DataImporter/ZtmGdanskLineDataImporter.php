@@ -21,6 +21,7 @@
 namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\TableUpserter;
 use App\Dto\Line as LineModel;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
@@ -28,8 +29,6 @@ use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
-use App\Utility\IterableUtils;
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
 use Psr\Clock\ClockInterface;
@@ -43,6 +42,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
 
     public function __construct(
         private readonly Connection $connection,
+        private readonly TableUpserter $upserter,
         private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils,
         private readonly ZtmGdanskConfig $config,
@@ -53,59 +53,15 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
-        $this->connection->beginTransaction();
-
-        $query = $this->connection->createQueryBuilder()
-            ->from('line', 'l')
-            ->select('id')
-            ->where('l.provider_id = :provider_id')
-            ->andWhere('l.id IN (:ids)')
-            ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER);
-
-        $count = 0;
-        foreach (IterableUtils::batch($this->getLinesFromZtmApi(), 100) as $batch) {
-            $query->setParameter('ids', array_keys($batch), ArrayParameterType::STRING);
-            $existing = new Set($query->executeQuery()->iterateColumn());
-
-            foreach ($batch as $id => $line) {
-                if ($existing->contains($id)) {
-                    $this->connection->update(
-                        'line',
-                        [
-                            ...$line,
-                            'import_id' => $event->import->getId(),
-                        ],
-                        [
-                            'id'          => $id,
-                            'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                        ],
-                        [
-                            'import_id' => 'uuid',
-                        ]
-                    );
-                } else {
-                    $this->connection->insert(
-                        'line',
-                        array_merge(
-                            [
-                                'id'          => $id,
-                                'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                                'import_id'   => $event->import->getId(),
-                            ],
-                            $line
-                        ),
-                        [
-                            'import_id' => 'uuid',
-                        ]
-                    );
-                }
-            }
-
-            $reporter->progress($count += is_countable($batch) ? count($batch) : 0);
-        }
+        $count = $this->connection->transactional(fn () => $this->upserter->upsert(
+            'line',
+            $this->getLinesFromZtmApi(),
+            ZtmGdanskProvider::IDENTIFIER,
+            $event->import,
+            reporter: $reporter,
+        ));
 
         $reporter->progress($count, comment: 'OK', finished: true);
-        $this->connection->commit();
     }
 
     #[\Override]

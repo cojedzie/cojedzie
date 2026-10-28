@@ -21,6 +21,7 @@
 namespace App\Provider\ZtmGdansk\DataImporter;
 
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\TableUpserter;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
@@ -28,12 +29,12 @@ use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Doctrine\DBAL\Connection;
-use Ds\Set;
 
 class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
 {
     public function __construct(
         private readonly Connection $connection,
+        private readonly TableUpserter $upserter,
         private readonly JsonStreamer $jsonStreamer,
         private readonly IdUtils $idUtils,
         private readonly ZtmGdanskConfig $config,
@@ -43,53 +44,15 @@ class ZtmGdanskOperatorsDataImporter extends AbstractDataImporter
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
-        $this->connection->beginTransaction();
+        $count = $this->connection->transactional(fn () => $this->upserter->upsert(
+            'operator',
+            $this->getOperatorsFromZtmApi(),
+            ZtmGdanskProvider::IDENTIFIER,
+            $event->import,
+            reporter: $reporter,
+        ));
 
-        $existing = new Set(
-            $this->connection->createQueryBuilder()
-                ->from('operator', 'o')
-                ->select('id')
-                ->where('o.provider_id = :provider_id')
-                ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-                ->executeQuery()
-                ->iterateColumn()
-        );
-
-        foreach ($this->getOperatorsFromZtmApi() as $id => $operator) {
-            if ($existing->contains($id)) {
-                $this->connection->update(
-                    'operator',
-                    [
-                        ...$operator,
-                        'import_id' => $event->import->getId(),
-                    ],
-                    [
-                        'id'          => $id,
-                        'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                    ],
-                    [
-                        'import_id' => 'uuid',
-                    ]
-                );
-            } else {
-                $this->connection->insert(
-                    'operator',
-                    array_merge(
-                        [
-                            'id'          => $id,
-                            'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                            'import_id'   => $event->import->getId(),
-                        ],
-                        $operator
-                    ),
-                    [
-                        'import_id' => 'uuid',
-                    ]
-                );
-            }
-        }
-
-        $this->connection->commit();
+        $reporter->progress($count, comment: 'OK', finished: true);
     }
 
     private function getOperatorsFromZtmApi()

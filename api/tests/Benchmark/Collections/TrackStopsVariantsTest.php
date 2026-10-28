@@ -20,6 +20,7 @@
 
 namespace App\Tests\Benchmark\Collections;
 
+use App\DataImport\TableUpserter;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskTrackDataImporter;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Service\IdUtils;
@@ -42,6 +43,7 @@ final class TrackStopsVariantsTest extends TestCase
         $ids      = new IdUtils();
         $importer = new ZtmGdanskTrackDataImporter(
             $this->createStub(Connection::class),
+            new TableUpserter($this->createStub(Connection::class)),
             $ids,
             new JsonStreamer(),
             new ZtmGdanskConfig('', '', '', '', '', '', ''),
