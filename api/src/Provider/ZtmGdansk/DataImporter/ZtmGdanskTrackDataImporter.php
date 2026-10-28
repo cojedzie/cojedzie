@@ -168,31 +168,36 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     /**
      * Groups the stops in trips by track, keeps the stops that exist and numbers them in order of their sequence.
      *
+     * The feed isn't ordered by track, so the groups are built in memory. Each record is reduced to its ids and
+     * sequence first, so the groups don't hold whole feed records.
+     *
      * @param iterable<array> $records
      *
      * @return iterable<string, iterable<array{stop_id: string, track_id: string, sequence: int}>>
      */
     private function groupTrackStops(iterable $records, Set $existingStopIds): iterable
     {
-        $all = $records
-            |> c\groupBy(fn ($stop) => $this->idUtils->generate(
-                ZtmGdanskProvider::IDENTIFIER,
-                sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
-            ));
+        $tracks = $records
+            |> c\map(fn (array $stop) => [
+                'track_id' => $this->idUtils->generate(
+                    ZtmGdanskProvider::IDENTIFIER,
+                    sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
+                ),
+                'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
+                'sequence' => $stop['stopSequence'],
+            ])
+            |> c\groupBy(fn (array $stop) => $stop['track_id']);
 
-        foreach ($all as $trackId => $stops) {
+        foreach ($tracks as $trackId => $stops) {
             $generator = new SequenceGenerator();
 
+            // a track whose stops are all unknown is still yielded, so its stops from an earlier import are removed
             yield $trackId => $stops
-                |> c\map(fn ($stop) => [
-                    'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
+                |> c\filter(fn (array $stop) => $existingStopIds->contains($stop['stop_id']))
+                |> c\sortBy(fn (array $stop) => $stop['sequence'])
+                |> c\map(fn (array $stop) => [
+                    'stop_id'  => $stop['stop_id'],
                     'track_id' => $trackId,
-                    'sequence' => $stop['stopSequence'],
-                ])
-                |> c\filter(fn ($stop) => $existingStopIds->contains($stop['stop_id']))
-                |> c\sortBy(fn ($stop) => $stop['sequence'])
-                |> c\map(fn ($stop) => [
-                    ...$stop,
                     'sequence' => $generator->next(),
                 ]);
         }

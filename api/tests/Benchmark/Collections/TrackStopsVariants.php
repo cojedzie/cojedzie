@@ -101,6 +101,51 @@ final class TrackStopsVariants
     }
 
     /**
+     * Like materialized(), but each record is reduced to its ids and sequence before grouping, so the groups hold only
+     * those instead of whole feed records. This is what the importer does.
+     */
+    public static function compact(iterable $records, Set $existingStopIds, IdUtils $ids): iterable
+    {
+        return self::compactGroups($records |> c\map(self::compactor($ids)), $existingStopIds);
+    }
+
+    /**
+     * Like compact(), but the records are reduced lazily, so only the groups are built.
+     */
+    public static function compactLazy(iterable $records, Set $existingStopIds, IdUtils $ids): iterable
+    {
+        return self::compactGroups($records |> lazy\map(self::compactor($ids)), $existingStopIds);
+    }
+
+    /**
+     * @return \Closure(array): array{track_id: string, stop_id: string, sequence: int}
+     */
+    private static function compactor(IdUtils $ids): \Closure
+    {
+        return fn (array $stop) => [
+            'track_id' => $ids->generate(ZtmGdanskProvider::IDENTIFIER, sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])),
+            'stop_id'  => $ids->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
+            'sequence' => $stop['stopSequence'],
+        ];
+    }
+
+    private static function compactGroups(iterable $stops, Set $existingStopIds): iterable
+    {
+        foreach ($stops |> c\groupBy(fn (array $stop) => $stop['track_id']) as $trackId => $group) {
+            $generator = new SequenceGenerator();
+
+            yield $trackId => $group
+                |> c\filter(fn (array $stop) => $existingStopIds->contains($stop['stop_id']))
+                |> c\sortBy(fn (array $stop) => $stop['sequence'])
+                |> c\map(fn (array $stop) => [
+                    'stop_id'  => $stop['stop_id'],
+                    'track_id' => $trackId,
+                    'sequence' => $generator->next(),
+                ]);
+        }
+    }
+
+    /**
      * Reads every row of every track, forcing lazy results, and returns the number of rows.
      */
     public static function consume(iterable $tracks): int
