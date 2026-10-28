@@ -15,6 +15,9 @@ task test:behat -- --tags='~@wip'              # what CI runs
 `task test:behat` deletes `api/var/db/test.db` and rebuilds it from the **SQLite migrations**, so a broken
 migration fails the run (that's how two SQLite migration bugs were found). Every scenario then runs in a
 transaction that is rolled back (`dama/doctrine-test-bundle`, using savepoints, which DBAL 4 always enables).
+`ApiClient` clears the entity manager before each request, as a fresh request would. Without that, every fixture
+entity is still in the identity map and fully loaded, so lazy relations (and the id-only references they become,
+see `features/contract/nested-references.feature`) never happen in tests.
 
 ## Layout
 

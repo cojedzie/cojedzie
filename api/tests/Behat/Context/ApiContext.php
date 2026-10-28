@@ -102,6 +102,33 @@ final class ApiContext implements Context
         }
     }
 
+    /**
+     * Compares the object at a dot-separated path (list items by index, e.g. "0.line.operator") field by field,
+     * failing on any extra or missing field.
+     */
+    #[Then('the response\'s :path should be exactly:')]
+    public function theResponsesPathShouldBeExactly(string $path, TableNode $expected): void
+    {
+        $actual = $this->client->json();
+
+        foreach (explode('.', $path) as $key) {
+            Assert::assertIsArray($actual, sprintf('Cannot read "%s" of "%s".', $key, $path));
+            Assert::assertArrayHasKey($key, $actual, sprintf('The response has no "%s".', $path));
+
+            $actual = $actual[$key];
+        }
+
+        Assert::assertIsArray($actual, sprintf('"%s" is not an object.', $path));
+
+        $expected = array_column($expected->getHash(), 'value', 'field');
+        $actual   = array_map(fn ($value) => is_scalar($value) ? (string) $value : json_encode($value), $actual);
+
+        ksort($expected);
+        ksort($actual);
+
+        Assert::assertSame($expected, $actual, sprintf('"%s" differs.', $path));
+    }
+
     #[Then('every item should have the fields:')]
     public function everyItemShouldHaveTheFields(TableNode $fields): void
     {
