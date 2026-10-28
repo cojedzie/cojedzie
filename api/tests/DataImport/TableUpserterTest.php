@@ -89,6 +89,11 @@ final class TableUpserterTest extends ImporterTestCase
 
     private function upsert(DataUpdateEvent $event, array $rows): int
     {
-        return new TableUpserter($this->connection)->upsert('operator', $rows, self::PROVIDER, $event->import);
+        return new TableUpserter($this->connection)->upsert(
+            table: 'operator',
+            rows: $rows,
+            providerId: self::PROVIDER,
+            import: $event->import,
+        );
     }
 }

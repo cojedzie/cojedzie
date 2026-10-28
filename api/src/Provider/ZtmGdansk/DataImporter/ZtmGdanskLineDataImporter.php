@@ -54,10 +54,10 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
         $count = $this->connection->transactional(fn () => $this->upserter->upsert(
-            'line',
-            $this->getLinesFromZtmApi(),
-            ZtmGdanskProvider::IDENTIFIER,
-            $event->import,
+            table: 'line',
+            rows: $this->getLinesFromZtmApi(),
+            providerId: ZtmGdanskProvider::IDENTIFIER,
+            import: $event->import,
             reporter: $reporter,
         ));
 
