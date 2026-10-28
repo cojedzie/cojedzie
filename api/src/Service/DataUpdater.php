@@ -31,6 +31,8 @@ class DataUpdater
 {
     final public const string UPDATE_EVENT = 'app.data_update';
 
+    private const string MEMORY_LIMIT = '4G';
+
     /**
      * @param DataImporter[] $importers
      */
@@ -41,10 +43,20 @@ class DataUpdater
     ) {
     }
 
-    public function update()
+    public function update(): void
     {
-        ini_set('memory_limit', '4G');
+        // the worker running the import keeps going afterwards, so the raised limit must not outlive the import
+        $limit = ini_set('memory_limit', self::MEMORY_LIMIT);
 
+        try {
+            $this->import();
+        } finally {
+            ini_set('memory_limit', $limit);
+        }
+    }
+
+    private function import(): void
+    {
         // create import etity
         $import = new ImportEntity();
         $import->setStartedAt(Carbon::now());
@@ -69,6 +81,8 @@ class DataUpdater
         // mark import event as finished and flush it to db
         $import->setFinishedAt(Carbon::now());
         $this->em->flush();
+
+        $reporter->milestone(sprintf('Peak memory: %d MB', memory_get_peak_usage(true) >> 20));
     }
 
     /**
