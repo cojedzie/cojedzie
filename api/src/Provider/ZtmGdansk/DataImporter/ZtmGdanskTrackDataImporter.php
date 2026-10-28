@@ -32,6 +32,7 @@ use App\Utility\SequenceGenerator;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
 use Kadet\Functional\Collections as c;
+use Psr\Clock\ClockInterface;
 
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
@@ -42,6 +43,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         private readonly IdUtils $idUtils,
         private readonly JsonStreamer $jsonStreamer,
         private readonly ZtmGdanskConfig $config,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -180,7 +182,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTracksFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream($this->config->tripsUrl, sprintf('%s.trips', date('Y-m-d'))) as $track) {
+        foreach ($this->jsonStreamer->stream($this->config->tripsUrl, sprintf('%s.trips', $this->clock->now()->format('Y-m-d'))) as $track) {
             yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['id']) => [
                 'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['routeId']),
                 'description' => preg_replace('/\(\d+\)/', '', (string) $track['tripHeadsign']),
@@ -190,7 +192,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 
     private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
     {
-        $records = $this->jsonStreamer->stream($this->config->stopsInTripsUrl, sprintf('%s.stopsInTrip', date('Y-m-d')));
+        $records = $this->jsonStreamer->stream($this->config->stopsInTripsUrl, sprintf('%s.stopsInTrip', $this->clock->now()->format('Y-m-d')));
 
         $existingStopIds = new Set(
             $this->connection->createQueryBuilder()
