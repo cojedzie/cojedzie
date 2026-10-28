@@ -25,6 +25,7 @@ use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
 use App\Parser\Exception\EndOfStreamException;
 use App\Parser\Exception\StreamOpenException;
+use App\Parser\Exception\StreamReadException;
 use App\Parser\Exception\UnexpectedTokenException;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
@@ -76,7 +77,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         foreach ($existingLineIds as $lineId) {
             try {
                 $this->connection->transactional(fn () => $this->importScheduleOfLine($event, $lineId, $existingStopIds));
-            } catch (StreamOpenException|UnexpectedTokenException|EndOfStreamException $exception) {
+            } catch (StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException $exception) {
                 $reporter->milestone("Failed to import line " . $lineId . ": " . $exception->getMessage(), MilestoneType::Warning);
             }
             $reporter->progress($count++, max: count($existingLineIds), comment: sprintf("Imported line %s", $lineId));
