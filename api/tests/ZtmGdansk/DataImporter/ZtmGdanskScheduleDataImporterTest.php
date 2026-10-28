@@ -21,128 +21,104 @@ declare(strict_types=1);
 
 namespace App\Tests\ZtmGdansk\DataImporter;
 
-use App\DataImport\MilestoneType;
-use App\DataImport\ProgressReporterInterface;
-use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
 use App\Parser\Exception\StreamOpenException;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskScheduleDataImporter;
-use App\Provider\ZtmGdansk\ZtmGdanskConfig;
-use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\IdUtils;
-use App\Service\JsonStreamer;
-use Doctrine\DBAL\Connection;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Clock\MockClock;
-use Symfony\Component\Uid\Uuid;
+use App\Tests\DataImport\ImporterTestCase;
+use App\Tests\DataImport\StubJsonStreamer;
 
 /**
  * The schedule is imported line by line, for the lines of this provider updated by the current import.
  */
-final class ZtmGdanskScheduleDataImporterTest extends KernelTestCase
+final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 {
-    private const string PROVIDER = ZtmGdanskProvider::IDENTIFIER;
-    private Connection $connection;
-    private ImportEntity $import;
-
-    /**
-     * @var list<string>
-     */
-    private array $warnings = [];
+    private DataUpdateEvent $event;
 
     #[\Override]
     protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
 
-        $this->connection = self::getContainer()->get(Connection::class);
-        $this->connection->beginTransaction();
+        $this->event = $this->newImport();
 
-        $this->import = new ImportEntity();
-        new \ReflectionProperty($this->import, 'id')->setValue($this->import, Uuid::v4());
-
-        $this->connection->insert('import', ['id' => $this->import->getId(),
-            'started_at'                          => new \DateTime()], ['id' => 'uuid',
-                'started_at'                                                 => 'datetime']);
-        $this->connection->insert('provider', ['id' => self::PROVIDER,
-            'name'                                  => 'ZTM',
-            'class'                                 => ZtmGdanskProvider::class,
-            'update_date'                           => '2026-10-28 00:00:00']);
-        $this->connection->insert('provider', ['id' => 'other',
-            'name'                                  => 'Other',
-            'class'                                 => 'Other',
-            'update_date'                           => '2026-10-28 00:00:00']);
-        $this->connection->insert('operator', ['id' => self::PROVIDER . '::1',
-            'provider_id'                           => self::PROVIDER,
-            'name'                                  => 'ZTM']);
-        $this->connection->insert('stop', ['id' => self::PROVIDER . '::100',
-            'provider_id'                       => self::PROVIDER,
-            'name'                              => 'Brama Wyżynna',
-            'on_demand'                         => 0]);
-    }
-
-    #[\Override]
-    protected function tearDown(): void
-    {
-        $this->connection->rollBack();
-
-        parent::tearDown();
+        $this->connection->insert('provider', [
+            'id'          => 'other',
+            'name'        => 'Other',
+            'class'       => 'Other',
+            'update_date' => self::NOW,
+        ]);
+        $this->connection->insert('operator', [
+            'id'          => self::PROVIDER . '::1',
+            'provider_id' => self::PROVIDER,
+            'name'        => 'ZTM',
+        ]);
+        $this->connection->insert('stop', [
+            'id'          => self::PROVIDER . '::100',
+            'provider_id' => self::PROVIDER,
+            'name'        => 'Brama Wyżynna',
+            'on_demand'   => 0,
+        ]);
     }
 
     public function testTripStopsAreStampedWithTheImport(): void
     {
-        $this->line(self::PROVIDER . '::6', $this->import->getId());
+        $this->line(self::PROVIDER . '::6');
 
-        $this->importer(fn (string $route) => [$this->row($route)])->import($this->reporter(), new DataUpdateEvent($this->import));
+        $this->importer(fn (string $route) => [$this->row($route)])->import($this->reporter(), $this->event);
 
         $this->assertSame(
-            [$this->import->getId()->toBinary()],
+            [$this->event->import->getId()->toBinary()],
             $this->connection->fetchFirstColumn('SELECT import_id FROM trip_stop'),
         );
     }
 
     public function testOnlyLinesOfThisProviderAreImported(): void
     {
-        $this->line(self::PROVIDER . '::6', $this->import->getId());
-        $this->line('other::7', $this->import->getId());
+        $this->line(self::PROVIDER . '::6');
+        $this->line('other::7');
 
         $routes = [];
         $this->importer(function (string $route) use (&$routes) {
             $routes[] = $route;
 
             return [];
-        })->import($this->reporter(), new DataUpdateEvent($this->import));
+        })->import($this->reporter(), $this->event);
 
         $this->assertSame(['6'], $routes);
     }
 
     public function testLineWithUnavailableScheduleIsSkipped(): void
     {
-        $this->line(self::PROVIDER . '::6', $this->import->getId());
-        $this->line(self::PROVIDER . '::8', $this->import->getId());
+        $this->line(self::PROVIDER . '::6');
+        $this->line(self::PROVIDER . '::8');
 
         $this->importer(fn (string $route) => $route === '6'
             ? throw new StreamOpenException('Cannot open')
-            : [$this->row($route)])->import($this->reporter(), new DataUpdateEvent($this->import));
+            : [$this->row($route)])->import($this->reporter(), $this->event);
 
         $this->assertSame([self::PROVIDER . '::8-8-1-1'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
         $this->assertCount(1, $this->warnings);
     }
 
-    private function line(string $id, Uuid $import): void
+    private function line(string $id): void
     {
+        [$provider, $symbol] = explode('::', $id);
+
         $this->connection->insert('line', [
             'id'          => $id,
-            'provider_id' => explode('::', $id)[0],
-            'import_id'   => $import,
-            'symbol'      => explode('::', $id)[1],
+            'provider_id' => $provider,
+            'import_id'   => $this->event->import->getId(),
+            'symbol'      => $symbol,
             'type'        => 'bus',
             'fast'        => 0,
             'night'       => 0,
         ], ['import_id' => 'uuid']);
 
-        $this->connection->insert('track', ['id' => sprintf('%s::R%sT1', explode('::', $id)[0], explode('::', $id)[1]),
-            'line_id'                            => $id]);
+        $this->connection->insert('track', [
+            'id'      => sprintf('%s::R%sT1', $provider, $symbol),
+            'line_id' => $id,
+        ]);
     }
 
     private function row(string $route): array
@@ -163,43 +139,20 @@ final class ZtmGdanskScheduleDataImporterTest extends KernelTestCase
     }
 
     /**
-     * @param \Closure(string $schedule): iterable<array<string, mixed>> $schedule
+     * @param \Closure(string): iterable<array<string, mixed>> $schedule
      */
     private function importer(\Closure $schedule): ZtmGdanskScheduleDataImporter
     {
-        $streamer = new class($schedule) extends JsonStreamer {
-            public function __construct(
-                private readonly \Closure $schedule
-            ) {
-            }
-
-            #[\Override]
-            public function stream(string $url, string $branch): iterable
-            {
-                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
-
-                return ($this->schedule)($query['routeId']);
-            }
-        };
-
         return new ZtmGdanskScheduleDataImporter(
             $this->connection,
             new IdUtils(),
-            $streamer,
-            new ZtmGdanskConfig('https://ztm.example', '', '', '', '', '', ''),
-            new MockClock('2026-10-28 12:00:00'),
+            new StubJsonStreamer(function (string $url) use ($schedule) {
+                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+                return $schedule($query['routeId']);
+            }),
+            $this->config(),
+            $this->clock(),
         );
-    }
-
-    private function reporter(): ProgressReporterInterface
-    {
-        $reporter = $this->createStub(ProgressReporterInterface::class);
-        $reporter->method('milestone')->willReturnCallback(function (string $comment, MilestoneType $type = MilestoneType::Info) {
-            if ($type === MilestoneType::Warning) {
-                $this->warnings[] = $comment;
-            }
-        });
-
-        return $reporter;
     }
 }
