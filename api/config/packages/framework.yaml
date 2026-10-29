@@ -2,14 +2,10 @@ framework:
     secret: '%env(APP_SECRET)%'
     csrf_protection: false
 
-    # Defaults that change in Symfony 7, pinned to the 6.4 behaviour
-    http_method_override: true
-    handle_all_throwables: false
+    # new ids stay UUIDv6 (Symfony 7 defaults to v7), like the ones already stored
     uid:
         default_uuid_version: 6
         time_based_uuid_version: 6
-    property_info:
-        with_constructor_extractor: false
 
     php_errors:
         log: true
