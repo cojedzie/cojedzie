@@ -26,13 +26,18 @@ variables configure Co Jedzie.
 We will namespace every environment variable that controls the product (option 2):
 
 - General settings use `COJEDZIE_` (`COJEDZIE_SCHEDULE_UPDATE_DATA_SOURCES`, `COJEDZIE_STALE_DATA_RETENTION`,
-  `COJEDZIE_EVENT_QUEUE`, `COJEDZIE_API_MODE`).
+  `COJEDZIE_EVENT_QUEUE`, `COJEDZIE_API_MODE`). The database URL is ours too: `COJEDZIE_DATABASE_URL`, not the
+  recipe's `DATABASE_URL`.
 - Settings of a subsystem or integration may use its own prefix: `FEDERATION_`, `SENTRY_`, a provider's identifier
   (`ZTM_GDANSK_`).
 - Names defined by Symfony, its recipes and other tools keep their standard names: `APP_ENV`, `APP_DEBUG`,
-  `APP_SECRET`, `DATABASE_URL`, `MERCURE_*`, `CORS_ALLOW_ORIGIN`, `TRUSTED_PROXIES`, `SENTRY_DSN`, ….
+  `APP_SECRET`, `MERCURE_*`, `CORS_ALLOW_ORIGIN`, `TRUSTED_PROXIES`, `SENTRY_DSN`, ….
 - Renamed variables keep working under their previous names for a transition period: the API copies them in
-  `App\Utility\Environment` (with a deprecation notice), shell scripts use `${NEW:-$OLD}`.
+  `App\Utility\Environment` (with a deprecation notice), shell scripts use `${NEW:-$OLD}`. An old name set
+  anywhere wins over a new one that only comes from a `.env` file, so a deployment or a developer's `.env.local`
+  that still uses the old name isn't overridden by the repository's defaults.
+- Defaults of the production images are in `api/.env.prod` (loaded with `APP_ENV=prod`), not in `ENV` lines of the
+  Dockerfiles, so a deployment's variables, under either name, override them.
 
 ## Consequences
 

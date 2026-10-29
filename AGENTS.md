@@ -87,7 +87,7 @@ task benchmark:api                # phpbench
 - `COJEDZIE_API_MODE` (`debug` default, `performance`) controls the API container runtime mode.
 - Environment variables that control the app are namespaced (ADR 0011): `COJEDZIE_…`, or a subsystem's own prefix
   (`FEDERATION_…`, `SENTRY_…`, a provider's like `ZTM_GDANSK_…`). Standard names of Symfony, recipes and other
-  tools (`APP_ENV`, `DATABASE_URL`, `MERCURE_…`, `CORS_ALLOW_ORIGIN`) stay as they are.
+  tools (`APP_ENV`, `MERCURE_…`, `CORS_ALLOW_ORIGIN`) stay as they are; the database is `COJEDZIE_DATABASE_URL`.
 
 ## Conventions
 
