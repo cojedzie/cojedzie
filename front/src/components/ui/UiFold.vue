@@ -45,7 +45,7 @@ export default class UiFold extends Vue {
         }
     }
 
-    private handleTransitionEnd(event: TransitionEvent) {
+    handleTransitionEnd(event: TransitionEvent) {
         if (event.target !== this.$el) {
             // it's not about us
             return;

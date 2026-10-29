@@ -145,7 +145,7 @@ export class UiDialog extends Vue {
     public title: string;
 
     private isMobile: boolean = false;
-    private zIndex: number = 1000;
+    zIndex: number = 1000;
 
     private _focusOutEvent;
     private _resizeEvent;
@@ -312,7 +312,7 @@ export class UiDialog extends Vue {
         }
     }
 
-    private handleBackdropClick(ev: Event) {
+    handleBackdropClick(ev: Event) {
         const target = ev.target as HTMLElement;
 
         if (target.classList.contains("ui-backdrop")) {
@@ -320,7 +320,7 @@ export class UiDialog extends Vue {
         }
     }
 
-    private handleCloseClick() {
+    handleCloseClick() {
         this.$emit("leave");
         this.$emit("close");
     }

@@ -32,4 +32,5 @@ export type Trip = {
     schedule: ScheduledStop[];
     variant: string;
     description: string;
+    $type: "vnd.cojedzie.trip";
 };

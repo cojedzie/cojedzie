@@ -1,6 +1,6 @@
 <template>
-    <fa v-if="type === 'simple'" v-bind="attrs" class="ui-icon" />
-    <fa-layers v-else-if="type === 'stacked'" class="ui-icon">
+    <fa v-if="definition.type === 'simple'" v-bind="{ ...definition, ...$attrs }" class="ui-icon" />
+    <fa-layers v-else-if="definition.type === 'stacked'" class="ui-icon">
         <fa v-for="(entry, index) in definition.icons" v-bind="entry" :key="index" :icon="entry.icon" />
     </fa-layers>
 </template>
@@ -25,17 +25,14 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(props, { attrs: $attrs }) {
+    setup(props) {
         const definition = computed<Icon>(() =>
             typeof props.icon === "string"
                 ? icons[props.icon] || icons["unknown"]
                 : { icon: props.icon as IconDefinition, type: "simple" }
         );
 
-        const attrs = computed(() => ({ ...definition.value, ...$attrs }));
-        const type = computed(() => definition.value.type);
-
-        return { definition, attrs, type };
+        return { definition };
     },
 });
 </script>

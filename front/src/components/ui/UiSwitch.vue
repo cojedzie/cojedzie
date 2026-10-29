@@ -3,7 +3,7 @@
         <div class="ui-switch__track">
             <div class="ui-switch__thumb" />
         </div>
-        <input :id="id" type="checkbox" class="ui-switch__checkbox" :checked="value" @change="handleCheckboxChange" />
+        <input type="checkbox" class="ui-switch__checkbox" :checked="value" @change="handleCheckboxChange" />
     </div>
 </template>
 

@@ -82,7 +82,10 @@ function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
     };
 }
 
-function useDepartureSetting(store: VuexStore<StoreDefinition>, setting: keyof DeparturesSettingsState) {
+function useDepartureSetting<TSetting extends keyof DeparturesSettingsState>(
+    store: VuexStore<StoreDefinition>,
+    setting: TSetting
+) {
     return computed(() => store.state["departures-settings"][setting]);
 }
 

@@ -21,6 +21,7 @@ import { Stop } from "./stop";
 import { Line } from "./line";
 import { Moment } from "moment";
 import { Identity } from "./identity";
+import { Trip } from "./trip";
 
 export interface Departure {
     key: string;
@@ -32,7 +33,7 @@ export interface Departure {
     delay: number;
 
     vehicle?: Vehicle;
-    trip?: Identity;
+    trip?: Identity<Trip>;
 }
 
 export interface Vehicle {

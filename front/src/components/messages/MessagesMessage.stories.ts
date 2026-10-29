@@ -410,7 +410,7 @@ export default {
         validFrom: message.validFrom,
         validTo: message.validTo,
     },
-} as Meta<typeof MessagesMessage>;
+} as Meta;
 
 export const Primary: StoryFn = args => ({
     components: { MessagesMessage },

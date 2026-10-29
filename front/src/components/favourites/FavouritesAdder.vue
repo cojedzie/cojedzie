@@ -59,10 +59,10 @@ function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
 export default class FavouritesAdder extends Vue {
     @State stops: Stop[];
 
-    private name = "";
-    private errors = { name: [] };
+    name = "";
+    errors = { name: [] };
 
-    private confirmation = false;
+    confirmation = false;
 
     @Favourites.Mutation add: (favourite: Favourite) => void;
 

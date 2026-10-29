@@ -62,7 +62,7 @@
                             <ui-tooltip>ustawienia</ui-tooltip>
                             <ui-icon icon="settings" fixed-width />
                         </button>
-                        <button class="btn btn-action" @click="updateDepartures({ stops })">
+                        <button class="btn btn-action" @click="updateDepartures()">
                             <ui-tooltip>odśwież</ui-tooltip>
                             <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width />
                         </button>
@@ -193,11 +193,11 @@ import { StopPickerEntry } from "@/components";
 export default class MainPage extends Vue {
     $store: Store<StoreDefinition>;
 
-    private sections = {
+    sections = {
         messages: true,
     };
 
-    private visibility = {
+    visibility = {
         messages: false,
         departures: false,
         save: false,
@@ -206,7 +206,7 @@ export default class MainPage extends Vue {
 
     private intervals = { messages: null, departures: null };
 
-    @State private provider: Provider;
+    @State provider: Provider;
 
     get messages() {
         return {

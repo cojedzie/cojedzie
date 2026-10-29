@@ -12,7 +12,7 @@ import { Options, Vue } from "vue-class-component";
 export class Lazy extends Vue {
     @Prop(Boolean)
     public activate: boolean;
-    protected visible: boolean = false;
+    visible: boolean = false;
 
     @Watch("activate")
     private onVisibilityChange(value, old) {
