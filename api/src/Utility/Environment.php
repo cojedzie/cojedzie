@@ -23,7 +23,8 @@ namespace App\Utility;
 /**
  * Environment variables controlling the app are namespaced: COJEDZIE_, or a subsystem's own prefix such as
  * FEDERATION_ or SENTRY_ (ADR 0011). Their previous names still work:
- * a variable set only under its old name is copied to the new one, with a deprecation notice.
+ * a variable set under its old name is copied to the new one, with a deprecation notice, unless the new name is set
+ * outside .env files too.
  */
 final class Environment
 {
@@ -31,6 +32,7 @@ final class Environment
      * Previous names of renamed variables, by new name.
      */
     public const array LEGACY_NAMES = [
+        'COJEDZIE_DATABASE_URL'                  => 'DATABASE_URL',
         'COJEDZIE_EVENT_QUEUE'                   => 'APP_EVENT_QUEUE',
         'COJEDZIE_SCHEDULE_UPDATE_DATA_SOURCES'  => 'SCHEDULE_UPDATE_DATA_SOURCES',
         'COJEDZIE_SCHEDULE_FEDERATION_CHECK'     => 'SCHEDULE_FEDERATION_CHECK',
@@ -44,7 +46,7 @@ final class Environment
     }
 
     /**
-     * Copies variables set only under their previous name to their new name.
+     * Copies variables set under their previous name to their new name, unless the new name is set outside .env files.
      *
      * @param array<string, mixed> $variables e.g. $_SERVER or $_ENV
      *
@@ -52,8 +54,18 @@ final class Environment
      */
     public static function withLegacyNames(array $variables): array
     {
+        // names loaded from .env files, which only provide defaults
+        $dotenv = explode(',', (string) ($variables['SYMFONY_DOTENV_VARS'] ?? ''));
+
         foreach (self::LEGACY_NAMES as $name => $legacy) {
-            if (!array_key_exists($name, $variables) && array_key_exists($legacy, $variables)) {
+            if (!array_key_exists($legacy, $variables)) {
+                continue;
+            }
+
+            // the repository's .env files only define new names, so an old one was set on purpose
+            $useLegacy = !array_key_exists($name, $variables) || in_array($name, $dotenv, true);
+
+            if ($useLegacy) {
                 trigger_deprecation('cojedzie/api', '2026.10', 'The %s environment variable is deprecated, use %s.', $legacy, $name);
 
                 $variables[$name] = $variables[$legacy];

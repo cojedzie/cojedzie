@@ -48,6 +48,30 @@ final class EnvironmentTest extends TestCase
         $this->assertSame('0 3 * * *', $variables['COJEDZIE_SCHEDULE_UPDATE_DATA_SOURCES']);
     }
 
+    #[IgnoreDeprecations]
+    public function testOldNameSetByTheDeploymentWinsOverANewNameFromDotenv(): void
+    {
+        $variables = Environment::withLegacyNames([
+            'DATABASE_URL'          => 'mysql://db/cojedzie',
+            'COJEDZIE_DATABASE_URL' => 'sqlite:////var/db/app.db',
+            'SYMFONY_DOTENV_VARS'   => 'APP_SECRET,COJEDZIE_DATABASE_URL',
+        ]);
+
+        $this->assertSame('mysql://db/cojedzie', $variables['COJEDZIE_DATABASE_URL']);
+    }
+
+    #[IgnoreDeprecations]
+    public function testOldNameInEnvLocalWinsOverANewNameFromDotenv(): void
+    {
+        $variables = Environment::withLegacyNames([
+            'DATABASE_URL'          => 'mysql://db/cojedzie',
+            'COJEDZIE_DATABASE_URL' => 'sqlite:///app.db',
+            'SYMFONY_DOTENV_VARS'   => 'DATABASE_URL,COJEDZIE_DATABASE_URL',
+        ]);
+
+        $this->assertSame('mysql://db/cojedzie', $variables['COJEDZIE_DATABASE_URL']);
+    }
+
     public function testOtherVariablesAreLeftAlone(): void
     {
         $variables = ['APP_ENV' => 'prod', 'FEDERATION_HUB' => 'https://cojedzie.pl', 'SENTRY_SAMPLE_RATE' => '0.1'];

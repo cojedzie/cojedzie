@@ -30,7 +30,6 @@ COPY --from=base /opt/vendor /var/www/vendor
 COPY --from=base /var/www /var/www
 
 ENV APP_ENV=prod
-ENV DATABASE_URL="sqlite:////var/db/app.db"
 ENV PATH=$PATH:/var/www/bin
 
 VOLUME /var/db
