@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace App\Tests\Schedule;
 
 use App\Message\CleanupFederatedConnections;
+use App\Message\CollectStaleData;
 use App\Message\UpdateDataSources;
 use App\Repository\FederatedConnectionEntityRepository;
 use App\Schedule\DefaultScheduleProvider;
@@ -39,7 +40,7 @@ use Symfony\Component\Scheduler\Schedule;
 
 final class ScheduledMessagesTest extends KernelTestCase
 {
-    public function testUpdateIsRedispatchedToAnExistingTransport(): void
+    public function testDefaultJobsAreRedispatchedToAnExistingTransport(): void
     {
         self::bootKernel();
 
@@ -48,12 +49,15 @@ final class ScheduledMessagesTest extends KernelTestCase
             $messages = [...$messages, ...$recurring->getProvider()->getMessages(new MessageContext('default', $recurring->getId(), $recurring->getTrigger(), new \DateTimeImmutable()))];
         }
 
-        $this->assertCount(1, $messages);
-        $this->assertInstanceOf(RedispatchMessage::class, $messages[0]);
+        $this->assertCount(2, $messages);
+        $this->assertContainsOnlyInstancesOf(RedispatchMessage::class, $messages);
         $this->assertInstanceOf(UpdateDataSources::class, $messages[0]->envelope);
+        $this->assertInstanceOf(CollectStaleData::class, $messages[1]->envelope);
 
-        foreach ((array) $messages[0]->transportNames as $transport) {
-            $this->assertTrue(self::getContainer()->has('messenger.transport.' . $transport), sprintf('Transport "%s" does not exist', $transport));
+        foreach ($messages as $message) {
+            foreach ((array) $message->transportNames as $transport) {
+                $this->assertTrue(self::getContainer()->has('messenger.transport.' . $transport), sprintf('Transport "%s" does not exist', $transport));
+            }
         }
     }
 
@@ -63,11 +67,12 @@ final class ScheduledMessagesTest extends KernelTestCase
             updateDataSources: '30 2 * * *',
             federationCheck: '*/5 * * * *',
             federationCleanup: '0 3 * * 0',
+            collectStaleData: '45 2 * * *',
         );
 
         $hub = new HubScheduleProvider($this->createStub(FederatedConnectionEntityRepository::class), $config);
 
-        $this->assertSame(['30 2 * * *'], self::triggers(new DefaultScheduleProvider($config)->getSchedule()));
+        $this->assertSame(['30 2 * * *', '45 2 * * *'], self::triggers(new DefaultScheduleProvider($config)->getSchedule()));
         $this->assertSame(['*/5 * * * *', '0 3 * * 0'], self::triggers($hub->getSchedule()));
     }
 
@@ -75,11 +80,11 @@ final class ScheduledMessagesTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $this->assertSame(['0 5 * * *'], self::triggers(self::getContainer()->get(DefaultScheduleProvider::class)->getSchedule()));
+        $this->assertSame(['0 5 * * *', '0 6 * * *'], self::triggers(self::getContainer()->get(DefaultScheduleProvider::class)->getSchedule()));
         $this->assertSame(['* * * * *', '0 0 * * *'], self::triggers(self::getContainer()->get(HubScheduleProvider::class)->getSchedule()));
     }
 
-    public function testUpdateIsSentToTheWorker(): void
+    public function testDefaultJobsAreSentToTheWorker(): void
     {
         self::bootKernel();
 
@@ -87,6 +92,7 @@ final class ScheduledMessagesTest extends KernelTestCase
         $senders = self::getContainer()->get('messenger.senders_locator');
 
         $this->assertSame(['main'], array_keys(iterator_to_array($senders->getSenders(new Envelope(new UpdateDataSources())))));
+        $this->assertSame(['main'], array_keys(iterator_to_array($senders->getSenders(new Envelope(new CollectStaleData())))));
     }
 
     public function testScheduledMessagesHaveHandlers(): void
@@ -97,6 +103,7 @@ final class ScheduledMessagesTest extends KernelTestCase
         $handlers = self::getContainer()->get('messenger.bus.default.messenger.handlers_locator');
 
         $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new CleanupFederatedConnections()))));
+        $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new CollectStaleData()))));
     }
 
     /**

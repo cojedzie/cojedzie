@@ -2,6 +2,7 @@
 
 namespace App\Schedule;
 
+use App\Message\CollectStaleData;
 use App\Message\UpdateDataSources;
 use Symfony\Component\Messenger\Message\RedispatchMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
@@ -27,6 +28,10 @@ class DefaultScheduleProvider implements ScheduleProviderInterface
                 RecurringMessage::cron(
                     $this->config->updateDataSources,
                     new RedispatchMessage(new UpdateDataSources(), 'main')
+                ),
+                RecurringMessage::cron(
+                    $this->config->collectStaleData,
+                    new RedispatchMessage(new CollectStaleData(), 'main')
                 )
             );
     }
