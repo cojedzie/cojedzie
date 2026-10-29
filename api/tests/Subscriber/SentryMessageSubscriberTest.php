@@ -59,9 +59,11 @@ final class SentryMessageSubscriberTest extends TestCase
         };
 
         // default integrations install global error handlers, which this test doesn't need
-        $client = ClientBuilder::create(['dsn' => 'https://public@sentry.invalid/1',
-            'traces_sample_rate'               => 1.0,
-            'default_integrations'             => false])
+        $client = ClientBuilder::create([
+            'dsn'                  => 'https://public@sentry.invalid/1',
+            'traces_sample_rate'   => 1.0,
+            'default_integrations' => false,
+        ])
             ->setTransport($transport)
             ->getClient()
         ;

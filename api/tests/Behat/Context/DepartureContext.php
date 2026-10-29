@@ -91,8 +91,7 @@ final readonly class DepartureContext implements Context
     #[When('I ask for :limit departures from :stops after skipping :offset')]
     public function iAskForDeparturesAfterSkipping(int $limit, string $stops, int $offset): void
     {
-        $this->request($stops, ['limit' => $limit,
-            'offset'                    => $offset]);
+        $this->request($stops, ['limit' => $limit, 'offset' => $offset]);
     }
 
     #[Then('I should see departures:')]
@@ -120,8 +119,7 @@ final readonly class DepartureContext implements Context
     public function theDeparturesShouldGoTo(TableNode $expected): void
     {
         $actual = array_map(
-            fn (array $departure) => ['line' => $departure['line']['symbol'],
-                'display'                    => $departure['display']],
+            fn (array $departure) => ['line' => $departure['line']['symbol'], 'display' => $departure['display']],
             $this->departures(),
         );
 
