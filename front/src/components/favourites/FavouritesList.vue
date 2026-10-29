@@ -1,7 +1,7 @@
 <template>
     <div class="favourites">
         <ul v-if="favourites.length > 0" class="list-underlined">
-            <li v-for="favourite in favourites" class="favourite">
+            <li v-for="favourite in favourites" :key="favourite.id" class="favourite">
                 <button class="favourite__entry" @click="choose(favourite)">
                     <div class="icon">
                         <ui-icon icon="favourite" />

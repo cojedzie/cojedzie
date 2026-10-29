@@ -4,7 +4,7 @@
             class="form-control form-control--framed"
             :value="filter"
             placeholder="Zacznij pisać nazwę aby szukać..."
-            @input="filter = $event.target.value"
+            @input="filter = ($event.target as HTMLInputElement).value"
         />
 
         <div v-if="filter.length < 3" class="mt-2">
@@ -16,7 +16,7 @@
             <ui-icon icon="spinner" />
         </div>
         <div v-else-if="filter.length > 2 && Object.keys(filtered).length > 0" class="finder__stops">
-            <div v-for="(group, name) in filtered" :key="group" class="stop-group">
+            <div v-for="(group, name) in filtered" :key="name" class="stop-group">
                 <div class="stop-group__header">
                     <h3 class="stop-group__name">
                         {{ name }}
@@ -33,7 +33,7 @@
                     <li v-for="stop in group" :key="stop.id" class="d-flex">
                         <stop-picker-entry :stop="stop" class="flex-grow-1 finder__stop">
                             <template #primary-action>
-                                <button class="btn btn-action stretched-link" @click="select(stop, $event)">
+                                <button class="btn btn-action stretched-link" @click="select(stop)">
                                     <ui-tooltip>dodaj przystanek</ui-tooltip>
                                     <ui-icon icon="add" />
                                 </button>
@@ -112,7 +112,7 @@ export default class StopPicker extends Vue {
         }
     }
 
-    private select(stop) {
+    select(stop) {
         this.pushToHistory({
             date: this.$moment(),
             stop: stop,

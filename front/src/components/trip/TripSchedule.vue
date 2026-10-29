@@ -3,6 +3,7 @@
         <ol ref="stops" v-dragscroll.x="!$isTouch" class="trip__stops">
             <li
                 v-for="stop in stops"
+                :key="stop.order"
                 class="trip__stop"
                 :class="[stop.current && 'trip__stop--current', stop.visited && 'trip__stop--visited']"
             >
