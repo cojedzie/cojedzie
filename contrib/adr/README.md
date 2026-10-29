@@ -44,6 +44,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0007](0007-imported-rows-are-upserted-portably.md) | Imported rows are upserted portably, importers are tested on recorded feeds | Accepted |
 | [0008](0008-federated-servers-authenticate-through-symfony-security.md) | Federated servers authenticate through Symfony Security | Accepted |
 | [0009](0009-schedules-are-configured-by-environment-variables.md) | Schedules are configured by environment variables | Accepted |
+| [0010](0010-stale-imported-data-is-collected-after-a-retention-period.md) | Stale imported data is collected after a retention period | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
