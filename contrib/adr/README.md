@@ -43,6 +43,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0006](0006-collections-are-php-ds-values-with-kadet-functional-pipelines.md) | Collections are php-ds values with kadet/functional pipelines | Accepted |
 | [0007](0007-imported-rows-are-upserted-portably.md) | Imported rows are upserted portably, importers are tested on recorded feeds | Accepted |
 | [0008](0008-federated-servers-authenticate-through-symfony-security.md) | Federated servers authenticate through Symfony Security | Accepted |
+| [0009](0009-schedules-are-configured-by-environment-variables.md) | Schedules are configured by environment variables | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 

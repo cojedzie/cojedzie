@@ -112,7 +112,8 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   `warning` and up from the rest (`sentry_logs_*` handlers in `prod/monolog.yaml`, `php` and `deprecation`
   excluded): framework channels log every request ("Matched route") and message at `info`, which tracing
   already covers. Add a channel to `sentry_logs_app` to get its `info` logs. `UpdateDataSourcesMessageHandler`
-  sends check-ins to the `update-data-sources` cron monitor, its schedule is `DefaultScheduleProvider::UPDATE_SCHEDULE`.
+  sends check-ins to the `update-data-sources` cron monitor, its schedule is `SCHEDULE_UPDATE_DATA_SOURCES`
+  (`ScheduleConfig::$updateDataSources`).
 - Mercure hub config pins `protocol_version: '0.x'` (mercure-bundle 0.6 defaults to 1.0). HMAC JWT secrets must be
   at least 256 bits; the dev `!ChangeMe!` secret makes `/api/v1/network/nodes` fail when it creates the cookie.
 - The serializer decorator `App\Serialization\Serializer` must implement every interface of Symfony's
