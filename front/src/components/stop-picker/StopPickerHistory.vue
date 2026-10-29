@@ -1,9 +1,9 @@
 <template>
     <ul class="list-underlined history" v-if="all.length > 0">
-        <li v-for="entry in all" class="history__entry">
+        <li v-for="(entry, index) in all" :key="index" class="history__entry">
             <stop-picker-entry :stop="entry.stop" class="flex-grow-1 finder__stop">
                 <template #primary-action>
-                    <button @click="select(entry.stop, $event)" class="btn btn-action stretched-link">
+                    <button @click="select(entry.stop)" class="btn btn-action stretched-link">
                         <ui-icon icon="history" />
                     </button>
                 </template>
@@ -27,6 +27,6 @@ import StopPickerEntry from "./StopPickerEntry.vue";
 export default class StopPickerHistory extends Vue {
     @History.Getter all: HistoryEntry[];
 
-    @Mutation("add") select: (stops: Stop[]) => void;
+    @Mutation("add") select: (stop: Stop) => void;
 }
 </script>

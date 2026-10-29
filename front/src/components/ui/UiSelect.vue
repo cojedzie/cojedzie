@@ -25,7 +25,7 @@
                         <ul class="ui-select__options">
                             <li
                                 v-for="(option, index) in options"
-                                :key="option"
+                                :key="index"
                                 class="ui-select__option"
                                 :class="{
                                     'ui-select__option--hovered': index === selectedIndex,
