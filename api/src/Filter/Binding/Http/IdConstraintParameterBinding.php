@@ -48,8 +48,12 @@ class IdConstraintParameterBinding implements ParameterBinding
     #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
-        if ($value = RequestUtils::get($request, $this->parameter, $this->from)) {
-            yield new IdConstraint(id: $this->isMultiple ? explode(',', (string) $value) : $value);
+        $value = RequestUtils::get($request, $this->parameter, $this->from);
+
+        if ($value && ($this->isMultiple || is_array($value))) {
+            yield new IdConstraint(id: RequestUtils::getList($request, $this->parameter, $this->from));
+        } elseif ($value) {
+            yield new IdConstraint(id: $value);
         } elseif ($this->required) {
             throw InvalidParameterException::invalid($this->parameter, 'at least one value is required');
         }
