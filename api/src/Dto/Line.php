@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  * @phpstan-consistent-constructor
  */
 #[ContentType('vnd.cojedzie.line')]
-class Line implements Fillable, Referable, Dto
+class Line implements Fillable, ReferableDto, Dto
 {
     final public const string TYPE_TRAM       = 'tram';
     final public const string TYPE_BUS        = 'bus';

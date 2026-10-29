@@ -71,23 +71,6 @@ services:
     resource: '../src/Filter/Handler'
     tags: [ app.handler ]
 
-  #proxy configuration
-  proxy.locator:
-    class: 'App\Service\Proxy\FileLocator'
-    arguments: [ '%kernel.cache_dir%/proxy' ]
-
-  proxy.strategy:
-    class: 'ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy'
-    arguments: [ '@proxy.locator' ]
-
-  proxy.config:
-    class: 'ProxyManager\Configuration'
-    calls:
-      - [ 'setGeneratorStrategy', [ '@proxy.strategy' ] ]
-      - [ 'setProxiesTargetDir', [ '%kernel.cache_dir%/proxy' ] ]
-
-  ProxyManager\Configuration: '@proxy.config'
-
   # converter
   App\DataConverter\AggregateConverter:
     arguments:

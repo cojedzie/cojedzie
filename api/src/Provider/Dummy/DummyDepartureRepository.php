@@ -25,18 +25,12 @@ use App\Dto\Line;
 use App\Dto\Vehicle;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
-use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
 
 class DummyDepartureRepository implements DepartureRepository
 {
-    public function __construct(
-        private readonly ReferenceFactory $reference
-    ) {
-    }
-
     #[\Override]
     public function current(iterable $stops, Requirement ...$requirements): Seq
     {
@@ -60,7 +54,7 @@ class DummyDepartureRepository implements DepartureRepository
                 'scheduled' => $scheduled,
                 'estimated' => $estimated,
                 'display'   => $display,
-                'vehicle'   => $this->reference->get(Vehicle::class, $vehicle),
+                'vehicle'   => Vehicle::reference($vehicle),
                 'line'      => Line::createFromArray(['symbol' => $symbol,
                     'type'                                     => $type,
                 ]),

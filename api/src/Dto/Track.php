@@ -28,7 +28,7 @@ use OpenApi\Attributes as OA;
  * @phpstan-consistent-constructor
  */
 #[ContentType('vnd.cojedzie.track')]
-class Track implements Referable, Fillable, Dto
+class Track implements ReferableDto, Fillable, Dto
 {
     use ReferableTrait, FillTrait;
 

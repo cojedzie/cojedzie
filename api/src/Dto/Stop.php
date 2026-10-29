@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
  * @phpstan-consistent-constructor
  */
 #[ContentType('vnd.cojedzie.stop')]
-class Stop implements Referable, Fillable, Dto
+class Stop implements ReferableDto, Fillable, Dto
 {
     use FillTrait, ReferableTrait;
 

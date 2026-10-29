@@ -35,7 +35,6 @@ use App\Provider\Provider;
 use App\Provider\StopRepository;
 use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
-use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
@@ -101,7 +100,6 @@ class ZtmGdanskProvider implements Provider
         GenericScheduleRepository $schedule,
         GenericTripRepository $trips,
         private readonly ZtmGdanskMessageRepository $messages,
-        ReferenceFactory $referenceFactory,
         ClockInterface $clock,
         ZtmGdanskConfig $config,
     ) {
@@ -116,7 +114,7 @@ class ZtmGdanskProvider implements Provider
         $this->lines      = $lines;
         $this->departures = new RealtimeScheduleDepartureRepository(
             $schedule,
-            new ZtmGdanskRealtimeDepartureRepository($lines, $referenceFactory, $config),
+            new ZtmGdanskRealtimeDepartureRepository($lines, $config),
             $clock,
         );
         $this->stops  = $stops;

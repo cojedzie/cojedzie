@@ -72,16 +72,17 @@ Repositories call `$converter->convert($entity, Dto::class)`.
    workers. `EmbedDestinationsDatabaseHandler` clones and resets its own converter for this reason.
 3. The DTO is cached **before** its relations are filled, which breaks conversion cycles.
 
-## Reference DTOs (`JustReference`)
+## Reference DTOs
 
 A DTO that stands for an object without its data, carrying only `id`:
 
-- `Referable::reference($id)` (`ReferableTrait`) creates a plain DTO with only `id` filled. Bindings use it for
-  `RelatedFilter`.
-- `Service/Proxy/ReferenceFactory::get($class, $id)` creates a generated subclass (`friendsofphp/proxy-manager-lts`,
-  `ReferenceObjectGenerator`) that also implements `Dto\JustReference`. `EntityConverter` uses it for unloaded
-  entities. `JustReferenceNormalizer` serializes these with group `reference`, i.e. just `{ "id": ..., "$type": ... }`
-  (pinned by `tests/Service/Proxy/ReferenceFactoryTest`).
+- `ReferableTrait::reference($id)` (e.g. `Stop::reference('123')`) creates the DTO with only `id` filled and marks
+  it as a reference (`isReference()`). DTOs using the trait implement `Dto\ReferableDto`.
+- `ReferenceNormalizer` serializes references with group `reference`, i.e. just `{ "id": ..., "$type": ... }`;
+  a DTO filled any other way serializes in full even if it has only an id (pinned by
+  `tests/Serialization/ReferenceSerializationTest`).
+- Users: `EntityConverter` for unloaded entities, providers for vehicles, lines and stops they only know by id, and
+  bindings for `RelatedFilter`.
 
 The reverse direction is `Service/EntityReferenceFactory::create($dto|array|Seq, $provider)`. It turns
 `Line`/`Stop`/`Track` DTOs into `EntityManager::getReference()` proxies with prefixed ids, which DB handlers
