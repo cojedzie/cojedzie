@@ -55,14 +55,13 @@ class RelatedFilterParameterBinding implements ParameterBinding
     #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
-        $value = RequestUtils::get($request, $this->parameter, $this->from);
+        $ids = RequestUtils::getList($request, $this->parameter, $this->from);
 
-        if ($value === null) {
+        if ($ids === null) {
             return;
         }
 
-        $related = explode(',', (string) $value);
-        $related = array_map($this->reference(...), $related);
+        $related = array_map($this->reference(...), $ids);
 
         yield new RelatedFilter(
             reference: $related,

@@ -25,6 +25,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -73,8 +74,21 @@ class JSONFormatSubscriber implements EventSubscriberInterface
             $request->attributes->set('_format', 'json');
         }
 
-        if ($request->getContentTypeFormat() === 'json') {
-            $request->request->replace(json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR));
+        // sub-requests (e.g. the error controller's) copy the main request's body, which is decoded already
+        if (!$event->isMainRequest() || $request->getContentTypeFormat() !== 'json' || $request->getContent() === '') {
+            return;
         }
+
+        try {
+            $body = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new BadRequestHttpException('The request body is not valid JSON.', $exception);
+        }
+
+        if (!is_array($body)) {
+            throw new BadRequestHttpException('The request body must be a JSON object.');
+        }
+
+        $request->request->replace($body);
     }
 }
