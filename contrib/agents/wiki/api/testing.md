@@ -78,6 +78,11 @@ see `features/contract/nested-references.feature`) never happen in tests.
 - Malformed `limit`/`offset` (not a non-negative integer), unknown filter operators (`name:bogus`) and departures
   without any `stop` → 400. `limit` above the maximum is clamped; `limit=0` → empty list.
 - Unknown and repeated stop ids in `stop[]` are ignored.
+- List parameters (`stop`, `id`, related filters) accept `a,b` and `a[]=..`; a nested list (`stop[][]=..`) or a
+  list where one value is expected (`limit[]=1`) → 400.
+- A JSON body that doesn't parse or isn't an object → 400.
+- CORS allows `CORS_ALLOW_ORIGIN` plus the hub by its exact origin (`%env(origin_regex:FEDERATION_HUB)%`).
+  `tests/bootstrap.php` pins `CORS_ALLOW_ORIGIN`, because the container's env may allow any origin.
 - Federation endpoints: no or wrong credentials → 401 with `WWW-Authenticate: Basic realm="Co Jedzie federation"`;
   a URL outside the server's registered prefix or another server's connection → 403; a missing or non-http(s)
   URL → 400.
