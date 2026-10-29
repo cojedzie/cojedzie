@@ -24,13 +24,18 @@ namespace App\Tests\Schedule;
 
 use App\Message\CleanupFederatedConnections;
 use App\Message\UpdateDataSources;
+use App\Repository\FederatedConnectionEntityRepository;
 use App\Schedule\DefaultScheduleProvider;
+use App\Schedule\HubScheduleProvider;
+use App\Schedule\ScheduleConfig;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Handler\HandlersLocatorInterface;
 use Symfony\Component\Messenger\Message\RedispatchMessage;
 use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
 use Symfony\Component\Scheduler\Generator\MessageContext;
+use Symfony\Component\Scheduler\RecurringMessage;
+use Symfony\Component\Scheduler\Schedule;
 
 final class ScheduledMessagesTest extends KernelTestCase
 {
@@ -52,6 +57,28 @@ final class ScheduledMessagesTest extends KernelTestCase
         }
     }
 
+    public function testSchedulesFollowTheirConfiguration(): void
+    {
+        $config = new ScheduleConfig(
+            updateDataSources: '30 2 * * *',
+            federationCheck: '*/5 * * * *',
+            federationCleanup: '0 3 * * 0',
+        );
+
+        $hub = new HubScheduleProvider($this->createStub(FederatedConnectionEntityRepository::class), $config);
+
+        $this->assertSame(['30 2 * * *'], self::triggers(new DefaultScheduleProvider($config)->getSchedule()));
+        $this->assertSame(['*/5 * * * *', '0 3 * * 0'], self::triggers($hub->getSchedule()));
+    }
+
+    public function testSchedulesDefaultToTheProductionTimes(): void
+    {
+        self::bootKernel();
+
+        $this->assertSame(['0 5 * * *'], self::triggers(self::getContainer()->get(DefaultScheduleProvider::class)->getSchedule()));
+        $this->assertSame(['* * * * *', '0 0 * * *'], self::triggers(self::getContainer()->get(HubScheduleProvider::class)->getSchedule()));
+    }
+
     public function testUpdateIsSentToTheWorker(): void
     {
         self::bootKernel();
@@ -70,5 +97,13 @@ final class ScheduledMessagesTest extends KernelTestCase
         $handlers = self::getContainer()->get('messenger.bus.default.messenger.handlers_locator');
 
         $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new CleanupFederatedConnections()))));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function triggers(Schedule $schedule): array
+    {
+        return array_map(fn (RecurringMessage $message) => (string) $message->getTrigger(), array_values($schedule->getRecurringMessages()));
     }
 }

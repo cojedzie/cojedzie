@@ -24,6 +24,7 @@ namespace App\Tests\MessageHandler;
 
 use App\Message\UpdateDataSources;
 use App\MessageHandler\UpdateDataSourcesMessageHandler;
+use App\Schedule\ScheduleConfig;
 use App\Service\DataUpdater;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -66,7 +67,11 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
             }
         );
 
-        $handler = new UpdateDataSourcesMessageHandler($updater, $hub);
+        $handler = new UpdateDataSourcesMessageHandler($updater, $hub, new ScheduleConfig(
+            updateDataSources: '30 2 * * *',
+            federationCheck: '* * * * *',
+            federationCleanup: '0 0 * * *',
+        ));
         $handler->setLogger(new NullLogger());
         $handler(new UpdateDataSources());
     }
@@ -79,7 +84,7 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
 
         $this->assertSame('update-data-sources', $slug);
         $this->assertSame(CheckInStatus::inProgress(), $status);
-        $this->assertSame('0 5 * * *', $config?->getSchedule()->getValue());
+        $this->assertSame('30 2 * * *', $config?->getSchedule()->getValue());
 
         $this->assertSame('update-data-sources', $finishedSlug);
         $this->assertSame($result, $finishedStatus);

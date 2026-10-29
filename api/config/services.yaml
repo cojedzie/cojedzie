@@ -12,6 +12,11 @@ parameters:
   env(FEDERATION_URL): null
   env(FEDERATION_SERVER_SECRET): null
 
+  # cron expressions, see App\Schedule\ScheduleConfig
+  env(SCHEDULE_UPDATE_DATA_SOURCES): '0 5 * * *'
+  env(SCHEDULE_FEDERATION_CHECK): '* * * * *'
+  env(SCHEDULE_FEDERATION_CLEANUP): '0 0 * * *'
+
   env(CORS_ALLOW_ORIGIN): '^https?://.*'
 
   env(MERCURE_JWT_SECRET): ''

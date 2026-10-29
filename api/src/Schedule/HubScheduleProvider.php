@@ -36,6 +36,7 @@ class HubScheduleProvider implements ScheduleProviderInterface
 
     public function __construct(
         private readonly FederatedConnectionEntityRepository $federatedConnectionEntityRepository,
+        private readonly ScheduleConfig $config,
     ) {
     }
 
@@ -44,8 +45,11 @@ class HubScheduleProvider implements ScheduleProviderInterface
     {
         return $this->schedule ??= new Schedule()
             ->with(
-                RecurringMessage::every('1 minute', new CallbackMessageProvider($this->generateCheckConnectionMessages(...), 'federation:check')),
-                RecurringMessage::cron('@daily', new CleanupFederatedConnections())
+                RecurringMessage::cron(
+                    $this->config->federationCheck,
+                    new CallbackMessageProvider($this->generateCheckConnectionMessages(...), 'federation:check')
+                ),
+                RecurringMessage::cron($this->config->federationCleanup, new CleanupFederatedConnections())
             );
     }
 
