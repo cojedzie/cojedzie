@@ -83,7 +83,7 @@ task benchmark:api                # phpbench
 
 - `docker-compose.rr.yml` runs the API on RoadRunner instead of php-fpm; `docker-compose.federated.yml` adds a
   federated node; `docker-compose.elastic.yml` adds Elasticsearch/Kibana.
-- `worker`/`cron` services require `api/.env.local` to exist.
+- `worker`/`schedule` services require `api/.env.local` to exist.
 - `APP_MODE` (`debug` default, `performance`) controls the API container runtime mode.
 
 ## Conventions
