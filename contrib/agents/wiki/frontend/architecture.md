@@ -39,6 +39,17 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 Prettier (`printWidth: 120`, `arrowParens: avoid`) + ESLint (`.eslintrc.js`). Source files carry the AGPL
 license header.
 
+## Checks
+
+`task lint:front` runs `yarn check:format` (Prettier), `yarn lint` (ESLint, errors fail, warnings don't) and
+`yarn check:types` (`vue-tsc` for the app including `.vue` templates, plain `tsc` for `server/`); `task test:front`
+runs Vitest. CI runs the same scripts in the `test-front` job, which the Release workflow requires next to `test`.
+The type check needs the FontAwesome Pro packages in `resources/fontawesome` (fetched in CI by
+`.github/actions/fontawesome`).
+
+Vite does not type check, so a broken type only shows up in these checks. Members of class components that a
+template uses must be public: `vue-tsc` checks templates against the class.
+
 ## API nodes and load balancing
 
 `src/api/loadbalancer.ts` keeps a list of available nodes (Vuex `network` module, refreshed every 60s) and picks

@@ -10,6 +10,7 @@
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
+    "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
       "@resources/*": ["./resources/*"],
