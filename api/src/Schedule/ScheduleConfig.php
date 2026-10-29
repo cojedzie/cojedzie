@@ -38,6 +38,9 @@ final readonly class ScheduleConfig
         // removal of closed federated connections, on the hub
         #[Autowire(env: 'SCHEDULE_FEDERATION_CLEANUP')]
         public string $federationCleanup,
+        // removal of imported data that disappeared upstream, see StaleDataCollector
+        #[Autowire(env: 'SCHEDULE_COLLECT_STALE_DATA')]
+        public string $collectStaleData,
     ) {
     }
 }

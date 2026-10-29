@@ -71,6 +71,7 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
             updateDataSources: '30 2 * * *',
             federationCheck: '* * * * *',
             federationCleanup: '0 0 * * *',
+            collectStaleData: '0 6 * * *',
         ));
         $handler->setLogger(new NullLogger());
         $handler(new UpdateDataSources());
