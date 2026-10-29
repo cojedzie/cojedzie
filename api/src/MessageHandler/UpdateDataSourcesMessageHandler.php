@@ -21,7 +21,7 @@
 namespace App\MessageHandler;
 
 use App\Message\UpdateDataSources;
-use App\Schedule\DefaultScheduleProvider;
+use App\Schedule\ScheduleConfig;
 use App\Service\DataUpdater;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -42,6 +42,7 @@ final class UpdateDataSourcesMessageHandler implements LoggerAwareInterface
     public function __construct(
         private readonly DataUpdater $updater,
         private readonly HubInterface $hub,
+        private readonly ScheduleConfig $schedules,
     ) {
     }
 
@@ -51,7 +52,7 @@ final class UpdateDataSourcesMessageHandler implements LoggerAwareInterface
             self::MONITOR,
             CheckInStatus::inProgress(),
             monitorConfig: new MonitorConfig(
-                MonitorSchedule::crontab(DefaultScheduleProvider::UPDATE_SCHEDULE),
+                MonitorSchedule::crontab($this->schedules->updateDataSources),
                 checkinMargin: 30,
                 maxRuntime: 120,
                 timezone: date_default_timezone_get(),
