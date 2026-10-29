@@ -27,7 +27,7 @@ use OpenApi\Attributes as OA;
  * @phpstan-consistent-constructor
  */
 #[ContentType('vnd.cojedzie.message')]
-class Message implements Fillable, Dto, Referable, HasRefs
+class Message implements Fillable, Dto, ReferableDto, HasRefs
 {
     use FillTrait;
     use ReferableTrait;

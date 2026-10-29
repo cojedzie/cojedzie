@@ -29,7 +29,6 @@ use App\Provider\InMemory\InMemoryRepository;
 use App\Provider\MessageRepository;
 use App\Service\HandlerProviderFactory;
 use App\Service\IdUtils;
-use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -49,7 +48,6 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         private readonly ZtmGdanskMessageTypeClassifier $classifier,
         private readonly ZtmGdanskMessageLineExtractor $lineExtractor,
         private readonly ZtmGdanskDisplayToStopResolver $displayToStopResolver,
-        private readonly ReferenceFactory $referenceFactory,
         private readonly Connection $connection,
         private readonly IdUtils $idUtils,
         HandlerProviderFactory $handlerProviderFactory,
@@ -122,7 +120,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
             ->iterateKeyValue();
 
         foreach ($linesBySymbol as $symbol => $id) {
-            $line = $this->referenceFactory->get(Line::class, $this->idUtils->strip($id));
+            $line = Line::reference($this->idUtils->strip($id));
 
             /** @var Message $message */
             foreach ($messagesBySymbol[$symbol] as $message) {
@@ -178,7 +176,7 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         $stopIds = $this->displayToStopResolver->mapDisplayCodeToStops($ztmMessage['displayCode']);
 
         return array_map(
-            fn ($id) => $this->referenceFactory->get(Stop::class, $id),
+            Stop::reference(...),
             $stopIds
         );
     }

@@ -20,10 +20,13 @@
 
 namespace App\Serialization\Normalizer;
 
-use App\Dto\JustReference;
+use App\Dto\ReferableDto;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class JustReferenceNormalizer implements NormalizerInterface
+/**
+ * Serializes references (see ReferableTrait::reference()) with their id only.
+ */
+class ReferenceNormalizer implements NormalizerInterface
 {
     public function __construct(
         private readonly DtoNormalizer $normalizer
@@ -46,12 +49,13 @@ class JustReferenceNormalizer implements NormalizerInterface
     #[\Override]
     public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
-        return $data instanceof JustReference;
+        return $data instanceof ReferableDto && $data->isReference();
     }
 
     #[\Override]
     public function getSupportedTypes(?string $format): array
     {
-        return [JustReference::class => true];
+        // whether an object is a reference depends on the object, not its type
+        return [ReferableDto::class => false];
     }
 }

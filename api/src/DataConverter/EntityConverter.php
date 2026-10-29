@@ -23,7 +23,6 @@ namespace App\DataConverter;
 use App\Dto\{Dto, Line, Location, Operator, Stop, Track, Trip};
 use App\Entity\{Entity, LineEntity, OperatorEntity, StopEntity, TrackEntity, TripEntity};
 use App\Service\IdUtils;
-use App\Service\Proxy\ReferenceFactory;
 use Doctrine\ORM\PersistentCollection;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
@@ -36,7 +35,6 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
 
     public function __construct(
         private readonly IdUtils $id,
-        private readonly ReferenceFactory $reference
     ) {
         $this->cache = [];
     }
@@ -145,7 +143,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
         $id    = $this->id->strip($entity->getId());
         $class = $this->getModelClassForEntity($entity);
 
-        return $this->reference->get($class, ['id' => $id]);
+        return $class::reference($id);
     }
 
     #[\Override]

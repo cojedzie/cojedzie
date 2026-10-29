@@ -24,7 +24,7 @@ namespace App\Dto;
  * @phpstan-consistent-constructor
  */
 #[ContentType('vnd.cojedzie.vehicle')]
-class Vehicle implements Referable, Fillable, Dto
+class Vehicle implements ReferableDto, Fillable, Dto
 {
     use ReferableTrait, FillTrait;
 

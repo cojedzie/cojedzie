@@ -28,7 +28,6 @@ use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
-use App\Service\Proxy\ReferenceFactory;
 use Carbon\Carbon;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
@@ -46,7 +45,6 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
 
     public function __construct(
         private readonly LineRepository $lines,
-        private readonly ReferenceFactory $reference,
         private readonly ZtmGdanskConfig $config,
     ) {
     }
@@ -90,7 +88,7 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
                 'stop'      => $stop,
                 'display'   => trim((string) $departure['headsign']),
                 'vehicle'   => $departure['vehicleCode'] !== null
-                    ? $this->reference->get(Vehicle::class, $departure['vehicleCode'])
+                    ? Vehicle::reference($departure['vehicleCode'])
                     : null,
                 'line'      => $lines->get((string) $departure['routeId'], null) ?: Line::createFromArray([
                     'id'     => (string) $departure['routeId'],

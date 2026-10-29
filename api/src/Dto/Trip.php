@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  * @phpstan-consistent-constructor
  */
 #[ContentType('vnd.cojedzie.trip')]
-class Trip implements Referable, Fillable, Dto
+class Trip implements ReferableDto, Fillable, Dto
 {
     use ReferableTrait, FillTrait;
 

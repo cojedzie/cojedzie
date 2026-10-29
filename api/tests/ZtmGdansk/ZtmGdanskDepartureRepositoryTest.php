@@ -37,7 +37,6 @@ use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskRealtimeDepartureRepository;
-use App\Service\Proxy\ReferenceFactory;
 use App\Tests\ZtmGdansk\Support\EstimatesStream;
 use Carbon\Carbon;
 use Ds\Seq;
@@ -213,7 +212,6 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             $this->scheduleRepository(),
             new ZtmGdanskRealtimeDepartureRepository(
                 $this->lineRepository(),
-                self::getContainer()->get(ReferenceFactory::class),
                 self::config(),
             ),
             new MockClock(Carbon::now()->toDateTimeImmutable()),

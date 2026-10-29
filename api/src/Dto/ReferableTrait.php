@@ -21,6 +21,7 @@
 namespace App\Dto;
 
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 trait ReferableTrait
 {
@@ -31,6 +32,12 @@ trait ReferableTrait
      */
     #[Groups(['default', 'reference', 'minimal'])]
     private string $id;
+
+    /**
+     * Whether this object only stands for the one with its id, see reference().
+     */
+    #[Ignore]
+    private bool $reference = false;
 
     public function getId(): string
     {
@@ -50,7 +57,14 @@ trait ReferableTrait
 
         $result = new static();
         $result->fill($id);
+        $result->reference = true;
 
         return $result;
+    }
+
+    #[Ignore]
+    public function isReference(): bool
+    {
+        return $this->reference;
     }
 }

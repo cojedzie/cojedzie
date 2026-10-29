@@ -18,27 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Service\Proxy;
+namespace App\Dto;
 
-use ProxyManager\Factory\AbstractBaseFactory;
-use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
-
-class ReferenceFactory extends AbstractBaseFactory
+/**
+ * A DTO that may stand for its object by id alone (see ReferableTrait::reference()), which is then serialized with
+ * the "reference" group only.
+ */
+interface ReferableDto extends Referable
 {
-    public function get($class, $id)
-    {
-        $id = is_array($id) ? $id : compact('id');
-
-        $proxy = $this->generateProxy($class);
-
-        $object = new $proxy();
-        $object->fill($id);
-        return $object;
-    }
-
-    #[\Override]
-    protected function getGenerator(): ProxyGeneratorInterface
-    {
-        return new ReferenceObjectGenerator();
-    }
+    public function isReference(): bool;
 }

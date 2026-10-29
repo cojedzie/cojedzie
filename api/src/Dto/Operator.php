@@ -24,7 +24,7 @@ namespace App\Dto;
  * @phpstan-consistent-constructor
  */
 #[ContentType('vnd.cojedzie.operator')]
-class Operator implements Fillable, Referable, Dto
+class Operator implements Fillable, ReferableDto, Dto
 {
     use FillTrait, ReferableTrait;
 
