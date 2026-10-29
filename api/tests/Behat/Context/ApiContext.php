@@ -108,6 +108,12 @@ final readonly class ApiContext implements Context
         Assert::assertSame($value, $this->client->lastResponse()->headers->get($name));
     }
 
+    #[Then('the response should not have the header :name')]
+    public function theResponseShouldNotHaveTheHeader(string $name): void
+    {
+        Assert::assertFalse($this->client->lastResponse()->headers->has($name), sprintf('The response has the header "%s".', $name));
+    }
+
     #[Then('the response\'s :field should be :value')]
     public function theResponsesFieldShouldBe(string $field, string $value): void
     {

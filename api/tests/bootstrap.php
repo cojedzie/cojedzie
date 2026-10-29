@@ -4,6 +4,9 @@ use Symfony\Component\Dotenv\Dotenv;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+// the container's env may allow any origin, which would hide what CORS scenarios check
+$_SERVER['CORS_ALLOW_ORIGIN'] = $_ENV['CORS_ALLOW_ORIGIN'] = '^https://frontend\.example$';
+
 if (file_exists(dirname(__DIR__) . '/config/bootstrap.php')) {
     require dirname(__DIR__) . '/config/bootstrap.php';
 } elseif (method_exists(Dotenv::class, 'bootEnv')) {
