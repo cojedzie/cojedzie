@@ -69,13 +69,14 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
         EstimatesStream::register();
         Carbon::setTestNow(Carbon::parse('2026-10-20 12:00', self::ZONE));
 
-        $this->stop = Stop::createFromArray(['id' => '1001',
-            'name'                                => 'Brama Wyżynna']);
+        $this->stop = Stop::createFromArray(['id' => '1001', 'name' => 'Brama Wyżynna']);
 
         foreach (['6', '12'] as $symbol) {
-            $this->lines[$symbol] = Line::createFromArray(['id' => $symbol,
-                'symbol'                                        => $symbol,
-                'type'                                          => Line::TYPE_TRAM]);
+            $this->lines[$symbol] = Line::createFromArray([
+                'id'     => $symbol,
+                'symbol' => $symbol,
+                'type'   => Line::TYPE_TRAM,
+            ]);
         }
     }
 
@@ -230,8 +231,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             'track'     => Track::createFromArray([
                 'id'          => $line . '-1',
                 'line'        => $this->lines[$line],
-                'destination' => Stop::createFromArray(['id' => 'end-' . $line,
-                    'name'                                   => $destination]),
+                'destination' => Stop::createFromArray(['id' => 'end-' . $line, 'name' => $destination]),
             ]),
             'trip'      => Trip::reference($trip),
         ]);

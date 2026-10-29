@@ -66,8 +66,7 @@ final readonly class StopContext implements Context
     #[When('I search for stops named :name with destinations')]
     public function iSearchForStopsNamedWithDestinations(string $name): void
     {
-        $this->search(['name' => $name,
-            'embed'           => 'destinations']);
+        $this->search(['name' => $name, 'embed' => 'destinations']);
     }
 
     #[When('I list stops named :name with destinations')]

@@ -78,8 +78,7 @@ final class TableUpserterTest extends ImporterTestCase
         try {
             $this->connection->transactional(fn () => $this->upsert($event, [
                 'trojmiasto::1' => ['name' => 'Written'],
-                'trojmiasto::2' => ['name' => 'Broken',
-                    'no_such_column'       => 1],
+                'trojmiasto::2' => ['name' => 'Broken', 'no_such_column' => 1],
             ]));
             $this->fail('The upsert should have failed.');
         } catch (Exception) {

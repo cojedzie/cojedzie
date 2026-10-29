@@ -10,6 +10,7 @@ use PhpCsFixer\Fixer\Import\NoUnusedImportsFixer;
 use PhpCsFixer\Fixer\Operator\BinaryOperatorSpacesFixer;
 use PhpCsFixer\Fixer\Operator\NotOperatorWithSuccessorSpaceFixer;
 use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
+use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer;
 use Symplify\CodingStandard\Fixer\Commenting\MergeDocBlockStartFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
@@ -34,7 +35,9 @@ return ECSConfig::configure()
         NotOperatorWithSuccessorSpaceFixer::class,
         SingleTraitInsertPerStatementFixer::class,
         ConstantCaseFixer::class,
+        // Both put every keyed array on many lines, even ['id' => $id]; multiline arrays are written by hand
         ArrayOpenerAndCloserNewlineFixer::class,
+        ArrayListItemNewlineFixer::class,
         // Added to the sets in ECS 13; would rewrite the license header of every file
         MergeDocBlockStartFixer::class,
         BlankLineAfterOpeningTagFixer::class,

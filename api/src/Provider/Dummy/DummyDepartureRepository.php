@@ -55,9 +55,7 @@ class DummyDepartureRepository implements DepartureRepository
                 'estimated' => $estimated,
                 'display'   => $display,
                 'vehicle'   => Vehicle::reference($vehicle),
-                'line'      => Line::createFromArray(['symbol' => $symbol,
-                    'type'                                     => $type,
-                ]),
+                'line'      => Line::createFromArray(['symbol' => $symbol, 'type' => $type]),
             ]);
         });
     }

@@ -38,8 +38,7 @@ final class FieldFilterParameterBindingTest extends TestCase
             parameter: 'order',
             field: 'order',
             operators: ['eq' => FieldFilterOperator::Equals],
-            documentation: ['schema' => ['type' => 'integer',
-                'minimum'                       => 0]],
+            documentation: ['schema' => ['type' => 'integer', 'minimum' => 0]],
         );
 
         /** @var Parameter $parameter */
@@ -56,9 +55,12 @@ final class FieldFilterParameterBindingTest extends TestCase
             parameter: 'type',
             field: 'type',
             operators: ['eq' => FieldFilterOperator::Equals],
-            documentation: ['schema' => ['type' => 'array',
-                'items'                         => ['type' => 'string',
-                    'enum'                                 => ['info']]]],
+            documentation: [
+                'schema' => [
+                    'type'  => 'array',
+                    'items' => ['type' => 'string', 'enum' => ['info']],
+                ],
+            ],
         );
 
         /** @var Parameter $parameter */
