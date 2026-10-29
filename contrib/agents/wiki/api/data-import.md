@@ -16,9 +16,23 @@ difference and was removed.
 
 Run it with `task api:update` (uses `APP_MODE=performance` by default).
 
-Scheduling: `src/Schedule` (Symfony Scheduler) plus `Message/UpdateDataSources` handled by
-`MessageHandler/UpdateDataSourcesMessageHandler`. Production runs them through Messenger workers; the `cron` image
-and its `schedule:run` crontab are leftovers (that command doesn't exist).
+Scheduling (ADR 0009): Symfony Scheduler in `src/Schedule`. Each schedule is a cron expression in its own
+environment variable, read by `ScheduleConfig` (defaults in `config/services.yaml`):
+
+| Variable | Default | Job | Transport |
+|---|---|---|---|
+| `SCHEDULE_UPDATE_DATA_SOURCES` | `0 5 * * *` | redispatch `UpdateDataSources` to `main` (the import) | `scheduler_default` |
+| `SCHEDULE_FEDERATION_CHECK` | `* * * * *` | `CheckFederatedConnection` for connections due | `scheduler_hub` |
+| `SCHEDULE_FEDERATION_CLEANUP` | `0 0 * * *` | `CleanupFederatedConnections` | `scheduler_hub` |
+
+A schedule only runs where a worker consumes its transport (`COJEDZIE_WORKER_QUEUES`):
+
+- Production: `worker` consumes `main`; a separate `schedule` service (worker image) consumes
+  `scheduler_default scheduler_hub`. The dev `docker-compose.yml` mirrors it.
+- The `standalone` image consumes `main scheduler_default`: it imports its own data but doesn't check nodes.
+- `UpdateDataSourcesMessageHandler` handles the import and reports the configured schedule to Sentry.
+
+Use cron syntax, not `@daily`: in `services.yaml` a leading `@` is read as a service reference.
 
 `bin/docker-init.sh` runs migrations **and** a synchronous `app:update` on container start whenever migrations
 are out of date.
