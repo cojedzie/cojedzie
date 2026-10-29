@@ -52,7 +52,7 @@ app.directive("dragscroll", dragscrollNext);
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         $isTouch: boolean;
-        $hasSlot: (slot: string) => string;
+        $hasSlot: (slot: string) => boolean;
         $moment: typeof moment;
         $store: Store<StoreDefinition>;
         $f: {

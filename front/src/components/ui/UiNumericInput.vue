@@ -47,7 +47,7 @@ const emit = defineEmits<{
 
 const clamp = (value: number) => Math.max(Math.min(value, props.max), props.min);
 
-function update(ev: InputEvent) {
+function update(ev: Event) {
     const target = ev.target as HTMLInputElement;
     emit("update:value", clamp(Number.parseInt(target.value)));
 }

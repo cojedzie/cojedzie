@@ -37,7 +37,7 @@
                     :value="autorefreshInterval"
                     @input="
                         update({
-                            autorefreshInterval: Number.parseInt($event.target.value),
+                            autorefreshInterval: Number.parseInt(($event.target as HTMLInputElement).value),
                         })
                     "
                 />

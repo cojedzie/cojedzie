@@ -1,5 +1,5 @@
 <template>
-    <l-map v-bind="{ ...$attrs, ...$props }" ref="map" :options="{ zoomSnap: 0.1, ...options }" :max-zoom="17">
+    <l-map v-bind="{ ...$attrs, ...$props }" ref="map" :options="mapOptions" :max-zoom="17">
         <l-vector-layer
             :url="`https://api.maptiler.com/maps/bright/style.json?key=${key}`"
             attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>'
@@ -12,7 +12,7 @@
 <script lang="ts">
 import { LMap, LVectorLayer } from "@/components/map";
 import { computed, ComputedRef, defineComponent, onBeforeUnmount, onMounted, ref } from "vue";
-import { Map } from "leaflet";
+import { Map, MapOptions } from "leaflet";
 import { useAppConfig } from "@/composables/useAppConfig";
 
 const leaflet = Symbol("leaflet");
@@ -47,6 +47,11 @@ export default defineComponent({
         } = useAppConfig();
 
         const map = ref();
+        // LMap ships no typings, so its props are not known here
+        const mapOptions = computed<MapOptions>(() => ({
+            zoomSnap: 0.1,
+            ...(props as { options?: MapOptions }).options,
+        }));
         const leafletObject = computed<Map>(() => map.value?.leafletObject);
 
         expose({ leafletObject });
@@ -65,6 +70,7 @@ export default defineComponent({
         return {
             key,
             map,
+            mapOptions,
         };
     },
 });

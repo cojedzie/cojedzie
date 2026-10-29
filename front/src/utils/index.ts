@@ -30,12 +30,8 @@ try {
     console.log("no performance");
 }
 
-type Simplify<T> = string | T extends string
-    ? string
-    : T extends number
-    ? number
-    : T extends boolean
-    ? boolean
+type Simplify<T> = T extends string | number | boolean
+    ? T
     : T extends Moment
     ? string
     : T extends Array<infer K>
