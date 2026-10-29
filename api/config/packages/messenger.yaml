@@ -1,10 +1,10 @@
 parameters:
-  env(APP_EVENT_QUEUE): "doctrine://default"
+  env(COJEDZIE_EVENT_QUEUE): "doctrine://default"
 
 framework:
   messenger:
     transports:
-      main: '%env(resolve:APP_EVENT_QUEUE)%'
+      main: '%env(resolve:COJEDZIE_EVENT_QUEUE)%'
       sync: 'sync://'
 
     # the worker consumes main, see COJEDZIE_WORKER_QUEUES

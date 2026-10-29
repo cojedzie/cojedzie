@@ -13,13 +13,13 @@ parameters:
   env(FEDERATION_SERVER_SECRET): null
 
   # cron expressions, see App\Schedule\ScheduleConfig
-  env(SCHEDULE_UPDATE_DATA_SOURCES): '0 5 * * *'
-  env(SCHEDULE_FEDERATION_CHECK): '* * * * *'
-  env(SCHEDULE_FEDERATION_CLEANUP): '0 0 * * *'
-  env(SCHEDULE_COLLECT_STALE_DATA): '0 6 * * *'
+  env(COJEDZIE_SCHEDULE_UPDATE_DATA_SOURCES): '0 5 * * *'
+  env(COJEDZIE_SCHEDULE_FEDERATION_CHECK): '* * * * *'
+  env(COJEDZIE_SCHEDULE_FEDERATION_CLEANUP): '0 0 * * *'
+  env(COJEDZIE_SCHEDULE_COLLECT_STALE_DATA): '0 6 * * *'
 
   # how long imported rows stay after the last import that wrote them, see App\DataImport\StaleDataCollector
-  env(STALE_DATA_RETENTION): '7 days'
+  env(COJEDZIE_STALE_DATA_RETENTION): '7 days'
 
   env(CORS_ALLOW_ORIGIN): '^https?://.*'
 

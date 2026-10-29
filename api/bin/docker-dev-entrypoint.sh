@@ -1,6 +1,10 @@
 #!/bin/sh
 
-if [ "$APP_MODE" != "debug" ]; then
+# APP_MODE and APP_RUNAS are the previous names (ADR 0011)
+COJEDZIE_API_MODE="${COJEDZIE_API_MODE:-${APP_MODE:-debug}}"
+COJEDZIE_RUNAS="${COJEDZIE_RUNAS:-$APP_RUNAS}"
+
+if [ "$COJEDZIE_API_MODE" != "debug" ]; then
     rm -f "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
 
     {
@@ -10,8 +14,8 @@ if [ "$APP_MODE" != "debug" ]; then
     } >> "$PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini";
 fi
 
-if [ -n "$APP_RUNAS" ]; then
-    exec su-exec "$APP_RUNAS" tini -- "$@"
+if [ -n "$COJEDZIE_RUNAS" ]; then
+    exec su-exec "$COJEDZIE_RUNAS" tini -- "$@"
 else
     exec tini -- "$@"
 fi

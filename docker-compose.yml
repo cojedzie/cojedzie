@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     command: ["php-fpm"]
     environment:
-      - APP_MODE=${APP_MODE:-debug}
+      - COJEDZIE_API_MODE=${COJEDZIE_API_MODE:-${APP_MODE:-debug}}
       - CORS_ALLOW_ORIGIN=*
     env_file:
       - .docker-compose/api/.env

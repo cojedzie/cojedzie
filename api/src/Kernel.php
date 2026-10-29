@@ -20,10 +20,20 @@
 
 namespace App;
 
+use App\Utility\Environment;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
+
+    public function __construct(string $environment, bool $debug)
+    {
+        // before the container reads any variable, so the previous names of renamed ones keep working
+        $_SERVER = Environment::withLegacyNames($_SERVER);
+        $_ENV    = Environment::withLegacyNames($_ENV);
+
+        parent::__construct($environment, $debug);
+    }
 }

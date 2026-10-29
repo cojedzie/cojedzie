@@ -65,7 +65,7 @@ class StaleDataCollector
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
         // how long rows stay after the last import that wrote them, e.g. "7 days"
-        #[Autowire(env: 'STALE_DATA_RETENTION')]
+        #[Autowire(env: 'COJEDZIE_STALE_DATA_RETENTION')]
         private readonly string $retention,
     ) {
     }
