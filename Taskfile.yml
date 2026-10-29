@@ -37,8 +37,8 @@ tasks:
   lint:api:
     desc: Check API code style (ECS), pending Rector changes and PHPStan, as CI does
     cmds:
-      - docker compose run --rm -e APP_MODE=performance api vendor/bin/ecs check --no-progress-bar
-      - docker compose run --rm -e APP_MODE=performance -u {{.USER}} api vendor/bin/rector process --dry-run --no-progress-bar
+      - docker compose run --rm -e COJEDZIE_API_MODE=performance api vendor/bin/ecs check --no-progress-bar
+      - docker compose run --rm -e COJEDZIE_API_MODE=performance -u {{.USER}} api vendor/bin/rector process --dry-run --no-progress-bar
       - docker compose run --rm -u {{.USER}} api vendor/bin/phpstan analyse --no-progress --memory-limit=1G
 
   lint:eslint:
@@ -54,7 +54,7 @@ tasks:
   reformat:api:
     desc: Reformat API with ECS
     cmds:
-      - docker compose run --rm -e APP_RUNAS="{{.USER}}" -e APP_MODE=performance api vendor/bin/ecs --fix
+      - docker compose run --rm -e COJEDZIE_RUNAS="{{.USER}}" -e COJEDZIE_API_MODE=performance api vendor/bin/ecs --fix
 
   reformat:frontend:
     desc: Reformat Frontend with Prettier
@@ -90,7 +90,7 @@ tasks:
     cmds:
       - >
         docker compose run 
-        --rm -e APP_MODE=performance {{.DOCKER_FLAGS}} 
+        --rm -e COJEDZIE_API_MODE=performance {{.DOCKER_FLAGS}} 
         api vendor/bin/phpbench 
         --php-config="opcache.enable: 1, opcache.enable_cli: 1{{if .PHP_CONFIG}}, {{end}}{{.PHP_CONFIG}}"
         run {{default "tests" .TEST}} --report={{.REPORT}} {{.CLI_ARGS}}
@@ -139,4 +139,4 @@ tasks:
   api:update:
     desc: Update data from data providers
     cmds:
-      - docker compose run --rm {{.FLAGS}} -e APP_MODE={{default "performance" .APP_MODE}} api bin/console app:update {{.CLI_ARGS}}
+      - docker compose run --rm {{.FLAGS}} -e COJEDZIE_API_MODE={{default "performance" .COJEDZIE_API_MODE}} api bin/console app:update {{.CLI_ARGS}}

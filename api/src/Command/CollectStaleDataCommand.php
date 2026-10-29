@@ -43,7 +43,7 @@ class CollectStaleDataCommand extends Command
         $removed = $this->collector->collect();
 
         if ($removed === []) {
-            $io->warning('No import finished within the retention period (STALE_DATA_RETENTION), nothing was removed.');
+            $io->warning('No import finished within the retention period (COJEDZIE_STALE_DATA_RETENTION), nothing was removed.');
             return Command::SUCCESS;
         }
 

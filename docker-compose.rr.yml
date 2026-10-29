@@ -16,7 +16,7 @@ services:
       - .docker-compose/api/.env
       - api/.env.local
     environment:
-      - APP_MODE=${APP_MODE:-debug}
+      - COJEDZIE_API_MODE=${COJEDZIE_API_MODE:-${APP_MODE:-debug}}
       - CORS_ALLOW_ORIGIN=*
       - TRUSTED_PROXIES=172.0.0.0/8
     ports:

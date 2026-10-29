@@ -26,7 +26,5 @@ WORKDIR /var/www
 
 EXPOSE 9001
 
-ENV APP_MODE="debug"
-
 ENTRYPOINT ["./bin/docker-dev-entrypoint.sh"]
 CMD ["php-fpm"]
