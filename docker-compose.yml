@@ -35,13 +35,17 @@ services:
       - ./build/worker/supervisord-init.sh:/var/www/bin/supervisord-init.sh
       - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
-  cron:
-    image: cojedzie/cron:latest
+  # runs the schedules, like the production schedule service
+  schedule:
+    image: cojedzie/worker:latest
     env_file:
       - .docker-compose/api/.env
       - api/.env.local
+    environment:
+      COJEDZIE_WORKER_QUEUES: scheduler_default scheduler_hub
     volumes:
       - ./api:/var/www
+      - ./build/worker/supervisord-init.sh:/var/www/bin/supervisord-init.sh
       - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
 
   frontend:

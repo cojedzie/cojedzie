@@ -30,22 +30,12 @@ RUN apk add supervisor gettext && \
         echo 'stderr_logfile=/dev/stderr'; \
         echo 'stdout_logfile_maxbytes=0'; \
         echo 'stderr_logfile_maxbytes=0'; \
-        echo ; \
-        echo '[program:cron]'; \
-        echo 'command=crond -l 2 -f'; \
-        echo 'startsecs=0'; \
-        echo 'start=true'; \
-        echo 'autorestart=true'; \
-        echo 'stdout_logfile=/dev/stdout'; \
-        echo 'stderr_logfile=/dev/stderr'; \
-        echo 'stdout_logfile_maxbytes=0'; \
-        echo 'stderr_logfile_maxbytes=0'; \
-    } | tee /etc/supervisord.conf.tpl && \
-    echo "* * * * *     cd /var/www && ./bin/console schedule:run" >> /etc/crontabs/root;
+    } | tee /etc/supervisord.conf.tpl
 
 COPY ./supervisord-init.sh ./bin/
 
-ENV COJEDZIE_WORKER_QUEUES=main
+# a standalone node imports its own data; only the hub adds scheduler_hub
+ENV COJEDZIE_WORKER_QUEUES="main scheduler_default"
 ENV COJEDZIE_WORKER_OPTS="-vv --time-limit=86400 --limit=10 --memory-limit=128M"
 
 ENTRYPOINT ["./bin/docker-entrypoint.sh"]
