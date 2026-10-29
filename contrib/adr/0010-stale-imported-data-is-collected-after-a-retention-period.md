@@ -24,12 +24,12 @@ infrastructure and sometimes come back broken or incomplete, so "missing from to
 
 We will collect stale data with a separate procedure (option 3), `App\DataImport\StaleDataCollector`:
 
-- A row is stale when the import that last wrote it started more than `STALE_DATA_RETENTION` ago (default
+- A row is stale when the import that last wrote it started more than `COJEDZIE_STALE_DATA_RETENTION` ago (default
   `7 days`), configurable by environment.
 - Stale rows still referenced by rows that stay are kept; tables are collected children first.
 - Nothing is collected unless an import finished within the retention period.
 - Imports nothing refers to anymore are removed afterwards.
-- It runs as `app:collect-stale-data` and on its own schedule (`SCHEDULE_COLLECT_STALE_DATA`, ADR 0009).
+- It runs as `app:collect-stale-data` and on its own schedule (`COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`, ADR 0009; both prefixed by ADR 0011).
 
 ## Consequences
 

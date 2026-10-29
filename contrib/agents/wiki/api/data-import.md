@@ -14,17 +14,17 @@ milestone. Measured on 2026-10-28 with a full day of ZTM data (183 lines, 285k s
 (2G) is sized for debug, since `task api:update` runs in `dev`. `gc_collect_cycles()` between importers made no
 difference and was removed.
 
-Run it with `task api:update` (uses `APP_MODE=performance` by default).
+Run it with `task api:update` (uses `COJEDZIE_API_MODE=performance` by default).
 
 Scheduling (ADR 0009): Symfony Scheduler in `src/Schedule`. Each schedule is a cron expression in its own
 environment variable, read by `ScheduleConfig` (defaults in `config/services.yaml`):
 
 | Variable | Default | Job | Transport |
 |---|---|---|---|
-| `SCHEDULE_UPDATE_DATA_SOURCES` | `0 5 * * *` | redispatch `UpdateDataSources` to `main` (the import) | `scheduler_default` |
-| `SCHEDULE_FEDERATION_CHECK` | `* * * * *` | `CheckFederatedConnection` for connections due | `scheduler_hub` |
-| `SCHEDULE_FEDERATION_CLEANUP` | `0 0 * * *` | `CleanupFederatedConnections` | `scheduler_hub` |
-| `SCHEDULE_COLLECT_STALE_DATA` | `0 6 * * *` | redispatch `CollectStaleData` to `main` | `scheduler_default` |
+| `COJEDZIE_SCHEDULE_UPDATE_DATA_SOURCES` | `0 5 * * *` | redispatch `UpdateDataSources` to `main` (the import) | `scheduler_default` |
+| `COJEDZIE_SCHEDULE_FEDERATION_CHECK` | `* * * * *` | `CheckFederatedConnection` for connections due | `scheduler_hub` |
+| `COJEDZIE_SCHEDULE_FEDERATION_CLEANUP` | `0 0 * * *` | `CleanupFederatedConnections` | `scheduler_hub` |
+| `COJEDZIE_SCHEDULE_COLLECT_STALE_DATA` | `0 6 * * *` | redispatch `CollectStaleData` to `main` | `scheduler_default` |
 
 A schedule only runs where a worker consumes its transport (`COJEDZIE_WORKER_QUEUES`):
 
@@ -60,9 +60,9 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
 
 ## Stale data (ADR 0010)
 
-`DataImport\StaleDataCollector` (`app:collect-stale-data`, scheduled by `SCHEDULE_COLLECT_STALE_DATA`) removes
+`DataImport\StaleDataCollector` (`app:collect-stale-data`, scheduled by `COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`) removes
 operators, lines, stops, tracks, track stops, trips and trip stops whose `import_id` points to an import started
-more than `STALE_DATA_RETENTION` ago (default `7 days`, any `DateInterval::createFromDateString()` string), i.e. that
+more than `COJEDZIE_STALE_DATA_RETENTION` ago (default `7 days`, any `DateInterval::createFromDateString()` string), i.e. that
 no import has written since. Then it removes the `import` rows nothing refers to anymore. Provider rows stay.
 
 - Children are collected first, and a stale row still referenced by a row that stays is kept (a stop on a current

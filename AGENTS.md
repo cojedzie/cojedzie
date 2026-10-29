@@ -84,7 +84,10 @@ task benchmark:api                # phpbench
 - `docker-compose.rr.yml` runs the API on RoadRunner instead of php-fpm; `docker-compose.federated.yml` adds a
   federated node; `docker-compose.elastic.yml` adds Elasticsearch/Kibana.
 - `worker`/`schedule` services require `api/.env.local` to exist.
-- `APP_MODE` (`debug` default, `performance`) controls the API container runtime mode.
+- `COJEDZIE_API_MODE` (`debug` default, `performance`) controls the API container runtime mode.
+- Environment variables that control the app are namespaced (ADR 0011): `COJEDZIE_…`, or a subsystem's own prefix
+  (`FEDERATION_…`, `SENTRY_…`, a provider's like `ZTM_GDANSK_…`). Standard names of Symfony, recipes and other
+  tools (`APP_ENV`, `DATABASE_URL`, `MERCURE_…`, `CORS_ALLOW_ORIGIN`) stay as they are.
 
 ## Conventions
 

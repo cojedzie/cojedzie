@@ -28,7 +28,7 @@ nothing.
 We will configure every schedule with its own environment variable holding a cron expression (option 2):
 
 - Schedule times are properties of `App\Schedule\ScheduleConfig`, each read with `#[Autowire(env: …)]` from a
-  variable named `SCHEDULE_<JOB>`, with an `env(SCHEDULE_<JOB>)` default in `config/services.yaml`.
+  variable named `COJEDZIE_SCHEDULE_<JOB>` (prefixed by ADR 0011), with an `env(COJEDZIE_SCHEDULE_<JOB>)` default in `config/services.yaml`.
 - Schedule providers and anything that reports a schedule (the Sentry cron monitor) take `ScheduleConfig`.
 - Schedules run only through Messenger workers consuming the `scheduler_*` transports; there is no system cron.
 
@@ -45,7 +45,7 @@ We will configure every schedule with its own environment variable holding a cro
 
 - No schedule time (cron expression, interval) is written in `api/src/Schedule/**` or passed as a literal to
   `RecurringMessage`; it comes from `ScheduleConfig`.
-- Every `ScheduleConfig` property has its own `SCHEDULE_*` variable and an `env(...)` default in
+- Every `ScheduleConfig` property has its own `COJEDZIE_SCHEDULE_*` variable and an `env(...)` default in
   `config/services.yaml`.
 - A new schedule adds its variable to the table in `contrib/agents/wiki/api/data-import.md`.
 - No image or compose file runs crond or calls `schedule:run`.
