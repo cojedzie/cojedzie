@@ -1,10 +1,10 @@
 parameters:
-    env(DATABASE_URL): ''
+    env(COJEDZIE_DATABASE_URL): ''
 
 doctrine:
     dbal:
         driver: 'pdo_sqlite'
-        url: '%env(resolve:DATABASE_URL)%'
+        url: '%env(resolve:COJEDZIE_DATABASE_URL)%'
         logging: '%kernel.debug%'
         profiling: '%kernel.debug%'
         types:

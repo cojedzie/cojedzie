@@ -129,11 +129,11 @@ tasks:
   api:migrations:generate:
     desc: Generate migrations for all database engines
     cmds:
-      - cmd: docker compose exec -e DATABASE_URL="{{.SQLITE_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+      - cmd: docker compose exec -e COJEDZIE_DATABASE_URL="{{.SQLITE_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
         ignore_error: true
-      - cmd: docker compose exec -e DATABASE_URL="{{.MYSQL_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+      - cmd: docker compose exec -e COJEDZIE_DATABASE_URL="{{.MYSQL_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
         ignore_error: true
-      - cmd: docker compose exec -e DATABASE_URL="{{.POSTGRES_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
+      - cmd: docker compose exec -e COJEDZIE_DATABASE_URL="{{.POSTGRES_DSN}}" -u {{.USER}} api bin/console doctrine:migrations:diff
         ignore_error: true
 
   api:update:
