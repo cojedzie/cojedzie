@@ -24,6 +24,7 @@ environment variable, read by `ScheduleConfig` (defaults in `config/services.yam
 | `SCHEDULE_UPDATE_DATA_SOURCES` | `0 5 * * *` | redispatch `UpdateDataSources` to `main` (the import) | `scheduler_default` |
 | `SCHEDULE_FEDERATION_CHECK` | `* * * * *` | `CheckFederatedConnection` for connections due | `scheduler_hub` |
 | `SCHEDULE_FEDERATION_CLEANUP` | `0 0 * * *` | `CleanupFederatedConnections` | `scheduler_hub` |
+| `SCHEDULE_COLLECT_STALE_DATA` | `0 6 * * *` | redispatch `CollectStaleData` to `main` | `scheduler_default` |
 
 A schedule only runs where a worker consumes its transport (`COJEDZIE_WORKER_QUEUES`):
 
@@ -45,7 +46,8 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
 - Operators, lines, stops and tracks are written with `DataImport\TableUpserter::upsert()`: rows keyed by id, batched
   by 100, existing ids of the provider updated, new ones inserted, every row stamped with `provider_id` and the
   current `import_id`. It opens no transaction; each importer wraps its writes in `Connection::transactional()`.
-- Nothing deletes rows that disappeared upstream; that is meant to be a separate garbage-collection procedure.
+- Importers never delete rows that disappeared upstream (except trips and track stops, replaced per line and
+  track); `StaleDataCollector` does, see below.
 - Track stops: the `stopsInTrip` feed is **not ordered by track** (one day of the 2022 fixture: 21,897 rows of 1,332
   tracks in 21,866 runs), so they are grouped in memory, reduced to track id, stop id and sequence first. Unknown
   stops are filtered after grouping, so a track whose stops are all unknown still has its old stops cleared.
@@ -55,6 +57,20 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
   (`StreamOpenException`, `UnexpectedTokenException`, `EndOfStreamException`, `StreamReadException`) is skipped with
   a warning.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
+
+## Stale data (ADR 0010)
+
+`DataImport\StaleDataCollector` (`app:collect-stale-data`, scheduled by `SCHEDULE_COLLECT_STALE_DATA`) removes
+operators, lines, stops, tracks, track stops, trips and trip stops whose `import_id` points to an import started
+more than `STALE_DATA_RETENTION` ago (default `7 days`, any `DateInterval::createFromDateString()` string), i.e. that
+no import has written since. Then it removes the `import` rows nothing refers to anymore. Provider rows stay.
+
+- Children are collected first, and a stale row still referenced by a row that stays is kept (a stop on a current
+  track, an operator of a current line), so foreign keys never block and fresh data never loses a relation.
+- Brake: unless an import **finished** within the retention period, nothing is removed and the handler logs a
+  warning, so a stalled or failing import can't wipe the data.
+- One transaction; plain `DELETE … WHERE import_id IN (…) AND NOT EXISTS (…)`, checked on SQLite, MariaDB and
+  Postgres.
 
 Tests: `tests/DataImport/ImporterTestCase` runs an importer against the test database inside a transaction rolled
 back after each test, with `StubJsonStreamer` serving inline feed rows. Per ADR 0001, importers are tested there, not
