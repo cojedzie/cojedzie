@@ -24,7 +24,7 @@ tasks:
   lint:
     deps:
       - task: lint:api
-      - task: lint:eslint
+      - task: lint:front
 
   lint:api:
     desc: Check API code style (ECS), pending Rector changes and PHPStan, as CI does
@@ -33,10 +33,10 @@ tasks:
       - docker compose run --rm --no-deps -e COJEDZIE_API_MODE=performance -e COJEDZIE_RUNAS="{{.USER}}" api vendor/bin/rector process --dry-run --no-progress-bar
       - docker compose run --rm --no-deps -e COJEDZIE_RUNAS="{{.USER}}" api vendor/bin/phpstan analyse --no-progress --memory-limit=1G
 
-  lint:eslint:
-    desc: Lint frontend using ES Lint
+  lint:front:
+    desc: Check frontend formatting (Prettier), ESLint and types (vue-tsc), as CI does
     cmds:
-      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend node_modules/.bin/eslint {{.CLI_ARGS}}
+      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend sh -c 'yarn check:format && yarn lint && yarn check:types'
 
   reformat:
     deps:
@@ -58,6 +58,7 @@ tasks:
     cmds:
       - task: test:api
       - task: test:behat
+      - task: test:front
 
   test:api:
     desc: Test API component with phpunit
@@ -66,6 +67,11 @@ tasks:
           mkdir -p var/db &&
           bin/console --env=test doctrine:migrations:migrate -n -q &&
           bin/phpunit {{.CLI_ARGS}}'
+
+  test:front:
+    desc: Test frontend with Vitest
+    cmds:
+      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend yarn test:app --run {{.CLI_ARGS}}
 
   test:behat:
     desc: Run Behat scenarios against a fresh test database

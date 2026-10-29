@@ -42,6 +42,38 @@ jobs:
           vendor/bin/behat --no-interaction --fail-on-behat-deprecations --tags='~@wip'
           --format=progress --out=std --format=junit --out=var/junit/behat
 
+  test-front:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: yarn
+          cache-dependency-path: front/yarn.lock
+      # the type check needs the icons, see front/resources/fontawesome
+      - name: Fetch FontAwesome Pro packages
+        uses: ./.github/actions/fontawesome
+        with:
+          url: ${{ secrets.FONTAWESOME_S3_URL }}
+          access-key: ${{ secrets.FONTAWESOME_S3_ACCESS_KEY }}
+          secret-key: ${{ secrets.FONTAWESOME_S3_SECRET_KEY }}
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --non-interactive
+      - name: Prettier
+        run: yarn check:format
+      - name: ESLint
+        run: yarn lint
+      - name: Type check
+        run: yarn check:types
+      - name: Vitest
+        run: yarn test:app --run
+
   # every engine's migrations, run on an empty database, must give exactly the schema the mapping describes
   schema:
     runs-on: ubuntu-latest

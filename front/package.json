@@ -73,6 +73,7 @@
     "vue-eslint-parser": "^9.3",
     "vue-property-decorator": "^10.0.0-rc.3",
     "vue-router": "^4.0.10",
+    "vue-tsc": "^1.8",
     "vuex": "^4.0.2",
     "vuex-class": "^0.3.1",
     "vuex-persist": "^2.2.0",
@@ -101,6 +102,9 @@
     "build:loadtester": "tsc -p loadtester",
     "build:app": "vite build",
     "test:app": "vitest",
+    "lint": "eslint --ext .ts,.tsx,.vue src server test",
+    "check:types": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p server",
+    "check:format": "prettier . --check",
     "coverage:app": "vitest run --coverage",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

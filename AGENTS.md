@@ -74,9 +74,9 @@ task test:api -- --filter JsonStreamingParserTest   # single test class/method
 task test:api -- tests/ZtmGdansk  # single directory
 task test:behat                   # Behat API contract scenarios (fresh SQLite test DB)
 task test:behat -- features/departures              # single area
-task yarn -- test:app --run                                # frontend tests (vitest)
-task yarn -- test:app --run test/container.test.ts         # single frontend test
-task lint                         # eslint (frontend)
+task test:front                   # frontend tests (vitest)
+task test:front -- test/container.test.ts           # single frontend test
+task lint                         # ECS, Rector, PHPStan (api) + Prettier, ESLint, vue-tsc (front), as CI does
 task reformat                     # ECS --fix (api) + prettier --write (front)
 task console -- <cmd>             # bin/console
 task composer -- <cmd> / task yarn -- <cmd>
@@ -122,8 +122,8 @@ task benchmark:api                # phpbench
   tested `master` commit, builds and publishes all images (`docker-bake.hcl`, see the Docker section of the API
   architecture page), creates the GitHub Release with notes from
   `contrib/release-notes.sh`, and deploys to `production` after approval. No version is committed.
-- CI (`.github/workflows/ci.yml`) runs the tests (job `test`, a required check) and builds the `next` images with
-  `docker-bake.hcl` on every push, pushing them only from `master`.
+- CI (`.github/workflows/ci.yml`) runs the tests (jobs `test` for the API and `test-front`, both required checks)
+  and builds the `next` images with `docker-bake.hcl` on every push, pushing them only from `master`.
 - `.github/workflows/deploy.yml` deploys images pinned by digest to any environment, reading the digests from the
   run that built them: `next` after each successful CI run on `master`, `production` when called by Release. Run
   it manually to redeploy.
