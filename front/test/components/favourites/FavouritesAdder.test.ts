@@ -1,10 +1,10 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
-import { createStore } from "vuex";
 import { mount } from "@vue/test-utils";
 import FavouritesAdder from "@/components/favourites/FavouritesAdder.vue";
 import { useFavouritesStore } from "@/stores/favourites";
+import { useSelectionStore } from "@/stores/selection";
 
 const stop = { id: "1", name: "Brama Wyżynna", group: "Brama Wyżynna", $type: "vnd.cojedzie.stop" };
 
@@ -12,10 +12,10 @@ function mountAdder() {
     const pinia = createPinia();
     setActivePinia(pinia);
 
-    const vuex = createStore({ state: { stops: [stop] }, mutations: { replace: () => {} } });
+    useSelectionStore().replace([stop as any]);
     const wrapper = mount(FavouritesAdder, {
         global: {
-            plugins: [pinia, vuex],
+            plugins: [pinia],
             stubs: { StopLabel: true, UiIcon: true },
             directives: { autofocus: {} },
         },

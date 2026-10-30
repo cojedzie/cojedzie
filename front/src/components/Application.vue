@@ -1,18 +1,15 @@
 <template>
-    <main class="d-flex">
+    <main ref="main" class="d-flex">
         <router-view />
     </main>
 </template>
 
-<script lang="ts">
-import store from "@/store";
-import { Options, Vue } from "vue-class-component";
-import { router } from "@/routes";
+<script setup lang="ts">
+import { onMounted, useTemplateRef } from "vue";
 
-@Options({ router, store })
-export default class Application extends Vue {
-    mounted() {
-        this.$el.classList.remove("not-ready");
-    }
-}
+const main = useTemplateRef<HTMLElement>("main");
+
+onMounted(() => {
+    main.value.classList.remove("not-ready");
+});
 </script>

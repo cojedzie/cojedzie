@@ -246,7 +246,7 @@ export const useNetworkStore = defineStore("network", () => {
             }
 
             nodeListUpdated(response.data as ApiNode[]);
-        } catch (err) {
+        } catch {
             console.log("Could not get network nodes");
         }
     }

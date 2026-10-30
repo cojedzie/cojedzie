@@ -39,12 +39,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useStore } from "vuex";
+import { ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import * as uuid from "uuid";
-import type { Stop } from "@/model";
 import { type Favourite, useFavouritesStore } from "@/stores/favourites";
+import { useSelectionStore } from "@/stores/selection";
 
 defineOptions({ name: "FavouritesAdder" });
 
@@ -53,11 +52,10 @@ const emit = defineEmits<{
     close: [];
 }>();
 
-const vuex = useStore();
 const { favourites } = storeToRefs(useFavouritesStore());
 const { add } = useFavouritesStore();
 
-const stops = computed<Stop[]>(() => vuex.state.stops);
+const { stops } = storeToRefs(useSelectionStore());
 
 const name = ref("");
 const errors = ref<{ name: string[] }>({ name: [] });

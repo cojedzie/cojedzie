@@ -13,18 +13,18 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from "vuex";
 import { storeToRefs } from "pinia";
 import type { Stop } from "@/model";
 import { useHistoryStore } from "@/stores/history";
+import { useSelectionStore } from "@/stores/selection";
 import StopPickerEntry from "./StopPickerEntry.vue";
 
 defineOptions({ name: "StopPickerHistory" });
 
-const vuex = useStore();
+const selection = useSelectionStore();
 const { all } = storeToRefs(useHistoryStore());
 
 function select(stop: Stop) {
-    vuex.commit("add", stop);
+    selection.add(stop);
 }
 </script>

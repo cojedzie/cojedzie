@@ -29,17 +29,17 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from "vuex";
 import { storeToRefs } from "pinia";
 import { type Favourite, useFavouritesStore } from "@/stores/favourites";
+import { useSelectionStore } from "@/stores/selection";
 
 defineOptions({ name: "FavouritesList" });
 
-const vuex = useStore();
+const selection = useSelectionStore();
 const { favourites } = storeToRefs(useFavouritesStore());
 const { remove } = useFavouritesStore();
 
 function choose(favourite: Favourite) {
-    vuex.commit("replace", favourite.stops);
+    selection.replace(favourite.stops);
 }
 </script>

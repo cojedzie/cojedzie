@@ -24,45 +24,22 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import store, { Messages } from "@/store";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useMessagesStore } from "@/stores/messages";
 import { useMessagesSettingsStore } from "@/stores/messages-settings";
-import { Message } from "@/model/message";
-import MessagesMessage from "@/components/messages/MessagesMessage.vue";
+import MessagesMessage from "./MessagesMessage.vue";
 
-@Options({
-    name: "MessagesList",
-    components: { MessagesMessage },
-    store,
-})
-export default class MessagesList extends Vue {
-    @Messages.State("messages")
-    public allMessages: Message[];
+defineOptions({ name: "MessagesList" });
 
-    get displayedEntriesCount(): number {
-        return useMessagesSettingsStore().displayedEntriesCount;
-    }
+const { messages: allMessages } = storeToRefs(useMessagesStore());
+const { displayedEntriesCount } = storeToRefs(useMessagesSettingsStore());
 
-    public showAll: boolean = false;
+const showAll = ref(false);
 
-    get messages() {
-        return this.showAll ? this.allMessages : this.allMessages.slice(0, this.displayedEntriesCount);
-    }
-
-    get nonDisplayedCount(): number {
-        return Math.max(this.allMessages.length - this.displayedEntriesCount, 0);
-    }
-
-    public type(message: Message) {
-        switch (message.type) {
-            case "breakdown":
-                return "danger";
-            case "info":
-                return "info";
-            case "unknown":
-                return "warning";
-        }
-    }
-}
+const messages = computed(() =>
+    showAll.value ? allMessages.value : allMessages.value.slice(0, displayedEntriesCount.value),
+);
+const nonDisplayedCount = computed(() => Math.max(allMessages.value.length - displayedEntriesCount.value, 0));
 </script>

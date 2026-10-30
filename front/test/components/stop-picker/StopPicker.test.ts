@@ -2,7 +2,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
-import { createStore } from "vuex";
 import StopPicker from "@/components/stop-picker/StopPicker.vue";
 import { useHistoryStore } from "@/stores/history";
 
@@ -19,12 +18,11 @@ const entryStub = {
 function mountPicker(props = {}) {
     const pinia = createPinia();
     setActivePinia(pinia);
-    const vuex = createStore({ state: { stops: [] }, mutations: { add: vi.fn() } });
 
     const wrapper = mount(StopPicker, {
         props,
         global: {
-            plugins: [pinia, vuex],
+            plugins: [pinia],
             stubs: {
                 FavouritesList: { template: '<div class="favourites" />' },
                 StopPickerHistory: { template: '<div class="history" />' },

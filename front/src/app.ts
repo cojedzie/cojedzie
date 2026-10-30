@@ -21,12 +21,10 @@ import "vite/modulepreload-polyfill";
 
 import "@styles/main.scss";
 
-import { Store } from "vuex";
 import { createPinia } from "pinia";
 import { BrowserStorage } from "@/stores/persistence/browser";
 import { persistence } from "@/stores/persistence/plugin";
 import { dragscrollNext } from "vue-dragscroll";
-import { StoreDefinition } from "@/store/initializer";
 import { Vue } from "vue-class-component";
 
 import moment from "moment";
@@ -57,7 +55,6 @@ declare module "@vue/runtime-core" {
         $isTouch: boolean;
         $hasSlot: (slot: string) => boolean;
         $moment: typeof moment;
-        $store: Store<StoreDefinition>;
         $f: {
             signed: typeof signed;
             duration: typeof moment.duration;
@@ -77,18 +74,22 @@ Vue.registerHooks(["removed"]);
     const { migrate } = await import("./stores/persistence/migrations");
     await migrate(new BrowserStorage(window.localStorage));
 
-    const { default: store } = await import("./store");
-    const { bindClientContext } = await import("@/api/context");
+    const [{ useNetworkStore }, { useSelectionStore }, { bindClientContext }] = await Promise.all([
+        import("@/stores/network"),
+        import("@/stores/selection"),
+        import("@/api/context"),
+    ]);
+    const network = useNetworkStore(pinia);
+    const selection = useSelectionStore(pinia);
     bindClientContext({
         network: {
-            available: () => store.getters["network/available"],
-            update: () => store.dispatch("network/update"),
-            nodeFailed: id => store.dispatch("network/nodeFailed", id),
+            available: () => network.available,
+            update: () => network.update(),
+            nodeFailed: id => network.nodeFailed(id),
         },
-        provider: () => store.state.provider?.id,
+        provider: () => selection.provider?.id,
     });
 
-    app.use(store);
     app.use(container);
 
     // saved stores load from the migrated keys, the app must not render with their defaults
@@ -100,9 +101,13 @@ Vue.registerHooks(["removed"]);
             import("@/stores/history"),
         ]);
     await Promise.all(
-        [useFavouritesStore, useDeparturesSettingsStore, useMessagesSettingsStore, useHistoryStore].map(
-            use => use(pinia).$hydrated,
-        ),
+        [
+            useFavouritesStore,
+            useDeparturesSettingsStore,
+            useMessagesSettingsStore,
+            useHistoryStore,
+            useSelectionStore,
+        ].map(use => use(pinia).$hydrated),
     );
 
     // todo figure out better way

@@ -1,10 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/store", () => {
-    throw new Error("store imported");
-});
-
 const get = vi.fn();
 
 vi.mock("axios", async importOriginal => {
@@ -37,10 +33,6 @@ describe("API client", () => {
         resetClientContext();
         vi.useRealTimers();
         vi.unstubAllGlobals();
-    });
-
-    it("importing the client creates no store", async () => {
-        await expect(import("@/api")).resolves.toBeDefined();
     });
 
     it("updates the nodes when a context is bound", async () => {

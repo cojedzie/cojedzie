@@ -25,13 +25,13 @@
                     class="badge"
                     :class="[departure.delay < 0 ? 'badge-danger' : 'badge-warning']"
                 >
-                    {{ $f.signed(departure.delay) }}s
+                    {{ signed(departure.delay) }}s
                 </span>
                 {{ " " }}
                 <span class="departure__time">{{ time.format("HH:mm") }}</span>
             </template>
             <template v-else>
-                {{ $f.duration(timeLeft).humanize(true) }}
+                {{ timeLeft.humanize(true) }}
             </template>
         </div>
 
@@ -60,15 +60,19 @@
     </ui-fold>
 </template>
 
-<script lang="ts">
-import { computed, PropType, ref, unref, watch } from "vue";
-import { Departure } from "@/model";
-import moment from "moment";
-import { Trip } from "@/model/trip";
-import api from "@/api";
-import { Jsonified } from "@/utils";
+<script setup lang="ts">
+import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import { DeparturesSettingsState, useDeparturesSettingsStore } from "@/stores/departures-settings";
+import moment from "moment";
+import type { Departure } from "@/model";
+import type { Trip } from "@/model/trip";
+import api from "@/api";
+import { type Jsonified, signed } from "@/utils";
+import { useDeparturesSettingsStore } from "@/stores/departures-settings";
+
+defineOptions({ name: "DeparturesDeparture" });
+
+const props = defineProps<{ departure: Departure }>();
 
 function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
     return {
@@ -81,93 +85,60 @@ function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
     };
 }
 
-function useDepartureSetting<TSetting extends keyof DeparturesSettingsState>(setting: TSetting) {
-    return storeToRefs(useDeparturesSettingsStore())[setting];
+const { relativeTimes, relativeTimesLimit, relativeTimesLimitEnabled, relativeTimesForScheduled } =
+    storeToRefs(useDeparturesSettingsStore());
+
+const showTrip = ref<boolean>(false);
+const scheduledTrip = ref<Trip>(null);
+
+const time = computed(() => props.departure.estimated || props.departure.scheduled);
+const timeLeft = computed(() => moment.duration(time.value.diff(moment())));
+const timeDiffers = computed(() => {
+    const { departure } = props;
+    return departure.estimated && departure.scheduled.format("HH:mm") !== departure.estimated.format("HH:mm");
+});
+
+const trip = computed(() => {
+    const trip = scheduledTrip.value;
+
+    return (
+        trip && {
+            ...trip,
+            schedule: trip.schedule.map(stop => ({
+                ...stop,
+                arrival: stop.arrival.clone().add(props.departure.delay, "seconds"),
+                departure: stop.departure.clone().add(props.departure.delay, "seconds"),
+            })),
+        }
+    );
+});
+
+const showRelativeTime = computed(() => {
+    if (!relativeTimes.value) {
+        return false;
+    }
+
+    if (!props.departure.estimated && !relativeTimesForScheduled.value) {
+        return false;
+    }
+
+    return !(relativeTimesLimitEnabled.value && time.value.diff(moment(), "minutes") > relativeTimesLimit.value);
+});
+
+async function downloadTrips() {
+    if (showTrip.value != true || trip.value != null) {
+        return;
+    }
+
+    const response = await api.get("v1_trip_details", {
+        params: { id: props.departure.trip?.id },
+        version: "^1.0",
+    });
+
+    if (response.status === 200) {
+        scheduledTrip.value = convertTripDtoToTrip(response.data);
+    }
 }
 
-export default {
-    name: "DeparturesDeparture",
-    props: {
-        departure: {
-            type: Object as PropType<Departure>,
-            required: true,
-        },
-    },
-    setup(props) {
-        const showTrip = ref<boolean>(false);
-        const scheduledTrip = ref<Trip>(null);
-
-        const time = computed(() => props.departure.estimated || props.departure.scheduled);
-        const timeLeft = computed(() => moment.duration(time.value.diff(moment())));
-        const timeDiffers = computed(() => {
-            const { departure } = props;
-            return departure.estimated && departure.scheduled.format("HH:mm") !== departure.estimated.format("HH:mm");
-        });
-
-        const trip = computed(() => {
-            const trip = scheduledTrip.value;
-
-            return (
-                trip && {
-                    ...trip,
-                    schedule: trip.schedule.map(stop => ({
-                        ...stop,
-                        arrival: stop.arrival.clone().add(props.departure.delay, "seconds"),
-                        departure: stop.departure.clone().add(props.departure.delay, "seconds"),
-                    })),
-                }
-            );
-        });
-
-        const relativeTimes = useDepartureSetting("relativeTimes");
-        const relativeTimesLimit = useDepartureSetting("relativeTimesLimit");
-        const relativeTimesLimitEnabled = useDepartureSetting("relativeTimesLimitEnabled");
-        const relativeTimesForScheduled = useDepartureSetting("relativeTimesForScheduled");
-
-        const showRelativeTime = computed(() => {
-            if (!unref(relativeTimes)) {
-                return false;
-            }
-
-            const departure = props.departure;
-            if (!departure.estimated && !unref(relativeTimesForScheduled)) {
-                return false;
-            }
-
-            const now = moment();
-
-            return !(unref(relativeTimesLimitEnabled) && time.value.diff(now, "minutes") > unref(relativeTimesLimit));
-        });
-
-        async function downloadTrips() {
-            if (showTrip.value != true || trip.value != null) {
-                return;
-            }
-
-            const response = await api.get("v1_trip_details", {
-                params: { id: props.departure.trip?.id },
-                version: "^1.0",
-            });
-
-            if (response.status === 200) {
-                scheduledTrip.value = convertTripDtoToTrip(response.data);
-            }
-        }
-
-        watch(showTrip, downloadTrips);
-
-        return {
-            showTrip,
-            showRelativeTime,
-            time,
-            timeLeft,
-            timeDiffers,
-            trip,
-            relativeTimesLimit,
-            relativeTimesLimitEnabled,
-            relativeTimes,
-            relativeTimesForScheduled,
-        };
-    },
-};
+watch(showTrip, downloadTrips);
 </script>
