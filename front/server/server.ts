@@ -22,7 +22,6 @@ import * as Sentry from "@sentry/node";
 import express, { Express, Request, Response } from "express";
 import path from "path";
 import fs from "fs";
-import request from "request";
 import type { SentryConfig } from "../src/composables/useAppConfig";
 import { matchesUA } from "browserslist-useragent";
 
@@ -181,19 +180,25 @@ const getWebManifestAction = (req: Request, res: Response) => {
 
     console.log(`No manifest entry for ${provider}, calling ${api}/providers/${provider}`);
 
-    request.get(`${api}/api/v1/providers/${provider}`, (err, _, body) => {
-        try {
-            const info = JSON.parse(body);
+    fetch(`${api}/api/v1/providers/${provider}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`the API responded with ${response.status}`);
+            }
+
+            return response.json();
+        })
+        .then(info => {
             provider_manifests[provider] = generateProviderManifest(info);
 
             console.info(`Generated manifest for ${provider}`, provider_manifests[provider]);
 
             res.send(provider_manifests[provider]);
-        } catch (error) {
+        })
+        .catch(error => {
             console.error(`Problem with generating manifest for ${provider}: ${error.message}`);
             res.send(web_manifest);
-        }
-    });
+        });
 };
 
 async function createServer(): Promise<Express> {
