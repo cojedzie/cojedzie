@@ -52,7 +52,7 @@
     "storybook": "7.0.*",
     "typescript": "^5.9.3",
     "uuid": "^11.1.1",
-    "vite": "^4.3",
+    "vite": "^6.4",
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-pwa": "^0.16",
     "vite-tsconfig-paths": "^3.5.0",
