@@ -126,7 +126,9 @@ ENV COJEDZIE_VERSION=${COJEDZIE_VERSION} COJEDZIE_REVISION=${COJEDZIE_REVISION}
 # ---- Development image ------------------------------------------------------------------------------------------------
 #
 # Has no application code: the dev compose stack mounts ./api at /var/www. It runs php-fpm or RoadRunner, see
-# docker/dev-server.sh, and bin/docker-dev-entrypoint.sh switches xdebug off outside of debug mode.
+# docker/dev-server.sh. JIT can't work with xdebug, and PHP warns about it on stdout, which ends up in captured command
+# output, so xdebug's ini turns it off. bin/docker-dev-entrypoint.sh removes that ini outside of debug mode, which
+# switches xdebug off and JIT back on.
 
 FROM php-fpm AS dev
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -140,6 +142,7 @@ RUN apk add --no-cache git su-exec tini \
 RUN { \
         echo "xdebug.mode=debug"; \
         echo "xdebug.discover_client_host=On"; \
+        echo "opcache.jit_buffer_size=0"; \
     } >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini
 
 COPY docker/fpm-log.conf /usr/local/etc/php-fpm.d/zz-log.conf
