@@ -3,7 +3,7 @@
 Collections in the API are php-ds 2.0 values transformed with `kadet/functional`'s collection functions chained
 with `|>`. The decision, its alternatives and the benchmark numbers are in
 [ADR 0006](../../../adr/0006-collections-are-php-ds-values-with-kadet-functional-pipelines.md). The library's full
-reference is its README, `api/vendor/kadet/functional/README.md` (after `task dependencies`). Read it before writing
+reference is its README, `api/vendor/kadet/functional/README.md` (after `task setup`). Read it before writing
 `c\` code.
 
 ## Imports

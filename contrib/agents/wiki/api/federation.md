@@ -15,7 +15,9 @@ plus independently hosted **federated nodes** that serve the same API.
 - Hub side: `Controller/Api/v1/FederationController` (`/api/v1/federation/connections`), entities in
   `Entity/Federation`, health checks via `Message/CheckFederatedConnection` and cleanup via
   `Message/CleanupFederatedConnections`. `federation:*` console commands live in `src/Command`.
-- `docker-compose.federated.yml` runs a local federated node (RoadRunner) against the local nginx as hub.
+- The `federated` profile of `docker-compose.yml` runs a local federated node (RoadRunner, own SQLite database)
+  against the local nginx as hub. Register it first with `federation:register <email> http://federated:8080` and
+  pass the id and secret as `FEDERATION_SERVER_ID` / `FEDERATION_SERVER_SECRET`; it restarts up to 5 times on failure (to ride out a race with nginx), and unregistered credentials never succeed.
 
 ## Authentication (hub side)
 

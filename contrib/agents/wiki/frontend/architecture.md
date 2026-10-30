@@ -28,7 +28,11 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
-- `src/stories` + `.storybook` — Storybook (served at `/storybook/` through nginx in docker).
+- `src/stories` + `.storybook` — Storybook (served at `/storybook/` through nginx in docker). The `storybook`
+  service sets `STORYBOOK_BASE_HREF`, `COJEDZIE_MAPTILER_KEY` and `COJEDZIE_API`, and runs with
+  `--no-version-updates` (the version check crashes on Node 24).
+- Docker: `front/Dockerfile` has a `dev` target (used by the compose `frontend`, `storybook` and `front-setup`
+  services, run as `COJEDZIE_UID`) and a `prod` target (the published image).
 
 ## Style
 
