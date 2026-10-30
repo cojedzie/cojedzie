@@ -103,8 +103,6 @@ task benchmark:api                # phpbench
 - `task console` and `task api:update` run with `--no-deps`, so MySQL must be running (`docker compose up -d mysql`
   or the whole stack).
 - Storybook runs with `--no-version-updates`: its version check crashes on Node 24.
-- FontAwesome Pro packages aren't installable without a token: place them in `front/resources/fontawesome` by hand
-  (git-ignored, CI uses `.github/actions/fontawesome`).
 - `COJEDZIE_API_MODE` (`debug` default, `performance`) controls the API container runtime mode.
 - Environment variables that control the app are namespaced (ADR 0011): `COJEDZIE_…`, or a subsystem's own prefix
   (`FEDERATION_…`, `SENTRY_…`, a provider's like `ZTM_GDANSK_…`). Standard names of Symfony, recipes and other

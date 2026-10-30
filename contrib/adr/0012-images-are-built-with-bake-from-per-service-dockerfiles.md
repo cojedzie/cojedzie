@@ -78,8 +78,8 @@ We will build every image from the Dockerfile in its service's folder, and descr
 
 - **One extension setup.** A change to the PHP setup is made once and reaches the dev and all production images.
 - **No intermediate images.** CI needs no local registry or copy step, and bake builds the shared stages once.
-- **Fresh clones.** A fresh clone starts with `docker compose up`, apart from the FontAwesome Pro packages, which
-  are licensed and are still placed by hand. The first run imports provider data, which takes about 10 minutes.
+- **Fresh clones.** A fresh clone starts with `docker compose up`. The first run imports provider data, which takes
+  about 10 minutes.
 - **Invoking bake.** Bake also reads `docker-compose.yml` by default, and its service names collide with bake
   target names. Every bake invocation therefore names the file.
 - **Federated node.** It needs `federation:register` on the hub before it can join, as before.
