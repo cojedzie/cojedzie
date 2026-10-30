@@ -35,8 +35,10 @@ Specs and plans are valid only while their task is in progress. They must not re
      like any other change.
   2. **Check compliance**: run the `adr-compliance` skill on the branch.
   3. **Clean up tests**: run the `test-cleanup` skill, so only tests worth keeping reach `master`.
-  4. **Rebase the branch** to remove the spec/plan commits (and any later edits to those files), so the docs
-     never appear in the merged history. Rewriting history and force-pushing need the user's confirmation.
+  4. **Clean up the history**: rebase the branch so that every commit is one logical change, described by what
+     changed and why, not by when the work happened. Fold review fixes, follow-ups and tidy-ups into the commits
+     they belong to, and drop the spec/plan commits (and any later edits to those files), so the docs never
+     appear in the merged history. Rewriting history and force-pushing need the user's confirmation.
 - Nothing may be lost: if a spec contains something worth keeping that fits neither the wiki nor an ADR, ask
   the user where it belongs instead of dropping it.
 
