@@ -84,8 +84,8 @@
     </ui-dialog>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, PropType, ref, useTemplateRef, watch } from "vue";
 import { getStopType, HasDestinations, Line, Stop, Track } from "@/model";
 import { LFeatureGroup } from "@vue-leaflet/vue-leaflet";
 import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
@@ -105,97 +105,83 @@ const offset = (map: Map, point: LatLngExpression, by: PointExpression, options:
     return map.unproject(map.project(point, options.zoom).subtract(by), options.zoom);
 };
 
-export default defineComponent({
+defineOptions({
     name: "StopDetailsDialog",
-    components: { TrackPicker, StopPin, LFeatureGroup },
     inheritAttrs: false,
-    props: {
-        stop: {
-            type: Object as PropType<Stop & HasDestinations>,
-            required: true,
-        },
-    },
-    setup(props) {
-        const { data: tracks, status } = useDataFromEndpoint("v1_stop_tracks", {
-            params: { stop: props.stop.id as string },
-            version: "1.0",
-        });
+});
 
-        const trackRepository = useService(TrackRepository.service);
-
-        const features = ref<LFeatureGroup>();
-        const map = ref();
-
-        const bounds = computed(() => features.value?.leafletObject?.getBounds?.());
-
-        const lines = computed(() =>
-            tracks.value
-                ? Object.values(
-                      tracks.value
-                          .map(t => t.track.line)
-                          .reduce(
-                              (lines, line: Line) => Object.assign(lines, { [line.symbol]: line }),
-                              {} as Record<string, Line>,
-                          ),
-                  )
-                : [],
-        );
-
-        const tracksForDestination = computedAsync(
-            async () =>
-                destination.value && props.stop
-                    ? await trackRepository.getTracksForDestination(props.stop, destination.value)
-                    : null,
-            null,
-            { lazy: true },
-        );
-
-        const selectedTrack = ref<Track>(null);
-        const destination = ref<Stop & HasDestinations>(null);
-
-        const stopsToDestination = computed(() =>
-            slice(
-                selectedTrack.value?.stops ?? [],
-                s => s.id == props.stop.id,
-                s => s.id == destination.value.id,
-            ).slice(1),
-        );
-
-        watch(destination, () => {
-            selectedTrack.value = null;
-        });
-
-        watch(bounds, async bounds => {
-            const leaflet: Map = map.value?.leafletObject;
-
-            if (!leaflet) {
-                return;
-            }
-
-            const zoom =
-                bounds && leaflet.getBoundsZoom
-                    ? Math.min(leaflet.getBoundsZoom(bounds, false, point([50, 100])) - 0.5, 17)
-                    : 17;
-
-            const center: LatLngExpression = bounds?.getCenter() || props.stop.location;
-
-            leaflet.setView?.(offset(leaflet, center, [0, 40], { zoom }), zoom);
-        });
-
-        const type = computed(() => getStopType(props.stop));
-
-        return {
-            lines,
-            status,
-            destination,
-            selectedTrack,
-            stopsToDestination,
-            features,
-            map,
-            bounds,
-            tracksForDestination,
-            type,
-        };
+const props = defineProps({
+    stop: {
+        type: Object as PropType<Stop & HasDestinations>,
+        required: true,
     },
 });
+
+const { data: tracks } = useDataFromEndpoint("v1_stop_tracks", {
+    params: { stop: props.stop.id as string },
+    version: "1.0",
+});
+
+const trackRepository = useService(TrackRepository.service);
+
+const features = useTemplateRef<InstanceType<typeof LFeatureGroup>>("features");
+const map = useTemplateRef<{ leafletObject?: Map }>("map");
+
+const bounds = computed(() => features.value?.leafletObject?.getBounds?.());
+
+const lines = computed(() =>
+    tracks.value
+        ? Object.values(
+              tracks.value
+                  .map(t => t.track.line)
+                  .reduce(
+                      (lines, line: Line) => Object.assign(lines, { [line.symbol]: line }),
+                      {} as Record<string, Line>,
+                  ),
+          )
+        : [],
+);
+
+const selectedTrack = ref<Track>(null);
+const destination = ref<Stop & HasDestinations>(null);
+
+const tracksForDestination = computedAsync(
+    async () =>
+        destination.value && props.stop
+            ? await trackRepository.getTracksForDestination(props.stop, destination.value)
+            : null,
+    null,
+    { lazy: true },
+);
+
+const stopsToDestination = computed(() =>
+    slice(
+        selectedTrack.value?.stops ?? [],
+        s => s.id == props.stop.id,
+        s => s.id == destination.value.id,
+    ).slice(1),
+);
+
+watch(destination, () => {
+    selectedTrack.value = null;
+});
+
+watch(bounds, async bounds => {
+    const leaflet = map.value?.leafletObject;
+
+    if (!leaflet) {
+        return;
+    }
+
+    const zoom =
+        bounds && leaflet.getBoundsZoom
+            ? Math.min(leaflet.getBoundsZoom(bounds, false, point([50, 100])) - 0.5, 17)
+            : 17;
+
+    const center: LatLngExpression = bounds?.getCenter() || props.stop.location;
+
+    leaflet.setView?.(offset(leaflet, center, [0, 40], { zoom }), zoom);
+});
+
+const type = computed(() => getStopType(props.stop));
 </script>

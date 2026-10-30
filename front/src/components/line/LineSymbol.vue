@@ -24,17 +24,17 @@
     </span>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { Prop } from "vue-property-decorator";
+<script lang="ts" setup>
+import { PropType } from "vue";
 import { Line } from "@/model";
 
-@Options({ name: "LineSymbol" })
-export default class LineSymbol extends Vue {
-    @Prop(Object)
-    public line: Line;
+defineOptions({ name: "LineSymbol" });
 
-    @Prop(Boolean)
-    public simple: boolean;
-}
+defineProps({
+    line: {
+        type: Object as PropType<Line>,
+        required: true,
+    },
+    simple: Boolean,
+});
 </script>

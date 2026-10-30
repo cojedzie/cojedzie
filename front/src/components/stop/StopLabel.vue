@@ -5,14 +5,16 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { Prop } from "vue-property-decorator";
+<script lang="ts" setup>
+import { PropType } from "vue";
 import { Stop } from "@/model";
 
-@Options({ name: "StopLabel" })
-export default class StopLabel extends Vue {
-    @Prop(Object)
-    public stop: Stop;
-}
+defineOptions({ name: "StopLabel" });
+
+defineProps({
+    stop: {
+        type: Object as PropType<Stop>,
+        required: true,
+    },
+});
 </script>

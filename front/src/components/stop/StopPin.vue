@@ -13,36 +13,27 @@
     </ui-map-pin>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script lang="ts" setup>
+import { PropType } from "vue";
 import UiMapPin from "@/components/ui/UiMapPin.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import { getStopType, LineType, Stop } from "@/model";
 
-const StopPin = defineComponent({
-    name: "StopPin",
-    components: {
-        UiMapPin,
-        StopLabel,
+defineOptions({ name: "StopPin" });
+
+defineProps({
+    stop: {
+        type: Object as PropType<Stop>,
+        required: true,
     },
-    props: {
-        stop: {
-            type: Object as PropType<Stop>,
-            required: true,
-        },
-        type: {
-            type: String as PropType<LineType>,
-            required: false,
-            default({ stop }) {
-                return getStopType(stop);
-            },
-        },
-        noLabel: {
-            type: Boolean,
-            required: false,
-        },
+    type: {
+        type: String as PropType<LineType>,
+        required: false,
+        default: ({ stop }: { stop: Stop }) => getStopType(stop),
+    },
+    noLabel: {
+        type: Boolean,
+        required: false,
     },
 });
-
-export default StopPin;
 </script>
