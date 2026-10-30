@@ -22,6 +22,6 @@
     "types": ["vitest/globals"]
   },
   "files": ["src/app.ts"],
-  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.vue", "test/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
