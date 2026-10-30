@@ -96,9 +96,8 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   `SQLitePlatform`), since `AbstractPlatform::getName()` is gone. DBAL 4 no longer writes `(DC2Type:...)`
   column comments, so a schema diff against a database migrated earlier lists those columns.
 - `ext-ds` 2.0 is installed with PIE by `api/docker/install-php.sh`, which the `php-cli` and `php-fpm` stages of
-  `api/Dockerfile` run, so every PHP image has it. `api/rr.Dockerfile` installs it separately. amqp and redis are in
-  all of them except `api/rr.Dockerfile`, and the dev images (the `dev` stage of `api/Dockerfile`,
-  `api/rr.Dockerfile`) add xdebug. `php-ds/php-ds` 2.0 is
+  `api/Dockerfile` run, so every PHP image has it, together with amqp and redis. Only the `dev` stage adds xdebug.
+  `php-ds/php-ds` 2.0 is
   required as the polyfill fallback. 2.0 has no `Ds\Collection`, `Ds\Deque` or `Ds\Vector`; the code uses
   `Ds\Seq`, `Ds\Map` and `Ds\Set`.
 - RoadRunner 2025.1 (`ghcr.io/roadrunner-server/roadrunner`) with baldinof/roadrunner-bundle 3; `.rr.yaml` is
@@ -125,3 +124,24 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
 
 - `src/Parser` + `tests/JsonStreaming*` — a custom streaming JSON tokenizer/parser (commit scope
   `streaming-parser`) used to import large provider JSON files without loading them into memory.
+
+## Docker
+
+- `api/Dockerfile` is the only PHP Dockerfile. Stages: `php-cli` and `php-fpm` (base images with the extensions
+  from `api/docker/install-php.sh`), `vendor` (composer dependencies only, cached apart from the code), `app` (code
+  plus vendor), and the runtime images `rr` (RoadRunner), `cli`, `fpm` and `dev` (php-fpm plus xdebug, composer and
+  the `rr` binary; the default target).
+- `docker-bake.hcl` maps stages to images: `api` = `rr` (tags `api` and `api-rr`), `api-fpm` = `fpm`, and `api-cli`
+  = `cli` (not published, only the base of the worker). `worker/Dockerfile` and `standalone/Dockerfile` start
+  `FROM api`, a named build context that bake points at `target:api-cli` for the worker and `target:api` for
+  standalone. `front/Dockerfile` has `dev` and `prod`.
+- Groups: `ci` (api, worker, front) and `release` (adds api-fpm and standalone). Variables: `REGISTRIES`, `TAGS`
+  (the first is the main tag), `COJEDZIE_VERSION`, `COJEDZIE_REVISION`, `GHA_CACHE` and `SENTRY_AUTH_TOKEN`. Always
+  call `docker buildx bake -f docker-bake.hcl ...`: otherwise bake also reads `docker-compose.yml`, whose service
+  names collide with the targets. `contrib/bake-digests.sh` writes `digests.txt` for the deploy workflow and
+  `contrib/release-notes.sh` the release notes.
+- The dev stack (`docker-compose.yml`, commands in `AGENTS.md`) builds the `dev` targets and bind-mounts `api/` and
+  `front/`. `api-setup` and `front-setup` install dependencies before the other services start. The `dev` image's
+  `dev-server` picks php-fpm or RoadRunner from `COJEDZIE_DEV_SERVER`.
+- FontAwesome Pro packages are not downloadable by the build: put them in `front/resources/fontawesome` by hand
+  (CI uses `.github/actions/fontawesome`).
