@@ -94,4 +94,16 @@ describe("API client", () => {
         expect(nodeFailed).toHaveBeenCalledOnce();
         expect(nodeFailed).toHaveBeenCalledWith("node-1");
     });
+
+    it("tries a request only as many times as it allows", async () => {
+        const { default: client } = await import("@/api");
+        get.mockRejectedValue(new Error("offline"));
+        vi.spyOn(console, "error").mockImplementation(() => {});
+
+        const request = client.get("v1_provider_list", { version: "^1.0", maxRetries: 1 });
+        await vi.runAllTimersAsync();
+
+        await expect(request).resolves.toBeUndefined();
+        expect(get).toHaveBeenCalledOnce();
+    });
 });
