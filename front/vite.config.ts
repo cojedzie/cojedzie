@@ -19,6 +19,7 @@
 
 import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { readFileSync } from "fs";
 import { VitePWA } from "vite-plugin-pwa";
@@ -47,6 +48,8 @@ const isSentryEnabled = sentryAuthToken && process.env.COJEDZIE_VERSION;
 export default defineConfig({
     build: {
         outDir: `${dist}/`,
+        // the oldest browsers Tailwind CSS 4 supports
+        target: ["chrome111", "edge111", "firefox128", "safari16.4"],
         sourcemap: true,
         manifest: "manifest.json",
         rollupOptions: {
@@ -60,6 +63,7 @@ export default defineConfig({
     },
     plugins: [
         vue(),
+        tailwindcss(),
         VitePWA({}),
         viteImagemin(),
         SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
@@ -78,10 +82,8 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                loadPaths: [path.resolve(__dirname, "./node_modules")],
-                // Bootstrap 4 and our stylesheets still use @import and the global functions Sass deprecated
-                quietDeps: true,
-                silenceDeprecations: ["import", "global-builtin", "color-functions", "if-function", "slash-div"],
+                // our stylesheets still use @import and the global functions Sass deprecated
+                silenceDeprecations: ["import", "global-builtin", "color-functions", "if-function"],
             },
         },
     },

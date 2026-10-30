@@ -17,22 +17,63 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-$border-radius: 0;
-$border-radius-lg: $border-radius;
-$border-radius-sm: $border-radius;
+@use "sass:list";
+@use "sass:map";
+@use "sass:math";
 
-$danger: #cd2e12;
+// Colours and sizes the stylesheets compute with. The Tailwind theme in tailwind.css mirrors the ones it needs
+// (test/styles/theme.test.ts keeps them equal).
 
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
+$white: #fff;
+$gray-100: #f8f9fa;
+$gray-600: #6c757d;
+$gray-800: #343a40;
+$gray-900: #212529;
+$black: #000;
+
+$blue: #007bff;
+$yellow: #ffc107;
 
 $primary: #005ea8;
+$secondary: $gray-600;
+$success: #28a745;
+$info: #17a2b8;
+$warning: $yellow;
+$danger: #cd2e12;
+$light: $gray-100;
+$dark: $gray-800;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+);
+
 $primary-gradient: linear-gradient(120deg, $primary 10%, darken($primary, 5%) 90%);
 $danger-gradient: linear-gradient(120deg, $danger 10%, darken($danger, 10%) 90%);
 
-$custom-control-indicator-checked-bg: $dark;
-$custom-control-indicator-active-bg: $dark;
+$body-color: $gray-900;
+$text-muted: $gray-600;
+$link-color: $primary;
+
+$spacer: 1rem;
+$default-spacing: 0.5rem;
+$grid-gutter-width: $spacer * 2;
+
+$font-size-base: 1rem;
+$font-size-sm: $font-size-base * 0.875;
 $small-font-size: $font-size-base * 0.8;
+$line-height-base: 1.5;
+$btn-line-height: $line-height-base;
+$alert-padding-y: 0.75rem;
+$alert-bg-level: -10;
+$alert-border-level: -9;
+$alert-color-level: 6;
 
 $line-types: (
   "trolleybus": #419517,
@@ -42,20 +83,71 @@ $line-types: (
   "unknown": $dark,
 );
 
-$default-spacing: 0.5rem;
-
-$alert-margin-bottom: $default-spacing;
-$headings-margin-bottom: $default-spacing;
-
-$container-max-widths: map-merge(
-  $container-max-widths,
-  (
-    xl: 1320px,
-  )
+// Breakpoints, the same as in tailwind.css
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
 );
 
-$link-color: #005ea8;
-$grid-gutter-width: $spacer * 2;
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1320px,
+);
+
+// From the given breakpoint up
+@mixin media-breakpoint-up($name) {
+  $min: map.get($grid-breakpoints, $name);
+
+  @if $min == 0 {
+    @content;
+  } @else {
+    @media (min-width: $min) {
+      @content;
+    }
+  }
+}
+
+// Below the next breakpoint, so down("md") covers everything narrower than lg
+@mixin media-breakpoint-down($name) {
+  $names: map.keys($grid-breakpoints);
+  $index: list.index($names, $name);
+
+  @if $index == list.length($names) {
+    @content;
+  } @else {
+    @media (max-width: map.get($grid-breakpoints, list.nth($names, $index + 1)) - 0.02px) {
+      @content;
+    }
+  }
+}
+
+// Mixes the colour with black (positive levels) or white (negative levels) in 8% steps
+@function theme-color-level($name, $level: 0) {
+  $color: map.get($theme-colors, $name);
+  $base: if($level > 0, $black, $white);
+
+  @return mix($base, $color, math.abs($level) * 8%);
+}
+
+// Text colour readable on the given background
+@function color-yiq($color) {
+  $yiq: math.div((red($color) * 299) + (green($color) * 587) + (blue($color) * 114), 1000);
+
+  @return if($yiq >= 150, $gray-900, $white);
+}
+
+@mixin clearfix() {
+  &::after {
+    display: block;
+    clear: both;
+    content: "";
+  }
+}
 
 @mixin headings {
   h1,

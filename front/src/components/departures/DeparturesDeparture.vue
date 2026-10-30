@@ -36,7 +36,7 @@
         </div>
 
         <div class="departure__stop">
-            <ui-icon icon="stop" fixed-width class="mr-1 flex-shrink-0" />
+            <ui-icon icon="stop" fixed-width class="mr-1 shrink-0" />
             <stop-label :stop="departure.stop" />
 
             <div class="stop__actions flex-space-left">

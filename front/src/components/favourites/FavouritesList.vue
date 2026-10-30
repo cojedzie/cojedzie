@@ -7,7 +7,7 @@
                         <ui-icon icon="favourite" />
                     </div>
                     <div class="overflow-hidden">
-                        <span class="text flex-grow-1">{{ favourite.name }}</span>
+                        <span class="text grow">{{ favourite.name }}</span>
                         <ul class="favourite__stops">
                             <li v-for="stop in favourite.stops" :key="stop.id" class="favourite__stop">
                                 <stop-label :stop="stop" />

@@ -1,6 +1,6 @@
 <template>
     <div class="form-group">
-        <div class="label flex">
+        <div class="label hstack">
             <label class="text" for="departures-auto-refresh">
                 <ui-icon icon="refresh" fixed-width />
                 autoodświeżanie
@@ -47,7 +47,7 @@
         </div>
     </div>
     <div class="form-group">
-        <div class="label flex">
+        <div class="label hstack">
             <label class="text" for="departures-count">
                 <ui-icon icon="line-bus" fixed-width />
                 liczba wpisów
@@ -73,7 +73,7 @@
         />
     </div>
     <div class="form-group">
-        <div class="label flex">
+        <div class="label hstack">
             <label class="text mr-1" for="departures-relative-times">
                 <ui-icon icon="relative-time" fixed-width />
                 pokazuj czas do odjazdu
@@ -112,7 +112,7 @@
             :visible="relativeTimes && relativeTimesShowAdvancedOptions"
             style="margin-left: 7px; border-left: 1px solid lightgray; padding-left: 10px"
         >
-            <div class="label flex">
+            <div class="label hstack">
                 <label class="text label--secondary" for="departures-relative-times-for-scheduled">
                     <ui-icon icon="departure-warning" fixed-width />
                     również dla czasu rozkładowego
@@ -145,7 +145,7 @@
                     </p>
                 </ui-help>
             </div>
-            <div class="flex">
+            <div class="hstack">
                 <label class="text label--secondary" for="departures-has-relative-time-limit">
                     <ui-icon icon="relative-time-limit" fixed-width />
                     tylko dla odjazdów szybciej niż
@@ -178,7 +178,7 @@
                     </p>
                 </ui-help>
             </div>
-            <div class="flex">
+            <div class="hstack">
                 <label for="departures-max-relative-time" class="text">
                     <span class="sr-only">maksymalny czas do odjazdu</span>
                 </label>

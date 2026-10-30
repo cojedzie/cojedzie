@@ -87,7 +87,7 @@
   }
 }
 
-.flex {
+.hstack {
   display: flex;
   align-items: center;
 
@@ -130,7 +130,7 @@ $section-safe-margin: 0.5rem;
     }
 
     @include direct-headings {
-      @extend .flex;
+      @extend .hstack;
       margin-bottom: 0;
     }
 

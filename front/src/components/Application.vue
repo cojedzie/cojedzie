@@ -1,5 +1,5 @@
 <template>
-    <main ref="main" class="d-flex">
+    <main ref="main" class="flex">
         <router-view />
     </main>
 </template>

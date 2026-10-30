@@ -18,12 +18,12 @@
  */
 
 .departure {
-  @extend .flex;
+  @extend .hstack;
   flex-wrap: wrap;
 }
 
 .departure__line {
-  @extend .flex;
+  @extend .hstack;
   flex: 3 0;
 
   .line__symbol {
@@ -32,7 +32,7 @@
 }
 
 .departure__stop {
-  @extend .flex;
+  @extend .hstack;
   width: 100%;
 }
 
@@ -65,10 +65,10 @@
 }
 
 .departures__actions {
-  @extend .flex;
+  @extend .hstack;
 
   .departures__auto-refresh {
-    @extend .flex;
+    @extend .hstack;
   }
 
   .form-control {

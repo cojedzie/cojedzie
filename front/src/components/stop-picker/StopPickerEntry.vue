@@ -1,9 +1,9 @@
 <template>
     <div>
-        <div class="d-flex">
-            <div class="d-flex position-relative" style="min-width: 0; flex: 1 1 auto">
+        <div class="flex">
+            <div class="flex relative" style="min-width: 0; flex: 1 1 auto">
                 <slot name="primary-action" />
-                <div class="overflow-hidden align-self-center">
+                <div class="overflow-hidden self-center">
                     <stop-label :stop="stop" />
                     <div v-if="destinations && destinations.length > 0" class="stop__destinations">
                         <ul>

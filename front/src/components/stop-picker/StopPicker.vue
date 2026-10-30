@@ -12,7 +12,7 @@
             <stop-picker-history />
         </div>
 
-        <div v-if="state === 'fetching'" class="text-center p-4">
+        <div v-if="state === 'fetching'" class="text-center p-6">
             <ui-icon icon="spinner" />
         </div>
         <div v-else-if="filter.length > 2 && Object.keys(filtered).length > 0" class="finder__stops">
@@ -30,8 +30,8 @@
                     </div>
                 </div>
                 <ul class="stop-group__stops list-underlined">
-                    <li v-for="stop in group" :key="stop.id" class="d-flex">
-                        <stop-picker-entry :stop="stop" class="flex-grow-1 finder__stop">
+                    <li v-for="stop in group" :key="stop.id" class="flex">
+                        <stop-picker-entry :stop="stop" class="grow finder__stop">
                             <template #primary-action>
                                 <button class="btn btn-action stretched-link" @click="select(stop)">
                                     <ui-tooltip>dodaj przystanek</ui-tooltip>

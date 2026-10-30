@@ -18,7 +18,7 @@
  */
 
 .line {
-  @extend .flex;
+  @extend .hstack;
 }
 
 .line__display {
@@ -55,7 +55,7 @@
 }
 
 .track {
-  @extend .flex;
+  @extend .hstack;
   flex-shrink: 0;
   flex-grow: 0;
 
