@@ -10,6 +10,7 @@
   "devDependencies": {
     "@elastic/elasticsearch": "7",
     "@eslint/js": "^10.0.1",
+    "@floating-ui/dom": "^1.8.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/vue-fontawesome": "^3.0.0-4",
     "@sentry/vite-plugin": "^11.9.0",
@@ -41,7 +42,6 @@
     "mapbox-gl-leaflet": "^0.0.15",
     "module-alias": "^2.2.2",
     "moment": "^2.22.2",
-    "popper.js": "^1.14.4",
     "prettier": "^3.9.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

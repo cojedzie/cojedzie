@@ -64,6 +64,11 @@ Two entry points, imported in this order by `src/app.ts` and `.storybook/preview
 
 `test/styles/theme.test.ts` checks that the `@theme` values equal the Sass variables. Change both together.
 
+Popups (`UiDialog`, `UiTooltip`, `UiSelect`) are positioned by `positionFloating()`/`useFloating()` in
+`src/composables/useFloating.ts`, over `@floating-ui/dom`. It sets `data-placement` (the arrow styles in
+`styles/ui/_popup.scss` key on it) and, for responsive dialogs below 560 px, `data-narrow` with a full-width layout.
+`UiDialog` adds `--ui-popup-arrow-size` to the distance from the reference, so the arrow has room.
+
 Gotchas:
 
 - The project's "row of centred items" helper is `hstack`, not `flex`: Tailwind's `flex` is only `display: flex`.
@@ -140,9 +145,10 @@ Saved keys: `favourites`, `departures-settings`, `messages-settings`, `history` 
 
 Vitest with `// @vitest-environment happy-dom` and `@vue/test-utils`, in `test/components/**` and `test/pages/**`.
 Create a store with `createPinia()` + `setActivePinia()`, set up the state through the store, and mount with
-`global.plugins: [pinia]`. Stub icons and library wrappers (`stubs: { UiIcon: true }`, maps, popper). Assert on what
-is rendered, what is emitted and which store state changes. For saved stores, use `replaceStorages` with
-`MemoryStorage` instead of the browser. API calls are stubbed at the client level (see `test/api/client.test.ts`).
+`global.plugins: [pinia]`. Stub icons and library wrappers (`stubs: { UiIcon: true }`, maps, `autoUpdate` of
+`@floating-ui/dom`). Assert on what is rendered, what is emitted and which store state changes. For saved stores,
+use `replaceStorages` with `MemoryStorage` instead of the browser. API calls are stubbed at the client level (see
+`test/api/client.test.ts`).
 
 ## API nodes and load balancing
 

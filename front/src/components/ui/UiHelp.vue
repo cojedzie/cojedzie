@@ -7,7 +7,7 @@
     <teleport v-if="active" to="#popups">
         <ui-dialog
             :reference="button"
-            offset="-12px, 20px"
+            :offset="{ mainAxis: 20, crossAxis: -12 }"
             class="help"
             placement="right-start"
             mobile-behaviour="modal"
