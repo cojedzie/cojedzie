@@ -27,19 +27,22 @@ import { http as globalHttpClient } from "@/api/client/http";
 export type StaticRequestOptions<
     TEndpoints extends EndpointCollection,
     TEndpoint extends keyof TEndpoints,
-    TBoundParams extends string
+    TBoundParams extends string,
 > = BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams> & {
     base?: Supplier<string>;
 };
 
-export interface StaticClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
-    extends ApiClientOptions<TEndpoints, TBoundParams> {
+export interface StaticClientOptions<
+    TEndpoints extends EndpointCollection,
+    TBoundParams extends string = never,
+> extends ApiClientOptions<TEndpoints, TBoundParams> {
     endpoints: TEndpoints;
 }
 
-export class StaticClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
-    implements ApiClient<TEndpoints, TBoundParams>
-{
+export class StaticClient<
+    TEndpoints extends EndpointCollection,
+    TBoundParams extends string = never,
+> implements ApiClient<TEndpoints, TBoundParams> {
     private readonly endpoints: TEndpoints;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
     private readonly http: AxiosInstance;
@@ -52,7 +55,7 @@ export class StaticClient<TEndpoints extends EndpointCollection, TBoundParams ex
 
     async get<TEndpoint extends keyof TEndpoints>(
         endpoint: TEndpoint,
-        options: StaticRequestOptions<TEndpoints, TEndpoint, TBoundParams>
+        options: StaticRequestOptions<TEndpoints, TEndpoint, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
         const url = prepare(this.endpoints[endpoint].template, {
             ...(resolve(this.bound) || {}),

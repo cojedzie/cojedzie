@@ -4,7 +4,10 @@ import createServiceContainer from "../src/utils/container";
 class Foo {}
 class Baz {}
 class Bar {
-    constructor(readonly foo: Foo, readonly baz: Baz) {}
+    constructor(
+        readonly foo: Foo,
+        readonly baz: Baz,
+    ) {}
 }
 
 type Services = {

@@ -192,7 +192,7 @@ const mutations: NetworkMutationTree = {
                         ...apiNodeConverter.convert(node),
                     };
                 })
-                .map(node => [node.id, node])
+                .map(node => [node.id, node]),
         );
     },
 };

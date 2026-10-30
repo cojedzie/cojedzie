@@ -15,7 +15,7 @@ const config: StorybookConfig = {
     async viteFinal(storybookConfig) {
         const { config } = await loadConfigFromFile(
             { command: "serve", mode: "development" },
-            path.resolve(import.meta.dirname, "../vite.config.ts")
+            path.resolve(import.meta.dirname, "../vite.config.ts"),
         );
 
         // remove vue-docgen plugin as it causes problems, and the PWA plugin, as storybook needs no service worker
@@ -25,7 +25,7 @@ const config: StorybookConfig = {
                 plugin =>
                     plugin &&
                     plugin.name !== "storybook:vue-docgen-plugin" &&
-                    !plugin.name?.startsWith("vite-plugin-pwa")
+                    !plugin.name?.startsWith("vite-plugin-pwa"),
             );
 
         // return the customized config

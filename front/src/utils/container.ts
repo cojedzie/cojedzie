@@ -9,7 +9,7 @@ export interface ServiceContainer<TServices> {
 }
 
 export default function createServiceContainer<TServices>(
-    definitions: ServiceDefinitions<TServices>
+    definitions: ServiceDefinitions<TServices>,
 ): ServiceContainer<TServices> {
     const services: Partial<TServices> = {};
 

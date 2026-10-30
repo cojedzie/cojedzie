@@ -31,19 +31,19 @@ export type RequestOptions<TParams extends Record<string, unknown>> = {
 
 export type BoundRequestOptions<
     TParams extends EndpointParams<Record<string, never>, never>,
-    TBoundParams extends string
+    TBoundParams extends string,
 > = RequestOptions<MakeOptional<TParams, keyof TParams & TBoundParams>>;
 
 export interface ApiClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never> {
     get<TEndpoint extends keyof TEndpoints>(
         endpoint: TEndpoint,
-        options: BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams>
+        options: BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>>;
 }
 
 export interface ApiClientRequestInfo<
     TEndpoints extends EndpointCollection,
-    TEndpoint extends keyof TEndpoints = keyof TEndpoints
+    TEndpoint extends keyof TEndpoints = keyof TEndpoints,
 > {
     endpoint: TEndpoint;
     url: string;
@@ -51,12 +51,12 @@ export interface ApiClientRequestInfo<
 }
 
 export type ApiClientStartRequestEventHandler<TEndpoints extends EndpointCollection> = (
-    request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>
+    request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>,
 ) => void;
 
 export type ApiClientResponseEventHandler<TEndpoints extends EndpointCollection> = (
     response: unknown,
-    request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>
+    request: ApiClientRequestInfo<TEndpoints, keyof TEndpoints>,
 ) => void;
 
 export interface ApiClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never> {

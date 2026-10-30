@@ -22,15 +22,13 @@ import { createDecorator, Vue } from "vue-class-component";
 export interface Decorator<TArgs extends unknown[], FArgs extends unknown[], TRet, FRet> {
     decorate(f: (...farg: FArgs) => unknown, ...args: TArgs): (...farg: FArgs) => TRet;
 
-    (...args: TArgs): (
-        target,
-        name: string | symbol,
-        descriptor: TypedPropertyDescriptor<(...farg: FArgs) => FRet>
-    ) => void;
+    (
+        ...args: TArgs
+    ): (target, name: string | symbol, descriptor: TypedPropertyDescriptor<(...farg: FArgs) => FRet>) => void;
 }
 
 export function decorator<TArgs extends unknown[], FArgs extends unknown[], TRet, FRet>(
-    decorate: (f: (...farg: FArgs) => FRet, ...args: TArgs) => (...farg: FArgs) => TRet
+    decorate: (f: (...farg: FArgs) => FRet, ...args: TArgs) => (...farg: FArgs) => TRet,
 ): Decorator<TArgs, FArgs, TRet, FRet> {
     const factory = function (this: Decorator<TArgs, FArgs, TRet, FRet>, ...args: TArgs) {
         return (target, name: string | symbol, descriptor: PropertyDescriptor) => {
@@ -70,7 +68,7 @@ export const debounce = decorator(function (decorated, time: number) {
 
 export const condition = decorator(function <TArgs extends unknown[], TReturn>(
     decorated: (...args: TArgs) => TReturn,
-    predicate: (...args: TArgs) => boolean
+    predicate: (...args: TArgs) => boolean,
 ) {
     return function (this: unknown, ...args: TArgs) {
         if (predicate(...args)) {

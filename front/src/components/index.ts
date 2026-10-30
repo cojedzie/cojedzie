@@ -64,24 +64,24 @@ export default function install(Vue: App) {
 
     Vue.component(
         "UiMap",
-        defineAsyncComponent(() => import("@/components/ui/UiMap.vue"))
+        defineAsyncComponent(() => import("@/components/ui/UiMap.vue")),
     );
 
     Vue.component(
         "LMarker",
-        defineAsyncComponent(() => import("@/components/map").then(module => module.LMarker))
+        defineAsyncComponent(() => import("@/components/map").then(module => module.LMarker)),
     );
     Vue.component(
         "LControl",
-        defineAsyncComponent(() => import("@/components/map").then(module => module.LControl))
+        defineAsyncComponent(() => import("@/components/map").then(module => module.LControl)),
     );
     Vue.component(
         "LPopup",
-        defineAsyncComponent(() => import("@/components/map").then(module => module.LPopup))
+        defineAsyncComponent(() => import("@/components/map").then(module => module.LPopup)),
     );
     Vue.component(
         "LIcon",
-        defineAsyncComponent(() => import("@/components/map").then(module => module.LIcon))
+        defineAsyncComponent(() => import("@/components/map").then(module => module.LIcon)),
     );
 
     Vue.component("MessagesList", MessagesList);

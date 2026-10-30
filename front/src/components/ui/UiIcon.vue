@@ -29,7 +29,7 @@ export default defineComponent({
         const definition = computed<Icon>(() =>
             typeof props.icon === "string"
                 ? icons[props.icon] || icons["unknown"]
-                : { icon: props.icon as IconDefinition, type: "simple" }
+                : { icon: props.icon as IconDefinition, type: "simple" },
         );
 
         return { definition };

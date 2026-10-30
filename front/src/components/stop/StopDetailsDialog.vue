@@ -135,10 +135,10 @@ export default defineComponent({
                           .map(t => t.track.line)
                           .reduce(
                               (lines, line: Line) => Object.assign(lines, { [line.symbol]: line }),
-                              {} as Record<string, Line>
-                          )
+                              {} as Record<string, Line>,
+                          ),
                   )
-                : []
+                : [],
         );
 
         const tracksForDestination = computedAsync(
@@ -147,7 +147,7 @@ export default defineComponent({
                     ? await trackRepository.getTracksForDestination(props.stop, destination.value)
                     : null,
             null,
-            { lazy: true }
+            { lazy: true },
         );
 
         const selectedTrack = ref<Track>(null);
@@ -157,8 +157,8 @@ export default defineComponent({
             slice(
                 selectedTrack.value?.stops ?? [],
                 s => s.id == props.stop.id,
-                s => s.id == destination.value.id
-            ).slice(1)
+                s => s.id == destination.value.id,
+            ).slice(1),
         );
 
         watch(destination, () => {

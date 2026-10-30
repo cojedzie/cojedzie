@@ -43,15 +43,11 @@ export type Endpoints = {
     v1_stop_tracks: Endpoint<"provider" | "stop", Jsonified<{ order: number; track: Track }>[]>;
 };
 
-export type EndpointParams<
-    TEndpoints extends EndpointCollection,
-    TEndpoint extends keyof TEndpoints
-> = TEndpoints[TEndpoint] extends Endpoint<infer TParams, unknown> ? { [name in TParams]: string } : never;
+export type EndpointParams<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> =
+    TEndpoints[TEndpoint] extends Endpoint<infer TParams, unknown> ? { [name in TParams]: string } : never;
 
-export type EndpointResult<
-    TEndpoints extends EndpointCollection,
-    TEndpoint extends keyof TEndpoints
-> = TEndpoints[TEndpoint] extends Endpoint<string, infer TResult> ? TResult : never;
+export type EndpointResult<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> =
+    TEndpoints[TEndpoint] extends Endpoint<string, infer TResult> ? TResult : never;
 
 export const endpoints: Endpoints = {
     v1_trip_details: {

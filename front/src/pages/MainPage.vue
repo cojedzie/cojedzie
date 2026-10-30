@@ -261,7 +261,7 @@ export default class MainPage extends Vue {
             if (autorefresh) {
                 this.intervals.departures = setInterval(
                     () => this.updateDepartures(),
-                    Math.max(5, autorefreshInterval) * 1000
+                    Math.max(5, autorefreshInterval) * 1000,
                 );
             }
         };
@@ -269,7 +269,7 @@ export default class MainPage extends Vue {
         this.$store.watch(({ "departures-settings": state }) => state.autorefresh, departuresAutorefreshCallback);
         this.$store.watch(
             ({ "departures-settings": state }) => state.autorefreshInterval,
-            departuresAutorefreshCallback
+            departuresAutorefreshCallback,
         );
 
         departuresAutorefreshCallback();
@@ -288,7 +288,7 @@ export default class MainPage extends Vue {
             if (autorefresh) {
                 this.intervals.messages = setInterval(
                     () => this.updateMessages(),
-                    Math.max(5, autorefreshInterval) * 1000
+                    Math.max(5, autorefreshInterval) * 1000,
                 );
             }
         };

@@ -36,7 +36,7 @@ const gtm_tracking = process.env.COJEDZIE_GTM || "";
 const maptiler_key = process.env.COJEDZIE_MAPTILER_KEY || "unknown";
 
 const web_manifest = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "../../resources/manifest.json")).toString("utf-8")
+    fs.readFileSync(path.join(__dirname, "../../resources/manifest.json")).toString("utf-8"),
 );
 
 const assets_manifest = dev
@@ -161,7 +161,7 @@ const renderPageAction =
                 is_production: !dev,
                 manifest: assets_manifest,
             },
-            (err, html) => (callback ? callback({ req, res, err, html }) : res.send(html))
+            (err, html) => (callback ? callback({ req, res, err, html }) : res.send(html)),
         );
     };
 
@@ -230,7 +230,7 @@ async function createServer(): Promise<Express> {
             "/:provider?/*",
             renderPageAction(async ({ req, res, html }) => {
                 res.send(await vite.transformIndexHtml(req.originalUrl, html));
-            })
+            }),
         );
     } else {
         server.get("/:provider?/*", renderPageAction());

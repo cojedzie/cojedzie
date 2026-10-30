@@ -79,7 +79,7 @@ export default class StopPicker extends Vue {
 
     get filtered(): StopGroups {
         const groups = map(this.found, (group: StopGroup) =>
-            group.filter(stop => !this.blacklist.some(blacklisted => blacklisted.id === stop.id))
+            group.filter(stop => !this.blacklist.some(blacklisted => blacklisted.id === stop.id)),
         ) as StopGroups;
 
         return filter(groups, group => group.length > 0);
@@ -104,7 +104,7 @@ export default class StopPicker extends Vue {
 
             this.found = response.data.reduce(
                 (accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }),
-                {}
+                {},
             );
             this.state = "ready";
         } catch (error) {
