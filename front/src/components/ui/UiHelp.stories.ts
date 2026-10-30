@@ -1,3 +1,4 @@
+import UiIcon from "./UiIcon.vue";
 import UiHelp from "./UiHelp.vue";
 import { StoryObj } from "@storybook/vue3-vite";
 import { createMutex } from "@/composables/useMutex";
@@ -39,7 +40,7 @@ export default {
 };
 
 const createRenderFunction = template => args => ({
-    components: { UiHelp },
+    components: { UiHelp, UiIcon },
     setup: () => {
         const mutex = createMutex();
         return { args, mutex };

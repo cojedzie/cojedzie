@@ -69,6 +69,12 @@ import type { Trip } from "@/model/trip";
 import api from "@/api";
 import { type Jsonified, signed } from "@/utils";
 import { useDeparturesSettingsStore } from "@/stores/departures-settings";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiFold from "@/components/ui/UiFold.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
+import LineSymbol from "@/components/line/LineSymbol.vue";
+import TripSchedule from "@/components/trip/TripSchedule.vue";
 
 defineOptions({ name: "DeparturesDeparture" });
 

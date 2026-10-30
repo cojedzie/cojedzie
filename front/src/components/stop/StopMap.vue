@@ -7,9 +7,11 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType } from "vue";
+import { defineAsyncComponent, PropType } from "vue";
 import { getStopType, LineType, Stop } from "@/model";
 import StopPin from "@/components/stop/StopPin.vue";
+
+const UiMap = defineAsyncComponent(() => import("@/components/ui/UiMap.vue"));
 
 defineOptions({ name: "StopMap" });
 

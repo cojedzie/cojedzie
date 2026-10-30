@@ -202,6 +202,11 @@
 import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useDeparturesSettingsStore } from "@/stores/departures-settings";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiNumericInput from "@/components/ui/UiNumericInput.vue";
+import UiSwitch from "@/components/ui/UiSwitch.vue";
+import UiFold from "@/components/ui/UiFold.vue";
+import UiHelp from "@/components/ui/UiHelp.vue";
 
 defineOptions({ name: "SettingsDepartures" });
 

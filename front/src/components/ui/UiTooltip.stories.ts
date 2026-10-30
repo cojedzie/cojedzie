@@ -1,8 +1,9 @@
+import UiIcon from "./UiIcon.vue";
 import UiTooltip from "./UiTooltip.vue";
 import { centered } from "@/stories/decorators";
 
 const Template = args => ({
-    components: { UiTooltip },
+    components: { UiTooltip, UiIcon },
     setup: () => {
         return { args };
     },

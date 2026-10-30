@@ -18,6 +18,7 @@ import type { Stop } from "@/model";
 import { useHistoryStore } from "@/stores/history";
 import { useSelectionStore } from "@/stores/selection";
 import StopPickerEntry from "./StopPickerEntry.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 defineOptions({ name: "StopPickerHistory" });
 

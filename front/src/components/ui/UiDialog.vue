@@ -47,6 +47,7 @@
 </template>
 
 <script lang="ts">
+import UiIcon from "@/components/ui/UiIcon.vue";
 /**
  * How popup will be presented to user:
  *  - "modal" - modal window
@@ -98,6 +99,13 @@ const props = defineProps({
 const emit = defineEmits<{
     (event: "leave", originalEvent?: Event): void;
     (event: "close"): void;
+}>();
+
+defineSlots<{
+    default?: () => unknown;
+    header?: (props: { title?: string; handleCloseClick?: () => void }) => unknown;
+    title?: () => unknown;
+    footer?: () => unknown;
 }>();
 
 const slots = useSlots();

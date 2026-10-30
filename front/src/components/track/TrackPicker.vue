@@ -14,6 +14,8 @@
 import { PropType } from "vue";
 import { Track } from "@/model";
 import UiSelect from "@/components/ui/UiSelect.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
+import LineSymbol from "@/components/line/LineSymbol.vue";
 
 defineProps({
     tracks: {

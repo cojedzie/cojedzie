@@ -44,6 +44,8 @@ import { storeToRefs } from "pinia";
 import * as uuid from "uuid";
 import { type Favourite, useFavouritesStore } from "@/stores/favourites";
 import { useSelectionStore } from "@/stores/selection";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
 
 defineOptions({ name: "FavouritesAdder" });
 

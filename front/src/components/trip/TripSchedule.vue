@@ -1,6 +1,6 @@
 <template>
     <div class="trip">
-        <ol ref="stops" v-dragscroll.x="!$isTouch" class="trip__stops">
+        <ol ref="stops" v-dragscroll.x="!isTouch" class="trip__stops">
             <li
                 v-for="stop in stops"
                 :key="stop.order"
@@ -24,6 +24,10 @@ import { computed, onMounted, PropType, useTemplateRef } from "vue";
 import { ScheduledStop } from "@/model/trip";
 import { Stop } from "@/model";
 import moment from "moment";
+import StopLabel from "@/components/stop/StopLabel.vue";
+import { useIsTouch } from "@/composables/useIsTouch";
+
+const isTouch = useIsTouch();
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean; current: boolean };
 

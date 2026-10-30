@@ -60,6 +60,8 @@ import { useHistoryStore } from "@/stores/history";
 import FavouritesList from "@/components/favourites/FavouritesList.vue";
 import StopPickerEntry from "./StopPickerEntry.vue";
 import StopPickerHistory from "./StopPickerHistory.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
 
 defineOptions({ name: "StopPicker" });
 

@@ -27,6 +27,7 @@
 <script lang="ts" setup>
 import { PropType } from "vue";
 import { Line } from "@/model";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 defineOptions({ name: "LineSymbol" });
 

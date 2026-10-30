@@ -1,8 +1,9 @@
+import UiIcon from "./UiIcon.vue";
 import UiPin from "./UiPin.vue";
 import { StoryObj } from "@storybook/vue3-vite";
 
 const Template = args => ({
-    components: { UiPin },
+    components: { UiPin, UiIcon },
     setup: () => {
         return { args };
     },
