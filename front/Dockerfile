@@ -1,4 +1,12 @@
-FROM node:24 as build
+FROM node:24 AS dev
+
+WORKDIR /app
+
+CMD ["node", "build/server/server.js"]
+
+EXPOSE 3000 3001
+
+FROM node:24 AS build
 
 WORKDIR /app
 COPY package.json yarn.lock ./
@@ -19,7 +27,7 @@ RUN --mount=type=secret,id=sentry-auth-token yarn run build:app
 RUN yarn run build:server
 
 # server dependencies step
-FROM node:24 as prod-dependencies
+FROM node:24 AS prod-dependencies
 
 WORKDIR /app
 
@@ -28,7 +36,7 @@ COPY package.json yarn.lock ./
 # install dependencies
 RUN yarn install --production --frozen-lockfile
 
-FROM node:24-slim
+FROM node:24-slim AS prod
 
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 
