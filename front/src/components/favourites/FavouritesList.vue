@@ -28,21 +28,18 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { Favourites } from "@/store";
-import { Favourite } from "@/store/modules/favourites";
-import { Mutation } from "vuex-class";
-import { Stop } from "@/model";
+<script setup lang="ts">
+import { useStore } from "vuex";
+import { storeToRefs } from "pinia";
+import { type Favourite, useFavouritesStore } from "@/stores/favourites";
 
-@Options({ name: "FavouritesList" })
-export default class FavouritesList extends Vue {
-    @Favourites.State favourites: Favourite[];
-    @Favourites.Mutation remove: (fav: Favourite) => void;
-    @Mutation("replace") setStops: (stops: Stop[]) => void;
+defineOptions({ name: "FavouritesList" });
 
-    choose(favourite: Favourite) {
-        this.setStops(favourite.stops);
-    }
+const vuex = useStore();
+const { favourites } = storeToRefs(useFavouritesStore());
+const { remove } = useFavouritesStore();
+
+function choose(favourite: Favourite) {
+    vuex.commit("replace", favourite.stops);
 }
 </script>

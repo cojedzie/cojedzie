@@ -12,7 +12,7 @@
                     :class="{ 'is-invalid': errors.name.length > 0 }"
                 />
                 <div v-if="errors.name.length > 0" class="invalid-feedback">
-                    <p v-for="error in errors.name" :key="error.name">
+                    <p v-for="error in errors.name" :key="error">
                         {{ error }}
                     </p>
                 </div>
@@ -26,7 +26,7 @@
         <div class="favourite-add-form__actions">
             <template v-if="confirmation">
                 <button class="btn btn-xs btn-danger" type="submit">nadpisz</button>
-                <button class="btn btn-xs btn-action" @click="$emit('close')">anuluj</button>
+                <button class="btn btn-xs btn-action" @click="emit('close')">anuluj</button>
             </template>
             <template v-else>
                 <button class="btn btn-xs btn-primary" type="submit">
@@ -38,72 +38,60 @@
     </form>
 </template>
 
-<script lang="ts">
-import { Stop } from "@/model";
-import { Favourite } from "@/store/modules/favourites";
+<script setup lang="ts">
+import { computed, ref, watch } from "vue";
+import { useStore } from "vuex";
+import { storeToRefs } from "pinia";
 import * as uuid from "uuid";
-import { Options, Vue } from "vue-class-component";
-import { State } from "vuex-class";
-import { Favourites } from "@/store";
-import { Watch } from "vue-property-decorator";
+import type { Stop } from "@/model";
+import { type Favourite, useFavouritesStore } from "@/stores/favourites";
 
-function createFavouriteEntry(name: string, stops: Stop[]): Favourite {
-    return {
-        id: uuid.v4(),
-        name,
-        stops,
-    };
+defineOptions({ name: "FavouritesAdder" });
+
+const emit = defineEmits<{
+    saved: [favourite: Favourite];
+    close: [];
+}>();
+
+const vuex = useStore();
+const { favourites } = storeToRefs(useFavouritesStore());
+const { add } = useFavouritesStore();
+
+const stops = computed<Stop[]>(() => vuex.state.stops);
+
+const name = ref("");
+const errors = ref<{ name: string[] }>({ name: [] });
+const confirmation = ref(false);
+
+watch(name, () => {
+    confirmation.value = false;
+});
+
+function validate(favourite: Favourite) {
+    const result: { name: string[] } = { name: [] };
+
+    if (favourite.name.length === 0) {
+        result.name.push("Musisz podać nazwę.");
+    }
+
+    if (favourites.value.some(other => other.name === favourite.name) && !confirmation.value) {
+        result.name.push("Istnieje już zapisana grupa przystanków o takiej nazwie.");
+        confirmation.value = true;
+    }
+
+    errors.value = result;
+
+    return result.name.length === 0;
 }
 
-@Options({ name: "FavouritesAdder" })
-export default class FavouritesAdder extends Vue {
-    @State stops: Stop[];
+function save() {
+    const favourite: Favourite = { id: uuid.v4(), name: name.value, stops: stops.value };
 
-    name = "";
-    errors = { name: [] };
+    if (validate(favourite)) {
+        add(favourite);
+        name.value = "";
 
-    confirmation = false;
-
-    @Favourites.Mutation add: (favourite: Favourite) => void;
-
-    @Watch("name")
-    handleNameChange() {
-        this.confirmation = false;
-    }
-
-    async save() {
-        const favourite: Favourite = createFavouriteEntry(this.name, this.stops);
-
-        if (this.validate(favourite)) {
-            this.add(favourite);
-            this.name = "";
-
-            this.$emit("saved", favourite);
-        }
-    }
-
-    private validate(favourite: Favourite) {
-        const errors = { name: [] };
-
-        if (favourite.name.length == 0) {
-            errors.name.push("Musisz podać nazwę.");
-        }
-
-        if (
-            this.$store.state.favourites.favourites.filter(other => other.name == favourite.name).length > 0 &&
-            !this.confirmation
-        ) {
-            errors.name.push("Istnieje już zapisana grupa przystanków o takiej nazwie.");
-            this.confirmation = true;
-        }
-
-        this.errors = errors;
-
-        return (
-            Object.entries(errors)
-                .map(a => a[1])
-                .reduce((acc, cur) => [...acc, ...cur]).length == 0
-        );
+        emit("saved", favourite);
     }
 }
 </script>

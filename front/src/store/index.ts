@@ -21,7 +21,6 @@ import { namespace } from "vuex-class";
 import VuexPersistence from "vuex-persist";
 import { createStore, State } from "@/store/initializer";
 
-export const Favourites = namespace("favourites");
 export const DeparturesSettings = namespace("departures-settings");
 export const MessagesSettings = namespace("messages-settings");
 export const Departures = namespace("departures");
@@ -31,7 +30,7 @@ export const History = namespace("history");
 const localStoragePersist =
     typeof window !== "undefined" &&
     new VuexPersistence<State>({
-        modules: ["favourites", "departures-settings", "messages-settings", "history"],
+        modules: ["departures-settings", "messages-settings", "history"],
     });
 
 const sessionStoragePersist =
