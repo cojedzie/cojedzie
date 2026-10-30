@@ -102,11 +102,6 @@ jobs:
   # images for next, pushed only from master; deployed by the deploy-next workflow
   build:
     runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -114,22 +109,12 @@ jobs:
           fetch-depth: 0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-        with:
-          driver-opts: network=host
       - name: Login to registry.kadet.net
         uses: docker/login-action@v4
         with:
           registry: registry.kadet.net
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      - name: Expose actions cache variables
-        uses: actions/github-script@v9
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
-            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'])
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
-            core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'True')
       # FontAwesome Pro is licensed and not stored in the repository, see front/resources/fontawesome
       - name: Fetch FontAwesome Pro packages
         uses: ./.github/actions/fontawesome
@@ -137,20 +122,34 @@ jobs:
           url: ${{ secrets.FONTAWESOME_S3_URL }}
           access-key: ${{ secrets.FONTAWESOME_S3_ACCESS_KEY }}
           secret-key: ${{ secrets.FONTAWESOME_S3_SECRET_KEY }}
+      - name: Describe the version
+        id: version
+        run: echo "version=$(git describe --tags)" >> "$GITHUB_OUTPUT"
+      # source: . builds from the working tree, which has the FontAwesome packages fetched above
       - name: Build and push
+        id: bake
+        uses: docker/bake-action@v7
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        with:
+          source: .
+          files: docker-bake.hcl
+          targets: ci
+          push: ${{ github.ref == 'refs/heads/master' }}
+          vars: |
+            REGISTRIES=registry.kadet.net
+            TAGS=next
+            COJEDZIE_VERSION=${{ steps.version.outputs.version }}
+            COJEDZIE_REVISION=${{ github.sha }}
+            GHA_CACHE=true
+      - name: Write image digests
+        if: github.ref == 'refs/heads/master'
+        env:
+          METADATA: ${{ steps.bake.outputs.metadata }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          .utils/build-images.sh \
-            --build-registry localhost:5000 \
-            --publish-registry registry.kadet.net \
-            --tag next \
-            --default-only \
-            --digests digests.txt \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            ${{ github.ref == 'refs/heads/master' && '--push' || '' }} \
-            -- api worker front;
+          printf '%s' "$METADATA" > metadata.json
+          contrib/bake-digests.sh metadata.json "$VERSION" next api worker front > digests.txt
       - name: Upload image digests
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v7
