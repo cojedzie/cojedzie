@@ -22,6 +22,8 @@ import "vite/modulepreload-polyfill";
 import "@styles/main.scss";
 
 import { Store } from "vuex";
+import { createPinia } from "pinia";
+import { persistence } from "@/stores/persistence/plugin";
 import { dragscrollNext } from "vue-dragscroll";
 import { StoreDefinition } from "@/store/initializer";
 import { Vue } from "vue-class-component";
@@ -70,7 +72,11 @@ Vue.registerHooks(["removed"]);
     await migrate("vuex");
     const { default: store } = await import("./store");
 
+    const pinia = createPinia();
+    pinia.use(persistence());
+
     app.use(store);
+    app.use(pinia);
     app.use(container);
 
     // todo figure out better way

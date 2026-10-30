@@ -76,6 +76,7 @@
     "browserslist-useragent": "^4.0.0",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
+    "pinia": "^3.0.4",
     "semver": "^7.3.5",
     "yargs": "^17.0.1"
   },
