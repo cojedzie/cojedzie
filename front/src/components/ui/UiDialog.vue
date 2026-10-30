@@ -1,5 +1,5 @@
 <template>
-    <div v-if="currentBehaviour === 'modal'" class="ui-backdrop" role="dialog" @click="handleBackdropClick">
+    <div v-if="currentBehaviour === 'modal'" ref="root" class="ui-backdrop" role="dialog" @click="handleBackdropClick">
         <div class="ui-modal" v-bind="$attrs">
             <slot name="header" v-bind="{ title, handleCloseClick }">
                 <div class="ui-modal__top-bar">
@@ -16,20 +16,21 @@
                 </div>
             </slot>
             <slot />
-            <div v-if="hasFooter" class="ui-modal__footer">
+            <div v-if="hasFooter()" class="ui-modal__footer">
                 <slot name="footer" />
             </div>
         </div>
     </div>
     <div
         v-else
+        ref="root"
         v-bind="$attrs"
         :class="['ui-popup', arrow && 'ui-popup--arrow', $attrs.class]"
         :style="{ zIndex: zIndex }"
         role="dialog"
     >
-        <div v-if="arrow" ref="arrow" class="ui-popup__arrow" />
-        <div v-if="hasHeader" class="ui-popup__header">
+        <div v-if="arrow" ref="arrowElement" class="ui-popup__arrow" />
+        <div v-if="hasHeader()" class="ui-popup__header">
             <slot name="header">
                 <div class="ui-popup__heading" role="heading">
                     <slot name="title">
@@ -39,20 +40,13 @@
             </slot>
         </div>
         <slot />
-        <div v-if="hasFooter" class="ui-popup__footer">
+        <div v-if="hasFooter()" class="ui-popup__footer">
             <slot name="footer" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { Prop, Watch } from "vue-property-decorator";
-import Popper, { Placement } from "popper.js";
-import { defaultBreakpoints } from "@/filters";
-import { ComponentPublicInstance } from "vue";
-import removedHookMixin from "@/mixins/removed";
-
 /**
  * How popup will be presented to user:
  *  - "modal" - modal window
@@ -60,7 +54,62 @@ import removedHookMixin from "@/mixins/removed";
  */
 export type DialogBehaviour = "modal" | "popup";
 
+// shared between all the dialogs, as only the first modal should lock the page
 let openModalCounter = 0;
+</script>
+
+<script lang="ts" setup>
+import Popper, { Placement } from "popper.js";
+import {
+    computed,
+    ComponentInternalInstance,
+    getCurrentInstance,
+    nextTick,
+    onActivated,
+    onBeforeUnmount,
+    onDeactivated,
+    onMounted,
+    onUpdated,
+    PropType,
+    ref,
+    useSlots,
+    watch,
+} from "vue";
+import { defaultBreakpoints } from "@/filters";
+import { useRemoved } from "@/composables/useRemoved";
+
+defineOptions({
+    name: "UiDialog",
+    inheritAttrs: false,
+});
+
+const props = defineProps({
+    behaviour: { type: String as PropType<DialogBehaviour>, default: "popup" },
+    mobileBehaviour: { type: String as PropType<DialogBehaviour> },
+    reference: { type: [String, HTMLElement] as PropType<string | HTMLElement> },
+    refs: { type: Object as PropType<Record<string, HTMLElement>> },
+    placement: { type: String as PropType<Placement>, default: "auto" },
+    arrow: { type: Boolean },
+    responsive: { type: Boolean, default: true },
+    offset: { type: String, default: null },
+    title: { type: String },
+});
+
+const emit = defineEmits<{
+    (event: "leave", originalEvent?: Event): void;
+    (event: "close"): void;
+}>();
+
+const slots = useSlots();
+const instance = getCurrentInstance();
+
+const root = ref<HTMLElement>();
+const arrowElement = ref<HTMLElement>();
+const isMobile = ref(false);
+const zIndex = ref(1000);
+
+let focusOutEvent: ((event: MouseEvent) => void) | undefined;
+let popper: Popper | null = null;
 
 function computeZIndexOfElement(element: HTMLElement): number {
     let current = element;
@@ -82,271 +131,203 @@ function computeZIndexOfElement(element: HTMLElement): number {
     return 0;
 }
 
-function getRootElementOfComponent(component: ComponentPublicInstance | HTMLElement): HTMLElement {
-    if (component instanceof HTMLElement) {
-        return component;
-    } else {
-        return component.$el;
-    }
+function getRootElementOfComponent(component: { $el: HTMLElement } | HTMLElement): HTMLElement {
+    return component instanceof HTMLElement ? component : component.$el;
 }
 
-function findClosestRef(component: ComponentPublicInstance, ref: string): HTMLElement | null {
-    for (let current = component; current !== null; current = current.$parent) {
-        if (Object.prototype.hasOwnProperty.call(current.$refs, ref)) {
-            return getRootElementOfComponent(current.$refs[ref] as ComponentPublicInstance | HTMLElement);
+function findClosestRef(component: ComponentInternalInstance, ref: string): HTMLElement | null {
+    for (let current = component; current; current = current.parent) {
+        if (Object.prototype.hasOwnProperty.call(current.refs, ref)) {
+            return getRootElementOfComponent(current.refs[ref] as { $el: HTMLElement } | HTMLElement);
         }
     }
 
     return null;
 }
 
-function findClosestNonWrapperParent(component: ComponentPublicInstance): ComponentPublicInstance | null {
-    let parent = component.$parent;
+function findClosestNonWrapperParent(component: ComponentInternalInstance): ComponentInternalInstance | null {
+    let parent = component.parent;
 
-    while (parent && (parent.$el === component.$el || !(parent.$el instanceof HTMLElement))) {
-        parent = parent.$parent;
+    while (parent && (parent.proxy.$el === component.proxy.$el || !(parent.proxy.$el instanceof HTMLElement))) {
+        parent = parent.parent;
     }
 
     return parent;
 }
 
-@Options({
-    name: "UiDialog",
-    inheritAttrs: false,
-    mixins: [removedHookMixin],
-    emits: ["leave", "close"],
-})
-export class UiDialog extends Vue {
-    @Prop({ type: String, default: "popup" })
-    private behaviour: DialogBehaviour;
+const currentBehaviour = computed<DialogBehaviour>(() => {
+    if (!props.mobileBehaviour) {
+        return props.behaviour;
+    }
 
-    @Prop({ type: String })
-    private mobileBehaviour: DialogBehaviour;
+    return isMobile.value ? props.mobileBehaviour : props.behaviour;
+});
 
-    @Prop([String, HTMLElement])
-    public reference: string | HTMLElement;
+const hasFooter = () => !!slots.footer;
+const hasHeader = () => !!(slots.header || slots.title || props.title);
 
-    @Prop(Object)
-    public refs: string;
-
-    @Prop({ type: String, default: "auto" })
-    public placement: Placement;
-
-    @Prop(Boolean)
-    public arrow: boolean;
-
-    @Prop({ type: Boolean, default: true })
-    public responsive: boolean;
-
-    @Prop({ type: String, default: null })
-    public offset: string | null;
-
-    @Prop(String)
-    public title: string;
-
-    private isMobile: boolean = false;
-    zIndex: number = 1000;
-
-    private _focusOutEvent;
-    private _resizeEvent;
-
-    private _popper;
-
-    get currentBehaviour(): DialogBehaviour {
-        if (!this.mobileBehaviour) {
-            return this.behaviour;
+function getReferenceElement(): HTMLElement | null {
+    if (typeof props.reference === "string") {
+        if (props.reference[0] === "#") {
+            return document.getElementById(props.reference.substring(1));
         }
 
-        return this.isMobile ? this.mobileBehaviour : this.behaviour;
-    }
-
-    get hasFooter() {
-        return this.$hasSlot("footer");
-    }
-
-    get hasHeader() {
-        return this.$hasSlot("header") || this.$hasSlot("title") || this.title;
-    }
-
-    private getReferenceElement() {
-        if (typeof this.reference === "string") {
-            if (this.reference[0] === "#") {
-                return document.getElementById(this.reference.substr(1));
-            }
-
-            if (this.refs) {
-                return this.refs[this.reference];
-            }
-
-            return findClosestRef(this, this.reference);
+        if (props.refs) {
+            return props.refs[props.reference];
         }
 
-        if (this.reference instanceof HTMLElement) {
-            return this.reference;
-        }
-
-        const parent = findClosestNonWrapperParent(this);
-
-        return parent && parent.$el;
+        return findClosestRef(instance, props.reference);
     }
 
-    focusOut(event: MouseEvent) {
-        if (this.$el.contains(event.target as Node)) {
-            return;
-        }
-
-        this.$emit("leave", event);
+    if (props.reference instanceof HTMLElement) {
+        return props.reference;
     }
 
-    mounted() {
-        this.zIndex = computeZIndexOfElement(this.getReferenceElement()) + 100;
+    const parent = findClosestNonWrapperParent(instance);
 
-        this.handleWindowResize();
+    return parent && parent.proxy.$el;
+}
 
-        if (this.behaviour === "popup") {
-            this.mountPopper();
-        }
-
-        window.addEventListener("resize", (this._resizeEvent = this.handleWindowResize.bind(this)));
-
-        this._activated();
+function focusOut(event: MouseEvent) {
+    if (root.value?.contains(event.target as Node)) {
+        return;
     }
 
-    private _activated() {
-        if (this.behaviour === "modal") {
-            this.mountModal();
-        }
+    emit("leave", event);
+}
+
+function mountModal() {
+    if (openModalCounter === 0) {
+        document.body.style.paddingRight = `${window.screen.width - document.body.clientWidth}px`;
+        document.body.classList.add("contains-modal");
     }
 
-    private _deactivated() {
-        if (this.behaviour === "modal") {
-            this.dismountModal();
-        }
-    }
+    openModalCounter++;
+}
 
-    private mountModal() {
-        if (openModalCounter === 0) {
-            document.body.style.paddingRight = `${window.screen.width - document.body.clientWidth}px`;
-            document.body.classList.add("contains-modal");
-        }
+function dismountModal() {
+    openModalCounter--;
 
-        openModalCounter++;
-    }
-
-    private dismountModal() {
-        openModalCounter--;
-
-        if (openModalCounter === 0) {
-            document.body.style.paddingRight = "";
-            document.body.classList.remove("contains-modal");
-        }
-    }
-
-    activated() {
-        this._activated();
-    }
-
-    deactivated() {
-        this._deactivated();
-    }
-
-    private mountPopper() {
-        const reference = this.getReferenceElement();
-
-        this._popper = new Popper(reference, this.$el, {
-            placement: this.placement,
-            modifiers: {
-                arrow: { enabled: this.arrow, element: this.$refs["arrow"] as Element },
-                offset: {
-                    enabled: !!this.offset,
-                    offset: this.offset,
-                },
-                responsive: {
-                    enabled: this.responsive,
-                    order: 890,
-                    fn(data) {
-                        if (window.innerWidth < 560) {
-                            data.instance.options.placement = "top";
-                            data.styles.transform = `translate3d(0, ${data.offsets.popper.top}px, 0)`;
-                            data.styles.right = "0";
-                            data.styles.left = "0";
-                            data.styles.width = "auto";
-                            data.arrowStyles.left = `${data.offsets.popper.left + data.offsets.arrow.left}px`;
-                        }
-
-                        return data;
-                    },
-                },
-            },
-        });
-
-        this.$nextTick(() => {
-            this._popper?.update();
-            document.addEventListener("click", (this._focusOutEvent = this.focusOut.bind(this)), { capture: true });
-        });
-    }
-
-    private removePopper() {
-        this._popper.destroy();
-        this._popper = null;
-    }
-
-    updated() {
-        if (this._popper) {
-            this._popper.update();
-        }
-    }
-
-    beforeUnmount() {
-        if (this._focusOutEvent) {
-            document.removeEventListener("click", this._focusOutEvent, { capture: true });
-        }
-
-        this._deactivated();
-    }
-
-    removed() {
-        if (this._popper) {
-            this.removePopper();
-        }
-    }
-
-    handleBackdropClick(ev: Event) {
-        const target = ev.target as HTMLElement;
-
-        if (target.classList.contains("ui-backdrop")) {
-            this.$emit("leave");
-        }
-    }
-
-    handleCloseClick() {
-        this.$emit("leave");
-        this.$emit("close");
-    }
-
-    private handleWindowResize() {
-        this.isMobile = screen.width < defaultBreakpoints.md;
-    }
-
-    @Watch("currentBehaviour")
-    private handleBehaviourChange(newBehaviour: DialogBehaviour, oldBehaviour: DialogBehaviour) {
-        if (oldBehaviour === "popup") {
-            this.removePopper();
-        }
-
-        if (newBehaviour === "popup") {
-            this.$nextTick(() => this.mountPopper());
-        }
-
-        if (newBehaviour === "modal") {
-            this.mountModal();
-        }
-
-        if (oldBehaviour === "modal") {
-            this.dismountModal();
-        }
+    if (openModalCounter === 0) {
+        document.body.style.paddingRight = "";
+        document.body.classList.remove("contains-modal");
     }
 }
 
-export default UiDialog;
+function mountPopper() {
+    popper = new Popper(getReferenceElement(), root.value, {
+        placement: props.placement,
+        modifiers: {
+            arrow: { enabled: props.arrow, element: arrowElement.value },
+            offset: {
+                enabled: !!props.offset,
+                offset: props.offset,
+            },
+            responsive: {
+                enabled: props.responsive,
+                order: 890,
+                fn(data) {
+                    if (window.innerWidth < 560) {
+                        data.instance.options.placement = "top";
+                        data.styles.transform = `translate3d(0, ${data.offsets.popper.top}px, 0)`;
+                        data.styles.right = "0";
+                        data.styles.left = "0";
+                        data.styles.width = "auto";
+                        data.arrowStyles.left = `${data.offsets.popper.left + data.offsets.arrow.left}px`;
+                    }
+
+                    return data;
+                },
+            },
+        },
+    });
+
+    nextTick(() => {
+        popper?.update();
+        document.addEventListener("click", (focusOutEvent = focusOut), { capture: true });
+    });
+}
+
+function removePopper() {
+    popper?.destroy();
+    popper = null;
+}
+
+function activate() {
+    if (props.behaviour === "modal") {
+        mountModal();
+    }
+}
+
+function deactivate() {
+    if (props.behaviour === "modal") {
+        dismountModal();
+    }
+}
+
+function handleBackdropClick(ev: Event) {
+    const target = ev.target as HTMLElement;
+
+    if (target.classList.contains("ui-backdrop")) {
+        emit("leave");
+    }
+}
+
+function handleCloseClick() {
+    emit("leave");
+    emit("close");
+}
+
+function handleWindowResize() {
+    isMobile.value = screen.width < defaultBreakpoints.md;
+}
+
+onMounted(() => {
+    zIndex.value = computeZIndexOfElement(getReferenceElement()) + 100;
+
+    handleWindowResize();
+
+    if (props.behaviour === "popup") {
+        mountPopper();
+    }
+
+    window.addEventListener("resize", handleWindowResize);
+
+    activate();
+});
+
+onActivated(activate);
+onDeactivated(deactivate);
+
+onUpdated(() => popper?.update());
+
+onBeforeUnmount(() => {
+    window.removeEventListener("resize", handleWindowResize);
+
+    if (focusOutEvent) {
+        document.removeEventListener("click", focusOutEvent, { capture: true });
+    }
+
+    deactivate();
+});
+
+useRemoved(root, removePopper);
+
+watch(currentBehaviour, (newBehaviour, oldBehaviour) => {
+    if (oldBehaviour === "popup") {
+        removePopper();
+    }
+
+    if (newBehaviour === "popup") {
+        nextTick(mountPopper);
+    }
+
+    if (newBehaviour === "modal") {
+        mountModal();
+    }
+
+    if (oldBehaviour === "modal") {
+        dismountModal();
+    }
+});
 </script>

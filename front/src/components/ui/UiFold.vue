@@ -1,115 +1,99 @@
 <template>
     <div
+        ref="root"
         class="fold"
         :class="[`fold--${state}`]"
         :aria-expanded="visible ? 'true' : 'false'"
         @transitionend="handleTransitionEnd"
     >
         <div ref="inner" class="fold__inner" :tabindex="visible ? null : -1">
-            <lazy v-if="lazy" :activate="visible">
+            <Lazy v-if="lazy" :activate="visible">
                 <slot />
-            </lazy>
+            </Lazy>
             <slot v-else />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { Prop, Watch } from "vue-property-decorator";
-
 export type UiFoldState = "folded" | "expanding" | "expanded" | "folding";
+</script>
 
-@Options({ name: "UiFold" })
-export default class UiFold extends Vue {
-    @Prop(Boolean)
-    public visible: boolean;
+<script lang="ts" setup>
+import { ref, watch } from "vue";
+import Lazy from "@/components/utils/Lazy.vue";
 
-    @Prop(Boolean)
-    public lazy: boolean;
+defineOptions({ name: "UiFold" });
 
-    public state: UiFoldState;
+const props = defineProps({
+    visible: { type: Boolean },
+    lazy: { type: Boolean },
+});
 
-    data() {
-        return {
-            state: this.visible ? "expanded" : "folded",
-        };
+const root = ref<HTMLDivElement>();
+const inner = ref<HTMLDivElement>();
+const state = ref<UiFoldState>(props.visible ? "expanded" : "folded");
+
+watch(
+    () => props.visible,
+    visible => (visible ? expand() : fold()),
+);
+
+function handleTransitionEnd(event: TransitionEvent) {
+    if (event.target !== root.value) {
+        // it's not about us
+        return;
     }
 
-    @Watch("visible")
-    private resize() {
-        if (this.visible) {
-            this.expand();
-        } else {
-            this.fold();
-        }
+    switch (state.value) {
+        case "expanded":
+        case "expanding":
+            root.value.style.height = "auto";
+            state.value = "expanded";
+            break;
+        case "folded":
+        case "folding":
+            state.value = "folded";
     }
+}
 
-    handleTransitionEnd(event: TransitionEvent) {
-        if (event.target !== this.$el) {
-            // it's not about us
-            return;
-        }
+function fold() {
+    switch (state.value) {
+        case "folded":
+        case "folding":
+            // no-op, it's already folded
+            break;
 
-        const root = this.$el as HTMLDivElement;
+        case "expanded":
+            root.value.style.height = `${root.value.clientHeight}px`;
 
-        switch (this.state) {
-            case "expanded":
-            case "expanding":
-                root.style.height = "auto";
-                this.state = "expanded";
-                break;
-            case "folded":
-            case "folding":
-                this.state = "folded";
-        }
+            // DOM must be updated and style must be applied in order for this to work
+            setTimeout(() => {
+                root.value.style.height = "0px";
+                state.value = "folding";
+            });
+            break;
+
+        case "expanding":
+            // reverse process
+            root.value.style.height = "0px";
+            state.value = "folding";
+            break;
     }
+}
 
-    private fold() {
-        const root = this.$el as HTMLDivElement;
-        const state = this.state;
+function expand() {
+    switch (state.value) {
+        case "expanded":
+        case "expanding":
+            // no-op, it's already expanded
+            break;
 
-        switch (state) {
-            case "folded":
-            case "folding":
-                // no-op, it's already folded
-                break;
-
-            case "expanded":
-                root.style.height = `${root.clientHeight}px`;
-
-                // DOM must be updated and style must be applied in order for this to work
-                setTimeout(() => {
-                    root.style.height = "0px";
-                    this.state = "folding";
-                });
-                break;
-
-            case "expanding":
-                // reverse process
-                root.style.height = "0px";
-                this.state = "folding";
-                break;
-        }
-    }
-
-    private expand() {
-        const root = this.$el as HTMLDivElement;
-        const inner = this.$refs["inner"] as HTMLDivElement;
-        const state = this.state;
-
-        switch (state) {
-            case "expanded":
-            case "expanding":
-                // no-op, it's already folded
-                break;
-
-            case "folded":
-            case "folding":
-                root.style.height = inner.clientHeight + "px";
-                this.state = "expanding";
-                break;
-        }
+        case "folded":
+        case "folding":
+            root.value.style.height = inner.value.clientHeight + "px";
+            state.value = "expanding";
+            break;
     }
 }
 </script>

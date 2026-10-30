@@ -8,35 +8,25 @@
     </l-marker>
 </template>
 
-<script lang="ts">
-import UiPin, { UiPinProps } from "@/components/ui/UiPin.vue";
+<script lang="ts" setup>
+import UiPin, { UiPinVariant } from "@/components/ui/UiPin.vue";
 import { LIcon, LMarker } from "@vue-leaflet/vue-leaflet";
-import { computed, defineComponent } from "vue";
+import { computed, PropType } from "vue";
 import { pick } from "lodash";
 
-export type UiMapProps = {
-    variant: string;
-};
-
-export default defineComponent({
+defineOptions({
     name: "UiMapPin",
-    components: {
-        UiPin,
-        LIcon,
-    },
     inheritAttrs: false,
-    props: {
-        ...UiPinProps,
-        ...LMarker.props,
-    },
-    setup(props) {
-        const uiPinProps = computed(() => pick(props, Object.keys(UiPin.props)));
-        const markerProps = computed(() => pick(props, Object.keys(LMarker.props)));
-
-        return {
-            uiPinProps,
-            markerProps,
-        };
-    },
 });
+
+const props = defineProps({
+    variant: {
+        type: String as PropType<UiPinVariant>,
+        default: "outline" as UiPinVariant,
+    },
+    ...LMarker.props,
+});
+
+const uiPinProps = computed(() => pick(props, ["variant"]));
+const markerProps = computed(() => pick(props, Object.keys(LMarker.props)));
 </script>
