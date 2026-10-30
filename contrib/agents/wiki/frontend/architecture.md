@@ -1,7 +1,7 @@
 # Frontend architecture (`front/`)
 
-Vue 3 (every component is `<script setup lang="ts">`), Pinia, vue-router, Leaflet + mapbox-gl maps, Bootstrap +
-Sass, built with Vite into `front/build/public`.
+Vue 3 (every component is `<script setup lang="ts">`), Pinia, vue-router, Leaflet + mapbox-gl maps, Tailwind CSS 4
++ Sass, built with Vite into `front/build/public`.
 Path alias `@/` → `front/src/`.
 
 ## Serving
@@ -42,6 +42,35 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 
 Prettier (`printWidth: 120`, `arrowParens: avoid`) + ESLint 10 (flat config, `eslint.config.mjs`). Source files
 carry the AGPL license header.
+
+## Stylesheets
+
+Two entry points, imported in this order by `src/app.ts` and `.storybook/preview.js` (ADR 0014):
+
+- `styles/tailwind.css`: Tailwind CSS 4 (`@tailwindcss/vite`) with its preflight and the utilities used in templates.
+  It is imported with `important`, so utilities are `!important` and beat the SCSS. Tailwind cascade layers lose to
+  unlayered CSS, so without the flag every SCSS rule would win over every utility. Classes are collected only from
+  `src/` and `resources/views/` (`source(none)` + `@source`). The `@theme` block sets Bootstrap 4's breakpoints
+  (sm 576, md 768, lg 992, xl 1200 px) and the project colours (`text-primary`, `bg-dark`, `text-muted`...).
+- `styles/main.scss`: everything else, in Sass with `@import`. `_variables.scss` holds the colours, sizes and
+  breakpoints the SCSS computes with, the `media-breakpoint-up`/`-down` mixins (Bootstrap 4 semantics:
+  `down("md")` is below 992 px) and `theme-color-level()`/`color-yiq()`. It emits no CSS, so component `<style>`
+  blocks import it too. `base/_reboot.scss` adds back what the styles expect on top of preflight (body font,
+  heading sizes, block margins, links, inline images). `components/` has the former Bootstrap components, kept under
+  their names: `btn` (`-primary`, `-danger`, `-sm`, `-link`, `-outline-dark`), `form-control(-sm)`, `form-group`,
+  `input-group(-sm|-append|-text)`, `badge` (`-pill`, `-warning`, `-danger`, `-dark`), `alert`
+  (`-info`, `-warning`, `-danger`, `-dark`), `list-unstyled`, `stretched-link` and `page-container`. Only the
+  variants in use exist; add one when a template needs it.
+
+`test/styles/theme.test.ts` checks that the `@theme` values equal the Sass variables. Change both together.
+
+Gotchas:
+
+- The project's "row of centred items" helper is `hstack`, not `flex`: Tailwind's `flex` is only `display: flex`.
+- A word in a template or script that matches a utility (`hidden`, `border`, `transition`) generates it. That's
+  harmless unless an element really has that class.
+- Spacing follows Tailwind's scale (`*-4` is 1rem, `*-6` is 1.5rem), not Bootstrap's.
+- Tailwind 4 needs Chrome/Edge 111, Safari 16.4 and Firefox 128, which is the app's `build.target`.
 
 ## Checks
 

@@ -55,7 +55,7 @@ Before working on a task, read the page(s) matching its topic. Pages are split i
 | `app:update`, importers, entities, migrations | `contrib/agents/wiki/api/data-import.md` |
 | Federated nodes, hub, endpoint versions | `contrib/agents/wiki/api/federation.md` |
 | API tests, Behat scenarios, fake test provider | `contrib/agents/wiki/api/testing.md` |
-| Vue app, Express server, store, API client, node load balancing, Storybook | `contrib/agents/wiki/frontend/architecture.md` |
+| Vue app, Express server, store, API client, node load balancing, styles (Tailwind, SCSS), Storybook | `contrib/agents/wiki/frontend/architecture.md` |
 
 `contrib/agents/wiki/README.md` is the index. When you learn something non-obvious during a session, update the
 relevant page (or add one and register it in both tables).
