@@ -215,8 +215,9 @@ async function createServer(): Promise<Express> {
         const { createServer: createViteServer } = require("vite");
 
         const vite = await createViteServer({
+            appType: "custom",
             server: {
-                middlewareMode: "ssr",
+                middlewareMode: true,
                 hmr: {
                     port: 3001,
                 },
