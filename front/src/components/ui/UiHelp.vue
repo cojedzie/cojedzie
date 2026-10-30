@@ -21,38 +21,35 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from "vue";
-import { supply } from "@/utils";
-import { createMutex, Mutex, useMutex } from "@/composables/useMutex";
+import { createMutex } from "@/composables/useMutex";
 
 export type HelpTrigger = "click" | "long-hover";
 
-const mutex = createMutex();
+const sharedMutex = createMutex();
+</script>
 
-export default defineComponent({
-    props: {
-        trigger: {
-            type: Array as PropType<HelpTrigger[]>,
-            required: false,
-            default: supply<HelpTrigger[]>(["click", "long-hover"]),
-        },
-        mutex: {
-            type: Object as PropType<Mutex>,
-            required: false,
-            default: mutex,
-        },
+<script lang="ts" setup>
+import { PropType, ref } from "vue";
+import { supply } from "@/utils";
+import { Mutex, useMutex } from "@/composables/useMutex";
+
+defineOptions({ name: "UiHelp" });
+
+const props = defineProps({
+    trigger: {
+        type: Array as PropType<HelpTrigger[]>,
+        required: false,
+        default: supply<HelpTrigger[]>(["click", "long-hover"]),
     },
-    setup(props) {
-        const button = ref<HTMLElement>(null);
-        const { active, toggle } = useMutex(props.mutex);
-
-        return {
-            active,
-            toggle,
-            button,
-        };
+    mutex: {
+        type: Object as PropType<Mutex>,
+        required: false,
+        default: sharedMutex,
     },
 });
+
+const button = ref<HTMLElement>(null);
+const { active, toggle } = useMutex(props.mutex);
 </script>
 
 <style lang="scss">

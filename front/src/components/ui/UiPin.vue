@@ -35,20 +35,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-
 export type UiPinVariant = "filled" | "outline" | "filled-outline";
+</script>
 
-export const UiPinProps = {
+<script lang="ts" setup>
+import { PropType } from "vue";
+
+defineOptions({ name: "UiPin" });
+
+defineProps({
     variant: {
         type: String as PropType<UiPinVariant>,
         default: "outline" as UiPinVariant,
     },
-};
-
-export default defineComponent({
-    name: "UiPin",
-    props: UiPinProps,
 });
 </script>
 

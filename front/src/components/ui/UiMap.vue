@@ -9,9 +9,9 @@
     </l-map>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { LMap, LVectorLayer } from "@/components/map";
-import { computed, ComputedRef, defineComponent, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, ComputedRef, onBeforeUnmount, onMounted, ref } from "vue";
 import { Map, MapOptions } from "leaflet";
 import { useAppConfig } from "@/composables/useAppConfig";
 
@@ -33,45 +33,36 @@ const observer = new ResizeObserver(entries => {
     }
 });
 
-export default defineComponent({
-    name: "UiMap",
-    components: {
-        LMap,
-        LVectorLayer,
-    },
-    props: LMap.props,
-    emits: LMap.emits,
-    setup(props, { expose }) {
-        const {
-            maptiler: { key },
-        } = useAppConfig();
+defineOptions({ name: "UiMap" });
 
-        const map = ref();
-        // LMap ships no typings, so its props are not known here
-        const mapOptions = computed<MapOptions>(() => ({
-            zoomSnap: 0.1,
-            ...(props as { options?: MapOptions }).options,
-        }));
-        const leafletObject = computed<Map>(() => map.value?.leafletObject);
+const props = defineProps(LMap.props);
+defineEmits(LMap.emits);
 
-        expose({ leafletObject });
+const {
+    maptiler: { key },
+} = useAppConfig();
 
-        onMounted(() => {
-            observer.observe(map.value.root, { box: "border-box" });
-            map.value.root[leaflet] = leafletObject;
-        });
+const map = ref();
 
-        onBeforeUnmount(() => {
-            observer.unobserve(map.value.root);
-            // prevent memory leak
-            delete map.value.root[leaflet];
-        });
+// LMap ships no typings, so its props are not known here
+const mapOptions = computed<MapOptions>(() => ({
+    zoomSnap: 0.1,
+    ...(props as { options?: MapOptions }).options,
+}));
 
-        return {
-            key,
-            map,
-            mapOptions,
-        };
-    },
+const leafletObject = computed<Map>(() => map.value?.leafletObject);
+
+defineExpose({ leafletObject });
+
+onMounted(() => {
+    observer.observe(map.value.root, { box: "border-box" });
+    map.value.root[leaflet] = leafletObject;
+});
+
+onBeforeUnmount(() => {
+    observer.unobserve(map.value.root);
+
+    // prevent memory leak
+    delete map.value.root[leaflet];
 });
 </script>

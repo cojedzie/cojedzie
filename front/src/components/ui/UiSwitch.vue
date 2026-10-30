@@ -7,15 +7,11 @@
     </div>
 </template>
 
-<script lang="ts">
-export default {
+<script lang="ts" setup>
+defineOptions({
     name: "UiSwitch",
     inheritAttrs: false,
-};
-</script>
-
-<script lang="ts" setup>
-import { defineEmits, defineProps } from "vue";
+});
 
 const props = defineProps({
     value: {
