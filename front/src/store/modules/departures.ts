@@ -21,6 +21,7 @@ import { Departure, Line } from "../../model";
 import moment from "moment";
 import common, { CommonMutations, CommonMutationTree, CommonState } from "./common";
 import { resolve } from "@/utils";
+import { useDeparturesSettingsStore } from "@/stores/departures-settings";
 import { NamespacedVuexModule, VuexActionHandler, VuexMutationHandler } from "vuex";
 
 export enum DeparturesActions {
@@ -53,7 +54,7 @@ const mutations: DeparturesMutationTree = {
 
 const actions: DeparturesActionTree = {
     async [DeparturesActions.Update]({ commit }) {
-        const count = this.state["departures-settings"].displayedEntriesCount;
+        const count = useDeparturesSettingsStore().displayedEntriesCount;
         const stops = this.state.stops;
 
         if (stops.length == 0) {

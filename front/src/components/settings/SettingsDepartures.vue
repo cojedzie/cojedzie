@@ -198,49 +198,28 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import store, { DeparturesSettings } from "../../store";
-import { DeparturesSettingsState } from "@/store/modules/settings/departures";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useDeparturesSettingsStore } from "@/stores/departures-settings";
 
-@Options({
-    name: "SettingsDepartures",
-    store,
-})
-export default class SettingsDepartures extends Vue {
-    @DeparturesSettings.State
-    public autorefresh: boolean;
-    @DeparturesSettings.State
-    public relativeTimes: boolean;
-    @DeparturesSettings.State
-    public relativeTimesForScheduled: boolean;
-    @DeparturesSettings.State
-    public autorefreshInterval: number;
-    @DeparturesSettings.State
-    public displayedEntriesCount: number;
+defineOptions({ name: "SettingsDepartures" });
 
-    public get relativeTimesLimit(): number {
-        return this.$store.state["departures-settings"].relativeTimesLimit;
-    }
+const store = useDeparturesSettingsStore();
+const { update } = store;
+const { autorefresh, relativeTimes, relativeTimesForScheduled, autorefreshInterval, displayedEntriesCount } =
+    storeToRefs(store);
 
-    public set relativeTimesLimit(relativeTimesLimit: number | string) {
-        this.update({
-            relativeTimesLimit:
-                typeof relativeTimesLimit === "string" ? Number.parseInt(relativeTimesLimit) : relativeTimesLimit,
-        });
-    }
+const relativeTimesLimit = computed({
+    get: () => store.relativeTimesLimit,
+    set: (value: number | string) =>
+        update({ relativeTimesLimit: typeof value === "string" ? Number.parseInt(value) : value }),
+});
 
-    public get relativeTimesHasLimit(): boolean {
-        return this.$store.state["departures-settings"].relativeTimesLimitEnabled;
-    }
+const relativeTimesHasLimit = computed({
+    get: () => store.relativeTimesLimitEnabled,
+    set: (relativeTimesLimitEnabled: boolean) => update({ relativeTimesLimitEnabled }),
+});
 
-    public set relativeTimesHasLimit(relativeTimesLimitEnabled: boolean) {
-        this.update({ relativeTimesLimitEnabled });
-    }
-
-    @DeparturesSettings.Mutation
-    public update: (state: Partial<DeparturesSettingsState>) => void;
-
-    public relativeTimesShowAdvancedOptions: boolean = false;
-}
+const relativeTimesShowAdvancedOptions = ref(false);
 </script>

@@ -174,11 +174,12 @@
 </template>
 
 <script lang="ts">
+import { watch } from "vue";
 import { Watch } from "vue-property-decorator";
 import { Action, Mutation, State } from "vuex-class";
 import { Provider, Stop } from "@/model";
-import { DeparturesSettingsState } from "@/store/modules/settings/departures";
-import { MessagesSettingsState } from "@/store/modules/settings/messages";
+import { useDeparturesSettingsStore } from "@/stores/departures-settings";
+import { useMessagesSettingsStore } from "@/stores/messages-settings";
 import { prepare } from "@/api/utils";
 import { MessagesActions } from "@/store/modules/messages";
 import { StoreDefinition } from "@/store/initializer";
@@ -249,10 +250,10 @@ export default class MainPage extends Vue {
     }
 
     private initDeparturesRefreshInterval() {
+        const settings = useDeparturesSettingsStore();
+
         const departuresAutorefreshCallback = () => {
-            const { autorefresh, autorefreshInterval } = this.$store.state[
-                "departures-settings"
-            ] as DeparturesSettingsState;
+            const { autorefresh, autorefreshInterval } = settings;
 
             if (this.intervals.departures) {
                 clearInterval(this.intervals.departures);
@@ -266,20 +267,17 @@ export default class MainPage extends Vue {
             }
         };
 
-        this.$store.watch(({ "departures-settings": state }) => state.autorefresh, departuresAutorefreshCallback);
-        this.$store.watch(
-            ({ "departures-settings": state }) => state.autorefreshInterval,
-            departuresAutorefreshCallback,
-        );
+        watch(() => settings.autorefresh, departuresAutorefreshCallback);
+        watch(() => settings.autorefreshInterval, departuresAutorefreshCallback);
 
         departuresAutorefreshCallback();
     }
 
     private initMessagesRefreshInterval() {
+        const settings = useMessagesSettingsStore();
+
         const messagesAutorefreshCallback = () => {
-            const { autorefresh, autorefreshInterval } = this.$store.state[
-                "messages-settings"
-            ] as MessagesSettingsState;
+            const { autorefresh, autorefreshInterval } = settings;
 
             if (this.intervals.messages) {
                 clearInterval(this.intervals.messages);
@@ -293,8 +291,8 @@ export default class MainPage extends Vue {
             }
         };
 
-        this.$store.watch(({ "messages-settings": state }) => state.autorefresh, messagesAutorefreshCallback);
-        this.$store.watch(({ "messages-settings": state }) => state.autorefreshInterval, messagesAutorefreshCallback);
+        watch(() => settings.autorefresh, messagesAutorefreshCallback);
+        watch(() => settings.autorefreshInterval, messagesAutorefreshCallback);
 
         messagesAutorefreshCallback();
     }

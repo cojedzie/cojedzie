@@ -67,9 +67,8 @@ import moment from "moment";
 import { Trip } from "@/model/trip";
 import api from "@/api";
 import { Jsonified } from "@/utils";
-import { useStore, VuexStore } from "vuex";
-import { StoreDefinition } from "@/store/initializer";
-import { DeparturesSettingsState } from "@/store/modules/settings/departures";
+import { storeToRefs } from "pinia";
+import { DeparturesSettingsState, useDeparturesSettingsStore } from "@/stores/departures-settings";
 
 function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
     return {
@@ -82,11 +81,8 @@ function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
     };
 }
 
-function useDepartureSetting<TSetting extends keyof DeparturesSettingsState>(
-    store: VuexStore<StoreDefinition>,
-    setting: TSetting,
-) {
-    return computed(() => store.state["departures-settings"][setting]);
+function useDepartureSetting<TSetting extends keyof DeparturesSettingsState>(setting: TSetting) {
+    return storeToRefs(useDeparturesSettingsStore())[setting];
 }
 
 export default {
@@ -98,8 +94,6 @@ export default {
         },
     },
     setup(props) {
-        const store = useStore<StoreDefinition>();
-
         const showTrip = ref<boolean>(false);
         const scheduledTrip = ref<Trip>(null);
 
@@ -125,10 +119,10 @@ export default {
             );
         });
 
-        const relativeTimes = useDepartureSetting(store, "relativeTimes");
-        const relativeTimesLimit = useDepartureSetting(store, "relativeTimesLimit");
-        const relativeTimesLimitEnabled = useDepartureSetting(store, "relativeTimesLimitEnabled");
-        const relativeTimesForScheduled = useDepartureSetting(store, "relativeTimesForScheduled");
+        const relativeTimes = useDepartureSetting("relativeTimes");
+        const relativeTimesLimit = useDepartureSetting("relativeTimesLimit");
+        const relativeTimesLimitEnabled = useDepartureSetting("relativeTimesLimitEnabled");
+        const relativeTimesForScheduled = useDepartureSetting("relativeTimesForScheduled");
 
         const showRelativeTime = computed(() => {
             if (!unref(relativeTimes)) {
