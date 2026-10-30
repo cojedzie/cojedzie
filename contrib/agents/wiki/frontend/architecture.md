@@ -38,8 +38,8 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 
 ## Style
 
-Prettier (`printWidth: 120`, `arrowParens: avoid`) + ESLint (`.eslintrc.js`). Source files carry the AGPL
-license header.
+Prettier (`printWidth: 120`, `arrowParens: avoid`) + ESLint 10 (flat config, `eslint.config.mjs`). Source files
+carry the AGPL license header.
 
 ## Checks
 

@@ -33,7 +33,7 @@ import { Endpoints, endpoints } from "@/api/endpoints";
 import { ApiClient } from "@/api/client";
 
 declare module "vuex" {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface VuexStore<TDefinition extends VuexStoreDefinition> {
         $api: ApiClient<Endpoints, "provider">;
     }
