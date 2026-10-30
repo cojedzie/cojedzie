@@ -1,6 +1,6 @@
 import UiIcon from "./UiIcon.vue";
 import { icons } from "@/icons";
-import { Meta, StoryObj } from "@storybook/vue3";
+import { Meta, StoryObj } from "@storybook/vue3-vite";
 
 const Template = args => ({
     components: { UiIcon },

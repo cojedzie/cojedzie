@@ -66,7 +66,8 @@ All tooling runs inside containers via [Task](https://taskfile.dev) (`Taskfile.y
 
 ```bash
 docker compose up                 # nginx on :80 → http://cojedzie.localhost (the whole dev stack, see below);
-                                  # the first run installs dependencies and imports data
+                                  # Storybook at http://storybook.cojedzie.localhost; the first run installs
+                                  # dependencies and imports data
 task setup                        # composer install + yarn install + migrate/import, without starting the stack
 task test                         # test:api, then test:behat (both force SQLite var/db/test.db)
 task test:api                     # phpunit (all API tests)

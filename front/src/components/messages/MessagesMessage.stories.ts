@@ -1,6 +1,6 @@
 import { Message } from "@/model/message";
 import moment from "moment";
-import { Meta, Story, StoryFn } from "@storybook/vue3";
+import { Meta, StoryFn } from "@storybook/vue3-vite";
 import MessagesMessage from "@/components/messages/MessagesMessage.vue";
 import { Line, Stop } from "@/model";
 import { computed } from "vue";

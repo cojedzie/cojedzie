@@ -41,6 +41,7 @@ services:
       - ./front:/var/www/front:cached
       - ./api:/var/www/api:cached
       - ./nginx/${COJEDZIE_DEV_SERVER:-fpm}.conf:/etc/nginx/conf.d/cojedzie.conf
+      - ./nginx/storybook.conf:/etc/nginx/conf.d/storybook.conf
 
   # installs dependencies and prepares the database, so a fresh clone starts without manual steps
   api-setup:
@@ -118,7 +119,6 @@ services:
   storybook:
     <<: *front
     environment:
-      - STORYBOOK_BASE_HREF=/storybook/
       - COJEDZIE_MAPTILER_KEY=${COJEDZIE_MAPTILER_KEY:-${APP_MAPTILER_KEY:-}} # APP_MAPTILER_KEY is the previous name (ADR 0011)
       - COJEDZIE_API=http://cojedzie.localhost
     volumes:
@@ -126,7 +126,7 @@ services:
     ports:
       - 6006:6006
     # the version check crashes node-fetch 2 on Node 20+ and is pointless in a container
-    command: ["yarn", "storybook", "--no-version-updates"]
+    command: ["yarn", "storybook", "--no-version-updates", "--host", "0.0.0.0"]
     depends_on:
       front-setup:
         condition: service_completed_successfully

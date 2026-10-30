@@ -1,5 +1,5 @@
 import UiHelp from "./UiHelp.vue";
-import { StoryObj } from "@storybook/vue3";
+import { StoryObj } from "@storybook/vue3-vite";
 import { createMutex } from "@/composables/useMutex";
 
 import figure from "@resources/images/help/departures-relative-time.png";
