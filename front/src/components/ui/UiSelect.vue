@@ -74,7 +74,16 @@ const props = defineProps({
 });
 
 defineSlots<{
-    default?: (props: { option: T }) => any;
+    default?: (props: { option: T }) => unknown;
+    empty?: () => unknown;
+    options?: (props: { options: T[] }) => unknown;
+    "options-popup"?: (props: {
+        options: T[];
+        isOpen: boolean;
+        close: () => void;
+        open: () => void;
+        toggle: () => void;
+    }) => unknown;
 }>();
 
 const optionsPopupElement = ref<HTMLElement>(null);
