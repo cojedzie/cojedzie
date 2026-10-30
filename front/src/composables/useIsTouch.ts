@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Kacper Donat
+ * Copyright (C) 2026 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,14 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App } from "vue";
-import { Vue } from "vue-class-component";
-import moment from "moment";
+import { useBrowserContext } from "@/composables/useBrowserContext";
 
-export default function install(app: App) {
-    app.config.globalProperties.$isTouch = "ontouchstart" in window || navigator["msMaxTouchPoints"] > 0;
-    app.config.globalProperties.$hasSlot = function (this: Vue, slot: string): boolean {
-        return !!this.$slots[slot];
-    };
-    app.config.globalProperties.$moment = moment;
+export function useIsTouch(): boolean {
+    return useBrowserContext().isTouch;
 }
+
+export default useIsTouch;

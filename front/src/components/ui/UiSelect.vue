@@ -50,6 +50,7 @@ import { ref, reactive, PropType } from "vue";
 import { onClickOutside } from "@vueuse/core";
 import { usePopper } from "@/composables/usePopper";
 import { Placement } from "popper.js";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 const props = defineProps({
     allowEmpty: Boolean,

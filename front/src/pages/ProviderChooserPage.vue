@@ -41,23 +41,23 @@
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted } from "vue";
+<script lang="ts" setup>
+import { defineAsyncComponent, onMounted } from "vue";
+import { useAsyncState } from "@vueuse/core";
 import useService from "@/composables/useService";
 import ProviderRepository from "@/services/ProviderRepository";
-import { useAsyncState } from "@vueuse/core";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
 
-export default defineComponent({
-    setup() {
-        const repository = useService(ProviderRepository.service);
+const UiMap = defineAsyncComponent(() => import("@/components/ui/UiMap.vue"));
+const LMarker = defineAsyncComponent(() => import("@/components/map").then(module => module.LMarker));
+const LIcon = defineAsyncComponent(() => import("@/components/map").then(module => module.LIcon));
 
-        const { state: providers } = useAsyncState(repository.getAllProviders(), []);
+const repository = useService(ProviderRepository.service);
 
-        onMounted(() => {
-            document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = "/manifest.json";
-        });
+const { state: providers } = useAsyncState(repository.getAllProviders(), []);
 
-        return { providers };
-    },
+onMounted(() => {
+    document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = "/manifest.json";
 });
 </script>

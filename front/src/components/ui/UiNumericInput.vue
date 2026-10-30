@@ -21,6 +21,7 @@
 
 <script lang="ts" setup>
 import { defineProps, defineEmits, computed } from "vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 const props = defineProps({
     value: {

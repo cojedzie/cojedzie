@@ -85,7 +85,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, PropType, ref, useTemplateRef, watch } from "vue";
+import { computed, defineAsyncComponent, PropType, ref, useTemplateRef, watch } from "vue";
 import { getStopType, HasDestinations, Line, Stop, Track } from "@/model";
 import { LFeatureGroup } from "@vue-leaflet/vue-leaflet";
 import useDataFromEndpoint from "@/composables/useDataFromEndpoint";
@@ -96,6 +96,12 @@ import { computedAsync } from "@vueuse/core";
 import TrackPicker from "@/components/track/TrackPicker.vue";
 import { slice } from "@/utils";
 import useService from "@/composables/useService";
+import UiDialog from "@/components/ui/UiDialog.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
+import LineSymbol from "@/components/line/LineSymbol.vue";
+
+const UiMap = defineAsyncComponent(() => import("@/components/ui/UiMap.vue"));
 
 type OffsetOptions = {
     zoom?: number;

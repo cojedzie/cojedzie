@@ -74,6 +74,10 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useMessagesSettingsStore } from "@/stores/messages-settings";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiNumericInput from "@/components/ui/UiNumericInput.vue";
+import UiSwitch from "@/components/ui/UiSwitch.vue";
+import UiHelp from "@/components/ui/UiHelp.vue";
 
 defineOptions({ name: "SettingsMessages" });
 

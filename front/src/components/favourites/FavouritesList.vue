@@ -32,6 +32,9 @@
 import { storeToRefs } from "pinia";
 import { type Favourite, useFavouritesStore } from "@/stores/favourites";
 import { useSelectionStore } from "@/stores/selection";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
 
 defineOptions({ name: "FavouritesList" });
 

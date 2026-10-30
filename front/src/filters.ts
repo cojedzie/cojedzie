@@ -17,9 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { set, signed } from "./utils";
-import { condition } from "./decorators";
-import moment from "moment";
+import { set } from "./utils";
 import { App } from "vue";
 
 export const defaultBreakpoints = {
@@ -31,11 +29,6 @@ export const defaultBreakpoints = {
 };
 
 export default function install(Vue: App) {
-    Vue.config.globalProperties.$f = {
-        signed,
-        duration: (...args) => moment.duration(...args),
-    };
-
     Vue.directive("hover", {
         beforeMount(el, binding, _node) {
             const update = (hovered: boolean, e: Event) => {
@@ -50,7 +43,11 @@ export default function install(Vue: App) {
 
             const activate = (event: KeyboardEvent) => update(true, event);
             const deactivate = (event: KeyboardEvent) => update(false, event);
-            const keyboard = condition.decorate(deactivate, (event: KeyboardEvent) => event.keyCode == 27);
+            const keyboard = (event: KeyboardEvent) => {
+                if (event.key === "Escape") {
+                    deactivate(event);
+                }
+            };
 
             binding["events"] = { activate, deactivate, keyboard };
 

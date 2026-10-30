@@ -20,6 +20,7 @@
 <script lang="ts">
 import Popper from "popper.js";
 import { Ref } from "vue";
+import UiDialog from "@/components/ui/UiDialog.vue";
 
 export type UiTooltipPlacement = Popper.Placement;
 export type UiTooltipTrigger = "hover" | "focus" | "long-press";

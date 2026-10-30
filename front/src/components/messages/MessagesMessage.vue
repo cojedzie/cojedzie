@@ -48,6 +48,9 @@
 import moment, { type Moment } from "moment";
 import type { Line, Stop } from "@/model";
 import type { MessageType } from "@/model/message";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
+import LineSymbol from "@/components/line/LineSymbol.vue";
 
 defineOptions({ name: "MessagesMessage" });
 

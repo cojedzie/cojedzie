@@ -30,6 +30,7 @@ import { storeToRefs } from "pinia";
 import { useMessagesStore } from "@/stores/messages";
 import { useMessagesSettingsStore } from "@/stores/messages-settings";
 import MessagesMessage from "./MessagesMessage.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 defineOptions({ name: "MessagesList" });
 

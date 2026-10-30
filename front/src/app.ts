@@ -25,44 +25,25 @@ import { createPinia } from "pinia";
 import { BrowserStorage } from "@/stores/persistence/browser";
 import { persistence } from "@/stores/persistence/plugin";
 import { dragscrollNext } from "vue-dragscroll";
-import { Vue } from "vue-class-component";
 
 import moment from "moment";
 import "moment/dist/locale/pl";
 
 moment.locale("pl");
 
-import components, { app } from "@/components";
+import { app } from "@/components";
 import filters from "@/filters";
-import globals from "@/globals";
 import { install as api } from "@/api";
 import { install as sentry } from "@/sentry";
 import container from "@/services";
 import { router } from "@/routes";
-import { signed } from "./utils";
 
 app.use(sentry);
 app.use(api);
 app.use(filters);
-app.use(components);
-app.use(globals);
 app.use(router);
 
 app.directive("dragscroll", dragscrollNext);
-
-declare module "@vue/runtime-core" {
-    interface ComponentCustomProperties {
-        $isTouch: boolean;
-        $hasSlot: (slot: string) => boolean;
-        $moment: typeof moment;
-        $f: {
-            signed: typeof signed;
-            duration: typeof moment.duration;
-        };
-    }
-}
-
-Vue.registerHooks(["removed"]);
 
 // async dependencies
 (async function () {

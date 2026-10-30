@@ -22,6 +22,8 @@
 
 <script lang="ts">
 import { createMutex } from "@/composables/useMutex";
+import UiDialog from "@/components/ui/UiDialog.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 export type HelpTrigger = "click" | "long-hover";
 

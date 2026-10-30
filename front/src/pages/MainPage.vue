@@ -188,6 +188,17 @@ import { useMessagesStore } from "@/stores/messages";
 import { useDeparturesSettingsStore } from "@/stores/departures-settings";
 import { useMessagesSettingsStore } from "@/stores/messages-settings";
 import StopPickerEntry from "@/components/stop-picker/StopPickerEntry.vue";
+import SettingsDepartures from "@/components/settings/SettingsDepartures.vue";
+import SettingsMessages from "@/components/settings/SettingsMessages.vue";
+import UiDialog from "@/components/ui/UiDialog.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiFold from "@/components/ui/UiFold.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
+import DeparturesList from "@/components/departures/DeparturesList.vue";
+import FavouritesList from "@/components/favourites/FavouritesList.vue";
+import FavouritesAdder from "@/components/favourites/FavouritesAdder.vue";
+import MessagesList from "@/components/messages/MessagesList.vue";
+import StopPicker from "@/components/stop-picker/StopPicker.vue";
 
 defineOptions({ name: "MainPage" });
 

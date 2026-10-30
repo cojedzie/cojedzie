@@ -18,6 +18,7 @@ import { PropType } from "vue";
 import UiMapPin from "@/components/ui/UiMapPin.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import { getStopType, LineType, Stop } from "@/model";
+import UiIcon from "@/components/ui/UiIcon.vue";
 
 defineOptions({ name: "StopPin" });
 

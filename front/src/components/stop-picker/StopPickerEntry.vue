@@ -68,6 +68,12 @@ import { computed, ref } from "vue";
 import type { Line, StopWithDestinations as Stop } from "@/model";
 import { match, unique } from "@/utils";
 import StopDetailsDialog from "@/components/stop/StopDetailsDialog.vue";
+import UiDialog from "@/components/ui/UiDialog.vue";
+import UiIcon from "@/components/ui/UiIcon.vue";
+import UiTooltip from "@/components/ui/UiTooltip.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
+import StopMap from "@/components/stop/StopMap.vue";
+import LineSymbol from "@/components/line/LineSymbol.vue";
 
 defineOptions({ name: "StopPickerEntry" });
 
