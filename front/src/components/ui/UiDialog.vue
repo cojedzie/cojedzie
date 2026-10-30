@@ -281,7 +281,7 @@ export class UiDialog extends Vue {
         });
 
         this.$nextTick(() => {
-            this._popper && this._popper.update();
+            this._popper?.update();
             document.addEventListener("click", (this._focusOutEvent = this.focusOut.bind(this)), { capture: true });
         });
     }
@@ -298,10 +298,9 @@ export class UiDialog extends Vue {
     }
 
     beforeUnmount() {
-        this._focusOutEvent &&
-            document.removeEventListener("click", this._focusOutEvent, {
-                capture: true,
-            });
+        if (this._focusOutEvent) {
+            document.removeEventListener("click", this._focusOutEvent, { capture: true });
+        }
 
         this._deactivated();
     }

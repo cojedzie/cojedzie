@@ -23,7 +23,7 @@ import { Trip } from "@/model/trip";
 import { Message } from "@/model/message";
 
 // TParams and tResult are used for type storage
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type Endpoint<TParams extends string, TResult = unknown> = {
     template: string;
     version: string;
