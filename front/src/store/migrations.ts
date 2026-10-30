@@ -64,18 +64,18 @@ export async function migrate(key: string) {
     const current = JSON.parse(window.localStorage.getItem("migrations")) || [];
     const state = JSON.parse(window.localStorage.getItem(key)) || {};
 
-    const result = await migrations
-        .filter(migration => migration.key == key)
-        .filter(migration => !current.includes(migration.name))
-        .reduce(async (state, migration) => {
-            current.push(migration.name);
+    let result = state;
+    for (const migration of migrations.filter(migration => migration.key == key)) {
+        if (current.includes(migration.name)) {
+            continue;
+        }
 
-            if (migration.skip && migration.skip(state)) {
-                return state;
-            }
+        current.push(migration.name);
 
-            return await migration.up(state);
-        }, state);
+        if (!migration.skip?.(result)) {
+            result = await migration.up(result);
+        }
+    }
 
     window.localStorage.setItem("migrations", JSON.stringify(current));
     window.localStorage.setItem(key, JSON.stringify(result));
