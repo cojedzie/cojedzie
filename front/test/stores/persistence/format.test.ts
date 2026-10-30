@@ -10,6 +10,7 @@ import { useFavouritesStore } from "@/stores/favourites";
 import { useDeparturesSettingsStore } from "@/stores/departures-settings";
 import { useMessagesSettingsStore } from "@/stores/messages-settings";
 import { useHistoryStore } from "@/stores/history";
+import { useSelectionStore } from "@/stores/selection";
 
 // Users' saved data has this shape, so the stores must keep reading and writing it.
 
@@ -30,6 +31,7 @@ async function change<T extends { $hydrated: Promise<void> }>(store: T, update: 
 describe("persisted store format", () => {
     beforeEach(() => {
         window.localStorage.clear();
+        window.sessionStorage.clear();
         replaceStorages();
 
         const pinia = createPinia();
@@ -82,5 +84,11 @@ describe("persisted store format", () => {
             entries: [{ stop, date: "2026-10-31T08:00:00.000Z" }],
             settings: { maxEntries: 5 },
         });
+    });
+
+    it("saves the selected stops under the selection key in the session", async () => {
+        await change(useSelectionStore(), store => store.add(stop));
+
+        expect(JSON.parse(window.sessionStorage.getItem("selection"))).toEqual({ stops: [stop] });
     });
 });
