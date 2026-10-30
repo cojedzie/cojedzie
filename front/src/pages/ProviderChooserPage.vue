@@ -6,7 +6,7 @@
                 <ul class="provider-picker__providers">
                     <li v-for="provider in providers" :key="provider.id" class="provider-picker__provider">
                         <a :href="`/${provider.id}`" class="provider">
-                            <ui-icon icon="line-bus" size="2x" />
+                            <ui-icon icon="line-bus" class="text-[2em]" />
                             <div>
                                 <div class="provider__short-name">{{ provider.shortName }}</div>
                                 <div class="provider__name">{{ provider.name }}</div>

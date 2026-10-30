@@ -56,13 +56,6 @@ jobs:
           node-version: '24'
           cache: yarn
           cache-dependency-path: front/yarn.lock
-      # the type check needs the icons, see front/resources/fontawesome
-      - name: Fetch FontAwesome Pro packages
-        uses: ./.github/actions/fontawesome
-        with:
-          url: ${{ secrets.FONTAWESOME_S3_URL }}
-          access-key: ${{ secrets.FONTAWESOME_S3_ACCESS_KEY }}
-          secret-key: ${{ secrets.FONTAWESOME_S3_SECRET_KEY }}
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
       - name: Prettier
@@ -147,17 +140,9 @@ jobs:
           registry: registry.kadet.net
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      # FontAwesome Pro is licensed and not stored in the repository, see front/resources/fontawesome
-      - name: Fetch FontAwesome Pro packages
-        uses: ./.github/actions/fontawesome
-        with:
-          url: ${{ secrets.FONTAWESOME_S3_URL }}
-          access-key: ${{ secrets.FONTAWESOME_S3_ACCESS_KEY }}
-          secret-key: ${{ secrets.FONTAWESOME_S3_SECRET_KEY }}
       - name: Describe the version
         id: version
         run: echo "version=$(git describe --tags)" >> "$GITHUB_OUTPUT"
-      # source: . builds from the working tree, which has the FontAwesome packages fetched above
       - name: Build and push
         id: bake
         uses: docker/bake-action@v7

@@ -88,13 +88,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      # FontAwesome Pro is licensed and not stored in the repository, see front/resources/fontawesome
-      - name: Fetch FontAwesome Pro packages
-        uses: ./.github/actions/fontawesome
-        with:
-          url: ${{ secrets.FONTAWESOME_S3_URL }}
-          access-key: ${{ secrets.FONTAWESOME_S3_ACCESS_KEY }}
-          secret-key: ${{ secrets.FONTAWESOME_S3_SECRET_KEY }}
       - name: Describe the version and tags
         id: version
         env:
@@ -103,7 +96,6 @@ jobs:
           echo "version=$(git describe --tags)" >> "$GITHUB_OUTPUT"
           echo "tags=$VERSION,${VERSION%.*},latest" >> "$GITHUB_OUTPUT"
       # all images and variants, released images are public and used outside our deployment
-      # source: . builds from the working tree, which has the FontAwesome packages fetched above
       - name: Build and push
         id: bake
         uses: docker/bake-action@v7

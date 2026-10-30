@@ -14,8 +14,6 @@ COPY package.json yarn.lock ./
 # install dependencies
 RUN yarn install --frozen-lockfile
 
-COPY resources/fontawesome ./resources/fontawesome
-
 COPY . .
 
 ARG COJEDZIE_REVISION

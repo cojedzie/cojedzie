@@ -17,7 +17,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { IconDefinition, IconPack, library } from "@fortawesome/fontawesome-svg-core";
+import { h } from "vue";
+import type { Component, FunctionalComponent } from "vue";
+import {
+    IconAlertTriangle,
+    IconArrowRight,
+    IconBusStop,
+    IconCheck,
+    IconChecks,
+    IconChevronDown,
+    IconChevronUp,
+    IconClock,
+    IconClockExclamation,
+    IconClockFilled,
+    IconCurrentLocation,
+    IconGitCommit,
+    IconHelpCircle,
+    IconHelpSquareRounded,
+    IconHistory,
+    IconHourglass,
+    IconInfoCircle,
+    IconLoader2,
+    IconMapPin,
+    IconMapPinFilled,
+    IconMathLower,
+    IconMinus,
+    IconMoon,
+    IconPlus,
+    IconRefresh,
+    IconSearch,
+    IconSettings,
+    IconSpeakerphone,
+    IconStar,
+    IconTrash,
+    IconWalk,
+    IconX,
+} from "@tabler/icons-vue";
 
 import { MessageType } from "@/model/message";
 import { LineType } from "@/model";
@@ -29,98 +64,27 @@ import metro from "@resources/icons/light/metro.svg";
 import train from "@resources/icons/light/train.svg";
 import unknown from "@resources/icons/light/unknown.svg";
 
-import {
-    faBullhorn,
-    faCheck,
-    faCheckDouble,
-    faChevronCircleUp,
-    faChevronDown,
-    faChevronUp,
-    faCog,
-    faExclamationTriangle,
-    faHistory,
-    faHourglassHalf,
-    faInfoCircle,
-    faMapMarkerAlt,
-    faMoon,
-    faQuestionCircle,
-    faQuestionSquare,
-    faSearch,
-    faSign,
-    faStar,
-    faSync,
-    faTimes,
-    faTrashAlt,
-    faBullseyePointer,
-    faMapMarkedAlt,
-} from "@resources/fontawesome/pro-light-svg-icons";
+// our own icons are single filled paths on a 512x512 canvas, see svg-icon-loader
+const custom =
+    (path: string): FunctionalComponent =>
+    () =>
+        h("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", fill: "currentColor" }, [
+            h("path", { d: path }),
+        ]);
 
-import {
-    faClock as faClockBold,
-    faCodeCommit,
-    faMinus,
-    faPlus,
-    faSpinnerThird,
-    faClock,
-    faLessThan,
-    faArrowRight,
-} from "@resources/fontawesome/pro-regular-svg-icons";
+export interface IconDescription {
+    icon: Component;
+    spin?: boolean;
+    fixedWidth?: boolean;
+}
 
-import {
-    faExclamationTriangle as faSolidExclamationTriangle,
-    faWalking,
-    faClock as faSolidClock,
-    faMapMarkedAlt as faMapMarkedSolidAlt,
-} from "@resources/fontawesome/pro-solid-svg-icons";
-
-const faBus: IconDefinition = <any>{
-    prefix: "fac",
-    iconName: "bus",
-    icon: [512, 512, [], null, bus],
-};
-
-const faTram = <any>{
-    prefix: "fac",
-    iconName: "tram",
-    icon: [512, 512, [], null, tram],
-};
-
-const faTrain = <any>{
-    prefix: "fac",
-    iconName: "train",
-    icon: [512, 512, [], null, train],
-};
-
-const faTrolleybus = <any>{
-    prefix: "fac",
-    iconName: "trolleybus",
-    icon: [512, 512, [], null, trolleybus],
-};
-
-const faMetro = <any>{
-    prefix: "fac",
-    iconName: "metro",
-    icon: [512, 512, [], null, metro],
-};
-
-const faUnknown = <any>{
-    prefix: "fac",
-    iconName: "unknown",
-    icon: [512, 512, [], null, unknown],
-};
-
-const fac: IconPack = {
-    faBus,
-    faTram,
-    faTrain,
-    faTrolleybus,
-    faMetro,
-    faUnknown,
-};
-
-interface IconDescription {
-    icon: IconDefinition;
-    [other: string]: unknown;
+export interface IconLayer {
+    icon: Component;
+    // size relative to the whole icon
+    scale?: number;
+    // offset from the centre, in em
+    x?: number;
+    y?: number;
 }
 
 type SimpleIcon = {
@@ -129,94 +93,79 @@ type SimpleIcon = {
 
 type StackedIcon = {
     type: "stacked";
-    icons: IconDescription[];
+    icons: IconLayer[];
 };
 
 export type Icon = SimpleIcon | StackedIcon;
 
-const simple = (icon: IconDefinition, props: Record<string, unknown> = {}): SimpleIcon => ({
+const simple = (icon: Component, props: Omit<IconDescription, "icon"> = {}): SimpleIcon => ({
     icon,
     ...props,
     type: "simple",
 });
 
-const stack = (icons: IconDescription[]): StackedIcon => ({
+const stack = (icons: IconLayer[]): StackedIcon => ({
     type: "stacked",
     icons,
 });
 
-const lineTypeIcons: Record<`line-${LineType}`, Icon> = Object.values({
-    tram: faTram,
-    train: faTrain,
-    bus: faBus,
-    trolleybus: faTrolleybus,
-    metro: faMetro,
-    other: faUnknown,
-})
-    .map<[`line-${LineType}`, Icon]>(icon => [`line-${icon.iconName as LineType}`, simple(icon)])
-    .reduce((acc, [icon, definition]) => ({ ...acc, [icon]: definition }), {}) as Record<`line-${LineType}`, Icon>;
+// there is no metro line type yet, but the icon is already drawn
+const lineTypeIcons: Record<`line-${LineType | "metro"}`, Icon> = {
+    "line-tram": simple(custom(tram)),
+    "line-train": simple(custom(train)),
+    "line-bus": simple(custom(bus)),
+    "line-trolleybus": simple(custom(trolleybus)),
+    "line-metro": simple(custom(metro)),
+    "line-other": simple(custom(unknown)),
+    "line-unknown": simple(custom(unknown)),
+};
 
 const messageTypeIcons: Record<`message-${MessageType}`, Icon> = {
-    "message-breakdown": simple(faExclamationTriangle),
-    "message-info": simple(faInfoCircle),
-    "message-unknown": simple(faQuestionCircle),
+    "message-breakdown": simple(IconAlertTriangle),
+    "message-info": simple(IconInfoCircle),
+    "message-unknown": simple(IconHelpCircle),
 };
 
 export const icons = {
-    favourite: simple(faStar),
-    unknown: simple(faQuestionSquare),
-    add: simple(faCheck),
-    "add-all": simple(faCheckDouble),
-    "remove-stop": simple(faTimes),
-    delete: simple(faTrashAlt),
-    clear: simple(faTimes),
-    messages: simple(faBullhorn),
-    timetable: simple(faClock),
-    settings: simple(faCog),
-    refresh: simple(faSync),
-    "chevron-down": simple(faChevronDown),
-    "chevron-up": simple(faChevronUp),
-    search: simple(faSearch),
-    info: simple(faInfoCircle),
-    warning: simple(faExclamationTriangle),
-    night: simple(faMoon),
-    fast: simple(faWalking),
-    track: simple(faCodeCommit),
-    "info-hide": simple(faChevronCircleUp),
-    map: simple(faMapMarkerAlt),
-    "map-marked": simple(faMapMarkedAlt),
-    "map-marked:selected": simple(faMapMarkedSolidAlt),
-    stop: simple(faSign),
-    spinner: simple(faSpinnerThird, { spin: true }),
-    increment: simple(faPlus, { "fixed-width": true }),
-    decrement: simple(faMinus, { "fixed-width": true }),
-    "relative-time": simple(faHourglassHalf),
-    destination: simple(faArrowRight),
-    "relative-time-limit": stack([{ icon: faLessThan }, { icon: faSolidClock, transform: "shrink-5 down-6 left-5" }]),
-    "departure-warning": stack([
-        { icon: faClockBold },
-        { icon: faSolidExclamationTriangle, transform: "shrink-5 down-4 right-6" },
+    favourite: simple(IconStar),
+    unknown: simple(IconHelpSquareRounded),
+    add: simple(IconCheck),
+    "add-all": simple(IconChecks),
+    "remove-stop": simple(IconX),
+    delete: simple(IconTrash),
+    clear: simple(IconX),
+    messages: simple(IconSpeakerphone),
+    timetable: simple(IconClock),
+    settings: simple(IconSettings),
+    refresh: simple(IconRefresh),
+    "chevron-down": simple(IconChevronDown),
+    "chevron-up": simple(IconChevronUp),
+    search: simple(IconSearch),
+    info: simple(IconInfoCircle),
+    warning: simple(IconAlertTriangle),
+    night: simple(IconMoon),
+    fast: simple(IconWalk),
+    track: simple(IconGitCommit),
+    map: simple(IconMapPin),
+    "map-marked": simple(IconMapPin),
+    "map-marked:selected": simple(IconMapPinFilled),
+    stop: simple(IconBusStop),
+    spinner: simple(IconLoader2, { spin: true }),
+    increment: simple(IconPlus, { fixedWidth: true }),
+    decrement: simple(IconMinus, { fixedWidth: true }),
+    "relative-time": simple(IconHourglass),
+    destination: simple(IconArrowRight),
+    "relative-time-limit": stack([
+        { icon: IconMathLower, scale: 0.7, x: 0.18, y: -0.15 },
+        { icon: IconClockFilled, scale: 0.5, x: -0.25, y: 0.25 },
     ]),
-    close: simple(faTimes),
-    history: simple(faHistory),
-    target: simple(faBullseyePointer),
-    "ui-select:open": simple(faChevronDown),
+    "departure-warning": simple(IconClockExclamation),
+    close: simple(IconX),
+    history: simple(IconHistory),
+    target: simple(IconCurrentLocation),
+    "ui-select:open": simple(IconChevronDown),
     ...lineTypeIcons,
     ...messageTypeIcons,
 };
 
 export type PredefinedIcon = keyof typeof icons;
-
-const extractAllIcons = (icons: Icon[]) =>
-    icons
-        .map(icon => {
-            switch (icon.type) {
-                case "simple":
-                    return [icon.icon];
-                case "stacked":
-                    return icon.icons.map(stacked => stacked.icon);
-            }
-        })
-        .reduce((acc, cur) => [...acc, ...cur]);
-
-library.add(...extractAllIcons(Object.values(icons)));
