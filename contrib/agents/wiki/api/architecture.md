@@ -95,9 +95,10 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   (which also keeps the existing schema). Migrations check the platform with `instanceof` (e.g.
   `SQLitePlatform`), since `AbstractPlatform::getName()` is gone. DBAL 4 no longer writes `(DC2Type:...)`
   column comments, so a schema diff against a database migrated earlier lists those columns.
-- `ext-ds` 2.0 is installed with PIE in every PHP image (`build/base/Dockerfile`, `build/base/fpm.Dockerfile`,
-  `build/base/cli.Dockerfile`, `api/Dockerfile`, `api/rr.Dockerfile`). amqp and redis are in all of them except
-  `api/rr.Dockerfile`, and the dev images (`api/Dockerfile`, `api/rr.Dockerfile`) add xdebug. `php-ds/php-ds` 2.0 is
+- `ext-ds` 2.0 is installed with PIE by `api/docker/install-php.sh`, which the `php-cli` and `php-fpm` stages of
+  `api/Dockerfile` run, so every PHP image has it. `api/rr.Dockerfile` installs it separately. amqp and redis are in
+  all of them except `api/rr.Dockerfile`, and the dev images (the `dev` stage of `api/Dockerfile`,
+  `api/rr.Dockerfile`) add xdebug. `php-ds/php-ds` 2.0 is
   required as the polyfill fallback. 2.0 has no `Ds\Collection`, `Ds\Deque` or `Ds\Vector`; the code uses
   `Ds\Seq`, `Ds\Map` and `Ds\Set`.
 - RoadRunner 2025.1 (`ghcr.io/roadrunner-server/roadrunner`) with baldinof/roadrunner-bundle 3; `.rr.yaml` is
