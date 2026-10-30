@@ -52,26 +52,6 @@ export type FetchingState = "fetching" | "ready" | "error" | "not-initialized";
 
 export type MakeOptional<T, K extends keyof T> = Optionalify<Pick<T, K>> & Omit<T, K>;
 
-export type NestedValue<TSubject, TPath extends NestedKeyof<TSubject>> = TSubject extends object
-    ? TPath extends `${infer TParent}.${infer TLeaf}`
-        ? TParent extends keyof TSubject
-            ? NestedValue<TSubject[TParent], TLeaf & NestedKeyof<TSubject[TParent]>>
-            : never
-        : TPath extends keyof TSubject
-        ? TSubject[TPath]
-        : never
-    : never;
-
-export type NestedKeyof<TObj> = TObj extends object
-    ? (
-          | keyof TObj
-          | {
-                [TKey in keyof TObj]: `${TKey & string}.${NestedKeyof<TObj[TKey]>}`;
-            }[keyof TObj]
-      ) &
-          string
-    : never;
-
 export interface Converter<T, U> {
     convert: (value: T) => U;
 }
@@ -93,33 +73,38 @@ export function ensureArray<T>(x: T[] | T): T[] {
     return x instanceof Array ? x : [x];
 }
 
+// paths go at most this many levels deep, so that recursive types (e.g. DOM nodes) stay finite for the type checker
+type NestedDepth = [never, 0, 1, 2, 3, 4];
+
+export type NestedKeyof<TObject, TDepth extends number = 4> = [TDepth] extends [never]
+    ? never
+    : TObject extends object
+    ? {
+          [TKey in keyof TObject & string]: TKey | `${TKey}.${NestedKeyof<TObject[TKey], NestedDepth[TDepth]>}`;
+      }[keyof TObject & string]
+    : never;
+
+export type NestedValue<TObject, TPath extends string> = TPath extends `${infer TKey}.${infer TRest}`
+    ? TKey extends keyof TObject
+        ? NestedValue<TObject[TKey], TRest>
+        : never
+    : TPath extends keyof TObject
+    ? TObject[TPath]
+    : never;
+
 export function set<TObject extends object, TPath extends NestedKeyof<TObject>>(
     object: TObject,
     path: TPath,
-    value: unknown
+    value: NestedValue<TObject, TPath>
 ): void {
     const segments = path.split(".");
 
     let current: object = object;
     while (segments.length > 1) {
-        current = object[segments.shift()] as object;
+        current = current[segments.shift()] as object;
     }
 
     current[segments.shift()] = value;
-}
-
-export function get<TObject extends object, TPath extends NestedKeyof<TObject>>(
-    object: TObject,
-    path: TPath
-): NestedValue<TObject, TPath> {
-    const segments = path.split(".");
-
-    let current: object = object;
-    while (segments.length > 1) {
-        current = object[segments.shift()] as object;
-    }
-
-    return current[segments.shift()];
 }
 
 export function distinct<T>(value: T, index: number, array: T[]) {
