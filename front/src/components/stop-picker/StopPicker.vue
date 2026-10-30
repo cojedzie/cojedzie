@@ -50,75 +50,69 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { StopGroup, StopGroups, StopWithDestinations as Stop } from "@/model";
-import { FetchingState, map, filter } from "@/utils";
-import { Prop, Watch } from "vue-property-decorator";
-import { Mutation } from "vuex-class";
-import { HistoryEntry, HistoryMutations } from "@/store/modules/history";
-import { debounce } from "@/decorators";
+<script setup lang="ts">
+import { computed, onBeforeUnmount, ref, watch } from "vue";
+import moment from "moment";
+import type { StopGroups, StopWithDestinations as Stop } from "@/model";
+import { type FetchingState, filter as filterObject, map } from "@/utils";
 import api from "@/api";
+import { useHistoryStore } from "@/stores/history";
+import FavouritesList from "@/components/favourites/FavouritesList.vue";
 import StopPickerEntry from "./StopPickerEntry.vue";
 import StopPickerHistory from "./StopPickerHistory.vue";
 
-@Options({
-    name: "StopPicker",
-    components: { StopPickerEntry, StopPickerHistory },
-})
-export default class StopPicker extends Vue {
-    protected found?: StopGroups = {};
+defineOptions({ name: "StopPicker" });
 
-    public state: FetchingState = "ready";
-    public filter: string = "";
+const props = withDefaults(defineProps<{ blacklist?: Stop[] }>(), { blacklist: () => [] });
+const emit = defineEmits<{ select: [stop: Stop | Stop[]] }>();
 
-    @Prop({ default: [], type: Array })
-    public blacklist: Stop[];
+const history = useHistoryStore();
 
-    @Mutation(`history/${HistoryMutations.Push}`) pushToHistory: (entry: HistoryEntry) => void;
+const found = ref<StopGroups>({});
+const state = ref<FetchingState>("ready");
+const filter = ref("");
 
-    get filtered(): StopGroups {
-        const groups = map(this.found, (group: StopGroup) =>
-            group.filter(stop => !this.blacklist.some(blacklisted => blacklisted.id === stop.id)),
-        ) as StopGroups;
+const filtered = computed<StopGroups>(() => {
+    const groups = map(found.value, group =>
+        group.filter(stop => !props.blacklist.some(blacklisted => blacklisted.id === stop.id)),
+    ) as StopGroups;
 
-        return filter(groups, group => group.length > 0);
+    return filterObject(groups, group => group.length > 0);
+});
+
+async function fetch() {
+    if (filter.value.length < 3) {
+        return;
     }
 
-    @Watch("filter")
-    @debounce(400)
-    async fetch() {
-        if (this.filter.length < 3) {
-            return;
-        }
-
-        this.state = "fetching";
-        try {
-            const response = await api.get("v1_stop_group_list", {
-                query: {
-                    name: this.filter,
-                    embed: "destinations",
-                },
-                version: "^1.0",
-            });
-
-            this.found = response.data.reduce(
-                (accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }),
-                {},
-            );
-            this.state = "ready";
-        } catch (error) {
-            this.state = "error";
-        }
-    }
-
-    select(stop) {
-        this.pushToHistory({
-            date: this.$moment(),
-            stop: stop,
+    state.value = "fetching";
+    try {
+        const response = await api.get("v1_stop_group_list", {
+            query: { name: filter.value, embed: "destinations" },
+            version: "^1.0",
         });
 
-        this.$emit("select", stop);
+        found.value = response.data.reduce(
+            (accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }),
+            {},
+        );
+        state.value = "ready";
+    } catch (error) {
+        state.value = "error";
     }
+}
+
+let timeout: ReturnType<typeof setTimeout> | undefined;
+watch(filter, () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(fetch, 400);
+});
+
+onBeforeUnmount(() => clearTimeout(timeout));
+
+function select(stop: Stop | Stop[]) {
+    history.push({ date: moment(), stop: stop as Stop });
+
+    emit("select", stop);
 }
 </script>
