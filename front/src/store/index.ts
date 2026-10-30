@@ -20,7 +20,6 @@
 import { namespace } from "vuex-class";
 import VuexPersistence from "vuex-persist";
 import { createStore, State } from "@/store/initializer";
-import { createHttpClient } from "@/api/client/http";
 
 export const Favourites = namespace("favourites");
 export const DeparturesSettings = namespace("departures-settings");
@@ -44,11 +43,6 @@ const sessionStoragePersist =
 
 export const store = createStore({
     plugins: typeof window !== "undefined" ? [localStoragePersist.plugin, sessionStoragePersist.plugin] : [],
-    apiClientOptions: {
-        http: createHttpClient({
-            baseURL: window.CoJedzie?.api?.base || `${window.location.protocol}//${window.location.host}`,
-        }),
-    },
 });
 
 export default store;

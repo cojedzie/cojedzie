@@ -19,9 +19,8 @@
 
 import { Optionalify } from "@/utils";
 import { EndpointCollection } from "@/api/endpoints";
-import { NetworkActions } from "@/store/modules/network";
+import { clientContext } from "@/api/context";
 import { choice } from "@/utils/random";
-import { Store } from "vuex";
 
 export interface LoadBalancerNode<TEndpoints extends EndpointCollection> {
     id: string;
@@ -52,19 +51,16 @@ export interface LoadBalancer<TEndpoints extends EndpointCollection> {
 export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> implements LoadBalancer<TEndpoints> {
     private updateNodesTimeout;
     private fallback: TEndpoints;
-    private store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    constructor(fallback: TEndpoints, store: Store<any>) {
+    constructor(fallback: TEndpoints) {
         this.fallback = fallback;
-        this.store = store;
 
         setTimeout(() => this.updateNodes(), 0);
         this.updateNodesTimeout = setInterval(() => this.updateNodes(), 60000);
     }
 
     private async updateNodes() {
-        await this.store.dispatch({ type: `network/${NetworkActions.Update}` });
+        await clientContext().network.update();
     }
 
     async candidates<TEndpoint extends keyof TEndpoints>(
@@ -73,7 +69,7 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]> {
         const requirements = options.require || (_ => true);
 
-        return (this.store.getters["network/available"] as LoadBalancerNode<TEndpoints>[])
+        return (clientContext().network.available() as LoadBalancerNode<TEndpoints>[])
             .filter(node => typeof node.endpoints[name] !== "undefined")
             .map<LoadBalancedEndpoint<TEndpoints, TEndpoint>>(node => ({
                 node,

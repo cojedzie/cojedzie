@@ -21,7 +21,7 @@ import { MakeOptional, Supplier } from "@/utils";
 import { UrlParams } from "@/api/utils";
 import { EndpointCollection, EndpointParams, EndpointResult, Endpoints } from "@/api/endpoints";
 import { AxiosInstance, AxiosResponse } from "axios";
-import store from "@/store";
+import { client as shared } from "@/api/client/shared";
 
 export type RequestOptions<TParams extends Record<string, unknown>> = {
     version: string;
@@ -69,6 +69,6 @@ export interface ApiClientOptions<TEndpoints extends EndpointCollection, TBoundP
     onRequestFailure?: ApiClientResponseEventHandler<TEndpoints>;
 }
 
-export const client: ApiClient<Endpoints, "provider"> = store.$api;
+export const client: ApiClient<Endpoints, "provider"> = shared;
 
 export default client;

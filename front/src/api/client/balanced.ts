@@ -32,8 +32,7 @@ import { AxiosInstance, AxiosResponse } from "axios";
 import { prepare } from "@/api/utils";
 import { http as globalHttpClient } from "@/api/client/http";
 import semver from "semver";
-import { NetworkActions } from "@/store/modules/network";
-import { Store } from "vuex";
+import { clientContext } from "@/api/context";
 
 export type LoadBalancedRequestOptions<
     TEndpoints extends EndpointCollection,
@@ -48,7 +47,6 @@ export interface LoadBalancedClientOptions<
     TBoundParams extends string = never,
 > extends ApiClientOptions<TEndpoints, TBoundParams> {
     balancer: LoadBalancer<TEndpoints>;
-    store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     maxRetries?: number;
 
     onRequestError?: ApiClientStartRequestEventHandler<TEndpoints>;
@@ -64,7 +62,6 @@ export class LoadBalancedClient<
 > implements ApiClient<TEndpoints, TBoundParams> {
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
-    private readonly store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     private readonly http: AxiosInstance;
     private readonly options: LoadBalancedClientOptions<TEndpoints, TBoundParams>;
 
@@ -75,7 +72,6 @@ export class LoadBalancedClient<
 
         this.bound = options.bound;
         this.balancer = options.balancer;
-        this.store = options.store;
         this.http = options.http || globalHttpClient;
     }
 
@@ -122,7 +118,7 @@ export class LoadBalancedClient<
                 return result;
             } catch (err) {
                 if (definition.node) {
-                    await this.store.dispatch(`network/${NetworkActions.NodeFailed}`, definition.node.id);
+                    await clientContext().network.nodeFailed(definition.node.id);
                 } else {
                     console.error(err.message);
                     this.options.onRequestFailure?.(err, requestInfo);

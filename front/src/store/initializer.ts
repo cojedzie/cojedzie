@@ -27,10 +27,8 @@ import departureSettings, { DeparturesSettingsState } from "@/store/modules/sett
 import messagesSettings, { MessagesSettingsState } from "@/store/modules/settings/messages";
 import history, { HistoryState } from "@/store/modules/history";
 import network, { NetworkState } from "@/store/modules/network";
-import { LoadBalancedClient, LoadBalancedClientOptions } from "@/api/client/balanced";
-import { LoadBalancerImplementation } from "@/api/loadbalancer";
-import { Endpoints, endpoints } from "@/api/endpoints";
-import { ApiClient } from "@/api/client";
+import { Endpoints } from "@/api/endpoints";
+import { ApiClient, client } from "@/api/client";
 
 declare module "vuex" {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,7 +51,6 @@ export type StoreOptions = {
     plugins?: VuexPlugin<any>[];
     state?: any;
     modules?: any;
-    apiClientOptions?: Partial<LoadBalancedClientOptions<Endpoints>>;
 };
 
 export type StoreDefinition = {
@@ -90,12 +87,7 @@ export function createStore(options?: StoreOptions) {
         plugins: options?.plugins || [],
     }) as Store<StoreDefinition>;
 
-    store.$api = new LoadBalancedClient({
-        ...options.apiClientOptions,
-        balancer: new LoadBalancerImplementation(endpoints, store),
-        store: store,
-        bound: () => ({ provider: store.state.provider?.id }),
-    });
+    store.$api = client;
 
     return store;
 }

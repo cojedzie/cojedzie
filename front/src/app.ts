@@ -71,6 +71,15 @@ Vue.registerHooks(["removed"]);
     const { migrate } = await import("./store/migrations");
     await migrate("vuex");
     const { default: store } = await import("./store");
+    const { bindClientContext } = await import("@/api/context");
+    bindClientContext({
+        network: {
+            available: () => store.getters["network/available"],
+            update: () => store.dispatch("network/update"),
+            nodeFailed: id => store.dispatch("network/nodeFailed", id),
+        },
+        provider: () => store.state.provider?.id,
+    });
 
     const pinia = createPinia();
     pinia.use(persistence());
