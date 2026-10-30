@@ -38,13 +38,15 @@ import { Store } from "vuex";
 export type LoadBalancedRequestOptions<
     TEndpoints extends EndpointCollection,
     TEndpoint extends keyof TEndpoints,
-    TBoundParams extends string
+    TBoundParams extends string,
 > = BoundRequestOptions<EndpointParams<TEndpoints, TEndpoint>, TBoundParams> & {
     require?: (candidate: LoadBalancedEndpoint<TEndpoints, TEndpoint>) => boolean;
 };
 
-export interface LoadBalancedClientOptions<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
-    extends ApiClientOptions<TEndpoints, TBoundParams> {
+export interface LoadBalancedClientOptions<
+    TEndpoints extends EndpointCollection,
+    TBoundParams extends string = never,
+> extends ApiClientOptions<TEndpoints, TBoundParams> {
     balancer: LoadBalancer<TEndpoints>;
     store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     maxRetries?: number;
@@ -56,9 +58,10 @@ const loadBalancedClientDefaultOptions = {
     maxRetries: 5,
 };
 
-export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundParams extends string = never>
-    implements ApiClient<TEndpoints, TBoundParams>
-{
+export class LoadBalancedClient<
+    TEndpoints extends EndpointCollection,
+    TBoundParams extends string = never,
+> implements ApiClient<TEndpoints, TBoundParams> {
     private readonly balancer: LoadBalancer<TEndpoints>;
     private readonly bound: Supplier<{ [name in TBoundParams]: string }>;
     private readonly store: Store<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -78,7 +81,7 @@ export class LoadBalancedClient<TEndpoints extends EndpointCollection, TBoundPar
 
     async get<TEndpoint extends keyof TEndpoints>(
         endpoint: TEndpoint,
-        options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>
+        options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
         let retry = 0;
         while (retry < this.options.maxRetries) {

@@ -6,7 +6,7 @@
                 :class="{ 'ui-select__option--empty': !modelValue }"
                 @click="open()"
             >
-                <slot v-if="modelValue" :option="(modelValue as T)">
+                <slot v-if="modelValue" :option="modelValue as T">
                     {{ modelValue }}
                 </slot>
                 <slot v-else name="empty"> Brak wyboru </slot>
@@ -94,7 +94,7 @@ usePopper(
     optionsPopupElement,
     reactive({
         placement: props.placement,
-    })
+    }),
 );
 
 onClickOutside(optionsPopupElement, () => {

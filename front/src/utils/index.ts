@@ -33,14 +33,14 @@ try {
 type Simplify<T> = T extends string | number | boolean
     ? T
     : T extends Moment
-    ? string
-    : T extends Array<infer K>
-    ? Array<Simplify<K>>
-    : T extends (infer K)[]
-    ? Simplify<K>[]
-    : T extends Record<string, unknown>
-    ? Jsonified<T>
-    : T;
+      ? string
+      : T extends Array<infer K>
+        ? Array<Simplify<K>>
+        : T extends (infer K)[]
+          ? Simplify<K>[]
+          : T extends Record<string, unknown>
+            ? Jsonified<T>
+            : T;
 
 export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> };
 export type Optionalify<T> = { [K in keyof T]?: T[K] };
@@ -79,23 +79,23 @@ type NestedDepth = [never, 0, 1, 2, 3, 4];
 export type NestedKeyof<TObject, TDepth extends number = 4> = [TDepth] extends [never]
     ? never
     : TObject extends object
-    ? {
-          [TKey in keyof TObject & string]: TKey | `${TKey}.${NestedKeyof<TObject[TKey], NestedDepth[TDepth]>}`;
-      }[keyof TObject & string]
-    : never;
+      ? {
+            [TKey in keyof TObject & string]: TKey | `${TKey}.${NestedKeyof<TObject[TKey], NestedDepth[TDepth]>}`;
+        }[keyof TObject & string]
+      : never;
 
 export type NestedValue<TObject, TPath extends string> = TPath extends `${infer TKey}.${infer TRest}`
     ? TKey extends keyof TObject
         ? NestedValue<TObject[TKey], TRest>
         : never
     : TPath extends keyof TObject
-    ? TObject[TPath]
-    : never;
+      ? TObject[TPath]
+      : never;
 
 export function set<TObject extends object, TPath extends NestedKeyof<TObject>>(
     object: TObject,
     path: TPath,
-    value: NestedValue<TObject, TPath>
+    value: NestedValue<TObject, TPath>,
 ): void {
     const segments = path.split(".");
 

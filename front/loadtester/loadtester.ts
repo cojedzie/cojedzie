@@ -182,8 +182,8 @@ function reportProgress() {
         console.log(
             `Avg: ${Math.round(mean(allTimes))}; Err: ${errorCount}; Fail: ${failCount}; percentiles: 50th - ${quantile(
                 allTimes,
-                0.5
-            )}, 80th - ${quantile(allTimes, 0.8)}, 95th - ${quantile(allTimes, 0.95)}`
+                0.5,
+            )}, 80th - ${quantile(allTimes, 0.8)}, 95th - ${quantile(allTimes, 0.95)}`,
         );
     argv.verbose >= 2 && console.log("Request count: ", requestCounts);
     argv.verbose >= 2 && console.log("Request time avg: ", requestTimeAvgs);
@@ -195,7 +195,7 @@ function reportProgress() {
     totalRequestTimes = merge(
         totalRequestTimes,
         map(requestTimeAvgs, v => [v]),
-        (tot, cur) => [...(tot || []), ...(cur || [])]
+        (tot, cur) => [...(tot || []), ...(cur || [])],
     );
     totalRequestCounts = merge(totalRequestCounts, requestCounts, (tot, cur) => tot + cur);
     totalRequestErrors = merge(totalRequestErrors, requestErrors, (tot, cur) => tot + cur);

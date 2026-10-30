@@ -26,7 +26,7 @@ export type FetchStatus = "fetching" | "ready" | "error";
 
 export default function useDataFromEndpoint<TEndpoint extends keyof Endpoints>(
     endpoint: TEndpoint,
-    options: BoundRequestOptions<EndpointParams<Endpoints, TEndpoint>, "provider">
+    options: BoundRequestOptions<EndpointParams<Endpoints, TEndpoint>, "provider">,
 ) {
     const client = inject(ApiClientKey);
 

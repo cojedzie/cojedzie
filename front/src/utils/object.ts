@@ -21,7 +21,7 @@ import { Optionalify } from "@/utils/index";
 
 export function map<T extends object, KT extends keyof T, R extends { [KR in keyof T] }>(
     source: T,
-    mapper: (value: T[KT], key: KT) => R[KT]
+    mapper: (value: T[KT], key: KT) => R[KT],
 ): R {
     const result: R = {} as R;
 
@@ -55,16 +55,16 @@ export function only<T>(source: T, keys: (keyof T)[]) {
 export function merge<
     T1 extends object,
     T2 extends object,
-    TReturn extends { [K in keyof T1 & keyof T2]: T1[K] | T2[K] }
+    TReturn extends { [K in keyof T1 & keyof T2]: T1[K] | T2[K] },
 >(
     first: T1,
     second: T2,
     resolve: <TKey extends keyof T1 & keyof T2>(a: T1[TKey], b: T2[TKey], key: TKey) => TReturn[TKey] = <
-        TKey extends keyof T1 & keyof T2
+        TKey extends keyof T1 & keyof T2,
     >(
         a,
-        _
-    ) => a as TReturn[TKey]
+        _,
+    ) => a as TReturn[TKey],
 ) {
     const result = { ...first, ...second };
 
@@ -82,7 +82,7 @@ export function merge<
 
 export function groupBy<T, TGroup extends string | symbol | number>(
     array: T[],
-    grouping: (value: T) => TGroup
+    grouping: (value: T) => TGroup,
 ): Record<TGroup, T[]> {
     const result = {} as Record<TGroup, T[]>;
 

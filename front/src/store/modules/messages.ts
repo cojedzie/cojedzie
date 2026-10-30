@@ -73,7 +73,7 @@ const actions: MessagesActionTree = {
                     ...message,
                     validFrom: moment.parseZone(message.validFrom).local(),
                     validTo: moment.parseZone(message.validTo).local(),
-                })) as Message[]
+                })) as Message[],
             );
         } catch (response) {
             commit(CommonMutations.Error, JSON.stringify(response));

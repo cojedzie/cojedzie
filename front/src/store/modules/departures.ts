@@ -75,14 +75,12 @@ const actions: DeparturesActionTree = {
 
             commit(
                 DeparturesMutations.ListReceived,
-                departures.map(
-                    (departure): Departure => ({
-                        ...departure,
-                        line: departure.line as Line,
-                        scheduled: moment.parseZone(departure.scheduled).local(),
-                        estimated: departure.estimated && moment.parseZone(departure.estimated).local(),
-                    })
-                )
+                departures.map((departure): Departure => ({
+                    ...departure,
+                    line: departure.line as Line,
+                    scheduled: moment.parseZone(departure.scheduled).local(),
+                    estimated: departure.estimated && moment.parseZone(departure.estimated).local(),
+                })),
             );
         } catch (response) {
             commit(CommonMutations.Error, JSON.stringify(response));

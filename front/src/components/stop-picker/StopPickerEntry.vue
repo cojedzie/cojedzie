@@ -97,17 +97,17 @@ export default class StopPickerEntry extends Vue {
                     ...groups,
                     [line.type]: [...(groups[line.type] || []), line],
                 }),
-                {}
+                {},
             );
 
         const joinedSymbol = match<string, [Line[]]>(
             [lines => lines.length === 1, lines => lines[0].symbol],
             [lines => lines.length === 2, ([first, second]) => `${first.symbol}, ${second.symbol}`],
-            [lines => lines.length > 2, ([first]) => `${first.symbol}…`]
+            [lines => lines.length > 2, ([first]) => `${first.symbol}…`],
         );
 
         return unique(this.stop.destinations || [], destination => destination.stop && destination.stop.name).map(
-            compactLines
+            compactLines,
         );
     }
 }

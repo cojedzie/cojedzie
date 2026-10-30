@@ -10,7 +10,7 @@ export type UsePopperResult = {
 export function usePopper(
     reference: MaybeElementRef<HTMLElement>,
     element: MaybeElementRef<HTMLElement>,
-    options: UsePopperOptions = {}
+    options: UsePopperOptions = {},
 ): UsePopperResult {
     const popper = ref<Popper>();
 
@@ -30,7 +30,7 @@ export function usePopper(
 
             popper.value = new Popper(newReference, newElement, options);
         },
-        { immediate: true }
+        { immediate: true },
     );
 
     onUnmounted(() => {

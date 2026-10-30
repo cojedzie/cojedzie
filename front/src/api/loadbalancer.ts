@@ -40,12 +40,12 @@ export interface LoadBalanceOptions<TEndpoints extends EndpointCollection, TEndp
 export interface LoadBalancer<TEndpoints extends EndpointCollection> {
     get<TEndpoint extends keyof TEndpoints>(
         name: TEndpoint,
-        options: LoadBalanceOptions<TEndpoints, TEndpoint>
+        options: LoadBalanceOptions<TEndpoints, TEndpoint>,
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>>;
 
     candidates<TEndpoint extends keyof TEndpoints>(
         name: TEndpoint,
-        options: LoadBalanceOptions<TEndpoints, TEndpoint>
+        options: LoadBalanceOptions<TEndpoints, TEndpoint>,
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]>;
 }
 
@@ -69,7 +69,7 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
 
     async candidates<TEndpoint extends keyof TEndpoints>(
         name: TEndpoint,
-        options: LoadBalanceOptions<TEndpoints, TEndpoint>
+        options: LoadBalanceOptions<TEndpoints, TEndpoint>,
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>[]> {
         const requirements = options.require || (_ => true);
 
@@ -84,7 +84,7 @@ export class LoadBalancerImplementation<TEndpoints extends EndpointCollection> i
 
     async get<TEndpoint extends keyof TEndpoints>(
         name: TEndpoint,
-        options: LoadBalanceOptions<TEndpoints, TEndpoint>
+        options: LoadBalanceOptions<TEndpoints, TEndpoint>,
     ): Promise<LoadBalancedEndpoint<TEndpoints, TEndpoint>> {
         const candidates = await this.candidates(name, options);
 
