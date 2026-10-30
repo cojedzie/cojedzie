@@ -5,7 +5,7 @@
                 <section v-show="messages.count > 0" class="section messages">
                     <header class="section__title hstack">
                         <h2>
-                            <ui-icon icon="messages" fixed-width class="mr-2" />
+                            <ui-icon icon="messages" fixed-width class="mr-1" />
                             Komunikaty
                             <span class="ml-2 badge badge-pill badge-dark">{{ messages.count }}</span>
                         </h2>
@@ -49,7 +49,7 @@
                 <section class="section">
                     <header class="section__title hstack">
                         <h2>
-                            <ui-icon icon="timetable" fixed-width />
+                            <ui-icon icon="timetable" fixed-width class="mr-1" />
                             <span class="text">Odjazdy</span>
                         </h2>
 
@@ -94,7 +94,7 @@
                 <section v-if="stops.length > 0" class="section picker">
                     <header class="section__title hstack">
                         <h2>
-                            <ui-icon icon="stop" fixed-width />
+                            <ui-icon icon="stop" fixed-width class="mr-1" />
                             <span class="text">Przystanki</span>
                         </h2>
                         <button class="btn btn-action flex-space-left" @click="selection.clear()">
