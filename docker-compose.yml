@@ -1,3 +1,34 @@
+x-api-env: &api-env
+  # APP_MODE is the previous name (ADR 0011)
+  COJEDZIE_API_MODE: ${COJEDZIE_API_MODE:-${APP_MODE:-debug}}
+  COJEDZIE_DEV_SERVER: ${COJEDZIE_DEV_SERVER:-fpm}
+  COJEDZIE_DATABASE_URL: mysql://cojedzie:cojedzie@mysql/cojedzie?serverVersion=mariadb-10.7.1
+  PHP_IDE_CONFIG: serverName=cojedzie
+  COJEDZIE_VERSION: dev
+  COJEDZIE_REVISION: dev
+  CORS_ALLOW_ORIGIN: '*'
+  TRUSTED_PROXIES: 172.0.0.0/8
+
+x-api: &api
+  build:
+    context: ./api
+    target: dev
+  image: cojedzie-dev/api
+  environment: *api-env
+  env_file:
+    - path: api/.env.local
+      required: false
+  volumes:
+    - ./api:/var/www
+
+x-front: &front
+  build:
+    context: ./front
+    target: dev
+  image: cojedzie-dev/front
+  user: ${COJEDZIE_UID:-1000}
+  working_dir: /app
+
 services:
   nginx:
     image: nginx:latest
@@ -9,48 +40,66 @@ services:
     volumes:
       - ./front:/var/www/front:cached
       - ./api:/var/www/api:cached
-      - .docker-compose/nginx/cojedzie.conf:/etc/nginx/conf.d/cojedzie.conf
+      - ./nginx/${COJEDZIE_DEV_SERVER:-fpm}.conf:/etc/nginx/conf.d/cojedzie.conf
+
+  # installs dependencies and prepares the database, so a fresh clone starts without manual steps
+  api-setup:
+    <<: *api
+    environment:
+      <<: *api-env
+      COJEDZIE_RUNAS: ${COJEDZIE_UID:-1000}
+      HOME: /tmp
+      # su-exec resets HOME to the passwd entry of the uid, which doesn't exist here
+      COMPOSER_HOME: /tmp/composer
+    command: ["sh", "-c", "composer install --no-interaction && bin/docker-init.sh true"]
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    command: ["php-fpm"]
+    <<: *api
     environment:
-      - COJEDZIE_API_MODE=${COJEDZIE_API_MODE:-${APP_MODE:-debug}}
-      - CORS_ALLOW_ORIGIN=*
-    env_file:
-      - .docker-compose/api/.env
-    volumes:
-      - ./api:/var/www
-      - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+      <<: *api-env
+      COJEDZIE_RUNAS: ${COJEDZIE_UID:-1000}
+    depends_on:
+      api-setup:
+        condition: service_completed_successfully
 
   worker:
-    image: cojedzie/worker:latest
-    env_file:
-      - .docker-compose/api/.env
-      - api/.env.local
-    volumes:
-      - ./api:/var/www
-      - ./worker/supervisord-init.sh:/var/www/bin/supervisord-init.sh
-      - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+    <<: *api
+    environment:
+      <<: *api-env
+      COJEDZIE_RUNAS: ${COJEDZIE_UID:-1000}
+    command: bin/console messenger:consume -vv --time-limit=86400 --limit=10 --memory-limit=128M main
+    restart: unless-stopped
+    depends_on:
+      api-setup:
+        condition: service_completed_successfully
 
   # runs the schedules, like the production schedule service
   schedule:
-    image: cojedzie/worker:latest
-    env_file:
-      - .docker-compose/api/.env
-      - api/.env.local
+    <<: *api
     environment:
-      COJEDZIE_WORKER_QUEUES: scheduler_default scheduler_hub
+      <<: *api-env
+      COJEDZIE_RUNAS: ${COJEDZIE_UID:-1000}
+    command: bin/console messenger:consume -vv --time-limit=86400 --limit=10 --memory-limit=128M scheduler_default scheduler_hub
+    restart: unless-stopped
+    depends_on:
+      api-setup:
+        condition: service_completed_successfully
+
+  # installs frontend dependencies and builds the server, so the frontend can start on a fresh clone
+  front-setup:
+    <<: *front
+    environment:
+      HOME: /tmp
+    command: ["sh", "-c", "yarn install --frozen-lockfile && yarn build:server"]
     volumes:
-      - ./api:/var/www
-      - ./worker/supervisord-init.sh:/var/www/bin/supervisord-init.sh
-      - .docker-compose/api/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+      - ./front:/app
+      - ./.editorconfig:/app/.editorconfig
 
   frontend:
-    image: node:24
-    working_dir: /app
+    <<: *front
     environment:
       - COJEDZIE_MODE=development
       - COJEDZIE_API=http://nginx/api
@@ -62,21 +111,28 @@ services:
     ports:
       - '3001:3001' # required for vite HMR
     command: ["node", "build/server/server.js"]
+    depends_on:
+      front-setup:
+        condition: service_completed_successfully
 
   storybook:
-    image: node:24
-    working_dir: /app
+    <<: *front
     environment:
       - STORYBOOK_BASE_HREF=/storybook/
-      - APP_MAPTILER_KEY
-      - APP_API_BASE_URL=http://cojedzie.localhost
+      - COJEDZIE_MAPTILER_KEY=${COJEDZIE_MAPTILER_KEY:-${APP_MAPTILER_KEY:-}} # APP_MAPTILER_KEY is the previous name (ADR 0011)
+      - COJEDZIE_API=http://cojedzie.localhost
     volumes:
       - ./front:/app
     ports:
       - 6006:6006
-    command: ["yarn", "storybook"]
+    # the version check crashes node-fetch 2 on Node 20+ and is pointless in a container
+    command: ["yarn", "storybook", "--no-version-updates"]
+    depends_on:
+      front-setup:
+        condition: service_completed_successfully
 
   postgres:
+    profiles: [postgres]
     image: postgres:14
     restart: unless-stopped
     ports:
@@ -88,6 +144,55 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  # a second node that joins the federation of this stack, enable with --profile federated
+  # The hub only accepts registered servers: run `task console -- federation:register <email> http://federated:8080`
+  # and pass the printed id and secret as FEDERATION_SERVER_ID and FEDERATION_SERVER_SECRET.
+  federated:
+    <<: *api
+    profiles: [federated]
+    environment:
+      <<: *api-env
+      COJEDZIE_RUNAS: ${COJEDZIE_UID:-1000}
+      COJEDZIE_DEV_SERVER: rr
+      COJEDZIE_DATABASE_URL: sqlite:///%kernel.project_dir%/var/db/federated.db
+      FEDERATION_SERVER_ID: ${FEDERATION_SERVER_ID:-a7cd192a-3dca-4fc8-b35d-91f2d6e10632}
+      FEDERATION_SERVER_SECRET: ${FEDERATION_SERVER_SECRET:-notarealsecretatall}
+      FEDERATION_URL: http://federated:8080
+      FEDERATION_HUB: http://nginx
+    ports:
+      - "8888:8080"
+    restart: on-failure:5
+    # the sqlite database lives in var/db, which has to exist first
+    command:
+      - sh
+      - -c
+      - mkdir -p var/db && exec ./bin/docker-entrypoint.sh ./bin/docker-init.sh rr serve -c .rr.yaml
+    depends_on:
+      api-setup:
+        condition: service_completed_successfully
+      nginx:
+        condition: service_started
+
+  elasticsearch:
+    profiles: [elastic]
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  kibana:
+    profiles: [elastic]
+    image: docker.elastic.co/kibana/kibana:7.11.0
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200/
+    ports:
+      - "5601:5601"
+    depends_on: ["elasticsearch"]
+
   mysql:
     image: mariadb:10.7
     restart: unless-stopped
@@ -98,6 +203,13 @@ services:
       - MYSQL_PASSWORD=cojedzie
       - MYSQL_DATABASE=cojedzie
       - MARIADB_RANDOM_ROOT_PASSWORD=1
+    healthcheck:
+      # healthcheck.sh would log in as root, which has a random password here. Going over TCP also skips
+      # the temporary server that the image starts for its initialization, as it has no network.
+      test: ["CMD", "mariadb", "-h127.0.0.1", "-ucojedzie", "-pcojedzie", "-e", "SELECT 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -119,3 +231,4 @@ volumes:
   caddy_config:
   postgres_data:
   mysql_data:
+  es_data:

@@ -29,9 +29,7 @@ module.exports = {
                 ...config.define,
                 global: {},
                 process: {
-                    env: Object.fromEntries(
-                        Object.entries(process.env).filter(([key, _]) => /(COJEDZIE|APP)_/.test(key))
-                    ),
+                    env: Object.fromEntries(Object.entries(process.env).filter(([key, _]) => /COJEDZIE_/.test(key))),
                 },
             },
             // remove duplicated vue plugin
