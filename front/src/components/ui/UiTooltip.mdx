@@ -1,4 +1,4 @@
-import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
+import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
 import UiTooltip from "./UiTooltip.vue";
 import { centered } from "@/stories/decorators";
 import * as UiTooltipStories from "./UiTooltip.stories";
@@ -11,7 +11,7 @@ import * as UiTooltipStories from "./UiTooltip.stories";
     <Story of={UiTooltipStories.Default} />
 </Canvas>
 
-<ArgsTable story="Default" />
+<Controls of={UiTooltipStories.Default} />
 
 ## Other stories
 

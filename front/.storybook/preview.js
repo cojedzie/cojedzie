@@ -2,7 +2,7 @@ import "./setup";
 
 import "../styles/main.scss";
 
-import { setup } from "@storybook/vue3";
+import { setup } from "@storybook/vue3-vite";
 import components from "../src/components";
 import filters from "../src/filters";
 import globals from "../src/globals";
@@ -26,3 +26,4 @@ export const parameters = {
         },
     },
 };
+export const tags = ["autodocs"];

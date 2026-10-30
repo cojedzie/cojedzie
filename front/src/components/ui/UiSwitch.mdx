@@ -1,4 +1,4 @@
-import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
+import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
 import * as UiSwitchStories from "./UiSwitch.stories";
 
 <Meta of={UiSwitchStories} />
@@ -9,7 +9,7 @@ import * as UiSwitchStories from "./UiSwitch.stories";
     <Story of={UiSwitchStories.On} />
 </Canvas>
 
-<ArgsTable story="On" />
+<Controls of={UiSwitchStories.On} />
 
 <Canvas>
     <Story of={UiSwitchStories.Off} />

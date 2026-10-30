@@ -6,7 +6,7 @@
     "module": "esnext",
     "sourceMap": true,
     "noImplicitThis": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,

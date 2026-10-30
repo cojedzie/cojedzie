@@ -48,7 +48,7 @@ export default defineConfig({
     build: {
         outDir: `${dist}/`,
         sourcemap: true,
-        manifest: true,
+        manifest: "manifest.json",
         rollupOptions: {
             input: [path.resolve(__dirname, "./src/app.ts")],
         },
@@ -75,6 +75,16 @@ export default defineConfig({
                 release: { name: process.env.COJEDZIE_VERSION },
             }),
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                loadPaths: [path.resolve(__dirname, "./node_modules")],
+                // Bootstrap 4 and our stylesheets still use @import and the global functions Sass deprecated
+                quietDeps: true,
+                silenceDeprecations: ["import", "global-builtin", "color-functions", "if-function", "slash-div"],
+            },
+        },
+    },
     publicDir: path.resolve(__dirname, "./public"),
     resolve: {
         alias: [

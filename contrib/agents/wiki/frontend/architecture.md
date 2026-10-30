@@ -28,9 +28,11 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
-- `src/stories` + `.storybook` — Storybook (served at `/storybook/` through nginx in docker). The `storybook`
-  service sets `STORYBOOK_BASE_HREF`, `COJEDZIE_MAPTILER_KEY` and `COJEDZIE_API`, and runs with
-  `--no-version-updates` (the version check crashes on Node 24).
+- `src/stories` + `.storybook` — Storybook, served at http://storybook.cojedzie.localhost through nginx in docker
+  (`nginx/storybook.conf`; also published on port 6006). It gets its own host because Storybook injects preview
+  scripts at root paths that ignore a Vite `base`, so it can't live under a path of the app's host. The `storybook`
+  service sets `COJEDZIE_MAPTILER_KEY` and `COJEDZIE_API`, and runs with `--host 0.0.0.0` (Storybook listens on
+  127.0.0.1 by default) and `--no-version-updates` (the version check crashes on Node 24).
 - Docker: `front/Dockerfile` has a `dev` target (used by the compose `frontend`, `storybook` and `front-setup`
   services, run as `COJEDZIE_UID`) and a `prod` target (the published image).
 

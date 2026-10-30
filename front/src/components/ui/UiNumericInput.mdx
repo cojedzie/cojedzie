@@ -1,4 +1,4 @@
-import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
+import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
 import UiNumericInput from "./UiNumericInput.vue";
 import { ref } from "vue";
 import * as UiNumericInputStories from "./UiNumericInput.stories";
@@ -11,4 +11,4 @@ import * as UiNumericInputStories from "./UiNumericInput.stories";
     <Story of={UiNumericInputStories.Default} />
 </Canvas>
 
-<ArgsTable story="Default" />
+<Controls of={UiNumericInputStories.Default} />

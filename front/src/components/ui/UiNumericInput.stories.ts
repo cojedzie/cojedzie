@@ -1,6 +1,6 @@
 import UiNumericInput from "./UiNumericInput.vue";
 import { ref } from "vue";
-import { StoryObj } from "@storybook/vue3";
+import { StoryObj } from "@storybook/vue3-vite";
 
 const Template = args => ({
     components: { UiNumericInput },

@@ -1,5 +1,5 @@
 import UiMap from "./UiMap.vue";
-import { StoryObj } from "@storybook/vue3";
+import { StoryObj } from "@storybook/vue3-vite";
 
 const Template = args => ({
     components: { UiMap },
