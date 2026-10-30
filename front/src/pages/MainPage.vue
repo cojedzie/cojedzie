@@ -1,9 +1,9 @@
 <template>
-    <div id="app" class="container">
-        <div class="row">
-            <div class="col-md-8 order-md-last">
+    <div id="app" class="page-container">
+        <div class="-mx-4 flex flex-wrap">
+            <div class="w-full px-4 md:order-last md:w-2/3">
                 <section v-show="messages.count > 0" class="section messages">
-                    <header class="section__title flex">
+                    <header class="section__title hstack">
                         <h2>
                             <ui-icon icon="messages" fixed-width class="mr-2" />
                             Komunikaty
@@ -47,7 +47,7 @@
                     </ui-fold>
                 </section>
                 <section class="section">
-                    <header class="section__title flex">
+                    <header class="section__title hstack">
                         <h2>
                             <ui-icon icon="timetable" fixed-width />
                             <span class="text">Odjazdy</span>
@@ -90,9 +90,9 @@
                     </div>
                 </section>
             </div>
-            <div class="col-md-4 order-md-first">
+            <div class="w-full px-4 md:order-first md:w-1/3">
                 <section v-if="stops.length > 0" class="section picker">
-                    <header class="section__title flex">
+                    <header class="section__title hstack">
                         <h2>
                             <ui-icon icon="stop" fixed-width />
                             <span class="text">Przystanki</span>
@@ -116,7 +116,7 @@
                         </li>
                     </ul>
 
-                    <div class="d-flex mt-2">
+                    <div class="flex mt-2">
                         <button
                             ref="save"
                             class="btn btn-action btn-sm flex-space-left"
@@ -139,9 +139,9 @@
                     </ui-dialog>
                 </section>
                 <section class="section picker">
-                    <header class="section__title flex">
+                    <header class="section__title hstack">
                         <template v-if="visibility.picker === 'search'">
-                            <h2 class="flex-grow-1">
+                            <h2 class="grow">
                                 <ui-icon icon="search" fixed-width class="mr-1" />
                                 Wybierz przystanki
                             </h2>
@@ -151,7 +151,7 @@
                             </button>
                         </template>
                         <template v-else>
-                            <h2 class="flex-grow-1">
+                            <h2 class="grow">
                                 <ui-icon icon="favourite" fixed-width class="mr-1" />
                                 Zapisane
                             </h2>

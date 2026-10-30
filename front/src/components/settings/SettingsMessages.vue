@@ -1,6 +1,6 @@
 <template>
     <div class="form-group">
-        <div class="label flex">
+        <div class="label hstack">
             <label class="text" for="departures-auto-refresh-interval">
                 <ui-icon icon="refresh" fixed-width />
                 autoodświeżanie
@@ -24,7 +24,7 @@
                 </p>
             </ui-help>
         </div>
-        <div v-if="autorefresh" class="flex">
+        <div v-if="autorefresh" class="hstack">
             <label for="departures-auto-refresh-interval" class="text">
                 <span class="sr-only">częstotliwość odświeżania</span>
                 co
@@ -48,7 +48,7 @@
         </div>
     </div>
     <div class="form-group">
-        <div class="label flex">
+        <div class="label hstack">
             <label class="text" for="departures-count">
                 <ui-icon icon="messages" fixed-width />
                 wyświetlanych komunikatów

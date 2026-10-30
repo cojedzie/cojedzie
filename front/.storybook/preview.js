@@ -1,5 +1,6 @@
 import "./setup";
 
+import "../styles/tailwind.css";
 import "../styles/main.scss";
 
 import { setup } from "@storybook/vue3-vite";

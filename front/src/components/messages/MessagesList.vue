@@ -14,7 +14,7 @@
             />
         </ul>
         <template v-if="nonDisplayedCount > 0">
-            <div class="flex">
+            <div class="hstack">
                 <button class="btn btn-action btn-sm flex-space-left" @click="showAll = !showAll">
                     <template v-if="showAll"> <ui-icon icon="chevron-up" /> {{ nonDisplayedCount }} mniej </template>
                     <template v-else> <ui-icon icon="chevron-down" /> {{ nonDisplayedCount }} więcej </template>

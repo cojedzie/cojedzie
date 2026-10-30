@@ -19,6 +19,7 @@
 
 import "vite/modulepreload-polyfill";
 
+import "@styles/tailwind.css";
 import "@styles/main.scss";
 
 import { createPinia } from "pinia";

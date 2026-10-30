@@ -18,5 +18,5 @@
  */
 
 export const centered = () => ({
-    template: '<div style="padding: 50px 150px" class="d-flex justify-content-center"><story /></div>',
+    template: '<div style="padding: 50px 150px" class="hstack justify-center"><story /></div>',
 });

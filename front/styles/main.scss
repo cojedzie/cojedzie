@@ -19,11 +19,16 @@
 
 @use "sass:math";
 
-@import "reset";
-
 @import "variables";
 
-@import "bootstrap/scss/bootstrap";
+@import "base/reboot";
+@import "reset";
+
+@import "components/layout";
+@import "components/button";
+@import "components/form";
+@import "components/badge";
+@import "components/alert";
 
 @import "common";
 @import "stop";
@@ -105,7 +110,7 @@ body {
   }
 
   footer {
-    @extend .flex;
+    @extend .hstack;
     flex-wrap: wrap;
 
     font-size: $font-size-sm;

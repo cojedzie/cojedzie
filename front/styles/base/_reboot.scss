@@ -1,0 +1,130 @@
+/*!
+ * Copyright (C) 2026 Kacper Donat
+ *
+ * @author Kacper Donat <kacper@kadet.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+// What the stylesheets expect on top of Tailwind's preflight: body typography, heading sizes, spacing between
+// blocks, links and inline images and icons.
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans",
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $body-color;
+  background-color: $white;
+}
+
+@include headings {
+  margin-bottom: $default-spacing;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p,
+ol,
+ul,
+dl {
+  margin-bottom: $spacer;
+}
+
+ol ol,
+ul ul,
+ol ul,
+ul ol {
+  margin-bottom: 0;
+}
+
+ol,
+ul {
+  padding-left: 2.5rem;
+  list-style: revert;
+}
+
+small {
+  font-size: $small-font-size;
+}
+
+a {
+  color: $link-color;
+
+  &:hover {
+    color: darken($link-color, 15%);
+    text-decoration: underline;
+  }
+
+  &:not([href]):not([class]) {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+img,
+svg {
+  display: inline;
+  vertical-align: middle;
+}
+
+img {
+  max-width: none;
+}
+
+svg {
+  overflow: hidden;
+}
+
+label {
+  display: inline-block;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:focus:not(:focus-visible) {
+  outline: 0;
+}
+
+hr {
+  margin: $spacer 0;
+  border-top: 1px solid rgba($black, 0.1);
+}

@@ -1,7 +1,7 @@
 <template>
     <ul class="list-underlined history" v-if="all.length > 0">
         <li v-for="(entry, index) in all" :key="index" class="history__entry">
-            <stop-picker-entry :stop="entry.stop" class="flex-grow-1 finder__stop">
+            <stop-picker-entry :stop="entry.stop" class="grow finder__stop">
                 <template #primary-action>
                     <button @click="select(entry.stop)" class="btn btn-action stretched-link">
                         <ui-icon icon="history" />

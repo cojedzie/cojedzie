@@ -1,20 +1,20 @@
 <template>
     <span
-        class="line__symbol flex"
+        class="line__symbol hstack"
         :class="{
             [`line--${line.type}`]: true,
             'line--night': line.night,
             'line--fast': line.fast,
         }"
     >
-        <span class="flex align-items-stretch">
+        <span class="hstack items-stretch">
             <slot v-if="!simple" name="icon">
                 <span class="icon">
                     <ui-icon :icon="`line-${line.type}`" fixed-width />
                 </span>
             </slot>
             <slot name="badge">
-                <span class="badge badge-dark flex">
+                <span class="badge badge-dark hstack">
                     <ui-icon v-if="line.night && !simple" icon="night" fixed-width />
                     {{ line.symbol }}
                     <ui-icon v-if="line.fast" icon="fast" />
