@@ -22,6 +22,7 @@ import * as uuid from "uuid";
 import api from "@/api";
 import { distinct } from "@/utils";
 import type { UserStateStorage } from "./storage";
+import { storages } from "./storages";
 
 export interface Migration {
     name: string;
@@ -91,6 +92,11 @@ export const migrations: Migration[] = [
 
             await storage.remove("vuex");
         },
+    },
+    {
+        name: "202610301840_remove_session_vuex_key",
+        // the stops Vuex selected in this tab are not carried over, the selection starts empty
+        up: async () => storages.session.remove("vuex"),
     },
 ];
 

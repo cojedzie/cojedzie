@@ -44,55 +44,32 @@
     </component>
 </template>
 
-<script lang="ts">
-import { Line, Stop } from "@/model";
-import moment, { Moment } from "moment";
-import { PropType } from "vue";
-import { MessageType } from "@/model/message";
+<script setup lang="ts">
+import moment, { type Moment } from "moment";
+import type { Line, Stop } from "@/model";
+import type { MessageType } from "@/model/message";
 
-export default {
-    name: "MessagesMessage",
-    props: {
-        message: {
-            type: String,
-            required: true,
-        },
-        lines: {
-            type: Array as PropType<Line[]>,
-            required: false,
-            default: () => [],
-        },
-        stops: {
-            type: Array as PropType<Stop[]>,
-            required: false,
-            default: () => [],
-        },
-        type: {
-            type: String as PropType<MessageType>,
-            required: false,
-            default: () => "unknown",
-        },
-        validFrom: {
-            type: Object as PropType<Moment>,
-            required: false,
-            default: null,
-        },
-        validTo: {
-            type: Object as PropType<Moment>,
-            required: false,
-            default: null,
-        },
-        tag: {
-            type: String,
-            required: false,
-            default: "div",
-        },
+defineOptions({ name: "MessagesMessage" });
+
+withDefaults(
+    defineProps<{
+        message: string;
+        lines?: Line[];
+        stops?: Stop[];
+        type?: MessageType;
+        validFrom?: Moment | null;
+        validTo?: Moment | null;
+        tag?: string;
+    }>(),
+    {
+        lines: () => [],
+        stops: () => [],
+        type: "unknown",
+        validFrom: null,
+        validTo: null,
+        tag: "div",
     },
-    setup() {
-        return {
-            today: moment(),
-            moment,
-        };
-    },
-};
+);
+
+const today = moment();
 </script>

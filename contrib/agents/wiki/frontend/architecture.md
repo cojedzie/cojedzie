@@ -1,7 +1,7 @@
 # Frontend architecture (`front/`)
 
-Vue 3 (mix of `vue-class-component`/`vue-property-decorator` class components and composables), Vuex with
-`vuex-persist`, vue-router, Leaflet + mapbox-gl maps, Bootstrap + Sass, built with Vite into `front/build/public`.
+Vue 3 (mix of `vue-class-component`/`vue-property-decorator` class components and `<script setup>` components),
+Pinia, vue-router, Leaflet + mapbox-gl maps, Bootstrap + Sass, built with Vite into `front/build/public`.
 Path alias `@/` → `front/src/`.
 
 ## Serving
@@ -23,8 +23,11 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 
 - `src/api` — typed endpoint map (`endpoints.ts`), HTTP / static / load-balanced clients, load balancer
   (see [API nodes and load balancing](#api-nodes-and-load-balancing)).
-- `src/store` — root store, modules (`departures`, `messages`, `favourites`, `history`, `network`, `settings`),
-  and `migrations.ts` for persisted-state schema migrations.
+- `src/stores` — Pinia setup stores (`selection`, `departures`, `messages`, `favourites`, `history`, `network`,
+  `departures-settings`, `messages-settings`); `fetching.ts` holds the fetching state shared by `departures` and
+  `messages`. `stores/persistence` saves stores (local or session storage, each under its own key) and runs the
+  migrations of saved state, which still read the legacy `vuex` key. `app.ts` binds the API client context to the
+  `network` and `selection` stores and awaits every saved store's `$hydrated` before mounting.
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
@@ -54,7 +57,7 @@ template uses must be public: `vue-tsc` checks templates against the class.
 
 ## API nodes and load balancing
 
-`src/api/loadbalancer.ts` keeps a list of available nodes (Vuex `network` module, refreshed every 60s) and picks
+`src/api/loadbalancer.ts` keeps a list of available nodes (the `network` store, refreshed every 60s) and picks
 a node that exposes the requested endpoint and satisfies a `require` predicate (e.g. minimum version), falling
 back to the default API. Endpoint names in `src/api/endpoints.ts` mirror the Symfony route names (`v1_stop_list`,
 ...), so renaming a route or changing its version is a cross-stack change.

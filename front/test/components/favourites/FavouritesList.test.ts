@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 import { createPinia, setActivePinia } from "pinia";
-import { createStore } from "vuex";
 import { mount } from "@vue/test-utils";
 import FavouritesList from "@/components/favourites/FavouritesList.vue";
 import { useFavouritesStore } from "@/stores/favourites";
+import { useSelectionStore } from "@/stores/selection";
 
 const stop = (id: string) => ({ id, name: `Stop ${id}`, group: "Group", $type: "vnd.cojedzie.stop" });
 
@@ -13,26 +13,25 @@ function mountList() {
     const pinia = createPinia();
     setActivePinia(pinia);
 
-    const replace = vi.fn();
-    const vuex = createStore({ state: { stops: [] }, mutations: { replace } });
     const store = useFavouritesStore();
     store.add({ id: "a", name: "Home", stops: [stop("1")] });
     store.add({ id: "b", name: "Work", stops: [stop("2"), stop("3")] });
 
     const wrapper = mount(FavouritesList, {
-        global: { plugins: [pinia, vuex], stubs: { StopLabel: true, UiIcon: true, UiTooltip: true } },
+        global: { plugins: [pinia], stubs: { StopLabel: true, UiIcon: true, UiTooltip: true } },
     });
 
-    return { wrapper, store, replace };
+    return { wrapper, store, selection: useSelectionStore() };
 }
 
 describe("FavouritesList", () => {
     it("replaces the selected stops with the chosen favourite's stops", async () => {
-        const { wrapper, replace } = mountList();
+        const { wrapper, selection } = mountList();
+        selection.replace([stop("9")]);
 
         await wrapper.findAll(".favourite__entry")[1].trigger("click");
 
-        expect(replace).toHaveBeenCalledWith(expect.anything(), [stop("2"), stop("3")]);
+        expect(selection.stops).toEqual([stop("2"), stop("3")]);
     });
 
     it("removes a favourite from the store", async () => {

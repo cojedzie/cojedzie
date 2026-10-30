@@ -18,7 +18,7 @@
                             <ui-tooltip>ustawienia</ui-tooltip>
                             <ui-icon icon="settings" fixed-width />
                         </button>
-                        <button ref="btn-messages-refresh" class="btn btn-action" @click="updateMessages">
+                        <button ref="btn-messages-refresh" class="btn btn-action" @click="messages.update()">
                             <ui-tooltip>odśwież</ui-tooltip>
                             <ui-icon icon="refresh" :spin="messages.state === 'fetching'" fixed-width />
                         </button>
@@ -62,7 +62,7 @@
                             <ui-tooltip>ustawienia</ui-tooltip>
                             <ui-icon icon="settings" fixed-width />
                         </button>
-                        <button class="btn btn-action" @click="updateDepartures()">
+                        <button class="btn btn-action" @click="departures.update()">
                             <ui-tooltip>odśwież</ui-tooltip>
                             <ui-icon icon="refresh" :spin="departures.state === 'fetching'" fixed-width />
                         </button>
@@ -78,7 +78,7 @@
                             </ui-dialog>
                         </teleport>
                     </header>
-                    <departures-list v-if="stops.length > 0" :stops="stops" />
+                    <departures-list v-if="stops.length > 0" />
                     <div v-else class="alert alert-info">
                         <ui-icon icon="info" />
                         Wybierz przystanki korzystając z wyszukiwarki poniżej, aby zobaczyć listę odjazdów.
@@ -97,7 +97,7 @@
                             <ui-icon icon="stop" fixed-width />
                             <span class="text">Przystanki</span>
                         </h2>
-                        <button class="btn btn-action flex-space-left" @click="clear">
+                        <button class="btn btn-action flex-space-left" @click="selection.clear()">
                             <ui-tooltip>usuń wszystkie</ui-tooltip>
                             <ui-icon icon="delete" fixed-width />
                         </button>
@@ -107,7 +107,7 @@
                         <li v-for="stop in stops" :key="stop.id" class="picker__stop">
                             <stop-picker-entry :stop="stop">
                                 <template #primary-action>
-                                    <button class="btn btn-action" @click="remove(stop)">
+                                    <button class="btn btn-action" @click="selection.remove(stop)">
                                         <ui-tooltip>usuń przystanek</ui-tooltip>
                                         <ui-icon icon="remove-stop" />
                                     </button>
@@ -129,7 +129,7 @@
 
                     <ui-dialog
                         v-if="visibility.save"
-                        reference="save"
+                        :reference="saveButton"
                         arrow
                         placement="bottom-end"
                         title="Dodaj do ulubionych"
@@ -163,7 +163,11 @@
                     </header>
                     <div class="transition-box">
                         <transition name="fade">
-                            <stop-picker v-if="visibility.picker === 'search'" :blacklist="stops" @select="add" />
+                            <stop-picker
+                                v-if="visibility.picker === 'search'"
+                                :blacklist="stops"
+                                @select="selection.add"
+                            />
                             <favourites-list v-else-if="visibility.picker === 'favourites'" />
                         </transition>
                     </div>
@@ -173,140 +177,69 @@
     </div>
 </template>
 
-<script lang="ts">
-import { watch } from "vue";
-import { Watch } from "vue-property-decorator";
-import { Action, Mutation, State } from "vuex-class";
-import { Provider, Stop } from "@/model";
+<script setup lang="ts">
+import { onMounted, reactive, ref, useTemplateRef, watch, watchEffect } from "vue";
+import { useRoute } from "vue-router";
+import { storeToRefs } from "pinia";
+import { prepare } from "@/api/utils";
+import { useSelectionStore } from "@/stores/selection";
+import { useDeparturesStore } from "@/stores/departures";
+import { useMessagesStore } from "@/stores/messages";
 import { useDeparturesSettingsStore } from "@/stores/departures-settings";
 import { useMessagesSettingsStore } from "@/stores/messages-settings";
-import { prepare } from "@/api/utils";
-import { MessagesActions } from "@/store/modules/messages";
-import { StoreDefinition } from "@/store/initializer";
-import { Store } from "vuex";
-import { Options, Vue } from "vue-class-component";
-import { StopPickerEntry } from "@/components";
+import StopPickerEntry from "@/components/stop-picker/StopPickerEntry.vue";
 
-@Options({
-    name: "MainPage",
-    components: { StopPickerEntry },
-})
-export default class MainPage extends Vue {
-    $store: Store<StoreDefinition>;
+defineOptions({ name: "MainPage" });
 
-    sections = {
-        messages: true,
-    };
+const route = useRoute();
 
-    visibility = {
-        messages: false,
-        departures: false,
-        save: false,
-        picker: "search",
-    };
+const selection = useSelectionStore();
+const departures = useDeparturesStore();
+const messages = useMessagesStore();
 
-    private intervals = { messages: null, departures: null };
+const { stops, provider } = storeToRefs(selection);
 
-    @State provider: Provider;
+const sections = reactive({ messages: true });
+const visibility = reactive({
+    messages: false,
+    departures: false,
+    save: false,
+    picker: "search",
+});
 
-    get messages() {
-        return {
-            count: this.$store.getters["messages/count"],
-            counts: this.$store.getters["messages/counts"],
-            state: this.$store.state.messages.state,
-        };
-    }
+const saveButton = useTemplateRef<HTMLButtonElement>("save");
 
-    get departures() {
-        return {
-            state: this.$store.state.departures.state,
-        };
-    }
+// the refresh starts once the provider is known, requests depend on it
+const providerLoaded = ref(false);
 
-    get stops() {
-        return this.$store.state.stops;
-    }
+function useAutorefresh(settings: { autorefresh: boolean; autorefreshInterval?: number }, update: () => Promise<void>) {
+    watchEffect(onCleanup => {
+        if (!providerLoaded.value || !settings.autorefresh) {
+            return;
+        }
 
-    set stops(value) {
-        this.$store.commit("replace", value);
-    }
-
-    mounted() {
-        document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = prepare("/{provider}/manifest.json", {
-            provider: this.$route.params.provider as string,
-        });
-    }
-
-    async created() {
-        await this.$store.dispatch("loadProvider", {
-            provider: this.$route.params.provider as string,
-        });
-
-        this.$store.dispatch(`messages/${MessagesActions.Update}`);
-        this.$store.dispatch("load", { version: 1, stops: [] });
-
-        this.initDeparturesRefreshInterval();
-        this.initMessagesRefreshInterval();
-    }
-
-    private initDeparturesRefreshInterval() {
-        const settings = useDeparturesSettingsStore();
-
-        const departuresAutorefreshCallback = () => {
-            const { autorefresh, autorefreshInterval } = settings;
-
-            if (this.intervals.departures) {
-                clearInterval(this.intervals.departures);
-            }
-
-            if (autorefresh) {
-                this.intervals.departures = setInterval(
-                    () => this.updateDepartures(),
-                    Math.max(5, autorefreshInterval) * 1000,
-                );
-            }
-        };
-
-        watch(() => settings.autorefresh, departuresAutorefreshCallback);
-        watch(() => settings.autorefreshInterval, departuresAutorefreshCallback);
-
-        departuresAutorefreshCallback();
-    }
-
-    private initMessagesRefreshInterval() {
-        const settings = useMessagesSettingsStore();
-
-        const messagesAutorefreshCallback = () => {
-            const { autorefresh, autorefreshInterval } = settings;
-
-            if (this.intervals.messages) {
-                clearInterval(this.intervals.messages);
-            }
-
-            if (autorefresh) {
-                this.intervals.messages = setInterval(
-                    () => this.updateMessages(),
-                    Math.max(5, autorefreshInterval) * 1000,
-                );
-            }
-        };
-
-        watch(() => settings.autorefresh, messagesAutorefreshCallback);
-        watch(() => settings.autorefreshInterval, messagesAutorefreshCallback);
-
-        messagesAutorefreshCallback();
-    }
-
-    @Action(`messages/${MessagesActions.Update}`) updateMessages: () => void;
-    @Action("departures/update") updateDepartures: () => void;
-
-    @Mutation add: (stops: Stop[]) => void;
-    @Mutation remove: (stop: Stop) => void;
-    @Mutation clear: () => void;
-
-    @Watch("stops", { deep: true })
-    onStopUpdate() {
-        this.updateDepartures();
-    }
+        const interval = setInterval(() => update(), Math.max(5, settings.autorefreshInterval) * 1000);
+        onCleanup(() => clearInterval(interval));
+    });
 }
+
+useAutorefresh(useDeparturesSettingsStore(), () => departures.update());
+useAutorefresh(useMessagesSettingsStore(), () => messages.update());
+
+watch(stops, () => departures.update(), { deep: true });
+
+onMounted(() => {
+    document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href = prepare("/{provider}/manifest.json", {
+        provider: route.params.provider as string,
+    });
+});
+
+(async () => {
+    await selection.loadProvider(route.params.provider as string);
+
+    messages.update();
+    departures.update();
+
+    providerLoaded.value = true;
+})();
 </script>

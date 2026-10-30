@@ -30,6 +30,8 @@ export default defineConfig([
         rules: {
             "vue/html-indent": ["warn", 4],
             "vue/max-attributes-per-line": ["warn", { singleline: 4, multiline: 1 }],
+            // the root component, never referred to by its name
+            "vue/multi-word-component-names": ["error", { ignores: ["Application"] }],
             "@typescript-eslint/no-explicit-any": "warn",
             "@typescript-eslint/no-require-imports": "off",
             "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],

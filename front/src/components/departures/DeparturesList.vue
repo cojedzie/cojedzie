@@ -8,32 +8,16 @@
     </div>
 </template>
 
-<script lang="ts">
-import { DeparturesDeparture } from "@/components";
-import { computed, defineComponent, PropType } from "vue";
-import { Departure } from "@/model";
-import { useStore } from "vuex";
-import { StoreDefinition } from "@/store/initializer";
+<script setup lang="ts">
+import { computed } from "vue";
+import type { Departure } from "@/model";
+import { useDeparturesStore } from "@/stores/departures";
+import DeparturesDeparture from "./DeparturesDeparture.vue";
 
-export default defineComponent({
-    name: "DeparturesList",
-    components: {
-        DeparturesDeparture,
-    },
-    props: {
-        departures: {
-            type: Array as PropType<Departure[]>,
-            required: false,
-            default: () => null,
-        },
-    },
-    setup(props) {
-        const store = useStore<StoreDefinition>();
+defineOptions({ name: "DeparturesList" });
 
-        const departures = computed(() => props.departures || store.state.departures.departures);
+const props = withDefaults(defineProps<{ departures?: Departure[] | null }>(), { departures: null });
 
-        // eslint-disable-next-line vue/no-dupe-keys
-        return { departures };
-    },
-});
+const store = useDeparturesStore();
+const departures = computed(() => props.departures || store.departures);
 </script>

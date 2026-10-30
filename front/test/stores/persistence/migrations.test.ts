@@ -49,6 +49,7 @@ const snapshot = {
 };
 
 const SPLIT = "202610301200_split_vuex_key";
+const SESSION = "202610301840_remove_session_vuex_key";
 const STOP_2020 = "202001261540_full_stop_in_state";
 
 function saved(key: string) {
@@ -61,6 +62,8 @@ const fullStop = migrations[0];
 describe("persisted state migrations", () => {
     beforeEach(() => {
         window.localStorage.clear();
+        window.sessionStorage.clear();
+        replaceStorages();
         api.get.mockReset();
         sentry.captureException.mockReset();
         vi.spyOn(console, "error").mockImplementation(() => {});
@@ -147,7 +150,7 @@ describe("persisted state migrations", () => {
 
         expect(api.get).not.toHaveBeenCalled();
         expect(saved("favourites")).toEqual({ favourites });
-        expect(saved("migrations")).toEqual([STOP_2020, SPLIT]);
+        expect(saved("migrations")).toEqual([STOP_2020, SPLIT, SESSION]);
     });
 
     it("does not run a migration again", async () => {
@@ -201,6 +204,18 @@ describe("persisted state migrations", () => {
         expect(saved("migrations")).toEqual(["first", "second"]);
     });
 
+    it("removes the selection Vuex kept in the session", async () => {
+        window.sessionStorage.setItem("vuex", JSON.stringify({ stops: [stop] }));
+        window.sessionStorage.setItem("selection", JSON.stringify({ stops: [] }));
+        window.localStorage.setItem("migrations", JSON.stringify([STOP_2020, SPLIT]));
+
+        await migrate(new BrowserStorage(window.localStorage));
+
+        expect(window.sessionStorage.getItem("vuex")).toBeNull();
+        expect(window.sessionStorage.getItem("selection")).not.toBeNull();
+        expect(saved("migrations")).toEqual([STOP_2020, SPLIT, SESSION]);
+    });
+
     describe("splitting the vuex key", () => {
         it("splits today's vuex object into one key per store", async () => {
             window.localStorage.setItem("vuex", JSON.stringify(snapshot));
@@ -213,7 +228,7 @@ describe("persisted state migrations", () => {
             expect(saved("messages-settings")).toEqual(snapshot["messages-settings"]);
             expect(saved("history")).toEqual(snapshot.history);
             expect(window.localStorage.getItem("vuex")).toBeNull();
-            expect(saved("migrations")).toEqual([STOP_2020, SPLIT]);
+            expect(saved("migrations")).toEqual([STOP_2020, SPLIT, SESSION]);
         });
 
         it("skips parts that are missing", async () => {
@@ -243,7 +258,7 @@ describe("persisted state migrations", () => {
             await migrate(new BrowserStorage(window.localStorage));
 
             expect(window.localStorage.length).toBe(1);
-            expect(saved("migrations")).toEqual([STOP_2020, SPLIT]);
+            expect(saved("migrations")).toEqual([STOP_2020, SPLIT, SESSION]);
         });
 
         it("migrates 2020 data in two steps", async () => {
@@ -262,7 +277,7 @@ describe("persisted state migrations", () => {
             ]);
             expect(saved("history")).toEqual(snapshot.history);
             expect(window.localStorage.getItem("vuex")).toBeNull();
-            expect(saved("migrations")).toEqual([STOP_2020, SPLIT]);
+            expect(saved("migrations")).toEqual([STOP_2020, SPLIT, SESSION]);
         });
 
         it("hydrates every saved store from a migrated vuex snapshot", async () => {
