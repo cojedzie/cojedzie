@@ -14,7 +14,8 @@ if [ "$COJEDZIE_API_MODE" != "debug" ]; then
     } >> "$PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini";
 fi
 
-if [ -n "$COJEDZIE_RUNAS" ]; then
+# su-exec can only drop privileges from root; with -u the container already runs as that user
+if [ -n "$COJEDZIE_RUNAS" ] && [ "$(id -u)" = 0 ]; then
     exec su-exec "$COJEDZIE_RUNAS" tini -- "$@"
 else
     exec tini -- "$@"
