@@ -102,7 +102,7 @@ services:
     <<: *front
     environment:
       - COJEDZIE_MODE=development
-      - COJEDZIE_API=http://nginx/api
+      - COJEDZIE_API=http://nginx
       - COJEDZIE_API_HUB=http://cojedzie.localhost
       - COJEDZIE_MAPTILER_KEY
     volumes:
