@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-29
 - **Applies to:** `api/src/Schedule/**`, `api/config/services.yaml`, consumers of schedule times (e.g.
-  `api/src/MessageHandler/UpdateDataSourcesMessageHandler.php`), `build/**`, `docker-compose*.yml`
+  `api/src/MessageHandler/UpdateDataSourcesMessageHandler.php`), `api/Dockerfile`, `worker/**`, `standalone/**`, `docker-bake.hcl`, `docker-compose*.yml`
 
 ## Context
 

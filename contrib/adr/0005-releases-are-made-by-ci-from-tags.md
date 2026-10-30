@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-26
-- **Applies to:** `.github/workflows/**`, `.utils/build-images.sh`, `.utils/release-notes.sh`, version metadata in
+- **Applies to:** `.github/workflows/**`, `docker-bake.hcl`, `contrib/release-notes.sh`, version metadata in
   `api/composer.json` and `front/package.json`
 
 ## Context
@@ -36,7 +36,7 @@ We will release with the `Release` workflow (option 3), started manually with a 
   is committed to `composer.json`, `package.json` or a changelog file.
 - Images are built by CI only, all images and variants, tagged `YYYY.N.P`, `YYYY.N` and `latest`, and pushed
   to registry.kadet.net and Docker Hub.
-- Release notes are generated from Conventional Commits (`.utils/release-notes.sh`) into the GitHub Release.
+- Release notes are generated from Conventional Commits (`contrib/release-notes.sh`) into the GitHub Release.
 - Production is deployed by the workflow in the `production` environment, which requires approval, with every
   image pinned by digest. `next` is deployed the same way from every `master` push, building only the images
   it runs.

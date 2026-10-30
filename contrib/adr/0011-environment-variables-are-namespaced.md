@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-10-29
 - **Applies to:** `api/config/**`, `api/src/**` (`#[Autowire(env: …)]`, `$_ENV`/`$_SERVER`), `api/.env`, `front/server/**`,
-  `front/src/**`, `build/**`, `api/bin/**`, `docker-compose*.yml`, `Taskfile.yml`
+  `front/src/**`, `api/Dockerfile`, `worker/**`, `standalone/**`, `front/Dockerfile`, `docker-bake.hcl`, `api/bin/**`, `docker-compose*.yml`, `Taskfile.yml`
 
 ## Context
 
