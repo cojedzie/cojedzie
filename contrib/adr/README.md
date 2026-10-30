@@ -47,6 +47,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0010](0010-stale-imported-data-is-collected-after-a-retention-period.md) | Stale imported data is collected after a retention period | Accepted |
 | [0011](0011-environment-variables-are-namespaced.md) | Environment variables controlling the app are namespaced | Accepted |
 | [0012](0012-images-are-built-with-bake-from-per-service-dockerfiles.md) | Images are built with bake from per-service Dockerfiles | Accepted |
+| [0013](0013-frontend-state-in-pinia-saved-through-user-state-storage.md) | Frontend state lives in Pinia, saved through `UserStateStorage` | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 

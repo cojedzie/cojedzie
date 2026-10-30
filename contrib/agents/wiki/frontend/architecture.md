@@ -1,7 +1,7 @@
 # Frontend architecture (`front/`)
 
-Vue 3 (mix of `vue-class-component`/`vue-property-decorator` class components and `<script setup>` components),
-Pinia, vue-router, Leaflet + mapbox-gl maps, Bootstrap + Sass, built with Vite into `front/build/public`.
+Vue 3 (every component is `<script setup lang="ts">`), Pinia, vue-router, Leaflet + mapbox-gl maps, Bootstrap +
+Sass, built with Vite into `front/build/public`.
 Path alias `@/` → `front/src/`.
 
 ## Serving
@@ -23,11 +23,10 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 
 - `src/api` — typed endpoint map (`endpoints.ts`), HTTP / static / load-balanced clients, load balancer
   (see [API nodes and load balancing](#api-nodes-and-load-balancing)).
-- `src/stores` — Pinia setup stores (`selection`, `departures`, `messages`, `favourites`, `history`, `network`,
-  `departures-settings`, `messages-settings`); `fetching.ts` holds the fetching state shared by `departures` and
-  `messages`. `stores/persistence` saves stores (local or session storage, each under its own key) and runs the
-  migrations of saved state, which still read the legacy `vuex` key. `app.ts` binds the API client context to the
-  `network` and `selection` stores and awaits every saved store's `$hydrated` before mounting.
+- `src/stores` — Pinia setup stores and the persistence layer, see [State](#state-stores-and-persistence).
+- `src/composables` — shared logic of components (`useRemoved`, `useIsTouch`, `useService`, `useAppConfig`, ...).
+  Nothing is registered globally on the app except directives: those in `src/filters.ts`, and `dragscroll` (from
+  `vue-dragscroll`) registered in `src/app.ts`. Components are imported where they are used.
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
@@ -52,8 +51,69 @@ runs Vitest. CI runs the same scripts in the `test-front` job, which the Release
 The type check needs the FontAwesome Pro packages in `resources/fontawesome` (fetched in CI by
 `.github/actions/fontawesome`).
 
-Vite does not type check, so a broken type only shows up in these checks. Members of class components that a
-template uses must be public: `vue-tsc` checks templates against the class.
+Vite does not type check, so a broken type only shows up in these checks (`vue-tsc` 3 also checks templates).
+
+## State: stores and persistence
+
+State lives in Pinia **setup stores** (`defineStore("id", () => {...})`) in `src/stores`. Components use them through
+`useXxxStore()` and `storeToRefs`. Ids: `favourites`, `departures-settings`, `messages-settings`, `history`,
+`selection`, `network`, `departures`, `messages`. `fetching.ts` holds the fetching state shared by `departures` and
+`messages`.
+
+The API client (`src/api/client/shared.ts`) is store-free. It reaches the network and provider state through
+`bindClientContext` (`src/api/context.ts`); binding triggers one node update. Importing the client creates no store.
+
+### Persistence (`src/stores/persistence`)
+
+- `storage.ts`: `UserStateStorage` (`load` / `save` / `remove`, all async, JSON values, `load` returns a copy).
+- `browser.ts` `BrowserStorage` (over `localStorage` / `sessionStorage`) and `memory.ts` `MemoryStorage` (tests).
+- `storages.ts`: `storages.local` and `storages.session`, which touch `window` on first use. `replaceStorages()`
+  swaps them in tests.
+- `plugin.ts`: `persistence()` Pinia plugin. A store opts in with `persist: { key, storage, pick?, restore? }` and
+  gets `$hydrated`, a promise that resolves once the saved state is applied (default `pick` is the whole state,
+  default `restore` is `$patch(saved)`). Saving is debounced (500 ms) and starts only after loading succeeded; a
+  failed load is logged and leaves that store unsaved for the session, so defaults never overwrite unreadable
+  data. Pending saves are flushed when the page gets hidden (`flushPersistence()`).
+- `migrations.ts`: key-agnostic runner over a `UserStateStorage`. Applied names are kept in
+  `localStorage["migrations"]`, recorded only after a migration succeeds. A failure stops the runner, goes to
+  Sentry, and the app still starts. Migrations run before the client context is bound, so an API request in one
+  passes bound params like `provider` itself, and sets a low `maxRetries` so a failure doesn't hold up startup (the
+  balanced client otherwise retries for about 30 s). A migration may reach `storages.session` too (the old
+  `sessionStorage["vuex"]` is removed that way).
+
+Saved keys: `favourites`, `departures-settings`, `messages-settings`, `history` in `localStorage`; `selection` in
+`sessionStorage`. `test/stores/persistence/format.test.ts` pins the exact JSON of each.
+
+### Startup order (`src/app.ts`)
+
+1. Create Pinia with `persistence()`.
+2. `migrate(...)` over a `BrowserStorage(localStorage)` (before any store exists).
+3. Bind the client context to the `network` and `selection` stores.
+4. Create the saved stores and await their `$hydrated`.
+5. Mount.
+
+### How to add
+
+- **A store**: `src/stores/<id>.ts` with `defineStore("<id>", () => ...)`, state as refs, getters as computeds,
+  actions as functions; add `test/stores/<id>.test.ts` with a fresh `createPinia()`.
+- **A saved store**: pass `persist: { key, storage: storages.local | storages.session }` in the store options
+  (third argument of `defineStore`), use `pick` / `restore` when the saved shape differs from the state (e.g.
+  dates), add the store to the awaited list in `app.ts` and its key to `format.test.ts`. Stores never touch
+  `localStorage` directly.
+- **A storage backend**: implement `UserStateStorage` and run `describeUserStateStorage` from
+  `test/stores/persistence/storage.contract.ts` against it (see `browser.test.ts`). The backend must pass the
+  whole contract.
+- **A migration**: append `{ name: "<yyyymmddhhmm>_<what>", up(storage) }` to `migrations` in `migrations.ts`
+  (never reorder or edit applied ones) and cover it in `migrations.test.ts`. Any change to a saved shape needs one,
+  and an update of `format.test.ts`.
+
+### Component tests
+
+Vitest with `// @vitest-environment happy-dom` and `@vue/test-utils`, in `test/components/**` and `test/pages/**`.
+Create a store with `createPinia()` + `setActivePinia()`, set up the state through the store, and mount with
+`global.plugins: [pinia]`. Stub icons and library wrappers (`stubs: { UiIcon: true }`, maps, popper). Assert on what
+is rendered, what is emitted and which store state changes. For saved stores, use `replaceStorages` with
+`MemoryStorage` instead of the browser. API calls are stubbed at the client level (see `test/api/client.test.ts`).
 
 ## API nodes and load balancing
 
