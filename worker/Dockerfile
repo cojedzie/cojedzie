@@ -1,7 +1,4 @@
-ARG BASE_VERSION=latest
-ARG REGISTRY=docker.io
-
-FROM $REGISTRY/cojedzie/base:${BASE_VERSION}-cli
+FROM api
 
 RUN apk add supervisor gettext && \
     { \
