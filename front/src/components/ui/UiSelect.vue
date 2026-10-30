@@ -46,10 +46,9 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { ref, reactive, PropType } from "vue";
+import { ref, PropType } from "vue";
 import { onClickOutside } from "@vueuse/core";
-import { usePopper } from "@/composables/usePopper";
-import { Placement } from "popper.js";
+import { FloatingPlacement, useFloating } from "@/composables/useFloating";
 import UiIcon from "@/components/ui/UiIcon.vue";
 
 const props = defineProps({
@@ -69,7 +68,7 @@ const props = defineProps({
         required: true,
     },
     placement: {
-        type: String as PropType<Placement>,
+        type: String as PropType<FloatingPlacement>,
         default: "bottom-start",
     },
 });
@@ -90,13 +89,7 @@ defineSlots<{
 const optionsPopupElement = ref<HTMLElement>(null);
 const controlElement = ref<HTMLElement>(null);
 
-usePopper(
-    controlElement,
-    optionsPopupElement,
-    reactive({
-        placement: props.placement,
-    }),
-);
+useFloating(controlElement, optionsPopupElement, { placement: props.placement });
 
 onClickOutside(optionsPopupElement, () => {
     close();

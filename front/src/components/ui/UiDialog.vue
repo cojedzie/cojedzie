@@ -60,7 +60,6 @@ let openModalCounter = 0;
 </script>
 
 <script lang="ts" setup>
-import Popper, { Placement } from "popper.js";
 import {
     computed,
     ComponentInternalInstance,
@@ -70,7 +69,6 @@ import {
     onBeforeUnmount,
     onDeactivated,
     onMounted,
-    onUpdated,
     PropType,
     ref,
     useSlots,
@@ -78,6 +76,7 @@ import {
 } from "vue";
 import { defaultBreakpoints } from "@/filters";
 import { useRemoved } from "@/composables/useRemoved";
+import { FloatingOptions, FloatingPlacement, positionFloating } from "@/composables/useFloating";
 
 defineOptions({
     name: "UiDialog",
@@ -89,10 +88,10 @@ const props = defineProps({
     mobileBehaviour: { type: String as PropType<DialogBehaviour> },
     reference: { type: [String, HTMLElement] as PropType<string | HTMLElement> },
     refs: { type: Object as PropType<Record<string, HTMLElement>> },
-    placement: { type: String as PropType<Placement>, default: "auto" },
+    placement: { type: String as PropType<FloatingPlacement>, default: "auto" },
     arrow: { type: Boolean },
     responsive: { type: Boolean, default: true },
-    offset: { type: String, default: null },
+    offset: { type: Object as PropType<FloatingOptions["offset"]>, default: null },
     title: { type: String },
 });
 
@@ -117,7 +116,7 @@ const isMobile = ref(false);
 const zIndex = ref(1000);
 
 let focusOutEvent: ((event: MouseEvent) => void) | undefined;
-let popper: Popper | null = null;
+let stopPositioning: (() => void) | null = null;
 
 function computeZIndexOfElement(element: HTMLElement): number {
     let current = element;
@@ -222,43 +221,27 @@ function dismountModal() {
     }
 }
 
-function mountPopper() {
-    popper = new Popper(getReferenceElement(), root.value, {
-        placement: props.placement,
-        modifiers: {
-            arrow: { enabled: props.arrow, element: arrowElement.value },
-            offset: {
-                enabled: !!props.offset,
-                offset: props.offset,
-            },
-            responsive: {
-                enabled: props.responsive,
-                order: 890,
-                fn(data) {
-                    if (window.innerWidth < 560) {
-                        data.instance.options.placement = "top";
-                        data.styles.transform = `translate3d(0, ${data.offsets.popper.top}px, 0)`;
-                        data.styles.right = "0";
-                        data.styles.left = "0";
-                        data.styles.width = "auto";
-                        data.arrowStyles.left = `${data.offsets.popper.left + data.offsets.arrow.left}px`;
-                    }
+function mountPopup() {
+    // the arrow sticks out of the popup, so keep the popup that far from the reference
+    const arrowSize = props.arrow
+        ? parseFloat(getComputedStyle(root.value).getPropertyValue("--ui-popup-arrow-size")) || 0
+        : 0;
 
-                    return data;
-                },
-            },
-        },
+    stopPositioning = positionFloating(getReferenceElement(), root.value, {
+        placement: props.placement,
+        arrow: props.arrow ? arrowElement.value : undefined,
+        offset: { mainAxis: (props.offset?.mainAxis ?? 0) + arrowSize, crossAxis: props.offset?.crossAxis ?? 0 },
+        responsive: props.responsive,
     });
 
     nextTick(() => {
-        popper?.update();
         document.addEventListener("click", (focusOutEvent = focusOut), { capture: true });
     });
 }
 
-function removePopper() {
-    popper?.destroy();
-    popper = null;
+function removePopup() {
+    stopPositioning?.();
+    stopPositioning = null;
 }
 
 function activate() {
@@ -296,7 +279,7 @@ onMounted(() => {
     handleWindowResize();
 
     if (props.behaviour === "popup") {
-        mountPopper();
+        mountPopup();
     }
 
     window.addEventListener("resize", handleWindowResize);
@@ -306,8 +289,6 @@ onMounted(() => {
 
 onActivated(activate);
 onDeactivated(deactivate);
-
-onUpdated(() => popper?.update());
 
 onBeforeUnmount(() => {
     window.removeEventListener("resize", handleWindowResize);
@@ -319,15 +300,15 @@ onBeforeUnmount(() => {
     deactivate();
 });
 
-useRemoved(root, removePopper);
+useRemoved(root, removePopup);
 
 watch(currentBehaviour, (newBehaviour, oldBehaviour) => {
     if (oldBehaviour === "popup") {
-        removePopper();
+        removePopup();
     }
 
     if (newBehaviour === "popup") {
-        nextTick(mountPopper);
+        nextTick(mountPopup);
     }
 
     if (newBehaviour === "modal") {

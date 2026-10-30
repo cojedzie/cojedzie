@@ -78,9 +78,9 @@
   $arrow-color: white;
   $arrow-border: rgba(black, 0.2);
 
-  $popper-padding: 0.75rem;
+  $popup-padding: 0.75rem;
 
-  padding: $popper-padding;
+  padding: $popup-padding;
   background: white;
   //border: 1px solid black;
   z-index: 1000;
@@ -125,9 +125,7 @@
       bottom: top,
     );
 
-    &[x-placement*="#{$placement}"] {
-      margin-#{map-get($opposite, $placement)}: $arrow-base;
-
+    &[data-placement^="#{$placement}"] {
       .ui-popup__arrow {
         #{map-get($opposite, $placement)}: 0;
         @include triangle(map-get($opposite, $placement), $arrow-base, $arrow-color, $arrow-border);
@@ -142,7 +140,10 @@
     @include placement("bottom");
   }
 
+  // UiDialog keeps the popup this far from its reference, to make room for the arrow
   &.ui-popup--arrow {
+    --ui-popup-arrow-size: #{$arrow-base};
+
     @include arrows;
   }
 
@@ -160,6 +161,8 @@
       $arrow-border: none;
       $arrow-base: 6px;
 
+      --ui-popup-arrow-size: #{$arrow-base};
+
       @include arrows;
 
       .ui-popup__arrow::before {
@@ -169,9 +172,8 @@
   }
 }
 
-@include media-breakpoint-down("sm") {
-  .ui-popup {
-    margin-left: $spacer;
-    margin-right: $spacer;
-  }
+// spans the page width on narrow screens, see positionFloating()
+.ui-popup[data-narrow] {
+  margin-left: $spacer;
+  margin-right: $spacer;
 }

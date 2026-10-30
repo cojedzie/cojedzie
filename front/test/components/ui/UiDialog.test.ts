@@ -4,19 +4,14 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { mount } from "@vue/test-utils";
 import UiDialog from "@/components/ui/UiDialog.vue";
 
-const popperInstances: { reference: unknown; element: unknown; destroy: () => void; update: () => void }[] = [];
+const positioned: { reference: unknown; floating: unknown; stop: () => void }[] = [];
 
-vi.mock("popper.js", () => ({
-    default: class {
-        destroy = vi.fn();
-        update = vi.fn();
-
-        constructor(
-            public reference: unknown,
-            public element: unknown,
-        ) {
-            popperInstances.push(this);
-        }
+vi.mock("@floating-ui/dom", async importOriginal => ({
+    ...(await importOriginal<typeof import("@floating-ui/dom")>()),
+    autoUpdate: (reference: unknown, floating: unknown) => {
+        const stop = vi.fn();
+        positioned.push({ reference, floating, stop });
+        return stop;
     },
 }));
 
@@ -24,7 +19,7 @@ const stubs = { UiIcon: true };
 let reference: HTMLElement;
 
 beforeEach(() => {
-    popperInstances.length = 0;
+    positioned.length = 0;
     reference = document.createElement("button");
     document.body.appendChild(reference);
 });
@@ -114,19 +109,19 @@ describe("UiDialog", () => {
         expect(full.find(".ui-popup__footer").text()).toBe("Footer");
     });
 
-    it("destroys its popper when the reference element disappears with it", async () => {
+    it("stops positioning itself when the reference element disappears with it", async () => {
         const open = ref(true);
         const Host = defineComponent({
             setup: () => () => (open.value ? h(UiDialog, { reference }) : null),
         });
 
         const wrapper = mount(Host, { attachTo: document.body, global: { stubs } });
-        expect(popperInstances).toHaveLength(1);
+        expect(positioned).toHaveLength(1);
 
         open.value = false;
         await nextTick();
 
-        expect(popperInstances[0].destroy).toHaveBeenCalled();
+        expect(positioned[0].stop).toHaveBeenCalled();
         wrapper.unmount();
     });
 });

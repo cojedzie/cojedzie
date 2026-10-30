@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts">
-import Popper from "popper.js";
 import { Ref } from "vue";
 import UiDialog from "@/components/ui/UiDialog.vue";
+import { FloatingPlacement } from "@/composables/useFloating";
 
-export type UiTooltipPlacement = Popper.Placement;
+export type UiTooltipPlacement = FloatingPlacement;
 export type UiTooltipTrigger = "hover" | "focus" | "long-press";
 
 export const openedTooltips = new Set<{ show: Ref<boolean> }>();
