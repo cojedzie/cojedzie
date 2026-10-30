@@ -24,12 +24,6 @@ import { createStore, State } from "@/store/initializer";
 export const Departures = namespace("departures");
 export const Messages = namespace("messages");
 
-const localStoragePersist =
-    typeof window !== "undefined" &&
-    new VuexPersistence<State>({
-        modules: [],
-    });
-
 const sessionStoragePersist =
     typeof window !== "undefined" &&
     new VuexPersistence<State>({
@@ -38,7 +32,7 @@ const sessionStoragePersist =
     });
 
 export const store = createStore({
-    plugins: typeof window !== "undefined" ? [localStoragePersist.plugin, sessionStoragePersist.plugin] : [],
+    plugins: typeof window !== "undefined" ? [sessionStoragePersist.plugin] : [],
 });
 
 export default store;

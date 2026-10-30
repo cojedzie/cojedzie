@@ -69,8 +69,14 @@ Vue.registerHooks(["removed"]);
 
 // async dependencies
 (async function () {
+    // Pinia has to be active before the stores are created
+    const pinia = createPinia();
+    pinia.use(persistence());
+    app.use(pinia);
+
     const { migrate } = await import("./stores/persistence/migrations");
     await migrate(new BrowserStorage(window.localStorage));
+
     const { default: store } = await import("./store");
     const { bindClientContext } = await import("@/api/context");
     bindClientContext({
@@ -82,12 +88,22 @@ Vue.registerHooks(["removed"]);
         provider: () => store.state.provider?.id,
     });
 
-    const pinia = createPinia();
-    pinia.use(persistence());
-
     app.use(store);
-    app.use(pinia);
     app.use(container);
+
+    // saved stores load from the migrated keys, the app must not render with their defaults
+    const [{ useFavouritesStore }, { useDeparturesSettingsStore }, { useMessagesSettingsStore }, { useHistoryStore }] =
+        await Promise.all([
+            import("@/stores/favourites"),
+            import("@/stores/departures-settings"),
+            import("@/stores/messages-settings"),
+            import("@/stores/history"),
+        ]);
+    await Promise.all(
+        [useFavouritesStore, useDeparturesSettingsStore, useMessagesSettingsStore, useHistoryStore].map(
+            use => use(pinia).$hydrated,
+        ),
+    );
 
     // todo figure out better way
     const fragment = document.createDocumentFragment();
