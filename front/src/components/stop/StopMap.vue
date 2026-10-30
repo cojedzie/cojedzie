@@ -6,26 +6,22 @@
     </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { PropType } from "vue";
 import { getStopType, LineType, Stop } from "@/model";
-import { defineComponent, PropType } from "vue";
 import StopPin from "@/components/stop/StopPin.vue";
 
-export default defineComponent({
-    name: "StopMap",
-    components: {
-        StopPin,
+defineOptions({ name: "StopMap" });
+
+defineProps({
+    stop: {
+        type: Object as PropType<Stop>,
+        required: true,
     },
-    props: {
-        stop: {
-            type: Object as PropType<Stop>,
-            required: true,
-        },
-        type: {
-            type: String as PropType<LineType>,
-            required: false,
-            default: ({ stop }) => getStopType(stop),
-        },
+    type: {
+        type: String as PropType<LineType>,
+        required: false,
+        default: ({ stop }: { stop: Stop }) => getStopType(stop),
     },
 });
 </script>

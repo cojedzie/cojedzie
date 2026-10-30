@@ -4,21 +4,22 @@
     </keep-alive>
 </template>
 
-<script lang="ts">
-import { Prop, Watch } from "vue-property-decorator";
-import { Options, Vue } from "vue-class-component";
+<script lang="ts" setup>
+import { ref, watch } from "vue";
 
-@Options({ name: "Lazy" })
-export class Lazy extends Vue {
-    @Prop(Boolean)
-    public activate: boolean;
-    visible: boolean = false;
+// eslint-disable-next-line vue/multi-word-component-names
+defineOptions({ name: "Lazy" });
 
-    @Watch("activate")
-    private onVisibilityChange(value, old) {
-        this.visible = value || old;
-    }
-}
+const props = defineProps({
+    activate: Boolean,
+});
 
-export default Lazy;
+const visible = ref(false);
+
+watch(
+    () => props.activate,
+    (value, old) => {
+        visible.value = value || old;
+    },
+);
 </script>

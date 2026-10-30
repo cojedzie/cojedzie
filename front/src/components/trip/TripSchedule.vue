@@ -19,35 +19,44 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { Prop } from "vue-property-decorator";
+<script lang="ts" setup>
+import { computed, onMounted, PropType, useTemplateRef } from "vue";
 import { ScheduledStop } from "@/model/trip";
 import { Stop } from "@/model";
 import moment from "moment";
 
 type ScheduledStopInfo = ScheduledStop & { visited: boolean; current: boolean };
 
-@Options({ name: "TripSchedule" })
-export default class TripSchedule extends Vue {
-    @Prop(Array) public schedule: ScheduledStop[];
-    @Prop(Object) public current: Stop;
+defineOptions({ name: "TripSchedule" });
 
-    get stops(): ScheduledStopInfo[] {
-        return this.schedule.map(stop => ({
-            ...stop,
-            current: stop.stop.id == this.current.id,
-            visited: moment().isAfter(stop.departure),
-        }));
-    }
+const props = defineProps({
+    schedule: {
+        type: Array as PropType<ScheduledStop[]>,
+        required: true,
+    },
+    current: {
+        type: Object as PropType<Stop>,
+        required: true,
+    },
+});
 
-    mounted() {
-        const list = this.$refs["stops"] as HTMLUListElement;
-        const current = list.querySelector(".trip__stop--current") as HTMLLIElement;
+const list = useTemplateRef<HTMLOListElement>("stops");
 
-        if (!current) return;
+const stops = computed<ScheduledStopInfo[]>(() =>
+    props.schedule.map(stop => ({
+        ...stop,
+        current: stop.stop.id == props.current.id,
+        visited: moment().isAfter(stop.departure),
+    })),
+);
 
-        list.scrollLeft = current.offsetLeft - (list.clientWidth + current.clientWidth) / 2;
-    }
-}
+const scrollToCurrent = () => {
+    const current = list.value?.querySelector<HTMLLIElement>(".trip__stop--current");
+
+    if (!list.value || !current) return;
+
+    list.value.scrollLeft = current.offsetLeft - (list.value.clientWidth + current.clientWidth) / 2;
+};
+
+onMounted(scrollToCurrent);
 </script>
