@@ -31,7 +31,11 @@
                         <ui-icon icon="info" />
                     </button>
 
-                    <button ref="action-map" v-hover:map class="btn btn-action">
+                    <button
+                        ref="action-map"
+                        v-hover="(hovered: boolean) => (mapButtonHovered = hovered)"
+                        class="btn btn-action"
+                    >
                         <ui-icon icon="map" />
                     </button>
                 </slot>
@@ -46,7 +50,7 @@
         <keep-alive>
             <ui-dialog
                 v-if="showMap"
-                v-hover:inMap
+                v-hover="(hovered: boolean) => (mapHovered = hovered)"
                 reference="action-map"
                 arrow
                 class="ui-popup--no-padding"
@@ -59,56 +63,49 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { Prop } from "vue-property-decorator";
-import { Line, StopWithDestinations as Stop } from "@/model";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import type { Line, StopWithDestinations as Stop } from "@/model";
 import { match, unique } from "@/utils";
 import StopDetailsDialog from "@/components/stop/StopDetailsDialog.vue";
 
-@Options({ name: "StopPickerEntry", components: { StopDetailsDialog } })
-export default class StopPickerEntry extends Vue {
-    @Prop(Object)
-    public stop: Stop;
+defineOptions({ name: "StopPickerEntry" });
 
-    details: boolean = false;
-    map: boolean = false;
-    inMap: boolean = false;
+const props = defineProps<{ stop: Stop }>();
 
-    get showMap() {
-        return this.inMap || this.map;
-    }
+const details = ref(false);
+const mapButtonHovered = ref(false);
+const mapHovered = ref(false);
 
-    get destinations() {
-        const compactLines = destination => ({
-            ...destination,
-            lines: Object.entries(groupLinesByType(destination.lines || [])).map(([type, lines]) => ({
-                type: type,
-                symbol: joinedSymbol(lines),
-                night: lines.every(line => line.night),
-                fast: lines.every(line => line.fast),
-            })),
-            all: destination.lines,
-        });
+const showMap = computed(() => mapHovered.value || mapButtonHovered.value);
 
-        const groupLinesByType = (lines: Line[]) =>
-            lines.reduce<{ [kind: string]: Line[] }>(
-                (groups, line) => ({
-                    ...groups,
-                    [line.type]: [...(groups[line.type] || []), line],
-                }),
-                {},
-            );
+const groupLinesByType = (lines: Line[]) =>
+    lines.reduce<{ [kind: string]: Line[] }>(
+        (groups, line) => ({
+            ...groups,
+            [line.type]: [...(groups[line.type] || []), line],
+        }),
+        {},
+    );
 
-        const joinedSymbol = match<string, [Line[]]>(
-            [lines => lines.length === 1, lines => lines[0].symbol],
-            [lines => lines.length === 2, ([first, second]) => `${first.symbol}, ${second.symbol}`],
-            [lines => lines.length > 2, ([first]) => `${first.symbol}…`],
-        );
+const joinedSymbol = match<string, [Line[]]>(
+    [lines => lines.length === 1, lines => lines[0].symbol],
+    [lines => lines.length === 2, ([first, second]) => `${first.symbol}, ${second.symbol}`],
+    [lines => lines.length > 2, ([first]) => `${first.symbol}…`],
+);
 
-        return unique(this.stop.destinations || [], destination => destination.stop && destination.stop.name).map(
-            compactLines,
-        );
-    }
-}
+const compactLines = destination => ({
+    ...destination,
+    lines: Object.entries(groupLinesByType(destination.lines || [])).map(([type, lines]) => ({
+        type: type,
+        symbol: joinedSymbol(lines),
+        night: lines.every(line => line.night),
+        fast: lines.every(line => line.fast),
+    })),
+    all: destination.lines,
+});
+
+const destinations = computed(() =>
+    unique(props.stop.destinations || [], destination => destination.stop && destination.stop.name).map(compactLines),
+);
 </script>

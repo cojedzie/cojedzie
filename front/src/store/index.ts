@@ -23,12 +23,11 @@ import { createStore, State } from "@/store/initializer";
 
 export const Departures = namespace("departures");
 export const Messages = namespace("messages");
-export const History = namespace("history");
 
 const localStoragePersist =
     typeof window !== "undefined" &&
     new VuexPersistence<State>({
-        modules: ["history"],
+        modules: [],
     });
 
 const sessionStoragePersist =

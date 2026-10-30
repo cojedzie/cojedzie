@@ -12,21 +12,19 @@
     </ul>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import { History } from "@/store";
-import { HistoryEntry } from "@/store/modules/history";
-import { Mutation } from "vuex-class";
-import { Stop } from "@/model";
+<script setup lang="ts">
+import { useStore } from "vuex";
+import { storeToRefs } from "pinia";
+import type { Stop } from "@/model";
+import { useHistoryStore } from "@/stores/history";
 import StopPickerEntry from "./StopPickerEntry.vue";
 
-@Options({
-    name: "StopPickerHistory",
-    components: { StopPickerEntry },
-})
-export default class StopPickerHistory extends Vue {
-    @History.Getter all: HistoryEntry[];
+defineOptions({ name: "StopPickerHistory" });
 
-    @Mutation("add") select: (stop: Stop) => void;
+const vuex = useStore();
+const { all } = storeToRefs(useHistoryStore());
+
+function select(stop: Stop) {
+    vuex.commit("add", stop);
 }
 </script>
