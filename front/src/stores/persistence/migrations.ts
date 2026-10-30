@@ -38,7 +38,14 @@ export const migrations: Migration[] = [
                 return;
             }
 
-            const ids = state.favourites.favourites.flatMap(favourite => favourite.state.stops).filter(distinct);
+            const ids = state.favourites.favourites
+                .flatMap(favourite => (favourite.stops ? [] : (favourite.state?.stops ?? [])))
+                .filter(distinct);
+
+            if (!ids.length) {
+                return;
+            }
+
             const stops = await api.get("v1_stop_list", {
                 // migrations run before the client context is bound, and ZTM Gdańsk was the only provider then
                 params: { provider: "trojmiasto" },
@@ -61,10 +68,28 @@ export const migrations: Migration[] = [
                     favourites: state.favourites.favourites.map(favourite => ({
                         id: favourite.id || uuid.v4(),
                         name: favourite.name,
-                        stops: favourite.stops || favourite.state.stops.map(id => lookup[id]).filter(distinct),
+                        stops: favourite.stops || (favourite.state?.stops ?? []).map(id => lookup[id]).filter(Boolean),
                     })),
                 },
             });
+        },
+    },
+    {
+        name: "202610301200_split_vuex_key",
+        up: async storage => {
+            const state = await storage.load<Record<string, unknown>>("vuex");
+
+            if (!state) {
+                return;
+            }
+
+            // a key written by an intermediate build is overwritten, the data in `vuex` is the one users had
+            const parts = ["favourites", "departures-settings", "messages-settings", "history"];
+            await Promise.all(
+                parts.filter(part => state[part] !== undefined).map(part => storage.save(part, state[part])),
+            );
+
+            await storage.remove("vuex");
         },
     },
 ];
