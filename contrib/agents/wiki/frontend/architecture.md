@@ -30,6 +30,14 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
+- `src/icons.ts` + `components/ui/UiIcon.vue` — icons, see ADR 0015. Templates use names (`<ui-icon icon="refresh">`),
+  the registry maps them to `@tabler/icons-vue` components, or to the transport icons in `resources/icons/light`:
+  single filled paths on a 512×512 canvas, turned into a path string by `src/svg-icon-loader.ts` and wrapped with
+  `custom()`. An entry is `simple` (optionally `spin`, `fixedWidth`) or `stacked`: layers placed with `scale` and
+  `x`/`y` in em, for combinations Tabler lacks. `UiIcon` sizes icons to 1em and crops Tabler's 2px padding off the
+  view box (`2 2 20 20`) so they fill the icon like our own; those ignore that attribute, because
+  functional components without declared props only inherit class, style and listeners. The Storybook `Ui/Icon`
+  page shows the whole catalog.
 - `src/stories` + `.storybook` — Storybook, served at http://storybook.cojedzie.localhost through nginx in docker
   (`nginx/storybook.conf`; also published on port 6006). It gets its own host because Storybook injects preview
   scripts at root paths that ignore a Vite `base`, so it can't live under a path of the app's host. The `storybook`
@@ -82,8 +90,6 @@ Gotchas:
 `task lint:front` runs `yarn check:format` (Prettier), `yarn lint` (ESLint, errors fail, warnings don't) and
 `yarn check:types` (`vue-tsc` for the app including `.vue` templates, plain `tsc` for `server/`); `task test:front`
 runs Vitest. CI runs the same scripts in the `test-front` job, which the Release workflow requires next to `test`.
-The type check needs the FontAwesome Pro packages in `resources/fontawesome` (fetched in CI by
-`.github/actions/fontawesome`).
 
 Vite does not type check, so a broken type only shows up in these checks (`vue-tsc` 3 also checks templates).
 

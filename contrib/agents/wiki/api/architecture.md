@@ -143,5 +143,3 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
 - The dev stack (`docker-compose.yml`, commands in `AGENTS.md`) builds the `dev` targets and bind-mounts `api/` and
   `front/`. `api-setup` and `front-setup` install dependencies before the other services start. The `dev` image's
   `dev-server` picks php-fpm or RoadRunner from `COJEDZIE_DEV_SERVER`.
-- FontAwesome Pro packages are not downloadable by the build: put them in `front/resources/fontawesome` by hand
-  (CI uses `.github/actions/fontawesome`).
