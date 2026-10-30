@@ -71,26 +71,13 @@
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import store, { MessagesSettings } from "@/store";
-import { MessagesSettingsState } from "@/store/modules/settings/messages";
+<script setup lang="ts">
+import { storeToRefs } from "pinia";
+import { useMessagesSettingsStore } from "@/stores/messages-settings";
 
-@Options({
-    name: "SettingsMessages",
-    store,
-})
-export default class SettingsMessages extends Vue {
-    @MessagesSettings.State
-    public autorefresh: boolean;
+defineOptions({ name: "SettingsMessages" });
 
-    @MessagesSettings.State
-    public autorefreshInterval: number;
-
-    @MessagesSettings.State
-    public displayedEntriesCount: number;
-
-    @MessagesSettings.Mutation
-    public update: (state: Partial<MessagesSettingsState>) => void;
-}
+const store = useMessagesSettingsStore();
+const { update } = store;
+const { autorefresh, autorefreshInterval, displayedEntriesCount } = storeToRefs(store);
 </script>

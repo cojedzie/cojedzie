@@ -26,7 +26,8 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import store, { Messages, MessagesSettings } from "@/store";
+import store, { Messages } from "@/store";
+import { useMessagesSettingsStore } from "@/stores/messages-settings";
 import { Message } from "@/model/message";
 import MessagesMessage from "@/components/messages/MessagesMessage.vue";
 
@@ -39,8 +40,9 @@ export default class MessagesList extends Vue {
     @Messages.State("messages")
     public allMessages: Message[];
 
-    @MessagesSettings.State
-    public displayedEntriesCount: number;
+    get displayedEntriesCount(): number {
+        return useMessagesSettingsStore().displayedEntriesCount;
+    }
 
     public showAll: boolean = false;
 

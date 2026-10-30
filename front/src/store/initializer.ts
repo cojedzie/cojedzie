@@ -22,8 +22,6 @@ import { actions, mutations, RootActionTree, RootMutationsTree, RootState, state
 import { supply } from "@/utils";
 import messages, { MessagesState } from "@/store/modules/messages";
 import departures, { DeparturesState } from "@/store/modules/departures";
-import departureSettings, { DeparturesSettingsState } from "@/store/modules/settings/departures";
-import messagesSettings, { MessagesSettingsState } from "@/store/modules/settings/messages";
 import history, { HistoryState } from "@/store/modules/history";
 import network, { NetworkState } from "@/store/modules/network";
 import { Endpoints } from "@/api/endpoints";
@@ -39,8 +37,6 @@ declare module "vuex" {
 export type State = {
     messages: MessagesState;
     departures: DeparturesState;
-    "departures-settings": DeparturesSettingsState;
-    "messages-settings": MessagesSettingsState;
     history: HistoryState;
     network: NetworkState;
 } & RootState;
@@ -58,8 +54,6 @@ export type StoreDefinition = {
     modules: {
         messages: typeof messages;
         departures: typeof departures;
-        "departures-settings": typeof departureSettings;
-        "messages-settings": typeof messagesSettings;
         history: typeof history;
         network: typeof network;
     };
@@ -74,8 +68,6 @@ export function createStore(options?: StoreOptions) {
         modules: {
             messages,
             departures,
-            "departures-settings": departureSettings,
-            "messages-settings": messagesSettings,
             history,
             network,
             ...(options?.modules || {}),

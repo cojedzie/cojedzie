@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Kacper Donat
+ * Copyright (C) 2026 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { supply } from "@/utils";
-import { NamespacedVuexModule, VuexMutationHandler } from "vuex";
+import { defineStore } from "pinia";
+import { reactive, toRefs } from "vue";
+import { storages } from "@/stores/persistence/storages";
 
 export type MessagesSettingsState = {
     autorefresh: boolean;
@@ -26,28 +27,22 @@ export type MessagesSettingsState = {
     displayedEntriesCount?: number;
 };
 
-export enum MessagesSettingsMutations {
-    Update = "update",
-}
+export const useMessagesSettingsStore = defineStore(
+    "messages-settings",
+    () => {
+        const settings = reactive<MessagesSettingsState>({
+            autorefresh: true,
+            autorefreshInterval: 60,
+            displayedEntriesCount: 2,
+        });
 
-export type MessagesSettingsMutationTree = {
-    [MessagesSettingsMutations.Update]: VuexMutationHandler<MessagesSettingsState, Partial<MessagesSettingsState>>;
-};
+        function update(patch: Partial<MessagesSettingsState>) {
+            Object.assign(settings, patch);
+        }
 
-export type MessagesSettingsModule = NamespacedVuexModule<MessagesSettingsState, MessagesSettingsMutationTree>;
-
-const messagesSettings: MessagesSettingsModule = {
-    namespaced: true,
-    state: supply({
-        autorefresh: true,
-        autorefreshInterval: 60,
-        displayedEntriesCount: 2,
-    }),
-    mutations: {
-        [MessagesSettingsMutations.Update](state, patch) {
-            Object.assign(state, patch);
-        },
+        return { ...toRefs(settings), update };
     },
-};
-
-export default messagesSettings;
+    {
+        persist: { key: "messages-settings", storage: storages.local },
+    },
+);
