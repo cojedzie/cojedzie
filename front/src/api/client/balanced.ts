@@ -79,8 +79,10 @@ export class LoadBalancedClient<
         endpoint: TEndpoint,
         options: LoadBalancedRequestOptions<TEndpoints, TEndpoint, TBoundParams>,
     ): Promise<AxiosResponse<EndpointResult<TEndpoints, TEndpoint>>> {
+        const maxRetries = options.maxRetries ?? this.options.maxRetries;
+
         let retry = 0;
-        while (retry < this.options.maxRetries) {
+        while (retry < maxRetries) {
             const definition = await this.balancer.get(endpoint, {
                 require: candidate =>
                     semver.satisfies(semver.coerce(candidate.version), options.version) &&
@@ -126,7 +128,7 @@ export class LoadBalancedClient<
 
                 this.options.onRequestError?.(requestInfo);
 
-                if (retry++ < this.options.maxRetries) {
+                if (retry++ < maxRetries) {
                     await delay(3000 * (retry - 1));
                 } else {
                     this.options.onRequestFailure?.(err, requestInfo);

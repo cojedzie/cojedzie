@@ -27,6 +27,8 @@ export type RequestOptions<TParams extends Record<string, unknown>> = {
     version: string;
     query?: Supplier<string | UrlParams>;
     headers?: Supplier<{ [name: string]: string }>;
+    /** How many times a client that retries failed requests tries this one, overrides the client's default */
+    maxRetries?: number;
 } & (Record<string, unknown> extends TParams ? { params?: Supplier<TParams> } : { params: Supplier<TParams> });
 
 export type BoundRequestOptions<

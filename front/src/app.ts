@@ -23,6 +23,7 @@ import "@styles/main.scss";
 
 import { Store } from "vuex";
 import { createPinia } from "pinia";
+import { BrowserStorage } from "@/stores/persistence/browser";
 import { persistence } from "@/stores/persistence/plugin";
 import { dragscrollNext } from "vue-dragscroll";
 import { StoreDefinition } from "@/store/initializer";
@@ -68,8 +69,8 @@ Vue.registerHooks(["removed"]);
 
 // async dependencies
 (async function () {
-    const { migrate } = await import("./store/migrations");
-    await migrate("vuex");
+    const { migrate } = await import("./stores/persistence/migrations");
+    await migrate(new BrowserStorage(window.localStorage));
     const { default: store } = await import("./store");
     const { bindClientContext } = await import("@/api/context");
     bindClientContext({
