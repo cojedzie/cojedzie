@@ -24,9 +24,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-class ProgressReporterFactory implements EventSubscriberInterface
+class ProgressReporterFactory
 {
     private ?ConsoleOutputInterface $output = null;
     private bool $isMessageConsumer         = false;
@@ -46,14 +46,7 @@ class ProgressReporterFactory implements EventSubscriberInterface
         return new LoggerProgressReporter($this->logger);
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            ConsoleEvents::COMMAND => 'handleConsoleCommandEvent',
-        ];
-    }
-
+    #[AsEventListener(event: ConsoleEvents::COMMAND)]
     public function handleConsoleCommandEvent(ConsoleCommandEvent $event)
     {
         if ($event->getOutput() instanceof ConsoleOutputInterface) {
