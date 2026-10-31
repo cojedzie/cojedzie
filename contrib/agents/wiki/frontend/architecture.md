@@ -6,7 +6,7 @@ Path alias `@/` → `front/src/`.
 
 ## Serving
 
-`front/server/server.ts` is an Express server (compiled with `yarn build:server` to `build/server/server.js`).
+`front/server/server.ts` is an Express server (compiled with `npm run build:server` to `build/server/server.js`).
 It renders the HTML shell (EJS views in `resources/views`), injects runtime config from env
 (`COJEDZIE_API`, `COJEDZIE_API_HUB`, `COJEDZIE_MAPTILER_KEY`, `COJEDZIE_GTM`, Sentry settings) and serves
 provider manifests. With `COJEDZIE_MODE=development` it mounts Vite as middleware (HMR on port 3001);
@@ -110,8 +110,8 @@ Gotchas:
 
 ## Checks
 
-`task lint:front` runs `yarn check:format` (Prettier), `yarn lint` (ESLint, errors fail, warnings don't) and
-`yarn check:types` (`vue-tsc` for the app including `.vue` templates, plain `tsc` for `server/`); `task test:front`
+`task lint:front` runs `npm run check:format` (Prettier), `npm run lint` (ESLint, errors fail, warnings don't) and
+`npm run check:types` (`vue-tsc` for the app including `.vue` templates, plain `tsc` for `server/`); `task test:front`
 runs Vitest. CI runs the same scripts in the `test-front` job, which the Release workflow requires next to `test`.
 
 Vite does not type check, so a broken type only shows up in these checks (`vue-tsc` 3 also checks templates).

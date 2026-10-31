@@ -9,10 +9,10 @@ EXPOSE 3000 3001
 FROM node:24 AS build
 
 WORKDIR /app
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json ./
 
-# install dependencies
-RUN yarn install --frozen-lockfile
+# install dependencies, npm's download cache stays out of the layer
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 
 COPY . .
 
@@ -21,18 +21,18 @@ ARG COJEDZIE_VERSION
 ENV COJEDZIE_REVISION="${COJEDZIE_REVISION}" COJEDZIE_VERSION="${COJEDZIE_VERSION}"
 
 # build stuff
-RUN --mount=type=secret,id=sentry-auth-token yarn run build:app
-RUN yarn run build:server
+RUN --mount=type=secret,id=sentry-auth-token npm run build:app
+RUN npm run build:server
 
 # server dependencies step
 FROM node:24 AS prod-dependencies
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json ./
 
-# install dependencies
-RUN yarn install --production --frozen-lockfile
+# install dependencies, npm's download cache stays out of the layer
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --no-audit --no-fund
 
 FROM node:24-slim AS prod
 
