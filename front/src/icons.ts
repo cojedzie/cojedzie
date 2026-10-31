@@ -65,15 +65,14 @@ import metro from "@resources/icons/light/metro.svg";
 import train from "@resources/icons/light/train.svg";
 import unknown from "@resources/icons/light/unknown.svg";
 
-// our own icons, see svg-icon-loader. Those drawn on Tabler's 24px grid take the view box UiIcon crops Tabler's
-// padding with; the older ones, filled on a 512px canvas, keep their own.
+// our own icons, see svg-icon-loader. They are drawn on Tabler's 24px grid, so they take the view box UiIcon crops
+// Tabler's padding with.
 const custom =
     ({ viewBox, content }: SvgIcon): FunctionalComponent<{ viewBox?: string }> =>
     props =>
         h("svg", {
             xmlns: "http://www.w3.org/2000/svg",
-            viewBox: viewBox === "0 0 24 24" ? (props.viewBox ?? viewBox) : viewBox,
-            fill: "currentColor",
+            viewBox: props.viewBox ?? viewBox,
             innerHTML: content,
         });
 

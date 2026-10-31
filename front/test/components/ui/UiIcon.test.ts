@@ -18,10 +18,9 @@ describe("UiIcon", () => {
         expect(wrapper.classes()).toEqual(expect.arrayContaining(["ui-icon", "tabler-icon-star"]));
     });
 
-    it("crops the padding of icons on Tabler's grid, but not of the older ones", () => {
+    it("crops the padding of Tabler's grid, for Tabler icons and our own", () => {
         expect(mount(UiIcon, { props: { icon: "favourite" } }).attributes("viewBox")).toBe("2 2 20 20");
         expect(mount(UiIcon, { props: { icon: "line-bus" } }).attributes("viewBox")).toBe("2 2 20 20");
-        expect(mount(UiIcon, { props: { icon: "line-train" } }).attributes("viewBox")).toBe("0 0 512 512");
     });
 
     it("is fixed width when asked by the caller", () => {

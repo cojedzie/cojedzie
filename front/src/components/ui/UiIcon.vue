@@ -51,7 +51,7 @@ const definition = computed<Icon>(() =>
 
 // Tabler draws on a 24px grid with 2px of padding on each side, so its drawing would be smaller than the text around
 // it. Cropping the padding off the view box makes it fill the icon while staying a plain, crisp svg. Our own icons
-// drawn on the same grid take it too, the older ones on a 512px canvas ignore it (see custom() in icons.ts).
+// are drawn on the same grid and take it too.
 const crop = { viewBox: "2 2 20 20" };
 
 const transform = ({ scale = 1, x = 0, y = 0 }: IconLayer) => ({
