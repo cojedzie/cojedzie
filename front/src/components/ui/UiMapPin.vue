@@ -12,6 +12,7 @@
 import UiPin, { UiPinVariant } from "@/components/ui/UiPin.vue";
 import { LIcon, LMarker } from "@vue-leaflet/vue-leaflet";
 import { computed, PropType } from "vue";
+import { LatLngExpression } from "leaflet";
 import { pick } from "lodash";
 
 defineOptions({
@@ -28,5 +29,8 @@ const props = defineProps({
 });
 
 const uiPinProps = computed(() => pick(props, ["variant"]));
-const markerProps = computed(() => pick(props, Object.keys(LMarker.props)));
+// LMarker.props is not typed on the component, but latLng is the one prop LMarker requires
+const markerProps = computed(
+    () => pick(props, Object.keys(LMarker.props)) as { latLng: LatLngExpression } & Record<string, unknown>,
+);
 </script>
