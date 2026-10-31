@@ -51,7 +51,9 @@ export default defineConfig({
         // the oldest browsers Tailwind CSS 4 supports
         target: ["chrome111", "edge111", "firefox128", "safari16.4"],
         sourcemap: true,
-        manifest: "manifest.json",
+        // .vite/manifest.json, which express.static does not serve (dotfiles) and which leaves /manifest.json to the web
+        // manifest route
+        manifest: true,
         rollupOptions: {
             input: [path.resolve(__dirname, "./src/app.ts")],
         },
