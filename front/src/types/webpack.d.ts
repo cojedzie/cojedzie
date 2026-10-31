@@ -17,9 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-declare module "*.svg" {
-    const content: string;
-    export = content;
+declare module "@resources/icons/*.svg" {
+    const icon: import("@/svg-icon-loader").SvgIcon;
+    export default icon;
 }
 
 declare module "*.png" {}

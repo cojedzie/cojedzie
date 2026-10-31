@@ -56,6 +56,7 @@ import {
 
 import { MessageType } from "@/model/message";
 import { LineType } from "@/model";
+import type { SvgIcon } from "@/svg-icon-loader";
 
 import bus from "@resources/icons/light/bus.svg";
 import tram from "@resources/icons/light/tram.svg";
@@ -64,13 +65,17 @@ import metro from "@resources/icons/light/metro.svg";
 import train from "@resources/icons/light/train.svg";
 import unknown from "@resources/icons/light/unknown.svg";
 
-// our own icons are single filled paths on a 512x512 canvas, see svg-icon-loader
+// our own icons, see svg-icon-loader. Those drawn on Tabler's 24px grid take the view box UiIcon crops Tabler's
+// padding with; the older ones, filled on a 512px canvas, keep their own.
 const custom =
-    (path: string): FunctionalComponent =>
-    () =>
-        h("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", fill: "currentColor" }, [
-            h("path", { d: path }),
-        ]);
+    ({ viewBox, content }: SvgIcon): FunctionalComponent<{ viewBox?: string }> =>
+    props =>
+        h("svg", {
+            xmlns: "http://www.w3.org/2000/svg",
+            viewBox: viewBox === "0 0 24 24" ? (props.viewBox ?? viewBox) : viewBox,
+            fill: "currentColor",
+            innerHTML: content,
+        });
 
 export interface IconDescription {
     icon: Component;
