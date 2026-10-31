@@ -148,6 +148,8 @@ jobs:
         uses: docker/bake-action@v7
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          # provenance makes the metadata too big to pass in an environment variable, only digests are read
+          BUILDX_METADATA_PROVENANCE: disabled
         with:
           source: .
           files: docker-bake.hcl
