@@ -41,7 +41,7 @@ const web_manifest = JSON.parse(
 
 const assets_manifest = dev
     ? {}
-    : JSON.parse(fs.readFileSync(path.join(__dirname, "../public/manifest.json")).toString("utf-8"));
+    : JSON.parse(fs.readFileSync(path.join(__dirname, "../public/.vite/manifest.json")).toString("utf-8"));
 
 const provider_manifests = {};
 
