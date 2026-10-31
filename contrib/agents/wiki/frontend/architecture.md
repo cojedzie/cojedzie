@@ -58,6 +58,8 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   scripts at root paths that ignore a Vite `base`, so it can't live under a path of the app's host. The `storybook`
   service sets `COJEDZIE_MAPTILER_KEY` and `COJEDZIE_API`, and runs with `--host 0.0.0.0` (Storybook listens on
   127.0.0.1 by default) and `--no-version-updates` (the version check crashes on Node 24).
+  In MDX docs, a story block is `<Canvas of={Stories.Name} />`: `Canvas` ignores children, so the old
+  `<Canvas><Story of={...} /></Canvas>` renders the primary story in every block.
 - Docker: `front/Dockerfile` has a `dev` target (used by the compose `frontend`, `storybook` and `front-setup`
   services, run as `COJEDZIE_UID`) and a `prod` target (the published image).
 

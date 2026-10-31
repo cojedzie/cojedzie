@@ -1,4 +1,4 @@
-import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+import { Canvas, Meta, Controls } from "@storybook/addon-docs/blocks";
 import UiIcon from "./UiIcon.vue";
 import { icons } from "@/icons";
 import { V } from "@/stories/helpers";
@@ -16,9 +16,7 @@ export const Template = args => ({
 
 # UiIcon
 
-<Canvas>
-    <Story of={UiIconStories.Default} />
-</Canvas>
+<Canvas of={UiIconStories.Default} />
 
 <Controls of={UiIconStories.Default} />
 
