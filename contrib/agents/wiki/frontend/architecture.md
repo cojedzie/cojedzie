@@ -38,14 +38,17 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   next to its own module, which breaks once Vite pre-bundles it, so `map.ts` passes the worker's URL
   (`maplibre-gl-worker.mjs?url`) to `setWorkerUrl`. The attribution goes in `attributionControl.customAttribution`,
   which is where the plugin reads it from.
-- `src/icons.ts` + `components/ui/UiIcon.vue` — icons, see ADR 0015. Templates use names (`<ui-icon icon="refresh">`),
-  the registry maps them to `@tabler/icons-vue` components, or to the transport icons in `resources/icons/light`:
-  single filled paths on a 512×512 canvas, turned into a path string by `src/svg-icon-loader.ts` and wrapped with
-  `custom()`. An entry is `simple` (optionally `spin`, `fixedWidth`) or `stacked`: layers placed with `scale` and
-  `x`/`y` in em, for combinations Tabler lacks. `UiIcon` sizes icons to 1em and crops Tabler's 2px padding off the
-  view box (`2 2 20 20`) so they fill the icon like our own; those ignore that attribute, because
-  functional components without declared props only inherit class, style and listeners. The Storybook `Ui/Icon`
-  page shows the whole catalog.
+- `src/icons.ts` + `components/ui/UiIcon.vue` — icons, see ADR 0017. Templates use names (`<ui-icon icon="refresh">`),
+  the registry maps them to `@tabler/icons-vue` components, or to the transport icons in `resources/icons/light`,
+  wrapped with `custom()`. `src/svg-icon-loader.ts` (a Vite plugin) turns each icon SVG into `{ viewBox, content }`:
+  the markup inside the root `<svg>`, without `<title>`/`<desc>`/`<metadata>`, comments, `data-name` and ids
+  nothing refers to (they would repeat for every rendered icon). Any number of paths and groups works, so editor
+  exports load as they are; `custom()` renders the content as the svg's `innerHTML`. It returns an empty source map
+  (`{ mappings: "" }`), as the generated module has no source to map to. An entry is `simple` (optionally `spin`,
+  `fixedWidth`) or `stacked`: layers placed with `scale` and `x`/`y` in em, for combinations Tabler lacks. `UiIcon`
+  sizes icons to 1em and crops the 2px padding of Tabler's grid off the view box (`2 2 20 20`), so they fill the box;
+  our icons on the same 24×24 grid take it too, the older filled 512×512 ones keep their own view box. The
+  Storybook `Ui/Icon` page shows the whole catalog.
 - `src/stories` + `.storybook` — Storybook, served at http://storybook.cojedzie.localhost through nginx in docker
   (`nginx/storybook.conf`; also published on port 6006). It gets its own host because Storybook injects preview
   scripts at root paths that ignore a Vite `base`, so it can't live under a path of the app's host. The `storybook`
