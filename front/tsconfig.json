@@ -4,19 +4,18 @@
     "target": "esnext",
     "module": "esnext",
     "sourceMap": true,
+    "strict": false,
     "noImplicitThis": true,
     "moduleResolution": "bundler",
-    "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "baseUrl": "./",
     "paths": {
       "@resources/*": ["./resources/*"],
       "@styles/*": ["./styles/*"],
       "@/*": ["./src/*"]
     },
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "vite/client"]
   },
   "files": ["src/app.ts"],
   "include": ["src/**/*.ts", "src/**/*.vue", "test/types/**/*.ts"],

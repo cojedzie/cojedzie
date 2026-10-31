@@ -5,23 +5,16 @@ namespace App\Serialization;
 use App\Dto\Dto;
 use App\Event\PostNormalizationEvent;
 use App\Service\ContentTypeResolver;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-class AddTypeToDto implements EventSubscriberInterface
+class AddTypeToDto
 {
     public function __construct(
         private readonly ContentTypeResolver $contentTypeResolver,
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PostNormalizationEvent::class => 'addContentTypeToDto',
-        ];
-    }
-
+    #[AsEventListener(event: PostNormalizationEvent::class)]
     public function addContentTypeToDto(PostNormalizationEvent $event)
     {
         $object = $event->getData();

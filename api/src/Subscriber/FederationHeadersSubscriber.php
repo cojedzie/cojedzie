@@ -21,11 +21,11 @@
 namespace App\Subscriber;
 
 use App\Context\FederationContext;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class FederationHeadersSubscriber implements EventSubscriberInterface
+class FederationHeadersSubscriber
 {
     final public const string CONNECTION_ID_HEADER = 'X-CoJedzie-Connection-Id';
     final public const string SERVER_ID_HEADER     = 'X-CoJedzie-Server-Id';
@@ -35,14 +35,7 @@ class FederationHeadersSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::RESPONSE => 'onResponse',
-        ];
-    }
-
+    #[AsEventListener(event: KernelEvents::RESPONSE)]
     public function onResponse(ResponseEvent $event)
     {
         // Headers should only be added on federated servers

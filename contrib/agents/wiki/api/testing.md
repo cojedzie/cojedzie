@@ -12,6 +12,10 @@ task test:behat -- features/departures         # one area
 task test:behat -- --tags='~@wip'              # what CI runs
 ```
 
+Both tasks pass `APP_ENV=test` to the container: compose loads `api/.env.local` into its environment, and
+`KernelTestCase` prefers the environment over `phpunit.xml.dist`, so a local `APP_ENV=dev` would boot the wrong
+kernel ("Could not find service test.service_container").
+
 `task test:behat` deletes `api/var/db/test.db` and rebuilds it from the **SQLite migrations**, so a broken
 migration fails the run (that's how two SQLite migration bugs were found). Every scenario then runs in a
 transaction that is rolled back (`dama/doctrine-test-bundle`, using savepoints, which DBAL 4 always enables).

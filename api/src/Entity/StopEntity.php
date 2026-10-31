@@ -25,7 +25,7 @@ use App\Dto\FillTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(readOnly: true)]
-#[ORM\Table('stop', indexes: [new ORM\Index(name: 'group_idx', columns: ['group_name'])])]
+#[ORM\Table('stop')]
 #[ORM\Index(name: 'group_idx', columns: ['group_name'])]
 class StopEntity implements Entity, Fillable
 {

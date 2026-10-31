@@ -22,12 +22,12 @@ namespace App\Subscriber;
 
 use App\DataConverter\Converter;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Service\ResetInterface;
 
-class RequestCleanupSubscriber implements EventSubscriberInterface
+class RequestCleanupSubscriber
 {
     public function __construct(
         private readonly ManagerRegistry $registry,
@@ -35,14 +35,7 @@ class RequestCleanupSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::TERMINATE => ['onTerminate'],
-        ];
-    }
-
+    #[AsEventListener(event: KernelEvents::TERMINATE)]
     public function onTerminate(TerminateEvent $event)
     {
         // Doctrine's registry is resettable, ManagerRegistry doesn't declare it

@@ -21,7 +21,7 @@
 namespace App\Subscriber;
 
 use App\Exception\InvalidFormException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -29,22 +29,14 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class JSONFormatSubscriber implements EventSubscriberInterface
+class JSONFormatSubscriber
 {
     public function __construct(
         private readonly SerializerInterface $serializer
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::REQUEST   => "onRequest",
-            KernelEvents::EXCEPTION => "onException",
-        ];
-    }
-
+    #[AsEventListener(event: KernelEvents::EXCEPTION)]
     public function onException(ExceptionEvent $event)
     {
         $exception = $event->getThrowable();
@@ -66,6 +58,7 @@ class JSONFormatSubscriber implements EventSubscriberInterface
         );
     }
 
+    #[AsEventListener(event: KernelEvents::REQUEST)]
     public function onRequest(RequestEvent $event)
     {
         $request = $event->getRequest();
