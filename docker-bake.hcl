@@ -37,9 +37,10 @@ function "cache_from" {
   result = GHA_CACHE == "true" ? ["type=gha,scope=${name}"] : []
 }
 
+# A failed cache export only makes the next build slower, it does not fail this one.
 function "cache_to" {
   params = [name]
-  result = GHA_CACHE == "true" ? ["type=gha,mode=max,scope=${name}"] : []
+  result = GHA_CACHE == "true" ? ["type=gha,mode=max,scope=${name},ignore-error=true"] : []
 }
 
 target "_common" {
