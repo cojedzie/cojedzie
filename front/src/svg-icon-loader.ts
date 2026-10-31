@@ -1,4 +1,4 @@
-const dom = require("xmldom");
+const dom = require("@xmldom/xmldom");
 const xpath = require("xpath");
 const fs = require("fs");
 
