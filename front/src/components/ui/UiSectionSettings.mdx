@@ -1,4 +1,4 @@
-import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+import { Canvas, Meta, Controls } from "@storybook/addon-docs/blocks";
 import * as UiSectionSettingsStories from "./UiSectionSettings.stories";
 
 <Meta of={UiSectionSettingsStories} />
@@ -8,8 +8,6 @@ import * as UiSectionSettingsStories from "./UiSectionSettings.stories";
 A gear button for the `#actions` of a `UiSection`. It opens its slot in a dialog anchored to itself, and closes it
 on a click outside.
 
-<Canvas>
-    <Story of={UiSectionSettingsStories.Default} />
-</Canvas>
+<Canvas of={UiSectionSettingsStories.Default} />
 
 <Controls of={UiSectionSettingsStories.Default} />

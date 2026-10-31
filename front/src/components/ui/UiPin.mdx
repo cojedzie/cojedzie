@@ -1,4 +1,4 @@
-import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+import { Canvas, Meta, Controls } from "@storybook/addon-docs/blocks";
 import UiPin from "./UiPin.vue";
 import * as UiPinStories from "./UiPin.stories";
 
@@ -6,16 +6,10 @@ import * as UiPinStories from "./UiPin.stories";
 
 # UiPin
 
-<Canvas>
-    <Story of={UiPinStories.Outline} />
-</Canvas>
+<Canvas of={UiPinStories.Outline} />
 
 <Controls of={UiPinStories.Outline} />
 
-<Canvas>
-    <Story of={UiPinStories.Filled} />
-</Canvas>
+<Canvas of={UiPinStories.Filled} />
 
-<Canvas>
-    <Story of={UiPinStories.FilledOutline} />
-</Canvas>
+<Canvas of={UiPinStories.FilledOutline} />

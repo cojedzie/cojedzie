@@ -1,4 +1,4 @@
-import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+import { Canvas, Meta, Controls } from "@storybook/addon-docs/blocks";
 import UiTooltip from "./UiTooltip.vue";
 import { centered } from "@/stories/decorators";
 import * as UiTooltipStories from "./UiTooltip.stories";
@@ -7,14 +7,10 @@ import * as UiTooltipStories from "./UiTooltip.stories";
 
 # UiTooltip
 
-<Canvas>
-    <Story of={UiTooltipStories.Default} />
-</Canvas>
+<Canvas of={UiTooltipStories.Default} />
 
 <Controls of={UiTooltipStories.Default} />
 
 ## Other stories
 
-<Canvas>
-    <Story of={UiTooltipStories.WithHtmlContent} />
-</Canvas>
+<Canvas of={UiTooltipStories.WithHtmlContent} />

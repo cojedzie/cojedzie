@@ -1,12 +1,10 @@
-import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+import { Canvas, Meta, Controls } from "@storybook/addon-docs/blocks";
 import * as UiSelectStories from "./UiSelect.stories";
 
 <Meta of={UiSelectStories} />
 
 # Select
 
-<Canvas>
-    <Story of={UiSelectStories.Default} />
-</Canvas>
+<Canvas of={UiSelectStories.Default} />
 
 <Controls of={UiSelectStories.Default} />

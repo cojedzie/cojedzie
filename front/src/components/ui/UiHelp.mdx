@@ -1,18 +1,12 @@
-import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
 import * as UiHelpStories from "./UiHelp.stories";
 
 <Meta of={UiHelpStories} />
 
 # Help
 
-<Canvas>
-    <Story of={UiHelpStories.Basic} />
-</Canvas>
+<Canvas of={UiHelpStories.Basic} />
 
-<Canvas>
-    <Story of={UiHelpStories.WithCoverPhoto} />
-</Canvas>
+<Canvas of={UiHelpStories.WithCoverPhoto} />
 
-<Canvas>
-    <Story of={UiHelpStories.WithCustomButton} />
-</Canvas>
+<Canvas of={UiHelpStories.WithCustomButton} />
