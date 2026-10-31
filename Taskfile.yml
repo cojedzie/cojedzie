@@ -36,7 +36,7 @@ tasks:
   lint:front:
     desc: Check frontend formatting (Prettier), ESLint and types (vue-tsc), as CI does
     cmds:
-      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend sh -c 'yarn check:format && yarn lint && yarn check:types'
+      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend sh -c 'npm run check:format && npm run lint && npm run check:types'
 
   reformat:
     deps:
@@ -71,7 +71,7 @@ tasks:
   test:front:
     desc: Test frontend with Vitest
     cmds:
-      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend yarn test:app --run {{.CLI_ARGS}}
+      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend npm run test:app -- --run {{.CLI_ARGS}}
 
   test:behat:
     desc: Run Behat scenarios against a fresh test database
@@ -109,14 +109,14 @@ tasks:
         xdebug:profile tests {{.CLI_ARGS}}
 
   npx:
-    desc: Execute yarn command
+    desc: Execute npx command
     cmds:
       - docker compose run --rm --no-deps {{.FLAGS}} -u {{.USER}} frontend npx {{.CLI_ARGS}}
 
-  yarn:
-    desc: Execute yarn command
+  npm:
+    desc: Execute npm command
     cmds:
-      - docker compose run --rm --no-deps {{.FLAGS}} -u {{.USER}} frontend yarn {{.CLI_ARGS}}
+      - docker compose run --rm --no-deps -e HOME=/tmp {{.FLAGS}} -u {{.USER}} frontend npm {{.CLI_ARGS}}
 
   console:
     desc: Execute command in the symfony console

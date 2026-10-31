@@ -68,7 +68,7 @@ All tooling runs inside containers via [Task](https://taskfile.dev) (`Taskfile.y
 docker compose up                 # nginx on :80 → http://cojedzie.localhost (the whole dev stack, see below);
                                   # Storybook at http://storybook.cojedzie.localhost; the first run installs
                                   # dependencies and imports data
-task setup                        # composer install + yarn install + migrate/import, without starting the stack
+task setup                        # composer install + npm install + migrate/import, without starting the stack
 task test                         # test:api, then test:behat (both force SQLite var/db/test.db)
 task test:api                     # phpunit (all API tests)
 task test:api -- --filter JsonStreamingParserTest   # single test class/method
@@ -80,7 +80,7 @@ task test:front -- test/container.test.ts           # single frontend test
 task lint                         # ECS, Rector, PHPStan (api) + Prettier, ESLint, vue-tsc (front), as CI does
 task reformat                     # ECS --fix (api) + prettier --write (front)
 task console -- <cmd>             # bin/console
-task composer -- <cmd> / task yarn -- <cmd>
+task composer -- <cmd> / task npm -- <cmd>
 task api:update                   # import provider data
 task api:migrations:generate      # diff migrations for sqlite, mysql AND postgres (starts mysql and postgres itself)
 task benchmark:api                # phpbench
@@ -88,7 +88,7 @@ task benchmark:api                # phpbench
 
 - The dev stack is the single `docker-compose.yml`, built from the `dev` targets of the Dockerfiles. Default
   services: `nginx`, `api`, `worker`, `schedule`, `frontend`, `storybook`, `mercure`, `mysql`. The one-shot
-  `api-setup` (`composer install`, migrate, import) and `front-setup` (`yarn install`, `build:server`) run first.
+  `api-setup` (`composer install`, migrate, import) and `front-setup` (`npm install`, `build:server`) run first.
   The first `up` imports provider data, which takes about 10 minutes. MySQL is the dev database.
 - Profiles: `--profile postgres`, `--profile elastic` (Elasticsearch/Kibana) and `--profile federated` (a second
   node with its own SQLite database `api/var/db/federated.db`). The node must be registered on the hub first:

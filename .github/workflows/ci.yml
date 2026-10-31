@@ -54,18 +54,18 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '24'
-          cache: yarn
-          cache-dependency-path: front/yarn.lock
+          cache: npm
+          cache-dependency-path: front/package-lock.json
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --non-interactive
+        run: npm ci --no-audit --no-fund
       - name: Prettier
-        run: yarn check:format
+        run: npm run check:format
       - name: ESLint
-        run: yarn lint
+        run: npm run lint
       - name: Type check
-        run: yarn check:types
+        run: npm run check:types
       - name: Vitest
-        run: yarn test:app --run
+        run: npm run test:app -- --run
 
   # every engine's migrations, run on an empty database, must give exactly the schema the mapping describes
   schema:

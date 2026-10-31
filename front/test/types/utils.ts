@@ -1,4 +1,4 @@
-// Type-level tests, checked by `yarn check:types` (vue-tsc), not run by Vitest.
+// Type-level tests, checked by `npm run check:types` (vue-tsc), not run by Vitest.
 import { set } from "@/utils";
 
 const state = { visibility: { map: false, details: { open: false } }, count: 0 };

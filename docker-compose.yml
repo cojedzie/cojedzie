@@ -94,7 +94,7 @@ services:
     <<: *front
     environment:
       HOME: /tmp
-    command: ["sh", "-c", "yarn install --frozen-lockfile && yarn build:server"]
+    command: ["sh", "-c", "npm install --no-audit --no-fund && npm run build:server"]
     volumes:
       - ./front:/app
       - ./.editorconfig:/app/.editorconfig
@@ -126,7 +126,7 @@ services:
     ports:
       - 6006:6006
     # the version check crashes node-fetch 2 on Node 20+ and is pointless in a container
-    command: ["yarn", "storybook", "--no-version-updates", "--host", "0.0.0.0"]
+    command: ["npm", "run", "storybook", "--", "--no-version-updates", "--host", "0.0.0.0"]
     depends_on:
       front-setup:
         condition: service_completed_successfully
