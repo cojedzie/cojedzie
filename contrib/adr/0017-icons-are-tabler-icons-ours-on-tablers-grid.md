@@ -1,7 +1,8 @@
-# 0015. Icons are Tabler icons behind a named registry
+# 0017. Icons are Tabler icons behind a named registry, ours drawn on Tabler's grid
 
 - **Status:** Accepted
-- **Date:** 2026-10-30
+- **Supersedes:** [0015](archive/0015-icons-are-tabler-icons-behind-named-registry.md)
+- **Date:** 2026-10-31
 - **Applies to:** `front/src/icons.ts`, `front/src/components/ui/UiIcon.vue`, `front/resources/icons/**`,
   `front/package.json`
 
@@ -14,6 +15,10 @@ action and three secrets. A fresh clone did not build without them.
 
 Templates already referred to icons by name (`<ui-icon icon="refresh">`) through a registry in `src/icons.ts`, and
 the transport icons (bus, tram, ...) are our own drawings.
+
+ADR 0015 kept those drawings as single filled paths on a 512×512 canvas, the format the icon loader could read. The
+transport icons are being redrawn in Tabler's style, and Illustrator or Vectorcraft export such a drawing as many
+stroked paths in nested groups, which can't reasonably be merged into one path. This ADR supersedes 0015 to allow that.
 
 ## Considered options
 
@@ -30,8 +35,10 @@ We will take icons from `@tabler/icons-vue`, used only through the named registr
 
 - Components render icons with `<ui-icon icon="name">`. Names are defined in `front/src/icons.ts`, which maps them
   to Tabler components.
-- Our own icons (the transport types) stay in `front/resources/icons` as single filled paths and are wrapped with
-  `custom()` in the registry.
+- Our own icons (the transport types) are SVGs in `front/resources/icons`, wrapped with `custom()` in the registry.
+  They are drawn like Tabler's: a 24×24 grid with 2px of padding, 2px round strokes in `currentColor`, any number of
+  elements. `svg-icon-loader` keeps the view box and everything drawn, dropping metadata and unused ids. Icons on
+  the 24px grid take the same padding crop as Tabler's in `UiIcon`.
 - When Tabler has no icon for a combination, the registry composes it as a stacked icon (layers with `scale`, `x`,
   `y`). A ready-made Tabler combination is preferred over a stack.
 
@@ -39,8 +46,9 @@ We will take icons from `@tabler/icons-vue`, used only through the named registr
 
 - **No licensed dependencies.** A fresh clone and CI build without tokens or hand-placed packages; the
   `FONTAWESOME_S3_*` secrets are no longer used.
-- **Mixed styles until redrawn.** The transport icons were drawn as filled shapes to match FontAwesome Light; they
-  are planned to be redrawn in Tabler's stroke style.
+- **Mixed styles until redrawn.** Train, trolleybus, metro and the unknown vehicle are still filled 512×512 shapes
+  drawn to match FontAwesome Light; the loader and `custom()` still read them, without the crop.
+- **Icons straight from an editor.** An exported SVG works as is, without merging paths by hand.
 - **Our own sizing and stacking.** `UiIcon` provides the 1em sizing, spinning, fixed width and layers that
   FontAwesome's CSS used to.
 
@@ -49,5 +57,5 @@ We will take icons from `@tabler/icons-vue`, used only through the named registr
 - **One icon library.** There is no `@fortawesome/*` package or other icon library in `front/package.json`.
 - **Icons go through the registry.** Components outside `UiIcon.vue` and `icons.ts` don't import from
   `@tabler/icons-vue`; they use `<ui-icon>` with a name from `icons.ts`.
-- **Own icons.** A custom icon is an SVG in `front/resources/icons` with a single path on a 512×512 canvas, registered
-  with `custom()`.
+- **Own icons.** A new or redrawn custom icon is an SVG in `front/resources/icons` with `viewBox="0 0 24 24"`, drawn
+  with strokes in `currentColor` (not fixed colours), registered with `custom()`.

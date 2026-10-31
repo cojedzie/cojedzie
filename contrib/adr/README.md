@@ -49,8 +49,8 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0012](0012-images-are-built-with-bake-from-per-service-dockerfiles.md) | Images are built with bake from per-service Dockerfiles | Accepted |
 | [0013](0013-frontend-state-in-pinia-saved-through-user-state-storage.md) | Frontend state lives in Pinia, saved through `UserStateStorage` | Accepted |
 | [0014](0014-frontend-styles-tailwind-utilities-and-scss.md) | Frontend styles: Tailwind utilities, components in SCSS | Accepted |
-| [0015](0015-icons-are-tabler-icons-behind-named-registry.md) | Icons are Tabler icons behind a named registry | Accepted |
 | [0016](0016-maps-are-drawn-by-maplibre.md) | Maps are drawn by MapLibre | Accepted |
+| [0017](0017-icons-are-tabler-icons-ours-on-tablers-grid.md) | Icons are Tabler icons behind a named registry, ours drawn on Tabler's grid | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
@@ -58,5 +58,6 @@ Don't write one for local implementation details that the code and the wiki alre
 
 | ADR | Title | Status |
 |---|---|---|
+| [0015](archive/0015-icons-are-tabler-icons-behind-named-registry.md) | Icons are Tabler icons behind a named registry | Superseded by [0017](0017-icons-are-tabler-icons-ours-on-tablers-grid.md) |
 
 <!-- Move rows here when archiving: | [0001](archive/0001-short-title.md) | Title | Superseded by [0002](0002-new-title.md) | -->
