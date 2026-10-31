@@ -1,6 +1,6 @@
 # Frontend architecture (`front/`)
 
-Vue 3 (every component is `<script setup lang="ts">`), Pinia, vue-router, Leaflet + mapbox-gl maps, Tailwind CSS 4
+Vue 3 (every component is `<script setup lang="ts">`), Pinia, vue-router, Leaflet + MapLibre maps (ADR 0016), Tailwind CSS 4
 + Sass, built with Vite into `front/build/public`.
 Path alias `@/` → `front/src/`.
 
@@ -10,7 +10,8 @@ Path alias `@/` → `front/src/`.
 It renders the HTML shell (EJS views in `resources/views`), injects runtime config from env
 (`COJEDZIE_API`, `COJEDZIE_API_HUB`, `COJEDZIE_MAPTILER_KEY`, `COJEDZIE_GTM`, Sentry settings) and serves
 provider manifests. With `COJEDZIE_MODE=development` it mounts Vite as middleware (HMR on port 3001);
-otherwise it serves the built assets using the Vite `manifest.json`.
+otherwise it serves the built assets using the Vite `manifest.json`. Routes use Express 5 (path-to-regexp 8)
+syntax: optional parts are braces (`{/:provider}/manifest.json`), wildcards are named (`{/*path}`).
 
 Runtime config reaches components via `composables/useAppConfig`.
 
@@ -30,6 +31,12 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
+- `src/components/map.ts` + `components/ui/UiMap.vue` — maps: `@vue-leaflet/vue-leaflet` with a vector base layer
+  (`LVectorLayer`) drawn by MapLibre through `@maplibre/maplibre-gl-leaflet`, style from MapTiler
+  (`COJEDZIE_MAPTILER_KEY`; without it MapTiler answers 403 and the map stays grey). MapLibre finds its web worker
+  next to its own module, which breaks once Vite pre-bundles it, so `map.ts` passes the worker's URL
+  (`maplibre-gl-worker.mjs?url`) to `setWorkerUrl`. The attribution goes in `attributionControl.customAttribution`,
+  which is where the plugin reads it from.
 - `src/icons.ts` + `components/ui/UiIcon.vue` — icons, see ADR 0015. Templates use names (`<ui-icon icon="refresh">`),
   the registry maps them to `@tabler/icons-vue` components, or to the transport icons in `resources/icons/light`:
   single filled paths on a 512×512 canvas, turned into a path string by `src/svg-icon-loader.ts` and wrapped with
@@ -92,6 +99,11 @@ Gotchas:
 runs Vitest. CI runs the same scripts in the `test-front` job, which the Release workflow requires next to `test`.
 
 Vite does not type check, so a broken type only shows up in these checks (`vue-tsc` 3 also checks templates).
+
+TypeScript is 6: version 7 (the native compiler) is not supported by typescript-eslint and has no API for `vue-tsc`
+yet. TypeScript 6 turns `strict` on by default; the code was written without it, so both `tsconfig.json` files set
+`"strict": false` (turning it on reports about 170 errors). Module declarations for untyped imports, including
+side-effect ones like moment's locales, are in `src/types/webpack.d.ts`.
 
 ## State: stores and persistence
 
