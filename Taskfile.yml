@@ -63,7 +63,7 @@ tasks:
   test:api:
     desc: Test API component with phpunit
     cmds:
-      - docker compose run --rm --no-deps -e HOME=/tmp -e COJEDZIE_DATABASE_URL="{{.SQLITE_TEST_DSN}}" {{.FLAGS}} -e COJEDZIE_RUNAS="{{.USER}}" api sh -c '
+      - docker compose run --rm --no-deps -e HOME=/tmp -e APP_ENV=test -e COJEDZIE_DATABASE_URL="{{.SQLITE_TEST_DSN}}" {{.FLAGS}} -e COJEDZIE_RUNAS="{{.USER}}" api sh -c '
           mkdir -p var/db &&
           bin/console --env=test doctrine:migrations:migrate -n -q &&
           bin/phpunit {{.CLI_ARGS}}'
@@ -76,7 +76,7 @@ tasks:
   test:behat:
     desc: Run Behat scenarios against a fresh test database
     cmds:
-      - docker compose run --rm --no-deps -e HOME=/tmp -e COJEDZIE_DATABASE_URL="{{.SQLITE_TEST_DSN}}" {{.FLAGS}} -e COJEDZIE_RUNAS="{{.USER}}" api sh -c '
+      - docker compose run --rm --no-deps -e HOME=/tmp -e APP_ENV=test -e COJEDZIE_DATABASE_URL="{{.SQLITE_TEST_DSN}}" {{.FLAGS}} -e COJEDZIE_RUNAS="{{.USER}}" api sh -c '
           mkdir -p var/db && rm -f var/db/test.db &&
           bin/console --env=test doctrine:migrations:migrate -n -q &&
           vendor/bin/behat --no-interaction {{.CLI_ARGS}}'
