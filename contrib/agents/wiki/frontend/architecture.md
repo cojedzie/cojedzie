@@ -10,7 +10,8 @@ Path alias `@/` → `front/src/`.
 It renders the HTML shell (EJS views in `resources/views`), injects runtime config from env
 (`COJEDZIE_API`, `COJEDZIE_API_HUB`, `COJEDZIE_MAPTILER_KEY`, `COJEDZIE_GTM`, Sentry settings) and serves
 provider manifests. With `COJEDZIE_MODE=development` it mounts Vite as middleware (HMR on port 3001);
-otherwise it serves the built assets using the Vite `manifest.json`. Routes use Express 5 (path-to-regexp 8)
+otherwise it serves the built assets using Vite's `build/public/.vite/manifest.json` (in a dot-directory, so
+`express.static` doesn't serve it and `/manifest.json` stays the web manifest). Routes use Express 5 (path-to-regexp 8)
 syntax: optional parts are braces (`{/:provider}/manifest.json`), wildcards are named (`{/*path}`).
 
 Runtime config reaches components via `composables/useAppConfig`.
