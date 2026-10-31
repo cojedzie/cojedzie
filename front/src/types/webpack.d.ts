@@ -24,6 +24,9 @@ declare module "*.svg" {
 
 declare module "*.png" {}
 
+// moment's locales register themselves on import and ship no typings
+declare module "moment/dist/locale/*";
+
 declare module "*.vue" {
     import type { DefineComponent } from "vue";
     const component: DefineComponent<{}, {}, any>;

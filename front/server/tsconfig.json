@@ -4,9 +4,10 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "baseUrl": "./",
+    "module": "node20",
+    "moduleResolution": "node16",
+    "strict": false,
+    "rootDir": "../",
     "outDir": "../build/",
     "skipLibCheck": true
   },

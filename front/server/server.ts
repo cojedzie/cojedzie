@@ -165,7 +165,7 @@ const renderPageAction =
         );
     };
 
-const getWebManifestAction = (req: Request, res: Response) => {
+const getWebManifestAction = (req: Request<{ provider?: string }>, res: Response) => {
     const provider = req.params.provider;
 
     if (typeof provider === "undefined") {
@@ -209,7 +209,7 @@ async function createServer(): Promise<Express> {
 
     server.use(express.static(path.join(__dirname, "../public/")));
 
-    server.get("/:provider?/manifest.json", getWebManifestAction);
+    server.get("{/:provider}/manifest.json", getWebManifestAction);
 
     if (dev) {
         const { createServer: createViteServer } = require("vite");
@@ -227,13 +227,13 @@ async function createServer(): Promise<Express> {
         server.use(vite.middlewares);
 
         server.get(
-            "/:provider?/*",
+            "{/:provider}{/*path}",
             renderPageAction(async ({ req, res, html }) => {
                 res.send(await vite.transformIndexHtml(req.originalUrl, html));
             }),
         );
     } else {
-        server.get("/:provider?/*", renderPageAction());
+        server.get("{/:provider}{/*path}", renderPageAction());
     }
 
     Sentry.setupExpressErrorHandler(server);

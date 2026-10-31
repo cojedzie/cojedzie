@@ -25,7 +25,7 @@ import "@styles/main.scss";
 import { createPinia } from "pinia";
 import { BrowserStorage } from "@/stores/persistence/browser";
 import { persistence } from "@/stores/persistence/plugin";
-import { dragscrollNext } from "vue-dragscroll";
+import { dragscroll } from "vue-dragscroll";
 
 import moment from "moment";
 import "moment/dist/locale/pl";
@@ -44,7 +44,7 @@ app.use(api);
 app.use(filters);
 app.use(router);
 
-app.directive("dragscroll", dragscrollNext);
+app.directive("dragscroll", dragscroll);
 
 // async dependencies
 (async function () {
