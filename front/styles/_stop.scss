@@ -112,8 +112,7 @@ ul.stop-list.stop-list--inline {
 }
 
 .stop-group__header {
-  @extend .section__title;
-  display: flex;
+  @include ui-section-header;
   margin-bottom: 0 !important;
 
   .actions {

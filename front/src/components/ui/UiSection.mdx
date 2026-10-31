@@ -1,0 +1,46 @@
+import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+import * as UiSectionStories from "./UiSection.stories";
+
+<Meta of={UiSectionStories} />
+
+# Section
+
+A titled block of the page, like "Odjazdy" or "Komunikaty". The header shows the `icon` and `title`, the `#actions`
+slot puts buttons on its right and the default slot is the content.
+
+<Canvas>
+    <Story of={UiSectionStories.Default} />
+</Canvas>
+
+<Controls of={UiSectionStories.Default} />
+
+## Without an icon
+
+<Canvas>
+    <Story of={UiSectionStories.TitleOnly} />
+</Canvas>
+
+## Custom title
+
+The `#title` slot replaces the icon and title; it gets both as slot props.
+
+<Canvas>
+    <Story of={UiSectionStories.CustomTitle} />
+</Canvas>
+
+## Actions
+
+Buttons go into `#actions`. Settings are a `UiSectionSettings`: a gear button opening its slot in a dialog.
+
+<Canvas>
+    <Story of={UiSectionStories.WithActions} />
+</Canvas>
+
+## Collapsible
+
+`collapsible` adds a button that folds the content. Bind `v-model:collapsed` to control it, the section keeps the
+state itself otherwise.
+
+<Canvas>
+    <Story of={UiSectionStories.Collapsible} />
+</Canvas>
