@@ -5,20 +5,13 @@ namespace App\Context;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-class ConsoleCommandContext implements EventSubscriberInterface
+class ConsoleCommandContext
 {
     private ?Command $currentCommand = null;
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            ConsoleEvents::COMMAND => 'handleCommandEvent',
-        ];
-    }
-
+    #[AsEventListener(event: ConsoleEvents::COMMAND)]
     public function handleCommandEvent(ConsoleCommandEvent $event): void
     {
         $this->setCurrentCommand($event->getCommand());

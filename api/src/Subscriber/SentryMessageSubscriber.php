@@ -8,12 +8,12 @@ use Sentry\Tracing\Span;
 use Sentry\Tracing\SpanContext;
 use Sentry\Tracing\TransactionContext;
 use Sentry\Tracing\TransactionSource;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
-class SentryMessageSubscriber implements EventSubscriberInterface
+class SentryMessageSubscriber
 {
     private ?Span $span = null;
 
@@ -22,21 +22,14 @@ class SentryMessageSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            WorkerMessageReceivedEvent::class => ['handleMessageReceived', -10000],
-            WorkerMessageHandledEvent::class  => ['handleMessageDone', -10000],
-            WorkerMessageFailedEvent::class   => ['handleMessageDone', -10000],
-        ];
-    }
-
+    #[AsEventListener(event: WorkerMessageHandledEvent::class, priority: -10000)]
+    #[AsEventListener(event: WorkerMessageFailedEvent::class, priority: -10000)]
     public function handleMessageDone(): void
     {
         $this->finish();
     }
 
+    #[AsEventListener(event: WorkerMessageReceivedEvent::class, priority: -10000)]
     public function handleMessageReceived(WorkerMessageReceivedEvent $event): void
     {
         if (!$event->shouldHandle()) {

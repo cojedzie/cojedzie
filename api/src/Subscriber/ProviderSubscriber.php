@@ -22,7 +22,7 @@ namespace App\Subscriber;
 
 use App\Exception\NonExistentServiceException;
 use App\Service\ProviderResolver;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -31,19 +31,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Rejects requests for an unknown {provider} before controller arguments (and their query parameters) are
  * resolved, so a wrong path is reported as 404 even when the query is malformed as well.
  */
-final readonly class ProviderSubscriber implements EventSubscriberInterface
+final readonly class ProviderSubscriber
 {
     public function __construct(
         private ProviderResolver $providers,
     ) {
     }
 
-    #[\Override]
-    public static function getSubscribedEvents(): array
-    {
-        return [KernelEvents::CONTROLLER => 'onController'];
-    }
-
+    #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onController(ControllerEvent $event): void
     {
         $provider = $event->getRequest()->attributes->get('provider');
