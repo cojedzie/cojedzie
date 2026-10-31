@@ -10,7 +10,7 @@
     "ext-json": "*",
     "baldinof/roadrunner-bundle": "^3.5",
     "doctrine/doctrine-bundle": "^3.3",
-    "doctrine/doctrine-migrations-bundle": "^3.4",
+    "doctrine/doctrine-migrations-bundle": "^4.0",
     "doctrine/orm": "^3.7",
     "dragonmantank/cron-expression": "^3.3",
     "kadet/functional": "^1.1.0",
