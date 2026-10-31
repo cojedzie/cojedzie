@@ -26,3 +26,5 @@ export { default as UiIcon } from "./UiIcon.vue";
 export { default as UiHelp } from "./UiHelp.vue";
 export { default as UiNumericInput } from "./UiNumericInput.vue";
 export { default as UiSwitch } from "./UiSwitch.vue";
+export { default as UiSection } from "./UiSection.vue";
+export { default as UiSectionSettings } from "./UiSectionSettings.vue";

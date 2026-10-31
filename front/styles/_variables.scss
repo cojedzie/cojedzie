@@ -218,3 +218,32 @@ $container-max-widths: (
   left: $left;
   bottom: $bottom;
 }
+
+// The header bar of UiSection: underlined, with the heading and its buttons in one line. Shared with headers that
+// look the same without being a section (stop groups).
+@mixin ui-section-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: $default-spacing;
+
+  border-bottom: 2px solid currentColor;
+  color: theme-color-level("dark", $alert-color-level);
+
+  font-size: medium;
+  line-height: $btn-line-height;
+
+  @include direct-headings {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    font-size: medium;
+  }
+
+  // buttons are taller than the text, they reach into the padding instead of growing the bar
+  > .btn {
+    margin-top: -0.5rem;
+    margin-bottom: -0.5rem;
+  }
+}

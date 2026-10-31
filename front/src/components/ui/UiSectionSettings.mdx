@@ -1,0 +1,15 @@
+import { Canvas, Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+import * as UiSectionSettingsStories from "./UiSectionSettings.stories";
+
+<Meta of={UiSectionSettingsStories} />
+
+# Section settings
+
+A gear button for the `#actions` of a `UiSection`. It opens its slot in a dialog anchored to itself, and closes it
+on a click outside.
+
+<Canvas>
+    <Story of={UiSectionSettingsStories.Default} />
+</Canvas>
+
+<Controls of={UiSectionSettingsStories.Default} />
