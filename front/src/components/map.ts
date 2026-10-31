@@ -19,9 +19,12 @@
 
 import { defineComponent } from "vue";
 
-import "mapbox-gl-leaflet";
+import { maplibreGL } from "@maplibre/maplibre-gl-leaflet";
+import { setWorkerUrl } from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
 import iconUrl from "leaflet/dist/images/marker-icon.png";
@@ -30,6 +33,9 @@ import shadowUrl from "leaflet/dist/images/marker-shadow.png";
 delete L.Icon.Default.prototype["_getIconUrl"];
 
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
+
+// maplibre finds its worker next to its own module, which is not where Vite serves pre-bundled dependencies from
+setWorkerUrl(workerUrl);
 
 export const LVectorLayer = defineComponent({
     props: {
@@ -43,10 +49,10 @@ export const LVectorLayer = defineComponent({
         },
     },
     mounted(): void {
-        this["leafletObject"] = L.mapboxGL({
+        this["leafletObject"] = maplibreGL({
             style: this.url,
-            attribution: this.attribution,
-        } as unknown as L.MapboxGLOptions);
+            attributionControl: { customAttribution: this.attribution },
+        });
 
         this.$nextTick(() => {
             const map = this.$parent["leafletObject"];
@@ -54,7 +60,7 @@ export const LVectorLayer = defineComponent({
             this["leafletObject"].addTo(map);
         });
     },
-    beforeUmount(): void {
+    beforeUnmount(): void {
         this.$parent["leafletObject"].removeLayer(this["leafletObject"]);
     },
     render: () => null,
