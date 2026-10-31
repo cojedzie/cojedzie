@@ -32,6 +32,11 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
+- `components/ui/UiSection.vue` + `UiSectionSettings.vue` — the page's titled blocks. A section has an optional
+  `icon` and `title` (or a `#title` slot getting both), an `#actions` slot on the right of the header and the
+  content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).
+  `UiSectionSettings` is the gear button for `#actions`: it opens its slot in a `UiDialog` anchored to itself,
+  teleported to `#popups`. Stories: `Ui/Section`, `Ui/Section/Settings`.
 - `src/components/map.ts` + `components/ui/UiMap.vue` — maps: `@vue-leaflet/vue-leaflet` with a vector base layer
   (`LVectorLayer`) drawn by MapLibre through `@maplibre/maplibre-gl-leaflet`, style from MapTiler
   (`COJEDZIE_MAPTILER_KEY`; without it MapTiler answers 403 and the map stays grey). MapLibre finds its web worker
@@ -81,6 +86,12 @@ Two entry points, imported in this order by `src/app.ts` and `.storybook/preview
   variants in use exist; add one when a template needs it.
 
 `test/styles/theme.test.ts` checks that the `@theme` values equal the Sass variables. Change both together.
+
+A component's own styles live in its `<style lang="scss">` block (ADR 0018), which `@import`s `_variables.scss`
+for variables, mixins and loops. `UiSection` is the first one moved; the files in `styles/` that style a single
+component (`_departure`, `_line`, `_message`, ...) are still to move. `@extend` doesn't reach across separately
+compiled `<style>` blocks, so a look shared with a global stylesheet is a mixin in `_variables.scss` instead
+(`ui-section-header`, used by `UiSection` and `.stop-group__header`).
 
 Popups (`UiDialog`, `UiTooltip`, `UiSelect`) are positioned by `positionFloating()`/`useFloating()` in
 `src/composables/useFloating.ts`, over `@floating-ui/dom`. It sets `data-placement` (the arrow styles in

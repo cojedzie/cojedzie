@@ -51,6 +51,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0014](0014-frontend-styles-tailwind-utilities-and-scss.md) | Frontend styles: Tailwind utilities, components in SCSS | Accepted |
 | [0016](0016-maps-are-drawn-by-maplibre.md) | Maps are drawn by MapLibre | Accepted |
 | [0017](0017-icons-are-tabler-icons-ours-on-tablers-grid.md) | Icons are Tabler icons behind a named registry, ours drawn on Tabler's grid | Accepted |
+| [0018](0018-component-styles-live-in-their-components.md) | Component styles live in their components | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
