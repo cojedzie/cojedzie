@@ -15,7 +15,7 @@
             </slot>
             <slot name="badge">
                 <span class="badge badge-dark hstack">
-                    <ui-icon v-if="line.night && !simple" icon="night" fixed-width />
+                    <ui-icon v-if="line.night && !simple" icon="night" fixed-width class="mr-1" />
                     {{ line.symbol }}
                     <ui-icon v-if="line.fast" icon="fast" />
                 </span>
