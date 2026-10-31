@@ -61,8 +61,7 @@
     "vue-router": "^5.4.0",
     "vue-tsc": "^3",
     "workbox-build": "^7.4.1",
-    "workbox-window": "^7.4.1",
-    "xpath": "^0.0.36"
+    "workbox-window": "^7.4.1"
   },
   "dependencies": {
     "@sentry/node": "^11.9.0",
