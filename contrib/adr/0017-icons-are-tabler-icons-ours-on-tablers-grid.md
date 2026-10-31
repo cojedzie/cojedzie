@@ -46,8 +46,7 @@ We will take icons from `@tabler/icons-vue`, used only through the named registr
 
 - **No licensed dependencies.** A fresh clone and CI build without tokens or hand-placed packages; the
   `FONTAWESOME_S3_*` secrets are no longer used.
-- **Mixed styles until redrawn.** Train, trolleybus, metro and the unknown vehicle are still filled 512×512 shapes
-  drawn to match FontAwesome Light; the loader and `custom()` still read them, without the crop.
+- **One style.** Every transport icon is redrawn on Tabler's grid, so they match the Tabler icons around them.
 - **Icons straight from an editor.** An exported SVG works as is, without merging paths by hand.
 - **Our own sizing and stacking.** `UiIcon` provides the 1em sizing, spinning, fixed width and layers that
   FontAwesome's CSS used to.
@@ -57,5 +56,5 @@ We will take icons from `@tabler/icons-vue`, used only through the named registr
 - **One icon library.** There is no `@fortawesome/*` package or other icon library in `front/package.json`.
 - **Icons go through the registry.** Components outside `UiIcon.vue` and `icons.ts` don't import from
   `@tabler/icons-vue`; they use `<ui-icon>` with a name from `icons.ts`.
-- **Own icons.** A new or redrawn custom icon is an SVG in `front/resources/icons` with `viewBox="0 0 24 24"`, drawn
-  with strokes in `currentColor` (not fixed colours), registered with `custom()`.
+- **Own icons.** A custom icon is an SVG in `front/resources/icons` with `viewBox="0 0 24 24"`, drawn with strokes in
+  `currentColor` (not fixed colours), registered with `custom()`.

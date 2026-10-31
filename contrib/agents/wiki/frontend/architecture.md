@@ -47,8 +47,7 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   (`{ mappings: "" }`), as the generated module has no source to map to. An entry is `simple` (optionally `spin`,
   `fixedWidth`) or `stacked`: layers placed with `scale` and `x`/`y` in em, for combinations Tabler lacks. `UiIcon`
   sizes icons to 1em and crops the 2px padding of Tabler's grid off the view box (`2 2 20 20`), so they fill the box;
-  our icons on the same 24×24 grid take it too, the older filled 512×512 ones keep their own view box. The
-  Storybook `Ui/Icon` page shows the whole catalog.
+  our icons are drawn on the same 24×24 grid and take it too. The Storybook `Ui/Icon` page shows the whole catalog.
 - `src/stories` + `.storybook` — Storybook, served at http://storybook.cojedzie.localhost through nginx in docker
   (`nginx/storybook.conf`; also published on port 6006). It gets its own host because Storybook injects preview
   scripts at root paths that ignore a Vite `base`, so it can't live under a path of the app's host. The `storybook`
