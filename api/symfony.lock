@@ -260,9 +260,6 @@
     "psr/log": {
         "version": "1.0.2"
     },
-    "ralouphie/getallheaders": {
-        "version": "3.0.3"
-    },
     "rector/rector": {
         "version": "0.12.16"
     },
@@ -662,9 +659,6 @@
     },
     "symplify/easy-coding-standard": {
         "version": "10.0.25"
-    },
-    "theseer/tokenizer": {
-        "version": "1.2.1"
     },
     "twig/twig": {
         "version": "v2.5.0"
