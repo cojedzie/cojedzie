@@ -113,31 +113,6 @@ body {
     text-align: right;
     margin-top: 0.5rem;
   }
-
-  footer {
-    @extend .hstack;
-    flex-wrap: wrap;
-
-    font-size: $font-size-sm;
-    padding: $alert-padding-y $alert-padding-y;
-    transition: all 0.5s ease;
-    opacity: 0.15;
-    filter: grayscale(100%);
-
-    &:hover {
-      opacity: 1;
-      filter: grayscale(0%);
-    }
-
-    img {
-      height: 1.5rem;
-    }
-
-    > * {
-      flex: 1 1 auto;
-      padding: 0.4rem 0;
-    }
-  }
 }
 
 #app {
@@ -151,9 +126,5 @@ pre {
 @include media-breakpoint-up("md") {
   #app {
     padding-top: 2rem;
-  }
-
-  body footer > * {
-    flex: 0 1 auto;
   }
 }

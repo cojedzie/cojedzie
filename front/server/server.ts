@@ -134,15 +134,11 @@ const renderPageAction =
     (req: Request, res: Response) => {
         const manifest_path = req.params.provider ? `/${req.params.provider}/manifest.json` : "/manifest.json";
 
-        const year = new Date().getFullYear();
-
         res.render(
             "index",
             {
                 manifest_path,
                 gtm_tracking,
-                version,
-                year,
                 config: {
                     version,
                     production: !dev,

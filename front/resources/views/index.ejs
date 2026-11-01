@@ -53,21 +53,6 @@
         <main id="root" class="page-container not-ready">
         </main>
         <aside id="popups"></aside>
-        <footer class="page-container">
-            <span>
-                <img src="/images/logo.png" alt="co jedzie logo"/>
-                <%= version %> &bullet;
-                <a href="/api/doc">API</a> &bullet;
-                <% if (!is_production) { %>
-                    <a href="/storybook/">Storybook</a> &bullet;
-                <% } %>
-                <a href="https://github.com/cojedzie/cojedzie">GitHub</a>
-            </span>
-            <span class="copyright hstack flex-space-left justify-end">
-                <a href="https://kadet.net"><img src="/images/kadet-net-logo.png" alt="kadet.net logo" class="mx-1"/></a>
-                &copy; <%= year %>
-            </span>
-        </footer>
 
         <% if (is_production) { %>
             <script type="module" src="/<%= manifest['src/app.ts'].file %>"></script>
