@@ -40,6 +40,8 @@ export interface AppConfig {
     api: ApiConfig;
     sentry: SentryConfig;
     version: string;
+    /** false in development, where the links to dev tools (Storybook) are shown */
+    production: boolean;
 }
 
 declare global {
