@@ -145,6 +145,7 @@ const renderPageAction =
                 year,
                 config: {
                     version,
+                    production: !dev,
                     api: {
                         base:
                             process.env.COJEDZIE_API_PUBLIC ||
