@@ -1,6 +1,8 @@
 window.global = this;
 
 window.CoJedzie = {
+    version: "storybook",
+    production: false,
     maptiler: {
         key: process.env.COJEDZIE_MAPTILER_KEY,
     },
