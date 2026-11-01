@@ -23,6 +23,7 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 
 ## Structure worth knowing
 
+- `src/components/app` — the app shell, see [App shell and navigation](#app-shell-and-navigation).
 - `src/api` — typed endpoint map (`endpoints.ts`), HTTP / static / load-balanced clients, load balancer
   (see [API nodes and load balancing](#api-nodes-and-load-balancing)).
 - `src/stores` — Pinia setup stores and the persistence layer, see [State](#state-stores-and-persistence).
@@ -37,6 +38,13 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).
   `UiSectionSettings` is the gear button for `#actions`: it opens its slot in a `UiDialog` anchored to itself,
   teleported to `#popups`. Stories: `Ui/Section`, `Ui/Section/Settings`.
+- `components/ui/UiMenu.vue` + `UiMenuItem.vue` — the list of actions in a popup or sheet (`AppMoreMenu`,
+  `ProviderSwitcher`). The menu reaches the popup's edges (negative `$popup-padding` margins), so item hovers do too.
+  An item renders a `<button type="button">` inside an `<li>`, or the `tag` it is given (`tag="a"`,
+  `tag="router-link"`: the globally registered name, as vue-tsc rejects `RouterLink` itself). Classes, attributes and
+  listeners go to the item, not the `<li>`. To restyle, put your own class on `ui-menu` / `ui-menu-item`: a
+  single-class rule there beats the base one, because a component's CSS is emitted after the CSS of the components it
+  imports. Story: `Ui/Menu`.
 - `src/components/map.ts` + `components/ui/UiMap.vue` — maps: `@vue-leaflet/vue-leaflet` with a vector base layer
   (`LVectorLayer`) drawn by MapLibre through `@maplibre/maplibre-gl-leaflet`, style from MapTiler
   (`COJEDZIE_MAPTILER_KEY`; without it MapTiler answers 403 and the map stays grey). MapLibre finds its web worker
@@ -62,6 +70,60 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   `<Canvas><Story of={...} /></Canvas>` renders the primary story in every block.
 - Docker: `front/Dockerfile` has a `dev` target (used by the compose `frontend`, `storybook` and `front-setup`
   services, run as `COJEDZIE_UID`) and a `prod` target (the published image).
+
+## App shell and navigation
+
+`components/Application.vue` renders the shell around the routed page:
+
+- `AppHeader` (every page, sticky): logo linking to the provider's board (or `/` on the chooser), the
+  `ProviderSwitcher` chip and, from 768 px (`md`), the menu with a "Więcej" dropdown (`UiDialog`). The chip and the
+  menu are shown only on routes with a `provider` param. The chip shows `selection.provider.name` once the details of
+  the route's provider are loaded, the id from the URL until then. It gets a shadow (`app-header--stuck`) once it
+  sticks: an `IntersectionObserver` watches a 1px marker placed just above it, which scrolls away while the header
+  stays. CSS can't do this in every browser yet (scroll-driven animations and `scroll-state` queries lack Firefox).
+- `AppBottomBar` (below 768 px, only on a provider's routes): fixed to the bottom, the tabs (one per navigation entry
+  with `bottomBar: true`) centred and "Więcej" at the right end, which opens `AppMoreMenu` in a `UiSheet`. Tabs show
+  their icon, named by `aria-label`; only the current page's tab shows its label too. Its height is the
+  `--app-bottom-bar-height` variable (`styles/main.scss`) plus `env(safe-area-inset-bottom)`; `main` gets the same
+  bottom padding, so the bar never covers the end of the page.
+- `AppFooter` (from 768 px): the former server-rendered footer of `index.ejs`, now in Vue.
+- `AppMoreMenu`: the navigation entries it is given, then the about links from `useAboutLinks()` (API, Storybook
+  only when `AppConfig.production` is false, GitHub), version and copyright.
+
+Routes are named: `providers` (`/`) and `departures` (`/:provider`). `src/navigation.ts` lists the menu entries
+(`{ id, label, icon, route, bottomBar }`); the route takes the provider as its only param. **Adding a feature** is a
+route under `/:provider/<feature>` plus an entry there; it appears in the desktop menu, and in the bottom bar or the
+"Więcej" sheet depending on `bottomBar`. Nothing unbuilt is listed.
+
+Switching the provider only pushes the new route. `<router-view>` is keyed by the provider, so `MainPage` mounts
+anew: it clears the previous provider's messages and departures, and `selection.loadProvider` clears the stops and
+the old provider when the id differs (so Back/Forward clears them too) and ignores details of a provider it was
+switched away from. Stops restored from the session on the first load are kept.
+
+The shell components lay themselves out with Tailwind utilities in their templates (ADR 0014); their `<style>`
+blocks only hold the look, mostly from mixins and variables in `_variables.scss`. `app-bar-control` is a borderless
+button or link tinted with `$nav-hover-background` when hovered or open (the provider chip). `app-nav-item` adds the
+pill of the items of both bars (header links, bottom bar tabs, both "Więcej" buttons), filled with
+`$primary-gradient` when it is the current page (its `--active` modifier) and `$primary-gradient-light` when that
+one is hovered. Icon-only buttons carry an `aria-label`.
+
+The bottom bar names only the current tab until it is 576 px wide: it takes the `size-*` classes of `v-responsive`
+(`src/filters.ts`), and component tests stub the directive (`directives: { responsive: {} }`).
+
+The phone/desktop split is 768 px everywhere: Tailwind `md:` in templates, `useMediaQuery("(min-width: 768px)")` in
+scripts.
+
+The header and bottom bar use `$app-bar-z-index` (90): `UiDialog` puts a popup at 100 over its reference's stacking context, so
+board popups stay above the bars while the header's own dropdowns (90 + 100) stay above the header.
+
+`UiSheet` is the phone counterpart of `UiDialog`: teleported to `#popups`, slides up from the bottom, emits `leave` on
+a backdrop click or Escape. `ProviderSwitcher` picks between the two with `useMediaQuery("(min-width: 768px)")`.
+
+Images in templates go through `@resources/images/...`: a root-relative `src="/images/..."` is turned into a module
+import by `@vitejs/plugin-vue`, which the dev server answers with the PNG and the page fails to load.
+
+Storybook's preview installs Pinia and a memory router with stub `providers` and `departures` routes (at
+`/trojmiasto`), so shell components using `RouterLink` render; `.storybook/setup.js` sets `version` and `production`.
 
 ## Style
 
