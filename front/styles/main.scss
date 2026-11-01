@@ -53,6 +53,11 @@
 
 @import "storybook/_icon-catalog.scss";
 
+// height of the mobile bottom bar (AppBottomBar), without the safe area under it
+:root {
+  --app-bottom-bar-height: 3rem;
+}
+
 html,
 body {
   overscroll-behavior-y: contain;
