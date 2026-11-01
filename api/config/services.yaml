@@ -21,6 +21,11 @@ parameters:
   # how long imported rows stay after the last import that wrote them, see App\DataImport\StaleDataCollector
   env(COJEDZIE_STALE_DATA_RETENTION): '7 days'
 
+  # departure history in ClickHouse, see App\ClickHouse\ClickHouseConnection; empty disables recording
+  env(COJEDZIE_CLICKHOUSE_URL): ''
+  # how many days a recorded departure is kept
+  env(COJEDZIE_DEPARTURE_HISTORY_RETENTION_DAYS): '365'
+
   env(CORS_ALLOW_ORIGIN): '^https?://.*'
 
   env(MERCURE_JWT_SECRET): ''
@@ -55,11 +60,18 @@ services:
     App\DataConverter\Converter:
       tags: [ app.converter ]
 
+    App\ClickHouse\Migration:
+      tags: [ app.clickhouse_migration ]
+
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\:
     resource: '../src/*'
     exclude: '../src/{DependencyInjection,Exception,Modifier,Entity,Message,Dto,Migrations,Tests,Parser,Functions,Filter,Utility,Kernel.php}'
+
+  # ClickHouse schema, see App\ClickHouse\Migrator
+  ClickHouseMigrations\:
+    resource: '../migrations/clickhouse/'
 
   # controllers are imported separately to make sure services can be injected
   # as action arguments even if you don't extend any base controller class

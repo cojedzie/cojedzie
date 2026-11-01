@@ -58,6 +58,7 @@ tasks:
     cmds:
       - task: test:api
       - task: test:behat
+      - task: test:clickhouse
       - task: test:front
 
   test:api:
@@ -67,6 +68,12 @@ tasks:
           mkdir -p var/db &&
           bin/console --env=test doctrine:migrations:migrate -n -q &&
           bin/phpunit {{.CLI_ARGS}}'
+
+  test:clickhouse:
+    desc: Test the ClickHouse storage against the clickhouse service (phpunit group clickhouse)
+    cmds:
+      - docker compose up -d --wait clickhouse
+      - docker compose run --rm --no-deps -e HOME=/tmp -e APP_ENV=test {{.FLAGS}} -e COJEDZIE_RUNAS="{{.USER}}" api bin/phpunit --group clickhouse {{.CLI_ARGS}}
 
   test:front:
     desc: Test frontend with Vitest

@@ -3,6 +3,7 @@ x-api-env: &api-env
   COJEDZIE_API_MODE: ${COJEDZIE_API_MODE:-${APP_MODE:-debug}}
   COJEDZIE_DEV_SERVER: ${COJEDZIE_DEV_SERVER:-fpm}
   COJEDZIE_DATABASE_URL: mysql://cojedzie:cojedzie@mysql/cojedzie?serverVersion=mariadb-10.7.1
+  COJEDZIE_CLICKHOUSE_URL: http://cojedzie:cojedzie@clickhouse:8123/cojedzie
   PHP_IDE_CONFIG: serverName=cojedzie
   COJEDZIE_VERSION: dev
   COJEDZIE_REVISION: dev
@@ -213,6 +214,30 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  # departure history, see contrib/agents/wiki/api/departure-history.md; the site runs without it
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.8
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+    environment:
+      CLICKHOUSE_DB: cojedzie
+      CLICKHOUSE_USER: cojedzie
+      CLICKHOUSE_PASSWORD: cojedzie
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse/low-memory.xml:/etc/clickhouse-server/config.d/low-memory.xml:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   mercure:
     image: dunglas/mercure
     restart: unless-stopped
@@ -232,3 +257,4 @@ volumes:
   postgres_data:
   mysql_data:
   es_data:
+  clickhouse_data:
