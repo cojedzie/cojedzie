@@ -23,52 +23,43 @@ namespace App\MessageHandler;
 use App\Message\UpdateDataSources;
 use App\Schedule\ScheduleConfig;
 use App\Service\DataUpdater;
+use App\Utility\SentryCronMonitorTrait;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Sentry\CheckInStatus;
 use Sentry\MonitorConfig;
 use Sentry\MonitorSchedule;
-use Sentry\State\HubInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 final class UpdateDataSourcesMessageHandler implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
+    use SentryCronMonitorTrait;
 
     // Sentry cron monitor, alerts when the daily update is missed or fails
     private const string MONITOR = 'update-data-sources';
 
     public function __construct(
         private readonly DataUpdater $updater,
-        private readonly HubInterface $hub,
         private readonly ScheduleConfig $schedules,
     ) {
     }
 
     public function __invoke(UpdateDataSources $message)
     {
-        $checkInId = $this->hub->captureCheckIn(
-            self::MONITOR,
-            CheckInStatus::inProgress(),
-            monitorConfig: new MonitorConfig(
-                MonitorSchedule::crontab($this->schedules->updateDataSources),
-                checkinMargin: 30,
-                maxRuntime: 120,
-                timezone: date_default_timezone_get(),
-            ),
+        $config = new MonitorConfig(
+            MonitorSchedule::crontab($this->schedules->updateDataSources),
+            checkinMargin: 30,
+            maxRuntime: 120,
+            timezone: date_default_timezone_get(),
         );
 
         try {
-            $this->updater->update();
-            $status = CheckInStatus::ok();
+            $this->monitored(self::MONITOR, $config, $this->updater->update(...));
         } catch (\Exception $exception) {
             $this->logger->critical($exception->getMessage(), [
                 'backtrace' => $exception->getTraceAsString(),
             ]);
-            $status = CheckInStatus::error();
         }
-
-        $this->hub->captureCheckIn(self::MONITOR, $status, checkInId: $checkInId);
     }
 }
