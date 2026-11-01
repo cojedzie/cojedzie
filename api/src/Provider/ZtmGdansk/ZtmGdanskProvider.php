@@ -101,7 +101,7 @@ class ZtmGdanskProvider implements Provider
         GenericTripRepository $trips,
         private readonly ZtmGdanskMessageRepository $messages,
         ClockInterface $clock,
-        ZtmGdanskConfig $config,
+        ZtmGdanskLiveDepartures $live,
     ) {
         $provider = $this->refreshProviderEntity();
 
@@ -114,7 +114,7 @@ class ZtmGdanskProvider implements Provider
         $this->lines      = $lines;
         $this->departures = new RealtimeScheduleDepartureRepository(
             $schedule,
-            new ZtmGdanskRealtimeDepartureRepository($lines, $config),
+            new ZtmGdanskRealtimeDepartureRepository($lines, $live),
             $clock,
         );
         $this->stops  = $stops;

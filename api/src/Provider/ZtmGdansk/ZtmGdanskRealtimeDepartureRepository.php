@@ -28,6 +28,8 @@ use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
+use App\Provider\Live\LiveDeparture;
+use App\Provider\Live\LiveDepartureException;
 use Carbon\Carbon;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
@@ -38,14 +40,12 @@ use Symfony\Component\DependencyInjection\Attribute\Exclude;
  * Live departures of the given stops from ZTM Gdańsk's TRISTAR departures API: estimates for vehicles on the way,
  * timetable-only entries without an estimate.
  */
-#[Exclude] // built by ZtmGdanskProvider with its own line repository and the configured URL
+#[Exclude] // built by ZtmGdanskProvider with its own line repository
 class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
 {
-    final public const string DEPARTURES_PATH = '/departures';
-
     public function __construct(
         private readonly LineRepository $lines,
-        private readonly ZtmGdanskConfig $config,
+        private readonly ZtmGdanskLiveDepartures $live,
     ) {
     }
 
@@ -61,38 +61,29 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
     private function getRealDepartures(Stop $stop): Seq
     {
         // without the API (unreachable or answering garbage) the timetable is shown on its own
-        $response = @file_get_contents($this->config->apiUrl . self::DEPARTURES_PATH . "?stopId=" . $stop->getId());
-        if ($response === false) {
-            return new Seq();
-        }
-
         try {
-            $departures = new Seq(json_decode($response, true, 512, JSON_THROW_ON_ERROR)['departures'] ?? []);
-        } catch (\JsonException) {
+            $departures = $this->live->forStop($stop->getId());
+        } catch (LiveDepartureException) {
             return new Seq();
         }
 
         $lines = $this->lines
-            ->all(new IdConstraint($departures |> c\map(fn (array $departure) => (string) $departure['routeId']) |> c\unique()))
+            ->all(new IdConstraint($departures |> c\map(t\property('lineId')) |> c\unique()))
             |> c\keyBy(t\property('id'));
 
-        return $departures |> c\map(function (array $departure) use ($stop, $lines) {
-            $scheduled = new Carbon($departure['theoreticalTime'])->tz('UTC');
-            // entries the API knows only from its own timetable carry no estimate
-            $realtime = ($departure['status'] ?? null) === 'REALTIME' && $departure['delayInSeconds'] !== null;
+        return $departures |> c\map(function (LiveDeparture $departure) use ($stop, $lines) {
+            $scheduled = Carbon::instance($departure->scheduledAt)->tz('UTC');
 
             return Departure::createFromArray([
-                'key'       => sprintf('%s::%s', $departure['routeId'], $scheduled->format('H:i')),
+                'key'       => sprintf('%s::%s', $departure->lineId, $scheduled->format('H:i')),
                 'scheduled' => $scheduled,
-                'estimated' => $realtime ? new Carbon($departure['estimatedTime'])->tz('UTC') : null,
+                'estimated' => $departure->estimatedAt !== null ? Carbon::instance($departure->estimatedAt)->tz('UTC') : null,
                 'stop'      => $stop,
-                'display'   => trim((string) $departure['headsign']),
-                'vehicle'   => $departure['vehicleCode'] !== null
-                    ? Vehicle::reference($departure['vehicleCode'])
-                    : null,
-                'line'      => $lines->get((string) $departure['routeId'], null) ?: Line::createFromArray([
-                    'id'     => (string) $departure['routeId'],
-                    'symbol' => (string) ($departure['routeShortName'] ?? $departure['routeId']),
+                'display'   => $departure->headsign,
+                'vehicle'   => $departure->vehicle !== null ? Vehicle::reference($departure->vehicle) : null,
+                'line'      => $lines->get($departure->lineId, null) ?: Line::createFromArray([
+                    'id'     => $departure->lineId,
+                    'symbol' => $departure->lineSymbol,
                     'type'   => Line::TYPE_UNKNOWN,
                 ]),
             ]);

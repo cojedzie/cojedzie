@@ -10,6 +10,11 @@ framework:
     php_errors:
         log: true
 
+    # without it a request waits up to default_socket_timeout (60 s) for a stalled server
+    http_client:
+        default_options:
+            timeout: 15
+
 when@test:
     framework:
         test: true
