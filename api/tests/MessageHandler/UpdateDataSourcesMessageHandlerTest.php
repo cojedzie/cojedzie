@@ -67,12 +67,13 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
             }
         );
 
-        $handler = new UpdateDataSourcesMessageHandler($updater, $hub, new ScheduleConfig(
+        $handler = new UpdateDataSourcesMessageHandler($updater, new ScheduleConfig(
             updateDataSources: '30 2 * * *',
             federationCheck: '* * * * *',
             federationCleanup: '0 0 * * *',
             collectStaleData: '0 6 * * *',
         ));
+        $handler->setSentryHub($hub);
         $handler->setLogger(new NullLogger());
         $handler(new UpdateDataSources());
     }
