@@ -53,6 +53,7 @@ Before working on a task, read the page(s) matching its topic. Pages are split i
 | DTOs, entities, ids, converters, serialization groups | `contrib/agents/wiki/api/dto-and-entities.md` |
 | Collections, kadet/functional, php-ds | `contrib/agents/wiki/api/collections.md` |
 | `app:update`, importers, entities, migrations | `contrib/agents/wiki/api/data-import.md` |
+| Departure history, recorder, ClickHouse | `contrib/agents/wiki/api/departure-history.md` |
 | Federated nodes, hub, endpoint versions | `contrib/agents/wiki/api/federation.md` |
 | API tests, Behat scenarios, fake test provider | `contrib/agents/wiki/api/testing.md` |
 | Vue app, Express server, store, API client, node load balancing, styles (Tailwind, SCSS), Storybook | `contrib/agents/wiki/frontend/architecture.md` |
@@ -75,6 +76,7 @@ task test:api -- --filter JsonStreamingParserTest   # single test class/method
 task test:api -- tests/ZtmGdansk  # single directory
 task test:behat                   # Behat API contract scenarios (fresh SQLite test DB)
 task test:behat -- features/departures              # single area
+task test:clickhouse              # phpunit group clickhouse, against the clickhouse service
 task test:front                   # frontend tests (vitest)
 task test:front -- test/container.test.ts           # single frontend test
 task lint                         # ECS, Rector, PHPStan (api) + Prettier, ESLint, vue-tsc (front), as CI does
@@ -87,9 +89,9 @@ task benchmark:api                # phpbench
 ```
 
 - The dev stack is the single `docker-compose.yml`, built from the `dev` targets of the Dockerfiles. Default
-  services: `nginx`, `api`, `worker`, `schedule`, `frontend`, `storybook`, `mercure`, `mysql`. The one-shot
-  `api-setup` (`composer install`, migrate, import) and `front-setup` (`npm install`, `build:server`) run first.
-  The first `up` imports provider data, which takes about 10 minutes. MySQL is the dev database.
+  services: `nginx`, `api`, `worker`, `schedule`, `frontend`, `storybook`, `mercure`, `mysql`, `clickhouse`. The
+  one-shot `api-setup` (`composer install`, migrate, import) and `front-setup` (`npm install`, `build:server`) run
+  first. The first `up` imports provider data, which takes about 10 minutes. MySQL is the dev database.
 - Profiles: `--profile postgres`, `--profile elastic` (Elasticsearch/Kibana) and `--profile federated` (a second
   node with its own SQLite database `api/var/db/federated.db`). The node must be registered on the hub first:
   `task console -- federation:register <email> http://federated:8080`, then pass the printed id and secret as

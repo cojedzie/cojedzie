@@ -18,6 +18,7 @@ in `frontend/`).
 | [api/dto-and-entities.md](api/dto-and-entities.md) | Entity vs DTO model, ids, converters, reference DTOs, serialization groups |
 | [api/collections.md](api/collections.md) | php-ds collections, `kadet/functional` pipelines, boundaries, Illuminate translations, traps |
 | [api/data-import.md](api/data-import.md) | `app:update`, data importers, Doctrine entities and per-engine migrations |
+| [api/departure-history.md](api/departure-history.md) | Departure history: live departure sources, the recorder, ClickHouse (migrations, table) and how to read it |
 | [api/federation.md](api/federation.md) | Federated API nodes, hub, endpoint versioning |
 | [api/testing.md](api/testing.md) | PHPUnit and Behat suites, fake `test` provider, writing contract scenarios |
 

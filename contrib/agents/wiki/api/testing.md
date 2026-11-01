@@ -10,7 +10,12 @@ task test:api                                  # PHPUnit
 task test:behat                                # Behat, fresh test database each run
 task test:behat -- features/departures         # one area
 task test:behat -- --tags='~@wip'              # what CI runs
+task test:clickhouse                           # PHPUnit group clickhouse, needs the clickhouse service
 ```
+
+PHPUnit tests that need a real ClickHouse server carry `#[Group('clickhouse')]` and are excluded by default
+(`phpunit.xml.dist`); see [departure-history.md](departure-history.md#testing). HTTP calls to providers go through
+HttpClient, so tests use `MockHttpClient`.
 
 Both tasks pass `APP_ENV=test` to the container: compose loads `api/.env.local` into its environment, and
 `KernelTestCase` prefers the environment over `phpunit.xml.dist`, so a local `APP_ENV=dev` would boot the wrong
