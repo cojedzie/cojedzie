@@ -1,0 +1,30 @@
+<clickhouse>
+    <!-- a guest on a shared box, not a dedicated server -->
+    <max_server_memory_usage>1610612736</max_server_memory_usage>
+    <mark_cache_size>268435456</mark_cache_size>
+    <uncompressed_cache_size>0</uncompressed_cache_size>
+    <!-- containers often have no IPv6, listening on :: fails noisily -->
+    <listen_host>0.0.0.0</listen_host>
+    <logger>
+        <level>warning</level>
+        <console>1</console>
+    </logger>
+    <!-- internal system logs grow without limit; we don't use them -->
+    <query_log remove="1"/>
+    <query_thread_log remove="1"/>
+    <query_views_log remove="1"/>
+    <query_metric_log remove="1"/>
+    <trace_log remove="1"/>
+    <metric_log remove="1"/>
+    <asynchronous_metric_log remove="1"/>
+    <part_log remove="1"/>
+    <text_log remove="1"/>
+    <processors_profile_log remove="1"/>
+    <opentelemetry_span_log remove="1"/>
+    <session_log remove="1"/>
+    <error_log remove="1"/>
+    <latency_log remove="1"/>
+    <backup_log remove="1"/>
+    <s3queue_log remove="1"/>
+    <blob_storage_log remove="1"/>
+</clickhouse>

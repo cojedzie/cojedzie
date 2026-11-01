@@ -23,6 +23,13 @@
         </testsuite>
     </testsuites>
 
+    <!-- need a ClickHouse server: task test:clickhouse -->
+    <groups>
+        <exclude>
+            <group>clickhouse</group>
+        </exclude>
+    </groups>
+
     <source ignoreSuppressionOfDeprecations="true">
         <include>
             <directory suffix=".php">src</directory>

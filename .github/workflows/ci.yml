@@ -10,6 +10,16 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      clickhouse:
+        image: clickhouse/clickhouse-server:25.8
+        env:
+          CLICKHOUSE_USER: cojedzie
+          CLICKHOUSE_PASSWORD: cojedzie
+          CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: '1'
+        ports:
+          - 8123:8123
+        options: --health-cmd="wget --spider -q http://127.0.0.1:8123/ping" --health-interval=5s --health-timeout=3s --health-retries=20
     defaults:
       run:
         working-directory: api
@@ -37,6 +47,10 @@ jobs:
           bin/console --env=test doctrine:migrations:migrate --no-interaction --quiet
       - name: PHPUnit
         run: bin/phpunit --log-junit var/junit/phpunit.xml
+      - name: PHPUnit (ClickHouse)
+        run: bin/phpunit --group clickhouse --log-junit var/junit/phpunit-clickhouse.xml
+        env:
+          COJEDZIE_CLICKHOUSE_TEST_URL: http://cojedzie:cojedzie@127.0.0.1:8123/cojedzie_test
       - name: Behat
         run: >
           vendor/bin/behat --no-interaction --fail-on-behat-deprecations --tags='~@wip'

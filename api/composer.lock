@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b318d64ebcfa25ee207f0e61df1dde7d",
+    "content-hash": "40edab57e816090efe3abab8d10c611f",
     "packages": [
         {
             "name": "baldinof/roadrunner-bundle",
@@ -3417,6 +3417,65 @@
                 }
             ],
             "time": "2026-10-29T14:23:18+00:00"
+        },
+        {
+            "name": "smi2/phpclickhouse",
+            "version": "1.26.925",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smi2/phpClickHouse.git",
+                "reference": "9ef306425bdf519d4b6951b623752802b2156d25"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smi2/phpClickHouse/zipball/9ef306425bdf519d4b6951b623752802b2156d25",
+                "reference": "9ef306425bdf519d4b6951b623752802b2156d25",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "doctrine/coding-standard": "^8.2",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^9.5",
+                "sebastian/comparator": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ClickHouseDB\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Igor Strykhar",
+                    "email": "isublimity@gmail.com",
+                    "homepage": "https://github.com/isublimity"
+                }
+            ],
+            "description": "PHP ClickHouse Client",
+            "homepage": "https://github.com/smi2/phpClickHouse",
+            "keywords": [
+                "clickhouse",
+                "client",
+                "curl",
+                "driver",
+                "http",
+                "http client",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/smi2/phpClickHouse/issues",
+                "source": "https://github.com/smi2/phpClickHouse/tree/1.26.925"
+            },
+            "time": "2026-09-25T05:41:06+00:00"
         },
         {
             "name": "spiral/roadrunner",
