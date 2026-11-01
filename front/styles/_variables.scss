@@ -55,6 +55,8 @@ $theme-colors: (
 );
 
 $primary-gradient: linear-gradient(120deg, $primary 10%, darken($primary, 5%) 90%);
+// background of hovered and open items of the app's bars: their navigation and the provider chip
+$nav-hover-background: rgba($primary, 0.1);
 $danger-gradient: linear-gradient(120deg, $danger 10%, darken($danger, 10%) 90%);
 
 $body-color: $gray-900;
@@ -64,6 +66,8 @@ $link-color: $primary;
 $spacer: 1rem;
 $default-spacing: 0.5rem;
 $grid-gutter-width: $spacer * 2;
+
+$popup-padding: 0.75rem;
 
 $font-size-base: 1rem;
 $font-size-sm: $font-size-base * 0.875;
@@ -217,6 +221,20 @@ $container-max-widths: (
   right: $right;
   left: $left;
   bottom: $bottom;
+}
+
+// A button or link in the app's bars, tinted when hovered or open. Layout and spacing come from utilities.
+@mixin app-bar-control {
+  border: 0;
+  background: none;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded="true"] {
+    background: $nav-hover-background;
+    text-decoration: none;
+  }
 }
 
 // The header bar of UiSection: underlined, with the heading and its buttons in one line. Shared with headers that
