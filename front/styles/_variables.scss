@@ -55,6 +55,7 @@ $theme-colors: (
 );
 
 $primary-gradient: linear-gradient(120deg, $primary 10%, darken($primary, 5%) 90%);
+$primary-gradient-light: linear-gradient(120deg, lighten($primary, 8%) 10%, lighten($primary, 3%) 90%);
 // background of hovered and open items of the app's bars: their navigation and the provider chip
 $nav-hover-background: rgba($primary, 0.1);
 $danger-gradient: linear-gradient(120deg, $danger 10%, darken($danger, 10%) 90%);
@@ -223,6 +224,11 @@ $container-max-widths: (
   bottom: $bottom;
 }
 
+// The app's bars, the header and the bottom bar. Below the board's popups: UiDialog puts them at 100 over their
+// nearest stacking context, so the header's own dropdowns (90 + 100) still cover the header.
+$app-bar-z-index: 90;
+$app-bar-shadow-color: rgba($black, 0.2);
+
 // A button or link in the app's bars, tinted when hovered or open. Layout and spacing come from utilities.
 @mixin app-bar-control {
   border: 0;
@@ -234,6 +240,25 @@ $container-max-widths: (
   &[aria-expanded="true"] {
     background: $nav-hover-background;
     text-decoration: none;
+  }
+}
+
+// An item of the app's navigation (header and bottom bar): a pill filled with the gradient when it is the current
+// page. The item gets the active state as its own `--active` modifier.
+@mixin app-nav-item {
+  @include app-bar-control;
+  border-radius: 0.75rem;
+  font-weight: bold;
+
+  &--active {
+    color: white;
+    background: $primary-gradient;
+
+    // color too, or the global a:hover takes it off the gradient
+    &:hover {
+      color: white;
+      background: $primary-gradient-light;
+    }
   }
 }
 
