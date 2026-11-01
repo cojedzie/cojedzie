@@ -43,7 +43,6 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0006](0006-collections-are-php-ds-values-with-kadet-functional-pipelines.md) | Collections are php-ds values with kadet/functional pipelines | Accepted |
 | [0007](0007-imported-rows-are-upserted-portably.md) | Imported rows are upserted portably, importers are tested on recorded feeds | Accepted |
 | [0008](0008-federated-servers-authenticate-through-symfony-security.md) | Federated servers authenticate through Symfony Security | Accepted |
-| [0009](0009-schedules-are-configured-by-environment-variables.md) | Schedules are configured by environment variables | Accepted |
 | [0010](0010-stale-imported-data-is-collected-after-a-retention-period.md) | Stale imported data is collected after a retention period | Accepted |
 | [0011](0011-environment-variables-are-namespaced.md) | Environment variables controlling the app are namespaced | Accepted |
 | [0012](0012-images-are-built-with-bake-from-per-service-dockerfiles.md) | Images are built with bake from per-service Dockerfiles | Accepted |
@@ -54,6 +53,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0018](0018-component-styles-live-in-their-components.md) | Component styles live in their components | Accepted |
 | [0019](0019-javascript-dependencies-are-managed-by-npm.md) | JavaScript dependencies are managed by npm | Accepted |
 | [0020](0020-departure-history-is-stored-in-clickhouse.md) | Departure history is stored in ClickHouse | Accepted |
+| [0021](0021-schedules-are-cron-expressions-or-intervals-from-environment-variables.md) | Schedules are cron expressions or intervals from environment variables | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
@@ -61,6 +61,7 @@ Don't write one for local implementation details that the code and the wiki alre
 
 | ADR | Title | Status |
 |---|---|---|
+| [0009](archive/0009-schedules-are-configured-by-environment-variables.md) | Schedules are configured by environment variables | Superseded by [0021](0021-schedules-are-cron-expressions-or-intervals-from-environment-variables.md) |
 | [0015](archive/0015-icons-are-tabler-icons-behind-named-registry.md) | Icons are Tabler icons behind a named registry | Superseded by [0017](0017-icons-are-tabler-icons-ours-on-tablers-grid.md) |
 
 <!-- Move rows here when archiving: | [0001](archive/0001-short-title.md) | Title | Superseded by [0002](0002-new-title.md) | -->

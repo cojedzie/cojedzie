@@ -17,6 +17,8 @@ parameters:
   env(COJEDZIE_SCHEDULE_FEDERATION_CHECK): '* * * * *'
   env(COJEDZIE_SCHEDULE_FEDERATION_CLEANUP): '0 0 * * *'
   env(COJEDZIE_SCHEDULE_COLLECT_STALE_DATA): '0 6 * * *'
+  # intervals, for jobs more frequent than cron allows
+  env(COJEDZIE_INTERVAL_RECORD_DEPARTURES): '20 seconds'
 
   # how long imported rows stay after the last import that wrote them, see App\DataImport\StaleDataCollector
   env(COJEDZIE_STALE_DATA_RETENTION): '7 days'
@@ -59,6 +61,9 @@ services:
 
     App\DataConverter\Converter:
       tags: [ app.converter ]
+
+    App\Provider\Live\LiveDepartureSource:
+      tags: [ app.live_departure_source ]
 
     App\ClickHouse\Migration:
       tags: [ app.clickhouse_migration ]

@@ -16,8 +16,9 @@ difference and was removed.
 
 Run it with `task api:update` (uses `COJEDZIE_API_MODE=performance` by default).
 
-Scheduling (ADR 0009): Symfony Scheduler in `src/Schedule`. Each schedule is a cron expression in its own
-environment variable, read by `ScheduleConfig` (defaults in `config/services.yaml`):
+Scheduling (ADR 0021): Symfony Scheduler in `src/Schedule`. Each schedule is its own environment variable, read by
+`ScheduleConfig` (defaults in `config/services.yaml`): a cron expression (`COJEDZIE_SCHEDULE_*`), or an interval
+(`COJEDZIE_INTERVAL_*`, a `DateInterval::createFromDateString()` string) for jobs more frequent than a minute:
 
 | Variable | Default | Job | Transport |
 |---|---|---|---|
@@ -25,15 +26,16 @@ environment variable, read by `ScheduleConfig` (defaults in `config/services.yam
 | `COJEDZIE_SCHEDULE_FEDERATION_CHECK` | `* * * * *` | `CheckFederatedConnection` for connections due | `scheduler_hub` |
 | `COJEDZIE_SCHEDULE_FEDERATION_CLEANUP` | `0 0 * * *` | `CleanupFederatedConnections` | `scheduler_hub` |
 | `COJEDZIE_SCHEDULE_COLLECT_STALE_DATA` | `0 6 * * *` | redispatch `CollectStaleData` to `main` | `scheduler_default` |
+| `COJEDZIE_INTERVAL_RECORD_DEPARTURES` | `20 seconds` | `RecordDepartures`, handled in place (see [departure-history.md](departure-history.md)); empty schedule without ClickHouse | `scheduler_recorder` |
 
 A schedule only runs where a worker consumes its transport (`COJEDZIE_WORKER_QUEUES`):
 
 - Production: `worker` consumes `main`; a separate `schedule` service (worker image) consumes
-  `scheduler_default scheduler_hub`. The dev `docker-compose.yml` mirrors it.
+  `scheduler_default scheduler_hub scheduler_recorder`. The dev `docker-compose.yml` mirrors it.
 - The `standalone` image consumes `main scheduler_default`: it imports its own data but doesn't check nodes.
 - `UpdateDataSourcesMessageHandler` handles the import and reports the configured schedule to Sentry.
 
-Use cron syntax, not `@daily`: in `services.yaml` a leading `@` is read as a service reference.
+Use cron syntax for `COJEDZIE_SCHEDULE_*`, not `@daily`: in `services.yaml` a leading `@` is read as a service reference.
 
 `bin/docker-init.sh` runs migrations **and** a synchronous `app:update` on container start whenever migrations
 are out of date.

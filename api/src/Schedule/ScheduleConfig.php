@@ -23,8 +23,9 @@ namespace App\Schedule;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * When the scheduled jobs run, as cron expressions in the server's time zone. Each is an environment variable,
- * defaults are in config/services.yaml.
+ * When the scheduled jobs run: cron expressions in the server's time zone (COJEDZIE_SCHEDULE_*) or intervals
+ * (COJEDZIE_INTERVAL_*, DateInterval::createFromDateString() strings) for jobs more frequent than a minute. Each is
+ * an environment variable, defaults are in config/services.yaml.
  */
 final readonly class ScheduleConfig
 {
@@ -41,6 +42,9 @@ final readonly class ScheduleConfig
         // removal of imported data that disappeared upstream, see StaleDataCollector
         #[Autowire(env: 'COJEDZIE_SCHEDULE_COLLECT_STALE_DATA')]
         public string $collectStaleData,
+        // recording of departure history, see RecorderScheduleProvider
+        #[Autowire(env: 'COJEDZIE_INTERVAL_RECORD_DEPARTURES')]
+        public string $recordDepartures,
     ) {
     }
 }

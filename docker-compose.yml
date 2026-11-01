@@ -84,11 +84,13 @@ services:
     environment:
       <<: *api-env
       COJEDZIE_RUNAS: ${COJEDZIE_UID:-1000}
-    command: bin/console messenger:consume -vv --time-limit=86400 --limit=10 --memory-limit=128M scheduler_default scheduler_hub
+    command: bin/console messenger:consume -vv --time-limit=86400 --limit=10 --memory-limit=128M scheduler_default scheduler_hub scheduler_recorder
     restart: unless-stopped
     depends_on:
       api-setup:
         condition: service_completed_successfully
+      clickhouse:
+        condition: service_started
 
   # installs frontend dependencies and builds the server, so the frontend can start on a fresh clone
   front-setup:

@@ -29,7 +29,7 @@ We will collect stale data with a separate procedure (option 3), `App\DataImport
 - Stale rows still referenced by rows that stay are kept; tables are collected children first.
 - Nothing is collected unless an import finished within the retention period.
 - Imports nothing refers to anymore are removed afterwards.
-- It runs as `app:collect-stale-data` and on its own schedule (`COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`, ADR 0009; both prefixed by ADR 0011).
+- It runs as `app:collect-stale-data` and on its own schedule (`COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`, ADR 0021; both prefixed by ADR 0011).
 
 ## Consequences
 

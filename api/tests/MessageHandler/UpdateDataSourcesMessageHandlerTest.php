@@ -72,6 +72,7 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
             federationCheck: '* * * * *',
             federationCleanup: '0 0 * * *',
             collectStaleData: '0 6 * * *',
+            recordDepartures: '20 seconds',
         ));
         $handler->setSentryHub($hub);
         $handler->setLogger(new NullLogger());
