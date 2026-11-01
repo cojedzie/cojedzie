@@ -36,13 +36,15 @@ use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\ScheduleRepository;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
+use App\Provider\ZtmGdansk\ZtmGdanskLiveDepartures;
 use App\Provider\ZtmGdansk\ZtmGdanskRealtimeDepartureRepository;
-use App\Tests\ZtmGdansk\Support\EstimatesStream;
 use Carbon\Carbon;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * Pins how ZTM's live estimates are joined with the timetable by the shared joining repository.
@@ -62,11 +64,18 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
      */
     private array $schedule = [];
 
+    /**
+     * @var array<string, list<array<string, mixed>>> the API's entries by stop id
+     */
+    private array $estimates = [];
+
+    // when set, the API is unreachable
+    private bool $unavailable = false;
+
     #[\Override]
     protected function setUp(): void
     {
         self::bootKernel();
-        EstimatesStream::register();
         Carbon::setTestNow(Carbon::parse('2026-10-20 12:00', self::ZONE));
 
         $this->stop = Stop::createFromArray(['id' => '1001', 'name' => 'Brama Wyżynna']);
@@ -191,7 +200,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     public function testTimetableIsShownWhenEstimatesAreUnavailable(): void
     {
         $this->scheduled('6', '12:20', 'Łostowice', 'trip-6-1220');
-        EstimatesStream::$unavailable = true;
+        $this->unavailable = true;
 
         $departures = $this->departures();
 
@@ -213,7 +222,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             $this->scheduleRepository(),
             new ZtmGdanskRealtimeDepartureRepository(
                 $this->lineRepository(),
-                self::config(),
+                new ZtmGdanskLiveDepartures($this->api(), self::config()),
             ),
             new MockClock(Carbon::now()->toDateTimeImmutable()),
         );
@@ -241,18 +250,19 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     {
         $scheduled = Carbon::parse('2026-10-20 ' . $time, self::ZONE)->tz('UTC');
 
-        EstimatesStream::$estimates[$this->stop->getId()][] = [
-            'id'              => sprintf('T1R%s', $line),
-            'routeId'         => (int) $line,
-            'routeShortName'  => $line,
-            'tripId'          => 1,
-            'headsign'        => $headsign,
-            'status'          => 'REALTIME',
-            'theoreticalTime' => $scheduled->toIso8601ZuluString(),
-            'estimatedTime'   => $scheduled->clone()->addSeconds($delay)->toIso8601ZuluString(),
-            'delayInSeconds'  => $delay,
-            'vehicleCode'     => 1234,
-            'vehicleId'       => 1,
+        $this->estimates[$this->stop->getId()][] = [
+            'id'                     => sprintf('T1R%s', $line),
+            'routeId'                => (int) $line,
+            'routeShortName'         => $line,
+            'tripId'                 => 1,
+            'scheduledTripStartTime' => $scheduled->toIso8601ZuluString(),
+            'headsign'               => $headsign,
+            'status'                 => 'REALTIME',
+            'theoreticalTime'        => $scheduled->toIso8601ZuluString(),
+            'estimatedTime'          => $scheduled->clone()->addSeconds($delay)->toIso8601ZuluString(),
+            'delayInSeconds'         => $delay,
+            'vehicleCode'            => 1234,
+            'vehicleId'              => 1,
         ];
     }
 
@@ -263,18 +273,19 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     {
         $scheduled = Carbon::parse('2026-10-20 ' . $time, self::ZONE)->tz('UTC')->toIso8601ZuluString();
 
-        EstimatesStream::$estimates[$this->stop->getId()][] = [
-            'id'              => sprintf('T2R%s', $line),
-            'routeId'         => (int) $line,
-            'routeShortName'  => $line,
-            'tripId'          => 2,
-            'headsign'        => $headsign,
-            'status'          => 'SCHEDULED',
-            'theoreticalTime' => $scheduled,
-            'estimatedTime'   => $scheduled,
-            'delayInSeconds'  => null,
-            'vehicleCode'     => null,
-            'vehicleId'       => null,
+        $this->estimates[$this->stop->getId()][] = [
+            'id'                     => sprintf('T2R%s', $line),
+            'routeId'                => (int) $line,
+            'routeShortName'         => $line,
+            'tripId'                 => 2,
+            'scheduledTripStartTime' => $scheduled,
+            'headsign'               => $headsign,
+            'status'                 => 'SCHEDULED',
+            'theoreticalTime'        => $scheduled,
+            'estimatedTime'          => $scheduled,
+            'delayInSeconds'         => null,
+            'vehicleCode'            => null,
+            'vehicleId'              => null,
         ];
     }
 
@@ -283,10 +294,26 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
         return $time?->clone()->tz(self::ZONE)->format('H:i');
     }
 
+    private function api(): MockHttpClient
+    {
+        return new MockHttpClient(function (string $method, string $url) {
+            if ($this->unavailable) {
+                return new MockResponse('', ['error' => 'Connection refused']);
+            }
+
+            parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+            return new MockResponse(json_encode([
+                'lastUpdate' => '2026-10-20T10:00:00Z',
+                'departures' => $this->estimates[$query['stopId'] ?? ''] ?? [],
+            ], JSON_THROW_ON_ERROR));
+        });
+    }
+
     private static function config(): ZtmGdanskConfig
     {
         return new ZtmGdanskConfig(
-            apiUrl: EstimatesStream::URL,
+            apiUrl: 'https://ztm.test',
             stopsUrl: '',
             routesUrl: '',
             tripsUrl: '',

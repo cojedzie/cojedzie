@@ -1,0 +1,5 @@
+{
+  "8227": {"lastUpdate": "2026-11-01T11:00:40Z", "departures": [{"id": "T12R171", "delayInSeconds": -56, "estimatedTime": "2026-11-01T11:12:03Z", "headsign": "Oliwa", "routeId": 171, "routeShortName": "171", "scheduledTripStartTime": "2026-11-01T11:08:00Z", "tripId": 12, "status": "REALTIME", "theoreticalTime": "2026-11-01T11:13:00Z", "timestamp": "2026-11-01T11:00:38Z", "trip": 29807262, "vehicleCode": 9221, "vehicleId": 146167, "vehicleService": "171-01"}]},
+  "114": {"lastUpdate": "2026-11-01T11:00:40Z", "departures": [{"id": "T22R910", "delayInSeconds": null, "estimatedTime": "2026-11-01T11:05:00Z", "headsign": "Cmentarz Łostowicki ", "routeId": 910, "routeShortName": "C10", "scheduledTripStartTime": "2026-11-01T11:05:00Z", "tripId": 22, "status": "SCHEDULED", "theoreticalTime": "2026-11-01T11:05:00Z", "timestamp": "2026-11-01T11:00:40Z", "trip": 29819885, "vehicleCode": null, "vehicleId": null, "vehicleService": "910-04"}]},
+  "1": {"lastUpdate": "2026-11-01T11:00:40Z", "departures": []}
+}
