@@ -24,11 +24,14 @@ namespace App\Tests\Schedule;
 
 use App\Message\CleanupFederatedConnections;
 use App\Message\CollectStaleData;
+use App\Message\RecordDepartures;
 use App\Message\UpdateDataSources;
 use App\Repository\FederatedConnectionEntityRepository;
 use App\Schedule\DefaultScheduleProvider;
 use App\Schedule\HubScheduleProvider;
+use App\Schedule\RecorderScheduleProvider;
 use App\Schedule\ScheduleConfig;
+use App\Tests\DepartureHistory\Support\InMemoryDepartureHistory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Handler\HandlersLocatorInterface;
@@ -68,12 +71,27 @@ final class ScheduledMessagesTest extends KernelTestCase
             federationCheck: '*/5 * * * *',
             federationCleanup: '0 3 * * 0',
             collectStaleData: '45 2 * * *',
+            recordDepartures: '30 seconds',
         );
 
         $hub = new HubScheduleProvider($this->createStub(FederatedConnectionEntityRepository::class), $config);
 
         $this->assertSame(['30 2 * * *', '45 2 * * *'], self::triggers(new DefaultScheduleProvider($config)->getSchedule()));
         $this->assertSame(['*/5 * * * *', '0 3 * * 0'], self::triggers($hub->getSchedule()));
+        $this->assertSame(['every 30 seconds'], self::triggers(new RecorderScheduleProvider(self::history(), $config)->getSchedule()));
+    }
+
+    public function testRecorderRunsOnlyWithClickHouse(): void
+    {
+        $config = new ScheduleConfig('0 5 * * *', '* * * * *', '0 0 * * *', '0 6 * * *', '20 seconds');
+
+        $this->assertSame([], self::triggers(new RecorderScheduleProvider(self::history(false), $config)->getSchedule()));
+
+        $recurring = array_values(new RecorderScheduleProvider(self::history(), $config)->getSchedule()->getRecurringMessages());
+        $this->assertCount(1, $recurring);
+        $messages = [...$recurring[0]->getProvider()->getMessages(new MessageContext('recorder', $recurring[0]->getId(), $recurring[0]->getTrigger(), new \DateTimeImmutable()))];
+        $this->assertCount(1, $messages);
+        $this->assertInstanceOf(RecordDepartures::class, $messages[0]);
     }
 
     public function testSchedulesDefaultToTheProductionTimes(): void
@@ -82,6 +100,7 @@ final class ScheduledMessagesTest extends KernelTestCase
 
         $this->assertSame(['0 5 * * *', '0 6 * * *'], self::triggers(self::getContainer()->get(DefaultScheduleProvider::class)->getSchedule()));
         $this->assertSame(['* * * * *', '0 0 * * *'], self::triggers(self::getContainer()->get(HubScheduleProvider::class)->getSchedule()));
+        $this->assertSame('20 seconds', self::getContainer()->get(ScheduleConfig::class)->recordDepartures);
     }
 
     public function testDefaultJobsAreSentToTheWorker(): void
@@ -104,6 +123,12 @@ final class ScheduledMessagesTest extends KernelTestCase
 
         $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new CleanupFederatedConnections()))));
         $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new CollectStaleData()))));
+        $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new RecordDepartures()))));
+    }
+
+    private static function history(bool $enabled = true): InMemoryDepartureHistory
+    {
+        return new InMemoryDepartureHistory($enabled);
     }
 
     /**
