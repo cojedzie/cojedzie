@@ -32,10 +32,8 @@
 
 .page-container {
   width: 100%;
-  padding-right: $grid-gutter-width * 0.5;
-  padding-left: $grid-gutter-width * 0.5;
-  margin-right: auto;
-  margin-left: auto;
+  padding-inline: $grid-gutter-width * 0.5;
+  margin-inline: auto;
 
   @each $breakpoint, $width in $container-max-widths {
     @include media-breakpoint-up($breakpoint) {

@@ -64,22 +64,20 @@ $ui-section-safe-margin: 0.5rem;
     // the background reaches past the content, so the page background doesn't touch the text
     padding: $ui-section-safe-margin;
     margin: (-$ui-section-safe-margin) (-$ui-section-safe-margin) 1rem;
-
     background: rgba(white, 0.85);
-}
 
-.ui-section__header {
-    @include ui-section-header;
-}
+    &__header {
+        @include ui-section-header;
+    }
 
-.ui-section__title {
-    flex-grow: 1;
-}
+    &__title {
+        flex-grow: 1;
+    }
 
-.ui-section__actions {
-    display: flex;
-    align-items: center;
-    margin-top: -0.5rem;
-    margin-bottom: -0.5rem;
+    &__actions {
+        display: flex;
+        align-items: center;
+        margin-block: -0.5rem;
+    }
 }
 </style>

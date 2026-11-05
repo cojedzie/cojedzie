@@ -42,58 +42,58 @@
   &:disabled {
     opacity: 0.65;
   }
-}
 
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: $font-size-sm;
-}
+  &-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: $font-size-sm;
+  }
 
-@each $name, $color in ("primary": $primary, "danger": $danger) {
-  .btn-#{$name} {
-    color: $white;
-    background-color: $color;
+  @each $name, $color in ("primary": $primary, "danger": $danger) {
+    &-#{$name} {
+      color: $white;
+      background-color: $color;
+
+      &:hover,
+      &:focus {
+        color: $white;
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba($color, 0.5);
+      }
+    }
+  }
+
+  &-outline-dark {
+    color: $dark;
+    border-color: $dark;
+
+    &:hover {
+      color: $white;
+      background-color: $dark;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba($dark, 0.5);
+    }
+  }
+
+  &-link {
+    color: $link-color;
+    text-decoration: none;
+
+    &:hover {
+      color: darken($link-color, 15%);
+    }
 
     &:hover,
     &:focus {
-      color: $white;
+      text-decoration: underline;
     }
 
-    &:focus {
-      box-shadow: 0 0 0 0.2rem rgba($color, 0.5);
+    &:disabled {
+      color: $text-muted;
+      pointer-events: none;
     }
-  }
-}
-
-.btn-outline-dark {
-  color: $dark;
-  border-color: $dark;
-
-  &:hover {
-    color: $white;
-    background-color: $dark;
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 0.2rem rgba($dark, 0.5);
-  }
-}
-
-.btn-link {
-  color: $link-color;
-  text-decoration: none;
-
-  &:hover {
-    color: darken($link-color, 15%);
-    text-decoration: underline;
-  }
-
-  &:focus {
-    text-decoration: underline;
-  }
-
-  &:disabled {
-    color: $text-muted;
-    pointer-events: none;
   }
 }

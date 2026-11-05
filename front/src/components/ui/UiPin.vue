@@ -54,38 +54,36 @@ defineProps({
 <style lang="scss">
 @import "../../../styles/_variables.scss";
 
-$ui-pin-width: 32px;
-
 :root {
     --ui-pin-color: #{$primary};
-    --ui-pin-width: #{$ui-pin-width};
+    --ui-pin-width: 32px;
 }
 
 .ui-pin {
     position: relative;
-}
 
-.ui-pin__pin {
-    width: var(--ui-pin-width);
-}
+    &__pin {
+        width: var(--ui-pin-width);
+    }
 
-.ui-pin__content {
-    position: absolute;
-    top: calc(var(--ui-pin-width) / 2);
-    left: calc(var(--ui-pin-width) / 2);
-    text-align: center;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 16px;
-}
+    &__content {
+        position: absolute;
+        top: calc(var(--ui-pin-width) / 2);
+        left: calc(var(--ui-pin-width) / 2);
+        translate: -50% -50%;
+        color: white;
+        font-size: 16px;
+        text-align: center;
+    }
 
-.ui-pin--outline .ui-pin__content {
-    color: var(--ui-pin-color);
-}
+    &--outline &__content {
+        color: var(--ui-pin-color);
+    }
 
-@each $type, $color in $line-types {
-    .ui-pin.ui-pin--#{$type} {
-        --ui-pin-color: #{$color};
+    @each $type, $color in $line-types {
+        &--#{$type} {
+            --ui-pin-color: #{$color};
+        }
     }
 }
 </style>
