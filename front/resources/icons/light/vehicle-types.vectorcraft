@@ -1669,13 +1669,41 @@
                         },
                         {
                           "p": [
-                            75.0,
-                            13.0
+                            73.84615384615384,
+                            10.23076923076923
+                          ],
+                          "out": [
+                            74.60784241225218,
+                            12.058821789405258
                           ]
                         },
                         {
                           "p": [
                             75.0,
+                            16.0
+                          ],
+                          "in": [
+                            75.0,
+                            14.019609728144303
+                          ]
+                        },
+                        {
+                          "p": [
+                            75.0,
+                            16.0
+                          ],
+                          "out": [
+                            75.0,
+                            17.104569499661586
+                          ]
+                        },
+                        {
+                          "p": [
+                            73.0,
+                            18.0
+                          ],
+                          "in": [
+                            74.1045694996616,
                             18.0
                           ]
                         },
@@ -1688,6 +1716,84 @@
                       ],
                       "closed": false
                     }
+                  ]
+                },
+                "live": {
+                  "shape": "path",
+                  "base": {
+                    "subpaths": [
+                      {
+                        "anchors": [
+                          {
+                            "p": [
+                              73.0,
+                              18.0
+                            ]
+                          },
+                          {
+                            "p": [
+                              55.0,
+                              18.0
+                            ]
+                          },
+                          {
+                            "p": [
+                              55.0,
+                              8.0
+                            ],
+                            "out": [
+                              55.0,
+                              7.4477152824401855
+                            ]
+                          },
+                          {
+                            "p": [
+                              56.0,
+                              7.0
+                            ],
+                            "in": [
+                              55.447715282440186,
+                              7.0
+                            ]
+                          },
+                          {
+                            "p": [
+                              72.5,
+                              7.0
+                            ]
+                          },
+                          {
+                            "p": [
+                              75.0,
+                              13.0
+                            ]
+                          },
+                          {
+                            "p": [
+                              75.0,
+                              18.0
+                            ]
+                          },
+                          {
+                            "p": [
+                              73.0,
+                              18.0
+                            ]
+                          }
+                        ],
+                        "closed": false
+                      }
+                    ]
+                  },
+                  "radii": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    15.000000000000012,
+                    2.0,
+                    0.0
                   ]
                 }
               }
@@ -2136,7 +2242,7 @@
                         },
                         {
                           "p": [
-                            75.0,
+                            74.5,
                             14.0
                           ]
                         }
@@ -3550,6 +3656,164 @@
                   }
                 ]
               },
+              "mask": {
+                "art": {
+                  "id": 18446744073709551614,
+                  "name": "Opacity Mask",
+                  "kind": {
+                    "type": "group",
+                    "children": [
+                      {
+                        "id": 167,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      58.0,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      58.0,
+                                      20.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      60.0,
+                                      21.0
+                                    ],
+                                    "in": [
+                                      58.895429611206055,
+                                      21.0
+                                    ],
+                                    "out": [
+                                      61.104570388793945,
+                                      21.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      62.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      62.0,
+                                      20.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "id": 168,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      68.0,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      68.0,
+                                      20.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      70.0,
+                                      21.0
+                                    ],
+                                    "in": [
+                                      68.89542961120605,
+                                      21.0
+                                    ],
+                                    "out": [
+                                      71.10457038879395,
+                                      21.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      72.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      72.0,
+                                      20.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "clip": false
+                  }
+                },
+                "clip": false,
+                "invert": false,
+                "disabled": false,
+                "linked": true
+              },
               "kind": {
                 "type": "path",
                 "path": {
@@ -3611,6 +3875,164 @@
                   }
                 ]
               },
+              "mask": {
+                "art": {
+                  "id": 18446744073709551614,
+                  "name": "Opacity Mask",
+                  "kind": {
+                    "type": "group",
+                    "children": [
+                      {
+                        "id": 164,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      85.0,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      85.0,
+                                      20.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      87.0,
+                                      21.0
+                                    ],
+                                    "in": [
+                                      85.89542961120605,
+                                      21.0
+                                    ],
+                                    "out": [
+                                      88.10457038879395,
+                                      21.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      89.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      89.0,
+                                      20.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "id": 165,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      95.0,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      95.0,
+                                      20.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      97.0,
+                                      21.0
+                                    ],
+                                    "in": [
+                                      95.89542961120605,
+                                      21.0
+                                    ],
+                                    "out": [
+                                      98.10457038879395,
+                                      21.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      99.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      99.0,
+                                      20.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "clip": false
+                  }
+                },
+                "clip": false,
+                "invert": false,
+                "disabled": false,
+                "linked": true
+              },
               "kind": {
                 "type": "path",
                 "path": {
@@ -3671,6 +4093,164 @@
                     "cap": "Round"
                   }
                 ]
+              },
+              "mask": {
+                "art": {
+                  "id": 18446744073709551614,
+                  "name": "Opacity Mask",
+                  "kind": {
+                    "type": "group",
+                    "children": [
+                      {
+                        "id": 170,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      139.0,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      139.0,
+                                      20.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      141.0,
+                                      21.0
+                                    ],
+                                    "in": [
+                                      139.89542961120605,
+                                      21.0
+                                    ],
+                                    "out": [
+                                      142.10457038879395,
+                                      21.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      143.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      143.0,
+                                      20.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "id": 171,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      149.0,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      149.0,
+                                      20.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      151.0,
+                                      21.0
+                                    ],
+                                    "in": [
+                                      149.89542961120605,
+                                      21.0
+                                    ],
+                                    "out": [
+                                      152.10457038879395,
+                                      21.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      153.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      153.0,
+                                      20.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "clip": false
+                  }
+                },
+                "clip": false,
+                "invert": false,
+                "disabled": false,
+                "linked": true
               },
               "kind": {
                 "type": "path",
@@ -4524,6 +5104,164 @@
                     "miter_limit": 4.0
                   }
                 ]
+              },
+              "mask": {
+                "art": {
+                  "id": 18446744073709551614,
+                  "name": "Opacity Mask",
+                  "kind": {
+                    "type": "group",
+                    "children": [
+                      {
+                        "id": 173,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      193.0,
+                                      17.0
+                                    ],
+                                    "out": [
+                                      193.0,
+                                      18.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      195.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      193.89542961120605,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      196.10457038879395,
+                                      19.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      197.0,
+                                      17.0
+                                    ],
+                                    "in": [
+                                      197.0,
+                                      18.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "id": 174,
+                        "appearance": {
+                          "items": [
+                            {
+                              "kind": "stroke",
+                              "paint": {
+                                "type": "currentcolor",
+                                "preview": {
+                                  "model": "rgb",
+                                  "r": 0.0,
+                                  "g": 0.0,
+                                  "b": 0.0
+                                }
+                              },
+                              "width": 4.0,
+                              "cap": "Round",
+                              "join": "Round",
+                              "miter_limit": 4.0
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "type": "path",
+                          "path": {
+                            "subpaths": [
+                              {
+                                "anchors": [
+                                  {
+                                    "p": [
+                                      203.0,
+                                      17.0
+                                    ],
+                                    "out": [
+                                      203.0,
+                                      18.104570388793945
+                                    ]
+                                  },
+                                  {
+                                    "p": [
+                                      205.0,
+                                      19.0
+                                    ],
+                                    "in": [
+                                      203.89542961120605,
+                                      19.0
+                                    ],
+                                    "out": [
+                                      206.10457038879395,
+                                      19.0
+                                    ],
+                                    "kind": "Smooth"
+                                  },
+                                  {
+                                    "p": [
+                                      207.0,
+                                      17.0
+                                    ],
+                                    "in": [
+                                      207.0,
+                                      18.104570388793945
+                                    ],
+                                    "kind": "Smooth"
+                                  }
+                                ],
+                                "closed": false
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "clip": false
+                  }
+                },
+                "clip": false,
+                "invert": false,
+                "disabled": false,
+                "linked": true
               },
               "kind": {
                 "type": "path",
@@ -5770,7 +6508,7 @@
     },
     "raster_effects_ppi": 300.0,
     "images": {},
-    "next_id": 163,
+    "next_id": 175,
     "metadata": {
       "author": "",
       "authorTitle": "",
@@ -5781,15 +6519,15 @@
       "copyrightNotice": "",
       "copyrightUrl": "",
       "created": 1793449103,
-      "modified": 1793471087
+      "modified": 1793546855
     },
     "last_view": {
       "name": "",
       "center": {
-        "x": 63.619115285197154,
-        "y": -2.186164076579418
+        "x": -20.79531366930493,
+        "y": 277.15935338208527
       },
-      "zoom": 2.0135138017792142,
+      "zoom": 1.655480408104164,
       "rotation": 0.0
     },
     "layers_open": [
