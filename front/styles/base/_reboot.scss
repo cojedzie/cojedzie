@@ -67,16 +67,13 @@ dl {
   margin-bottom: $spacer;
 }
 
-ol ol,
-ul ul,
-ol ul,
-ul ol {
+:is(ol, ul) :is(ol, ul) {
   margin-bottom: 0;
 }
 
 ol,
 ul {
-  padding-left: 2.5rem;
+  padding-inline-start: 2.5rem;
   list-style: revert;
 }
 
@@ -125,6 +122,6 @@ button:focus:not(:focus-visible) {
 }
 
 hr {
-  margin: $spacer 0;
+  margin-block: $spacer;
   border-top: 1px solid rgba($black, 0.1);
 }

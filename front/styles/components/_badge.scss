@@ -30,19 +30,18 @@
   &:empty {
     display: none;
   }
-}
 
-.badge-pill {
-  padding-right: 0.6em;
-  padding-left: 0.6em;
-  border-radius: 10rem;
-}
+  &-pill {
+    padding-inline: 0.6em;
+    border-radius: 10rem;
+  }
 
-@each $name in "warning", "danger", "dark" {
-  $color: map-get($theme-colors, $name);
+  @each $name in "warning", "danger", "dark" {
+    $color: map-get($theme-colors, $name);
 
-  .badge-#{$name} {
-    color: color-yiq($color);
-    background-color: $color;
+    &-#{$name} {
+      color: color-yiq($color);
+      background-color: $color;
+    }
   }
 }

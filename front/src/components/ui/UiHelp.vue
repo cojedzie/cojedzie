@@ -65,27 +65,22 @@ $ui-help-radius: 3px !default;
     box-sizing: content-box;
     width: $ui-help-width;
     font-size: 0.8rem;
-}
 
-.help__image {
-    display: block;
-    width: 100%;
-    border-radius: $ui-help-radius;
-    margin-bottom: $ui-help-spacing;
-    margin-top: $ui-help-spacing / 2;
-    aspect-ratio: 2 / 1;
-    box-shadow: 0 0 1px black;
-}
-
-.help__figure {
-    figcaption {
-        color: $text-muted;
+    &__image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 2 / 1;
+        margin-block: $ui-help-spacing * 0.5 $ui-help-spacing * 0.25;
+        border-radius: $ui-help-radius;
+        box-shadow: 0 0 1px black;
     }
 
-    margin-bottom: $ui-help-spacing;
-}
+    &__figure {
+        margin-bottom: $ui-help-spacing;
 
-.help__image {
-    margin-bottom: $ui-help-spacing / 4;
+        figcaption {
+            color: $text-muted;
+        }
+    }
 }
 </style>

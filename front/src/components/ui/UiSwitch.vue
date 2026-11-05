@@ -38,45 +38,44 @@ $ui-switch-width-factor: 2.25 !default;
 
 .ui-switch {
     padding: 3px;
-}
 
-.ui-switch__checkbox {
-    display: none;
-}
-
-.ui-switch__track {
-    border: 1px solid $dark;
-    border-radius: $ui-switch-marker-size;
-    padding: $ui-switch-spacing;
-    width: $ui-switch-width-factor * $ui-switch-marker-size;
-    height: $ui-switch-marker-size;
-    position: relative;
-    box-sizing: content-box;
-    background: white;
-    transition: background-color $ui-switch-duration ease-in-out;
-    cursor: pointer;
-}
-
-.ui-switch__thumb {
-    border-radius: 100%;
-    width: $ui-switch-marker-size;
-    height: $ui-switch-marker-size;
-    background: $dark;
-    position: absolute;
-    transition: all $ui-switch-duration ease-in-out;
-    transition-property: background-color, left;
-    margin-left: $ui-switch-spacing;
-    left: 0;
-}
-
-.ui-switch--checked {
-    .ui-switch__thumb {
-        background: white;
-        left: ($ui-switch-width-factor - 1) * $ui-switch-marker-size;
+    &__checkbox {
+        display: none;
     }
 
-    .ui-switch__track {
+    &__track {
+        position: relative;
+        box-sizing: content-box;
+        width: $ui-switch-width-factor * $ui-switch-marker-size;
+        height: $ui-switch-marker-size;
+        padding: $ui-switch-spacing;
+        border: 1px solid $dark;
+        border-radius: $ui-switch-marker-size;
+        background: white;
+        transition: background-color $ui-switch-duration ease-in-out;
+        cursor: pointer;
+    }
+
+    &__thumb {
+        position: absolute;
+        left: 0;
+        width: $ui-switch-marker-size;
+        height: $ui-switch-marker-size;
+        margin-inline-start: $ui-switch-spacing;
+        border-radius: 100%;
         background: $dark;
+        transition:
+            background-color $ui-switch-duration ease-in-out,
+            left $ui-switch-duration ease-in-out;
+    }
+
+    &--checked &__track {
+        background: $dark;
+    }
+
+    &--checked &__thumb {
+        left: ($ui-switch-width-factor - 1) * $ui-switch-marker-size;
+        background: white;
     }
 }
 </style>

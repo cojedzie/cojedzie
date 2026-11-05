@@ -22,12 +22,12 @@
   padding: $alert-padding-y 1.25rem;
   margin-bottom: $default-spacing;
   border: 1px solid transparent;
-}
 
-@each $name in "info", "warning", "danger", "dark" {
-  .alert-#{$name} {
-    color: theme-color-level($name, $alert-color-level);
-    background-color: theme-color-level($name, $alert-bg-level);
-    border-color: theme-color-level($name, $alert-border-level);
+  @each $name in "info", "warning", "danger", "dark" {
+    &-#{$name} {
+      color: theme-color-level($name, $alert-color-level);
+      background-color: theme-color-level($name, $alert-bg-level);
+      border-color: theme-color-level($name, $alert-border-level);
+    }
   }
 }

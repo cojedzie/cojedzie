@@ -66,33 +66,30 @@ const transform = ({ scale = 1, x = 0, y = 0 }: IconLayer) => ({
     height: 1em;
     overflow: visible;
     vertical-align: -0.125em;
-}
 
-.ui-icon--fixed-width {
-    width: 1.25em;
-}
+    &--fixed-width {
+        width: 1.25em;
+    }
 
-.ui-icon--spin {
-    animation: ui-icon-spin 1s linear infinite;
-}
+    &--spin {
+        animation: ui-icon-spin 1s linear infinite;
+    }
 
-.ui-icon--stacked {
-    position: relative;
+    &--stacked {
+        position: relative;
 
-    > svg {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
+        > svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
     }
 }
 
 @keyframes ui-icon-spin {
-    from {
-        transform: rotate(0deg);
-    }
     to {
-        transform: rotate(360deg);
+        rotate: 1turn;
     }
 }
 </style>
