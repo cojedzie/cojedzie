@@ -1,0 +1,45 @@
+name: Dependabot
+
+# Turns on auto-merge for Dependabot PRs that are safe to take without a review, see ADR 0023. GitHub merges
+# them once the required checks pass; everything else waits for a human.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  auto-merge:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read the update
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+      # grouped PRs report their largest update; a new maintainer is how hijacked packages tend to arrive
+      - name: Decide
+        id: decide
+        env:
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          MAINTAINER_CHANGES: ${{ steps.metadata.outputs.maintainer-changes }}
+        run: |
+          if [[ "$UPDATE_TYPE" =~ ^version-update:semver-(minor|patch)$ && "$MAINTAINER_CHANGES" != "true" ]]; then
+            echo "merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Left for review: $UPDATE_TYPE, maintainer changes: ${MAINTAINER_CHANGES:-unknown}"
+          fi
+      # merging with GITHUB_TOKEN wouldn't start the push workflows on master, so no images and no deploy to next
+      - name: Get a token of the merge app
+        id: token
+        if: steps.decide.outputs.merge == 'true'
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.DEPENDABOT_MERGE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DEPENDABOT_MERGE_APP_PRIVATE_KEY }}
+      - name: Enable auto-merge
+        if: steps.decide.outputs.merge == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --rebase "$PR_URL"
