@@ -9,12 +9,12 @@ const exported = `<?xml version="1.0" encoding="UTF-8"?>
     <defs><clipPath id="clip"><rect width="24" height="24"/></clipPath></defs>
     <g id="Layer_1" data-name="Layer 1" clip-path="url(#clip)">
         <path d="M4 18 L20 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <g><path d="M4 12 L20 12" fill="none" stroke="currentColor" stroke-width="2"/></g>
+        <g><path d="M4 12 L20 12" fill="none" stroke="#000" stroke-width="2"/></g>
     </g>
 </svg>`;
 
 describe("parseSvgIcon", () => {
-    const icon = parseSvgIcon(exported);
+    const icon = parseSvgIcon(exported, "icon-bus");
 
     it("keeps the view box and every drawn element with its attributes", () => {
         expect(icon.viewBox).toBe("0 0 24 24");
@@ -26,6 +26,11 @@ describe("parseSvgIcon", () => {
 
     it("drops metadata and ids nothing refers to", () => {
         expect(icon.content).not.toMatch(/<title|Generator|Layer_1|data-name|xmlns/);
-        expect(icon.content).toContain('<clipPath id="clip">');
+    });
+
+    it("prefixes the ids it keeps, so icons in one page don't use each other's masks", () => {
+        expect(icon.content).toContain('<clipPath id="icon-bus-clip">');
+        expect(icon.content).toContain('clip-path="url(#icon-bus-clip)"');
+        expect(icon.content).toContain('stroke="#000"');
     });
 });
