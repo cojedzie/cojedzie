@@ -54,6 +54,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0019](0019-javascript-dependencies-are-managed-by-npm.md) | JavaScript dependencies are managed by npm | Accepted |
 | [0020](0020-departure-history-is-stored-in-clickhouse.md) | Departure history is stored in ClickHouse | Accepted |
 | [0021](0021-schedules-are-cron-expressions-or-intervals-from-environment-variables.md) | Schedules are cron expressions or intervals from environment variables | Accepted |
+| [0023](0023-dependabot-merges-minor-and-patch-updates.md) | Dependabot merges minor and patch updates on its own | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
