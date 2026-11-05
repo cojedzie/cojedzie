@@ -25,7 +25,7 @@ import { readFileSync } from "fs";
 import { VitePWA } from "vite-plugin-pwa";
 import SvgIconLoader from "./src/svg-icon-loader";
 import StaticImages from "./src/static-images";
-import viteImagemin from "vite-plugin-imagemin";
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 const dist = path.resolve(__dirname, "./build/public");
@@ -67,7 +67,8 @@ export default defineConfig({
         vue(),
         tailwindcss(),
         VitePWA({}),
-        viteImagemin(),
+        // lossy palette PNGs, like pngquant; the 80 keeps the gradients of the background and logo smooth
+        ViteImageOptimizer({ png: { quality: 80, palette: true } }),
         SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
         StaticImages({ source: path.resolve(__dirname, "./resources/images"), target: "images" }),
         isSentryEnabled &&
