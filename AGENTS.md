@@ -123,8 +123,11 @@ task benchmark:api                # phpbench
   tested `master` commit, builds and publishes all images (`docker-bake.hcl`, see the Docker section of the API
   architecture page), creates the GitHub Release with notes from
   `contrib/release-notes.sh`, and deploys to `production` after approval. No version is committed.
-- CI (`.github/workflows/ci.yml`) runs the tests (jobs `test` for the API and `test-front`, both required checks)
-  and builds the `next` images with `docker-bake.hcl` on every push, pushing them only from `master`.
+- CI (`.github/workflows/ci.yml`) runs the tests (jobs `test` for the API and `test-front`) and builds the `next`
+  images with `docker-bake.hcl` on every push, pushing them only from `master`. `test`, `test-front` and `build`
+  are the required checks. Jobs must pass without secrets outside `master`: Dependabot's runs don't get them.
+- Dependabot (`.github/dependabot.yml`) proposes updates weekly or monthly; `.github/workflows/dependabot.yml`
+  auto-merges minor and patch ones once the checks pass, majors wait for a review (ADR 0023).
 - `.github/workflows/deploy.yml` deploys images pinned by digest to any environment, reading the digests from the
   run that built them: `next` after each successful CI run on `master`, `production` when called by Release. Run
   it manually to redeploy.

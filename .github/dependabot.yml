@@ -1,0 +1,88 @@
+# Dependency updates, merged by .github/workflows/dependabot.yml when CI passes (see ADR 0023).
+#
+# - Minor and patch updates are grouped into one PR per ecosystem and week, majors get a PR each.
+# - A release is proposed only after a few days (cooldown), so a hijacked or broken release is likely to be pulled
+#   before it reaches us. Security updates skip the cooldown.
+# - Commit messages follow commitlint: `build(front): Bump …`, `build(api): Bump …`, `ci: Bump …`.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /front
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+    commit-message:
+      prefix: build(front)
+    groups:
+      front:
+        update-types: [minor, patch]
+      front-security:
+        applies-to: security-updates
+        update-types: [minor, patch]
+
+  # commitlint and husky
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+    commit-message:
+      prefix: build
+    groups:
+      tooling:
+        update-types: [minor, patch]
+      tooling-security:
+        applies-to: security-updates
+        update-types: [minor, patch]
+
+  - package-ecosystem: composer
+    directory: /api
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+    commit-message:
+      prefix: build(api)
+    groups:
+      api:
+        update-types: [minor, patch]
+      api-security:
+        applies-to: security-updates
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        update-types: [minor, patch]
+
+  # base images; the PHP and RoadRunner versions are build arguments, which Dependabot can't update
+  - package-ecosystem: docker
+    directories:
+      - /api
+      - /front
+      - /worker
+      - /standalone
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: build
+    groups:
+      images:
+        update-types: [minor, patch]
