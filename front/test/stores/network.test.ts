@@ -11,6 +11,7 @@ vi.mock("@/api/client/static", () => ({
 }));
 
 class FakeEventSource {
+    static CLOSED = 2;
     static instances: FakeEventSource[] = [];
     readyState = 1;
     listeners: Record<string, (event: unknown) => void> = {};
@@ -122,5 +123,97 @@ describe("network store", () => {
 
         emit("node-left", { id: "a" });
         expect(Object.keys(store.nodes)).toEqual(["b"]);
+    });
+
+    describe("when the hub connection fails", () => {
+        const hubResponse = () =>
+            response([apiNode("a")], { link: '<https://hub.example/.well-known/mercure>; rel="mercure"' });
+
+        const fail = (source: FakeEventSource) => {
+            source.readyState = 2;
+            source.listeners.error({});
+        };
+
+        const last = () => FakeEventSource.instances.at(-1)!;
+
+        beforeEach(() => {
+            get.mockResolvedValue(hubResponse());
+        });
+
+        it("fetches a fresh token before reconnecting", async () => {
+            const store = useNetworkStore();
+            await store.update();
+
+            fail(last());
+            expect(get).toHaveBeenCalledTimes(1);
+
+            await vi.advanceTimersByTimeAsync(1000);
+
+            expect(get).toHaveBeenCalledTimes(2);
+            expect(get).toHaveBeenLastCalledWith("v1_network_nodes", { version: "^1.0" });
+            expect(FakeEventSource.instances).toHaveLength(2);
+        });
+
+        it("waits longer after each consecutive failure", async () => {
+            const store = useNetworkStore();
+            await store.update();
+
+            fail(last());
+            await vi.advanceTimersByTimeAsync(1000);
+            expect(FakeEventSource.instances).toHaveLength(2);
+
+            fail(last());
+            await vi.advanceTimersByTimeAsync(1999);
+            expect(FakeEventSource.instances).toHaveLength(2);
+            await vi.advanceTimersByTimeAsync(1);
+            expect(FakeEventSource.instances).toHaveLength(3);
+
+            fail(last());
+            await vi.advanceTimersByTimeAsync(3999);
+            expect(FakeEventSource.instances).toHaveLength(3);
+            await vi.advanceTimersByTimeAsync(1);
+            expect(FakeEventSource.instances).toHaveLength(4);
+        });
+
+        it("caps the delay between attempts", async () => {
+            const store = useNetworkStore();
+            await store.update();
+
+            for (let attempt = 0; attempt < 20; attempt++) {
+                fail(last());
+                await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
+            }
+
+            expect(FakeEventSource.instances).toHaveLength(21);
+        });
+
+        it("starts the backoff over once a connection opens", async () => {
+            const store = useNetworkStore();
+            await store.update();
+
+            fail(last());
+            await vi.advanceTimersByTimeAsync(1000);
+            fail(last());
+            await vi.advanceTimersByTimeAsync(2000);
+            expect(FakeEventSource.instances).toHaveLength(3);
+
+            last().listeners.open({});
+            fail(last());
+            await vi.advanceTimersByTimeAsync(1000);
+
+            expect(FakeEventSource.instances).toHaveLength(4);
+        });
+
+        it("leaves reconnecting to the browser while the connection is only interrupted", async () => {
+            const store = useNetworkStore();
+            await store.update();
+
+            last().readyState = 0;
+            last().listeners.error({});
+            await vi.advanceTimersByTimeAsync(60 * 1000);
+
+            expect(FakeEventSource.instances).toHaveLength(1);
+            expect(get).toHaveBeenCalledTimes(1);
+        });
     });
 });
