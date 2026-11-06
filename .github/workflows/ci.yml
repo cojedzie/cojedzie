@@ -9,7 +9,9 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # ext-ds is built from git, which setup-php@v2 can't do on the bash 5.3 of ubuntu-26.04 (fixed upstream, not
+    # released yet: shivammathur/setup-php@7542bc9e); back to ubuntu-latest once a release has it
+    runs-on: ubuntu-24.04
     services:
       clickhouse:
         image: clickhouse/clickhouse-server:25.8
@@ -28,6 +30,9 @@ jobs:
         uses: actions/checkout@v7
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
+        # a missing extension fails here, instead of as confusing errors of the tools that need it
+        env:
+          fail-fast: true
         with:
           php-version: '8.5'
           extensions: ds-php-ds/ext-ds@v2.0.0, intl, bcmath, zip, sockets, pdo_sqlite, amqp, redis
@@ -83,7 +88,9 @@ jobs:
 
   # every engine's migrations, run on an empty database, must give exactly the schema the mapping describes
   schema:
-    runs-on: ubuntu-latest
+    # ext-ds is built from git, which setup-php@v2 can't do on the bash 5.3 of ubuntu-26.04 (fixed upstream, not
+    # released yet: shivammathur/setup-php@7542bc9e); back to ubuntu-latest once a release has it
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -125,6 +132,9 @@ jobs:
         uses: actions/checkout@v7
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
+        # a missing extension fails here, instead of as confusing errors of the tools that need it
+        env:
+          fail-fast: true
         with:
           php-version: '8.5'
           extensions: ds-php-ds/ext-ds@v2.0.0, intl, bcmath, zip, sockets, pdo_sqlite, pdo_mysql, pdo_pgsql, amqp, redis
