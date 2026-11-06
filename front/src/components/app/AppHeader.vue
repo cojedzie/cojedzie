@@ -78,13 +78,8 @@ useIntersectionObserver(marker, ([entry]) => (stuck.value = !entry.isIntersectin
 const moreButton = useTemplateRef<HTMLButtonElement>("more");
 const moreOpen = ref(false);
 
+// the board clears what belonged to the old provider once it loads the new one, see selection.loadProvider
 function switchProvider(id: string) {
-    if (id === provider.value) {
-        return;
-    }
-
-    // the selected stops belong to the old provider's network
-    selection.clear();
     router.push({ name: "departures", params: { provider: id } });
 }
 </script>

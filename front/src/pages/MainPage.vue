@@ -186,6 +186,12 @@ onMounted(() => {
     });
 });
 
+// the page mounts anew for every provider, what is left from the previous one must not show on this board
+if (selection.provider && selection.provider.id !== route.params.provider) {
+    messages.messages = [];
+    departures.departures = [];
+}
+
 (async () => {
     await selection.loadProvider(route.params.provider as string);
 

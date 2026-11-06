@@ -46,13 +46,25 @@ export const useSelectionStore = defineStore(
             stops.value = [];
         }
 
+        // the last provider asked for, details of the ones switched away from arrive too late to matter
+        let requested: string | null = null;
+
         async function loadProvider(id: string) {
+            if (provider.value && provider.value.id !== id) {
+                // the stops belong to the old provider's network, and nothing may be asked of it anymore
+                stops.value = [];
+                provider.value = null;
+            }
+
+            requested = id;
             const response = await api.get("v1_provider_details", {
                 params: { provider: id },
                 version: "^1.0",
             });
 
-            provider.value = response.data;
+            if (requested === id) {
+                provider.value = response.data;
+            }
         }
 
         return { stops, provider, add, replace, remove, clear, loadProvider };

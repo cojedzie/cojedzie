@@ -34,7 +34,12 @@ const stubs = {
     },
 };
 
-async function mountPage({ stops = [] as any[], departuresSettings = {}, messagesSettings = {} } = {}) {
+async function mountPage({
+    stops = [] as any[],
+    departuresSettings = {},
+    messagesSettings = {},
+    before = () => {},
+} = {}) {
     const pinia = createPinia();
     setActivePinia(pinia);
     useDeparturesSettingsStore().update(departuresSettings);
@@ -54,6 +59,7 @@ async function mountPage({ stops = [] as any[], departuresSettings = {}, message
     const messages = useMessagesStore();
     vi.spyOn(departures, "update").mockResolvedValue();
     vi.spyOn(messages, "update").mockResolvedValue();
+    before();
 
     const wrapper = mount(MainPage, { global: { plugins: [pinia, router], stubs } });
     await flushPromises();
@@ -87,6 +93,30 @@ describe("MainPage", () => {
         expect(document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href).toContain(
             "/trojmiasto/manifest.json",
         );
+    });
+
+    it("forgets what the previous provider showed", async () => {
+        const { messages, departures } = await mountPage({
+            before: () => {
+                useSelectionStore().provider = { id: "poznan", name: "Poznań" } as any;
+                useMessagesStore().messages = [{ message: "old" }] as any;
+                useDeparturesStore().departures = [{ key: "old" }] as any;
+            },
+        });
+
+        expect(messages.messages).toEqual([]);
+        expect(departures.departures).toEqual([]);
+    });
+
+    it("keeps the messages when it shows the same provider again", async () => {
+        const { messages } = await mountPage({
+            before: () => {
+                useSelectionStore().provider = { id: "trojmiasto", name: "Trójmiasto" } as any;
+                useMessagesStore().messages = [{ message: "current" }] as any;
+            },
+        });
+
+        expect(messages.messages).toHaveLength(1);
     });
 
     it("asks to pick stops when none are selected", async () => {
