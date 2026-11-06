@@ -39,7 +39,6 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0002](0002-unicode-aware-sqlite-string-functions.md) | Unicode-aware string functions on SQLite | Accepted |
 | [0003](0003-malformed-request-parameters-are-bad-requests.md) | Malformed request parameters are rejected with 400 | Accepted |
 | [0004](0004-upstream-data-addresses-are-configuration.md) | Upstream data addresses are configuration | Accepted |
-| [0005](0005-releases-are-made-by-ci-from-tags.md) | Releases are made by CI from tags | Accepted |
 | [0006](0006-collections-are-php-ds-values-with-kadet-functional-pipelines.md) | Collections are php-ds values with kadet/functional pipelines | Accepted |
 | [0007](0007-imported-rows-are-upserted-portably.md) | Imported rows are upserted portably, importers are tested on recorded feeds | Accepted |
 | [0008](0008-federated-servers-authenticate-through-symfony-security.md) | Federated servers authenticate through Symfony Security | Accepted |
@@ -56,6 +55,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0021](0021-schedules-are-cron-expressions-or-intervals-from-environment-variables.md) | Schedules are cron expressions or intervals from environment variables | Accepted |
 | [0022](0022-app-shell-with-top-bar-and-mobile-bottom-bar.md) | App shell: a top bar and a mobile bottom bar, built from one navigation list | Accepted |
 | [0023](0023-dependabot-merges-minor-and-patch-updates.md) | Dependabot merges minor and patch updates on its own | Accepted |
+| [0024](0024-releases-are-made-by-ci-from-tags-on-master-or-release-branches.md) | Releases are made by CI from tags, on master or on release branches | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
@@ -63,6 +63,7 @@ Don't write one for local implementation details that the code and the wiki alre
 
 | ADR | Title | Status |
 |---|---|---|
+| [0005](archive/0005-releases-are-made-by-ci-from-tags.md) | Releases are made by CI from tags | Superseded by [0024](0024-releases-are-made-by-ci-from-tags-on-master-or-release-branches.md) |
 | [0009](archive/0009-schedules-are-configured-by-environment-variables.md) | Schedules are configured by environment variables | Superseded by [0021](0021-schedules-are-cron-expressions-or-intervals-from-environment-variables.md) |
 | [0015](archive/0015-icons-are-tabler-icons-behind-named-registry.md) | Icons are Tabler icons behind a named registry | Superseded by [0017](0017-icons-are-tabler-icons-ours-on-tablers-grid.md) |
 

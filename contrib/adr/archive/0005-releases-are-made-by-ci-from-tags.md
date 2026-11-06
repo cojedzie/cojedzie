@@ -1,6 +1,6 @@
 # 0005. Releases are made by CI from tags
 
-- **Status:** Accepted
+- **Status:** Superseded by [0024](../0024-releases-are-made-by-ci-from-tags-on-master-or-release-branches.md)
 - **Date:** 2026-10-26
 - **Applies to:** `.github/workflows/**`, `docker-bake.hcl`, `contrib/release-notes.sh`, version metadata in
   `api/composer.json` and `front/package.json`

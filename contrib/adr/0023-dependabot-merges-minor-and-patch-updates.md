@@ -42,7 +42,7 @@ We will use option 3:
 
 ## Consequences
 
-- Merged updates are deployed to `next` like any other change; production still needs a release (ADR 0005).
+- Merged updates are deployed to `next` like any other change; production still needs a release (ADR 0024).
 - What auto-merge accepts is only as good as the required checks. A check that isn't required doesn't hold a merge
   back, so the branch protection of `master` must require `test`, `test-front` and `build`.
 - Dependencies Dependabot can't update (build arguments such as `PHP_VERSION`, compose service images) stay
