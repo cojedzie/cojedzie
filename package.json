@@ -2,7 +2,7 @@
   "name": "@cojedzie/cojedzie",
   "devDependencies": {
     "@commitlint/cli": "^17.4.0",
-    "@commitlint/config-conventional": "^17.4.0",
+    "@commitlint/config-conventional": "^21.2.4",
     "husky": "^9.1.7"
   }
 }
