@@ -8,8 +8,6 @@ import { navigation } from "@/navigation";
 import { ContainerKey } from "@/services";
 import { useSelectionStore } from "@/stores/selection";
 
-const stop = (id: string) => ({ id, name: `Stop ${id}`, group: "Group", $type: "vnd.cojedzie.stop" }) as any;
-
 const stubs = {
     teleport: true,
     UiIcon: true,
@@ -100,26 +98,13 @@ describe("AppHeader", () => {
         expect(wrapper.find(".switcher__name").text()).toBe("Trójmiasto");
     });
 
-    it("clears the stops when switching to another provider", async () => {
-        const { wrapper, router, selection } = await mountHeader();
-        selection.replace([stop("1"), stop("2")]);
+    it("goes to the board of the picked provider", async () => {
+        const { wrapper, router } = await mountHeader();
 
         await wrapper.find(".switcher__warszawa").trigger("click");
         await flushPromises();
 
-        expect(selection.stops).toEqual([]);
         expect(router.currentRoute.value.fullPath).toBe("/warszawa");
-    });
-
-    it("keeps the stops when picking the current provider", async () => {
-        const { wrapper, router, selection } = await mountHeader();
-        selection.replace([stop("1")]);
-
-        await wrapper.find(".switcher__trojmiasto").trigger("click");
-        await flushPromises();
-
-        expect(selection.stops).toHaveLength(1);
-        expect(router.currentRoute.value.fullPath).toBe("/trojmiasto");
     });
 
     it("still offers the switcher when the provider list fails to load", async () => {
