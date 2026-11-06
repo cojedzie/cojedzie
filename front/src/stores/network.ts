@@ -85,11 +85,20 @@ const getMercureHub = (response: AxiosResponse): string | undefined => {
     return link.match(/<([^>]+)>;\s+rel=(?:mercure|"[^"]*mercure[^"]*")/)[1];
 };
 
+// 2^7–2^8 seconds, so a broken hub costs a few requests per tab, not a steady stream
+const maxSseFailures = 8;
+
 class NetworkNodeUpdateListener {
     sse: EventSource | null = null;
 
     url: string;
     handler: (update: ApiNodeUpdate) => void;
+
+    // Called after a backoff instead of connecting directly, so the store can fetch a fresh token first.
+    reconnect: () => void = () => this.connect();
+
+    failures = 0;
+    retry: number | null = null;
 
     get connected(): boolean {
         return !!this.sse;
@@ -121,7 +130,11 @@ class NetworkNodeUpdateListener {
             return;
         }
 
+        clearTimeout(this.retry);
+        this.retry = null;
+
         this.sse = new EventSource(this.url + "?" + query({ topic: "network/nodes" }));
+        this.sse.addEventListener("open", () => (this.failures = 0));
         this.sse.addEventListener("message", this.handleUpdateEvent.bind(this));
         this.sse.addEventListener("error", this.handleConnectionError.bind(this));
     }
@@ -132,15 +145,18 @@ class NetworkNodeUpdateListener {
         this.handler?.(update);
     }
 
+    // A connection that dropped is reopened by the browser itself (readyState CONNECTING); only one the browser
+    // gave up on (readyState CLOSED: an HTTP error, or a response that isn't an event stream) is retried here.
     handleConnectionError(_: Event) {
-        if (this.sse.readyState !== 2) {
+        if (this.sse.readyState !== EventSource.CLOSED) {
             return;
         }
 
         this.sse.close();
         this.sse = null;
 
-        sseBackoff(1, () => this.connect());
+        this.failures = Math.min(this.failures + 1, maxSseFailures);
+        this.retry = sseBackoff(this.failures, () => this.reconnect());
     }
 }
 
@@ -148,6 +164,9 @@ export const useNetworkStore = defineStore("network", () => {
     const nodes = ref<Dictionary<NetworkNodeState>>({});
 
     const listener = new NetworkNodeUpdateListener();
+    // The hub may have rejected an expired token: fetching the node list sets a new one. When that fails, the
+    // connection is still retried with the old token, which keeps the backoff going.
+    listener.reconnect = () => update().then(() => listener.connect());
 
     // The hub address is read lazily, so merely importing the store does not need `window.CoJedzie`.
     let client: StaticClient<NetworkingEndpoints> | undefined;
