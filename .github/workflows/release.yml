@@ -21,6 +21,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       previous: ${{ steps.version.outputs.previous }}
+      latest: ${{ steps.version.outputs.latest }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -31,26 +32,49 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
         run: |
-          if [[ "$GITHUB_REF" != "refs/heads/master" ]]; then
-            echo "::error::Releases are made from master, not $GITHUB_REF"
+          # master releases any newer version, a release/YYYY.N branch only patches of its own line
+          if [[ "$GITHUB_REF" == "refs/heads/master" ]]; then
+            line=""
+          elif [[ "$GITHUB_REF" =~ ^refs/heads/release/([0-9]{4}\.[0-9]+)$ ]]; then
+            line=${BASH_REMATCH[1]}
+          else
+            echo "::error::Releases are made from master or a release/YYYY.N branch, not $GITHUB_REF"
             exit 1
           fi
           if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::Version must look like YYYY.N.P, got $VERSION"
             exit 1
           fi
+          if [[ -n "$line" ]] && [[ "${VERSION%.*}" != "$line" ]]; then
+            echo "::error::release/$line releases $line.P versions, got $VERSION"
+            exit 1
+          fi
           if git rev-parse -q --verify "refs/tags/v$VERSION" > /dev/null; then
             echo "::error::Tag v$VERSION already exists"
             exit 1
           fi
-          previous=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
-          if [[ -n "$previous" ]] && [[ $(printf '%s\n' "$previous" "v$VERSION" | sort -V | tail -n 1) != "v$VERSION" ]]; then
-            echo "::error::Version $VERSION is not newer than $previous"
+          newer () {
+            [[ -z "$1" ]] || [[ $(printf '%s\n' "$1" "v$VERSION" | sort -V | tail -n 1) == "v$VERSION" ]]
+          }
+          newest=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
+          newest_of_line=$(git tag --list "v${line:+$line.}*" --sort=-version:refname | head -n 1)
+          if ! newer "$newest_of_line"; then
+            echo "::error::Version $VERSION is not newer than $newest_of_line"
             exit 1
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "previous=$previous" >> "$GITHUB_OUTPUT"
-      # the test jobs of the CI workflow already ran on every master commit
+          # a patch of an older line is published, but neither marked latest nor deployed over a newer release
+          latest=false
+          if newer "$newest"; then
+            latest=true
+          fi
+          # notes cover the commits since the release this branch was last tagged with
+          previous=$(git describe --tags --abbrev=0 --match 'v*' 2> /dev/null || true)
+          {
+            echo "version=$VERSION"
+            echo "previous=$previous"
+            echo "latest=$latest"
+          } >> "$GITHUB_OUTPUT"
+      # the test jobs of the CI workflow already ran on every pushed commit
       - name: Require passing tests
         env:
           GH_TOKEN: ${{ github.token }}
@@ -92,9 +116,14 @@ jobs:
         id: version
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
+          LATEST: ${{ needs.prepare.outputs.latest }}
         run: |
           echo "version=$(git describe --tags)" >> "$GITHUB_OUTPUT"
-          echo "tags=$VERSION,${VERSION%.*},latest" >> "$GITHUB_OUTPUT"
+          tags="$VERSION,${VERSION%.*}"
+          if [[ "$LATEST" == true ]]; then
+            tags="$tags,latest"
+          fi
+          echo "tags=$tags" >> "$GITHUB_OUTPUT"
       # all images and variants, released images are public and used outside our deployment
       - name: Build and push
         id: bake
@@ -142,16 +171,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.prepare.outputs.version }}
           PREVIOUS: ${{ needs.prepare.outputs.previous }}
+          LATEST: ${{ needs.prepare.outputs.latest }}
         run: |
           git tag "v$VERSION"
           contrib/release-notes.sh "$PREVIOUS" "v$VERSION" > release-notes.md
           gh release create "v$VERSION" \
             --target "$GITHUB_SHA" \
             --title "$VERSION" \
-            --notes-file release-notes.md
+            --notes-file release-notes.md \
+            --latest="$LATEST"
 
   deployment:
-    needs: release
+    needs: [prepare, release]
+    # production runs the newest release, a patch of an older line must not replace it
+    if: needs.prepare.outputs.latest == 'true'
     uses: ./.github/workflows/deploy.yml
     with:
       environment: production
