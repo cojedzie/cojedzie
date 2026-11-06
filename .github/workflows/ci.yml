@@ -18,9 +18,12 @@ jobs:
         uses: actions/checkout@v7
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
+        # a missing extension fails here, instead of as confusing errors of the tools that need it
+        env:
+          fail-fast: true
         with:
           php-version: '8.5'
-          extensions: ds-php-ds/ext-ds@v2.0.0, intl, bcmath, zip, sockets, pdo_sqlite, amqp, redis
+          extensions: ds-2.0.0, intl, bcmath, zip, sockets, pdo_sqlite, amqp, redis
           coverage: none
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
@@ -111,9 +114,12 @@ jobs:
         uses: actions/checkout@v7
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
+        # a missing extension fails here, instead of as confusing errors of the tools that need it
+        env:
+          fail-fast: true
         with:
           php-version: '8.5'
-          extensions: ds-php-ds/ext-ds@v2.0.0, intl, bcmath, zip, sockets, pdo_sqlite, pdo_mysql, pdo_pgsql, amqp, redis
+          extensions: ds-2.0.0, intl, bcmath, zip, sockets, pdo_sqlite, pdo_mysql, pdo_pgsql, amqp, redis
           coverage: none
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
