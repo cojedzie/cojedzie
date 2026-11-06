@@ -1,4 +1,4 @@
-FROM node:24 AS dev
+FROM node:25 AS dev
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ CMD ["node", "build/server/server.js"]
 
 EXPOSE 3000 3001
 
-FROM node:24 AS build
+FROM node:25 AS build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -25,7 +25,7 @@ RUN --mount=type=secret,id=sentry-auth-token npm run build:app
 RUN npm run build:server
 
 # server dependencies step
-FROM node:24 AS prod-dependencies
+FROM node:25 AS prod-dependencies
 
 WORKDIR /app
 
@@ -34,7 +34,7 @@ COPY package.json package-lock.json ./
 # install dependencies, npm's download cache stays out of the layer
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --no-audit --no-fund
 
-FROM node:24-slim AS prod
+FROM node:25-slim AS prod
 
 LABEL maintainer="Kacper Donat <kacper@kadet.net>"
 
