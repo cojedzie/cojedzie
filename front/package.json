@@ -8,7 +8,7 @@
     "**/*.vue"
   ],
   "devDependencies": {
-    "@elastic/elasticsearch": "7",
+    "@elastic/elasticsearch": "9",
     "@eslint/js": "^10.0.1",
     "@floating-ui/dom": "^1.8.0",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
