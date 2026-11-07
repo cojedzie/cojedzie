@@ -105,8 +105,9 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     }
 
     /**
-     * Line+days to download: the lines of the current import on each day of the window, but those imported before.
-     * The only place deciding what needs a download.
+     * Line+days to download: the lines of the current import on each day of the window the routes feed lists them on
+     * (a line that doesn't run on a day has no schedule there), but those imported before. The only place deciding
+     * what needs a download.
      *
      * @return list<array{line: string, date: string}>
      */
@@ -124,6 +125,14 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             ->setParameter('import_id', $event->import->getId(), 'uuid')
             ->executeQuery()
             ->fetchFirstColumn();
+
+        $listed = new Set();
+        foreach ($this->jsonStreamer->streamDated($this->config->routesUrl, 'routes', $dates) as $date => $routes) {
+            foreach ($routes as $route) {
+                // the line id as the line importer builds it
+                $listed->add($this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $route['routeId']) . '@' . $date);
+            }
+        }
 
         $imported = new Set();
         $rows     = $this->connection->createQueryBuilder()
@@ -143,7 +152,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $plan = [];
         foreach ($lineIds as $lineId) {
             foreach ($dates as $date) {
-                if (!$imported->contains($lineId . '@' . $date)) {
+                if ($listed->contains($lineId . '@' . $date) && !$imported->contains($lineId . '@' . $date)) {
                     $plan[] = ['line' => $lineId, 'date' => $date];
                 }
             }

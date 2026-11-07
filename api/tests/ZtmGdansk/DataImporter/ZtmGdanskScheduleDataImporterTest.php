@@ -43,6 +43,13 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     ];
     private DataUpdateEvent $event;
 
+    /**
+     * Routes of the routes feed on every date, unless a test gives its own; line() adds the line's route.
+     *
+     * @var list<string>
+     */
+    private array $routes = [];
+
     #[\Override]
     protected function setUp(): void
     {
@@ -152,6 +159,25 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
                 'description' => '[ZTM Gdańsk] Schedule of 6 on 2026-10-28',
             ],
             $spawned[0],
+        );
+    }
+
+    public function testLineIsPlannedOnlyOnDatesItIsListedOn(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+        $this->line(self::PROVIDER . '::8');
+
+        // line 8 doesn't run after the first day, its schedule there would be a 404
+        $this->importer(
+            fn () => [],
+            fn (string $date) => $date === '2026-10-28' ? ['6', '8'] : ['6'],
+        )->import($this->reporter(), $this->event);
+
+        $planned = array_map(fn (array $task) => $task['payload'], $this->event->getSpawned());
+        $this->assertCount(8, $planned);
+        $this->assertSame(
+            [['line' => self::PROVIDER . '::8', 'date' => '2026-10-28']],
+            array_values(array_filter($planned, fn (array $payload) => $payload['line'] === self::PROVIDER . '::8')),
         );
     }
 
@@ -355,6 +381,10 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     {
         [$provider, $symbol] = explode('::', $id);
 
+        if ($provider === self::PROVIDER) {
+            $this->routes[] = $symbol;
+        }
+
         $this->connection->insert('line', [
             'id'          => $id,
             'provider_id' => $provider,
@@ -440,13 +470,22 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
     /**
      * @param \Closure(string, string): iterable<array<string, mixed>> $schedule rows by route and date
+     * @param ?\Closure(string): list<string>                           $routes   routes listed on the date, by default
+     *                                                                            the lines' routes on every date
      */
-    private function importer(\Closure $schedule): ZtmGdanskScheduleDataImporter
+    private function importer(\Closure $schedule, ?\Closure $routes = null): ZtmGdanskScheduleDataImporter
     {
+        $routes ??= fn () => $this->routes;
+        $config = $this->config();
+
         return new ZtmGdanskScheduleDataImporter(
             $this->connection,
             new IdUtils(),
-            new StubJsonStreamer(function (string $url) use ($schedule) {
+            new StubJsonStreamer(function (string $url, string $branch) use ($schedule, $routes, $config) {
+                if ($url === $config->routesUrl) {
+                    return array_map(fn (string $route) => ['routeId' => (int) $route], $routes(explode('.', $branch)[0]));
+                }
+
                 parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
 
                 return $schedule($query['routeId'], $query['date']);
