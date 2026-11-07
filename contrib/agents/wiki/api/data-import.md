@@ -89,12 +89,15 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
 `DataImport\StaleDataCollector` (`app:collect-stale-data`, scheduled by `COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`) removes
 operators, lines, stops, tracks, track stops, trips and trip stops whose `import_id` points to an import started
 more than `COJEDZIE_STALE_DATA_RETENTION` ago (default `7 days`, any `DateInterval::createFromDateString()` string), i.e. that
-no import has written since. Then it removes the `import` rows nothing refers to anymore. Provider rows stay.
+no import has written since. Tracks, track stops, trips and trip stops also go once their `valid_to` passed (never
+with `valid_to IS NULL`), and `schedule_day` rows of days before today in Warsaw. Then it removes the `import` rows
+nothing refers to anymore (a `schedule_day` row keeps its import: the row cascades with it). Provider rows stay.
 
 - Children are collected first, and a stale row still referenced by a row that stays is kept (a stop on a current
   track, an operator of a current line), so foreign keys never block and fresh data never loses a relation.
-- Brake: unless an import **finished** within the retention period, nothing is removed and the handler logs a
-  warning, so a stalled or failing import can't wipe the data.
+- Brake: unless an import **succeeded** within the retention period, nothing is removed and the handler logs a
+  warning, so a stalled or failing import can't wipe the data. Nothing is removed either while an import runs
+  (unfinished and started less than `COJEDZIE_IMPORT_TIMEOUT` ago, default `6 hours`).
 - One transaction; plain `DELETE … WHERE import_id IN (…) AND NOT EXISTS (…)`, checked on SQLite, MariaDB and
   Postgres.
 
