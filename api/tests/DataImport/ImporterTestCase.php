@@ -157,6 +157,7 @@ abstract class ImporterTestCase extends KernelTestCase
             stopsInTripsUrl: 'https://ztm.example/stops-in-trips',
             agenciesUrl: 'https://ztm.example/agencies',
             displaysUrl: 'https://ztm.example/displays',
+            scheduleDays: 7,
         );
     }
 }

@@ -43,6 +43,7 @@ parameters:
   env(ZTM_GDANSK_TRIPS_URL): 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/b15bb11c-7e06-4685-964e-3db7775f912f/download/trips.json'
   env(ZTM_GDANSK_STOPS_IN_TRIPS_URL): 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/3115d29d-b763-4af5-93f6-763b835967d6/download/stopsintrips.json'
   env(ZTM_GDANSK_AGENCIES_URL): 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/dff5f71f-0134-4ef3-8116-73c1a8e929a5/download/agencies.json'
+  env(ZTM_GDANSK_SCHEDULE_DAYS): '7'
   env(ZTM_GDANSK_DISPLAYS_URL): 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/ee910ad8-8ffa-4e24-8ef9-d5a335b07ccb/download/displays.json'
 
 services:

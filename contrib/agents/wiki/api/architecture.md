@@ -59,7 +59,8 @@ and the departures scenarios.
 environment variable each, defaults in `config/services.yaml`): `ZTM_GDANSK_API_URL` is the TRISTAR API base
 (classes add `/departures`, `/displayMessages`, `/stopTimes`); every dataset file has its own full URL, because its
 resource id changes over time (`ZTM_GDANSK_STOPS_URL`, `_ROUTES_URL`, `_TRIPS_URL`, `_STOPS_IN_TRIPS_URL`,
-`_AGENCIES_URL`, `_DISPLAYS_URL`).
+`_AGENCIES_URL`, `_DISPLAYS_URL`). `ZTM_GDANSK_SCHEDULE_DAYS` (default 7, at
+least 1) is how many days of schedules, today first, are kept.
 
 Adding a provider: implement `Provider`, reuse `Generic*Repository` with `withProvider($entity)` for DB-backed
 data, and add `DataImporter`s (see [data-import.md](data-import.md)).

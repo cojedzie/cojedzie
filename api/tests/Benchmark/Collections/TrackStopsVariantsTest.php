@@ -50,7 +50,16 @@ final class TrackStopsVariantsTest extends TestCase
             new TableUpserter($this->createStub(Connection::class)),
             $ids,
             new JsonStreamer(),
-            new ZtmGdanskConfig('', '', '', '', '', '', ''),
+            new ZtmGdanskConfig(
+                apiUrl: '',
+                stopsUrl: '',
+                routesUrl: '',
+                tripsUrl: '',
+                stopsInTripsUrl: '',
+                agenciesUrl: '',
+                displaysUrl: '',
+                scheduleDays: 7,
+            ),
             new MockClock(),
         );
         $records = \array_slice(TrackStopsVariants::decodedRecords(), 0, self::RECORD_COUNT);
