@@ -30,6 +30,10 @@ function when the branch touched part of it.
 - If you have to write a comment to explain what a block does, the block wants to be a function with that
   comment as its name.
 
+**Extract only what can be named well.** If a piece of code can be named, name it and extract it. If the best
+name you find is generic (`lineRow`, `process`, `data`, `handle`), keep the code where it is: a vague helper
+makes the reader jump away and back for nothing, which is the opposite of readable.
+
 **Nested loops are a smell.** The body of the inner loop is almost always a function of its own ("import the
 rows of one day", "find the next date key"). Same for a loop inside a `try` inside a loop.
 
@@ -39,7 +43,12 @@ stays a loop.
 
 **Name things for what they mean, not for how they're computed.** No `$match[0][1]`, `$i`, `$tmp`, `$data`:
 give positions, slices and intermediate values names (or small value objects / named array shapes) that say
-what they are. Magic numbers and patterns get named constants.
+what they are. Don't index into an expression, `($stops |> c\first())['trip_id']`: name the value first
+(`$firstStop = ...`).
+
+**Keep literals where they are used.** A regex or number used once stays inline, with a comment if it needs one;
+a constant at the top of the file makes the reader look away to understand the logic. To deduplicate one, write a
+function named for what it checks, with the literal inside (`isNightLine($symbol)`).
 
 **Keep the levels apart.** Business code (importers, rules) should not contain parsing mechanics; mechanics
 (stream readers, SQL helpers) should not know business rules. Move code to the level it belongs to.
