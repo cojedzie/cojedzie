@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace App\Tests\ZtmGdansk\DataImporter;
 
 use App\Event\DataUpdateEvent;
+use App\Exception\UnknownTrackVersionException;
 use App\Parser\Exception\StreamOpenException;
 use App\Parser\Exception\StreamReadException;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskScheduleDataImporter;
@@ -261,6 +262,35 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertSame([self::PROVIDER . '::6-6-1-1-2026-10-28'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
         $this->assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM trip_stop'));
         $this->assertCount(1, $this->warnings);
+    }
+
+    public function testDayWithOnlyTripsOfUnknownTrackVersionsIsNotImported(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+
+        $this->expectException(UnknownTrackVersionException::class);
+
+        try {
+            $this->importer(fn (string $route, string $date) => [
+                $this->row($route, $date, ['topologyVersionId' => 2]),
+            ])->importLineDay($this->reporter(), $this->event, self::PROVIDER . '::6', '2026-10-28');
+        } finally {
+            $this->assertSame([], $this->scheduleDays());
+            $this->assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM trip'));
+        }
+    }
+
+    public function testDayWithOnlyTripsOfUnknownTrackVersionsIsRetriedByTheNextRun(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+
+        $this->runImporter($this->importer(fn (string $route, string $date) => $date === '2026-10-28'
+            ? [$this->row($route, $date, ['topologyVersionId' => 2])]
+            : []), $this->event);
+
+        $this->assertSame([], $this->failures);
+        $this->assertCount(1, $this->warnings);
+        $this->assertSame(array_slice(self::WINDOW, 1), $this->scheduleDays());
     }
 
     public function testImportingALineDayTwiceDoesNothing(): void

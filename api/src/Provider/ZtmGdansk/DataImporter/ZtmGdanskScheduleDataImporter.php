@@ -23,6 +23,7 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
+use App\Exception\UnknownTrackVersionException;
 use App\Parser\Exception\EndOfStreamException;
 use App\Parser\Exception\StreamOpenException;
 use App\Parser\Exception\StreamReadException;
@@ -101,6 +102,9 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             }
 
             $reporter->milestone(sprintf('Line %s on %s was imported meanwhile', $lineId, $date));
+        } catch (UnknownTrackVersionException $exception) {
+            // the tracks will likely be there for the next import, which plans the day again
+            $reporter->milestone($exception->getMessage(), MilestoneType::Warning);
         }
     }
 
@@ -166,6 +170,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
      *
      * @throws StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException when the feed fails,
      *     leaving nothing written, so the next import retries it
+     * @throws UnknownTrackVersionException       when the day has trips, but none on a known track, leaving nothing written
      * @throws UniqueConstraintViolationException when another import wrote it meanwhile
      * @throws RetryableException                 when the transaction deadlocked or timed out on a lock in every attempt
      */
@@ -215,6 +220,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             );
 
             $skipped = 0;
+            $saved   = 0;
             foreach ($this->readTrips($lineId, $date) as $tripId => [$trip, $stops]) {
                 // trips refer to the track version of their day, written by the track importer
                 if (!$trackIds->contains($trip['track_id'])) {
@@ -223,6 +229,12 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
                 }
 
                 $this->saveTrip($event, $tripId, $trip, $stops, $stopIds);
+                $saved++;
+            }
+
+            // nothing would be left of the day, recording it would keep it empty for good
+            if ($skipped > 0 && $saved === 0) {
+                throw new UnknownTrackVersionException($lineId, $date, $skipped);
             }
 
             if ($skipped > 0) {
