@@ -32,14 +32,23 @@ use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Types;
 use Ds\Set;
 use Psr\Clock\ClockInterface;
 
+/**
+ * Imports the schedule per line and day of the window. A line+day is downloaded once: its schedule_day row,
+ * written also when the day has no trips, says it was imported.
+ */
 class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 {
     final public const string SCHEDULE_PATH = "/stopTimes";
+
+    // stopTimes give times as a moment on this day, the next day being past midnight
+    private const string TIME_BASE = '1899-12-30';
 
     public function __construct(
         private readonly Connection $connection,
@@ -53,132 +62,250 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
-        $existingLineIds = $this->connection->createQueryBuilder()
+        $plan  = $this->plan($event);
+        $count = 0;
+
+        foreach ($plan as ['line' => $lineId, 'date' => $date]) {
+            try {
+                $this->importLineDay($reporter, $event, $lineId, $date);
+            } catch (StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException $exception) {
+                $reporter->milestone(
+                    sprintf('Failed to import line %s on %s: %s', $lineId, $date, $exception->getMessage()),
+                    MilestoneType::Warning,
+                );
+            }
+
+            $reporter->progress(++$count, max: count($plan), comment: sprintf('Imported line %s on %s', $lineId, $date));
+        }
+
+        $reporter->progress($count, comment: 'Imported all lines', finished: true);
+    }
+
+    /**
+     * Line+days to download: the lines of the current import on each day of the window, but those imported before.
+     * The only place deciding what needs a download.
+     *
+     * @return list<array{line: string, date: string}>
+     */
+    public function plan(DataUpdateEvent $event): array
+    {
+        $dates = ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays);
+
+        $lineIds = $this->connection->createQueryBuilder()
             ->from('line', 'l')
             ->select('id')
             ->where('l.provider_id = :provider_id')
             ->andWhere('l.import_id = :import_id')
+            ->orderBy('id')
             ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
             ->setParameter('import_id', $event->import->getId(), 'uuid')
             ->executeQuery()
             ->fetchFirstColumn();
 
-        $existingStopIds = new Set(
-            $this->connection->createQueryBuilder()
-                ->from('stop', 's')
-                ->select('id')
-                ->where('s.provider_id = :provider_id')
-                ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
-                ->executeQuery()
-                ->iterateColumn()
-        );
+        $imported = new Set();
+        $rows     = $this->connection->createQueryBuilder()
+            ->from('schedule_day', 'd')
+            ->select('line_id', 'date')
+            ->where('d.provider_id = :provider_id')
+            ->andWhere('d.date IN (:dates)')
+            ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+            ->setParameter('dates', $dates, ArrayParameterType::STRING)
+            ->executeQuery()
+            ->iterateAssociative();
 
-        $count = 0;
-        foreach ($existingLineIds as $lineId) {
-            try {
-                $this->connection->transactional(fn () => $this->importScheduleOfLine($event, $lineId, $existingStopIds));
-            } catch (StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException $exception) {
-                $reporter->milestone("Failed to import line " . $lineId . ": " . $exception->getMessage(), MilestoneType::Warning);
-            }
-            $reporter->progress($count++, max: count($existingLineIds), comment: sprintf("Imported line %s", $lineId));
+        foreach ($rows as $row) {
+            $imported->add($row['line_id'] . '@' . $row['date']);
         }
-        $reporter->progress($count, comment: 'Imported all lines', finished: true);
+
+        $plan = [];
+        foreach ($lineIds as $lineId) {
+            foreach ($dates as $date) {
+                if (!$imported->contains($lineId . '@' . $date)) {
+                    $plan[] = ['line' => $lineId, 'date' => $date];
+                }
+            }
+        }
+
+        return $plan;
     }
 
-    private function importScheduleOfLine(DataUpdateEvent $event, string $lineId, Set $existingStopIds)
+    /**
+     * Downloads and stores the trips of the line on the date, in one transaction, unless it was imported before.
+     *
+     * @throws StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException when the feed fails,
+     *     leaving nothing written
+     */
+    public function importLineDay(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date): void
     {
-        $tripIds = $this->connection->createQueryBuilder()
-            ->from('track')
-            ->join('track', 'trip', 'trip', 'trip.track_id = track.id')
-            ->select('trip.id')
-            ->where('track.line_id = :lid')
-        ;
+        $this->connection->transactional(function () use ($reporter, $event, $lineId, $date): void {
+            if ($this->isImported($lineId, $date)) {
+                return;
+            }
 
-        $this->connection->createQueryBuilder()
-            ->delete('trip')
-            ->where(sprintf('id in (%s)', $tripIds->getSQL()))
-            ->setParameter('lid', $lineId)
-            ->executeStatement()
-        ;
+            $trackIds = new Set(
+                $this->connection->createQueryBuilder()
+                    ->from('track')
+                    ->select('id')
+                    ->where('line_id = :line_id')
+                    ->setParameter('line_id', $lineId)
+                    ->executeQuery()
+                    ->iterateColumn()
+            );
 
+            $stopIds = new Set(
+                $this->connection->createQueryBuilder()
+                    ->from('stop')
+                    ->select('id')
+                    ->where('provider_id = :provider_id')
+                    ->setParameter('provider_id', ZtmGdanskProvider::IDENTIFIER)
+                    ->executeQuery()
+                    ->iterateColumn()
+            );
+
+            $skipped = 0;
+            foreach ($this->readTrips($lineId, $date) as $tripId => [$trip, $stops]) {
+                // trips refer to the track version of their day, written by the track importer
+                if (!$trackIds->contains($trip['track_id'])) {
+                    $skipped++;
+                    continue;
+                }
+
+                $this->saveTrip($event, $tripId, $trip, $stops, $stopIds);
+            }
+
+            if ($skipped > 0) {
+                $reporter->milestone(
+                    sprintf('Skipped %d trips of line %s on %s with an unknown track', $skipped, $lineId, $date),
+                    MilestoneType::Warning,
+                );
+            }
+
+            $this->connection->insert(
+                'schedule_day',
+                [
+                    'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                    'line_id'     => $lineId,
+                    'date'        => $date,
+                    'import_id'   => $event->import->getId(),
+                    'imported_at' => $this->clock->now()->setTimezone(new \DateTimeZone('UTC')),
+                ],
+                [
+                    'import_id'   => 'uuid',
+                    'imported_at' => Types::DATETIME_IMMUTABLE,
+                ]
+            );
+        });
+    }
+
+    private function isImported(string $lineId, string $date): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1 FROM schedule_day WHERE line_id = :line_id AND date = :date',
+            ['line_id' => $lineId, 'date' => $date],
+        );
+    }
+
+    /**
+     * Reads the whole feed of the line+day first, as a trip's validity spans all its stop times.
+     *
+     * @return array<string, array{array<string, mixed>, list<array<string, mixed>>}> trip columns and stops, by trip id
+     */
+    private function readTrips(string $lineId, string $date): array
+    {
         $url = sprintf(
             "%s?%s",
             $this->config->apiUrl . self::SCHEDULE_PATH,
             http_build_query([
-                'date'    => ZtmGdanskProvider::feedDate($this->clock),
+                'date'    => $date,
                 'routeId' => $this->idUtils->strip($lineId),
             ])
         );
 
-        $trips = new Set();
+        $midnight = CarbonImmutable::createFromFormat('!Y-m-d', $date, ZtmGdanskProvider::TIMEZONE);
+        $base     = new \DateTimeImmutable(self::TIME_BASE, new \DateTimeZone('UTC'));
+        $time     = fn (string $value) => $midnight
+            ->add($base->diff(new \DateTimeImmutable($value, new \DateTimeZone('UTC'))))
+            ->setTimezone('UTC');
 
-        $saveStop = function (array $columns) use ($existingStopIds, $event) {
-            if (!$existingStopIds->contains($columns['stop_id'])) {
-                return;
+        $trips = [];
+        foreach ($this->jsonStreamer->stream($url, 'stopTimes') as $stop) {
+            $tripId = sprintf('%s-%s-%s-%d-%s', $stop['routeId'], $stop['busServiceName'], $stop['tripId'], $stop['order'], $date);
+            $tripId = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $tripId);
+
+            $arrival   = $time($stop['arrivalTime']);
+            $departure = $time($stop['departureTime']);
+
+            $trips[$tripId] ??= [
+                [
+                    'operator_id' => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['agencyId']),
+                    'track_id'    => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, sprintf('R%sT%sV%s', $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])),
+                    'note'        => $stop['noteDescription'],
+                    'valid_from'  => $arrival,
+                    'valid_to'    => $departure,
+                ],
+                [],
+            ];
+
+            $trips[$tripId][0]['valid_from'] = min($trips[$tripId][0]['valid_from'], $arrival);
+            $trips[$tripId][0]['valid_to']   = max($trips[$tripId][0]['valid_to'], $departure);
+
+            $trips[$tripId][1][] = [
+                'stop_id'   => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
+                'sequence'  => $stop['stopSequence'],
+                'arrival'   => $arrival,
+                'departure' => $departure,
+            ];
+        }
+
+        return $trips;
+    }
+
+    /**
+     * Saves the trip and its stops at known stops, which inherit the trip's validity.
+     *
+     * @param array<string, mixed>       $trip
+     * @param list<array<string, mixed>> $stops
+     * @param Set<string>                $stopIds stops of the provider
+     */
+    private function saveTrip(DataUpdateEvent $event, string $tripId, array $trip, array $stops, Set $stopIds): void
+    {
+        $types = [
+            'import_id'  => 'uuid',
+            'valid_from' => Types::DATETIME_IMMUTABLE,
+            'valid_to'   => Types::DATETIME_IMMUTABLE,
+        ];
+
+        $this->connection->insert(
+            'trip',
+            [
+                ...$trip,
+                'id'          => $tripId,
+                'provider_id' => ZtmGdanskProvider::IDENTIFIER,
+                'import_id'   => $event->import->getId(),
+            ],
+            $types,
+        );
+
+        foreach ($stops as $stop) {
+            if (!$stopIds->contains($stop['stop_id'])) {
+                continue;
             }
 
             $this->connection->insert(
                 'trip_stop',
                 [
-                    ...$columns,
-                    'import_id' => $event->import->getId(),
+                    ...$stop,
+                    'trip_id'    => $tripId,
+                    'import_id'  => $event->import->getId(),
+                    'valid_from' => $trip['valid_from'],
+                    'valid_to'   => $trip['valid_to'],
                 ],
                 [
-                    'arrival'   => 'datetime',
-                    'departure' => 'datetime',
-                    'import_id' => 'uuid',
+                    ...$types,
+                    'arrival'   => Types::DATETIME_IMMUTABLE,
+                    'departure' => Types::DATETIME_IMMUTABLE,
                 ]
             );
-        };
-
-        $saveTrip = function ($tripId, array $columns) use ($event) {
-            $this->connection->insert(
-                'trip',
-                array_merge(
-                    $columns,
-                    [
-                        'id'          => $tripId,
-                        'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                        'import_id'   => $event->import->getId(),
-                    ]
-                ),
-                [
-                    'import_id' => 'uuid',
-                ]
-            );
-        };
-
-        foreach ($this->jsonStreamer->stream($url, 'stopTimes') as $stop) {
-            $tripId = sprintf('%s-%s-%s-%d', $stop['routeId'], $stop['busServiceName'], $stop['tripId'], $stop['order']);
-            $tripId = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $tripId);
-
-            if (!$trips->contains($tripId)) {
-                $saveTrip($tripId, [
-                    'operator_id' => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['agencyId']),
-                    'track_id'    => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, sprintf('R%sT%sV%s', $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])),
-                    'provider_id' => ZtmGdanskProvider::IDENTIFIER,
-                    'note'        => $stop['noteDescription'],
-                ]);
-
-                $trips->add($tripId);
-            }
-
-            $base = Carbon::create(1899, 12, 30, 00, 00, 00);
-            $date = Carbon::createFromFormat('Y-m-d', $stop['date'], ZtmGdanskProvider::TIMEZONE)->setTime(00, 00, 00);
-
-            $arrival   = $base->diff(Carbon::createFromTimeString($stop['arrivalTime']));
-            $departure = $base->diff(Carbon::createFromTimeString($stop['departureTime']));
-
-            $arrival   = (clone $date)->add($arrival);
-            $departure = (clone $date)->add($departure);
-
-            $saveStop([
-                'trip_id'   => $tripId,
-                'stop_id'   => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
-                'sequence'  => $stop['stopSequence'],
-                'arrival'   => $arrival->tz('UTC'),
-                'departure' => $departure->tz('UTC'),
-            ]);
         }
     }
 

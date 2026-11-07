@@ -138,7 +138,8 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
     }
 
     /**
-     * Streams the recorded files; a route's schedule comes from its own file, routes not recorded have none.
+     * Streams the recorded files; a route's schedule of the recorded day comes from its own file, routes and days
+     * not recorded have none.
      */
     private function streamer(): JsonStreamer
     {
@@ -160,7 +161,7 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
                 parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
                 $file = sprintf('%s/stopTimes/%s.json', $this->feeds, $query['routeId']);
 
-                return is_file($file) ? parent::stream($file, $branch) : [];
+                return $query['date'] === basename($this->feeds) && is_file($file) ? parent::stream($file, $branch) : [];
             }
         };
     }

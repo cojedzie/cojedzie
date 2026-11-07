@@ -48,16 +48,19 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
 - Operators, lines, stops and tracks are written with `DataImport\TableUpserter::upsert()`: rows keyed by id, batched
   by 100, existing ids of the provider updated, new ones inserted, every row stamped with `provider_id` and the
   current `import_id`. It opens no transaction; each importer wraps its writes in `Connection::transactional()`.
-- Importers never delete rows that disappeared upstream (except trips and track stops, replaced per line and
-  track); `StaleDataCollector` does, see below.
+- Importers never delete rows that disappeared upstream (except track stops, replaced per track);
+  `StaleDataCollector` does, see below.
 - Track stops: the `stopsInTrip` feed is **not ordered by track** (one day of the 2022 fixture: 21,897 rows of 1,332
   tracks in 21,866 runs), so they are grouped in memory, reduced to track id, stop id and sequence first. Unknown
   stops are filtered after grouping, so a track whose stops are all unknown still has its old stops cleared.
   `tests/Benchmark/Collections/TrackStopsBench` measures this step; its variants test checks the importer matches
   the `compact` variant.
-- The schedule is imported one line per transaction; a line whose feed can't be opened, parsed or read in time
-  (`StreamOpenException`, `UnexpectedTokenException`, `EndOfStreamException`, `StreamReadException`) is skipped with
-  a warning.
+- The schedule is imported per line and day of the window, one transaction each (`importLineDay()`). `plan()`
+  lists the line+days without a `schedule_day` row, the only place deciding what is downloaded; the row is written
+  also for a day without trips, so it isn't fetched again. Trip ids end with the service date, a trip of an unknown
+  track version is skipped with a warning. A line+day whose feed can't be opened, parsed or read in time
+  (`StreamOpenException`, `UnexpectedTokenException`, `EndOfStreamException`, `StreamReadException`) writes nothing
+  and is skipped with a warning, so the next run retries it.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
 ## Stale data (ADR 0010)
