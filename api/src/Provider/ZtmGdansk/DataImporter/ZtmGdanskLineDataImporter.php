@@ -55,13 +55,13 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     {
         $count = $this->connection->transactional(fn () => $this->upserter->upsert(
             table: 'line',
-            rows: $this->getLinesFromZtmApi(),
+            rows: $this->getLinesFromZtmApi($reporter),
             providerId: ZtmGdanskProvider::IDENTIFIER,
             import: $event->import,
-            reporter: $reporter,
         ));
 
-        $reporter->progress($count, comment: 'OK', finished: true);
+        $days = $this->config->scheduleDays;
+        $reporter->progress($days, max: $days, comment: sprintf('OK, %d lines', $count), finished: true);
     }
 
     #[\Override]
@@ -72,9 +72,28 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         ];
     }
 
-    private function getLinesFromZtmApi()
+    /**
+     * Lines of known operators of every day of the window, each once, from the earliest day that lists it.
+     *
+     * @return \Generator<string, array<string, mixed>> rows by id
+     */
+    private function getLinesFromZtmApi(ProgressReporterInterface $reporter): \Generator
     {
-        $operators = new Set(
+        $dates     = ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays);
+        $operators = $this->knownOperators();
+        $seen      = new Set();
+        $day       = 0;
+
+        foreach ($this->jsonStreamer->streamDated($this->config->routesUrl, 'routes', $dates) as $date => $lines) {
+            $imported = yield from $this->unseenLines($lines, $operators, $seen);
+
+            $reporter->progress(++$day, max: count($dates), comment: sprintf('%s: %d lines', $date, $imported));
+        }
+    }
+
+    private function knownOperators(): Set
+    {
+        return new Set(
             $this->connection->createQueryBuilder()
                 ->from('operator', 'o')
                 ->select('id')
@@ -83,24 +102,42 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 ->executeQuery()
                 ->iterateColumn()
         );
+    }
 
-        foreach ($this->jsonStreamer->stream($this->config->routesUrl, sprintf('%s.routes', ZtmGdanskProvider::feedDate($this->clock))) as $line) {
-            $symbol   = $line['routeShortName'];
+    /**
+     * Lines of a day not seen on an earlier one, which they are marked as; lines of unknown operators are skipped.
+     *
+     * @param iterable<array<string, mixed>> $lines records of the routes feed
+     *
+     * @return \Generator<string, array<string, mixed>, mixed, int> rows by id, returning how many there were
+     */
+    private function unseenLines(iterable $lines, Set $operators, Set $seen): \Generator
+    {
+        $count = 0;
+
+        foreach ($lines as $line) {
+            $id       = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['routeId']);
+            $symbol   = (string) $line['routeShortName'];
             $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
 
-            // skip unknown operators
-            if (!$operators->contains($operator)) {
+            if ($seen->contains($id) || !$operators->contains($operator)) {
                 continue;
             }
 
-            yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['routeId']) => [
-                'symbol'      => $symbol,
+            $seen->add($id);
+            $count++;
+
+            yield $id => [
+                'symbol'      => $line['routeShortName'],
                 'type'        => $this->getLineType($line),
-                'night'       => preg_match('/^N\d{1,3}$/', (string) $symbol),
-                'fast'        => preg_match('/^[A-MO-Z]$/', (string) $symbol),
+                'night'       => preg_match('/^N\d{1,3}$/', $symbol),
+                // a single letter, except N
+                'fast'        => preg_match('/^[A-MO-Z]$/', $symbol),
                 'operator_id' => $operator,
             ];
         }
+
+        return $count;
     }
 
     private function getLineType(array $line)

@@ -36,6 +36,16 @@ final class StubJsonStreamer extends JsonStreamer
     ) {
     }
 
+    /**
+     * Serves the rows of a dated feed from a callback, given the url and the date.
+     *
+     * @param \Closure(string, string): iterable<array<string, mixed>> $rows
+     */
+    public static function byDate(\Closure $rows): self
+    {
+        return new self(fn (string $url, string $branch) => $rows($url, explode('.', $branch)[0]));
+    }
+
     #[\Override]
     public function stream(string $url, string $branch): iterable
     {

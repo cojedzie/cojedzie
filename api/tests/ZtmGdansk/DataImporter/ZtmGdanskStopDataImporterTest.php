@@ -82,12 +82,62 @@ final class ZtmGdanskStopDataImporterTest extends ImporterTestCase
         ], $this->connection->fetchAllNumeric('SELECT name, variant, group_name FROM stop ORDER BY id'));
     }
 
+    public function testStopOnlyListedOnALaterDayIsImported(): void
+    {
+        $this->importDays([
+            '2026-10-28' => [$this->stop(1, 'Pierwszy', '01')],
+            '2026-10-30' => [$this->stop(2, 'Drugi', '01')],
+        ]);
+
+        $this->assertSame([['trojmiasto::1'], ['trojmiasto::2']], $this->connection->fetchAllNumeric('SELECT id FROM stop ORDER BY id'));
+    }
+
+    public function testTodaysVersionWinsOverLaterDays(): void
+    {
+        $this->importDays([
+            '2026-10-28' => [$this->stop(1, 'Dzisiejszy', '01')],
+            '2026-10-29' => [$this->stop(1, 'Jutrzejszy', '01')],
+        ]);
+
+        $this->assertSame([['Dzisiejszy']], $this->connection->fetchAllNumeric('SELECT name FROM stop'));
+    }
+
+    public function testProgressIsReportedPerDayOfTheWindow(): void
+    {
+        $this->importDays([
+            '2026-10-28' => [$this->stop(1, 'Pierwszy', '01')],
+            '2026-10-29' => [$this->stop(2, 'Drugi', '01')],
+            '2026-10-30' => [$this->stop(3, 'Trzeci', '01')],
+        ]);
+
+        // one call per day present in the feed and the final one, all with the total
+        $this->assertSame(array_fill(0, 4, 7.0), $this->progressTotals);
+    }
+
+    /**
+     * Imports with every day of the window listing the same stops.
+     */
     private function import(DataUpdateEvent $event, array $stops): void
+    {
+        $this->importFrom($event, new StubJsonStreamer(fn () => $stops));
+    }
+
+    /**
+     * Imports with only the given days listing anything.
+     *
+     * @param array<string, list<array<string, mixed>>> $days stops of the feed by date
+     */
+    private function importDays(array $days): void
+    {
+        $this->importFrom($this->newImport(), StubJsonStreamer::byDate(fn (string $url, string $date) => $days[$date] ?? []));
+    }
+
+    private function importFrom(DataUpdateEvent $event, StubJsonStreamer $streamer): void
     {
         new ZtmGdanskStopDataImporter(
             $this->connection,
             new TableUpserter($this->connection),
-            new StubJsonStreamer(fn () => $stops),
+            $streamer,
             new IdUtils(),
             $this->config(),
             $this->clock(),
