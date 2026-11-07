@@ -2,37 +2,73 @@
 
 ## `app:update`
 
-The import is a persisted graph of tasks (`DataImport/ImportGraph`, table `import_task`), so several `main`
-workers run its steps in parallel. `ImportGraph::start()` creates an `ImportEntity` and one task per
+The import is a persisted graph of importers (`DataImport/ImportGraph`, table `import_task`, one row per node), so
+several `main` workers run its steps in parallel. `ImportGraph::start()` creates an `ImportEntity` and one node per
 `DataImport\DataImporter` (tagged `app.data_importer`, a service locator keyed by class) with the importers'
-`getDependencies()` as task ids, then dispatches a `RunImportTask` message for each task whose dependencies are
-done. An importer whose dependencies are missing or circular makes `start()` fail with a `LogicException` naming it,
-before anything is written. `ImportTaskRunner` (called by `RunImportTaskMessageHandler`) runs one task:
+`getDependencies()` as node ids, then dispatches a `RunImportTask` message for each node whose dependencies are
+done. Nothing is added to the graph at runtime. An importer whose dependencies are missing or circular makes
+`start()` fail with a `LogicException` naming it, before anything is written. `ImportTaskRunner` (called by
+`RunImportTaskMessageHandler` and `RunImportJobMessageHandler`) runs one node or job:
 
-- Statuses (`ImportTaskStatus`): `pending` → `queued` (dispatched) → `running` → `done` | `failed`; `skipped` when a
-  dependency failed or was skipped, or when a new import superseded this one. Every transition two workers could race
-  for is one `UPDATE … WHERE id = :id AND status = '<expected>'` checked by its affected-row count, so a dependent
-  is dispatched once and a duplicate delivery does nothing.
-- An importer adds tasks while it runs with `DataUpdateEvent::spawn(importer, payload, description)`; they get the
-  payload as `DataUpdateEvent::$payload` (null for the importer's own task), have no dependencies, and are inserted
-  in the transaction marking their parent done. The ZTM schedule importer spawns one task per line+day.
-- Any `\Throwable` fails the task with its message in `error`; there is no Messenger retry. A failed spawned task
-  (a line+day) doesn't fail the import: it wrote no `schedule_day` row, so the next import plans it again.
-- The import is finished when no task is `pending|queued|running`: whichever runner changes `import.finished_at`
-  first (`… WHERE finished_at IS NULL`) also sets `import.succeeded` (no failed or skipped task without a payload) and
-  closes the Sentry check-in `UpdateDataSourcesMessageHandler` opened (`import.check_in_id`, `maxRuntime` 240 min).
-- `start()` supersedes an unfinished import: its pending and queued tasks are skipped and it is finished with
-  `succeeded = false`; its running tasks complete, but nothing more runs for it.
+- Node statuses (`ImportTaskStatus`): `pending` → `queued` (dispatched) → `running` → `done` | `failed`, or
+  `running` → `waiting` → `running` → `done` | `failed` for a node with jobs; `skipped` when a dependency failed or
+  was skipped, or when a new import superseded this one. Job statuses (`ImportJobStatus`, table `import_job`):
+  `queued` → `running` → `done` | `failed` | `skipped`. Every transition two workers could race for is one
+  `UPDATE … WHERE id = :id AND status = '<expected>'` checked by its affected-row count, so a dependent is dispatched
+  once and a duplicate delivery does nothing.
+- Any `\Throwable` of the importer fails the node (or job) with its message in `error`; it is not retried within
+  the run. Messenger's default retries still apply to a handler that throws outside that (a transient database or
+  transport error in the bookkeeping), and a redelivery resumes it: when the claim fails, `run()` re-dispatches the
+  queued jobs of a `waiting` node, or calls `ended()` (`dispatchReady()` + `finishIfComplete()`) for an ended one;
+  `runJob()` of an ended job calls `endTask()`, which ends a waiting node or, for an ended one, calls `ended()`.
+  Duplicates of those are no-ops by their claims. A `running` node or job is left to the delivery running it.
+- The import is finished when no node is `pending|queued|running|waiting`: whichever runner changes
+  `import.finished_at` first (`… WHERE finished_at IS NULL`) also sets `import.succeeded` (no failed or skipped node)
+  and closes the Sentry check-in `UpdateDataSourcesMessageHandler` opened (`import.check_in_id`, `maxRuntime` 240 min).
+- `start()` supersedes an unfinished import: its pending and queued nodes, queued jobs and waiting nodes with no
+  running job are skipped and it is finished with `succeeded = false` (that transaction is retried up to 3 times on a
+  `RetryableException`, as it can deadlock with a job claim on MySQL; it is a DBAL transaction because the entity
+  manager's closes the manager on failure); its running nodes and jobs complete, but
+  nothing more runs for it. What keeps jobs queued *after* that from running is not `supersede()` but a guard: `run()`
+  sets a node `waiting` only `WHERE` its import is unfinished (else the node is skipped with no jobs), and `runJob()`
+  claims a job only while its import is unfinished (else the job is skipped, and its node once no job is left).
+  `jobsEnded()` can therefore still run for an import superseded meanwhile.
+- No reaper: a worker killed mid-job leaves that job `running` and its node `waiting`. The next run supersedes the
+  import, and the collector ignores an import older than `COJEDZIE_IMPORT_TIMEOUT`.
 
-`bin/console app:update` runs the same graph in-process (`ImportGraph::runSynchronously()`, no workers) and prints
-the task counts by status; `app:update --async` dispatches `UpdateDataSources`, whose handler only starts the
+### Importers that split their work into jobs
+
+An importer that implements `DataImport\SplittingDataImporter` stays in control of work it hands out to any worker:
+
+1. Its `import()` runs as the node and calls `$event->addJob(array $payload)` for each piece (JSON-serializable).
+   `ImportTaskRunner` persists the jobs as `import_job` rows in one transaction with the node becoming `waiting`,
+   then dispatches a `RunImportJob` for each. A node that adds no jobs ends as a plain one; a plain importer adding
+   jobs is a `LogicException`.
+2. `runJob($reporter, $event, $payload)` runs on whichever worker takes the job; throwing fails the job only, and
+   so does adding jobs from it (a `LogicException`: only the node adds jobs).
+3. `jobEnded($reporter, ImportJobCounts $counts)` runs after each job (counts of its jobs so far: `total`, `done`,
+   `failed`, with `ended()` and `remaining()`), for progress. It runs on the worker that ran the job.
+4. When no job is `queued` or `running`, one worker claims the node (`waiting → running … AND NOT EXISTS` an
+   unended job, so jobs ending at once end it once) and calls `jobsEnded($reporter, $counts)`, which returns whether
+   the node succeeded. Only then are its dependents dispatched.
+
+Waiting is event-driven: the waiting node holds no worker. Rejected: a worker blocking and polling for its jobs
+(a worker per waiting importer, a deadlock when jobs have no free worker), and fibers (the importer would stay
+suspended in one process and die with a worker restart or deploy). In tests, `ImporterTestCase::runImporter()`
+runs the importer's jobs as well, collecting failed ones in `$failures`.
+
+`bin/console app:update` runs the same graph, nodes and jobs, in-process (`ImportGraph::runSynchronously()`, no
+workers) and prints the node counts by status; `app:update --async` dispatches `UpdateDataSources`, whose handler only starts the
 graph.
 
-Memory: `ImportTaskRunner` raises `memory_limit` for each task only and restores it afterwards, because in production
-tasks run inside a long-lived messenger worker (`--memory-limit=128M`). `app:update` ends with a `Peak memory: N MB`
+Memory: `ImportTaskRunner` raises `memory_limit` for each node and job only and restores it afterwards, because in
+production they run inside a long-lived messenger worker (`--memory-limit=128M`). `app:update` ends with a `Peak memory: N MB`
 line. Measured on 2026-10-28 with a full day of ZTM data (183 lines, 285k scheduled stops, about 8 minutes):
 48 MB peak in `prod`, 906 MB in `dev` with debug, because Doctrine keeps every query for the profiler. The limit
-(2G) is sized for debug, since `task api:update` runs in `dev`.
+(2G) is sized for debug, since `task api:update` runs in `dev`. An in-process `app:update` in `dev` on a full date
+reaches ~1 GB and grows with the jobs: the profiler also wraps `http_client` in `TraceableHttpClient`, which keeps
+the response bodies. Workers reset services between messages and `prod` traces nothing, so this is a dev-only effect
+of running everything in one process.
 
 Run it with `task api:update` (uses `COJEDZIE_API_MODE=performance` by default).
 
@@ -61,6 +97,45 @@ Use cron syntax for `COJEDZIE_SCHEDULE_*`, not `@daily`: in `services.yaml` a le
 `bin/docker-init.sh` runs migrations **and** `app:update --async` on container start whenever migrations
 are out of date: a first import of the whole window takes too long to block the start, so the workers run it.
 
+## Schedule window (ADRs 0025, 0026)
+
+`ZTM_GDANSK_SCHEDULE_DAYS` (default 7, 1..10) days of schedules are kept, today first (Warsaw). Upstream's dated
+feeds (stops, routes, trips, stopsInTrip) hold 10 days, so lines, stops and tracks are imported for the whole
+window without extra downloads; only `stopTimes` costs a request per route and day. The stops, lines and tracks bars
+advance one step per day of the window, with the window as their total (they used to count only rows not seen on an
+earlier day, so after day one they barely moved and had no total).
+
+`JsonStreamer::streamDated()` reads those feeds in 1 MB chunks, cuts them into days at the top-level date keys and
+`json_decode`s each requested day lazily, once its rows are read (a generator keeps its last yielded value, so
+yielding decoded rows directly kept two days alive). Measured on the 2026-11-07 feeds without xdebug, 7 days of
+stopsInTrip: streaming parser 15.7 s / ~4 MB, whole-file `json_decode` 0.14 s / 238 MB, per day 0.13 s / 35 MB.
+Xdebug (the dev containers' default `debug` mode) makes the streaming parser about 4.7× slower again; measure
+imports with `task api:update` (performance mode). Single-day reads (`stream()`, e.g. `stopTimes`) still stream.
+
+- Tracks, track stops, trips and trip stops carry `valid_from` / `valid_to` (`ValidityTrait`, `NULL` = until
+  changed). Track ids are `R{routeId}T{tripId}V{topologyVersionId}`, trip ids end with the service date. A track
+  is valid for the days the dated feeds list it in; a trip for its run. Track listings return tracks valid now.
+- ZTM labels every published day with an agency's current topology version, so after a bump the old version is
+  missing from the whole window while keeping the `valid_to` an earlier import gave it (up to today + 6). The track
+  importer therefore sets `valid_to` = now on the tracks (and their stops) that share `R{routeId}T{tripId}` with a
+  track listed by this import, have another version and weren't listed. Tracks whose route+trip this import doesn't
+  list keep their validity, so a partial feed expires nothing it doesn't cover.
+- `schedule_day` (provider, line, date, import) records the imported line+days, also those without trips. A
+  line+day is downloaded only if it has no row, so a daily run fetches the day that entered the window. The first
+  run after deploy downloads everything: about 1,300 line+days, measured 20 minutes on 3 workers with the earlier version
+  that ran a task per line+day (not measured since the job per line).
+- Workers scale with `docker compose up -d --scale worker=N` (production: replicas of the `worker` service).
+
+Known behaviour:
+
+- Upstream answers 404 for `stopTimes` of a route on a day it doesn't run (weekends, holidays; 138 such line+days
+  on one run). `plan()` therefore plans only the dates the dated `routes` feed lists the line on; a 404 of a planned
+  line+day is a real failure: it is a warning of its line job, writes no `schedule_day` row and the next run retries
+  it. A failed day doesn't fail the import, unless no day of any line was imported.
+- **Open problem:** a published day is assumed not to change. Timetable changes inside the window are not
+  detected, as the topology version is per agency and changes every few days and the feeds are streamed. Where a
+  signal could be added: `ZtmGdanskScheduleDataImporter::plan()`.
+
 ## Provider importers
 
 ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operators, stops, tracks, schedule).
@@ -76,19 +151,28 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
   stops are filtered after grouping, so a track whose stops are all unknown still has its old stops cleared.
   `tests/Benchmark/Collections/TrackStopsBench` measures this step; its variants test checks the importer matches
   the `compact` variant.
-- The schedule is imported per line and day of the window, one transaction each (`importLineDay()`). `plan()`
-  lists the line+days without a `schedule_day` row, the only place deciding what is downloaded; the importer's own
-  task spawns a task per planned line+day. The row is written also for a day without trips, so it isn't fetched
-  again. Trip ids end with the service date, a trip of an unknown track version is skipped with a warning. A line+day
-  whose feed can't be opened, parsed or read in time writes nothing and its task fails, so the next run retries it.
-  A unique violation ends the task as done only when the line+day is imported now (another import wrote it after
-  the check); otherwise it fails. Importing the first day of the window also deletes the line's trips with
-  `valid_to IS NULL`, imported before trips had validity, in the same transaction. A transaction failing on a
-  deadlock or lock wait timeout (`RetryableException`, workers inserting trips at once) is retried as a whole, up
-  to 3 attempts with a 50–250 ms random pause.
+- The schedule importer is a `SplittingDataImporter` with a job per line. Its node plans (`plan()` lists the
+  line+days without a `schedule_day` row whose line the dated `routes` feed lists on that date, the only place
+  deciding what is downloaded) and hands out a job per line with that line's missing dates. A job
+  (`importLine()`) requests all its days at once with Symfony HttpClient and reads the responses in order, so the
+  days download concurrently (a line has at most 10 days; curl's default is 6 connections per host, so of 7 days one
+  queues). Each response is decoded with `json_decode` and written in its own transaction (`importLineDay()`),
+  with its `schedule_day` row, also for a day without trips, so it isn't fetched again. A day that can't be
+  downloaded (404, timeout) or whose response isn't a `stopTimes` feed (not JSON, no `stopTimes`) is a warning and
+  writes nothing, so the next run retries it. A job that imported none of its days, nor found any imported before
+  (`isImported()`), fails, so an outage upstream shows; the days' warnings stay. Trip ids end with the service
+  date, a trip of an unknown track version is skipped with a warning; when every trip of a day with trips is
+  skipped so, the day throws `UnknownTrackVersionException`: nothing is written, a warning, the next run retries it.
+  A unique violation counts the day as imported only when it is imported now (another import wrote it after the
+  check); otherwise the job fails. A transaction failing on a deadlock or lock wait timeout (`RetryableException`,
+  workers inserting trips at once) is retried as a whole without downloading again, up to 3 attempts with a
+  50-250 ms random pause. Progress is counted in lines
+  (`jobEnded()`: "lines 74/183, 3 failed"); `jobsEnded()` fails the node only when every line failed
+  (`total === 0 || done > 0` succeeds), as failed lines are retried by the next run; its summary is a warning when
+  any line failed.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
-## Stale data (ADR 0010)
+## Stale data (ADR 0027)
 
 `DataImport\StaleDataCollector` (`app:collect-stale-data`, scheduled by `COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`) removes
 operators, lines, stops, tracks, track stops, trips and trip stops whose `import_id` points to an import started
@@ -105,12 +189,17 @@ the `import` rows nothing refers to anymore (a `schedule_day` row keeps its impo
   (unfinished and started less than `COJEDZIE_IMPORT_TIMEOUT` ago, default `6 hours`).
 - One transaction; plain `DELETE … WHERE import_id IN (…) AND NOT EXISTS (…)`, checked on SQLite, MariaDB and
   Postgres.
-- Tracks and track stops from before validity got `valid_to` = the end of the migration day by a data migration
-  (`Version20261107120000`), so they expire with the undated trips.
+- Track stops stay while a trip of their track exists, as the track does, so a kept track never loses its stops.
+- Rows from before validity (`valid_to IS NULL`: undated trip ids `{route}-{service}-{trip}-{order}`, track ids
+  `R{route}T{trip}` without a version) are deleted by the one-time migration `Version20261107173924` (per engine,
+  children first, `track.final_id` cleared before the track stops go; a few seconds for a day of data on MySQL).
+  The importers have no code for them. On the deploy day a line has no timetable departures until the import
+  reaches it; live departures are unaffected. An old worker importing once more after the migration writes undated
+  rows again; the `import_id` retention above removes them.
 
 Tests: `tests/DataImport/ImporterTestCase` runs an importer against the test database inside a transaction rolled
-back after each test, with `StubJsonStreamer` serving inline feed rows; `runImporter()` also runs the tasks an
-importer spawned, collecting failures in `$failures`. `tests/DataImport/ImportGraphTest` covers the graph. Per ADR 0001, importers are tested there, not
+back after each test, with `StubJsonStreamer` serving inline feed rows; `runImporter()` also runs the jobs an
+importer handed out, collecting failures in `$failures`. `tests/DataImport/ImportGraphTest` covers the graph. Per ADR 0001, importers are tested there, not
 in Behat. Tests never call upstream: `ZtmGdanskRecordedFeedsTest` imports one day of feeds recorded from ZTM
 (`tests/ZtmGdansk/Resources/<date>/`, with a README on how to record a newer day) through the real parser, to catch
 changes in what ZTM publishes.
