@@ -21,12 +21,9 @@ declare(strict_types=1);
 
 namespace App\Tests\ZtmGdansk\DataImporter;
 
+use App\DataImport\ImportJobCounts;
 use App\DataImport\ProgressReporterInterface;
 use App\Event\DataUpdateEvent;
-use App\Parser\Exception\EndOfStreamException;
-use App\Parser\Exception\StreamOpenException;
-use App\Parser\Exception\StreamReadException;
-use App\Parser\Exception\UnexpectedTokenException;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskScheduleDataImporter;
 use App\Service\IdUtils;
 use App\Tests\DataImport\ImporterTestCase;
@@ -35,10 +32,12 @@ use Doctrine\DBAL\Driver\PDO\Exception as PdoDriverException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
- * The schedule is imported line by line, for the lines of this provider updated by the current import, and only for
- * the line+days not imported before.
+ * The schedule is imported per line, with a job per line downloading its days at once, for the lines of this provider
+ * updated by the current import, and only for the line+days not imported before.
  */
 final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 {
@@ -144,6 +143,29 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertSame($expected, $downloaded);
     }
 
+    public function testLineDaysAreRequestedConcurrently(): void
+    {
+        $this->line(self::LINE_6);
+
+        $log = [];
+        $this->importer(function (string $route, string $date) use (&$log) {
+            $log[] = "request {$date}";
+
+            return new MockResponse((function () use (&$log, $date) {
+                $log[] = "read {$date}";
+
+                yield json_encode(['stopTimes' => []]);
+            })());
+        })->importLine($this->reporter(), $this->event, self::LINE_6, ['2026-10-28', '2026-10-29', '2026-10-30']);
+
+        $requests = array_slice($log, 0, 3);
+        $reads    = array_slice($log, 3);
+        sort($reads);
+
+        $this->assertSame(['request 2026-10-28', 'request 2026-10-29', 'request 2026-10-30'], $requests);
+        $this->assertSame(['read 2026-10-28', 'read 2026-10-29', 'read 2026-10-30'], $reads);
+    }
+
     public function testDaysThatPassedAreForgotten(): void
     {
         $this->line(self::LINE_6);
@@ -233,6 +255,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             ? [$this->stopTime($route, $date, ['topologyVersionId' => 2])]
             : []), $this->event);
 
+        $this->assertSame([], $this->failures);
         $this->assertCount(1, $this->warnings);
         $this->assertSame(array_slice(self::WINDOW, 1), $this->scheduleDays());
     }
@@ -251,17 +274,18 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     }
 
     #[DataProvider('failedDownloads')]
-    public function testFailedDayOfALineIsAWarningAndOtherDaysAreImported(\RuntimeException $failure): void
+    public function testFailedDayOfALineIsAWarningAndOtherDaysAreImported(MockResponse $response): void
     {
         $this->line(self::LINE_6);
         $this->line(self::LINE_8);
 
         $this->runImporter($this->importer(fn (string $route, string $date) => match (true) {
-            $route === '6' && $date === '2026-10-28' => throw $failure,
+            $route === '6' && $date === '2026-10-28' => $response,
             $date === '2026-10-29'                   => [$this->stopTime($route, $date)],
             default                                  => [],
         }), $this->event);
 
+        $this->assertSame([], $this->failures);
         $this->assertCount(1, $this->warnings);
         $this->assertStringStartsWith('Line ' . self::LINE_6 . ' on 2026-10-28: ', $this->warnings[0]);
         // the failed day writes no row, so the next run downloads it again
@@ -277,36 +301,27 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
     public static function failedDownloads(): iterable
     {
-        yield 'not found' => [new StreamOpenException('HTTP/1.1 404 Not Found')];
-        yield 'timeout' => [new StreamReadException('Reading the stream timed out.')];
-        yield 'not JSON' => [new UnexpectedTokenException('Expected value, got <')];
-        yield 'cut off' => [new EndOfStreamException('The stream ended.')];
+        yield 'not found' => [new MockResponse('', ['http_code' => 404])];
+        yield 'timeout' => [new MockResponse([''])];
+        yield 'not JSON' => [new MockResponse('<html>Service unavailable</html>')];
+        yield 'without stop times' => [new MockResponse('{"error":"maintenance"}')];
     }
 
-    public function testLineWithNoDayImportedIsAWarningAndOtherLinesAreImported(): void
+    public function testLineWithNoDayImportedFails(): void
     {
         $this->line(self::LINE_6);
         $this->line(self::LINE_8);
 
-        $this->runImporter($this->importer(fn (string $route) => $route === '6'
-            ? throw new StreamOpenException('HTTP/1.1 503 Service Unavailable')
+        $scheduleSucceeded = $this->runImporter($this->importer(fn (string $route) => $route === '6'
+            ? new MockResponse('', ['http_code' => 503])
             : []), $this->event);
 
-        // each day's warning stays, then the line's failure and the summary
-        $this->assertCount(count(self::WINDOW) + 2, $this->warnings);
-        $this->assertStringContainsString(self::LINE_6, $this->warnings[count(self::WINDOW)]);
+        $this->assertTrue($scheduleSucceeded);
+        $this->assertCount(1, $this->failures);
+        $this->assertStringContainsString(self::LINE_6, $this->failures[0]);
+        // each day's warning stays, then the summary warns of the failed line
+        $this->assertCount(count(self::WINDOW) + 1, $this->warnings);
         $this->assertSame([], $this->scheduleDays(self::LINE_6));
-        $this->assertSame(self::WINDOW, $this->scheduleDays(self::LINE_8));
-    }
-
-    public function testScheduleFailsWhenNoLineWasImported(): void
-    {
-        $this->line(self::LINE_6);
-        $this->line(self::LINE_8);
-
-        $this->expectException(\RuntimeException::class);
-
-        $this->runImporter($this->importer(fn () => throw new StreamOpenException('HTTP/1.1 503 Service Unavailable')), $this->event);
     }
 
     public function testLineWhoseDaysWereAllImportedBeforeDoesNotFail(): void
@@ -314,9 +329,27 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->line(self::LINE_6);
         $this->scheduleDay(self::LINE_6, '2026-10-28');
 
-        $this->importer(fn () => [])->importLine($this->reporter(), $this->event, self::LINE_6, ['2026-10-28']);
+        $this->importer(fn () => [])->runJob($this->reporter(), $this->event, ['line' => self::LINE_6, 'dates' => ['2026-10-28']]);
 
         $this->assertSame([], $this->warnings);
+    }
+
+    /**
+     * @param array{int, int, int} $counts total, done and failed lines
+     */
+    #[DataProvider('scheduleOutcomes')]
+    public function testScheduleFailsOnlyWhenNoLineWasImported(array $counts, bool $succeeds, bool $warns): void
+    {
+        $this->assertSame($succeeds, $this->importer(fn () => [])->jobsEnded($this->reporter(), new ImportJobCounts(...$counts)));
+        $this->assertCount($warns ? 1 : 0, $this->warnings);
+    }
+
+    public static function scheduleOutcomes(): iterable
+    {
+        yield 'every line imported' => [[3, 3, 0], true, false];
+        yield 'some lines failed' => [[3, 1, 2], true, true];
+        yield 'every line failed' => [[3, 0, 3], false, true];
+        yield 'nothing to import' => [[0, 0, 0], true, false];
     }
 
     public function testProgressCountsLines(): void
@@ -335,7 +368,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
         // another run writes the day after this one checked it wasn't imported, so this one collides
         $importer = $this->getMockBuilder(ZtmGdanskScheduleDataImporter::class)
-            ->setConstructorArgs([$this->connection, new IdUtils(), new StubJsonStreamer(fn () => []), $this->config(), $this->clock()])
+            ->setConstructorArgs([$this->connection, new IdUtils(), new StubJsonStreamer(fn () => []), $this->httpClient(fn () => []), $this->config(), $this->clock()])
             ->onlyMethods(['importLineDay'])
             ->getMock();
         $importer->expects($this->once())->method('importLineDay')->willReturnCallback(function (): void {
@@ -343,7 +376,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             $this->scheduleDay(self::LINE_6, '2026-10-28');
         });
 
-        $importer->importLine($this->reporter(), $this->event, self::LINE_6, ['2026-10-28']);
+        $importer->runJob($this->reporter(), $this->event, ['line' => self::LINE_6, 'dates' => ['2026-10-28']]);
 
         $this->assertSame(['2026-10-28'], $this->scheduleDays());
     }
@@ -355,8 +388,11 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
         $this->expectException(UniqueConstraintViolationException::class);
 
-        $this->importer(fn (string $route, string $date) => [$this->stopTime($route, $date)])
-            ->importLine($this->reporter(), $this->event, self::LINE_6, ['2026-10-29']);
+        $this->importer(fn (string $route, string $date) => [$this->stopTime($route, $date)])->runJob(
+            $this->reporter(),
+            $this->event,
+            ['line' => self::LINE_6, 'dates' => ['2026-10-29']],
+        );
     }
 
     public function testDeadlockRetryDoesNotDownloadAgain(): void
@@ -511,10 +547,11 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     }
 
     /**
-     * @param \Closure(string, string): iterable<array<string, mixed>> $schedule stop times by route and date, throws
-     *                                                                   when the feed fails
-     * @param ?\Closure(string): list<string>                          $routes   routes listed on the date, by default
-     *                                                                   the lines' routes on every date
+     * @param \Closure(string, string): (iterable<array<string, mixed>>|MockResponse) $schedule stop times by route
+     *                                                                                          and date, or the response
+     * @param ?\Closure(string): list<string>                                         $routes   routes listed on the
+     *                                                                                          date, by default the
+     *                                                                                          lines' routes on every date
      */
     private function importer(\Closure $schedule, ?\Closure $routes = null): ZtmGdanskScheduleDataImporter
     {
@@ -524,18 +561,33 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         return new ZtmGdanskScheduleDataImporter(
             $this->connection,
             new IdUtils(),
-            new StubJsonStreamer(function (string $url, string $branch) use ($schedule, $routes, $config) {
-                if ($url === $config->routesUrl) {
-                    return array_map(fn (string $route) => ['routeId' => (int) $route], $routes(explode('.', $branch)[0]));
-                }
+            new StubJsonStreamer(function (string $url, string $branch) use ($routes, $config) {
+                $this->assertSame($config->routesUrl, $url);
 
-                $this->assertStringStartsWith($config->apiUrl . ZtmGdanskScheduleDataImporter::SCHEDULE_PATH . '?', $url);
-                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
-
-                return $schedule($query['routeId'], $query['date']);
+                return array_map(fn (string $route) => ['routeId' => (int) $route], $routes(explode('.', $branch)[0]));
             }),
+            $this->httpClient($schedule),
             $config,
             $this->clock(),
         );
+    }
+
+    /**
+     * Serves the stopTimes feed of a route and date.
+     *
+     * @param \Closure(string, string): (iterable<array<string, mixed>>|MockResponse) $schedule
+     */
+    private function httpClient(\Closure $schedule): MockHttpClient
+    {
+        $config = $this->config();
+
+        return new MockHttpClient(function (string $method, string $url) use ($schedule, $config): MockResponse {
+            $this->assertStringStartsWith($config->apiUrl . ZtmGdanskScheduleDataImporter::SCHEDULE_PATH . '?', $url);
+            parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+            $rows = $schedule($query['routeId'], $query['date']);
+
+            return $rows instanceof MockResponse ? $rows : new MockResponse(json_encode(['stopTimes' => [...$rows]]));
+        });
     }
 }

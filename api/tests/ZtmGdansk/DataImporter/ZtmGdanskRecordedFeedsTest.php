@@ -33,15 +33,16 @@ use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use App\Tests\DataImport\ImporterTestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * Checks that what ZTM Gdańsk publishes still matches what the importers expect, by importing feeds recorded from
- * upstream (see Resources/2026-10-28/README.md) through the real streaming parser.
+ * upstream (see Resources/2026-10-28/README.md) through the real feed readers.
  */
 final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
 {
-    private const string FEEDS     = __DIR__ . '/../Resources/2026-10-28';
-    private const string SCHEDULES = 'recorded://stopTimes';
+    private const string FEEDS = __DIR__ . '/../Resources/2026-10-28';
     private DataUpdateEvent $event;
 
     #[\Override]
@@ -77,9 +78,10 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
         $this->assertGreaterThan(0.95 * $tracks, $this->rowCount('track', 'final_id IS NOT NULL'));
         $this->assertGreaterThan(20000, $this->rowCount('track_stop'));
 
-        $this->schedule()->import($this->reporter(), $this->event);
+        $this->runImporter($this->schedule(), $this->event);
 
         $this->assertSame([], $this->warnings);
+        $this->assertSame([], $this->failures);
         $this->assertGreaterThan(0, $this->rowCount('trip_stop'));
         // trips of the schedule feed are tracks of the trips feed
         $this->assertSame(0, $this->rowCount('trip', 'track_id NOT IN (SELECT id FROM track)'));
@@ -93,7 +95,7 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
     private function importOperatorsStopsAndLines(): void
     {
         $upserter = new TableUpserter($this->connection);
-        $streamer = $this->streamer();
+        $streamer = new JsonStreamer();
         $ids      = new IdUtils();
 
         foreach ([
@@ -111,7 +113,7 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
             $this->connection,
             new TableUpserter($this->connection),
             new IdUtils(),
-            $this->streamer(),
+            new JsonStreamer(),
             $this->config(),
             $this->clock(),
         );
@@ -119,14 +121,38 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
 
     private function schedule(): ZtmGdanskScheduleDataImporter
     {
-        return new ZtmGdanskScheduleDataImporter($this->connection, new IdUtils(), $this->streamer(), $this->config(), $this->clock());
+        return new ZtmGdanskScheduleDataImporter(
+            $this->connection,
+            new IdUtils(),
+            new JsonStreamer(),
+            $this->schedules(),
+            $this->config(),
+            $this->clock(),
+        );
+    }
+
+    /**
+     * Serves a route's schedule of the recorded day from its own file, routes and days not recorded have none.
+     */
+    private function schedules(): MockHttpClient
+    {
+        return new MockHttpClient(function (string $method, string $url): MockResponse {
+            parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+            $file = sprintf('%s/stopTimes/%s.json', self::FEEDS, $query['routeId']);
+
+            return new MockResponse(
+                $query['date'] === basename(self::FEEDS) && is_file($file)
+                    ? (string) file_get_contents($file)
+                    : '{"stopTimes":[]}'
+            );
+        });
     }
 
     #[\Override]
     protected function config(): ZtmGdanskConfig
     {
         return new ZtmGdanskConfig(
-            apiUrl: 'recorded:/',
+            apiUrl: 'https://recorded.example/api',
             stopsUrl: self::FEEDS . '/stops.json',
             routesUrl: self::FEEDS . '/routes.json',
             tripsUrl: self::FEEDS . '/trips.json',
@@ -135,34 +161,6 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
             displaysUrl: self::FEEDS . '/displays.json',
             scheduleDays: 7,
         );
-    }
-
-    /**
-     * Streams the recorded files; a route's schedule comes from its own file, routes not recorded have none.
-     */
-    private function streamer(): JsonStreamer
-    {
-        return new class(self::FEEDS, self::SCHEDULES) extends JsonStreamer {
-            public function __construct(
-                private readonly string $feeds,
-                private readonly string $schedules,
-            ) {
-                parent::__construct();
-            }
-
-            #[\Override]
-            public function stream(string $url, string $branch): iterable
-            {
-                if (!str_starts_with($url, $this->schedules)) {
-                    return parent::stream($url, $branch);
-                }
-
-                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
-                $file = sprintf('%s/stopTimes/%s.json', $this->feeds, $query['routeId']);
-
-                return is_file($file) ? parent::stream($file, $branch) : [];
-            }
-        };
     }
 
     private function rowCount(string $table, string $where = '1 = 1'): int
