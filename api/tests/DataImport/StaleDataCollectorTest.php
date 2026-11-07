@@ -175,6 +175,8 @@ final class StaleDataCollectorTest extends ImporterTestCase
 
         $this->assertSame(['track'], $this->ids('track'));
         $this->assertSame(['trip'], $this->ids('trip'));
+        // the trip's track keeps its stops while it stays
+        $this->assertSame(1, $this->countRows('track_stop'));
     }
 
     public function testPastScheduleDaysAreCollected(): void

@@ -30,6 +30,7 @@ use App\Service\AbstractDataImporter;
 use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use App\Utility\SequenceGenerator;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Ds\Set;
 use Kadet\Functional\Collections as c;
@@ -39,7 +40,9 @@ use Psr\Clock\ClockInterface;
  * Imports the tracks of every day of the schedule window, versioned by the topology version of their stops in trips.
  *
  * A track is valid from the start of the first day listing it (kept from an earlier import) to the end of the last
- * one, so a superseded version stops being extended and expires on its own. Its stops share its validity.
+ * one, so a superseded version stops being extended and expires on its own. ZTM labels every published day with an
+ * agency's current topology version, so a version superseded for the whole window expires at once. Its stops share
+ * its validity.
  */
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
@@ -133,6 +136,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         }
 
         $this->writeValidity($days, $event);
+        $this->expireSupersededVersions(array_keys($days));
 
         $reporter->progress($count, comment: 'OK', finished: true);
     }
@@ -223,6 +227,49 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             ['import_id' => $event->import->getId()],
             ['import_id' => 'uuid'],
         );
+    }
+
+    /**
+     * Ends now the validity of other versions of the listed tracks' routes and trips that no day of the window lists
+     * anymore. Only versions of what was listed are touched, so a partial feed doesn't expire unrelated tracks.
+     *
+     * @param list<string> $listed ids of the tracks listed by this import
+     */
+    private function expireSupersededVersions(array $listed): void
+    {
+        $now    = \DateTimeImmutable::createFromInterface($this->clock->now())->setTimezone(new \DateTimeZone('UTC'));
+        $listed = new Set($listed);
+        $routes = new Set(array_map($this->withoutVersion(...), $listed->toArray()));
+
+        $candidates = $this->connection->fetchFirstColumn(
+            'SELECT id FROM track WHERE provider_id = :provider_id AND valid_to > :now',
+            ['provider_id' => ZtmGdanskProvider::IDENTIFIER, 'now' => $now],
+            ['now' => 'datetime_immutable'],
+        );
+
+        $superseded = array_values(array_filter(
+            $candidates,
+            fn (string $id) => !$listed->contains($id) && $routes->contains($this->withoutVersion($id) ?? $id),
+        ));
+
+        foreach (array_chunk($superseded, 1000) as $chunk) {
+            foreach (['track' => 'id', 'track_stop' => 'track_id'] as $table => $column) {
+                $this->connection->executeStatement(
+                    sprintf('UPDATE %s SET valid_to = :now WHERE %s IN (:ids) AND valid_to > :now', $table, $column),
+                    ['now' => $now, 'ids' => $chunk],
+                    ['now' => 'datetime_immutable', 'ids' => ArrayParameterType::STRING],
+                );
+            }
+        }
+    }
+
+    /**
+     * The stored id of a track up to its topology version, provider::R{routeId}T{tripId}V, or null for a track
+     * without a version (imported before tracks had validity).
+     */
+    private function withoutVersion(string $trackId): ?string
+    {
+        return preg_match('/^(.*V)\d+$/', $trackId, $matches) ? $matches[1] : null;
     }
 
     /**

@@ -245,6 +245,29 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ], $this->rows('track_stop', 'stop_id', 'valid_from', 'valid_to'));
     }
 
+    public function testVersionSupersededForTheWholeWindowExpiresNow(): void
+    {
+        $this->import($this->event, [$this->trip(1), $this->trip(2)], [
+            $this->stopInTrip(1, 100, 1, version: 100),
+            $this->stopInTrip(2, 100, 1, version: 100),
+        ]);
+
+        // ZTM labels every day with the new version; trip 2 is missing from this feed and keeps its validity
+        $this->import($this->nextImport(), [$this->trip(1)], [$this->stopInTrip(1, 100, 1, version: 101)]);
+
+        // the version 100 of trip 1 ends at the time of the second import, the clock being in UTC
+        $this->assertSame([
+            ['id' => 'trojmiasto::R6T1V100', 'valid_to' => self::NOW],
+            ['id' => 'trojmiasto::R6T1V101', 'valid_to' => '2026-11-03 22:59:59'],
+            ['id' => 'trojmiasto::R6T2V100', 'valid_to' => '2026-11-03 22:59:59'],
+        ], $this->rows('track', 'id', 'valid_to'));
+        $this->assertSame([
+            ['track_id' => 'trojmiasto::R6T1V100', 'valid_to' => self::NOW],
+            ['track_id' => 'trojmiasto::R6T1V101', 'valid_to' => '2026-11-03 22:59:59'],
+            ['track_id' => 'trojmiasto::R6T2V100', 'valid_to' => '2026-11-03 22:59:59'],
+        ], $this->rows('track_stop', 'track_id', 'valid_to'));
+    }
+
     public function testTrackWithoutATripIsSkipped(): void
     {
         $this->import($this->event, [$this->trip(1)], [$this->stopInTrip(1, 100, 1), $this->stopInTrip(2, 100, 1)]);
