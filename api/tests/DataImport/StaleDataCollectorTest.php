@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace App\Tests\DataImport;
 
+use App\DataImport\ImportStatus;
 use App\DataImport\StaleDataCollector;
 use Doctrine\DBAL\Types\Type;
 use Symfony\Component\Clock\MockClock;
@@ -95,7 +96,7 @@ final class StaleDataCollectorTest extends ImporterTestCase
     public function testDoesNothingWithoutARecentFinishedImport(): void
     {
         $old = $this->import('-10 days');
-        $this->import('-1 day', finished: false);
+        $this->import('-1 day', ImportStatus::Running);
 
         $this->row('stop', 'stop', $old);
 
@@ -131,7 +132,7 @@ final class StaleDataCollectorTest extends ImporterTestCase
         return new StaleDataCollector($this->connection, new MockClock(self::NOW), $retention)->collect();
     }
 
-    private function import(string $started, bool $finished = true): Uuid
+    private function import(string $started, ImportStatus $status = ImportStatus::Succeeded): Uuid
     {
         $id = Uuid::v4();
         $at = new \DateTimeImmutable(self::NOW)->modify($started);
@@ -141,7 +142,8 @@ final class StaleDataCollectorTest extends ImporterTestCase
             [
                 'id'          => $id,
                 'started_at'  => $at,
-                'finished_at' => $finished ? $at->modify('+10 minutes') : null,
+                'finished_at' => $status === ImportStatus::Running ? null : $at->modify('+10 minutes'),
+                'status'      => $status->value,
             ],
             [
                 'id'          => 'uuid',

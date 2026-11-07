@@ -20,10 +20,12 @@
 
 namespace App\Entity;
 
+use App\DataImport\ImportStatus;
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
 use App\Dto\Referable;
 use Carbon\Carbon;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Uid\Uuid;
@@ -43,8 +45,14 @@ class ImportEntity implements Fillable, Referable
     #[ORM\Column(type: 'datetime')]
     private ?Carbon $startedAt = null;
 
+    /**
+     * Set when the import ends, see $status
+     */
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?Carbon $finishedAt = null;
+
+    #[ORM\Column(type: Types::STRING, length: 16, enumType: ImportStatus::class)]
+    private ImportStatus $status = ImportStatus::Running;
 
     #[\Override]
     public function getId(): ?Uuid
@@ -70,5 +78,15 @@ class ImportEntity implements Fillable, Referable
     public function setFinishedAt(?Carbon $finishedAt): void
     {
         $this->finishedAt = $finishedAt;
+    }
+
+    public function getStatus(): ImportStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(ImportStatus $status): void
+    {
+        $this->status = $status;
     }
 }

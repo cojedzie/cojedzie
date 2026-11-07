@@ -21,6 +21,7 @@
 namespace App\Service;
 
 use App\DataImport\DataImporter;
+use App\DataImport\ImportStatus;
 use App\DataImport\ProgressReporterFactory;
 use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
@@ -90,6 +91,7 @@ class DataUpdater
 
         // mark import event as finished and flush it to db
         $import->setFinishedAt(Carbon::instance($this->clock->now()));
+        $import->setStatus(ImportStatus::Succeeded);
         $this->em->flush();
 
         $reporter->milestone(sprintf('Peak memory: %d MB', memory_get_peak_usage(true) >> 20));

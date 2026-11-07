@@ -93,6 +93,7 @@ abstract class ImporterTestCase extends KernelTestCase
             [
                 'id'         => $import->getId(),
                 'started_at' => new \DateTime(self::NOW),
+                'status'     => $import->getStatus()->value,
             ],
             [
                 'id'         => 'uuid',
