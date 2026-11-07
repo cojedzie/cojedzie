@@ -320,6 +320,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             stopsInTripsUrl: '',
             agenciesUrl: '',
             displaysUrl: '',
+            scheduleDays: 7,
         );
     }
 

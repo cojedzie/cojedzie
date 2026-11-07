@@ -28,6 +28,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class ZtmGdanskConfig
 {
+    public int $scheduleDays;
+
     public function __construct(
         // TRISTAR API base: /departures, /displayMessages, /stopTimes
         #[Autowire(env: 'ZTM_GDANSK_API_URL')]
@@ -47,6 +49,10 @@ final readonly class ZtmGdanskConfig
         public string $agenciesUrl,
         #[Autowire(env: 'ZTM_GDANSK_DISPLAYS_URL')]
         public string $displaysUrl,
+        // how many days of schedules, today first, are kept; today at least
+        #[Autowire(env: 'int:ZTM_GDANSK_SCHEDULE_DAYS')]
+        int $scheduleDays,
     ) {
+        $this->scheduleDays = max(1, $scheduleDays);
     }
 }
