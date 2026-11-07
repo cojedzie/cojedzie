@@ -64,7 +64,8 @@ class StaleDataCollector
     // tables stamped with the import that last wrote their rows
     private const array STAMPED = ['provider', 'schedule_day', 'trip_stop', 'trip', 'track_stop', 'track', 'line', 'stop', 'operator'];
 
-    // tables whose rows carry their validity, collected also once it ended
+    // tables whose rows carry their validity, collected once it ended; the retention applies only to rows without
+    // an end, so a window longer than the retention keeps its future days
     private const array VERSIONED = ['trip_stop', 'trip', 'track_stop', 'track'];
 
     private const array PARAMETER_TYPES = [
@@ -110,7 +111,7 @@ class StaleDataCollector
             foreach (self::TABLES as $table => $references) {
                 $stale = match (true) {
                     $table === 'schedule_day'                 => 'date < :today',
-                    in_array($table, self::VERSIONED, true)   => sprintf('(%s OR valid_to < :now)', self::NOT_IMPORTED),
+                    in_array($table, self::VERSIONED, true)   => sprintf('(valid_to < :now OR (valid_to IS NULL AND %s))', self::NOT_IMPORTED),
                     default                                   => self::NOT_IMPORTED,
                 };
 

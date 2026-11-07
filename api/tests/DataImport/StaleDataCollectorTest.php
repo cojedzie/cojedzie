@@ -136,6 +136,23 @@ final class StaleDataCollectorTest extends ImporterTestCase
         $this->assertSame(['running'], $this->connection->fetchFirstColumn('SELECT trip_id FROM trip_stop'));
     }
 
+    public function testFutureTripsOutliveTheRetentionOfTheirImport(): void
+    {
+        $old   = $this->import('-10 days');
+        $fresh = $this->import('-1 day');
+        $this->network($fresh);
+
+        $this->row('trip', 'future', $old, ['track_id' => 'track', 'valid_to' => '2026-11-07 12:00:00']);
+        $this->row('trip_stop', null, $old, ['trip_id' => 'future', 'stop_id' => 'stop', 'valid_to' => '2026-11-07 12:00:00']);
+        $this->row('trip', 'undated', $old, ['track_id' => 'track']);
+        $this->row('trip_stop', null, $old, ['trip_id' => 'undated', 'stop_id' => 'stop']);
+
+        $this->collect();
+
+        $this->assertSame(['future'], $this->ids('trip'));
+        $this->assertSame(['future'], $this->connection->fetchFirstColumn('SELECT trip_id FROM trip_stop'));
+    }
+
     public function testOpenEndedTracksStay(): void
     {
         $fresh = $this->import('-1 day');
