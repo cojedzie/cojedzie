@@ -20,14 +20,12 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\ImportJobCounts;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\SplittingDataImporter;
 use App\Event\DataUpdateEvent;
 use App\Exception\UnknownTrackVersionException;
-use App\Parser\Exception\EndOfStreamException;
-use App\Parser\Exception\StreamOpenException;
-use App\Parser\Exception\StreamReadException;
-use App\Parser\Exception\UnexpectedTokenException;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use App\Service\AbstractDataImporter;
@@ -44,33 +42,37 @@ use Ds\Seq;
 use Ds\Set;
 use Kadet\Functional\Collections as c;
 use Psr\Clock\ClockInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * Imports the schedule per line and day of the window, line by line. A line+day is downloaded once: its
- * ztm_gdansk_schedule_day row, written also when the day has no trips, says it was imported. The importer also forgets
- * the days that passed: no other code knows the table.
+ * Imports the schedule per line and day of the window, with a job per line downloading the line's days at once.
+ * A line+day is downloaded once: its ztm_gdansk_schedule_day row, written also when the day has no trips, says it was
+ * imported. The importer also forgets the days that passed: no other code knows the table.
  */
-class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
+class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements SplittingDataImporter
 {
     final public const string SCHEDULE_PATH = "/stopTimes";
 
     // stopTimes give times as a moment on this day, the next day being past midnight
     private const string TIME_BASE = '1899-12-30';
 
+    // seconds a download of a line+day may stay idle
+    private const int TIMEOUT = 60;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly IdUtils $idUtils,
         private readonly JsonStreamer $jsonStreamer,
+        private readonly HttpClientInterface $httpClient,
         private readonly ZtmGdanskConfig $config,
         private readonly ClockInterface $clock,
     ) {
     }
 
     /**
-     * Plans the download, then imports the line+days line by line. A failed line is retried by the next import, it
-     * doesn't fail the schedule; no line imported at all (an outage upstream) does.
-     *
-     * @throws \RuntimeException when every line failed
+     * Plans the download and hands out a job per line, with the line's days to import.
      */
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
@@ -80,21 +82,41 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
         $plan        = $this->plan($event);
         $datesByLine = $this->datesByLine($plan);
 
-        $reporter->milestone(sprintf('Planned %d days of %d lines', count($plan), count($datesByLine)));
-
-        $done   = 0;
-        $failed = 0;
         foreach ($datesByLine as $lineId => $dates) {
-            if ($this->tryImportLine($reporter, $event, $lineId, $dates)) {
-                $done++;
-            } else {
-                $failed++;
-            }
-
-            $reporter->progress($done + $failed, max: count($datesByLine), comment: sprintf('%d lines failed', $failed));
+            $event->addJob([
+                'line'  => $lineId,
+                'dates' => $dates,
+            ]);
         }
 
-        $this->reportImportedLines($reporter, $done, $failed);
+        $reporter->milestone(sprintf('Planned %d days of %d lines', count($plan), count($datesByLine)));
+    }
+
+    #[\Override]
+    public function runJob(ProgressReporterInterface $reporter, DataUpdateEvent $event, array $payload): void
+    {
+        $this->importLine($reporter, $event, $payload['line'], $payload['dates']);
+    }
+
+    #[\Override]
+    public function jobEnded(ProgressReporterInterface $reporter, ImportJobCounts $counts): void
+    {
+        $reporter->progress($counts->ended(), max: $counts->total, comment: sprintf('%d lines failed', $counts->failed));
+    }
+
+    /**
+     * A failed line is retried by the next import, it doesn't fail the schedule; no line imported at all (an outage
+     * upstream) does.
+     */
+    #[\Override]
+    public function jobsEnded(ProgressReporterInterface $reporter, ImportJobCounts $counts): bool
+    {
+        $reporter->milestone(
+            sprintf('Imported the schedule of %d lines, %d failed', $counts->done, $counts->failed),
+            $counts->failed > 0 ? MilestoneType::Warning : MilestoneType::Info,
+        );
+
+        return $counts->total === 0 || $counts->done > 0;
     }
 
     /**
@@ -122,8 +144,8 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     }
 
     /**
-     * Downloads the line's days one by one, storing each in its own transaction. A day whose feed can't be read or
-     * has no known track is a warning, the next import retries it.
+     * Downloads the line's days at once, then stores each in its own transaction. A day that can't be downloaded,
+     * isn't a stopTimes feed or has no known track is a warning, the next import retries it.
      *
      * @param list<string> $dates in the window's order
      *
@@ -134,10 +156,14 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
      */
     public function importLine(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, array $dates): void
     {
-        $imported = $dates
-            |> c\map(fn (string $date) => $this->importDay($reporter, $event, $lineId, $date))
-            |> c\filter()
-            |> c\count();
+        $responses = $this->requestDays($lineId, $dates);
+
+        try {
+            $imported = $this->importDownloadedDays($reporter, $event, $lineId, $responses);
+        } finally {
+            // the days left after a failure are not read, cancelling them keeps their errors from being thrown later
+            $this->cancel($responses);
+        }
 
         // the line can't be imported at all, e.g. upstream is down, which the schedule's node must see
         if ($imported === 0 && $dates !== []) {
@@ -158,39 +184,6 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     public function importLineDay(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date, array $stopTimes): void
     {
         Retry::onLockFailure(fn () => $this->importLineDayOnce($reporter, $event, $lineId, $date, $stopTimes));
-    }
-
-    /**
-     * @param list<string> $dates
-     *
-     * @return bool whether the line was imported, a failure is reported as a warning
-     */
-    private function tryImportLine(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, array $dates): bool
-    {
-        try {
-            $this->importLine($reporter, $event, $lineId, $dates);
-
-            return true;
-        } catch (\Exception $exception) {
-            $reporter->milestone(sprintf('Line %s failed: %s', $lineId, $exception->getMessage()), MilestoneType::Warning);
-
-            return false;
-        }
-    }
-
-    /**
-     * @throws \RuntimeException when every line failed
-     */
-    private function reportImportedLines(ProgressReporterInterface $reporter, int $done, int $failed): void
-    {
-        $reporter->milestone(
-            sprintf('Imported the schedule of %d lines, %d failed', $done, $failed),
-            $failed > 0 ? MilestoneType::Warning : MilestoneType::Info,
-        );
-
-        if ($done === 0 && $failed > 0) {
-            throw new \RuntimeException('No line of the schedule could be imported');
-        }
     }
 
     /**
@@ -298,35 +291,91 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     }
 
     /**
+     * Sends all requests before any response is read, so the days download concurrently.
+     *
+     * @param list<string> $dates
+     *
+     * @return array<string, ResponseInterface> by date
+     */
+    private function requestDays(string $lineId, array $dates): array
+    {
+        $responses = [];
+        foreach ($dates as $date) {
+            $responses[$date] = $this->httpClient->request('GET', $this->config->apiUrl . self::SCHEDULE_PATH, [
+                'query'   => ['date' => $date, 'routeId' => $this->idUtils->strip($lineId)],
+                'timeout' => self::TIMEOUT,
+            ]);
+        }
+
+        return $responses;
+    }
+
+    /**
+     * @param array<string, ResponseInterface> $responses by date
+     */
+    private function cancel(array $responses): void
+    {
+        foreach ($responses as $response) {
+            $response->cancel();
+        }
+    }
+
+    /**
+     * @param array<string, ResponseInterface> $responses by date
+     *
+     * @return int how many of the days are imported now, by this call or before
+     */
+    private function importDownloadedDays(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, array $responses): int
+    {
+        return $responses
+            |> c\map(fn (ResponseInterface $response, string $date) => $this->importDownloadedDay($reporter, $event, $lineId, $date, $response))
+            |> c\filter()
+            |> c\count();
+    }
+
+    /**
      * @return bool whether the day is imported now, by this call or before
      */
-    private function importDay(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date): bool
-    {
-        $stopTimes = $this->downloadStopTimes($reporter, $lineId, $date);
+    private function importDownloadedDay(
+        ProgressReporterInterface $reporter,
+        DataUpdateEvent $event,
+        string $lineId,
+        string $date,
+        ResponseInterface $response,
+    ): bool {
+        $stopTimes = $this->downloadedStopTimes($reporter, $lineId, $date, $response);
 
         return $stopTimes !== null && $this->storeLineDay($reporter, $event, $lineId, $date, $stopTimes);
     }
 
     /**
-     * @return ?list<array<string, mixed>> the day's stopTimes, null when the feed can't be read, reported as a warning
+     * @return ?list<array<string, mixed>> the day's stopTimes, null when the download failed, reported as a warning
      */
-    private function downloadStopTimes(ProgressReporterInterface $reporter, string $lineId, string $date): ?array
+    private function downloadedStopTimes(ProgressReporterInterface $reporter, string $lineId, string $date, ResponseInterface $response): ?array
     {
         try {
-            return iterator_to_array($this->jsonStreamer->stream($this->stopTimesUrl($lineId, $date), 'stopTimes'), false);
-        } catch (StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException $exception) {
+            return $this->stopTimesOf($response);
+        } catch (HttpClientException|\JsonException|\UnexpectedValueException $exception) {
             $reporter->milestone(sprintf('Line %s on %s: %s', $lineId, $date, $exception->getMessage()), MilestoneType::Warning);
 
             return null;
         }
     }
 
-    private function stopTimesUrl(string $lineId, string $date): string
+    /**
+     * @return list<array<string, mixed>>
+     *
+     * @throws HttpClientException|\JsonException|\UnexpectedValueException when the response isn't a stopTimes feed
+     */
+    private function stopTimesOf(ResponseInterface $response): array
     {
-        return $this->config->apiUrl . self::SCHEDULE_PATH . '?' . http_build_query([
-            'date'    => $date,
-            'routeId' => $this->idUtils->strip($lineId),
-        ]);
+        $feed = json_decode($response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+
+        if (!is_array($feed) || !is_array($feed['stopTimes'] ?? null)) {
+            throw new \UnexpectedValueException('The response has no stopTimes');
+        }
+
+        return $feed['stopTimes'];
     }
 
     /**

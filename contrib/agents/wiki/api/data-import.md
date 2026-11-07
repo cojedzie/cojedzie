@@ -91,7 +91,10 @@ Memory: `ImportTaskRunner` raises `memory_limit` for each node and job only and 
 production they run inside a long-lived messenger worker (`--memory-limit=128M`). `app:update` ends with a `Peak memory: N MB`
 line. Measured on 2026-10-28 with a full day of ZTM data (183 lines, 285k scheduled stops, about 8 minutes):
 48 MB peak in `prod`, 906 MB in `dev` with debug, because Doctrine keeps every query for the profiler. The limit
-(2G) is sized for debug, since `task api:update` runs in `dev`.
+(2G) is sized for debug, since `task api:update` runs in `dev`. An in-process `app:update` in `dev` on a full date
+reaches ~1 GB and grows with the jobs: the profiler also wraps `http_client` in `TraceableHttpClient`, which keeps
+the response bodies. Workers reset services between messages and `prod` traces nothing, so this is a dev-only effect
+of running everything in one process.
 
 Run it with `task api:update` (uses `COJEDZIE_API_MODE=performance` by default).
 
@@ -135,21 +138,25 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
   stops are filtered after grouping, so a track whose stops are all unknown still has its old stops cleared.
   `tests/Benchmark/Collections/TrackStopsBench` measures this step; its variants test checks the importer matches
   the `compact` variant.
-- The schedule importer plans first (`plan()` lists the line+days without a `ztm_gdansk_schedule_day` row whose
-  line the dated `routes` feed lists on that date, the only place deciding what is downloaded), then imports line by
-  line (`importLine()`). Each day's `stopTimes` feed is read whole and written in its own transaction
-  (`importLineDay()`), with its `ztm_gdansk_schedule_day` row, also for a day without trips, so it isn't fetched
-  again. A day
-  whose feed can't be opened, parsed or read in time (`StreamOpenException`, `UnexpectedTokenException`,
-  `EndOfStreamException`, `StreamReadException`) is a warning and writes nothing, so the next run retries it. A
-  line that imported none of its days, nor found any imported before (`isImported()`), fails with a warning, so an
-  outage upstream shows; the import fails only when every line failed. Trip ids end with the service date, a trip
-  of an unknown track version is skipped with a warning; when every trip of a day with trips is skipped so, the day
-  throws `UnknownTrackVersionException`: nothing is written, a warning, the next run retries it. A unique violation
-  counts the day as imported only when it is imported now (another import wrote it after the check); otherwise the
-  line fails. A transaction failing on a deadlock or lock wait timeout (`RetryableException`) is retried as a whole
-  without downloading again, by `Utility\Retry::onLockFailure()` (up to 3 attempts with a 50-250 ms random pause, the
-  same helper as `start()`'s). Progress is counted in lines.
+- The schedule importer is a `SplittingDataImporter` with a job per line. Its node plans (`plan()` lists the
+  line+days without a `ztm_gdansk_schedule_day` row whose line the dated `routes` feed lists on that date, the only place
+  deciding what is downloaded) and hands out a job per line with that line's missing dates. A job
+  (`importLine()`) requests all its days at once with Symfony HttpClient and reads the responses in order, so the
+  days download concurrently (a line has at most 10 days; curl's default is 6 connections per host, so of 7 days one
+  queues). Each response is decoded with `json_decode` and written in its own transaction (`importLineDay()`),
+  with its `ztm_gdansk_schedule_day` row, also for a day without trips, so it isn't fetched again. A day that can't be
+  downloaded (404, timeout) or whose response isn't a `stopTimes` feed (not JSON, no `stopTimes`) is a warning and
+  writes nothing, so the next run retries it. A job that imported none of its days, nor found any imported before
+  (`isImported()`), fails, so an outage upstream shows; the days' warnings stay. Trip ids end with the service
+  date, a trip of an unknown track version is skipped with a warning; when every trip of a day with trips is
+  skipped so, the day throws `UnknownTrackVersionException`: nothing is written, a warning, the next run retries it.
+  A unique violation counts the day as imported only when it is imported now (another import wrote it after the
+  check); otherwise the job fails. A transaction failing on a deadlock or lock wait timeout (`RetryableException`,
+  workers inserting trips at once) is retried as a whole without downloading again, by `Utility\Retry::onLockFailure()`
+  (up to 3 attempts with a 50-250 ms random pause, the same helper as `start()`'s). Progress is counted in lines
+  (`jobEnded()`: "lines 74/183, 3 failed"); `jobsEnded()` fails the node only when every line failed
+  (`total === 0 || done > 0` succeeds), as failed lines are retried by the next run; its summary is a warning when
+  any line failed.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
 ## Stale data (ADR 0010)
