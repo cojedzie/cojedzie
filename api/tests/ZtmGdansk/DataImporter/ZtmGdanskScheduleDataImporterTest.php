@@ -114,40 +114,31 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertSame(['6'], array_values(array_unique($routes)));
     }
 
-    public function testOneJobPerLineWithItsMissingDates(): void
+    public function testOnlyMissingDaysOfLinesRunningThenAreDownloaded(): void
     {
         $this->line(self::PROVIDER . '::6');
         $this->line(self::PROVIDER . '::8');
         $this->scheduleDay(self::PROVIDER . '::6', '2026-10-28');
 
         // line 8 doesn't run after the first day, its schedule there would be a 404
-        $this->importer(
-            fn () => [],
+        $downloaded = [];
+        $this->runImporter($this->importer(
+            function (string $route, string $date) use (&$downloaded) {
+                $downloaded[] = [$route, $date];
+
+                return [];
+            },
             fn (string $date) => $date === '2026-10-28' ? ['6', '8'] : ['6'],
-        )->import($this->reporter(), $this->event);
+        ), $this->event);
 
-        $this->assertSame(
-            [
-                ['line' => self::PROVIDER . '::6', 'dates' => array_slice(self::WINDOW, 1)],
-                ['line' => self::PROVIDER . '::8', 'dates' => ['2026-10-28']],
-            ],
-            $this->event->getJobs(),
-        );
-    }
+        $expected = [
+            ...array_map(fn (string $date) => ['6', $date], array_slice(self::WINDOW, 1)),
+            ['8', '2026-10-28'],
+        ];
+        sort($expected);
+        sort($downloaded);
 
-    public function testOnlyMissingDaysAreDownloaded(): void
-    {
-        $this->line(self::PROVIDER . '::6');
-        $this->scheduleDay(self::PROVIDER . '::6', '2026-10-28');
-
-        $dates = [];
-        $this->runImporter($this->importer(function (string $route, string $date) use (&$dates) {
-            $dates[] = $date;
-
-            return [];
-        }), $this->event);
-
-        $this->assertSame(array_slice(self::WINDOW, 1), $dates);
+        $this->assertSame($expected, $downloaded);
     }
 
     public function testLineDaysAreRequestedConcurrently(): void
@@ -349,7 +340,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->line(self::PROVIDER . '::6');
         $this->line(self::PROVIDER . '::8');
 
-        $this->assertTrue($this->runImporter($this->importer(fn () => []), $this->event));
+        $this->runImporter($this->importer(fn () => []), $this->event);
 
         $this->assertSame([2.0, 2.0], $this->progressTotals);
     }

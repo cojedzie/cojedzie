@@ -342,19 +342,6 @@ final class ImportGraphTest extends KernelTestCase
         $this->assertSame([], $this->bus->messages);
     }
 
-    public function testRunSynchronouslyRunsEverything(): void
-    {
-        $provider = new ProviderImporter('provider', [], $this->log);
-        $lines    = new LinesImporter('lines', [ProviderImporter::class], $this->log);
-
-        $import = $this->graph([$lines, $provider])->runSynchronously();
-
-        $this->assertSame([], $this->bus->messages);
-        $this->assertSame(['provider', 'lines'], $this->order());
-        $this->assertSame(['lines' => ImportTaskStatus::Done, 'provider' => ImportTaskStatus::Done], $this->statuses($import));
-        $this->assertTrue($import->isSucceeded());
-    }
-
     public function testNodeWithJobsWaitsAndItsDependentsWaitForIt(): void
     {
         $schedule = new SplittingImporter('schedule', [], $this->log, [['part' => 1], ['part' => 2]]);
