@@ -41,4 +41,16 @@ final class StubJsonStreamer extends JsonStreamer
     {
         return ($this->rows)($url, $branch);
     }
+
+    #[\Override]
+    public function streamDated(string $url, string $key, array $dates): iterable
+    {
+        foreach ($dates as $date) {
+            $rows = [...($this->rows)($url, "{$date}.{$key}")];
+
+            if ($rows !== []) {
+                yield $date => $rows;
+            }
+        }
+    }
 }
