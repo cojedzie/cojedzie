@@ -28,9 +28,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table('track')]
-class TrackEntity implements Entity, Fillable
+#[ORM\Index(columns: ['valid_to'])]
+class TrackEntity implements Entity, Fillable, ValidityAwareInterface
 {
-    use ReferableEntityTrait, FillTrait, ProviderReferenceTrait, ImportedTrait;
+    use ReferableEntityTrait, FillTrait, ProviderReferenceTrait, ImportedTrait, ValidityTrait;
 
     /**
      * Line variant describing track, for example 'a'

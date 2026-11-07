@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace App\Tests\Behat\Context;
 
 use App\Tests\Behat\Support\ApiClient;
+use App\Tests\Behat\Support\FrozenTime;
 use App\Tests\Behat\Support\Provider\TestProvider;
 use App\Tests\Behat\Support\TestData;
 use Behat\Behat\Context\Context;
@@ -37,6 +38,7 @@ final readonly class StopContext implements Context
     public function __construct(
         private TestData $data,
         private ApiClient $client,
+        private FrozenTime $time,
     ) {
     }
 
@@ -55,6 +57,26 @@ final readonly class StopContext implements Context
     {
         $this->data->track($symbol, self::split($stops));
         $this->data->flush();
+    }
+
+    #[Given('line :symbol ran through :stops until :time')]
+    public function lineRanThroughUntil(string $symbol, string $stops, string $time): void
+    {
+        $this->data->track($symbol, self::split($stops), validTo: $this->time->at($time));
+        $this->data->flush();
+    }
+
+    #[Given('line :symbol will run through :stops from :time')]
+    public function lineWillRunThroughFrom(string $symbol, string $stops, string $time): void
+    {
+        $this->data->track($symbol, self::split($stops), validFrom: $this->time->at($time));
+        $this->data->flush();
+    }
+
+    #[When('I list tracks through stop :id')]
+    public function iListTracksThroughStop(string $id): void
+    {
+        $this->client->get(sprintf('/api/v1/%s/tracks', TestProvider::IDENTIFIER), ['stop' => $id]);
     }
 
     #[When('I search for stops named :name')]
@@ -122,6 +144,14 @@ final readonly class StopContext implements Context
         );
 
         Assert::assertSame($expected->getHash(), $actual, self::describe($actual));
+    }
+
+    #[Then('I should see tracks of lines :symbols')]
+    public function iShouldSeeTracksOfLines(string $symbols): void
+    {
+        $actual = array_map(fn (array $track) => $track['line']['symbol'] ?? null, $this->groups());
+
+        Assert::assertSame(self::split($symbols), $actual, self::describe($this->groups()));
     }
 
     #[Then('stop :id should have no destinations')]

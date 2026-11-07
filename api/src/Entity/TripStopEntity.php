@@ -28,9 +28,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table('trip_stop')]
-class TripStopEntity implements Fillable, Referable
+#[ORM\Index(columns: ['valid_to'])]
+class TripStopEntity implements Fillable, Referable, ValidityAwareInterface
 {
-    use FillTrait, ImportedTrait;
+    use FillTrait, ImportedTrait, ValidityTrait;
 
     /**
      * Identifier for stop coming from provider
