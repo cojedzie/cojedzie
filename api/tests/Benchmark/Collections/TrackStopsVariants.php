@@ -30,7 +30,7 @@ use Kadet\Functional\Collections\Lazy as lazy;
 
 /**
  * Variants of the track stops step of the ZTM Gdańsk track import
- * (ZtmGdanskTrackDataImporter::getTrackStopsFromZtmApi()), written with each collection flavour.
+ * (ZtmGdanskTrackDataImporter::groupTrackStops()), written with each collection flavour.
  *
  * Every variant yields `string $trackId => iterable<array{stop_id: string, track_id: string, sequence: int}>`
  * and does exactly the same work, so they can be compared.
@@ -49,7 +49,7 @@ final class TrackStopsVariants
         $all = $records
             |> c\groupBy(fn ($stop) => $ids->generate(
                 ZtmGdanskProvider::IDENTIFIER,
-                sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
+                sprintf("R%sT%sV%s", $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])
             ));
 
         foreach ($all as $trackId => $stops) {
@@ -79,7 +79,7 @@ final class TrackStopsVariants
         $all = $records
             |> c\groupBy(fn ($stop) => $ids->generate(
                 ZtmGdanskProvider::IDENTIFIER,
-                sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
+                sprintf("R%sT%sV%s", $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])
             ));
 
         foreach ($all as $trackId => $stops) {
@@ -123,7 +123,7 @@ final class TrackStopsVariants
     private static function compactor(IdUtils $ids): \Closure
     {
         return fn (array $stop) => [
-            'track_id' => $ids->generate(ZtmGdanskProvider::IDENTIFIER, sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])),
+            'track_id' => $ids->generate(ZtmGdanskProvider::IDENTIFIER, sprintf("R%sT%sV%s", $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])),
             'stop_id'  => $ids->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
             'sequence' => $stop['stopSequence'],
         ];
