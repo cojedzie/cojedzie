@@ -28,6 +28,8 @@ use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskScheduleDataImporter;
 use App\Service\IdUtils;
 use App\Tests\DataImport\ImporterTestCase;
 use App\Tests\DataImport\StubJsonStreamer;
+use Doctrine\DBAL\Driver\PDO\Exception as PdoDriverException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 /**
@@ -303,6 +305,50 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             $this->reporter(),
             new DataUpdateEvent($this->event->import, ['line' => self::PROVIDER . '::6', 'date' => '2026-10-29']),
         );
+    }
+
+    public function testLineDayIsRetriedAfterADeadlock(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+
+        $attempts = 0;
+        $this->importer(function (string $route, string $date) use (&$attempts) {
+            if (++$attempts === 1) {
+                throw $this->deadlock();
+            }
+
+            return [$this->row($route, $date)];
+        })->importLineDay($this->reporter(), $this->event, self::PROVIDER . '::6', '2026-10-29');
+
+        $this->assertSame(2, $attempts);
+        $this->assertSame([self::PROVIDER . '::6-6-1-1-2026-10-29'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
+        $this->assertSame(['2026-10-29'], $this->scheduleDays());
+    }
+
+    public function testLineDayFailsAfterThreeDeadlocks(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+
+        $attempts = 0;
+        $importer = $this->importer(function () use (&$attempts) {
+            $attempts++;
+
+            throw $this->deadlock();
+        });
+
+        try {
+            $importer->importLineDay($this->reporter(), $this->event, self::PROVIDER . '::6', '2026-10-29');
+            $this->fail('The deadlock was not rethrown.');
+        } catch (DeadlockException) {
+        }
+
+        $this->assertSame(3, $attempts);
+        $this->assertSame([], $this->scheduleDays());
+    }
+
+    private function deadlock(): DeadlockException
+    {
+        return new DeadlockException(PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')), null);
     }
 
     private function line(string $id): void

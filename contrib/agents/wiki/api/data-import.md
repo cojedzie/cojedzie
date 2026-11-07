@@ -83,7 +83,9 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
   whose feed can't be opened, parsed or read in time writes nothing and its task fails, so the next run retries it.
   A unique violation ends the task as done only when the line+day is imported now (another import wrote it after
   the check); otherwise it fails. Importing the first day of the window also deletes the line's trips with
-  `valid_to IS NULL`, imported before trips had validity, in the same transaction.
+  `valid_to IS NULL`, imported before trips had validity, in the same transaction. A transaction failing on a
+  deadlock or lock wait timeout (`RetryableException`, workers inserting trips at once) is retried as a whole, up
+  to 3 attempts with a 50–250 ms random pause.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
 ## Stale data (ADR 0010)

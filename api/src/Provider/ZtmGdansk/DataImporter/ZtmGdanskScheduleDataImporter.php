@@ -35,6 +35,7 @@ use App\Service\JsonStreamer;
 use Carbon\CarbonImmutable;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Types;
 use Ds\Set;
@@ -50,6 +51,9 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 
     // stopTimes give times as a moment on this day, the next day being past midnight
     private const string TIME_BASE = '1899-12-30';
+
+    // attempts at a line+day whose transaction deadlocks or times out on a lock
+    private const int ATTEMPTS = 3;
 
     public function __construct(
         private readonly Connection $connection,
@@ -154,8 +158,27 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
      * @throws StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException when the feed fails,
      *     leaving nothing written, so the next import retries it
      * @throws UniqueConstraintViolationException when another import wrote it meanwhile
+     * @throws RetryableException                 when the transaction deadlocked or timed out on a lock in every attempt
      */
     public function importLineDay(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date): void
+    {
+        for ($attempt = 1; ; $attempt++) {
+            try {
+                $this->importLineDayOnce($reporter, $event, $lineId, $date);
+
+                return;
+            } catch (RetryableException $exception) {
+                // workers inserting trips at once can deadlock, the rolled back attempt is retried as a whole
+                if ($attempt >= self::ATTEMPTS) {
+                    throw $exception;
+                }
+
+                usleep(random_int(50_000, 250_000));
+            }
+        }
+    }
+
+    private function importLineDayOnce(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date): void
     {
         $this->connection->transactional(function () use ($reporter, $event, $lineId, $date): void {
             if ($this->isImported($lineId, $date)) {
