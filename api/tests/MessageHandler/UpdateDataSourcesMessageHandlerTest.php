@@ -22,10 +22,11 @@ declare(strict_types=1);
 
 namespace App\Tests\MessageHandler;
 
+use App\DataImport\ImportGraph;
+use App\Entity\ImportEntity;
 use App\Message\UpdateDataSources;
 use App\MessageHandler\UpdateDataSourcesMessageHandler;
 use App\Schedule\ScheduleConfig;
-use App\Service\DataUpdater;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Sentry\CheckInStatus;
@@ -39,24 +40,39 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
      */
     private array $checkIns = [];
 
-    public function testReportsSuccessfulUpdate(): void
+    public function testStartsTheImportWithTheCheckIn(): void
     {
-        $this->handle($this->createStub(DataUpdater::class));
+        $graph = $this->createMock(ImportGraph::class);
+        $graph->expects($this->once())->method('start')->with('check-in-id')->willReturn(new ImportEntity());
 
-        $this->assertCheckIns(CheckInStatus::ok());
+        $this->handle($graph);
+
+        // the task finishing the import reports the result
+        $this->assertCount(1, $this->checkIns);
+        [[$slug, $status, $config]] = $this->checkIns;
+
+        $this->assertSame('update-data-sources', $slug);
+        $this->assertSame(CheckInStatus::inProgress(), $status);
+        $this->assertSame('30 2 * * *', $config->getSchedule()->getValue());
+        $this->assertSame(240, $config->getMaxRuntime());
     }
 
-    public function testReportsFailedUpdate(): void
+    public function testReportsImportThatFailedToStart(): void
     {
-        $updater = $this->createStub(DataUpdater::class);
-        $updater->method('update')->willThrowException(new \RuntimeException('Source unavailable'));
+        $graph = $this->createStub(ImportGraph::class);
+        $graph->method('start')->willThrowException(new \LogicException('Importers depend on missing importers'));
 
-        $this->handle($updater);
+        $this->handle($graph);
 
-        $this->assertCheckIns(CheckInStatus::error());
+        $this->assertCount(2, $this->checkIns);
+        [, [$slug, $status, , $id]] = $this->checkIns;
+
+        $this->assertSame('update-data-sources', $slug);
+        $this->assertSame(CheckInStatus::error(), $status);
+        $this->assertSame('check-in-id', $id);
     }
 
-    private function handle(DataUpdater $updater): void
+    private function handle(ImportGraph $graph): void
     {
         $hub = $this->createStub(HubInterface::class);
         $hub->method('captureCheckIn')->willReturnCallback(
@@ -67,7 +83,7 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
             }
         );
 
-        $handler = new UpdateDataSourcesMessageHandler($updater, new ScheduleConfig(
+        $handler = new UpdateDataSourcesMessageHandler($graph, new ScheduleConfig(
             updateDataSources: '30 2 * * *',
             federationCheck: '* * * * *',
             federationCleanup: '0 0 * * *',
@@ -77,20 +93,5 @@ final class UpdateDataSourcesMessageHandlerTest extends TestCase
         $handler->setSentryHub($hub);
         $handler->setLogger(new NullLogger());
         $handler(new UpdateDataSources());
-    }
-
-    private function assertCheckIns(CheckInStatus $result): void
-    {
-        $this->assertCount(2, $this->checkIns);
-
-        [[$slug, $status, $config], [$finishedSlug, $finishedStatus, , $finishedId]] = $this->checkIns;
-
-        $this->assertSame('update-data-sources', $slug);
-        $this->assertSame(CheckInStatus::inProgress(), $status);
-        $this->assertSame('30 2 * * *', $config?->getSchedule()->getValue());
-
-        $this->assertSame('update-data-sources', $finishedSlug);
-        $this->assertSame($result, $finishedStatus);
-        $this->assertSame('check-in-id', $finishedId);
     }
 }

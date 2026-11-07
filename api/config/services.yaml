@@ -111,9 +111,13 @@ services:
   App\Service\HandlerProviderFactory:
     arguments: [ !tagged_locator app.handler ]
 
-  App\Service\DataUpdater:
+  App\DataImport\ImportGraph:
     arguments:
-      $importers: !tagged_iterator app.data_importer
+      $importers: !tagged_locator app.data_importer
+
+  App\DataImport\ImportTaskRunner:
+    arguments:
+      $importers: !tagged_locator app.data_importer
 
   App\Service\SentrySampler:
     arguments:

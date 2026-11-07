@@ -10,4 +10,5 @@ framework:
     # the worker consumes main, see COJEDZIE_WORKER_QUEUES
     routing:
       App\Message\UpdateDataSources: main
+      App\Message\RunImportTask: main
       App\Message\CollectStaleData: main

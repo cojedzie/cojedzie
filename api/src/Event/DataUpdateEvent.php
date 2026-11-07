@@ -22,10 +22,41 @@ namespace App\Event;
 
 use App\Entity\ImportEntity;
 
+/**
+ * What an importer's task gets: the import, the task's payload, and a way to add tasks to the import.
+ */
 class DataUpdateEvent
 {
+    /**
+     * @var list<array{importer: string, payload: array, description: string}>
+     */
+    private array $spawned = [];
+
+    /**
+     * @param ?array $payload data of a spawned task, null for the importer's own task
+     */
     public function __construct(
-        public readonly ImportEntity $import
+        public readonly ImportEntity $import,
+        public readonly ?array $payload = null,
     ) {
+    }
+
+    /**
+     * Adds a task to the import, run once the importer returns. It has no dependencies and nothing depends on it,
+     * and its failure doesn't fail the import.
+     *
+     * @param string $importer service id (class) of the importer to run with the payload
+     */
+    public function spawn(string $importer, array $payload, string $description): void
+    {
+        $this->spawned[] = ['importer' => $importer, 'payload' => $payload, 'description' => $description];
+    }
+
+    /**
+     * @return list<array{importer: string, payload: array, description: string}>
+     */
+    public function getSpawned(): array
+    {
+        return $this->spawned;
     }
 }

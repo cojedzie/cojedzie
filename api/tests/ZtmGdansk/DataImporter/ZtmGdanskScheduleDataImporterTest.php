@@ -70,8 +70,10 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     {
         $this->line(self::PROVIDER . '::6');
 
-        $this->importer(fn (string $route, string $date) => $date === '2026-10-28' ? [$this->row($route, $date)] : [])
-            ->import($this->reporter(), $this->event);
+        $this->runImporter(
+            $this->importer(fn (string $route, string $date) => $date === '2026-10-28' ? [$this->row($route, $date)] : []),
+            $this->event,
+        );
 
         $this->assertSame(
             [$this->event->import->getId()->toBinary()],
@@ -85,11 +87,11 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->line('other::7');
 
         $routes = [];
-        $this->importer(function (string $route) use (&$routes) {
+        $this->runImporter($this->importer(function (string $route) use (&$routes) {
             $routes[] = $route;
 
             return [];
-        })->import($this->reporter(), $this->event);
+        }), $this->event);
 
         $this->assertSame(['6'], array_values(array_unique($routes)));
     }
@@ -99,14 +101,14 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->line(self::PROVIDER . '::6');
         $this->line(self::PROVIDER . '::8');
 
-        $this->importer(fn (string $route, string $date) => match (true) {
+        $this->runImporter($this->importer(fn (string $route, string $date) => match (true) {
             $route === '6'         => throw new StreamOpenException('Cannot open'),
             $date === '2026-10-28' => [$this->row($route, $date)],
             default                => [],
-        })->import($this->reporter(), $this->event);
+        }), $this->event);
 
         $this->assertSame([self::PROVIDER . '::8-8-1-1-2026-10-28'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
-        $this->assertCount(count(self::WINDOW), $this->warnings);
+        $this->assertCount(count(self::WINDOW), $this->failures);
     }
 
     public function testLineWhoseScheduleStallsIsSkipped(): void
@@ -114,49 +116,21 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->line(self::PROVIDER . '::6');
         $this->line(self::PROVIDER . '::8');
 
-        $this->importer(fn (string $route, string $date) => match (true) {
+        $this->runImporter($this->importer(fn (string $route, string $date) => match (true) {
             $route === '6'         => throw new StreamReadException('Reading the stream timed out.'),
             $date === '2026-10-28' => [$this->row($route, $date)],
             default                => [],
-        })->import($this->reporter(), $this->event);
+        }), $this->event);
 
         $this->assertSame([self::PROVIDER . '::8-8-1-1-2026-10-28'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
-        $this->assertCount(count(self::WINDOW), $this->warnings);
+        $this->assertCount(count(self::WINDOW), $this->failures);
     }
 
-    public function testProgressTotalIsTheNumberOfMissingLineDays(): void
+    public function testOneTaskIsSpawnedPerMissingLineDay(): void
     {
         $this->line(self::PROVIDER . '::6');
         $this->line(self::PROVIDER . '::8');
         $this->scheduleDay(self::PROVIDER . '::8', '2026-10-28');
-
-        $this->importer(fn () => [])->import($this->reporter(), $this->event);
-
-        $this->assertSame([13.0], array_values(array_unique($this->progressTotals)));
-    }
-
-    public function testOnlyMissingDaysAreDownloaded(): void
-    {
-        $this->line(self::PROVIDER . '::6');
-        $this->scheduleDay(self::PROVIDER . '::6', '2026-10-28');
-
-        $dates = [];
-        $this->importer(function (string $route, string $date) use (&$dates) {
-            $dates[] = $date;
-
-            return [];
-        })->import($this->reporter(), $this->event);
-
-        $this->assertSame(array_slice(self::WINDOW, 1), $dates);
-    }
-
-    public function testDayWithoutTripsIsRemembered(): void
-    {
-        $this->line(self::PROVIDER . '::6');
-
-        $this->importer(fn () => [])->import($this->reporter(), $this->event);
-
-        $this->assertSame(self::WINDOW, $this->scheduleDays());
 
         $requests = 0;
         $this->importer(function () use (&$requests) {
@@ -165,6 +139,49 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             return [];
         })->import($this->reporter(), $this->event);
 
+        $spawned = $this->event->getSpawned();
+        $this->assertSame(0, $requests);
+        $this->assertCount(13, $spawned);
+        $this->assertSame(
+            [
+                'importer'    => ZtmGdanskScheduleDataImporter::class,
+                'payload'     => ['line' => self::PROVIDER . '::6', 'date' => '2026-10-28'],
+                'description' => '[ZTM Gdańsk] Schedule of 6 on 2026-10-28',
+            ],
+            $spawned[0],
+        );
+    }
+
+    public function testOnlyMissingDaysAreDownloaded(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+        $this->scheduleDay(self::PROVIDER . '::6', '2026-10-28');
+
+        $dates = [];
+        $this->runImporter($this->importer(function (string $route, string $date) use (&$dates) {
+            $dates[] = $date;
+
+            return [];
+        }), $this->event);
+
+        $this->assertSame(array_slice(self::WINDOW, 1), $dates);
+    }
+
+    public function testDayWithoutTripsIsRemembered(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+
+        $this->runImporter($this->importer(fn () => []), $this->event);
+
+        $this->assertSame(self::WINDOW, $this->scheduleDays());
+
+        $requests = 0;
+        $this->runImporter($this->importer(function () use (&$requests) {
+            $requests++;
+
+            return [];
+        }), new DataUpdateEvent($this->event->import));
+
         $this->assertSame(0, $requests);
     }
 
@@ -172,9 +189,9 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     {
         $this->line(self::PROVIDER . '::6');
 
-        $this->importer(fn (string $route, string $date) => in_array($date, ['2026-10-28', '2026-10-29'], true)
+        $this->runImporter($this->importer(fn (string $route, string $date) => in_array($date, ['2026-10-28', '2026-10-29'], true)
             ? [$this->row($route, $date)]
-            : [])->import($this->reporter(), $this->event);
+            : []), $this->event);
 
         $this->assertSame(
             [self::PROVIDER . '::6-6-1-1-2026-10-28', self::PROVIDER . '::6-6-1-1-2026-10-29'],
@@ -241,15 +258,32 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     {
         $this->line(self::PROVIDER . '::6');
 
-        $this->importer(fn (string $route, string $date) => match ($date) {
+        $this->runImporter($this->importer(fn (string $route, string $date) => match ($date) {
             '2026-10-28' => throw new StreamReadException('Reading the stream timed out.'),
             '2026-10-29' => [$this->row($route, $date)],
             default      => [],
-        })->import($this->reporter(), $this->event);
+        }), $this->event);
 
         $this->assertSame(array_slice(self::WINDOW, 1), $this->scheduleDays());
         $this->assertSame([self::PROVIDER . '::6-6-1-1-2026-10-29'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
-        $this->assertCount(1, $this->warnings);
+        $this->assertSame(['Reading the stream timed out.'], $this->failures);
+    }
+
+    public function testLineDayImportedMeanwhileByAnotherRunIsNotAFailure(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+
+        // another run writes the day after this one checked it wasn't imported
+        $this->importer(function (string $route, string $date) {
+            $this->scheduleDay(self::PROVIDER . '::6', $date);
+
+            return [];
+        })->import(
+            $this->reporter(),
+            new DataUpdateEvent($this->event->import, ['line' => self::PROVIDER . '::6', 'date' => '2026-10-28']),
+        );
+
+        $this->assertSame([], $this->scheduleDays());
     }
 
     private function line(string $id): void

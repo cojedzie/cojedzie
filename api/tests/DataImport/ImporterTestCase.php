@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace App\Tests\DataImport;
 
+use App\DataImport\DataImporter;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\Entity\ImportEntity;
@@ -55,6 +56,13 @@ abstract class ImporterTestCase extends KernelTestCase
      */
     protected array $progressTotals = [];
 
+    /**
+     * Messages of the spawned tasks that failed, see runImporter().
+     *
+     * @var list<string>
+     */
+    protected array $failures = [];
+
     #[\Override]
     protected function setUp(): void
     {
@@ -80,7 +88,7 @@ abstract class ImporterTestCase extends KernelTestCase
     }
 
     /**
-     * Starts a new import, as DataUpdater does before running the importers.
+     * Starts a new import, as ImportGraph does before running the importers.
      */
     protected function newImport(): DataUpdateEvent
     {
@@ -101,6 +109,25 @@ abstract class ImporterTestCase extends KernelTestCase
         );
 
         return new DataUpdateEvent($import);
+    }
+
+    /**
+     * Runs the importer, then the tasks it spawned, as the import graph would: a spawned task that fails is recorded
+     * in $failures and the others still run.
+     */
+    protected function runImporter(DataImporter $importer, DataUpdateEvent $event): void
+    {
+        $importer->import($this->reporter(), $event);
+
+        foreach ($event->getSpawned() as $task) {
+            $this->assertSame($importer::class, $task['importer']);
+
+            try {
+                $importer->import($this->reporter(), new DataUpdateEvent($event->import, $task['payload']));
+            } catch (\Exception $exception) {
+                $this->failures[] = $exception->getMessage();
+            }
+        }
     }
 
     /**

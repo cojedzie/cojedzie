@@ -20,16 +20,20 @@
 
 namespace App\MessageHandler;
 
+use App\DataImport\ImportGraph;
 use App\Message\UpdateDataSources;
 use App\Schedule\ScheduleConfig;
-use App\Service\DataUpdater;
 use App\Utility\SentryCronMonitorTrait;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Sentry\CheckInStatus;
 use Sentry\MonitorConfig;
 use Sentry\MonitorSchedule;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+/**
+ * Starts the import; workers run its tasks, and the one finishing it closes the check-in opened here.
+ */
 #[AsMessageHandler]
 final class UpdateDataSourcesMessageHandler implements LoggerAwareInterface
 {
@@ -37,26 +41,31 @@ final class UpdateDataSourcesMessageHandler implements LoggerAwareInterface
     use SentryCronMonitorTrait;
 
     // Sentry cron monitor, alerts when the daily update is missed or fails
-    private const string MONITOR = 'update-data-sources';
+    public const string MONITOR = 'update-data-sources';
 
     public function __construct(
-        private readonly DataUpdater $updater,
+        private readonly ImportGraph $graph,
         private readonly ScheduleConfig $schedules,
     ) {
     }
 
-    public function __invoke(UpdateDataSources $message)
+    public function __invoke(UpdateDataSources $message): void
     {
         $config = new MonitorConfig(
             MonitorSchedule::crontab($this->schedules->updateDataSources),
             checkinMargin: 30,
-            maxRuntime: 120,
+            // minutes; the first import downloads the whole schedule window
+            maxRuntime: 240,
             timezone: date_default_timezone_get(),
         );
 
+        $checkInId = $this->sentry->captureCheckIn(self::MONITOR, CheckInStatus::inProgress(), monitorConfig: $config);
+
         try {
-            $this->monitored(self::MONITOR, $config, $this->updater->update(...));
-        } catch (\Exception $exception) {
+            $this->graph->start($checkInId);
+        } catch (\Throwable $exception) {
+            $this->sentry->captureCheckIn(self::MONITOR, CheckInStatus::error(), checkInId: $checkInId);
+
             $this->logger->critical($exception->getMessage(), [
                 'backtrace' => $exception->getTraceAsString(),
             ]);

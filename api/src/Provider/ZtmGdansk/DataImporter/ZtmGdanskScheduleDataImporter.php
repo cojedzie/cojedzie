@@ -35,6 +35,7 @@ use App\Service\JsonStreamer;
 use Carbon\CarbonImmutable;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Types;
 use Ds\Set;
 use Psr\Clock\ClockInterface;
@@ -59,26 +60,39 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     ) {
     }
 
+    /**
+     * The importer's own task plans the download and spawns a task per line+day, which imports it.
+     */
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
-        $plan  = $this->plan($event);
-        $count = 0;
+        if ($event->payload === null) {
+            $plan = $this->plan($event);
 
-        foreach ($plan as ['line' => $lineId, 'date' => $date]) {
-            try {
-                $this->importLineDay($reporter, $event, $lineId, $date);
-            } catch (StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException $exception) {
-                $reporter->milestone(
-                    sprintf('Failed to import line %s on %s: %s', $lineId, $date, $exception->getMessage()),
-                    MilestoneType::Warning,
+            foreach ($plan as ['line' => $lineId, 'date' => $date]) {
+                $event->spawn(
+                    self::class,
+                    [
+                        'line' => $lineId,
+                        'date' => $date,
+                    ],
+                    sprintf('[ZTM Gdańsk] Schedule of %s on %s', $this->idUtils->strip($lineId), $date),
                 );
             }
 
-            $reporter->progress(++$count, max: count($plan), comment: sprintf('Imported line %s on %s', $lineId, $date));
+            $reporter->milestone(sprintf('Planned %d line+days to download', count($plan)));
+
+            return;
         }
 
-        $reporter->progress($count, comment: 'Imported all lines', finished: true);
+        ['line' => $lineId, 'date' => $date] = $event->payload;
+
+        try {
+            $this->importLineDay($reporter, $event, $lineId, $date);
+        } catch (UniqueConstraintViolationException) {
+            // another import (one this run superseded) wrote the line+day after it was checked
+            $reporter->milestone(sprintf('Line %s on %s was imported meanwhile', $lineId, $date));
+        }
     }
 
     /**
@@ -133,7 +147,8 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
      * Downloads and stores the trips of the line on the date, in one transaction, unless it was imported before.
      *
      * @throws StreamOpenException|StreamReadException|UnexpectedTokenException|EndOfStreamException when the feed fails,
-     *     leaving nothing written
+     *     leaving nothing written, so the next import retries it
+     * @throws UniqueConstraintViolationException when another import wrote it meanwhile
      */
     public function importLineDay(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date): void
     {

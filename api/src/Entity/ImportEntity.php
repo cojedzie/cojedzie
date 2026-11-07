@@ -43,8 +43,23 @@ class ImportEntity implements Fillable, Referable
     #[ORM\Column(type: 'datetime')]
     private ?Carbon $startedAt = null;
 
+    /**
+     * Set when no task is left to run
+     */
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?Carbon $finishedAt = null;
+
+    /**
+     * Whether every task but the spawned ones was done, set when finished; null for imports from before the graph
+     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $succeeded = null;
+
+    /**
+     * Sentry check-in of the scheduled update that started the import, reported when it finishes
+     */
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $checkInId = null;
 
     #[\Override]
     public function getId(): ?Uuid
@@ -70,5 +85,25 @@ class ImportEntity implements Fillable, Referable
     public function setFinishedAt(?Carbon $finishedAt): void
     {
         $this->finishedAt = $finishedAt;
+    }
+
+    public function isSucceeded(): ?bool
+    {
+        return $this->succeeded;
+    }
+
+    public function setSucceeded(?bool $succeeded): void
+    {
+        $this->succeeded = $succeeded;
+    }
+
+    public function getCheckInId(): ?string
+    {
+        return $this->checkInId;
+    }
+
+    public function setCheckInId(?string $checkInId): void
+    {
+        $this->checkInId = $checkInId;
     }
 }

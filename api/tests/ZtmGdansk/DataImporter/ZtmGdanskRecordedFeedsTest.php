@@ -77,9 +77,10 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
         $this->assertGreaterThan(0.95 * $tracks, $this->rowCount('track', 'final_id IS NOT NULL'));
         $this->assertGreaterThan(20000, $this->rowCount('track_stop'));
 
-        $this->schedule()->import($this->reporter(), $this->event);
+        $this->runImporter($this->schedule(), $this->event);
 
         $this->assertSame([], $this->warnings);
+        $this->assertSame([], $this->failures);
         $this->assertGreaterThan(0, $this->rowCount('trip_stop'));
         // trips of the schedule feed are tracks of the trips feed
         $this->assertSame(0, $this->rowCount('trip', 'track_id NOT IN (SELECT id FROM track)'));
