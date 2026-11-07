@@ -55,13 +55,13 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
     {
         $count = $this->connection->transactional(fn () => $this->upserter->upsert(
             table: 'line',
-            rows: $this->getLinesFromZtmApi(),
+            rows: $this->getLinesFromZtmApi($reporter),
             providerId: ZtmGdanskProvider::IDENTIFIER,
             import: $event->import,
-            reporter: $reporter,
         ));
 
-        $reporter->progress($count, comment: 'OK', finished: true);
+        $days = $this->config->scheduleDays;
+        $reporter->progress($days, max: $days, comment: sprintf('OK, %d lines', $count), finished: true);
     }
 
     #[\Override]
@@ -72,7 +72,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         ];
     }
 
-    private function getLinesFromZtmApi()
+    private function getLinesFromZtmApi(ProgressReporterInterface $reporter)
     {
         $operators = new Set(
             $this->connection->createQueryBuilder()
@@ -85,13 +85,13 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
         );
 
         // each line is imported once, from the earliest day that lists it
-        $seen = new Set();
+        $seen  = new Set();
+        $dates = ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays);
+        $day   = 0;
 
-        foreach ($this->jsonStreamer->streamDated(
-            $this->config->routesUrl,
-            'routes',
-            ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays),
-        ) as $lines) {
+        foreach ($this->jsonStreamer->streamDated($this->config->routesUrl, 'routes', $dates) as $date => $lines) {
+            $imported = 0;
+
             foreach ($lines as $line) {
                 $id = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['routeId']);
 
@@ -108,6 +108,7 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 }
 
                 $seen->add($id);
+                $imported++;
 
                 yield $id => [
                     'symbol'      => $symbol,
@@ -117,6 +118,12 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                     'operator_id' => $operator,
                 ];
             }
+
+            $reporter->progress(
+                ++$day,
+                max: count($dates),
+                comment: sprintf('%s: %d lines', $date, $imported),
+            );
         }
     }
 

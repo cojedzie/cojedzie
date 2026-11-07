@@ -102,6 +102,18 @@ final class ZtmGdanskStopDataImporterTest extends ImporterTestCase
         $this->assertSame([['Dzisiejszy']], $this->connection->fetchAllNumeric('SELECT name FROM stop'));
     }
 
+    public function testProgressIsReportedPerDayOfTheWindow(): void
+    {
+        $this->importDays([
+            '2026-10-28' => [$this->stop(1, 'Pierwszy', '01')],
+            '2026-10-29' => [$this->stop(2, 'Drugi', '01')],
+            '2026-10-30' => [$this->stop(3, 'Trzeci', '01')],
+        ]);
+
+        // one call per day present in the feed and the final one, all with the total
+        $this->assertSame(array_fill(0, 4, 7.0), $this->progressTotals);
+    }
+
     /**
      * @param array<string, list<array<string, mixed>>> $days stops of the feed by date
      */

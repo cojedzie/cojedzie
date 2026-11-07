@@ -94,10 +94,12 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         /** @var array<string, array{string, string}> $days first and last date listing each track */
         $days  = [];
         $count = 0;
+        $day   = 0;
 
         foreach ($this->jsonStreamer->streamDated($this->config->stopsInTripsUrl, 'stopsInTrip', $dates) as $date => $records) {
             $tripsOfDay = $trips[$date] ?? [];
             $skipped    = 0;
+            $imported   = 0;
 
             foreach ($this->groupTrackStops($records, $existingStopIds) as $trackId => [$tripId, $stops]) {
                 // a track listed on several days is written once, from the first day listing it
@@ -122,8 +124,15 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 $this->replaceTrackStops($trackId, $stops, $event);
 
                 $days[$trackId] = [$date, $date];
-                $reporter->progress($count += 1, comment: sprintf('Imported track %s', $trackId));
+                $count++;
+                $imported++;
             }
+
+            $reporter->progress(
+                ++$day,
+                max: count($dates),
+                comment: sprintf('%s: %d tracks', $date, $imported),
+            );
 
             if ($skipped > 0) {
                 $reporter->milestone(
@@ -138,7 +147,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $this->writeValidity($days, $event);
         $this->expireSupersededVersions(array_keys($days));
 
-        $reporter->progress($count, comment: 'OK', finished: true);
+        $reporter->progress(count($dates), max: count($dates), comment: sprintf('OK, %d tracks', $count), finished: true);
     }
 
     /**

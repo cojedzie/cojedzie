@@ -275,6 +275,18 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ], $this->warnings);
     }
 
+    public function testProgressIsReportedPerDayOfTheWindow(): void
+    {
+        $this->importDays($this->event, [
+            '2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+            '2026-10-29' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+            '2026-10-30' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+        ]);
+
+        // one call per day present in the feed and the final one, all with the total
+        $this->assertSame(array_fill(0, 4, 7.0), $this->progressTotals);
+    }
+
     /**
      * Starts the next import, with the stops imported again by it, as the stop importer runs before this one.
      */

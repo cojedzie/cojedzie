@@ -48,30 +48,29 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
+        $days  = $this->config->scheduleDays;
         $count = $this->connection->transactional(fn () => $this->upserter->upsert(
             table: 'stop',
-            rows: $this->getStopsFromZtmApi(),
+            rows: $this->getStopsFromZtmApi($reporter),
             providerId: ZtmGdanskProvider::IDENTIFIER,
             import: $event->import,
             types: ['on_demand' => ParameterType::BOOLEAN],
-            reporter: $reporter,
         ));
 
-        $reporter->progress($count, comment: 'OK', finished: true);
+        $reporter->progress($days, max: $days, comment: sprintf('OK, %d stops', $count), finished: true);
     }
 
-    private function getStopsFromZtmApi()
+    private function getStopsFromZtmApi(ProgressReporterInterface $reporter)
     {
         // each stop is imported once, from the earliest day that lists it
         $seen = new Set();
+        $day  = 0;
 
-        $days = $this->jsonStreamer->streamDated(
-            $this->config->stopsUrl,
-            'stops',
-            ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays),
-        );
+        $dates = ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays);
 
-        foreach ($days as $stops) {
+        foreach ($this->jsonStreamer->streamDated($this->config->stopsUrl, 'stops', $dates) as $date => $stops) {
+            $imported = 0;
+
             foreach ($stops as $stop) {
                 // skip stops that are technical
                 if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
@@ -85,6 +84,7 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                 }
 
                 $seen->add($id);
+                $imported++;
 
                 $name = trim($stop['stopName'] ?? $stop['stopDesc']);
                 yield $id => [
@@ -96,6 +96,12 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                     'group_name' => $name,
                 ];
             }
+
+            $reporter->progress(
+                ++$day,
+                max: count($dates),
+                comment: sprintf('%s: %d stops', $date, $imported),
+            );
         }
     }
 

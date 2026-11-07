@@ -112,6 +112,18 @@ final class ZtmGdanskLineDataImporterTest extends ImporterTestCase
         $this->assertSame([['1']], $this->connection->fetchAllNumeric('SELECT symbol FROM line'));
     }
 
+    public function testProgressIsReportedPerDayOfTheWindow(): void
+    {
+        $this->importDays([
+            '2026-10-28' => [$this->route(1, '1', 1)],
+            '2026-10-29' => [$this->route(2, '2', 1)],
+            '2026-10-30' => [$this->route(3, '3', 1)],
+        ]);
+
+        // one call per day present in the feed and the final one, all with the total
+        $this->assertSame(array_fill(0, 4, 7.0), $this->progressTotals);
+    }
+
     /**
      * @param array<string, list<array<string, mixed>>> $days routes of the feed by date
      */
