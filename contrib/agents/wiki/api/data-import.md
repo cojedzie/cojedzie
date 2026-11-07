@@ -128,16 +128,28 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
 - Operators, lines, stops and tracks are written with `DataImport\TableUpserter::upsert()`: rows keyed by id, batched
   by 100, existing ids of the provider updated, new ones inserted, every row stamped with `provider_id` and the
   current `import_id`. It opens no transaction; each importer wraps its writes in `Connection::transactional()`.
-- Importers never delete rows that disappeared upstream (except trips and track stops, replaced per line and
-  track); `StaleDataCollector` does, see below.
+- Importers never delete rows that disappeared upstream (except track stops, replaced per track);
+  `StaleDataCollector` does, see below.
 - Track stops: the `stopsInTrip` feed is **not ordered by track** (one day of the 2022 fixture: 21,897 rows of 1,332
   tracks in 21,866 runs), so they are grouped in memory, reduced to track id, stop id and sequence first. Unknown
   stops are filtered after grouping, so a track whose stops are all unknown still has its old stops cleared.
   `tests/Benchmark/Collections/TrackStopsBench` measures this step; its variants test checks the importer matches
   the `compact` variant.
-- The schedule is imported one line per transaction; a line whose feed can't be opened, parsed or read in time
-  (`StreamOpenException`, `UnexpectedTokenException`, `EndOfStreamException`, `StreamReadException`) is skipped with
-  a warning.
+- The schedule importer plans first (`plan()` lists the line+days without a `ztm_gdansk_schedule_day` row whose
+  line the dated `routes` feed lists on that date, the only place deciding what is downloaded), then imports line by
+  line (`importLine()`). Each day's `stopTimes` feed is read whole and written in its own transaction
+  (`importLineDay()`), with its `ztm_gdansk_schedule_day` row, also for a day without trips, so it isn't fetched
+  again. A day
+  whose feed can't be opened, parsed or read in time (`StreamOpenException`, `UnexpectedTokenException`,
+  `EndOfStreamException`, `StreamReadException`) is a warning and writes nothing, so the next run retries it. A
+  line that imported none of its days, nor found any imported before (`isImported()`), fails with a warning, so an
+  outage upstream shows; the import fails only when every line failed. Trip ids end with the service date, a trip
+  of an unknown track version is skipped with a warning; when every trip of a day with trips is skipped so, the day
+  throws `UnknownTrackVersionException`: nothing is written, a warning, the next run retries it. A unique violation
+  counts the day as imported only when it is imported now (another import wrote it after the check); otherwise the
+  line fails. A transaction failing on a deadlock or lock wait timeout (`RetryableException`) is retried as a whole
+  without downloading again, by `Utility\Retry::onLockFailure()` (up to 3 attempts with a 50-250 ms random pause, the
+  same helper as `start()`'s). Progress is counted in lines.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
 ## Stale data (ADR 0010)
