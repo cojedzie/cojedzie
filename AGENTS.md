@@ -13,7 +13,8 @@ Everything related to agentic workflows is stored in `contrib/agents/`, not in v
 - `contrib/agents/wiki/` — project knowledge base (see below).
 - `contrib/agents/skills/` — skills in the Agent Skills format (`<name>/SKILL.md`). `.claude/skills` is a
   symlink to this directory. `commit` creates commits without AI attribution; `adr-compliance` checks a branch
-  or commit range against the ADRs; `test-cleanup` removes tests that only served implementation.
+  or commit range against the ADRs; `test-cleanup` removes tests that only served implementation; `readability-cleanup` rewrites a branch's code and
+  tests so they read like a story.
 - `contrib/agents/specs/` and `contrib/agents/plans/` — design specs and implementation plans. This overrides
   the superpowers plugin defaults (`docs/superpowers/specs/`, `docs/superpowers/plans/`); keep its file naming.
   They are **temporary**, see below.
@@ -35,7 +36,9 @@ Specs and plans are valid only while their task is in progress. They must not re
      like any other change.
   2. **Check compliance**: run the `adr-compliance` skill on the branch.
   3. **Clean up tests**: run the `test-cleanup` skill, so only tests worth keeping reach `master`.
-  4. **Clean up the history**: rebase the branch so that every commit is one logical change, described by what
+  4. **Clean up for readability**: run the `readability-cleanup` skill as the last pass over the code, once
+     everything else is done.
+  5. **Clean up the history**: rebase the branch so that every commit is one logical change, described by what
      changed and why, not by when the work happened. Fold review fixes, follow-ups and tidy-ups into the commits
      they belong to, and drop the spec/plan commits (and any later edits to those files), so the docs never
      appear in the merged history. Rewriting history and force-pushing need the user's confirmation.
