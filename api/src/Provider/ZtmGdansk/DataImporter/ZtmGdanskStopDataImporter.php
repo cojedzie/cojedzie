@@ -30,6 +30,7 @@ use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Ds\Set;
 use Psr\Clock\ClockInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
@@ -47,28 +48,60 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
+        $days  = $this->config->scheduleDays;
         $count = $this->connection->transactional(fn () => $this->upserter->upsert(
             table: 'stop',
-            rows: $this->getStopsFromZtmApi(),
+            rows: $this->getStopsFromZtmApi($reporter),
             providerId: ZtmGdanskProvider::IDENTIFIER,
             import: $event->import,
             types: ['on_demand' => ParameterType::BOOLEAN],
-            reporter: $reporter,
         ));
 
-        $reporter->progress($count, comment: 'OK', finished: true);
+        $reporter->progress($days, max: $days, comment: sprintf('OK, %d stops', $count), finished: true);
     }
 
-    private function getStopsFromZtmApi()
+    /**
+     * Stops of every day of the window, each once, from the earliest day that lists it.
+     *
+     * @return \Generator<string, array<string, mixed>> rows by id
+     */
+    private function getStopsFromZtmApi(ProgressReporterInterface $reporter): \Generator
     {
-        foreach ($this->jsonStreamer->stream($this->config->stopsUrl, sprintf('%s.stops', ZtmGdanskProvider::feedDate($this->clock))) as $stop) {
-            // skip stops that are technical
-            if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
+        $dates = ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays);
+        $seen  = new Set();
+        $day   = 0;
+
+        foreach ($this->jsonStreamer->streamDated($this->config->stopsUrl, 'stops', $dates) as $date => $stops) {
+            $imported = yield from $this->unseenStops($stops, $seen);
+
+            $reporter->progress(++$day, max: count($dates), comment: sprintf('%s: %d stops', $date, $imported));
+        }
+    }
+
+    /**
+     * Passenger stops of a day not seen on an earlier one, which they are marked as.
+     *
+     * @param iterable<array<string, mixed>> $stops records of the stops feed
+     *
+     * @return \Generator<string, array<string, mixed>, mixed, int> rows by id, returning how many there were
+     */
+    private function unseenStops(iterable $stops, Set $seen): \Generator
+    {
+        $count = 0;
+
+        foreach ($stops as $stop) {
+            $id = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']);
+
+            if (!self::isPassengerStop($stop) || $seen->contains($id)) {
                 continue;
             }
 
+            $seen->add($id);
+            $count++;
+
             $name = trim($stop['stopName'] ?? $stop['stopDesc']);
-            yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']) => [
+
+            yield $id => [
                 'name'       => $name,
                 'variant'    => trim((string) ($stop['stopCode'] ?? $stop['subName'])) ?: null,
                 'latitude'   => $stop['stopLat'],
@@ -77,6 +110,13 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
                 'group_name' => $name,
             ];
         }
+
+        return $count;
+    }
+
+    private static function isPassengerStop(array $stop): bool
+    {
+        return !($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']);
     }
 
     #[\Override]
