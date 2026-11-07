@@ -22,8 +22,10 @@ declare(strict_types=1);
 namespace App\Tests\DataImport;
 
 use App\DataImport\DataImporter;
+use App\DataImport\ImportJobCounts;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\SplittingDataImporter;
 use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
@@ -57,7 +59,7 @@ abstract class ImporterTestCase extends KernelTestCase
     protected array $progressTotals = [];
 
     /**
-     * Messages of the spawned tasks that failed, see runImporter().
+     * Messages of the jobs that failed, see runImporter().
      *
      * @var list<string>
      */
@@ -112,22 +114,37 @@ abstract class ImporterTestCase extends KernelTestCase
     }
 
     /**
-     * Runs the importer, then the tasks it spawned, as the import graph would: a spawned task that fails is recorded
-     * in $failures and the others still run.
+     * Runs the importer, then the jobs it handed out, as the import graph would: a job that fails is recorded in
+     * $failures and the others still run.
+     *
+     * @return ?bool whether the importer's node succeeded after its jobs, null when it handed out none
      */
-    protected function runImporter(DataImporter $importer, DataUpdateEvent $event): void
+    protected function runImporter(DataImporter $importer, DataUpdateEvent $event): ?bool
     {
         $importer->import($this->reporter(), $event);
 
-        foreach ($event->getSpawned() as $task) {
-            $this->assertSame($importer::class, $task['importer']);
+        $jobs = $event->getJobs();
+        if ($jobs === []) {
+            return null;
+        }
 
+        $this->assertInstanceOf(SplittingDataImporter::class, $importer);
+
+        $done   = 0;
+        $failed = 0;
+        foreach ($jobs as $payload) {
             try {
-                $importer->import($this->reporter(), new DataUpdateEvent($event->import, $task['payload']));
+                $importer->runJob($this->reporter(), new DataUpdateEvent($event->import), $payload);
+                $done++;
             } catch (\Exception $exception) {
                 $this->failures[] = $exception->getMessage();
+                $failed++;
             }
+
+            $importer->jobEnded($this->reporter(), new ImportJobCounts(count($jobs), $done, $failed));
         }
+
+        return $importer->jobsEnded($this->reporter(), new ImportJobCounts(count($jobs), $done, $failed));
     }
 
     /**

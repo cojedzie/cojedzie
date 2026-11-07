@@ -50,7 +50,7 @@ class ImportEntity implements Fillable, Referable
     private ?Carbon $finishedAt = null;
 
     /**
-     * Whether every task but the spawned ones was done, set when finished; null for imports from before the graph
+     * Whether every task was done, set when finished; null for imports from before the graph
      */
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $succeeded = null;

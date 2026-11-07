@@ -24,9 +24,11 @@ namespace App\DataImport;
 
 use App\Entity\ImportEntity;
 use App\Entity\ImportTaskEntity;
+use App\Message\RunImportJob;
 use App\Message\RunImportTask;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
@@ -37,15 +39,19 @@ use Symfony\Contracts\Service\ServiceProviderInterface;
 
 /**
  * The import as a persisted graph of tasks, one per importer, with the importers' dependencies. Workers run the
- * tasks as RunImportTask messages (see ImportTaskRunner), so several of them can work on one import.
+ * tasks as RunImportTask messages (see ImportTaskRunner), so several of them can work on one import. An importer may
+ * split its work into jobs (see SplittingDataImporter), run as RunImportJob messages while its task waits.
  *
- * Every change of a task's status that two workers could race for is a single UPDATE checked by the number of
- * rows it changed.
+ * Every change of a task's or job's status that two workers could race for is a single UPDATE checked by the number
+ * of rows it changed.
  */
 class ImportGraph
 {
+    // attempts at start()'s transaction when it deadlocks or times out on a lock
+    private const int ATTEMPTS = 3;
+
     /**
-     * @var list<string>|null ids of claimed tasks while running synchronously, null when they go to workers
+     * @var list<RunImportTask|RunImportJob>|null messages while running synchronously, null when they go to workers
      */
     private ?array $queue = null;
 
@@ -69,13 +75,44 @@ class ImportGraph
      *
      * @param ?string $checkInId Sentry check-in to report when the import finishes
      *
-     * @throws \LogicException when importers depend on missing importers or on each other, before anything is written
+     * @throws \LogicException     when importers depend on missing importers or on each other, before anything is written
+     * @throws RetryableException when the transaction deadlocked or timed out on a lock in every attempt
      */
     public function start(?string $checkInId = null): ImportEntity
     {
         $importers = $this->resolve();
 
-        $import = $this->em->wrapInTransaction(function () use ($importers, $checkInId): ImportEntity {
+        for ($attempt = 1; ; $attempt++) {
+            try {
+                $import = $this->create($importers, $checkInId);
+
+                break;
+            } catch (RetryableException $exception) {
+                // superseding can deadlock with a worker claiming a job of the superseded import (MySQL); a failed
+                // flush closes the entity manager, then nothing can be retried
+                if ($attempt >= self::ATTEMPTS || !$this->em->isOpen()) {
+                    throw $exception;
+                }
+
+                usleep(random_int(50_000, 250_000));
+            }
+        }
+
+        $this->dispatchReady($import);
+
+        return $import;
+    }
+
+    /**
+     * Supersedes an unfinished import and creates the new one with its tasks, in one transaction. A DBAL
+     * transaction, unlike EntityManager::wrapInTransaction(), leaves the entity manager open when it fails before the
+     * flush, so start() can try again.
+     *
+     * @param array<string, array{DataImporter, list<string>}> $importers
+     */
+    private function create(array $importers, ?string $checkInId): ImportEntity
+    {
+        return $this->connection()->transactional(function () use ($importers, $checkInId): ImportEntity {
             $now = $this->now();
 
             $this->supersede($now);
@@ -102,10 +139,6 @@ class ImportGraph
 
             return $import;
         });
-
-        $this->dispatchReady($import);
-
-        return $import;
     }
 
     /**
@@ -115,23 +148,31 @@ class ImportGraph
     public function dispatchReady(ImportEntity $import): void
     {
         foreach ($this->claimReady($import) as $taskId) {
-            if ($this->queue !== null) {
-                $this->queue[] = $taskId;
-            } else {
-                $this->bus->dispatch(new RunImportTask($taskId));
-            }
+            $this->send(new RunImportTask($taskId));
         }
     }
 
     /**
-     * Finishes the import when no task is left to run. It succeeded when every task but the spawned ones was done.
+     * Dispatches queued jobs, after the transaction that wrote them.
+     *
+     * @param list<string> $jobIds
+     */
+    public function dispatchJobs(array $jobIds): void
+    {
+        foreach ($jobIds as $jobId) {
+            $this->send(new RunImportJob($jobId));
+        }
+    }
+
+    /**
+     * Finishes the import when no task is left to run or waiting for its jobs. It succeeded when every task was done.
      *
      * @return bool true only for the one caller that finished it
      */
     public function finishIfComplete(ImportEntity $import): bool
     {
         $unfinished = (int) $this->connection()->fetchOne(
-            "SELECT COUNT(*) FROM import_task WHERE import_id = :import AND status IN ('pending', 'queued', 'running')",
+            "SELECT COUNT(*) FROM import_task WHERE import_id = :import AND status IN ('pending', 'queued', 'running', 'waiting')",
             ['import' => $import->getId()],
             ['import' => 'uuid'],
         );
@@ -140,9 +181,8 @@ class ImportGraph
             return false;
         }
 
-        // spawned tasks are the ones with a payload, their failure is retried by the next import
         $failed = (int) $this->connection()->fetchOne(
-            "SELECT COUNT(*) FROM import_task WHERE import_id = :import AND payload IS NULL AND status IN ('failed', 'skipped')",
+            "SELECT COUNT(*) FROM import_task WHERE import_id = :import AND status IN ('failed', 'skipped')",
             ['import' => $import->getId()],
             ['import' => 'uuid'],
         );
@@ -167,7 +207,7 @@ class ImportGraph
     }
 
     /**
-     * Runs the whole import in this process, spawned tasks included, without workers.
+     * Runs the whole import in this process, jobs included, without workers.
      */
     public function runSynchronously(): ImportEntity
     {
@@ -176,8 +216,12 @@ class ImportGraph
         try {
             $import = $this->start();
 
-            while (($taskId = array_shift($this->queue)) !== null) {
-                ($this->runner)()->run($taskId);
+            while (($message = array_shift($this->queue)) !== null) {
+                if ($message instanceof RunImportJob) {
+                    ($this->runner)()->runJob($message->jobId);
+                } else {
+                    ($this->runner)()->run($message->taskId);
+                }
             }
 
             // an import without tasks has no task to finish it
@@ -202,14 +246,32 @@ class ImportGraph
     }
 
     /**
-     * Ends unfinished imports, so a stalled one can't block the import forever. Their tasks still running finish,
-     * but nothing more runs.
+     * Ends unfinished imports, so a stalled one can't block the import forever. Their tasks and jobs still running
+     * finish, but nothing more runs.
      */
     private function supersede(Carbon $now): void
     {
         $this->connection()->executeStatement(
             "UPDATE import_task SET status = 'skipped', finished_at = :now
              WHERE status IN ('pending', 'queued') AND import_id IN (SELECT id FROM import WHERE finished_at IS NULL)",
+            ['now' => $now],
+            ['now' => 'datetime'],
+        );
+
+        $this->connection()->executeStatement(
+            "UPDATE import_job SET status = 'skipped', finished_at = :now
+             WHERE status = 'queued' AND task_id IN (
+                 SELECT id FROM import_task WHERE import_id IN (SELECT id FROM import WHERE finished_at IS NULL)
+             )",
+            ['now' => $now],
+            ['now' => 'datetime'],
+        );
+
+        // a task whose jobs are all skipped would wait forever, one with a job still running ends with that job
+        $this->connection()->executeStatement(
+            "UPDATE import_task SET status = 'skipped', finished_at = :now
+             WHERE status = 'waiting' AND import_id IN (SELECT id FROM import WHERE finished_at IS NULL)
+               AND NOT EXISTS (SELECT 1 FROM import_job WHERE task_id = import_task.id AND status = 'running')",
             ['now' => $now],
             ['now' => 'datetime'],
         );
@@ -231,30 +293,12 @@ class ImportGraph
         $connection = $this->connection();
         $now        = $this->now();
 
-        $finished = $connection->fetchOne(
-            'SELECT finished_at FROM import WHERE id = :import',
-            ['import' => $import->getId()],
-            ['import' => 'uuid'],
-        );
-
-        // tasks spawned by a task of a superseded import
-        if ($finished !== null) {
-            $connection->executeStatement(
-                "UPDATE import_task SET status = 'skipped', finished_at = :now WHERE import_id = :import AND status = 'pending'",
-                ['now' => $now, 'import' => $import->getId()],
-                ['now' => 'datetime', 'import' => 'uuid'],
-            );
-
-            return [];
-        }
-
         $claimed = [];
         do {
             $skipped = false;
 
-            // only the importers' own tasks are dependencies, spawned ones matter only while pending
             $rows = $connection->fetchAllAssociative(
-                "SELECT id, status, dependencies FROM import_task WHERE import_id = :import AND (payload IS NULL OR status = 'pending')",
+                'SELECT id, status, dependencies FROM import_task WHERE import_id = :import',
                 ['import' => $import->getId()],
                 ['import' => 'uuid'],
             );
@@ -337,6 +381,15 @@ class ImportGraph
         }
 
         return $ordered;
+    }
+
+    private function send(RunImportTask|RunImportJob $message): void
+    {
+        if ($this->queue !== null) {
+            $this->queue[] = $message;
+        } else {
+            $this->bus->dispatch($message);
+        }
     }
 
     private function connection(): Connection

@@ -23,40 +23,36 @@ namespace App\Event;
 use App\Entity\ImportEntity;
 
 /**
- * What an importer's task gets: the import, the task's payload, and a way to add tasks to the import.
+ * What an importer's task gets: the import, and a way to split the importer's work into jobs.
  */
 class DataUpdateEvent
 {
     /**
-     * @var list<array{importer: string, payload: array, description: string}>
+     * @var list<array<string, mixed>>
      */
-    private array $spawned = [];
+    private array $jobs = [];
 
-    /**
-     * @param ?array $payload data of a spawned task, null for the importer's own task
-     */
     public function __construct(
         public readonly ImportEntity $import,
-        public readonly ?array $payload = null,
     ) {
     }
 
     /**
-     * Adds a task to the import, run once the importer returns. It has no dependencies and nothing depends on it,
-     * and its failure doesn't fail the import.
+     * Hands out a job, which any worker runs with SplittingDataImporter::runJob() once the importer returns. Only a
+     * SplittingDataImporter may add jobs, and only from its node, not from a job.
      *
-     * @param string $importer service id (class) of the importer to run with the payload
+     * @param array<string, mixed> $payload given to runJob(), stored as JSON
      */
-    public function spawn(string $importer, array $payload, string $description): void
+    public function addJob(array $payload): void
     {
-        $this->spawned[] = ['importer' => $importer, 'payload' => $payload, 'description' => $description];
+        $this->jobs[] = $payload;
     }
 
     /**
-     * @return list<array{importer: string, payload: array, description: string}>
+     * @return list<array<string, mixed>>
      */
-    public function getSpawned(): array
+    public function getJobs(): array
     {
-        return $this->spawned;
+        return $this->jobs;
     }
 }

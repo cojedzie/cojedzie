@@ -140,7 +140,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             fn (string $date) => $date === '2026-10-28' ? ['6', '8'] : ['6'],
         )->import($this->reporter(), $this->event);
 
-        $planned = array_map(fn (array $task) => $task['payload'], $this->event->getSpawned());
+        $planned = $this->event->getJobs();
         $this->assertCount(8, $planned);
         $this->assertSame(
             [['line' => self::PROVIDER . '::8', 'date' => '2026-10-28']],
@@ -292,10 +292,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             $this->scheduleDay(self::PROVIDER . '::6', '2026-10-28');
         });
 
-        $importer->import(
-            $this->reporter(),
-            new DataUpdateEvent($this->event->import, ['line' => self::PROVIDER . '::6', 'date' => '2026-10-28']),
-        );
+        $importer->runJob($this->reporter(), $this->event, ['line' => self::PROVIDER . '::6', 'date' => '2026-10-28']);
 
         $this->assertSame(['2026-10-28'], $this->scheduleDays());
     }
@@ -307,9 +304,10 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
         $this->expectException(UniqueConstraintViolationException::class);
 
-        $this->importer(fn (string $route, string $date) => [$this->row($route, $date)])->import(
+        $this->importer(fn (string $route, string $date) => [$this->row($route, $date)])->runJob(
             $this->reporter(),
-            new DataUpdateEvent($this->event->import, ['line' => self::PROVIDER . '::6', 'date' => '2026-10-29']),
+            $this->event,
+            ['line' => self::PROVIDER . '::6', 'date' => '2026-10-29'],
         );
     }
 

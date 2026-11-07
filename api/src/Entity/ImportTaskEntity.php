@@ -29,8 +29,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * A step of an import: one importer, or a task an importer spawned while it ran (with a payload). Workers run them
- * as RunImportTask messages, see ImportGraph.
+ * A node of an import: one importer. Workers run them as RunImportTask messages, see ImportGraph; the importer may
+ * split its work into jobs (ImportJobEntity).
  */
 #[ORM\Entity]
 #[ORM\Table('import_task')]
@@ -70,11 +70,6 @@ class ImportTaskEntity
         #[ORM\Column(type: Types::STRING)]
         private string $description,
         /**
-         * Given to the importer as DataUpdateEvent::$payload, null for the importer's own task
-         */
-        #[ORM\Column(type: Types::JSON, nullable: true)]
-        private ?array $payload = null,
-        /**
          * Ids of the tasks that must be done first
          */
         #[ORM\Column(type: Types::JSON)]
@@ -96,11 +91,6 @@ class ImportTaskEntity
     public function getImporter(): string
     {
         return $this->importer;
-    }
-
-    public function getPayload(): ?array
-    {
-        return $this->payload;
     }
 
     public function getDescription(): string

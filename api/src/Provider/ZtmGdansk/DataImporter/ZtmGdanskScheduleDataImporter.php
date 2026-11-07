@@ -20,8 +20,10 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\ImportJobCounts;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\SplittingDataImporter;
 use App\Event\DataUpdateEvent;
 use App\Exception\UnknownTrackVersionException;
 use App\Parser\Exception\EndOfStreamException;
@@ -46,7 +48,7 @@ use Psr\Clock\ClockInterface;
  * Imports the schedule per line and day of the window. A line+day is downloaded once: its schedule_day row,
  * written also when the day has no trips, says it was imported.
  */
-class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
+class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements SplittingDataImporter
 {
     final public const string SCHEDULE_PATH = "/stopTimes";
 
@@ -66,31 +68,24 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
     }
 
     /**
-     * The importer's own task plans the download and spawns a task per line+day, which imports it.
+     * Plans the download and hands out a job per line+day, which imports it.
      */
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
-        if ($event->payload === null) {
-            $plan = $this->plan($event);
+        $plan = $this->plan($event);
 
-            foreach ($plan as ['line' => $lineId, 'date' => $date]) {
-                $event->spawn(
-                    self::class,
-                    [
-                        'line' => $lineId,
-                        'date' => $date,
-                    ],
-                    sprintf('[ZTM Gdańsk] Schedule of %s on %s', $this->idUtils->strip($lineId), $date),
-                );
-            }
-
-            $reporter->milestone(sprintf('Planned %d line+days to download', count($plan)));
-
-            return;
+        foreach ($plan as $lineDay) {
+            $event->addJob($lineDay);
         }
 
-        ['line' => $lineId, 'date' => $date] = $event->payload;
+        $reporter->milestone(sprintf('Planned %d line+days to download', count($plan)));
+    }
+
+    #[\Override]
+    public function runJob(ProgressReporterInterface $reporter, DataUpdateEvent $event, array $payload): void
+    {
+        ['line' => $lineId, 'date' => $date] = $payload;
 
         try {
             $this->importLineDay($reporter, $event, $lineId, $date);
@@ -106,6 +101,21 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             // the tracks will likely be there for the next import, which plans the day again
             $reporter->milestone($exception->getMessage(), MilestoneType::Warning);
         }
+    }
+
+    #[\Override]
+    public function jobEnded(ProgressReporterInterface $reporter, ImportJobCounts $counts): void
+    {
+        $reporter->progress($counts->ended(), $counts->total, sprintf('%d failed', $counts->failed));
+    }
+
+    /**
+     * A failed line+day is retried by the next import, it doesn't fail the schedule.
+     */
+    #[\Override]
+    public function jobsEnded(ProgressReporterInterface $reporter, ImportJobCounts $counts): bool
+    {
+        return true;
     }
 
     /**

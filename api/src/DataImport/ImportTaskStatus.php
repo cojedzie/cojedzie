@@ -25,14 +25,16 @@ namespace App\DataImport;
 /**
  * Status of a task of the import graph.
  *
- * pending → queued (dispatched) → running → done | failed; pending → skipped when a dependency failed or was skipped,
- * or when a new import superseded this one.
+ * pending → queued (dispatched) → running → done | failed; running → waiting while the jobs its importer handed out
+ * run, then → running → done | failed when the last one ended (see SplittingDataImporter); pending → skipped when
+ * a dependency failed or was skipped, or when a new import superseded this one.
  */
 enum ImportTaskStatus: string
 {
     case Pending = 'pending';
     case Queued  = 'queued';
     case Running = 'running';
+    case Waiting = 'waiting';
     case Done    = 'done';
     case Failed  = 'failed';
     case Skipped = 'skipped';
