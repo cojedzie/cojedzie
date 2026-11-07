@@ -155,7 +155,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
             if (!$trips->contains($tripId)) {
                 $saveTrip($tripId, [
                     'operator_id' => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['agencyId']),
-                    'track_id'    => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, sprintf('R%sT%s', $stop['routeId'], $stop['tripId'])),
+                    'track_id'    => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, sprintf('R%sT%sV%s', $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])),
                     'provider_id' => ZtmGdanskProvider::IDENTIFIER,
                     'note'        => $stop['noteDescription'],
                 ]);

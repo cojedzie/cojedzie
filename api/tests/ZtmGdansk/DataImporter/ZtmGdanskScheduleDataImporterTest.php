@@ -140,7 +140,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         ], ['import_id' => 'uuid']);
 
         $this->connection->insert('track', [
-            'id'      => sprintf('%s::R%sT1', $provider, $symbol),
+            'id'      => sprintf('%s::R%sT1V1', $provider, $symbol),
             'line_id' => $id,
         ]);
     }
@@ -148,17 +148,18 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     private function row(string $route): array
     {
         return [
-            'routeId'         => $route,
-            'busServiceName'  => $route,
-            'tripId'          => 1,
-            'order'           => 1,
-            'agencyId'        => 1,
-            'noteDescription' => null,
-            'date'            => '2026-10-28',
-            'arrivalTime'     => '1899-12-30T12:00:00',
-            'departureTime'   => '1899-12-30T12:01:00',
-            'stopId'          => 100,
-            'stopSequence'    => 0,
+            'routeId'           => $route,
+            'busServiceName'    => $route,
+            'tripId'            => 1,
+            'topologyVersionId' => 1,
+            'order'             => 1,
+            'agencyId'          => 1,
+            'noteDescription'   => null,
+            'date'              => '2026-10-28',
+            'arrivalTime'       => '1899-12-30T12:00:00',
+            'departureTime'     => '1899-12-30T12:01:00',
+            'stopId'            => 100,
+            'stopSequence'      => 0,
         ];
     }
 

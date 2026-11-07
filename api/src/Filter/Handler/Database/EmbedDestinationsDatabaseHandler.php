@@ -35,6 +35,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
+use Psr\Clock\ClockInterface;
 
 class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
 {
@@ -44,7 +45,8 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
     public function __construct(
         private readonly EntityManagerInterface $em,
         private Converter $converter,
-        private readonly IdUtils $id
+        private readonly IdUtils $id,
+        private readonly ClockInterface $clock,
     ) {
         if ($this->converter instanceof CacheableConverter) {
             $this->converter = clone $this->converter;
@@ -66,10 +68,15 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
             ->join('t.stopsInTrack', 'ts')
             ->join('t.line', 'tl')
             ->where('ts.stop IN (:stops)')
+            // only tracks valid now, other versions of a route are past or future ones
+            ->andWhere('(t.validFrom IS NULL OR t.validFrom <= :now)')
+            ->andWhere('(t.validTo IS NULL OR t.validTo >= :now)')
             ->join('t.final', 'f')
             ->join('f.stop', 'fs')
+            ->setParameter('stops', $stops)
+            ->setParameter('now', $this->clock->now(), 'datetime')
             ->getQuery()
-            ->execute(['stops' => $stops]);
+            ->execute();
 
         $destinations = $tracks
             |> c\flatMap(fn (TrackEntity $track) => $track->getStopsInTrack()

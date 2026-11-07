@@ -27,9 +27,13 @@ use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskTrackDataImporter;
 use App\Service\IdUtils;
 use App\Tests\DataImport\ImporterTestCase;
 use App\Tests\DataImport\StubJsonStreamer;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 /**
- * Tracks come from the trips feed, their stops from the stops in trips feed, which isn't ordered by track.
+ * Tracks come from the stops in trips feed, which isn't ordered by track, versioned by its topology version; their
+ * line and description come from the trips feed. Unless a test says otherwise, every day of the window lists the same
+ * rows.
  */
 final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
 {
@@ -64,11 +68,11 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
 
     public function testTracksAreInserted(): void
     {
-        $this->import($this->event, [$this->trip(1, 'Oliwa (123)')], []);
+        $this->import($this->event, [$this->trip(1, 'Oliwa (123)')], [$this->stopInTrip(1, 100, 1)]);
 
         $this->assertSame([
             [
-                'id'          => 'trojmiasto::R6T1',
+                'id'          => 'trojmiasto::R6T1V1',
                 'provider_id' => 'trojmiasto',
                 'import_id'   => $this->event->import->getId()->toBinary(),
                 'line_id'     => 'trojmiasto::6',
@@ -88,11 +92,11 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ]);
 
         $this->assertSame([
-            ['trojmiasto::R6T1', 'trojmiasto::100', 0],
-            ['trojmiasto::R6T1', 'trojmiasto::101', 1],
-            ['trojmiasto::R6T1', 'trojmiasto::102', 2],
-            ['trojmiasto::R6T2', 'trojmiasto::100', 0],
-            ['trojmiasto::R6T2', 'trojmiasto::102', 1],
+            ['trojmiasto::R6T1V1', 'trojmiasto::100', 0],
+            ['trojmiasto::R6T1V1', 'trojmiasto::101', 1],
+            ['trojmiasto::R6T1V1', 'trojmiasto::102', 2],
+            ['trojmiasto::R6T2V1', 'trojmiasto::100', 0],
+            ['trojmiasto::R6T2V1', 'trojmiasto::102', 1],
         ], $this->trackStops());
     }
 
@@ -105,8 +109,8 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ]);
 
         $this->assertSame([
-            ['trojmiasto::R6T1', 'trojmiasto::100', 0],
-            ['trojmiasto::R6T1', 'trojmiasto::101', 1],
+            ['trojmiasto::R6T1V1', 'trojmiasto::100', 0],
+            ['trojmiasto::R6T1V1', 'trojmiasto::101', 1],
         ], $this->trackStops());
     }
 
@@ -145,8 +149,8 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ]);
 
         $this->assertSame([
-            ['trojmiasto::R6T1', 'trojmiasto::102', 0],
-            ['trojmiasto::R6T1', 'trojmiasto::100', 1],
+            ['trojmiasto::R6T1V1', 'trojmiasto::102', 0],
+            ['trojmiasto::R6T1V1', 'trojmiasto::100', 1],
         ], $this->trackStops());
     }
 
@@ -157,6 +161,110 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         $this->import($this->nextImport(), [$this->trip(1)], [$this->stopInTrip(1, 999, 1)]);
 
         $this->assertSame([], $this->trackStops());
+    }
+
+    public function testTrackIdCarriesTheTopologyVersion(): void
+    {
+        $this->import($this->event, [$this->trip(1)], [$this->stopInTrip(1, 100, 1, version: 2746)]);
+
+        $this->assertSame(['trojmiasto::R6T1V2746'], $this->connection->fetchFirstColumn('SELECT id FROM track'));
+    }
+
+    public function testTwoVersionsOfARouteCoexist(): void
+    {
+        $this->importDays($this->event, [
+            '2026-10-28' => [[$this->trip(1)], [
+                $this->stopInTrip(1, 100, 1, version: 100),
+                $this->stopInTrip(1, 101, 2, version: 100),
+            ]],
+            '2026-10-29' => [[$this->trip(1)], [
+                $this->stopInTrip(1, 100, 1, version: 101),
+                $this->stopInTrip(1, 102, 2, version: 101),
+            ]],
+        ]);
+
+        $this->assertSame([
+            ['id' => 'trojmiasto::R6T1V100', 'valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-28 22:59:59'],
+            ['id' => 'trojmiasto::R6T1V101', 'valid_from' => '2026-10-28 23:00:00', 'valid_to' => '2026-10-29 22:59:59'],
+        ], $this->rows('track', 'id', 'valid_from', 'valid_to'));
+
+        $this->assertSame([
+            ['trojmiasto::R6T1V100', 'trojmiasto::100', 0],
+            ['trojmiasto::R6T1V100', 'trojmiasto::101', 1],
+            ['trojmiasto::R6T1V101', 'trojmiasto::100', 0],
+            ['trojmiasto::R6T1V101', 'trojmiasto::102', 1],
+        ], $this->trackStops());
+    }
+
+    public function testTrackListedOnSeveralDaysIsValidForAllOfThem(): void
+    {
+        $this->importDays($this->event, [
+            '2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+            '2026-10-29' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+            '2026-10-30' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+        ]);
+
+        $this->assertSame([
+            ['id' => 'trojmiasto::R6T1V1', 'valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-30 22:59:59'],
+        ], $this->rows('track', 'id', 'valid_from', 'valid_to'));
+        $this->assertSame([['trojmiasto::R6T1V1', 'trojmiasto::100', 0]], $this->trackStops());
+    }
+
+    public function testValidToIsExtendedOnLaterImport(): void
+    {
+        $this->importDays($this->event, ['2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]]]);
+
+        $this->importDays($this->nextImport(), [
+            '2026-10-29' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+        ], new MockClock('2026-10-29 12:00:00'));
+
+        $this->assertSame('2026-10-29 22:59:59', $this->connection->fetchOne('SELECT valid_to FROM track'));
+    }
+
+    public function testValidFromIsKeptOnLaterImport(): void
+    {
+        $this->importDays($this->event, ['2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]]]);
+
+        $this->importDays($this->nextImport(), [
+            '2026-10-29' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
+        ], new MockClock('2026-10-29 12:00:00'));
+
+        $this->assertSame('2026-10-27 23:00:00', $this->connection->fetchOne('SELECT valid_from FROM track'));
+    }
+
+    public function testTrackStopsShareTheTracksValidity(): void
+    {
+        $this->importDays($this->event, [
+            '2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1), $this->stopInTrip(1, 101, 2)]],
+            '2026-10-29' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1), $this->stopInTrip(1, 101, 2)]],
+        ]);
+
+        $this->assertSame([
+            ['stop_id' => 'trojmiasto::100', 'valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-29 22:59:59'],
+            ['stop_id' => 'trojmiasto::101', 'valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-29 22:59:59'],
+        ], $this->rows('track_stop', 'stop_id', 'valid_from', 'valid_to'));
+    }
+
+    public function testTrackWithoutATripIsSkipped(): void
+    {
+        $this->import($this->event, [$this->trip(1)], [$this->stopInTrip(1, 100, 1), $this->stopInTrip(2, 100, 1)]);
+
+        $this->assertSame(['trojmiasto::R6T1V1'], $this->connection->fetchFirstColumn('SELECT id FROM track'));
+        $this->assertSame([['trojmiasto::R6T1V1', 'trojmiasto::100', 0]], $this->trackStops());
+    }
+
+    public function testSkippedTracksAreReportedPerDay(): void
+    {
+        $this->importDays($this->event, [
+            '2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1), $this->stopInTrip(2, 100, 1)]],
+            // a whole day missing from the trips feed
+            '2026-10-29' => [[], [$this->stopInTrip(2, 100, 1), $this->stopInTrip(3, 100, 1)]],
+        ]);
+
+        $this->assertSame([
+            'Skipped 1 tracks of 2026-10-28 without a trip in the trips feed',
+            'Skipped 2 tracks of 2026-10-29 without a trip in the trips feed',
+        ], $this->warnings);
     }
 
     /**
@@ -171,17 +279,41 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         return $event;
     }
 
+    /**
+     * Imports with every day of the window listing the same trips and stops in trips.
+     */
     private function import(DataUpdateEvent $event, array $trips, array $stopsInTrips): void
     {
         $config = $this->config();
 
+        $this->importWith($event, fn (string $url) => $url === $config->tripsUrl ? $trips : $stopsInTrips, $this->clock());
+    }
+
+    /**
+     * Imports with only the given days listing anything.
+     *
+     * @param array<string, array{list<array>, list<array>}> $days trips and stops in trips, by date
+     */
+    private function importDays(DataUpdateEvent $event, array $days, ?ClockInterface $clock = null): void
+    {
+        $config = $this->config();
+
+        $this->importWith($event, function (string $url, string $branch) use ($config, $days) {
+            [$trips, $stopsInTrips] = $days[explode('.', $branch)[0]] ?? [[], []];
+
+            return $url === $config->tripsUrl ? $trips : $stopsInTrips;
+        }, $clock ?? $this->clock());
+    }
+
+    private function importWith(DataUpdateEvent $event, \Closure $rows, ClockInterface $clock): void
+    {
         new ZtmGdanskTrackDataImporter(
             $this->connection,
             new TableUpserter($this->connection),
             new IdUtils(),
-            new StubJsonStreamer(fn (string $url) => $url === $config->tripsUrl ? $trips : $stopsInTrips),
-            $config,
-            $this->clock(),
+            new StubJsonStreamer($rows),
+            $this->config(),
+            $clock,
         )->import($this->reporter(), $event);
     }
 
@@ -194,13 +326,14 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ];
     }
 
-    private function stopInTrip(int $trip, int $stop, int $sequence): array
+    private function stopInTrip(int $trip, int $stop, int $sequence, int $version = 1): array
     {
         return [
-            'routeId'      => 6,
-            'tripId'       => $trip,
-            'stopId'       => $stop,
-            'stopSequence' => $sequence,
+            'routeId'           => 6,
+            'tripId'            => $trip,
+            'stopId'            => $stop,
+            'stopSequence'      => $sequence,
+            'topologyVersionId' => $version,
         ];
     }
 

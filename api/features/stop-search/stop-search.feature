@@ -72,6 +72,22 @@ Feature: Stop search
       | destination | lines |
       | oliwa-01    | 6     |
 
+  Scenario: Destinations come only from tracks running now
+    Given the current time is "2026-10-25 12:00" in "Europe/Warsaw"
+    And line 5 ran through "brama-wyzynna-01, zabianka-01" until "11:00"
+    And line 7 will run through "brama-wyzynna-01, brama-oliwska-01" from "13:00"
+    When I search for stops named "Brama Wyżynna" with destinations
+    Then stop "brama-wyzynna-01" should have destinations:
+      | destination | lines |
+      | oliwa-01    | 6     |
+
+  Scenario: Tracks through a stop are only the ones running now
+    Given the current time is "2026-10-25 12:00" in "Europe/Warsaw"
+    And line 5 ran through "brama-wyzynna-01, zabianka-01" until "11:00"
+    And line 7 will run through "brama-wyzynna-01, brama-oliwska-01" from "13:00"
+    When I list tracks through stop "brama-wyzynna-01"
+    Then I should see tracks of lines "6"
+
   Scenario: Search by the beginning of a name
     When I search for stops whose name begins with "Brama"
     Then I should see stop groups:

@@ -58,7 +58,7 @@ final class TrackStopsVariantsTest extends TestCase
         $step = new \ReflectionMethod($importer, 'groupTrackStops');
 
         $result = [];
-        foreach ($step->invoke($importer, $records, TrackStopsVariants::existingStopIds($ids)) as $trackId => $rows) {
+        foreach ($step->invoke($importer, $records, TrackStopsVariants::existingStopIds($ids)) as $trackId => [, $rows]) {
             $result[$trackId] = iterator_to_array($rows);
         }
 

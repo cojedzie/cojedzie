@@ -20,6 +20,7 @@
 
 namespace App\Provider\ZtmGdansk\DataImporter;
 
+use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\DataImport\TableUpserter;
 use App\Event\DataUpdateEvent;
@@ -34,10 +35,14 @@ use Ds\Set;
 use Kadet\Functional\Collections as c;
 use Psr\Clock\ClockInterface;
 
+/**
+ * Imports the tracks of every day of the schedule window, versioned by the topology version of their stops in trips.
+ *
+ * A track is valid from the start of the first day listing it (kept from an earlier import) to the end of the last
+ * one, so a superseded version stops being extended and expires on its own. Its stops share its validity.
+ */
 class ZtmGdanskTrackDataImporter extends AbstractDataImporter
 {
-    private int $trackCount;
-
     public function __construct(
         private readonly Connection $connection,
         private readonly TableUpserter $upserter,
@@ -51,8 +56,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     #[\Override]
     public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
-        $this->importTracksFromZtmApi($reporter->subtask('Import tracks'), $event);
-        $this->importStopsInTracksFromZtmApi($reporter->subtask('Import stops in tracks'), $event);
+        $this->connection->transactional(fn () => $this->importTracks($reporter->subtask('Import tracks'), $event));
     }
 
     #[\Override]
@@ -64,90 +68,9 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         ];
     }
 
-    private function importTracksFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
+    private function importTracks(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
     {
-        $this->trackCount = $this->connection->transactional(fn () => $this->upserter->upsert(
-            table: 'track',
-            rows: $this->getTracksFromZtmApi(),
-            providerId: ZtmGdanskProvider::IDENTIFIER,
-            import: $event->import,
-            reporter: $reporter,
-        ));
-
-        $reporter->progress($this->trackCount, comment: 'OK', finished: true);
-    }
-
-    private function importStopsInTracksFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
-    {
-        $this->connection->transactional(fn () => $this->importStopsInTracks($reporter, $event));
-    }
-
-    private function importStopsInTracks(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
-    {
-        $deleteStopsSql = $this->connection->createQueryBuilder()
-            ->delete('track_stop')
-            ->where('track_id = :tid')
-            ->getSQL();
-
-        $updateFinalStopInTrackSql = $this->connection->createQueryBuilder()
-            ->update('track')
-            ->set('final_id', ':sid')
-            ->where('id = :tid')
-            ->getSQL();
-
-        $deleteStopsPreparedQuery            = $this->connection->prepare($deleteStopsSql);
-        $updateFinalStopInTrackPreparedQuery = $this->connection->prepare($updateFinalStopInTrackSql);
-
-        $count = 0;
-        foreach ($this->getTrackStopsFromZtmApi($reporter, $event) as $trackId => $stops) {
-            // clean all stops related with this track
-            $deleteStopsPreparedQuery->bindValue('tid', $trackId);
-            $deleteStopsPreparedQuery->executeStatement();
-            $hasStops = false;
-
-            foreach ($stops as $stop) {
-                $hasStops = true;
-
-                $this->connection->insert(
-                    'track_stop',
-                    [
-                        ...$stop,
-                        'import_id' => $event->import->getId(),
-                    ],
-                    [
-                        'import_id' => 'uuid',
-                    ]
-                );
-            }
-
-            $reporter->progress($count += 1, max: $this->trackCount, comment: sprintf('Importing stops in track %s', $trackId));
-
-            if (!$hasStops) {
-                continue;
-            }
-
-            // set final id on track to last stop
-            $updateFinalStopInTrackPreparedQuery->bindValue('tid', $trackId);
-            $updateFinalStopInTrackPreparedQuery->bindValue('sid', $this->connection->lastInsertId());
-            $updateFinalStopInTrackPreparedQuery->executeStatement();
-        }
-
-        $reporter->progress($count, comment: 'Imported stops for all tracks', finished: true);
-    }
-
-    private function getTracksFromZtmApi()
-    {
-        foreach ($this->jsonStreamer->stream($this->config->tripsUrl, sprintf('%s.trips', ZtmGdanskProvider::feedDate($this->clock))) as $track) {
-            yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['id']) => [
-                'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $track['routeId']),
-                'description' => preg_replace('/\(\d+\)/', '', (string) $track['tripHeadsign']),
-            ];
-        }
-    }
-
-    private function getTrackStopsFromZtmApi(ProgressReporterInterface $reporter, DataUpdateEvent $event)
-    {
-        $records = $this->jsonStreamer->stream($this->config->stopsInTripsUrl, sprintf('%s.stopsInTrip', ZtmGdanskProvider::feedDate($this->clock)));
+        $dates = ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays);
 
         $existingStopIds = new Set(
             $this->connection->createQueryBuilder()
@@ -162,18 +85,156 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 ->iterateColumn()
         );
 
-        yield from $this->groupTrackStops($records, $existingStopIds);
+        // read before the stops in trips, so no stream is left idle while a day of tracks is written
+        $trips = $this->tripsByDate($dates);
+
+        /** @var array<string, array{string, string}> $days first and last date listing each track */
+        $days  = [];
+        $count = 0;
+
+        foreach ($this->jsonStreamer->streamDated($this->config->stopsInTripsUrl, 'stopsInTrip', $dates) as $date => $records) {
+            $tripsOfDay = $trips[$date] ?? [];
+            $skipped    = 0;
+
+            foreach ($this->groupTrackStops($records, $existingStopIds) as $trackId => [$tripId, $stops]) {
+                // a track listed on several days is written once, from the first day listing it
+                if (isset($days[$trackId])) {
+                    $days[$trackId] = [min($days[$trackId][0], $date), max($days[$trackId][1], $date)];
+                    continue;
+                }
+
+                // without its trip the track has no line
+                if (!isset($tripsOfDay[$tripId])) {
+                    $skipped++;
+                    continue;
+                }
+
+                $this->upserter->upsert(
+                    table: 'track',
+                    rows: [$trackId => $tripsOfDay[$tripId]],
+                    providerId: ZtmGdanskProvider::IDENTIFIER,
+                    import: $event->import,
+                );
+
+                $this->replaceTrackStops($trackId, $stops, $event);
+
+                $days[$trackId] = [$date, $date];
+                $reporter->progress($count += 1, comment: sprintf('Imported track %s', $trackId));
+            }
+
+            if ($skipped > 0) {
+                $reporter->milestone(
+                    sprintf('Skipped %d tracks of %s without a trip in the trips feed', $skipped, $date),
+                    MilestoneType::Warning,
+                );
+            }
+
+            unset($trips[$date]);
+        }
+
+        $this->writeValidity($days, $event);
+
+        $reporter->progress($count, comment: 'OK', finished: true);
+    }
+
+    /**
+     * Trips of the window's days, by date and their R{routeId}T{tripId} id, reduced to what a track needs.
+     *
+     * @param list<string> $dates
+     *
+     * @return array<string, array<string, array{line_id: string, description: string}>>
+     */
+    private function tripsByDate(array $dates): array
+    {
+        $result = [];
+        foreach ($this->jsonStreamer->streamDated($this->config->tripsUrl, 'trips', $dates) as $date => $trips) {
+            $result[$date] = [];
+
+            foreach ($trips as $trip) {
+                $result[$date][$trip['id']] = [
+                    'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $trip['routeId']),
+                    'description' => preg_replace('/\(\d+\)/', '', (string) $trip['tripHeadsign']),
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Replaces the stops of the track and sets its final stop to the last one.
+     *
+     * @param iterable<array{stop_id: string, track_id: string, sequence: int}> $stops
+     */
+    private function replaceTrackStops(string $trackId, iterable $stops, DataUpdateEvent $event): void
+    {
+        $this->connection->delete('track_stop', ['track_id' => $trackId]);
+
+        $final = null;
+        foreach ($stops as $stop) {
+            $this->connection->insert(
+                'track_stop',
+                [
+                    ...$stop,
+                    'import_id' => $event->import->getId(),
+                ],
+                [
+                    'import_id' => 'uuid',
+                ]
+            );
+
+            $final = $this->connection->lastInsertId();
+        }
+
+        // a track whose stops are all unknown has no final stop
+        $this->connection->update('track', ['final_id' => $final], ['id' => $trackId]);
+    }
+
+    /**
+     * Sets the validity of the tracks to the days listing them, keeping the start of tracks imported before, and
+     * gives their stops the same validity.
+     *
+     * @param array<string, array{string, string}> $days first and last date listing each track
+     */
+    private function writeValidity(array $days, DataUpdateEvent $event): void
+    {
+        $timezone = new \DateTimeZone(ZtmGdanskProvider::TIMEZONE);
+
+        foreach ($days as $trackId => [$first, $last]) {
+            $this->connection->executeStatement(
+                'UPDATE track SET valid_from = COALESCE(valid_from, :valid_from), valid_to = :valid_to WHERE id = :id',
+                [
+                    'valid_from' => new \DateTimeImmutable($first, $timezone),
+                    'valid_to'   => new \DateTimeImmutable($last . ' 23:59:59', $timezone),
+                    'id'         => $trackId,
+                ],
+                [
+                    'valid_from' => 'datetime',
+                    'valid_to'   => 'datetime',
+                ],
+            );
+        }
+
+        $this->connection->executeStatement(
+            'UPDATE track_stop SET
+                valid_from = (SELECT t.valid_from FROM track t WHERE t.id = track_stop.track_id),
+                valid_to = (SELECT t.valid_to FROM track t WHERE t.id = track_stop.track_id)
+            WHERE import_id = :import_id',
+            ['import_id' => $event->import->getId()],
+            ['import_id' => 'uuid'],
+        );
     }
 
     /**
      * Groups the stops in trips by track, keeps the stops that exist and numbers them in order of their sequence.
      *
      * The feed isn't ordered by track, so the groups are built in memory. Each record is reduced to its ids and
-     * sequence first, so the groups don't hold whole feed records.
+     * sequence first, so the groups don't hold whole feed records. Each track comes with the id of its trip in the
+     * trips feed.
      *
      * @param iterable<array> $records
      *
-     * @return iterable<string, iterable<array{stop_id: string, track_id: string, sequence: int}>>
+     * @return iterable<string, array{string, iterable<array{stop_id: string, track_id: string, sequence: int}>}>
      */
     private function groupTrackStops(iterable $records, Set $existingStopIds): iterable
     {
@@ -181,8 +242,9 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             |> c\map(fn (array $stop) => [
                 'track_id' => $this->idUtils->generate(
                     ZtmGdanskProvider::IDENTIFIER,
-                    sprintf("R%sT%s", $stop['routeId'], $stop['tripId'])
+                    sprintf('R%sT%sV%s', $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])
                 ),
+                'trip_id'  => sprintf('R%sT%s', $stop['routeId'], $stop['tripId']),
                 'stop_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
                 'sequence' => $stop['stopSequence'],
             ])
@@ -192,14 +254,17 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
             $generator = new SequenceGenerator();
 
             // a track whose stops are all unknown is still yielded, so its stops from an earlier import are removed
-            yield $trackId => $stops
-                |> c\filter(fn (array $stop) => $existingStopIds->contains($stop['stop_id']))
-                |> c\sortBy(fn (array $stop) => $stop['sequence'])
-                |> c\map(fn (array $stop) => [
-                    'stop_id'  => $stop['stop_id'],
-                    'track_id' => $trackId,
-                    'sequence' => $generator->next(),
-                ]);
+            yield $trackId => [
+                ($stops |> c\first())['trip_id'],
+                $stops
+                    |> c\filter(fn (array $stop) => $existingStopIds->contains($stop['stop_id']))
+                    |> c\sortBy(fn (array $stop) => $stop['sequence'])
+                    |> c\map(fn (array $stop) => [
+                        'stop_id'  => $stop['stop_id'],
+                        'track_id' => $trackId,
+                        'sequence' => $generator->next(),
+                    ]),
+            ];
         }
     }
 
