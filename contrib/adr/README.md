@@ -57,6 +57,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0023](0023-dependabot-merges-minor-and-patch-updates.md) | Dependabot merges minor and patch updates on its own | Accepted |
 | [0024](0024-releases-are-made-by-ci-from-tags-on-master-or-release-branches.md) | Releases are made by CI from tags, on master or on release branches | Accepted |
 | [0025](0025-imported-schedules-are-versioned-by-validity.md) | Imported schedules are versioned by validity | Accepted |
+| [0026](0026-the-import-is-a-graph-of-messages.md) | The import is a persisted graph of importers that may split into jobs | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
