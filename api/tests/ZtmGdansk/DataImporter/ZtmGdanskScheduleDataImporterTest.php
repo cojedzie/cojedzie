@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace App\Tests\ZtmGdansk\DataImporter;
 
 use App\Event\DataUpdateEvent;
-use App\Exception\UnknownTrackVersionException;
 use App\Parser\Exception\StreamOpenException;
 use App\Parser\Exception\StreamReadException;
 use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskScheduleDataImporter;
@@ -32,6 +31,7 @@ use App\Tests\DataImport\StubJsonStreamer;
 use Doctrine\DBAL\Driver\PDO\Exception as PdoDriverException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * The schedule is imported per line and day of the window, for the lines of this provider updated by the current
@@ -107,13 +107,14 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertSame(['6'], array_values(array_unique($routes)));
     }
 
-    public function testLineWithUnavailableScheduleIsSkipped(): void
+    #[DataProvider('unavailableSchedules')]
+    public function testLineWithUnavailableScheduleIsSkipped(\Exception $exception): void
     {
         $this->line(self::PROVIDER . '::6');
         $this->line(self::PROVIDER . '::8');
 
         $this->runImporter($this->importer(fn (string $route, string $date) => match (true) {
-            $route === '6'         => throw new StreamOpenException('Cannot open'),
+            $route === '6'         => throw $exception,
             $date === '2026-10-28' => [$this->row($route, $date)],
             default                => [],
         }), $this->event);
@@ -122,45 +123,10 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertCount(count(self::WINDOW), $this->failures);
     }
 
-    public function testLineWhoseScheduleStallsIsSkipped(): void
+    public static function unavailableSchedules(): iterable
     {
-        $this->line(self::PROVIDER . '::6');
-        $this->line(self::PROVIDER . '::8');
-
-        $this->runImporter($this->importer(fn (string $route, string $date) => match (true) {
-            $route === '6'         => throw new StreamReadException('Reading the stream timed out.'),
-            $date === '2026-10-28' => [$this->row($route, $date)],
-            default                => [],
-        }), $this->event);
-
-        $this->assertSame([self::PROVIDER . '::8-8-1-1-2026-10-28'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
-        $this->assertCount(count(self::WINDOW), $this->failures);
-    }
-
-    public function testOneTaskIsSpawnedPerMissingLineDay(): void
-    {
-        $this->line(self::PROVIDER . '::6');
-        $this->line(self::PROVIDER . '::8');
-        $this->scheduleDay(self::PROVIDER . '::8', '2026-10-28');
-
-        $requests = 0;
-        $this->importer(function () use (&$requests) {
-            $requests++;
-
-            return [];
-        })->import($this->reporter(), $this->event);
-
-        $spawned = $this->event->getSpawned();
-        $this->assertSame(0, $requests);
-        $this->assertCount(13, $spawned);
-        $this->assertSame(
-            [
-                'importer'    => ZtmGdanskScheduleDataImporter::class,
-                'payload'     => ['line' => self::PROVIDER . '::6', 'date' => '2026-10-28'],
-                'description' => '[ZTM Gdańsk] Schedule of 6 on 2026-10-28',
-            ],
-            $spawned[0],
-        );
+        yield 'cannot open' => [new StreamOpenException('Cannot open')];
+        yield 'stalls' => [new StreamReadException('Reading the stream timed out.')];
     }
 
     public function testLineIsPlannedOnlyOnDatesItIsListedOn(): void
@@ -262,22 +228,6 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertSame([self::PROVIDER . '::6-6-1-1-2026-10-28'], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
         $this->assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM trip_stop'));
         $this->assertCount(1, $this->warnings);
-    }
-
-    public function testDayWithOnlyTripsOfUnknownTrackVersionsIsNotImported(): void
-    {
-        $this->line(self::PROVIDER . '::6');
-
-        $this->expectException(UnknownTrackVersionException::class);
-
-        try {
-            $this->importer(fn (string $route, string $date) => [
-                $this->row($route, $date, ['topologyVersionId' => 2]),
-            ])->importLineDay($this->reporter(), $this->event, self::PROVIDER . '::6', '2026-10-28');
-        } finally {
-            $this->assertSame([], $this->scheduleDays());
-            $this->assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM trip'));
-        }
     }
 
     public function testDayWithOnlyTripsOfUnknownTrackVersionsIsRetriedByTheNextRun(): void

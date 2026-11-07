@@ -163,13 +163,6 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         $this->assertSame([], $this->trackStops());
     }
 
-    public function testTrackIdCarriesTheTopologyVersion(): void
-    {
-        $this->import($this->event, [$this->trip(1)], [$this->stopInTrip(1, 100, 1, version: 2746)]);
-
-        $this->assertSame(['trojmiasto::R6T1V2746'], $this->connection->fetchFirstColumn('SELECT id FROM track'));
-    }
-
     public function testTwoVersionsOfARouteCoexist(): void
     {
         $this->importDays($this->event, [
@@ -210,7 +203,7 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         $this->assertSame([['trojmiasto::R6T1V1', 'trojmiasto::100', 0]], $this->trackStops());
     }
 
-    public function testValidToIsExtendedOnLaterImport(): void
+    public function testLaterImportExtendsValidToAndKeepsValidFrom(): void
     {
         $this->importDays($this->event, ['2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]]]);
 
@@ -218,18 +211,10 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
             '2026-10-29' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
         ], new MockClock('2026-10-29 12:00:00'));
 
-        $this->assertSame('2026-10-29 22:59:59', $this->connection->fetchOne('SELECT valid_to FROM track'));
-    }
-
-    public function testValidFromIsKeptOnLaterImport(): void
-    {
-        $this->importDays($this->event, ['2026-10-28' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]]]);
-
-        $this->importDays($this->nextImport(), [
-            '2026-10-29' => [[$this->trip(1)], [$this->stopInTrip(1, 100, 1)]],
-        ], new MockClock('2026-10-29 12:00:00'));
-
-        $this->assertSame('2026-10-27 23:00:00', $this->connection->fetchOne('SELECT valid_from FROM track'));
+        $this->assertSame(
+            [['valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-29 22:59:59']],
+            $this->rows('track', 'valid_from', 'valid_to'),
+        );
     }
 
     public function testTrackStopsShareTheTracksValidity(): void

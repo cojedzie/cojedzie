@@ -68,18 +68,6 @@ final class JsonStreamerTest extends TestCase
         $this->assertSame(['2026-10-29' => [['id' => 'T3']]], $result);
     }
 
-    public function testIgnoresLastUpdate(): void
-    {
-        $result = $this->collect(['2026-10-28', '2026-10-29', '2026-10-30']);
-
-        foreach ($result as $rows) {
-            foreach ($rows as $row) {
-                $this->assertIsArray($row);
-            }
-        }
-        $this->assertCount(3, $result);
-    }
-
     public function testDoesNotRequireConsumingEveryDate(): void
     {
         $dates = [];

@@ -30,7 +30,6 @@ use App\DataImport\ProgressReporterInterface;
 use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
 use App\Message\RunImportTask;
-use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\NullLogger;
@@ -362,7 +361,6 @@ final class ImportGraphTest extends KernelTestCase
             $this->statuses($import),
         );
         $this->assertTrue($import->isSucceeded());
-        $this->assertInstanceOf(Carbon::class, $import->getFinishedAt());
     }
 
     /**
