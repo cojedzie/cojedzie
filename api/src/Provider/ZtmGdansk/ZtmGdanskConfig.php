@@ -28,6 +28,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class ZtmGdanskConfig
 {
+    private const int MAX_SCHEDULE_DAYS = 10;
+
     public function __construct(
         // TRISTAR API base: /departures, /displayMessages, /stopTimes
         #[Autowire(env: 'ZTM_GDANSK_API_URL')]
@@ -47,6 +49,16 @@ final readonly class ZtmGdanskConfig
         public string $agenciesUrl,
         #[Autowire(env: 'ZTM_GDANSK_DISPLAYS_URL')]
         public string $displaysUrl,
+        // how many days of schedules, today first, are kept; upstream publishes 10
+        #[Autowire(env: 'int:ZTM_GDANSK_SCHEDULE_DAYS')]
+        public int $scheduleDays,
     ) {
+        if ($scheduleDays < 1 || $scheduleDays > self::MAX_SCHEDULE_DAYS) {
+            throw new \InvalidArgumentException(sprintf(
+                'ZTM_GDANSK_SCHEDULE_DAYS must be between 1 and %d, %d given.',
+                self::MAX_SCHEDULE_DAYS,
+                $scheduleDays,
+            ));
+        }
     }
 }

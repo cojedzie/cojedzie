@@ -120,7 +120,7 @@ final class ZtmGdanskLiveDeparturesTest extends TestCase
             return $response instanceof MockResponse ? $response : new MockResponse($response);
         });
 
-        return new ZtmGdanskLiveDepartures($http, new ZtmGdanskConfig(self::API, '', '', '', '', '', ''));
+        return new ZtmGdanskLiveDepartures($http, new ZtmGdanskConfig(self::API, '', '', '', '', '', '', 7));
     }
 
     /**

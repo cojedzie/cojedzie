@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace App\Tests\ZtmGdansk;
 
+use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -45,5 +46,33 @@ final class ZtmGdanskFeedDateTest extends TestCase
         $clock = new MockClock($utc, 'UTC');
 
         $this->assertSame($expected, ZtmGdanskProvider::feedDate($clock));
+    }
+
+    public function testFeedDatesStartTodayInWarsaw(): void
+    {
+        $clock = new MockClock('2026-11-06 23:30', 'UTC');
+
+        $this->assertSame(['2026-11-07', '2026-11-08', '2026-11-09'], ZtmGdanskProvider::feedDates($clock, 3));
+    }
+
+    public function testFeedDatesCrossDstChange(): void
+    {
+        $clock = new MockClock('2026-10-24 12:00', 'UTC');
+
+        $this->assertSame(['2026-10-24', '2026-10-25', '2026-10-26'], ZtmGdanskProvider::feedDates($clock, 3));
+    }
+
+    #[DataProvider('outOfRangeDays')]
+    public function testScheduleDaysOutsideUpstreamRangeAreRejected(int $days): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new ZtmGdanskConfig('', '', '', '', '', '', '', $days);
+    }
+
+    public static function outOfRangeDays(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'eleven' => [11];
     }
 }

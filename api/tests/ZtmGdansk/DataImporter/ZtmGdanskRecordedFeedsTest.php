@@ -133,6 +133,7 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
             stopsInTripsUrl: self::FEEDS . '/stopsintrips.json',
             agenciesUrl: self::FEEDS . '/agencies.json',
             displaysUrl: self::FEEDS . '/displays.json',
+            scheduleDays: 7,
         );
     }
 

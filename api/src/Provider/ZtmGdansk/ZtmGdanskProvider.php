@@ -62,6 +62,21 @@ class ZtmGdanskProvider implements Provider
         return $clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->format('Y-m-d');
     }
 
+    /**
+     * Dates, today first, of the days of feeds to keep, in the feeds' time zone.
+     *
+     * @return list<string>
+     */
+    public static function feedDates(ClockInterface $clock, int $days): array
+    {
+        $today = $clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->setTime(0, 0);
+
+        return array_map(
+            static fn (int $offset) => $today->modify("+{$offset} days")->format('Y-m-d'),
+            range(0, $days - 1),
+        );
+    }
+
     #[\Override]
     public function getName(): string
     {
