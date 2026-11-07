@@ -20,6 +20,8 @@
 
 namespace App\Service;
 
+use App\Parser\Exception\StreamOpenException;
+use App\Parser\Exception\StreamReadException;
 use App\Parser\FileStringStream;
 use App\Parser\Json\BranchPathDecider;
 use App\Parser\Json\JsonStreamingParser;
@@ -38,5 +40,129 @@ class JsonStreamer
         $parser = new JsonStreamingParser(new BranchPathDecider($branch));
 
         return $parser($stream);
+    }
+
+    /**
+     * Matches a key of the top-level object of a dated feed, a date. Keys inside a day are field names, and dates
+     * inside a day are values, followed by a comma or a closing bracket, never by a colon.
+     */
+    private const string DATE_KEY = '/"(\d{4}-\d{2}-\d{2})"\s*:\s*/';
+
+    public function __construct(
+        // bytes read from the feed at once
+        private readonly int $readSize = 1 << 20,
+    ) {
+    }
+
+    /**
+     * Reads "<date>.<key>" rows of several dates of a dated feed, one day at a time.
+     *
+     * The streaming parser is far too slow for several days of the large dated feeds, and decoding a whole feed holds
+     * all of its days in memory. So the feed is read in chunks, cut into days at the top-level date keys, and only the
+     * requested days are decoded, each released before the next one. Dates absent from the feed are not yielded.
+     *
+     * @param string[] $dates
+     * @return iterable<string, iterable<array>> rows of the key, by date, in the order of the feed
+     */
+    public function streamDated(string $url, string $key, array $dates): iterable
+    {
+        $requested = array_flip($dates);
+
+        foreach ($this->days($url) as $date => $json) {
+            if (!isset($requested[$date])) {
+                continue;
+            }
+
+            yield $date => $this->rowsOf($url, $json, $key);
+        }
+    }
+
+    /**
+     * Decodes a day once its rows are read. A generator keeps the value it yielded until it yields the next one, so
+     * yielding decoded rows directly would keep the previous day in memory while the next one is decoded.
+     *
+     * @return \Generator<array>
+     */
+    private function rowsOf(string $url, string $json, string $key): \Generator
+    {
+        $day = $this->decode($url, $json);
+        unset($json);
+
+        $rows = $day[$key] ?? [];
+        unset($day);
+
+        yield from $rows;
+    }
+
+    /**
+     * Raw JSON of each day of a dated feed, by date, in the order of the feed. Only the current day is buffered.
+     *
+     * @return \Generator<string, string>
+     */
+    private function days(string $url): \Generator
+    {
+        $handle = @fopen($url, 'rb', false, stream_context_create(['http' => ['timeout' => 60.0]]));
+
+        if ($handle === false) {
+            throw new StreamOpenException(sprintf('Cannot open "%s": %s', $url, error_get_last()['message'] ?? 'unknown error'));
+        }
+
+        try {
+            $buffer = '';
+            $date   = null;
+
+            while (true) {
+                if (preg_match(self::DATE_KEY, $buffer, $match, PREG_OFFSET_CAPTURE)) {
+                    if ($date !== null) {
+                        yield $date => self::dayValue(substr($buffer, 0, $match[0][1]), ',');
+                    }
+
+                    $date   = $match[1][0];
+                    $buffer = substr($buffer, $match[0][1] + strlen($match[0][0]));
+
+                    continue;
+                }
+
+                $chunk = fread($handle, $this->readSize);
+
+                if ($chunk === false || stream_get_meta_data($handle)['timed_out']) {
+                    throw new StreamReadException(sprintf('Reading "%s" failed or timed out.', $url));
+                }
+
+                if ($chunk === '' && feof($handle)) {
+                    break;
+                }
+
+                $buffer .= $chunk;
+            }
+
+            if ($date !== null) {
+                // the last day is followed by the end of the top-level object
+                yield $date => self::dayValue($buffer, '}');
+            }
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    /**
+     * The value of a day, without what separates it from the next day or ends the feed.
+     */
+    private static function dayValue(string $json, string $terminator): string
+    {
+        $json = rtrim($json);
+
+        return str_ends_with($json, $terminator) ? substr($json, 0, -1) : $json;
+    }
+
+    private function decode(string $url, string $json): array
+    {
+        try {
+            $value = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new StreamReadException(sprintf('"%s" is not valid JSON: %s', $url, $exception->getMessage()), previous: $exception);
+        }
+
+        return is_array($value) ? $value : [];
     }
 }

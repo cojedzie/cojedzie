@@ -146,6 +146,7 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
                 private readonly string $feeds,
                 private readonly string $schedules,
             ) {
+                parent::__construct();
             }
 
             #[\Override]
