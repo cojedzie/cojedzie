@@ -74,6 +74,7 @@ services:
       COJEDZIE_RUNAS: ${COJEDZIE_UID:-1000}
     command: bin/console messenger:consume -vv --time-limit=86400 --limit=10 --memory-limit=128M main
     restart: unless-stopped
+    scale: 3
     depends_on:
       api-setup:
         condition: service_completed_successfully

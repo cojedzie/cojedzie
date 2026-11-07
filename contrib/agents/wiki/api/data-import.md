@@ -124,7 +124,8 @@ imports with `task api:update` (performance mode). Single-day reads (`stream()`,
   line+day is downloaded only if it has no row, so a daily run fetches the day that entered the window. The first
   run after deploy downloads everything: about 1,300 line+days, measured 20 minutes on 3 workers with the earlier version
   that ran a task per line+day (not measured since the job per line).
-- Workers scale with `docker compose up -d --scale worker=N` (production: replicas of the `worker` service).
+- Workers scale with `docker compose up -d --scale worker=N` (production: replicas of the `worker` service); the dev
+  stack runs 3 (`scale: 3` in `docker-compose.yml`).
 
 Known behaviour:
 
