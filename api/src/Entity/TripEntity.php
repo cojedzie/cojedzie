@@ -28,9 +28,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table('trip')]
-class TripEntity implements Entity, Fillable
+#[ORM\Index(columns: ['valid_to'])]
+class TripEntity implements Entity, Fillable, ValidityAwareInterface
 {
-    use ReferableEntityTrait, ProviderReferenceTrait, FillTrait, ImportedTrait;
+    use ReferableEntityTrait, ProviderReferenceTrait, FillTrait, ImportedTrait, ValidityTrait;
 
     /**
      * Operator of the trip
