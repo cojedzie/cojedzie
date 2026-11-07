@@ -32,7 +32,7 @@ final class Version20210429144033 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Add the secret of federated servers and the last status of their connections';
     }
 
     public function up(Schema $schema): void
