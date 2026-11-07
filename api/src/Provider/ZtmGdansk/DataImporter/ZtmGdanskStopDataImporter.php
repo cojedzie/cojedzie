@@ -30,6 +30,7 @@ use App\Service\IdUtils;
 use App\Service\JsonStreamer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Ds\Set;
 use Psr\Clock\ClockInterface;
 
 class ZtmGdanskStopDataImporter extends AbstractDataImporter
@@ -61,21 +62,40 @@ class ZtmGdanskStopDataImporter extends AbstractDataImporter
 
     private function getStopsFromZtmApi()
     {
-        foreach ($this->jsonStreamer->stream($this->config->stopsUrl, sprintf('%s.stops', ZtmGdanskProvider::feedDate($this->clock))) as $stop) {
-            // skip stops that are technical
-            if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
-                continue;
-            }
+        // each stop is imported once, from the earliest day that lists it
+        $seen = new Set();
 
-            $name = trim($stop['stopName'] ?? $stop['stopDesc']);
-            yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']) => [
-                'name'       => $name,
-                'variant'    => trim((string) ($stop['stopCode'] ?? $stop['subName'])) ?: null,
-                'latitude'   => $stop['stopLat'],
-                'longitude'  => $stop['stopLon'],
-                'on_demand'  => (bool) $stop['onDemand'],
-                'group_name' => $name,
-            ];
+        $days = $this->jsonStreamer->streamDated(
+            $this->config->stopsUrl,
+            'stops',
+            ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays),
+        );
+
+        foreach ($days as $stops) {
+            foreach ($stops as $stop) {
+                // skip stops that are technical
+                if ($stop['nonpassenger'] || $stop['virtual'] || $stop['depot']) {
+                    continue;
+                }
+
+                $id = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']);
+
+                if ($seen->contains($id)) {
+                    continue;
+                }
+
+                $seen->add($id);
+
+                $name = trim($stop['stopName'] ?? $stop['stopDesc']);
+                yield $id => [
+                    'name'       => $name,
+                    'variant'    => trim((string) ($stop['stopCode'] ?? $stop['subName'])) ?: null,
+                    'latitude'   => $stop['stopLat'],
+                    'longitude'  => $stop['stopLon'],
+                    'on_demand'  => (bool) $stop['onDemand'],
+                    'group_name' => $name,
+                ];
+            }
         }
     }
 

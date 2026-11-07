@@ -84,22 +84,39 @@ class ZtmGdanskLineDataImporter extends AbstractDataImporter
                 ->iterateColumn()
         );
 
-        foreach ($this->jsonStreamer->stream($this->config->routesUrl, sprintf('%s.routes', ZtmGdanskProvider::feedDate($this->clock))) as $line) {
-            $symbol   = $line['routeShortName'];
-            $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
+        // each line is imported once, from the earliest day that lists it
+        $seen = new Set();
 
-            // skip unknown operators
-            if (!$operators->contains($operator)) {
-                continue;
+        foreach ($this->jsonStreamer->streamDated(
+            $this->config->routesUrl,
+            'routes',
+            ZtmGdanskProvider::feedDates($this->clock, $this->config->scheduleDays),
+        ) as $lines) {
+            foreach ($lines as $line) {
+                $id = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['routeId']);
+
+                if ($seen->contains($id)) {
+                    continue;
+                }
+
+                $symbol   = $line['routeShortName'];
+                $operator = $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['agencyId']);
+
+                // skip unknown operators
+                if (!$operators->contains($operator)) {
+                    continue;
+                }
+
+                $seen->add($id);
+
+                yield $id => [
+                    'symbol'      => $symbol,
+                    'type'        => $this->getLineType($line),
+                    'night'       => preg_match('/^N\d{1,3}$/', (string) $symbol),
+                    'fast'        => preg_match('/^[A-MO-Z]$/', (string) $symbol),
+                    'operator_id' => $operator,
+                ];
             }
-
-            yield $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $line['routeId']) => [
-                'symbol'      => $symbol,
-                'type'        => $this->getLineType($line),
-                'night'       => preg_match('/^N\d{1,3}$/', (string) $symbol),
-                'fast'        => preg_match('/^[A-MO-Z]$/', (string) $symbol),
-                'operator_id' => $operator,
-            ];
         }
     }
 

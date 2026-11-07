@@ -82,6 +82,41 @@ final class ZtmGdanskStopDataImporterTest extends ImporterTestCase
         ], $this->connection->fetchAllNumeric('SELECT name, variant, group_name FROM stop ORDER BY id'));
     }
 
+    public function testStopOnlyListedOnALaterDayIsImported(): void
+    {
+        $this->importDays([
+            '2026-10-28' => [$this->stop(1, 'Pierwszy', '01')],
+            '2026-10-30' => [$this->stop(2, 'Drugi', '01')],
+        ]);
+
+        $this->assertSame([['trojmiasto::1'], ['trojmiasto::2']], $this->connection->fetchAllNumeric('SELECT id FROM stop ORDER BY id'));
+    }
+
+    public function testTodaysVersionWinsOverLaterDays(): void
+    {
+        $this->importDays([
+            '2026-10-28' => [$this->stop(1, 'Dzisiejszy', '01')],
+            '2026-10-29' => [$this->stop(1, 'Jutrzejszy', '01')],
+        ]);
+
+        $this->assertSame([['Dzisiejszy']], $this->connection->fetchAllNumeric('SELECT name FROM stop'));
+    }
+
+    /**
+     * @param array<string, list<array<string, mixed>>> $days stops of the feed by date
+     */
+    private function importDays(array $days): void
+    {
+        new ZtmGdanskStopDataImporter(
+            $this->connection,
+            new TableUpserter($this->connection),
+            new StubJsonStreamer(fn (string $url, string $branch) => $days[strtok($branch, '.')] ?? []),
+            new IdUtils(),
+            $this->config(),
+            $this->clock(),
+        )->import($this->reporter(), $this->newImport());
+    }
+
     private function import(DataUpdateEvent $event, array $stops): void
     {
         new ZtmGdanskStopDataImporter(
