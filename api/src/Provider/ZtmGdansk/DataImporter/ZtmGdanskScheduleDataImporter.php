@@ -89,8 +89,13 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter
 
         try {
             $this->importLineDay($reporter, $event, $lineId, $date);
-        } catch (UniqueConstraintViolationException) {
-            // another import (one this run superseded) wrote the line+day after it was checked
+        } catch (UniqueConstraintViolationException $exception) {
+            // another import (one this run superseded) wrote the line+day after it was checked, any other
+            // collision is a failure
+            if (!$this->isImported($lineId, $date)) {
+                throw $exception;
+            }
+
             $reporter->milestone(sprintf('Line %s on %s was imported meanwhile', $lineId, $date));
         }
     }

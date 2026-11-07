@@ -58,8 +58,8 @@ A schedule only runs where a worker consumes its transport (`COJEDZIE_WORKER_QUE
 
 Use cron syntax for `COJEDZIE_SCHEDULE_*`, not `@daily`: in `services.yaml` a leading `@` is read as a service reference.
 
-`bin/docker-init.sh` runs migrations **and** a synchronous `app:update` on container start whenever migrations
-are out of date.
+`bin/docker-init.sh` runs migrations **and** `app:update --async` on container start whenever migrations
+are out of date: a first import of the whole window takes too long to block the start, so the workers run it.
 
 ## Provider importers
 
@@ -81,7 +81,9 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
   task spawns a task per planned line+day. The row is written also for a day without trips, so it isn't fetched
   again. Trip ids end with the service date, a trip of an unknown track version is skipped with a warning. A line+day
   whose feed can't be opened, parsed or read in time writes nothing and its task fails, so the next run retries it.
-  A unique violation (another import wrote the line+day after the check) ends the task as done.
+  A unique violation ends the task as done only when the line+day is imported now (another import wrote it after
+  the check); otherwise it fails. Importing the first day of the window also deletes the line's trips with
+  `valid_to IS NULL`, imported before trips had validity, in the same transaction.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
 ## Stale data (ADR 0010)
@@ -100,6 +102,8 @@ nothing refers to anymore (a `schedule_day` row keeps its import: the row cascad
   (unfinished and started less than `COJEDZIE_IMPORT_TIMEOUT` ago, default `6 hours`).
 - One transaction; plain `DELETE … WHERE import_id IN (…) AND NOT EXISTS (…)`, checked on SQLite, MariaDB and
   Postgres.
+- Tracks and track stops from before validity got `valid_to` = the end of the migration day by a data migration
+  (`Version20261107120000`), so they expire with the undated trips.
 
 Tests: `tests/DataImport/ImporterTestCase` runs an importer against the test database inside a transaction rolled
 back after each test, with `StubJsonStreamer` serving inline feed rows; `runImporter()` also runs the tasks an

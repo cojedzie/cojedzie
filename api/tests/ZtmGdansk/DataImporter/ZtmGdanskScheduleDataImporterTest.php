@@ -28,6 +28,7 @@ use App\Provider\ZtmGdansk\DataImporter\ZtmGdanskScheduleDataImporter;
 use App\Service\IdUtils;
 use App\Tests\DataImport\ImporterTestCase;
 use App\Tests\DataImport\StubJsonStreamer;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 /**
  * The schedule is imported per line and day of the window, for the lines of this provider updated by the current
@@ -273,17 +274,35 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     {
         $this->line(self::PROVIDER . '::6');
 
-        // another run writes the day after this one checked it wasn't imported
-        $this->importer(function (string $route, string $date) {
-            $this->scheduleDay(self::PROVIDER . '::6', $date);
+        // another run writes the day after this one checked it wasn't imported, so this one collides
+        $importer = $this->getMockBuilder(ZtmGdanskScheduleDataImporter::class)
+            ->setConstructorArgs([$this->connection, new IdUtils(), new StubJsonStreamer(fn () => []), $this->config(), $this->clock()])
+            ->onlyMethods(['importLineDay'])
+            ->getMock();
+        $importer->expects($this->once())->method('importLineDay')->willReturnCallback(function (): void {
+            $this->scheduleDay(self::PROVIDER . '::6', '2026-10-28');
+            $this->scheduleDay(self::PROVIDER . '::6', '2026-10-28');
+        });
 
-            return [];
-        })->import(
+        $importer->import(
             $this->reporter(),
             new DataUpdateEvent($this->event->import, ['line' => self::PROVIDER . '::6', 'date' => '2026-10-28']),
         );
 
-        $this->assertSame([], $this->scheduleDays());
+        $this->assertSame(['2026-10-28'], $this->scheduleDays());
+    }
+
+    public function testCollisionOfALineDayNotImportedIsAFailure(): void
+    {
+        $this->line(self::PROVIDER . '::6');
+        $this->trip(self::PROVIDER . '::6-6-1-1-2026-10-29', '2026-10-29 11:01:00');
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->importer(fn (string $route, string $date) => [$this->row($route, $date)])->import(
+            $this->reporter(),
+            new DataUpdateEvent($this->event->import, ['line' => self::PROVIDER . '::6', 'date' => '2026-10-29']),
+        );
     }
 
     private function line(string $id): void
@@ -303,6 +322,28 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->connection->insert('track', [
             'id'      => sprintf('%s::R%sT1V1', $provider, $symbol),
             'line_id' => $id,
+        ]);
+    }
+
+    /**
+     * A trip of line 6's track with a stop.
+     */
+    private function trip(string $id, string $validTo): void
+    {
+        $this->connection->insert('trip', [
+            'id'          => $id,
+            'provider_id' => self::PROVIDER,
+            'track_id'    => self::PROVIDER . '::R6T1V1',
+            'operator_id' => self::PROVIDER . '::1',
+            'valid_to'    => $validTo,
+        ]);
+        $this->connection->insert('trip_stop', [
+            'trip_id'   => $id,
+            'stop_id'   => self::PROVIDER . '::100',
+            'sequence'  => 0,
+            'arrival'   => self::NOW,
+            'departure' => self::NOW,
+            'valid_to'  => $validTo,
         ]);
     }
 
