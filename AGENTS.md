@@ -89,10 +89,11 @@ task benchmark:api                # phpbench
 ```
 
 - The dev stack is the single `docker-compose.yml`, built from the `dev` targets of the Dockerfiles. Default
-  services: `nginx`, `api`, `worker`, `schedule`, `frontend`, `storybook`, `mercure`, `mysql`, `clickhouse`,
-  `redis` (persistent state the workers share, e.g. the Sentry check-ins of running imports). The one-shot
-  `api-setup` (`composer install`, migrate, import) and `front-setup` (`npm install`, `build:server`) run first.
-  The first `up` imports provider data, which takes about 10 minutes. MySQL is the dev database.
+  services: `nginx`, `api`, `worker` (3 replicas, so import jobs run in parallel), `schedule`, `frontend`,
+  `storybook`, `mercure`, `mysql`, `clickhouse`, `redis` (persistent state the workers share, e.g. the Sentry
+  check-ins of running imports). The one-shot `api-setup` (`composer install`, migrate, import) and `front-setup`
+  (`npm install`, `build:server`) run first. The first `up` imports provider data, which takes about 10 minutes.
+  MySQL is the dev database.
 - Profiles: `--profile postgres`, `--profile elastic` (Elasticsearch/Kibana) and `--profile federated` (a second
   node with its own SQLite database `api/var/db/federated.db`). The node must be registered on the hub first:
   `task console -- federation:register <email> http://federated:8080`, then pass the printed id and secret as
