@@ -101,14 +101,18 @@ final class TestData
 
     /**
      * @param string[] $stopIds stops in the order the line visits them
+     * @param ?Carbon  $validFrom start of the track's validity, null for always
+     * @param ?Carbon  $validTo   end of the track's validity, null for until changed
      */
-    public function track(string $lineSymbol, array $stopIds): TrackEntity
+    public function track(string $lineSymbol, array $stopIds, ?Carbon $validFrom = null, ?Carbon $validTo = null): TrackEntity
     {
         $track = new TrackEntity();
         $track->fill([
             'id'   => $this->ids->generate(TestProvider::IDENTIFIER, sprintf('%s-%d', $lineSymbol, ++$this->tracks)),
             'line' => $this->line($lineSymbol),
         ]);
+        $track->setValidFrom($validFrom);
+        $track->setValidTo($validTo);
         $this->persist($track);
 
         $stopsInTrack = [];
@@ -120,6 +124,8 @@ final class TestData
                 'order' => $order + 1,
             ]);
             $stopInTrack->setImport($this->import());
+            $stopInTrack->setValidFrom($validFrom);
+            $stopInTrack->setValidTo($validTo);
 
             $this->em->persist($stopInTrack);
             $stopsInTrack[] = $stopInTrack;

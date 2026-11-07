@@ -23,6 +23,7 @@ Marker interface `Requirement`; all implementations are immutable.
 | `RelatedFilter($reference, ?$relationship)` | Restrict to records related to one or many `Referable` DTOs (e.g. `Stop::reference('123')`). Relationship defaults to the DTO class of the reference; it can also be a string key such as `'stop'` or `'destination'`. |
 | `LimitConstraint($offset, $count)` | Pagination. `LimitConstraint::count(n)` shorthand. |
 | `Embed($relationship)` | Load an optional relation into the result (e.g. `destinations`, `track`, `$refs.stops`). |
+| `ValidityConstraint($at)` | Only versioned records valid at a moment (`ValidityAwareInterface`). Track repositories add one for now unless the requirements carry one; the `destinations` embed uses tracks valid now. |
 
 Requirements are also used **internally** between repositories — e.g. `Database\RealtimeScheduleDepartureRepository` queries the
 schedule repository with `RelatedFilter($stop, Stop::class)`, `FieldFilter('departure', $time, GreaterOrEqual)`,
@@ -103,6 +104,7 @@ Defaults:
 | `FieldFilter` | `FieldFilterDatabaseHandler` | `FieldFilterInMemoryHandler` |
 | `RelatedFilter` | `RelatedFilterDatabaseGenericHandler` | — |
 | `Embed` | `GenericWithDatabaseHandler` | `RefsEmbedHandler` |
+| `ValidityConstraint` | `ValidityDatabaseHandler` (registered by `GenericTrackRepository`) | — |
 
 Subclasses extend the map in `protected static function getHandlers()` (always `array_merge(parent::getHandlers(), …)`).
 Example — `GenericStopRepository` routes `Embed('destinations')` to `EmbedDestinationsDatabaseHandler`

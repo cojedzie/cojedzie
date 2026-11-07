@@ -27,10 +27,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table('track_stop')]
+#[ORM\Index(columns: ['valid_to'])]
 #[ORM\UniqueConstraint(name: "stop_in_track_idx", columns: ["stop_id", "track_id", "sequence"])]
-class TrackStopEntity implements Fillable, Referable
+class TrackStopEntity implements Fillable, Referable, ValidityAwareInterface
 {
-    use FillTrait, ImportedTrait;
+    use FillTrait, ImportedTrait, ValidityTrait;
 
     /**
      * Identifier for stop coming from provider

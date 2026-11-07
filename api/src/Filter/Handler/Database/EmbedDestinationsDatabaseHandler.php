@@ -28,13 +28,16 @@ use App\Dto\Stop;
 use App\Entity\LineEntity;
 use App\Entity\TrackEntity;
 use App\Entity\TrackStopEntity;
+use App\Event\HandleDatabaseRequirementEvent;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\PostProcessingHandler;
+use App\Filter\Requirement\ValidityConstraint;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
 use Kadet\Functional\Transforms as t;
+use Psr\Clock\ClockInterface;
 
 class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
 {
@@ -44,7 +47,9 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
     public function __construct(
         private readonly EntityManagerInterface $em,
         private Converter $converter,
-        private readonly IdUtils $id
+        private readonly IdUtils $id,
+        private readonly ClockInterface $clock,
+        private readonly ValidityDatabaseHandler $validity,
     ) {
         if ($this->converter instanceof CacheableConverter) {
             $this->converter = clone $this->converter;
@@ -60,7 +65,7 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
             |> c\map(fn (Stop $stop) => $this->id->generate($provider, $stop->getId()))
             |> c\toArray();
 
-        $tracks = $this->em->createQueryBuilder()
+        $builder = $this->em->createQueryBuilder()
             ->select('t', 'tl', 'f', 'fs', 'ts')
             ->from(TrackEntity::class, 't')
             ->join('t.stopsInTrack', 'ts')
@@ -68,8 +73,17 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
             ->where('ts.stop IN (:stops)')
             ->join('t.final', 'f')
             ->join('f.stop', 'fs')
-            ->getQuery()
-            ->execute(['stops' => $stops]);
+            ->setParameter('stops', $stops);
+
+        // destinations of the tracks valid now, other versions of a route are past or future ones
+        $this->validity->process(new HandleDatabaseRequirementEvent(
+            new ValidityConstraint($this->clock->now()),
+            $event->getRepository(),
+            $builder,
+            ['alias' => 't'],
+        ));
+
+        $tracks = $builder->getQuery()->execute();
 
         $destinations = $tracks
             |> c\flatMap(fn (TrackEntity $track) => $track->getStopsInTrack()
