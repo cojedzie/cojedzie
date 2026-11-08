@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\DepartureHistory;
 
 use App\Provider\Live\LiveDeparture;
+use Ds\Seq;
 
 /**
  * Where recorded departures are kept: one per departure per stop, the newest observation wins.
@@ -48,4 +49,16 @@ interface DepartureHistory
      * @throws DepartureHistoryException
      */
     public function record(string $provider, \DateTimeImmutable $observedAt, iterable $departures): void;
+
+    /**
+     * The newest observation of each departure of a provider scheduled in [$from, $to), in any order.
+     *
+     * @param list<string> $stopIds only these stops, empty for any
+     * @param list<string> $lineIds only these lines, empty for any
+     *
+     * @return Seq<ObservedDeparture>
+     *
+     * @throws DepartureHistoryException
+     */
+    public function observed(string $provider, \DateTimeImmutable $from, \DateTimeImmutable $to, array $stopIds = [], array $lineIds = []): Seq;
 }

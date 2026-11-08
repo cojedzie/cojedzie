@@ -25,7 +25,10 @@ namespace App\ClickHouse;
 
 use App\DepartureHistory\DepartureHistory;
 use App\DepartureHistory\DepartureHistoryException;
+use App\DepartureHistory\ObservedDeparture;
+use App\Provider\Live\DepartureStatus;
 use App\Provider\Live\LiveDeparture;
+use Ds\Seq;
 use Kadet\Functional\Collections as c;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -94,6 +97,52 @@ final readonly class ClickHouseDepartureHistory implements DepartureHistory
         }
     }
 
+    #[\Override]
+    public function observed(string $provider, \DateTimeImmutable $from, \DateTimeImmutable $to, array $stopIds = [], array $lineIds = []): Seq
+    {
+        $bindings = ['provider' => $provider, 'from' => self::time($from), 'to' => self::time($to)];
+        $where    = ['provider = :provider', 'scheduled_at >= :from', 'scheduled_at < :to'];
+
+        if ($stopIds !== []) {
+            $where[]              = 'stop_id IN (:stop_ids)';
+            $bindings['stop_ids'] = $stopIds;
+        }
+
+        if ($lineIds !== []) {
+            $where[]              = 'line_id IN (:line_ids)';
+            $bindings['line_ids'] = $lineIds;
+        }
+
+        $sql = sprintf(
+            'SELECT stop_id, line_id, line_symbol, trip_key, scheduled_at, estimated_at, status, headsign, vehicle, duty, observed_at FROM %s FINAL WHERE %s',
+            self::TABLE,
+            implode(' AND ', $where),
+        );
+
+        try {
+            // a row that doesn't hydrate (an unknown status, a malformed time) fails the read like an unreachable server
+            return $this->connection->client()->select($sql, $bindings)->rows()
+                |> c\toSeq()
+                |> c\map(fn (array $row) => new ObservedDeparture(
+                    new LiveDeparture(
+                        stopId: $row['stop_id'],
+                        lineId: $row['line_id'],
+                        lineSymbol: $row['line_symbol'],
+                        tripKey: $row['trip_key'],
+                        scheduledAt: self::parse($row['scheduled_at']),
+                        estimatedAt: $row['estimated_at'] !== null ? self::parse($row['estimated_at']) : null,
+                        status: DepartureStatus::from($row['status']),
+                        headsign: $row['headsign'],
+                        vehicle: $row['vehicle'],
+                        duty: $row['duty'],
+                    ),
+                    self::parse($row['observed_at']),
+                ));
+        } catch (\Exception|\ValueError|\TypeError $exception) {
+            throw new DepartureHistoryException('Departures could not be read: ' . $exception->getMessage(), previous: $exception);
+        }
+    }
+
     /**
      * Changing the TTL rewrites the table's parts, so it is changed only when the configured retention differs.
      */
@@ -114,5 +163,10 @@ final readonly class ClickHouseDepartureHistory implements DepartureHistory
     private static function time(\DateTimeImmutable $time): string
     {
         return $time->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+    }
+
+    private static function parse(string $time): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable($time, new \DateTimeZone('UTC'));
     }
 }

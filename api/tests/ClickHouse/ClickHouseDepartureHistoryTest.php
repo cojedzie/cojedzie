@@ -73,6 +73,58 @@ final class ClickHouseDepartureHistoryTest extends TestCase
     }
 
     #[Group('clickhouse')]
+    public function testObservedReturnsTheNewestObservation(): void
+    {
+        [$history] = $this->history();
+
+        $history->record('trojmiasto', new \DateTimeImmutable('2026-11-01 11:00:00 UTC'), [$this->departure('2026-11-01T11:14:00Z')]);
+        $history->record('trojmiasto', new \DateTimeImmutable('2026-11-01 11:00:20 UTC'), [$this->departure('2026-11-01T11:12:03+00:00')]);
+
+        $observed = $history->observed('trojmiasto', new \DateTimeImmutable('2026-11-01 00:00:00 UTC'), new \DateTimeImmutable('2026-11-02 00:00:00 UTC'));
+
+        $this->assertCount(1, $observed);
+        $this->assertEquals(new \DateTimeImmutable('2026-11-01 11:12:03 UTC'), $observed[0]->departure->estimatedAt);
+        $this->assertEquals(new \DateTimeImmutable('2026-11-01 11:13:00 UTC'), $observed[0]->departure->scheduledAt);
+        $this->assertEquals(new \DateTimeImmutable('2026-11-01 11:00:20 UTC'), $observed[0]->observedAt);
+        $this->assertSame(DepartureStatus::Realtime, $observed[0]->departure->status);
+        $this->assertSame('12@2026-11-01T11:08:00Z', $observed[0]->departure->tripKey);
+        $this->assertSame('9221', $observed[0]->departure->vehicle);
+    }
+
+    #[Group('clickhouse')]
+    public function testObservedIsBoundedByScheduledTimeStopsAndLines(): void
+    {
+        [$history] = $this->history();
+        $at        = new \DateTimeImmutable('2026-11-01 11:00:00 UTC');
+
+        $history->record('trojmiasto', $at, [
+            $this->departure(null),
+            $this->departure(null, stopId: '8228'),
+            $this->departure(null, lineId: '172'),
+            $this->departure(null, scheduled: '2026-11-01T13:13:00+01:00'),
+        ]);
+        $history->record('other', $at, [$this->departure(null)]);
+
+        $from = new \DateTimeImmutable('2026-11-01 11:13:00 UTC');
+        $to   = new \DateTimeImmutable('2026-11-01 12:13:00 UTC');
+        $keys = fn (iterable $observed) => array_map(
+            fn ($o) => $o->departure->stopId . '|' . $o->departure->lineId . '|' . $o->departure->scheduledAt->format('H:i'),
+            [...$observed],
+        );
+        $sorted = function (array $values): array {
+            sort($values);
+
+            return $values;
+        };
+
+        // from is inclusive, to is exclusive
+        $this->assertSame(['8227|171|11:13', '8227|172|11:13', '8228|171|11:13'], $sorted($keys($history->observed('trojmiasto', $from, $to))));
+        $this->assertSame(['8228|171|11:13'], $keys($history->observed('trojmiasto', $from, $to, stopIds: ['8228'])));
+        $this->assertSame(['8227|172|11:13'], $keys($history->observed('trojmiasto', $from, $to, stopIds: ['8227', '8228'], lineIds: ['172'])));
+        $this->assertSame([], $keys($history->observed('trojmiasto', $from, $to, stopIds: ["8227' OR 1=1 --"])));
+    }
+
+    #[Group('clickhouse')]
     public function testRetentionFollowsTheConfiguration(): void
     {
         [$history, $connection] = $this->history(retentionDays: 30);
@@ -113,14 +165,14 @@ final class ClickHouseDepartureHistoryTest extends TestCase
             ->fetchOne('engine_full');
     }
 
-    private function departure(?string $estimated): LiveDeparture
+    private function departure(?string $estimated, string $stopId = '8227', string $lineId = '171', string $scheduled = '2026-11-01T12:13:00+01:00'): LiveDeparture
     {
         return new LiveDeparture(
-            stopId: '8227',
-            lineId: '171',
+            stopId: $stopId,
+            lineId: $lineId,
             lineSymbol: '171',
             tripKey: '12@2026-11-01T11:08:00Z',
-            scheduledAt: new \DateTimeImmutable('2026-11-01T12:13:00+01:00'),
+            scheduledAt: new \DateTimeImmutable($scheduled),
             estimatedAt: $estimated !== null ? new \DateTimeImmutable($estimated) : null,
             status: $estimated !== null ? DepartureStatus::Realtime : DepartureStatus::Scheduled,
             headsign: 'Oliwa',
