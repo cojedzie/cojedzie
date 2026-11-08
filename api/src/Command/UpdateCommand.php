@@ -20,8 +20,10 @@
 
 namespace App\Command;
 
+use App\DataImport\ImportGraph;
+use App\DataImport\ImportStatus;
+use App\Entity\ImportEntity;
 use App\Message\UpdateDataSources;
-use App\Service\DataUpdater;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,7 +33,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class UpdateCommand extends Command
 {
     public function __construct(
-        private readonly DataUpdater $updater,
+        private readonly ImportGraph $graph,
         private readonly MessageBusInterface $bus
     ) {
         parent::__construct('app:update');
@@ -54,10 +56,23 @@ class UpdateCommand extends Command
         if ($input->getOption('async')) {
             $this->bus->dispatch(new UpdateDataSources());
             $output->writeln("Update request sent to message queue.");
-        } else {
-            $this->updater->update();
+
+            return Command::SUCCESS;
         }
 
-        return Command::SUCCESS;
+        $import = $this->graph->runSynchronously();
+
+        $this->printSummary($import, $output);
+
+        return $import->getStatus() === ImportStatus::Succeeded ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    private function printSummary(ImportEntity $import, OutputInterface $output): void
+    {
+        $output->writeln(sprintf('Import %s %s.', $import->getId(), $import->getStatus()->value));
+        foreach ($this->graph->countTasks($import) as $status => $count) {
+            $output->writeln(sprintf('  %s: %d', $status, $count));
+        }
+        $output->writeln(sprintf('Peak memory: %d MB', memory_get_peak_usage(true) >> 20));
     }
 }

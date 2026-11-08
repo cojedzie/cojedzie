@@ -22,75 +22,44 @@ declare(strict_types=1);
 
 namespace App\Tests\MessageHandler;
 
+use App\DataImport\ImportGraph;
+use App\Entity\ImportEntity;
 use App\Message\UpdateDataSources;
 use App\MessageHandler\UpdateDataSourcesMessageHandler;
-use App\Schedule\ScheduleConfig;
-use App\Service\DataUpdater;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
-use Sentry\CheckInStatus;
-use Sentry\MonitorConfig;
-use Sentry\State\HubInterface;
 
 final class UpdateDataSourcesMessageHandlerTest extends TestCase
 {
-    /**
-     * @var list<array{string, CheckInStatus, ?MonitorConfig, ?string}>
-     */
-    private array $checkIns = [];
+    private TestHandler $logs;
 
-    public function testReportsSuccessfulUpdate(): void
+    public function testStartsTheImport(): void
     {
-        $this->handle($this->createStub(DataUpdater::class));
+        $graph = $this->createMock(ImportGraph::class);
+        $graph->expects($this->once())->method('start')->willReturn(new ImportEntity());
 
-        $this->assertCheckIns(CheckInStatus::ok());
+        $this->handle($graph);
+
+        $this->assertSame([], $this->logs->getRecords());
     }
 
-    public function testReportsFailedUpdate(): void
+    public function testImportThatFailsToStartIsLoggedInsteadOfRetried(): void
     {
-        $updater = $this->createStub(DataUpdater::class);
-        $updater->method('update')->willThrowException(new \RuntimeException('Source unavailable'));
+        $graph = $this->createStub(ImportGraph::class);
+        $graph->method('start')->willThrowException(new \LogicException('Importers depend on missing importers'));
 
-        $this->handle($updater);
+        $this->handle($graph);
 
-        $this->assertCheckIns(CheckInStatus::error());
+        $this->assertTrue($this->logs->hasCritical('Importers depend on missing importers'));
     }
 
-    private function handle(DataUpdater $updater): void
+    private function handle(ImportGraph $graph): void
     {
-        $hub = $this->createStub(HubInterface::class);
-        $hub->method('captureCheckIn')->willReturnCallback(
-            function (string $slug, CheckInStatus $status, $duration = null, ?MonitorConfig $config = null, ?string $id = null): string {
-                $this->checkIns[] = [$slug, $status, $config, $id];
+        $this->logs = new TestHandler();
 
-                return 'check-in-id';
-            }
-        );
-
-        $handler = new UpdateDataSourcesMessageHandler($updater, new ScheduleConfig(
-            updateDataSources: '30 2 * * *',
-            federationCheck: '* * * * *',
-            federationCleanup: '0 0 * * *',
-            collectStaleData: '0 6 * * *',
-            recordDepartures: '20 seconds',
-        ));
-        $handler->setSentryHub($hub);
-        $handler->setLogger(new NullLogger());
+        $handler = new UpdateDataSourcesMessageHandler($graph);
+        $handler->setLogger(new Logger('test', [$this->logs]));
         $handler(new UpdateDataSources());
-    }
-
-    private function assertCheckIns(CheckInStatus $result): void
-    {
-        $this->assertCount(2, $this->checkIns);
-
-        [[$slug, $status, $config], [$finishedSlug, $finishedStatus, , $finishedId]] = $this->checkIns;
-
-        $this->assertSame('update-data-sources', $slug);
-        $this->assertSame(CheckInStatus::inProgress(), $status);
-        $this->assertSame('30 2 * * *', $config?->getSchedule()->getValue());
-
-        $this->assertSame('update-data-sources', $finishedSlug);
-        $this->assertSame($result, $finishedStatus);
-        $this->assertSame('check-in-id', $finishedId);
     }
 }

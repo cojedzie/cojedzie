@@ -66,6 +66,8 @@ services:
     depends_on:
       api-setup:
         condition: service_completed_successfully
+      redis:
+        condition: service_started
 
   worker:
     <<: *api
@@ -77,6 +79,8 @@ services:
     depends_on:
       api-setup:
         condition: service_completed_successfully
+      redis:
+        condition: service_started
 
   # runs the schedules, like the production schedule service
   schedule:
@@ -90,6 +94,8 @@ services:
       api-setup:
         condition: service_completed_successfully
       clickhouse:
+        condition: service_started
+      redis:
         condition: service_started
 
   # installs frontend dependencies and builds the server, so the frontend can start on a fresh clone
@@ -240,6 +246,14 @@ services:
       timeout: 3s
       retries: 20
 
+  # persistent state the workers share: the Sentry check-ins of running imports (cache.import_check_ins)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
   mercure:
     image: dunglas/mercure
     restart: unless-stopped
@@ -260,3 +274,4 @@ volumes:
   mysql_data:
   es_data:
   clickhouse_data:
+  redis_data:

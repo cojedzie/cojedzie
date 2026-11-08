@@ -2,17 +2,63 @@
 
 ## `app:update`
 
-`bin/console app:update` (`Command/UpdateCommand` → `Service/DataUpdater`) creates an `ImportEntity`, then runs
-every `DataImport\DataImporter` (tagged `app.data_importer`) in topological dependency order, reporting progress
-through `ProgressReporterFactory` (console + `import` monolog channel). An importer whose dependencies are missing
-or circular makes the update fail with a `LogicException` naming it.
+The import is a persisted graph of importers (`DataImport/ImportGraph`, table `import_task`, one row per node), so
+several `main` workers run its steps in parallel. `ImportGraph::start()` creates an `ImportEntity` and one node per
+`DataImport\DataImporter` (tagged `app.data_importer`, a service locator keyed by class) with the importers'
+`getDependencies()` as node ids, then dispatches a `RunImportTask` message for each node whose dependencies are
+done. Nothing is added to the graph at runtime. An importer whose dependencies are missing or circular makes
+`start()` fail with a `LogicException` naming it, before anything is written. `ImportTaskRunner` (called by
+`RunImportTaskMessageHandler`) runs one node:
 
-Memory: `DataUpdater` raises `memory_limit` for the import only and restores it afterwards, because in production the
-import runs inside a long-lived messenger worker (`--memory-limit=128M`). Every run ends with a `Peak memory: N MB`
-milestone. Measured on 2026-10-28 with a full day of ZTM data (183 lines, 285k scheduled stops, about 8 minutes):
+- Node statuses (`ImportTaskStatus`): `pending` → `queued` (dispatched) → `running` → `done` | `failed`;
+  `skipped` when a dependency failed or was skipped, or when a new import superseded this one. Import statuses
+  (`ImportStatus`, column `import.status`): `running` → `succeeded` | `failed` (by its last node) | `superseded` (by
+  a new import). Every transition two workers could race for is one DQL `UPDATE … WHERE id = :id AND status =
+  :expected` checked by its affected-row count, so a dependent is dispatched once and a duplicate delivery does
+  nothing.
+- `ImportGraph` and `ImportTaskRunner` work on the entities (`ImportEntity`, `ImportTaskEntity`): reads are DQL
+  queries with `Query::HINT_REFRESH`, since other workers change the rows with UPDATE statements and the identity
+  map would return stale objects (in `app:update` one entity manager holds everything). Uuid parameters are bound
+  with the type `uuid` explicitly (DQL infers a string, which misses the binary column on SQLite and MySQL). Raw SQL
+  is only in importers, for batching and upserts.
+- Any `\Throwable` of the importer fails the node with its message in `error`; it is not retried within the run.
+  Messenger's default retries still apply to a handler that throws outside that (a transient database or transport
+  error in the bookkeeping), and a redelivery resumes it: when the claim fails, `run()` calls `ended()`
+  (`dispatchReady()` + `finishIfComplete()`) for an ended node. Duplicates of those are no-ops by their claims. A
+  `running` node is left to the delivery running it.
+- The import is finished when no node is `pending|queued|running`: whichever runner ends it first
+  (`… WHERE status = 'running'`) sets `succeeded` (no failed or skipped node) or `failed`, and `finished_at`.
+- `start()` supersedes the unfinished imports, each loaded as an entity: its pending and queued nodes are skipped
+  and it ends as `superseded`; its running nodes complete, but nothing more runs for it.
+- No reaper: a worker killed mid-node leaves that node `running`. The next run supersedes the import.
+
+### Events, check-ins and progress
+
+- `ImportGraph` dispatches `App\Event\ImportStartedEvent` once an import and its nodes are committed, and
+  `App\Event\ImportFinishedEvent` once when it ends: from the runner whose claim ended it, or from `start()` for each
+  import it superseded (before the new import's started event). Both carry the `ImportEntity` with its status.
+  `app:update` dispatches them too.
+- `App\Subscriber\ImportCronMonitorSubscriber` reports them to the Sentry cron monitor `update-data-sources`
+  (schedule `COJEDZIE_SCHEDULE_UPDATE_DATA_SOURCES`, `maxRuntime` 240 min): an in-progress check-in on start, whose id
+  it stores by import id in the cache pool `cache.import_check_ins` (Redis at `COJEDZIE_REDIS_URL`, a day's
+  lifetime; `cache.adapter.array` in the test env), and `ok` (succeeded) or `error` (failed, superseded) on finish,
+  then it deletes the key. Without a Sentry DSN the hub returns no check-in id and nothing is stored. An unreachable
+  Redis only logs cache warnings: the import doesn't depend on it. An import that fails to start opens no check-in;
+  the monitor reports the run as missed, and the handler logs the error as critical.
+- Nodes store their progress (`progress`, `progress_max`, `progress_comment`, integers and 255 characters) through
+  `DataImport\PersistingProgressReporter`, which wraps the reporter the runner gives a node: one DQL UPDATE by id at
+  most once a second, and always when `finished: true`. Subtask reporters aren't stored. Progress reported inside an
+  importer's own transaction (lines, stops) is written in that transaction, so it shows once it commits.
+
+`bin/console app:update` runs the same graph in-process (`ImportGraph::runSynchronously()`, no workers) and prints
+the node counts by status; `app:update --async` dispatches `UpdateDataSources`, whose handler only starts the graph.
+
+Memory: `ImportTaskRunner` raises `memory_limit` for each node only and restores it afterwards
+(`App\Utility\MemoryLimit::raisedWhile()`), because in production they run inside a long-lived messenger worker
+(`--memory-limit=128M`). `app:update` ends with a `Peak memory: N MB`
+line. Measured on 2026-10-28 with a full day of ZTM data (183 lines, 285k scheduled stops, about 8 minutes):
 48 MB peak in `prod`, 906 MB in `dev` with debug, because Doctrine keeps every query for the profiler. The limit
-(2G) is sized for debug, since `task api:update` runs in `dev`. `gc_collect_cycles()` between importers made no
-difference and was removed.
+(2G) is sized for debug, since `task api:update` runs in `dev`.
 
 Run it with `task api:update` (uses `COJEDZIE_API_MODE=performance` by default).
 
@@ -33,12 +79,13 @@ A schedule only runs where a worker consumes its transport (`COJEDZIE_WORKER_QUE
 - Production: `worker` consumes `main`; a separate `schedule` service (worker image) consumes
   `scheduler_default scheduler_hub scheduler_recorder`. The dev `docker-compose.yml` mirrors it.
 - The `standalone` image consumes `main scheduler_default`: it imports its own data but doesn't check nodes.
-- `UpdateDataSourcesMessageHandler` handles the import and reports the configured schedule to Sentry.
+- `UpdateDataSourcesMessageHandler` only starts the import; its Sentry check-ins come from the import events, see
+  [Events, check-ins and progress](#events-check-ins-and-progress).
 
 Use cron syntax for `COJEDZIE_SCHEDULE_*`, not `@daily`: in `services.yaml` a leading `@` is read as a service reference.
 
-`bin/docker-init.sh` runs migrations **and** a synchronous `app:update` on container start whenever migrations
-are out of date.
+`bin/docker-init.sh` runs migrations **and** `app:update --async` on container start whenever migrations
+are out of date: a first import of the whole window takes too long to block the start, so the workers run it.
 
 ## Provider importers
 
@@ -75,7 +122,9 @@ no import has written since. Then it removes the `import` rows nothing refers to
   Postgres.
 
 Tests: `tests/DataImport/ImporterTestCase` runs an importer against the test database inside a transaction rolled
-back after each test, with `StubJsonStreamer` serving inline feed rows. Per ADR 0001, importers are tested there, not
+back after each test, with `StubJsonStreamer` serving inline feed rows. `tests/DataImport/ImportGraphTest` covers the graph, its
+statuses, events and stored progress, `PersistingProgressReporterTest` the throttling and
+`tests/Subscriber/ImportCronMonitorSubscriberTest` the check-ins. Per ADR 0001, importers are tested there, not
 in Behat. Tests never call upstream: `ZtmGdanskRecordedFeedsTest` imports one day of feeds recorded from ZTM
 (`tests/ZtmGdansk/Resources/<date>/`, with a README on how to record a newer day) through the real parser, to catch
 changes in what ZTM publishes.

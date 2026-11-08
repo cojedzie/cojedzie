@@ -14,6 +14,18 @@ framework:
         # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
         #app: cache.adapter.apcu
 
-        # Namespaced pools use the above "app" backend by default
-        #pools:
-            #my.dedicated.cache: null
+        pools:
+            # Sentry check-ins of running imports, by import id, see App\Subscriber\ImportCronMonitorSubscriber; shared
+            # by the workers, as the one finishing an import is rarely the one that started it
+            cache.import_check_ins:
+                adapter: cache.adapter.redis
+                provider: '%env(COJEDZIE_REDIS_URL)%'
+                # longer than an import may run (maxRuntime of the check-in), so a lost import's id expires
+                default_lifetime: 86400
+
+when@test:
+    framework:
+        cache:
+            pools:
+                cache.import_check_ins:
+                    adapter: cache.adapter.array

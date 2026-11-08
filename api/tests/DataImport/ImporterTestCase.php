@@ -80,7 +80,7 @@ abstract class ImporterTestCase extends KernelTestCase
     }
 
     /**
-     * Starts a new import, as DataUpdater does before running the importers.
+     * Starts a new import, as ImportGraph does before running the importers.
      */
     protected function newImport(): DataUpdateEvent
     {
