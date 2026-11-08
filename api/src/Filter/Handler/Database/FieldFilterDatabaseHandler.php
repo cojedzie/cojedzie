@@ -20,8 +20,8 @@
 
 namespace App\Filter\Handler\Database;
 
-use App\Dto\ScheduledStop;
 use App\Dto\Stop;
+use App\Dto\TimetableEntry;
 use App\Dto\TrackStop;
 use App\Event\HandleDatabaseRequirementEvent;
 use App\Event\HandleRequirementEvent;
@@ -45,7 +45,7 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         Stop::class => [
             'name' => 'name',
         ],
-        ScheduledStop::class => [
+        TimetableEntry::class => [
             'departure' => 'departure',
             'arrival'   => 'arrival',
         ],

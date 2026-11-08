@@ -21,8 +21,8 @@
 namespace App\Provider\Database;
 
 use App\Dto\Departure;
-use App\Dto\ScheduledStop;
 use App\Dto\Stop;
+use App\Dto\TimetableEntry;
 use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
@@ -30,7 +30,7 @@ use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
-use App\Provider\ScheduleRepository;
+use App\Provider\TimetableRepository;
 use App\Utility\ModifierUtils;
 use Carbon\Carbon;
 use Ds\Seq;
@@ -45,11 +45,11 @@ use function App\Functions\setup;
  * timetable entry of the same line and scheduled time, live departures without one are kept, and departures that
  * already left are dropped. Providers can change how entries are matched or merged by overriding pair() and merge().
  */
-#[Exclude] // built by each provider from its own schedule and live source
-class RealtimeScheduleDepartureRepository implements DepartureRepository
+#[Exclude] // built by each provider from its own timetable and live source
+class RealtimeTimetableDepartureRepository implements DepartureRepository
 {
     public function __construct(
-        private readonly ScheduleRepository $schedule,
+        private readonly TimetableRepository $timetable,
         private readonly DepartureRepository $realtime,
         private readonly ClockInterface $clock,
     ) {
@@ -62,18 +62,18 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
 
         $now = Carbon::instance($this->clock->now())->second(0);
         // timetable from now, or earlier when a live departure was scheduled before now (it is late)
-        $first     = $real |> c\map(t\getter('scheduled')) |> c\append($now) |> c\min();
-        $scheduled = $this->getScheduledDepartures($stops, $first, ...$this->extractRequirements($requirements));
+        $first   = $real |> c\map(t\getter('scheduled')) |> c\append($now) |> c\min();
+        $planned = $this->getPlannedDepartures($stops, $first, ...$this->extractRequirements($requirements));
 
-        $result = $this->pair($scheduled, $real)
+        $result = $this->pair($planned, $real)
             |> c\filter(fn (Departure $departure) => $departure->getDeparture() > $now);
 
         return $this->processResultWithRequirements($result, $requirements);
     }
 
-    private function getScheduledDepartures($stop, Carbon $time, Requirement ...$requirements): Seq
+    private function getPlannedDepartures($stop, Carbon $time, Requirement ...$requirements): Seq
     {
-        return $this->schedule->all(
+        return $this->timetable->all(
             new RelatedFilter($stop, Stop::class),
             new FieldFilter('departure', $time, FieldFilterOperator::GreaterOrEqual),
             new Embed('track'),
@@ -83,12 +83,12 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
     }
 
     /**
-     * @param Seq<ScheduledStop> $schedule
+     * @param Seq<TimetableEntry> $planned
      * @param Seq<Departure>     $real
      *
      * @return Seq<Departure>
      */
-    protected function pair(Seq $schedule, Seq $real): Seq
+    protected function pair(Seq $planned, Seq $real): Seq
     {
         $key = function ($departure) {
             if ($departure instanceof Departure) {
@@ -98,7 +98,7 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
                     $departure->getLine()->getId(),
                     $departure->getScheduled()->format("H:i")
                 );
-            } elseif ($departure instanceof ScheduledStop) {
+            } elseif ($departure instanceof TimetableEntry) {
                 return sprintf(
                     "%s::%s::%s",
                     $departure->getStop()->getId(),
@@ -110,19 +110,19 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
             }
         };
 
-        // a new map, so taking the matched entries out of it leaves the given schedule untouched
-        $schedule = $schedule |> c\keyBy($key);
+        // a new map, so taking the matched entries out of it leaves the given planned ones untouched
+        $planned = $planned |> c\keyBy($key);
 
         $pairs = $real
             |> c\keyBy($key)
             |> c\map(fn (Departure $real, string $key) => [
                 'estimated' => $real,
-                'scheduled' => $schedule->remove($key, null),
+                'scheduled' => $planned->remove($key, null),
             ]);
 
-        /** @var Seq<array{estimated: Departure|null, scheduled: ScheduledStop|null}> $unmatched */
-        $unmatched = $schedule
-            |> c\map(fn (ScheduledStop $scheduled) => [
+        /** @var Seq<array{estimated: Departure|null, scheduled: TimetableEntry|null}> $unmatched */
+        $unmatched = $planned
+            |> c\map(fn (TimetableEntry $scheduled) => [
                 'estimated' => null,
                 'scheduled' => $scheduled,
             ]);
@@ -136,10 +136,10 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
             });
     }
 
-    protected function merge(?Departure $real, ?ScheduledStop $scheduled): Departure
+    protected function merge(?Departure $real, ?TimetableEntry $scheduled): Departure
     {
         if (!$real) {
-            return $this->convertScheduledStopToDeparture($scheduled);
+            return $this->convertTimetableEntryToDeparture($scheduled);
         }
 
         if (!$scheduled) {
@@ -147,16 +147,16 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
         }
 
         return setup(clone $real, function (Departure $departure) use ($scheduled) {
-            $departure->setDisplay($this->extractDisplayFromScheduledStop($scheduled));
+            $departure->setDisplay($this->extractDisplayFromTimetableEntry($scheduled));
             $departure->setTrack($scheduled->getTrack());
             $departure->setTrip($scheduled->getTrip());
         });
     }
 
-    protected function convertScheduledStopToDeparture(ScheduledStop $stop): Departure
+    protected function convertTimetableEntryToDeparture(TimetableEntry $stop): Departure
     {
         return setup(new Departure(), function (Departure $converted) use ($stop) {
-            $converted->setDisplay($this->extractDisplayFromScheduledStop($stop));
+            $converted->setDisplay($this->extractDisplayFromTimetableEntry($stop));
             $converted->setLine($stop->getTrack()->getLine());
             $converted->setTrack($stop->getTrack());
             $converted->setTrip($stop->getTrip());
@@ -165,7 +165,7 @@ class RealtimeScheduleDepartureRepository implements DepartureRepository
         });
     }
 
-    protected function extractDisplayFromScheduledStop(ScheduledStop $stop)
+    protected function extractDisplayFromTimetableEntry(TimetableEntry $stop)
     {
         return $stop->getTrack()->getDestination()->getName();
     }

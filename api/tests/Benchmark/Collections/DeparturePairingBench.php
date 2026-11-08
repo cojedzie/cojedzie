@@ -21,7 +21,7 @@
 namespace App\Tests\Benchmark\Collections;
 
 use App\Dto\Departure;
-use App\Dto\ScheduledStop;
+use App\Dto\TimetableEntry;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
@@ -41,9 +41,9 @@ final class DeparturePairingBench
     private DeparturePairingVariants $variants;
 
     /**
-     * @var list<ScheduledStop>
+     * @var list<TimetableEntry>
      */
-    private array $schedule;
+    private array $planned;
 
     /**
      * @var list<Departure>
@@ -67,19 +67,19 @@ final class DeparturePairingBench
      */
     public function setUp(array $params): void
     {
-        $this->variants                = new DeparturePairingVariants();
-        [$this->schedule, $this->real] = DeparturePairingVariants::fixture($params['scheduled'], $params['realtime']);
+        $this->variants               = new DeparturePairingVariants();
+        [$this->planned, $this->real] = DeparturePairingVariants::fixture($params['scheduled'], $params['realtime']);
 
         memory_reset_peak_usage();
     }
 
     public function benchMaterialized(): void
     {
-        $this->variants->materialized($this->schedule, $this->real);
+        $this->variants->materialized($this->planned, $this->real);
     }
 
     public function benchLazy(): void
     {
-        $this->variants->lazy($this->schedule, $this->real);
+        $this->variants->lazy($this->planned, $this->real);
     }
 }

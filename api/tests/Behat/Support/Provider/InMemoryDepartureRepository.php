@@ -37,7 +37,7 @@ use Kadet\Functional\Collections as c;
 
 /**
  * Live departures given by scenarios: what a realtime source reports for each requested stop. Joining them with the
- * timetable, ordering and filtering is left to RealtimeScheduleDepartureRepository, as for real providers.
+ * timetable, ordering and filtering is left to RealtimeTimetableDepartureRepository, as for real providers.
  */
 final class InMemoryDepartureRepository implements DepartureRepository
 {

@@ -20,7 +20,7 @@
 import { Stop } from "./stop";
 import { Moment } from "moment";
 
-export type ScheduledStop = {
+export type TimetableEntry = {
     stop: Stop;
     departure: Moment;
     arrival: Moment;
@@ -29,7 +29,7 @@ export type ScheduledStop = {
 
 export type Trip = {
     id: string;
-    schedule: ScheduledStop[];
+    timetable: TimetableEntry[];
     variant: string;
     description: string;
     $type: "vnd.cojedzie.trip";

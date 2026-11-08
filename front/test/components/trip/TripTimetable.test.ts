@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import moment from "moment";
-import TripSchedule from "@/components/trip/TripSchedule.vue";
+import TripTimetable from "@/components/trip/TripTimetable.vue";
 
 const stops = ["a", "b", "c"].map((id, i) => ({
     id,
@@ -10,15 +10,15 @@ const stops = ["a", "b", "c"].map((id, i) => ({
     order: i,
 }));
 const now = moment("2026-01-01T12:00:00");
-const schedule = [
+const timetable = [
     { order: 0, stop: stops[0], departure: moment(now).subtract(20, "minutes") },
     { order: 1, stop: stops[1], departure: moment(now).add(5, "minutes") },
     { order: 2, stop: stops[2], departure: moment(now).add(10, "minutes") },
 ];
 
-const mountSchedule = (attachTo?: HTMLElement) =>
-    mount(TripSchedule, {
-        props: { schedule, current: stops[1] },
+const mountTimetable = (attachTo?: HTMLElement) =>
+    mount(TripTimetable, {
+        props: { timetable, current: stops[1] },
         attachTo,
         global: {
             stubs: { StopLabel: { props: ["stop"], template: "<span>{{ stop.name }}</span>" } },
@@ -27,7 +27,7 @@ const mountSchedule = (attachTo?: HTMLElement) =>
         },
     });
 
-describe("TripSchedule", () => {
+describe("TripTimetable", () => {
     beforeEach(() => {
         vi.useFakeTimers({ toFake: ["Date"] });
         vi.setSystemTime(now.toDate());
@@ -35,14 +35,14 @@ describe("TripSchedule", () => {
     afterEach(() => vi.useRealTimers());
 
     it("lists the stops with their departure times", () => {
-        const items = mountSchedule().findAll(".trip__stop");
+        const items = mountTimetable().findAll(".trip__stop");
 
         expect(items.map(i => i.find(".trip__departure").text())).toEqual(["11:40", "12:05", "12:10"]);
         expect(items[1].text()).toContain("Stop b");
     });
 
     it("marks the visited and the current stops", () => {
-        const items = mountSchedule().findAll(".trip__stop");
+        const items = mountTimetable().findAll(".trip__stop");
 
         expect(items.map(i => i.classes("trip__stop--visited"))).toEqual([true, false, false]);
         expect(items.map(i => i.classes("trip__stop--current"))).toEqual([false, true, false]);
@@ -57,7 +57,7 @@ describe("TripSchedule", () => {
             vi.spyOn(proto, "clientWidth", "get").mockReturnValue(100),
         ];
 
-        const wrapper = mountSchedule(host);
+        const wrapper = mountTimetable(host);
 
         expect((wrapper.find(".trip__stops").element as HTMLElement).scrollLeft).toBe(300);
         spies.forEach(s => s.mockRestore());
@@ -72,7 +72,7 @@ describe("TripSchedule", () => {
             vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(100),
         ];
 
-        const wrapper = mountSchedule(host);
+        const wrapper = mountTimetable(host);
         const list = wrapper.find(".trip__stops").element as HTMLElement;
         list.scrollLeft = 10;
 

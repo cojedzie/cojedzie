@@ -48,9 +48,9 @@
         </div>
     </div>
     <ui-fold :visible="showTrip">
-        <trip-schedule
+        <trip-timetable
             v-if="trip"
-            :schedule="trip.schedule"
+            :timetable="trip.timetable"
             :current="departure.stop"
             :class="[`trip--${departure.line.type}`]"
         />
@@ -74,7 +74,7 @@ import UiFold from "@/components/ui/UiFold.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import LineSymbol from "@/components/line/LineSymbol.vue";
-import TripSchedule from "@/components/trip/TripSchedule.vue";
+import TripTimetable from "@/components/trip/TripTimetable.vue";
 
 defineOptions({ name: "DeparturesDeparture" });
 
@@ -83,7 +83,7 @@ const props = defineProps<{ departure: Departure }>();
 function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
     return {
         ...trip,
-        schedule: trip.schedule.map(scheduled => ({
+        timetable: trip.timetable.map(scheduled => ({
             ...scheduled,
             arrival: moment.parseZone(scheduled.arrival).local(),
             departure: moment.parseZone(scheduled.departure).local(),
@@ -110,7 +110,7 @@ const trip = computed(() => {
     return (
         trip && {
             ...trip,
-            schedule: trip.schedule.map(stop => ({
+            timetable: trip.timetable.map(stop => ({
                 ...stop,
                 arrival: stop.arrival.clone().add(props.departure.delay, "seconds"),
                 departure: stop.departure.clone().add(props.departure.delay, "seconds"),
@@ -138,7 +138,7 @@ async function downloadTrips() {
 
     const response = await api.get("v1_trip_details", {
         params: { id: props.departure.trip?.id },
-        version: "^1.0",
+        version: "^1.1",
     });
 
     if (response.status === 200) {

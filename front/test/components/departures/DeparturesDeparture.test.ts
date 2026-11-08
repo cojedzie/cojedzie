@@ -39,7 +39,7 @@ function mountDeparture(settings = {}, overrides = {}) {
                 UiIcon: true,
                 UiTooltip: true,
                 UiFold: { props: ["visible"], template: '<div v-if="visible" class="fold"><slot /></div>' },
-                TripSchedule: { props: ["schedule"], template: '<div class="trip">{{ schedule.length }}</div>' },
+                TripTimetable: { props: ["timetable"], template: '<div class="trip">{{ timetable.length }}</div>' },
             },
         },
     });
@@ -98,7 +98,7 @@ describe("DeparturesDeparture", () => {
             status: 200,
             data: {
                 id: "trip-1",
-                schedule: [
+                timetable: [
                     { arrival: "2026-10-30T12:10:00+01:00", departure: "2026-10-30T12:10:00+01:00" },
                     { arrival: "2026-10-30T12:12:00+01:00", departure: "2026-10-30T12:12:00+01:00" },
                 ],
@@ -112,7 +112,7 @@ describe("DeparturesDeparture", () => {
         await wrapper.find(".stop__actions button").trigger("click");
         await flushPromises();
 
-        expect(get).toHaveBeenCalledWith("v1_trip_details", { params: { id: "trip-1" }, version: "^1.0" });
+        expect(get).toHaveBeenCalledWith("v1_trip_details", { params: { id: "trip-1" }, version: "^1.1" });
         expect(wrapper.find(".trip").text()).toBe("2");
     });
 });

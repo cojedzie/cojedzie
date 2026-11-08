@@ -37,15 +37,15 @@ see [collections.md](collections.md).
 `Provider\Provider` is the contract a data source implements (repositories + metadata). Providers are
 autoconfigured and tagged by `_instanceof` in `config/services.yaml`.
 
-- `ZtmGdansk` (identifier `trojmiasto`) — the real provider. Static data (lines, stops, tracks, schedule,
+- `ZtmGdansk` (identifier `trojmiasto`) — the real provider. Static data (lines, stops, tracks, timetable,
   operators) lives in the DB via the `Database\Generic*Repository` classes bound with `withProvider()`;
   live departures (`ZtmGdanskRealtimeDepartureRepository`, TRISTAR `departures` API) and messages are fetched
   from ZTM Gdańsk open data. `REALTIME` entries carry estimates; `SCHEDULED` ones are the API's own timetable and fill gaps in the
   imported timetable. The legacy `delays` endpoint is no longer used.
 - `Dummy` — fake data for development. `test` — fake provider for Behat (see [testing.md](testing.md)).
 
-**Departures** of DB-backed providers come from `Database\RealtimeScheduleDepartureRepository`, built by the
-provider from its schedule repository, a live source and the clock. The live source is any `DepartureRepository`
+**Departures** of DB-backed providers come from `Database\RealtimeTimetableDepartureRepository`, built by the
+provider from its timetable repository, a live source and the clock. The live source is any `DepartureRepository`
 returning departures with estimates for the given stops; there is no separate realtime interface. The class joins
 the two: a live departure replaces the timetable entry with the same line and scheduled minute (keeping the
 timetable's destination, track and trip), live departures without a timetable entry are kept, departures that
@@ -60,7 +60,7 @@ environment variable each, defaults in `config/services.yaml`): `ZTM_GDANSK_API_
 (classes add `/departures`, `/displayMessages`, `/stopTimes`); every dataset file has its own full URL, because its
 resource id changes over time (`ZTM_GDANSK_STOPS_URL`, `_ROUTES_URL`, `_TRIPS_URL`, `_STOPS_IN_TRIPS_URL`,
 `_AGENCIES_URL`, `_DISPLAYS_URL`). `ZTM_GDANSK_SCHEDULE_DAYS` (default 7, at
-least 1) is how many days of schedules, today first, are kept.
+least 1) is how many days of timetable, today first, are kept.
 
 Adding a provider: implement `Provider`, reuse `Generic*Repository` with `withProvider($entity)` for DB-backed
 data, and add `DataImporter`s (see [data-import.md](data-import.md)).

@@ -23,11 +23,11 @@ namespace App\Provider\ZtmGdansk;
 use App\Dto\Location;
 use App\Entity\ProviderEntity;
 use App\Provider\Database\GenericLineRepository;
-use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;
+use App\Provider\Database\GenericTimetableRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\Database\GenericTripRepository;
-use App\Provider\Database\RealtimeScheduleDepartureRepository;
+use App\Provider\Database\RealtimeTimetableDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
@@ -112,7 +112,7 @@ class ZtmGdanskProvider implements Provider
         GenericLineRepository $lines,
         GenericStopRepository $stops,
         GenericTrackRepository $tracks,
-        GenericScheduleRepository $schedule,
+        GenericTimetableRepository $timetable,
         GenericTripRepository $trips,
         private readonly ZtmGdanskMessageRepository $messages,
         ClockInterface $clock,
@@ -120,15 +120,15 @@ class ZtmGdanskProvider implements Provider
     ) {
         $provider = $this->refreshProviderEntity();
 
-        $lines    = $lines->withProvider($provider);
-        $stops    = $stops->withProvider($provider);
-        $tracks   = $tracks->withProvider($provider);
-        $schedule = $schedule->withProvider($provider);
-        $trips    = $trips->withProvider($provider);
+        $lines     = $lines->withProvider($provider);
+        $stops     = $stops->withProvider($provider);
+        $tracks    = $tracks->withProvider($provider);
+        $timetable = $timetable->withProvider($provider);
+        $trips     = $trips->withProvider($provider);
 
         $this->lines      = $lines;
-        $this->departures = new RealtimeScheduleDepartureRepository(
-            $schedule,
+        $this->departures = new RealtimeTimetableDepartureRepository(
+            $timetable,
             new ZtmGdanskRealtimeDepartureRepository($lines, $live),
             $clock,
         );

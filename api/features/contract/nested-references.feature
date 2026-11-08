@@ -39,11 +39,11 @@ Feature: Nested references
       | field | value              |
       | id    | 6-1                |
       | $type | vnd.cojedzie.track |
-    And the response's "schedule.0.track" should be exactly:
+    And the response's "timetable.0.track" should be exactly:
       | field | value              |
       | id    | 6-1                |
       | $type | vnd.cojedzie.track |
-    And the response's "schedule.1.track" should be exactly:
+    And the response's "timetable.1.track" should be exactly:
       | field | value              |
       | id    | 6-1                |
       | $type | vnd.cojedzie.track |

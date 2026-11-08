@@ -26,9 +26,9 @@ use App\Dto\Departure;
 use App\Dto\Stop;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\Requirement;
-use App\Provider\Database\RealtimeScheduleDepartureRepository;
+use App\Provider\Database\RealtimeTimetableDepartureRepository;
 use App\Provider\DepartureRepository;
-use App\Provider\ScheduleRepository;
+use App\Provider\TimetableRepository;
 use App\Tests\Benchmark\Collections\DeparturePairingVariants;
 use Carbon\Carbon;
 use Ds\Seq;
@@ -38,7 +38,7 @@ use Symfony\Component\Clock\MockClock;
 /**
  * Pins the output of the timetable and live departures join for a small fixture.
  */
-final class RealtimeScheduleDepartureRepositoryTest extends TestCase
+final class RealtimeTimetableDepartureRepositoryTest extends TestCase
 {
     public function testJoinsTimetableWithLiveDepartures(): void
     {
@@ -87,21 +87,15 @@ final class RealtimeScheduleDepartureRepositoryTest extends TestCase
         ], $this->describe($departures));
     }
 
-    private function repository(string $now): RealtimeScheduleDepartureRepository
+    private function repository(string $now): RealtimeTimetableDepartureRepository
     {
-        [$schedule, $real] = DeparturePairingVariants::fixture(32, 16);
+        [$planned, $real] = DeparturePairingVariants::fixture(32, 16);
 
-        return new RealtimeScheduleDepartureRepository(
-            new readonly class($schedule) implements ScheduleRepository {
+        return new RealtimeTimetableDepartureRepository(
+            new readonly class($planned) implements TimetableRepository {
                 public function __construct(
-                    private array $schedule
+                    private array $planned
                 ) {
-                }
-
-                #[\Override]
-                public function getDeparturesForStop(Stop $stop, Carbon $from, int $count = self::DEFAULT_DEPARTURES_COUNT): Seq
-                {
-                    return new Seq();
                 }
 
                 #[\Override]
@@ -113,7 +107,7 @@ final class RealtimeScheduleDepartureRepositoryTest extends TestCase
                 #[\Override]
                 public function all(Requirement ...$requirements): Seq
                 {
-                    return new Seq($this->schedule);
+                    return new Seq($this->planned);
                 }
             },
             new readonly class($real) implements DepartureRepository {

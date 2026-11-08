@@ -45,9 +45,9 @@ see `features/contract/nested-references.feature`) never happen in tests.
 
 - Stops, lines and tracks are stored in the test database by `TestData` and read through the **real** generic
   Doctrine repositories, so name filters and `embed=destinations` run the production code.
-- Departures go through `App\Provider\Database\RealtimeScheduleDepartureRepository`, the same joining ZTM uses:
+- Departures go through `App\Provider\Database\RealtimeTimetableDepartureRepository`, the same joining ZTM uses:
   the timetable is real trips in the test database (written by `TestData::trip()`, read by
-  `GenericScheduleRepository`), and `InMemoryDepartureRepository` is the live source with the scenario's estimates.
+  `GenericTimetableRepository`), and `InMemoryDepartureRepository` is the live source with the scenario's estimates.
   So ordering, past departures, `limit` and matching estimates to the timetable run production code. ZTM-specific
   parts (its TRISTAR departures API) are covered by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest` instead.
 - A departure row's `display` becomes the trip's destination stop (`destination-<slug>`); a live headsign can

@@ -44,9 +44,9 @@ and `TripStopEntity` also carries `arrival`/`departure`.
 | `LineEntity` | `Line` | `operator`, `tracks` |
 | `TrackEntity` | `Track` | `stops` (flattened from `stopsInTrack[].stop`), `line`, `destination` (= `final.stop`) |
 | `StopEntity` | `Stop` | lat/lon → `Location`; `destinations` only filled by an embed |
-| `TripEntity` | `Trip` | `schedule` (from `stops`), `track` |
+| `TripEntity` | `Trip` | `timetable` (from `stops`), `track` |
 | `TrackStopEntity` | `TrackStop` | `stop`, `track`, `order` |
-| `TripStopEntity` | `ScheduledStop` | `arrival`, `departure`, `stop`, `order`, `track` (via trip), `trip` |
+| `TripStopEntity` | `TimetableEntry` | `arrival`, `departure`, `stop`, `order`, `track` (via trip), `trip` |
 | `Federation\FederatedConnectionEntity` | `Federation\Node` | `ConnectionConverter` (also deserializes stored `Status\Aggregated`) |
 | *(service)* `App\Provider\Provider` | `Dto\Provider` | `ProviderConverter` — converts the provider service, not `ProviderEntity` |
 

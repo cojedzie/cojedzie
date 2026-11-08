@@ -24,17 +24,17 @@ namespace App\Tests\ZtmGdansk;
 
 use App\Dto\Departure;
 use App\Dto\Line;
-use App\Dto\ScheduledStop;
 use App\Dto\Stop;
+use App\Dto\TimetableEntry;
 use App\Dto\Track;
 use App\Dto\Trip;
 use App\Filter\Requirement\IdConstraint;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\Requirement;
-use App\Provider\Database\RealtimeScheduleDepartureRepository;
+use App\Provider\Database\RealtimeTimetableDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
-use App\Provider\ScheduleRepository;
+use App\Provider\TimetableRepository;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskLiveDepartures;
 use App\Provider\ZtmGdansk\ZtmGdanskRealtimeDepartureRepository;
@@ -60,9 +60,9 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     private array $lines = [];
 
     /**
-     * @var list<ScheduledStop>
+     * @var list<TimetableEntry>
      */
-    private array $schedule = [];
+    private array $planned = [];
 
     /**
      * @var array<string, list<array<string, mixed>>> the API's entries by stop id
@@ -122,7 +122,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
         $this->assertNull($departures[0]->getTrip());
     }
 
-    public function testTimetableEntryWithoutEstimateIsScheduleOnly(): void
+    public function testTimetableEntryWithoutEstimateIsPlannedOnly(): void
     {
         $this->scheduled('6', '12:20', 'Łostowice', 'trip-6-1220');
 
@@ -218,8 +218,8 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
 
     private function repository(): DepartureRepository
     {
-        return new RealtimeScheduleDepartureRepository(
-            $this->scheduleRepository(),
+        return new RealtimeTimetableDepartureRepository(
+            $this->timetableRepository(),
             new ZtmGdanskRealtimeDepartureRepository(
                 $this->lineRepository(),
                 new ZtmGdanskLiveDepartures($this->api(), self::config()),
@@ -232,7 +232,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     {
         $departure = Carbon::parse('2026-10-20 ' . $time, self::ZONE)->tz('UTC');
 
-        $this->schedule[] = ScheduledStop::createFromArray([
+        $this->planned[] = TimetableEntry::createFromArray([
             'order'     => 1,
             'stop'      => $this->stop,
             'arrival'   => $departure,
@@ -358,20 +358,14 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
         };
     }
 
-    private function scheduleRepository(): ScheduleRepository
+    private function timetableRepository(): TimetableRepository
     {
-        $schedule = $this->schedule;
+        $planned = $this->planned;
 
-        return new readonly class($schedule) implements ScheduleRepository {
+        return new readonly class($planned) implements TimetableRepository {
             public function __construct(
-                private array $schedule
+                private array $planned
             ) {
-            }
-
-            #[\Override]
-            public function getDeparturesForStop(Stop $stop, Carbon $from, int $count = self::DEFAULT_DEPARTURES_COUNT): Seq
-            {
-                return new Seq();
             }
 
             #[\Override]
@@ -383,7 +377,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             #[\Override]
             public function all(Requirement ...$requirements): Seq
             {
-                return new Seq($this->schedule);
+                return new Seq($this->planned);
             }
         };
     }

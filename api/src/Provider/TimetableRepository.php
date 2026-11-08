@@ -20,25 +20,11 @@
 
 namespace App\Provider;
 
-use App\Dto\Departure;
-use App\Dto\ScheduledStop;
-use App\Dto\Stop;
-use Carbon\Carbon;
-use Ds\Seq;
+use App\Dto\TimetableEntry;
 
 /**
- * @extends FluentRepository<ScheduledStop>
+ * @extends FluentRepository<TimetableEntry>
  */
-interface ScheduleRepository extends FluentRepository
+interface TimetableRepository extends FluentRepository
 {
-    public const DEFAULT_DEPARTURES_COUNT = 16;
-
-    /**
-     * @return Seq<Departure>
-     */
-    public function getDeparturesForStop(
-        Stop $stop,
-        Carbon $from,
-        int $count = ScheduleRepository::DEFAULT_DEPARTURES_COUNT
-    ): Seq;
 }

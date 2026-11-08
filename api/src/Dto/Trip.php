@@ -54,9 +54,9 @@ class Trip implements ReferableDto, Fillable, Dto
 
     /**
      * Stops in track
-     * @var Seq<ScheduledStop>
+     * @var Seq<TimetableEntry>
      */
-    private Seq $schedule;
+    private Seq $timetable;
 
     /**
      * Destination stop of this trip
@@ -65,7 +65,7 @@ class Trip implements ReferableDto, Fillable, Dto
 
     public function __construct()
     {
-        $this->schedule = new Seq();
+        $this->timetable = new Seq();
     }
 
     public function getVariant(): ?string
@@ -98,14 +98,14 @@ class Trip implements ReferableDto, Fillable, Dto
         $this->track = $track;
     }
 
-    public function getSchedule(): Seq
+    public function getTimetable(): Seq
     {
-        return $this->schedule;
+        return $this->timetable;
     }
 
-    public function setSchedule(iterable $schedule = []): void
+    public function setTimetable(iterable $timetable = []): void
     {
-        $this->schedule = new Seq($schedule);
+        $this->timetable = new Seq($timetable);
     }
 
     public function getDestination(): ?Stop

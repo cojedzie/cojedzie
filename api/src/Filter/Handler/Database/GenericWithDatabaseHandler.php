@@ -20,7 +20,7 @@
 
 namespace App\Filter\Handler\Database;
 
-use App\Dto\ScheduledStop;
+use App\Dto\TimetableEntry;
 use App\Dto\Track;
 use App\Dto\TrackStop;
 use App\Dto\Trip;
@@ -39,12 +39,12 @@ class GenericWithDatabaseHandler implements ModifierHandler
             'stops' => 'stopsInTrack',
         ],
         Trip::class => [
-            'schedule' => 'stops.stop',
+            'timetable' => 'stops.stop',
         ],
         TrackStop::class => [
             'track' => 'track',
         ],
-        ScheduledStop::class => [
+        TimetableEntry::class => [
             'trip'        => 'trip',
             'track'       => 'trip.track',
             'destination' => 'trip.track.final',
