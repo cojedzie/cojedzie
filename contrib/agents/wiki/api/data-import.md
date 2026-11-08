@@ -69,8 +69,8 @@ no import has written since. Then it removes the `import` rows nothing refers to
 
 - Children are collected first, and a stale row still referenced by a row that stays is kept (a stop on a current
   track, an operator of a current line), so foreign keys never block and fresh data never loses a relation.
-- Brake: unless an import **finished** within the retention period, nothing is removed and the handler logs a
-  warning, so a stalled or failing import can't wipe the data.
+- Brake: unless an import **succeeded** (`status = 'succeeded'`) within the retention period, nothing is removed and
+  the handler logs a warning, so a stalled, failing or superseded import can't wipe the data.
 - One transaction; plain `DELETE … WHERE import_id IN (…) AND NOT EXISTS (…)`, checked on SQLite, MariaDB and
   Postgres.
 

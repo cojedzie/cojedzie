@@ -25,6 +25,7 @@ namespace App\Tests\DataImport;
 use App\DataImport\ImportStatus;
 use App\DataImport\StaleDataCollector;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Uid\Uuid;
 
@@ -93,7 +94,7 @@ final class StaleDataCollectorTest extends ImporterTestCase
         $this->assertSame(1, $this->countRows('track_stop'));
     }
 
-    public function testDoesNothingWithoutARecentFinishedImport(): void
+    public function testDoesNothingWithoutARecentSucceededImport(): void
     {
         $old = $this->import('-10 days');
         $this->import('-1 day', ImportStatus::Running);
@@ -102,6 +103,24 @@ final class StaleDataCollectorTest extends ImporterTestCase
 
         $this->assertSame([], $this->collect());
         $this->assertSame(['stop'], $this->ids('stop'));
+    }
+
+    #[DataProvider('importsThatDidNotSucceed')]
+    public function testImportThatDidNotSucceedDoesNotReleaseTheBrake(ImportStatus $status): void
+    {
+        $old = $this->import('-10 days');
+        $this->import('-1 day', $status);
+
+        $this->row('stop', 'stop', $old);
+
+        $this->assertSame([], $this->collect());
+        $this->assertSame(['stop'], $this->ids('stop'));
+    }
+
+    public static function importsThatDidNotSucceed(): iterable
+    {
+        yield 'failed' => [ImportStatus::Failed];
+        yield 'superseded' => [ImportStatus::Superseded];
     }
 
     public function testRemovesOldImportsNothingRefersTo(): void
