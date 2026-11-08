@@ -24,10 +24,12 @@ use App\Dto\Line;
 use App\Dto\Referable;
 use App\Dto\Stop;
 use App\Dto\Track;
+use App\Dto\Trip;
 use App\Entity\LineEntity;
 use App\Entity\ProviderEntity;
 use App\Entity\StopEntity;
 use App\Entity\TrackEntity;
+use App\Entity\TripEntity;
 use App\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
 use Ds\Seq;
@@ -42,6 +44,7 @@ final class EntityReferenceFactory
         Line::class  => LineEntity::class,
         Stop::class  => StopEntity::class,
         Track::class => TrackEntity::class,
+        Trip::class  => TripEntity::class,
     ];
 
     public function __construct(

@@ -104,6 +104,12 @@ bind as query parameters. Supporting another DTO in `RelatedFilter` requires add
   that group in the context. `ApiResponseFactory::extractGroupsFromRequirements()` maps each `Embed(x)` to
   group `embed:x`. Currently only `StopGroupsController` passes these groups. Check this before relying on
   an embed showing up in another endpoint's output.
+- A group can also switch a relation to its reference shape for one endpoint: `#[Context(context: [GROUPS =>
+  ['reference']], groups: ['timetable'])]` on `Departure::$line` and `$stop` applies only when the controller
+  passes group `timetable`. Nelmio reads the same group-scoped context, so `new Model(type: Departure::class,
+  groups: ['default', 'timetable'])` documents line and stop as `{id}` (a separate `Departure2` schema). A fixed
+  `#[OA\Property(ref: ...)]` on the property would hide this, so such properties rely on the inferred type.
+  `#[SerializeAs]` is not read by anything; the `#[Context]` next to it does the work.
 - `HasRefs` / `Refs` (e.g. `Message` → `MessageRefs { stops, lines }`) serialize as `$refs`. `DtoNormalizer`
   drops empty `$`-prefixed properties. `Embed('$refs.stops')` is resolved by `RefsEmbedHandler`, which replaces
   the reference items with full DTOs loaded from the provider's repositories.

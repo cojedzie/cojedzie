@@ -68,6 +68,23 @@ final class FrozenTime
     }
 
     /**
+     * A local date and time ("Y-m-d H:i") in the scenario's zone, for tables spanning several days.
+     */
+    public function moment(string $localDateTime): Carbon
+    {
+        return Carbon::createFromFormat('!Y-m-d H:i', $localDateTime, $this->zone)
+            ?: throw new \InvalidArgumentException("Expected a Y-m-d H:i time, got '$localDateTime'.");
+    }
+
+    /**
+     * Formats an API timestamp as a local date and time ("Y-m-d H:i") in the scenario's zone.
+     */
+    public function localDateTime(?string $timestamp): string
+    {
+        return $timestamp === null ? '' : Carbon::parse($timestamp)->setTimezone($this->zone)->format('Y-m-d H:i');
+    }
+
+    /**
      * Formats an API timestamp as a time of day in the scenario's zone.
      */
     public function local(?string $timestamp): string

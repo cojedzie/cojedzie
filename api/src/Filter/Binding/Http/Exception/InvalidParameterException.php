@@ -33,4 +33,14 @@ class InvalidParameterException extends BadRequestHttpException
     {
         return new static(sprintf('Invalid %s parameter: %s.', $parameter, $reason));
     }
+
+    /**
+     * None of the given parameters, of which at least one is needed, was given.
+     *
+     * @param non-empty-list<string> $parameters
+     */
+    public static function noneOf(array $parameters): static
+    {
+        return new static(sprintf('Should specify at least one of %s.', implode(', ', $parameters)));
+    }
 }

@@ -37,6 +37,8 @@ interface Provider
 
     public function getTripRepository(): TripRepository;
 
+    public function getTimetableRepository(): TimetableRepository;
+
     public function getName(): string;
 
     public function getShortName(): string;

@@ -32,6 +32,27 @@ Feature: Nested references
       | id    | trip-1            |
       | $type | vnd.cojedzie.trip |
 
+  Scenario: A timetable entry's line and stop are references, unlike a departure's
+    When I request "/api/v1/test/stops/brama-wyzynna-01/timetable"
+    Then the response status should be 200
+    And the response should be a non-empty JSON list
+    And the response's "0.line" should be exactly:
+      | field | value             |
+      | id    | 6                 |
+      | $type | vnd.cojedzie.line |
+    And the response's "0.stop" should be exactly:
+      | field | value             |
+      | id    | brama-wyzynna-01  |
+      | $type | vnd.cojedzie.stop |
+    When I request "/api/v1/test/departures" with query:
+      | name   | value            |
+      | stop[] | brama-wyzynna-01 |
+    Then the response status should be 200
+    And every item's "stop" should have the fields:
+      | field |
+      | id    |
+      | name  |
+
   Scenario: A relation the query didn't load has only its id
     When I request "/api/v1/test/trips/trip-1"
     Then the response status should be 200

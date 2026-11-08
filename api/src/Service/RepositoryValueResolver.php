@@ -25,6 +25,7 @@ use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Provider\StopRepository;
+use App\Provider\TimetableRepository;
 use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -60,6 +61,7 @@ final readonly class RepositoryValueResolver implements ValueResolverInterface
             is_a($type, MessageRepository::class, true)   => 'getMessageRepository',
             is_a($type, TrackRepository::class, true)     => 'getTrackRepository',
             is_a($type, TripRepository::class, true)      => 'getTripRepository',
+            is_a($type, TimetableRepository::class, true) => 'getTimetableRepository',
             default                                       => null,
         };
 

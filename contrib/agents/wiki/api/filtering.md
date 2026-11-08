@@ -23,6 +23,7 @@ Marker interface `Requirement`; all implementations are immutable.
 | `RelatedFilter($reference, ?$relationship)` | Restrict to records related to one or many `Referable` DTOs (e.g. `Stop::reference('123')`). Relationship defaults to the DTO class of the reference; it can also be a string key such as `'stop'` or `'destination'`. |
 | `LimitConstraint($offset, $count)` | Pagination. `LimitConstraint::count(n)` shorthand. |
 | `Embed($relationship)` | Load an optional relation into the result (e.g. `destinations`, `track`, `$refs.stops`). |
+| `TimetableDay(?$date, DayMode)` | Timetable entries of a day in the provider's time zone (ADR 0029): `Calendar` (departure between the local midnights, so 23 or 25 h over DST), `Service` (`trip.serviceDate`), `Extended` (either). Handled by `TimetableDayDatabaseHandler`, which reads the zone from meta `timezone` (`GenericTimetableRepository::withTimezone()`) and today from the clock. |
 | `ValidityConstraint($at)` | Only versioned records valid at a moment (`ValidityAwareInterface`). Track repositories add one for now unless the requirements carry one; the `destinations` embed uses tracks valid now. |
 
 Requirements are also used **internally** between repositories — e.g. `Database\RealtimeTimetableDepartureRepository` queries the
@@ -44,10 +45,12 @@ constructor (see the swagger-php notes in [architecture.md](architecture.md#api-
 |---|---|
 | `IdConstraintParameterBinding(parameter: 'id', from: ['query'], isMultiple)` | `?id=1` (or `?id=1,2` when `isMultiple`) → `IdConstraint`. `from: ['attributes']` reads a route placeholder. |
 | `FieldFilterParameterBinding(parameter, field, defaultOperator, operators, documentation, options)` | `?name=foo` uses `defaultOperator`; `?name:begins=foo` picks an operator by suffix. Suffix sets: `EQUALITY_OPERATORS` (`eq`, `not`), `SET_OPERATORS` (`in`, `not-in`), `STRING_OPERATORS` (+ `contains`, `begins`, `ends`), `ORDINAL_OPERATORS` (+ `le`, `leq`, `ge`, `geq`), `DEFAULT_OPERATORS` (ordinal + string). |
-| `RelatedFilterParameterBinding(resource: Stop::class, parameter, relationship, from)` | `?stop=1,2` → `RelatedFilter([Stop::reference('1'), ...])`. |
-| `LimitParameterBinding(defaultLimit: 20, maxLimit: 100)` | `?limit=&offset=` → always yields a `LimitConstraint`, limit clamped to `[0, maxLimit]`. |
+| `RelatedFilterParameterBinding(resource: Stop::class, parameter, relationship, from)` | `?stop=1,2` → `RelatedFilter([Stop::reference('1'), ...])`. With `['attributes', 'query']` the route placeholder and the query merge (`/tracks/a/stops?track=B` also adds B's stops; `/stops/a/timetable?stop=b` → both). |
+| `LimitParameterBinding(defaultLimit: 20, maxLimit: 100)` | `?limit=&offset=` → a `LimitConstraint`, limit clamped to `[0, maxLimit]`. The timetable uses `(1000, 1000)`. |
 | `EmbedParameterBinding(allowed: [...])` | `?embed=a,b` → one `Embed` per **allowed** value; unknown values are silently dropped. |
 | `ImportFilterParameterBinding()` | `FieldFilter` on `import` with equality operators (`?import=<uuid>`). |
+| `TimetableScopeParameterBinding()` | `stop`, `line`, `track` and `trip` related filters from the route or the query (lists add up); none of them → 400 `Should specify at least one of stop, line, track, trip.` (`InvalidParameterException::noneOf()`). |
+| `TimetableTimeParameterBinding()` | `?date=Y-m-d&day=calendar\|service\|extended` → `TimetableDay` (date null = today), or `?from=&to=` (ISO 8601 with offset, its `+` URL-encoded as `%2B` or `Z`, `from < to`) → two `FieldFilter`s on `departure`. Mixing them, one end of a range or a malformed value → 400. |
 | `ParameterBindingGroup(...$bindings)` | Combines bindings. |
 | `ParameterBindingProvider($source)` | Lazily builds a binding from a callable (`[self::class, 'getParameterBinding']`) or a class name. |
 
@@ -128,8 +131,11 @@ otherwise the handler throws `InvalidArgumentException`:
 
 ## Gotchas
 
-- `DatabaseRepository::allFromQueryBuilder()` sets `setMaxResults(100)` (`DEFAULT_LIMIT`) before handlers run,
-  and uses Doctrine's `Paginator`. Without a `LimitConstraint`, results are silently capped at 100.
+- `DatabaseRepository::allFromQueryBuilder()` sets `setMaxResults(100)` (`DEFAULT_LIMIT`) before handlers run, and
+  uses Doctrine's `Paginator`. Without a `LimitConstraint`, results are silently capped at 100.
+- Paging with `offset` needs an `ORDER BY` that ends in a unique column. With ties (a line's entries at the same
+  minute), MariaDB returns a different subset of the tied rows on each run, so pages overlap and skip rows.
+  `GenericTimetableRepository::departures()` ends with `trip_stop.id` for this.
 - Two `FieldFilter`s on one field (both ends of a range) get parameters `:alias_field` and `:alias_field_2`.
 - `first()` prepends `LimitConstraint::count(1)`.
 - `FieldFilterParameterBinding` checks the operator suffix of **every** `name:suffix` query parameter before it

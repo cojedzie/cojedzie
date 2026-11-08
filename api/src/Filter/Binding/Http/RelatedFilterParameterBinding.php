@@ -52,14 +52,22 @@ class RelatedFilterParameterBinding implements ParameterBinding
         $this->relationship = $relationship ?: $this->resource;
     }
 
+    /**
+     * Values from every source add up: /stops/a/timetable?stop=b relates to both stops.
+     */
     #[\Override]
     public function getRequirementsFromRequest(Request $request): iterable
     {
-        $ids = RequestUtils::getList($request, $this->parameter, $this->from);
+        $lists = array_filter(
+            array_map(fn (string $source) => RequestUtils::getList($request, $this->parameter, [$source]), $this->from),
+            fn (?array $ids) => $ids !== null,
+        );
 
-        if ($ids === null) {
+        if ($lists === []) {
             return;
         }
+
+        $ids = array_values(array_unique(array_merge(...$lists)));
 
         $related = array_map($this->reference(...), $ids);
 

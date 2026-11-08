@@ -151,9 +151,9 @@ imports with `task api:update` (performance mode). Single-day reads (`stream()`,
   (`TripEntity::setServiceDate()`, or the `service_date` column in bulk inserts). The ZTM importer uses the date of the
   `stopTimes` request that listed the trip, so a run after midnight stays on its day. The rollout migration deleted
   trips without a date suffix in their id (and their stops) and backfilled the rest from the id's last 10 characters.
-  Deploying it: stop the `worker` and `schedule` services before the API migrates, since an import running on the
-  old image writes trips without a `service_date` between the column's `ADD` and `MODIFY` (MySQL DDL isn't
-  transactional) and fails the migration.
+  The timetable's `service` day mode filters on it ([filtering.md](filtering.md)). Deploying it: stop the `worker`
+  and `schedule` services before the API migrates, since an import running on the old image writes trips without a
+  `service_date` between the column's `ADD` and `MODIFY` (MySQL DDL isn't transactional) and fails the migration.
 - `ztm_gdansk_schedule_day` (line, date, imported at; entity `Entity\ZtmGdansk\ZtmGdanskScheduleDayEntity`) records
   the imported line+days, also those without trips. It is the ZTM importer's own table: no other code names it, the
   importer deletes the days before today (Warsaw) when its node runs, and it has no `import_id`, so the collector
