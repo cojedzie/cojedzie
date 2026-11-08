@@ -22,10 +22,37 @@ namespace App\Event;
 
 use App\Entity\ImportEntity;
 
+/**
+ * What an importer's task gets: the import, and a way to split the importer's work into jobs.
+ */
 class DataUpdateEvent
 {
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $jobs = [];
+
     public function __construct(
-        public readonly ImportEntity $import
+        public readonly ImportEntity $import,
     ) {
+    }
+
+    /**
+     * Hands out a job, which any worker runs with SplittingDataImporter::runJob() once the importer returns. Only a
+     * SplittingDataImporter may add jobs, and only from its node, not from a job.
+     *
+     * @param array<string, mixed> $payload given to runJob(), stored as JSON
+     */
+    public function addJob(array $payload): void
+    {
+        $this->jobs[] = $payload;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getJobs(): array
+    {
+        return $this->jobs;
     }
 }

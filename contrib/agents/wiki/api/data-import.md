@@ -8,29 +8,38 @@ several `main` workers run its steps in parallel. `ImportGraph::start()` creates
 `getDependencies()` as node ids, then dispatches a `RunImportTask` message for each node whose dependencies are
 done. Nothing is added to the graph at runtime. An importer whose dependencies are missing or circular makes
 `start()` fail with a `LogicException` naming it, before anything is written. `ImportTaskRunner` (called by
-`RunImportTaskMessageHandler`) runs one node:
+`RunImportTaskMessageHandler` and `RunImportJobMessageHandler`) runs one node or job:
 
-- Node statuses (`ImportTaskStatus`): `pending` → `queued` (dispatched) → `running` → `done` | `failed`;
-  `skipped` when a dependency failed or was skipped, or when a new import superseded this one. Import statuses
-  (`ImportStatus`, column `import.status`): `running` → `succeeded` | `failed` (by its last node) | `superseded` (by
-  a new import). Every transition two workers could race for is one DQL `UPDATE … WHERE id = :id AND status =
-  :expected` checked by its affected-row count, so a dependent is dispatched once and a duplicate delivery does
-  nothing.
-- `ImportGraph` and `ImportTaskRunner` work on the entities (`ImportEntity`, `ImportTaskEntity`): reads are DQL
-  queries with `Query::HINT_REFRESH`, since other workers change the rows with UPDATE statements and the identity
-  map would return stale objects (in `app:update` one entity manager holds everything). Uuid parameters are bound
-  with the type `uuid` explicitly (DQL infers a string, which misses the binary column on SQLite and MySQL). Raw SQL
-  is only in importers, for batching and upserts.
-- Any `\Throwable` of the importer fails the node with its message in `error`; it is not retried within the run.
-  Messenger's default retries still apply to a handler that throws outside that (a transient database or transport
-  error in the bookkeeping), and a redelivery resumes it: when the claim fails, `run()` calls `ended()`
-  (`dispatchReady()` + `finishIfComplete()`) for an ended node. Duplicates of those are no-ops by their claims. A
-  `running` node is left to the delivery running it.
-- The import is finished when no node is `pending|queued|running`: whichever runner ends it first
+- Node statuses (`ImportTaskStatus`): `pending` → `queued` (dispatched) → `running` → `done` | `failed`, or
+  `running` → `waiting` → `running` → `done` | `failed` for a node with jobs; `skipped` when a dependency failed or
+  was skipped, or when a new import superseded this one. Job statuses (`ImportJobStatus`, table `import_job`):
+  `queued` → `running` → `done` | `failed` | `skipped`. Import statuses (`ImportStatus`, column `import.status`):
+  `running` → `succeeded` | `failed` (by its last node) | `superseded` (by a new import). Every transition two
+  workers could race for is one DQL `UPDATE … WHERE id = :id AND status = :expected` checked by its affected-row
+  count, so a dependent is dispatched once and a duplicate delivery does nothing.
+- `ImportGraph` and `ImportTaskRunner` work on the entities (`ImportEntity`, `ImportTaskEntity`, `ImportJobEntity`):
+  reads are DQL queries with `Query::HINT_REFRESH`, since other workers change the rows with UPDATE statements and
+  the identity map would return stale objects (in `app:update` one entity manager holds everything); jobs are
+  persisted and flushed. Uuid parameters are bound with the type `uuid` explicitly (DQL infers a string, which
+  misses the binary column on SQLite and MySQL). Raw SQL is only in importers, for batching and upserts.
+- Any `\Throwable` of the importer fails the node (or job) with its message in `error`; it is not retried within
+  the run. Messenger's default retries still apply to a handler that throws outside that (a transient database or
+  transport error in the bookkeeping), and a redelivery resumes it: when the claim fails, `run()` re-dispatches the
+  queued jobs of a `waiting` node, or calls `ended()` (`dispatchReady()` + `finishIfComplete()`) for an ended one;
+  `runJob()` of an ended job calls `endTask()`, which ends a waiting node or, for an ended one, calls `ended()`.
+  Duplicates of those are no-ops by their claims. A `running` node or job is left to the delivery running it.
+- The import is finished when no node is `pending|queued|running|waiting`: whichever runner ends it first
   (`… WHERE status = 'running'`) sets `succeeded` (no failed or skipped node) or `failed`, and `finished_at`.
-- `start()` supersedes the unfinished imports, each loaded as an entity: its pending and queued nodes are skipped
-  and it ends as `superseded`; its running nodes complete, but nothing more runs for it.
-- No reaper: a worker killed mid-node leaves that node `running`. The next run supersedes the import.
+- `start()` supersedes the unfinished imports, each loaded as an entity: its pending and queued nodes, queued jobs
+  and waiting nodes with no running job are skipped and it ends as `superseded` (that transaction is retried up to 3
+  times by `Utility\Retry::onLockFailure()` on a `RetryableException`, as it can deadlock with a job claim on MySQL;
+  it is a DBAL transaction because the entity manager's closes the manager on failure); its running nodes and jobs
+  complete, but nothing more runs for it. What keeps jobs queued *after* that from running is not `supersede()` but a guard: `run()`
+  sets a node `waiting` only `WHERE` its import is unfinished (else the node is skipped with no jobs), and `runJob()`
+  claims a job only while its import is unfinished (else the job is skipped, and its node once no job is left).
+  `jobsEnded()` can therefore still run for an import superseded meanwhile.
+- No reaper: a worker killed mid-job leaves that job `running` and its node `waiting`. The next run supersedes the
+  import.
 
 ### Events, check-ins and progress
 
@@ -45,17 +54,41 @@ done. Nothing is added to the graph at runtime. An importer whose dependencies a
   then it deletes the key. Without a Sentry DSN the hub returns no check-in id and nothing is stored. An unreachable
   Redis only logs cache warnings: the import doesn't depend on it. An import that fails to start opens no check-in;
   the monitor reports the run as missed, and the handler logs the error as critical.
-- Nodes store their progress (`progress`, `progress_max`, `progress_comment`, integers and 255 characters) through
-  `DataImport\PersistingProgressReporter`, which wraps the reporter the runner gives a node: one DQL UPDATE by id at
-  most once a second, and always when `finished: true`. Subtask reporters aren't stored. Progress reported inside an
-  importer's own transaction (lines, stops) is written in that transaction, so it shows once it commits.
+- Nodes and jobs store their progress (`progress`, `progress_max`, `progress_comment`, integers and 255 characters)
+  through `DataImport\PersistingProgressReporter`, which wraps the reporter the runner gives a node (its import,
+  `jobEnded()`, `jobsEnded()`) or a job (`runJob()`): one DQL UPDATE by id at most once a second, and always when
+  `finished: true`. Subtask reporters aren't stored. Progress reported inside an importer's own transaction (lines,
+  stops) is written in that transaction, so it shows once it commits. A job's progress is still shown where its
+  node's is (console bar or log).
 
-`bin/console app:update` runs the same graph in-process (`ImportGraph::runSynchronously()`, no workers) and prints
-the node counts by status; `app:update --async` dispatches `UpdateDataSources`, whose handler only starts the graph.
+### Importers that split their work into jobs
 
-Memory: `ImportTaskRunner` raises `memory_limit` for each node only and restores it afterwards
-(`App\Utility\MemoryLimit::raisedWhile()`), because in production they run inside a long-lived messenger worker
-(`--memory-limit=128M`). `app:update` ends with a `Peak memory: N MB`
+An importer that implements `DataImport\SplittingDataImporter` stays in control of work it hands out to any worker:
+
+1. Its `import()` runs as the node and calls `$event->addJob(array $payload)` for each piece (JSON-serializable).
+   `ImportTaskRunner` persists the jobs as `import_job` rows in one transaction with the node becoming `waiting`,
+   then dispatches a `RunImportJob` for each. A node that adds no jobs ends as a plain one; a plain importer adding
+   jobs is a `LogicException`.
+2. `runJob($reporter, $event, $payload)` runs on whichever worker takes the job; throwing fails the job only, and
+   so does adding jobs from it (a `LogicException`: only the node adds jobs).
+3. `jobEnded($reporter, ImportJobCounts $counts)` runs after each job (counts of its jobs so far: `total`, `done`,
+   `failed`, with `ended()` and `remaining()`), for progress. It runs on the worker that ran the job.
+4. When no job is `queued` or `running`, one worker claims the node (`waiting → running … AND NOT EXISTS` an
+   unended job, so jobs ending at once end it once) and calls `jobsEnded($reporter, $counts)`, which returns whether
+   the node succeeded. Only then are its dependents dispatched.
+
+Waiting is event-driven: the waiting node holds no worker. Rejected: a worker blocking and polling for its jobs
+(a worker per waiting importer, a deadlock when jobs have no free worker), and fibers (the importer would stay
+suspended in one process and die with a worker restart or deploy). In tests, `ImporterTestCase::runImporter()`
+runs the importer's jobs as well, collecting failed ones in `$failures`.
+
+`bin/console app:update` runs the same graph, nodes and jobs, in-process (`ImportGraph::runSynchronously()`, no
+workers) and prints the node counts by status; `app:update --async` dispatches `UpdateDataSources`, whose handler only starts the
+graph.
+
+Memory: `ImportTaskRunner` raises `memory_limit` for each node and job only and restores it afterwards
+(`App\Utility\MemoryLimit::raisedWhile()`), because in
+production they run inside a long-lived messenger worker (`--memory-limit=128M`). `app:update` ends with a `Peak memory: N MB`
 line. Measured on 2026-10-28 with a full day of ZTM data (183 lines, 285k scheduled stops, about 8 minutes):
 48 MB peak in `prod`, 906 MB in `dev` with debug, because Doctrine keeps every query for the profiler. The limit
 (2G) is sized for debug, since `task api:update` runs in `dev`.
@@ -122,7 +155,8 @@ no import has written since. Then it removes the `import` rows nothing refers to
   Postgres.
 
 Tests: `tests/DataImport/ImporterTestCase` runs an importer against the test database inside a transaction rolled
-back after each test, with `StubJsonStreamer` serving inline feed rows. `tests/DataImport/ImportGraphTest` covers the graph, its
+back after each test, with `StubJsonStreamer` serving inline feed rows; `runImporter()` also runs the jobs an
+importer handed out, collecting failures in `$failures`. `tests/DataImport/ImportGraphTest` covers the graph, its
 statuses, events and stored progress, `PersistingProgressReporterTest` the throttling and
 `tests/Subscriber/ImportCronMonitorSubscriberTest` the check-ins. Per ADR 0001, importers are tested there, not
 in Behat. Tests never call upstream: `ZtmGdanskRecordedFeedsTest` imports one day of feeds recorded from ZTM

@@ -25,6 +25,7 @@ namespace App\Tests\DataImport;
 use App\DataImport\PersistingProgressReporter;
 use App\DataImport\ProgressReporterInterface;
 use App\Entity\ImportEntity;
+use App\Entity\ImportJobEntity;
 use App\Entity\ImportTaskEntity;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -86,6 +87,19 @@ final class PersistingProgressReporterTest extends KernelTestCase
         $reporter->progress(10, max: 10, comment: 'OK', finished: true);
 
         $this->assertSame([10, 10, 'OK'], $this->storedProgress('import_task'));
+    }
+
+    public function testProgressOfAJobIsStoredOnTheJob(): void
+    {
+        $job = new ImportJobEntity($this->task, ['line' => '2']);
+        $this->em->persist($job);
+        $this->em->flush();
+
+        PersistingProgressReporter::ofJob($job->getId(), $this->recordingReporter(), $this->em, $this->clock)
+            ->progress(4, max: 7, comment: 'days', finished: true);
+
+        $this->assertSame([4, 7, 'days'], $this->storedProgress('import_job'));
+        $this->assertSame([0, null, null], $this->storedProgress('import_task'));
     }
 
     public function testProgressOfSubtasksIsNotStored(): void

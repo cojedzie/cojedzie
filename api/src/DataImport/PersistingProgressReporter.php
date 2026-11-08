@@ -22,30 +22,41 @@ declare(strict_types=1);
 
 namespace App\DataImport;
 
+use App\Entity\ImportJobEntity;
+use App\Entity\ImportTaskEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Passes progress on to the reporter it wraps and stores it in the row of an import task, at most once a second and
- * always when finished. Subtasks report through the wrapped reporter only: the row holds the progress of the task as a
- * whole.
+ * Passes progress on to the reporter it wraps and stores it in the row of an import task or job, at most once a
+ * second and always when finished. Subtasks report through the wrapped reporter only: the row holds the progress of
+ * the task or job as a whole.
  */
 final class PersistingProgressReporter implements ProgressReporterInterface
 {
     private ?\DateTimeImmutable $lastStored = null;
 
+    /**
+     * @param class-string<ImportTaskEntity|ImportJobEntity> $entity
+     */
     private function __construct(
         private readonly ProgressReporterInterface $reporter,
         private readonly EntityManagerInterface $em,
         private readonly ClockInterface $clock,
+        private readonly string $entity,
         private readonly Uuid $id,
     ) {
     }
 
     public static function ofTask(Uuid $taskId, ProgressReporterInterface $reporter, EntityManagerInterface $em, ClockInterface $clock): self
     {
-        return new self($reporter, $em, $clock, $taskId);
+        return new self($reporter, $em, $clock, ImportTaskEntity::class, $taskId);
+    }
+
+    public static function ofJob(Uuid $jobId, ProgressReporterInterface $reporter, EntityManagerInterface $em, ClockInterface $clock): self
+    {
+        return new self($reporter, $em, $clock, ImportJobEntity::class, $jobId);
     }
 
     #[\Override]
@@ -80,9 +91,10 @@ final class PersistingProgressReporter implements ProgressReporterInterface
     private function store(float $progress, ?float $max, ?string $comment): void
     {
         $this->em
-            ->createQuery(
-                'UPDATE App\Entity\ImportTaskEntity t SET t.progress = :progress, t.progressMax = :max, t.progressComment = :comment WHERE t.id = :id',
-            )
+            ->createQuery(sprintf(
+                'UPDATE %s e SET e.progress = :progress, e.progressMax = :max, e.progressComment = :comment WHERE e.id = :id',
+                $this->entity,
+            ))
             ->setParameter('progress', (int) $progress)
             ->setParameter('max', $max === null ? null : (int) $max)
             ->setParameter('comment', $comment === null ? null : mb_substr($comment, 0, 255))
