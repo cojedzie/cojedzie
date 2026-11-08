@@ -78,6 +78,26 @@ regenerates.
 SELECT status, count(), avg(delay) FROM departures FINAL GROUP BY status
 ```
 
+## Reading it back: the timetable
+
+`DepartureHistory::observed()` returns the newest observation of each departure scheduled in `[from, to)`, narrowed
+to stops and lines; a failing read, or a row that doesn't hydrate, is a `DepartureHistoryException`.
+`Database\ObservedTimetableRepository` decorates a provider's timetable with it
+([ADR 0030](../../../adr/0030-the-timetable-is-enriched-from-departure-history.md)): one query for the stops and
+lines of the planned result over `[min scheduled, max scheduled + 1 minute)`, paired with `DeparturePairing` (stop,
+line, scheduled UTC minute), recorded departures without an entry dropped. It sets `Departure.state`:
+
+- `departed`: the estimated (else scheduled) time has passed; the last recorded estimate is kept whatever its age.
+- `realtime`: not departed, observed within `COJEDZIE_TIMETABLE_ESTIMATE_MAX_AGE` (default `1 minute`, any
+  `DateInterval::createFromDateString()` string) and with an estimate; estimate and vehicle are copied.
+- `planned`: anything else, without an estimate (a stale one is dropped; a `scheduled` observation has none).
+
+Without the history (no `COJEDZIE_CLICKHOUSE_URL`) nothing is queried, and a failing read is logged as a `warning`:
+entries are then `departed` once scheduled before now, else `planned`. Behat replaces the history with
+`InMemoryDepartureHistory` (`config/services_test.yaml`), so the timetable scenarios cover `realtime`, `departed` and a
+stale estimate; the edge cases are in `tests/Provider/Database/ObservedTimetableRepositoryTest`. On `/departures`,
+`state` is `realtime` when the departure has an estimate, else `planned`.
+
 ## ZTM Gdańsk
 
 `ZtmGdanskLiveDepartures` (HttpClient) reads `{ZTM_GDANSK_API_URL}/departures`, and maps TRISTAR entries to

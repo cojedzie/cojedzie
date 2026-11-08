@@ -62,7 +62,7 @@ Feature: Departures
       | line | stop             | scheduled | estimated | delay |
       | 8    | brama-wyzynna-01 | 11:58     | 12:03     | 300   |
 
-  Scenario: Realtime estimates come with a delay in seconds
+  Scenario: Realtime estimates come with a delay in seconds and a realtime state
     Given there are departures:
       | stop             | line | scheduled | estimated | display |
       | brama-wyzynna-01 | 6    | 12:05     | 12:07     | late    |
@@ -71,11 +71,11 @@ Feature: Departures
       | brama-wyzynna-01 | 2    | 12:20     |           | planned |
     When I ask for departures from "brama-wyzynna-01"
     Then I should see departures:
-      | line | stop             | scheduled | estimated | delay |
-      | 6    | brama-wyzynna-01 | 12:05     | 12:07     | 120   |
-      | 8    | brama-wyzynna-01 | 12:10     | 12:09     | -60   |
-      | 12   | brama-wyzynna-01 | 12:15     | 12:15     | 0     |
-      | 2    | brama-wyzynna-01 | 12:20     |           |       |
+      | line | stop             | scheduled | estimated | delay | state    |
+      | 6    | brama-wyzynna-01 | 12:05     | 12:07     | 120   | realtime |
+      | 8    | brama-wyzynna-01 | 12:10     | 12:09     | -60   | realtime |
+      | 12   | brama-wyzynna-01 | 12:15     | 12:15     | 0     | realtime |
+      | 2    | brama-wyzynna-01 | 12:20     |           |       | planned  |
 
   Scenario: Unknown stops are ignored
     Given there are departures:

@@ -50,7 +50,7 @@ returning departures with estimates for the given stops; there is no separate re
 the two: a live departure replaces the timetable entry with the same line and scheduled minute (keeping the
 timetable's destination, track and trip), live departures without a timetable entry are kept, departures that
 left are dropped, then ordering and `limit`/`offset`. Override `pair()`/`merge()` in a subclass to change matching.
-Matching is `DeparturePairing` (`Provider\DeparturePairing`): the key is
+Matching is `DeparturePairing` (`Provider\DeparturePairing`, shared with the timetable decorator below): the key is
 `stop::line::` plus the scheduled minute in UTC including the date, the first live entry per key wins, and planned
 entries sharing a key all stay (each is paired with the same live one only once). The timetable is read from now or from the earliest late live
 departure, and `offset` is applied once to the joined list. A live source that fails returns no estimates, so
@@ -66,7 +66,10 @@ for lines missing from the import have no service day and no track. A day outsid
 `/{provider}/timetable`, `/stops/{stop}/timetable` and `/lines/{line}/timetable` (`TimetableScopeParameterBinding`,
 `TimetableTimeParameterBinding`, see [filtering.md](filtering.md)) from `Provider::getTimetableRepository()`, a
 `TimetableRepository` of `Departure`s. DB-backed providers use `Database\GenericTimetableRepository`, which needs
-`withTimezone()` (the provider's zone, e.g. `Europe/Warsaw`) to resolve a day into a range.
+`withTimezone()` (the provider's zone, e.g. `Europe/Warsaw`) to resolve a day into a range; the ZTM provider wraps it
+in `Database\ObservedTimetableRepository`, which sets `Departure.state` from the departure history (see
+[departure-history.md](departure-history.md#reading-it-back-the-timetable)). `COJEDZIE_TIMETABLE_ESTIMATE_MAX_AGE`
+(default `1 minute`, in `config/services.yaml`) is how old an observation may be to count as `realtime`.
 A page holds at most 1000 entries (`LimitParameterBinding(1000, 1000)`, the default too) and `offset` pages
 through the rest, in a stable order (departure, line symbol, then the trip stop's id, since a line has many
 entries at the same time). The controller serializes with group `timetable` (`Departure::TIMETABLE_GROUP`), in

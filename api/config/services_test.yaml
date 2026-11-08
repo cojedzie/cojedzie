@@ -15,6 +15,11 @@ services:
     App\Tests\Behat\Support\Provider\TestProvider:
         tags: [ app.provider ]
 
+    # the departure history scenarios record into, instead of ClickHouse; enabled, and emptied before each scenario
+    App\Tests\DepartureHistory\Support\InMemoryDepartureHistory: ~
+
+    App\DepartureHistory\DepartureHistory: '@App\Tests\DepartureHistory\Support\InMemoryDepartureHistory'
+
     # scenarios run without a Mercure server
     mercure.hub.default:
         class: Symfony\Component\Mercure\MockHub

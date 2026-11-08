@@ -1,6 +1,6 @@
 # 0030. The timetable is enriched from departure history
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-08
 - **Applies to:** `api/src/DepartureHistory/**`, `api/src/ClickHouse/**`, `api/src/Provider/Database/**`,
   `api/src/Dto/Departure.php`

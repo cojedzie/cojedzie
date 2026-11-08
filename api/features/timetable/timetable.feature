@@ -129,6 +129,19 @@ Feature: Timetable
       | 8    | oliwa-01         | 2026-11-13 10:30 | 2026-11-13  |
       | 6    | brama-wyzynna-01 | 2026-11-13 12:00 | 2026-11-13  |
 
+  Scenario: Past entries are departed without history
+    Given there are timetable entries:
+      | line | stop             | departure        | display   |
+      | 6    | brama-wyzynna-01 | 2026-11-13 12:30 | Łostowice |
+    When I ask for the timetable of "stops/brama-wyzynna-01/timetable" with query:
+      | name | value      |
+      | date | 2026-11-13 |
+    Then I should see timetable entries:
+      | line | stop             | scheduled        | service day | state    |
+      | 6    | brama-wyzynna-01 | 2026-11-13 00:30 | 2026-11-12  | departed |
+      | 6    | brama-wyzynna-01 | 2026-11-13 12:00 | 2026-11-13  | planned  |
+      | 6    | brama-wyzynna-01 | 2026-11-13 12:30 | 2026-11-13  | planned  |
+
   Scenario: A page holds at most 1000 entries and the offset pages through the rest
     Given line 6 leaves "oliwa-01" every 2 minutes from "05:00" to "23:58" on "2026-11-16"
     And line 8 leaves "oliwa-01" every 2 minutes from "05:00" to "23:58" on "2026-11-16"
@@ -168,3 +181,36 @@ Feature: Timetable
       | line | stop     | scheduled        | service day |
       | 8    | oliwa-01 | 2026-10-25 00:10 | 2026-10-25  |
       | 8    | oliwa-01 | 2026-10-25 23:50 | 2026-10-25  |
+
+  Scenario: An upcoming entry with a fresh observation is realtime
+    Given there are timetable entries:
+      | line | stop     | departure        | display |
+      | 8    | oliwa-01 | 2026-11-13 12:30 | Stogi   |
+    And the departure history recorded line "8" leaving stop "oliwa-01" scheduled at "2026-11-13 12:30" estimated at "2026-11-13 12:34" observed at "2026-11-13 11:59"
+    When I ask for the timetable of "stops/oliwa-01/timetable" with query:
+      | name | value      |
+      | date | 2026-11-13 |
+    Then the timetable entry of line "8" at "2026-11-13 12:30" should be "realtime"
+    And the timetable entry of line "8" at "2026-11-13 12:30" should be estimated at "2026-11-13 12:34"
+
+  Scenario: A past entry is departed with its last recorded estimate
+    Given there are timetable entries:
+      | line | stop     | departure        | display |
+      | 8    | oliwa-01 | 2026-11-13 11:00 | Stogi   |
+    And the departure history recorded line "8" leaving stop "oliwa-01" scheduled at "2026-11-13 11:00" estimated at "2026-11-13 11:03" observed at "2026-11-13 10:55"
+    When I ask for the timetable of "stops/oliwa-01/timetable" with query:
+      | name | value      |
+      | date | 2026-11-13 |
+    Then the timetable entry of line "8" at "2026-11-13 11:00" should be "departed"
+    And the timetable entry of line "8" at "2026-11-13 11:00" should be estimated at "2026-11-13 11:03"
+
+  Scenario: An upcoming entry with a stale observation is planned
+    Given there are timetable entries:
+      | line | stop     | departure        | display |
+      | 8    | oliwa-01 | 2026-11-13 12:30 | Stogi   |
+    And the departure history recorded line "8" leaving stop "oliwa-01" scheduled at "2026-11-13 12:30" estimated at "2026-11-13 12:34" observed at "2026-11-13 11:50"
+    When I ask for the timetable of "stops/oliwa-01/timetable" with query:
+      | name | value      |
+      | date | 2026-11-13 |
+    Then the timetable entry of line "8" at "2026-11-13 12:30" should be "planned"
+    And the timetable entry of line "8" at "2026-11-13 12:30" should have no estimate
