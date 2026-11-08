@@ -2,3 +2,4 @@
 /node_modules/
 docker-compose.override.yml
 /contrib/agents/reports/
+/contrib/agents/issues/
