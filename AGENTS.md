@@ -17,6 +17,9 @@ Everything related to agentic workflows is stored in `contrib/agents/`, not in v
 - `contrib/agents/specs/` and `contrib/agents/plans/` — design specs and implementation plans. This overrides
   the superpowers plugin defaults (`docs/superpowers/specs/`, `docs/superpowers/plans/`); keep its file naming.
   They are **temporary**, see below.
+- `contrib/agents/issues/` — local issue tracker (tickets per feature). Temporary like specs and plans.
+- `contrib/agents/skills-config/` — per-repo configuration read by the plugin engineering skills (see
+  [Agent skills](#agent-skills)).
 - Any other agent artifact (notes, prompts, reports) goes into a fitting subdirectory of `contrib/agents/`.
 
 Architecture Decision Records are **not** agent-specific and live in `contrib/adr/` (format and template in
@@ -60,6 +63,22 @@ Before working on a task, read the page(s) matching its topic. Pages are split i
 
 `contrib/agents/wiki/README.md` is the index. When you learn something non-obvious during a session, update the
 relevant page (or add one and register it in both tables).
+
+## Agent skills
+
+### Issue tracker
+
+Issues are local markdown files under `contrib/agents/issues/<feature>/`; specs stay in `contrib/agents/specs/`.
+See `contrib/agents/skills-config/issue-tracker.md`.
+
+### Triage labels
+
+The default five roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), recorded as
+a `Status:` line in each issue file. See `contrib/agents/skills-config/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `contrib/GLOSSARY.md` and the ADRs in `contrib/adr/`. See `contrib/agents/skills-config/domain.md`.
 
 ## Commands
 
