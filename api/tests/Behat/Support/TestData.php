@@ -42,6 +42,8 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
  */
 final class TestData
 {
+    // the frozen time zone, in which service days are local dates
+    private const string TIMEZONE     = 'Europe/Warsaw';
     private ?ImportEntity $import     = null;
     private ?ProviderEntity $provider = null;
     private ?OperatorEntity $operator = null;
@@ -139,8 +141,10 @@ final class TestData
     /**
      * A timetable entry: a trip of the line leaving the stop at the given time towards a destination stop named
      * like the departure's display.
+     *
+     * @param ?string $serviceDay Y-m-d, by default the local date of the departure
      */
-    public function trip(string $lineSymbol, string $stopId, Carbon $departure, string $display): TripEntity
+    public function trip(string $lineSymbol, string $stopId, Carbon $departure, string $display, ?string $serviceDay = null): TripEntity
     {
         $destination = 'destination-' . new AsciiSlugger()->slug($display)->lower();
         if (!isset($this->stops[$destination])) {
@@ -152,9 +156,10 @@ final class TestData
 
         $trip = new TripEntity();
         $trip->fill([
-            'id'       => $this->ids->generate(TestProvider::IDENTIFIER, sprintf('trip-%d', ++$this->trips)),
-            'track'    => $track,
-            'operator' => $this->operator(),
+            'id'          => $this->ids->generate(TestProvider::IDENTIFIER, sprintf('trip-%d', ++$this->trips)),
+            'track'       => $track,
+            'operator'    => $this->operator(),
+            'serviceDate' => new \DateTimeImmutable($serviceDay ?? $departure->clone()->tz(self::TIMEZONE)->format('Y-m-d')),
         ]);
         $this->persist($trip);
 

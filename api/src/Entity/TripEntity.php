@@ -24,11 +24,13 @@ use App\Dto\Fillable;
 use App\Dto\FillTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table('trip')]
 #[ORM\Index(columns: ['valid_to'])]
+#[ORM\Index(name: 'trip_service_date_idx', columns: ['service_date'])]
 class TripEntity implements Entity, Fillable, ValidityAwareInterface
 {
     use ReferableEntityTrait, ProviderReferenceTrait, FillTrait, ImportedTrait, ValidityTrait;
@@ -57,6 +59,12 @@ class TripEntity implements Entity, Fillable, ValidityAwareInterface
      */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $note = null;
+
+    /**
+     * Service day the trip belongs to, in the provider's timezone; its runs may go past midnight
+     */
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private \DateTimeImmutable $serviceDate;
 
     /**
      * @var Collection<TripStopEntity>
@@ -108,6 +116,16 @@ class TripEntity implements Entity, Fillable, ValidityAwareInterface
     public function setNote(?string $note): void
     {
         $this->note = $note;
+    }
+
+    public function getServiceDate(): \DateTimeImmutable
+    {
+        return $this->serviceDate;
+    }
+
+    public function setServiceDate(\DateTimeImmutable $serviceDate): void
+    {
+        $this->serviceDate = $serviceDate;
     }
 
     public function getStops(): Collection

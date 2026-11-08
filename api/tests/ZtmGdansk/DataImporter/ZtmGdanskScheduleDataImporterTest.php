@@ -230,6 +230,24 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->assertSame([$validity, $validity], $this->rows('trip_stop', 'valid_from', 'valid_to'));
     }
 
+    public function testTripsCarryTheServiceDayTheyWereDownloadedFor(): void
+    {
+        $this->line(self::LINE_6);
+
+        $this->importer(fn () => [])->importLineDay($this->reporter(), $this->event, self::LINE_6, '2026-11-07', [
+            $this->stopTime('6', '2026-11-07'),
+            $this->stopTime('6', '2026-11-07', ['order' => 2, 'arrivalTime' => '1899-12-31T01:05:00', 'departureTime' => '1899-12-31T01:06:00']),
+        ]);
+
+        $this->assertSame(
+            [
+                ['id' => self::tripOf('6', '2026-11-07'), 'service_date' => '2026-11-07', 'valid_to' => '2026-11-07 11:01:00'],
+                ['id' => self::tripOf('6', '2026-11-07', 2), 'service_date' => '2026-11-07', 'valid_to' => '2026-11-08 00:06:00'],
+            ],
+            $this->rows('trip', 'id', 'service_date', 'valid_to'),
+        );
+    }
+
     public function testTripOfUnknownTrackVersionIsSkipped(): void
     {
         $this->line(self::LINE_6);
@@ -467,11 +485,12 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     private function trip(string $id, string $validTo): void
     {
         $this->connection->insert('trip', [
-            'id'          => $id,
-            'provider_id' => self::PROVIDER,
-            'track_id'    => self::PROVIDER . '::R6T1V1',
-            'operator_id' => self::PROVIDER . '::1',
-            'valid_to'    => $validTo,
+            'id'           => $id,
+            'provider_id'  => self::PROVIDER,
+            'track_id'     => self::PROVIDER . '::R6T1V1',
+            'operator_id'  => self::PROVIDER . '::1',
+            'service_date' => substr($id, -10),
+            'valid_to'     => $validTo,
         ]);
         $this->connection->insert('trip_stop', [
             'trip_id'   => $id,
@@ -502,9 +521,9 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     /**
      * Id of the trip stopTime() gives on the route and date.
      */
-    private static function tripOf(string $route, string $date): string
+    private static function tripOf(string $route, string $date, int $order = 1): string
     {
-        return sprintf('%s::R%sT1S%sO1D%s', self::PROVIDER, $route, $route, $date);
+        return sprintf('%s::R%sT1S%sO%dD%s', self::PROVIDER, $route, $route, $order, $date);
     }
 
     /**

@@ -319,6 +319,7 @@ final class StaleDataCollectorTest extends ImporterTestCase
             'operator'   => ['name' => 'Operator'],
             'line'       => ['symbol' => '6', 'type' => 'tram', 'fast' => 0, 'night' => 0],
             'stop'       => ['name' => 'Stop', 'on_demand' => 0],
+            'trip'       => ['service_date' => '2026-10-28'],
             'track_stop' => ['sequence' => 1],
             'trip_stop'  => ['sequence' => 1, 'arrival' => self::NOW, 'departure' => self::NOW],
             default      => [],

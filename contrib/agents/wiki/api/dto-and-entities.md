@@ -44,11 +44,14 @@ and `TripStopEntity` also carries `arrival`/`departure`.
 | `LineEntity` | `Line` | `operator`, `tracks` |
 | `TrackEntity` | `Track` | `stops` (flattened from `stopsInTrack[].stop`), `line`, `destination` (= `final.stop`) |
 | `StopEntity` | `Stop` | lat/lon → `Location`; `destinations` only filled by an embed |
-| `TripEntity` | `Trip` | `timetable` (from `stops`), `track` |
+| `TripEntity` | `Trip` | `timetable` (from `stops`), `track`, `serviceDay` (from `service_date`, Y-m-d in the provider's zone) |
 | `TrackStopEntity` | `TrackStop` | `stop`, `track`, `order` |
 | `TripStopEntity` | `TimetableEntry` | `arrival`, `departure`, `stop`, `order`, `track` (via trip), `trip` |
 | `Federation\FederatedConnectionEntity` | `Federation\Node` | `ConnectionConverter` (also deserializes stored `Status\Aggregated`) |
 | *(service)* `App\Provider\Provider` | `Dto\Provider` | `ProviderConverter` — converts the provider service, not `ProviderEntity` |
+
+`trip.service_date` (`TripEntity::getServiceDate()`, not null, indexed) is the service day the trip belongs to; its
+stops may fall on the next calendar day.
 
 DTOs that have no entity: `Departure`, `Vehicle`, `Message`, `Destination` (stop + lines, built by
 `EmbedDestinationsDatabaseHandler`), `StopGroup`, `CollectionResult`, `Links`, `Status\*`.

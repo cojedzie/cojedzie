@@ -44,6 +44,11 @@ class Trip implements ReferableDto, Fillable, Dto
     private ?string $description = null;
 
     /**
+     * Service day the trip belongs to, as Y-m-d in the provider's timezone; its runs may go past midnight
+     */
+    private ?string $serviceDay = null;
+
+    /**
      * Line reference
      */
     #[SerializeAs(['Default' => 'Identity'])]
@@ -86,6 +91,16 @@ class Trip implements ReferableDto, Fillable, Dto
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getServiceDay(): ?string
+    {
+        return $this->serviceDay;
+    }
+
+    public function setServiceDay(?string $serviceDay): void
+    {
+        $this->serviceDay = $serviceDay;
     }
 
     public function getTrack(): ?Track
