@@ -20,11 +20,21 @@
 
 namespace App\Provider;
 
+use App\Dto\Departure;
 use App\Dto\TimetableEntry;
+use App\Filter\Requirement\Requirement;
+use Ds\Seq;
 
 /**
  * @extends FluentRepository<TimetableEntry>
  */
 interface TimetableRepository extends FluentRepository
 {
+    /**
+     * Planned departures: timetable entries without any live data, ordered by time and then by line. Accepts the
+     * requirements `all()` does.
+     *
+     * @return Seq<Departure>
+     */
+    public function departures(Requirement ...$requirements): Seq;
 }

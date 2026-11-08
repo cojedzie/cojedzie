@@ -107,6 +107,12 @@ final class RealtimeTimetableDepartureRepositoryTest extends TestCase
                 #[\Override]
                 public function all(Requirement ...$requirements): Seq
                 {
+                    return new Seq();
+                }
+
+                #[\Override]
+                public function departures(Requirement ...$requirements): Seq
+                {
                     return new Seq($this->planned);
                 }
             },

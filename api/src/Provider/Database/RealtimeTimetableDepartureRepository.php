@@ -22,8 +22,6 @@ namespace App\Provider\Database;
 
 use App\Dto\Departure;
 use App\Dto\Stop;
-use App\Dto\TimetableEntry;
-use App\Filter\Requirement\Embed;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
 use App\Filter\Requirement\LimitConstraint;
@@ -73,101 +71,70 @@ class RealtimeTimetableDepartureRepository implements DepartureRepository
 
     private function getPlannedDepartures($stop, Carbon $time, Requirement ...$requirements): Seq
     {
-        return $this->timetable->all(
+        return $this->timetable->departures(
             new RelatedFilter($stop, Stop::class),
             new FieldFilter('departure', $time, FieldFilterOperator::GreaterOrEqual),
-            new Embed('track'),
-            new Embed('destination'),
             ...$requirements
         );
     }
 
     /**
-     * @param Seq<TimetableEntry> $planned
-     * @param Seq<Departure>     $real
+     * @param Seq<Departure> $planned
+     * @param Seq<Departure> $real
      *
      * @return Seq<Departure>
      */
     protected function pair(Seq $planned, Seq $real): Seq
     {
-        $key = function ($departure) {
-            if ($departure instanceof Departure) {
-                return sprintf(
-                    "%s::%s::%s",
-                    $departure->getStop()->getId(),
-                    $departure->getLine()->getId(),
-                    $departure->getScheduled()->format("H:i")
-                );
-            } elseif ($departure instanceof TimetableEntry) {
-                return sprintf(
-                    "%s::%s::%s",
-                    $departure->getStop()->getId(),
-                    $departure->getTrack()->getLine()->getId(),
-                    $departure->getDeparture()->format("H:i")
-                );
-            } else {
-                throw new \Exception();
-            }
-        };
+        $key = fn (Departure $departure) => sprintf(
+            "%s::%s::%s",
+            $departure->getStop()->getId(),
+            $departure->getLine()->getId(),
+            $departure->getScheduled()->format("H:i")
+        );
 
-        // a new map, so taking the matched entries out of it leaves the given planned ones untouched
+        // a new map, so taking the matched entries out of it leaves the given planned departures untouched
         $planned = $planned |> c\keyBy($key);
 
         $pairs = $real
             |> c\keyBy($key)
             |> c\map(fn (Departure $real, string $key) => [
-                'estimated' => $real,
-                'scheduled' => $planned->remove($key, null),
+                'live'    => $real,
+                'planned' => $planned->remove($key, null),
             ]);
 
-        /** @var Seq<array{estimated: Departure|null, scheduled: TimetableEntry|null}> $unmatched */
+        /** @var Seq<array{live: Departure|null, planned: Departure|null}> $unmatched */
         $unmatched = $planned
-            |> c\map(fn (TimetableEntry $scheduled) => [
-                'estimated' => null,
-                'scheduled' => $scheduled,
+            |> c\map(fn (Departure $planned) => [
+                'live'    => null,
+                'planned' => $planned,
             ]);
 
         return $pairs
             |> c\concat($unmatched)
-            |> c\map(fn (array $pair) => $this->merge($pair['estimated'], $pair['scheduled']))
+            |> c\map(fn (array $pair) => $this->merge($pair['live'], $pair['planned']))
             |> c\sortBy(function (Departure $departure) {
                 $time = $departure->getEstimated() ?? $departure->getScheduled();
                 return $time->getTimestamp();
             });
     }
 
-    protected function merge(?Departure $real, ?TimetableEntry $scheduled): Departure
+    protected function merge(?Departure $live, ?Departure $planned): Departure
     {
-        if (!$real) {
-            return $this->convertTimetableEntryToDeparture($scheduled);
+        if (!$live) {
+            return $planned;
         }
 
-        if (!$scheduled) {
-            return $real;
+        if (!$planned) {
+            return $live;
         }
 
-        return setup(clone $real, function (Departure $departure) use ($scheduled) {
-            $departure->setDisplay($this->extractDisplayFromTimetableEntry($scheduled));
-            $departure->setTrack($scheduled->getTrack());
-            $departure->setTrip($scheduled->getTrip());
+        return setup(clone $live, function (Departure $departure) use ($planned) {
+            $departure->setDisplay($planned->getDisplay());
+            $departure->setTrack($planned->getTrack());
+            $departure->setTrip($planned->getTrip());
+            $departure->setServiceDay($planned->getServiceDay());
         });
-    }
-
-    protected function convertTimetableEntryToDeparture(TimetableEntry $stop): Departure
-    {
-        return setup(new Departure(), function (Departure $converted) use ($stop) {
-            $converted->setDisplay($this->extractDisplayFromTimetableEntry($stop));
-            $converted->setLine($stop->getTrack()->getLine());
-            $converted->setTrack($stop->getTrack());
-            $converted->setTrip($stop->getTrip());
-            $converted->setScheduled($stop->getDeparture());
-            $converted->setStop($stop->getStop());
-        });
-    }
-
-    protected function extractDisplayFromTimetableEntry(TimetableEntry $stop)
-    {
-        return $stop->getTrack()->getDestination()->getName();
     }
 
     private function extractRequirements(iterable $requirements)

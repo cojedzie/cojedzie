@@ -51,7 +51,7 @@ and `TripStopEntity` also carries `arrival`/`departure`.
 | *(service)* `App\Provider\Provider` | `Dto\Provider` | `ProviderConverter` — converts the provider service, not `ProviderEntity` |
 
 `trip.service_date` (`TripEntity::getServiceDate()`, not null, indexed) is the service day the trip belongs to; its
-stops may fall on the next calendar day.
+stops may fall on the next calendar day. `Departure.serviceDay` carries it for timetable entries (null when unknown).
 
 DTOs that have no entity: `Departure`, `Vehicle`, `Message`, `Destination` (stop + lines, built by
 `EmbedDestinationsDatabaseHandler`), `StopGroup`, `CollectionResult`, `Links`, `Status\*`.

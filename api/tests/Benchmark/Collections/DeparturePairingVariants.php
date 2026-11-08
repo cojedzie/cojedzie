@@ -23,7 +23,6 @@ namespace App\Tests\Benchmark\Collections;
 use App\Dto\Departure;
 use App\Dto\Line;
 use App\Dto\Stop;
-use App\Dto\TimetableEntry;
 use App\Dto\Track;
 use App\Provider\Database\RealtimeTimetableDepartureRepository;
 use Carbon\Carbon;
@@ -53,8 +52,8 @@ final readonly class DeparturePairingVariants
             }
 
             /**
-             * @param Seq<TimetableEntry> $planned
-             * @param Seq<Departure>     $real
+             * @param Seq<Departure> $planned
+             * @param Seq<Departure> $real
              *
              * @return Seq<Departure>
              */
@@ -64,11 +63,11 @@ final readonly class DeparturePairingVariants
             }
 
             /**
-             * @param array{estimated: ?Departure, scheduled: ?TimetableEntry} $pair
+             * @param array{live: ?Departure, planned: ?Departure} $pair
              */
             public function mergePair(array $pair): Departure
             {
-                return $this->merge($pair['estimated'], $pair['scheduled']);
+                return $this->merge($pair['live'], $pair['planned']);
             }
         };
     }
@@ -76,8 +75,8 @@ final readonly class DeparturePairingVariants
     /**
      * The production pair(), to pin the copies in this class to it.
      *
-     * @param iterable<TimetableEntry> $planned
-     * @param iterable<Departure>     $real
+     * @param iterable<Departure> $planned
+     * @param iterable<Departure> $real
      *
      * @return list<Departure>
      */
@@ -89,8 +88,8 @@ final readonly class DeparturePairingVariants
     /**
      * Eager kadet/functional collections: every step builds a finished collection.
      *
-     * @param iterable<TimetableEntry> $planned
-     * @param iterable<Departure>     $real
+     * @param iterable<Departure> $planned
+     * @param iterable<Departure> $real
      *
      * @return list<Departure>
      */
@@ -101,15 +100,15 @@ final readonly class DeparturePairingVariants
         $pairs = $real
             |> c\keyBy(self::key(...))
             |> c\map(fn (Departure $real, string $key) => [
-                'estimated' => $real,
-                'scheduled' => $planned->remove($key, null),
+                'live'    => $real,
+                'planned' => $planned->remove($key, null),
             ]);
 
-        /** @var iterable<array{estimated: Departure|null, scheduled: TimetableEntry|null}> $unmatched */
+        /** @var iterable<array{live: Departure|null, planned: Departure|null}> $unmatched */
         $unmatched = $planned
-            |> c\map(fn (TimetableEntry $scheduled) => [
-                'estimated' => null,
-                'scheduled' => $scheduled,
+            |> c\map(fn (Departure $planned) => [
+                'live'    => null,
+                'planned' => $planned,
             ]);
 
         return $pairs
@@ -123,8 +122,8 @@ final readonly class DeparturePairingVariants
      * Lazy kadet/functional collections wherever the step allows it: keying and sorting need the whole input, so
      * they stay eager.
      *
-     * @param iterable<TimetableEntry> $planned
-     * @param iterable<Departure>     $real
+     * @param iterable<Departure> $planned
+     * @param iterable<Departure> $real
      *
      * @return list<Departure>
      */
@@ -133,17 +132,17 @@ final readonly class DeparturePairingVariants
         $planned = $planned |> c\keyBy(self::key(...));
 
         // read only after every real departure took its match out of the planned ones
-        /** @var iterable<array{estimated: Departure|null, scheduled: TimetableEntry|null}> $unmatched */
-        $unmatched = $planned |> lazy\map(fn (TimetableEntry $scheduled) => [
-            'estimated' => null,
-            'scheduled' => $scheduled,
+        /** @var iterable<array{live: Departure|null, planned: Departure|null}> $unmatched */
+        $unmatched = $planned |> lazy\map(fn (Departure $planned) => [
+            'live'    => null,
+            'planned' => $planned,
         ]);
 
         return $real
             |> c\keyBy(self::key(...))
             |> lazy\map(fn (Departure $real, string $key) => [
-                'estimated' => $real,
-                'scheduled' => $planned->remove($key, null),
+                'live'    => $real,
+                'planned' => $planned->remove($key, null),
             ])
             |> lazy\concat($unmatched)
             |> lazy\map($this->repository->mergePair(...))
@@ -158,7 +157,7 @@ final readonly class DeparturePairingVariants
      * planned one, the rest are scheduled a minute after one, so they match nothing. Every realtime departure,
      * matched or not, is estimated 0 to 4 minutes late and displays `Realtime {n}`; planned ones display `Dest {n}`.
      *
-     * @return array{0: list<TimetableEntry>, 1: list<Departure>}
+     * @return array{0: list<Departure>, 1: list<Departure>}
      */
     public static function fixture(int $scheduled, int $realtime, float $matchRatio = 0.7): array
     {
@@ -191,12 +190,12 @@ final readonly class DeparturePairingVariants
         for ($i = 0; $i < $scheduled; $i++) {
             [, $track] = $lines[$i % self::LINES];
 
-            $planned[] = TimetableEntry::createFromArray([
-                'order'     => 1,
+            $planned[] = Departure::createFromArray([
                 'stop'      => $stop,
-                'arrival'   => $at(2 * $i),
-                'departure' => $at(2 * $i),
+                'line'      => $track->getLine(),
                 'track'     => $track,
+                'display'   => $track->getDestination()->getName(),
+                'scheduled' => $at(2 * $i),
             ]);
         }
 
@@ -220,10 +219,8 @@ final readonly class DeparturePairingVariants
         return [$planned, $real];
     }
 
-    private static function key(Departure|TimetableEntry $departure): string
+    private static function key(Departure $departure): string
     {
-        return $departure instanceof Departure
-            ? sprintf("%s::%s::%s", $departure->getStop()->getId(), $departure->getLine()->getId(), $departure->getScheduled()->format("H:i"))
-            : sprintf("%s::%s::%s", $departure->getStop()->getId(), $departure->getTrack()->getLine()->getId(), $departure->getDeparture()->format("H:i"));
+        return sprintf("%s::%s::%s", $departure->getStop()->getId(), $departure->getLine()->getId(), $departure->getScheduled()->format("H:i"));
     }
 }
