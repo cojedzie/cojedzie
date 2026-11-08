@@ -39,4 +39,17 @@ export default defineConfig([
             "@typescript-eslint/ban-ts-comment": "off",
         },
     },
+    {
+        // framework-free logic, kept portable to another UI framework
+        files: ["src/timetable/**"],
+        rules: {
+            "no-restricted-imports": [
+                "error",
+                {
+                    paths: ["vue", "pinia", "vue-router", "@/api"],
+                    patterns: ["@vue/*", "@/stores/*", "@/composables/*", "@/components/*", "*.vue"],
+                },
+            ],
+        },
+    },
 ]);
