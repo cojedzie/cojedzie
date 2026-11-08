@@ -41,7 +41,7 @@ final readonly class CollectStaleDataMessageHandler
         $removed = $this->collector->collect();
 
         if ($removed === []) {
-            $this->logger->warning('No import finished within the retention period, stale data was not collected.');
+            $this->logger->warning('No import succeeded within the retention period, stale data was not collected.');
             return;
         }
 

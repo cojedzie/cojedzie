@@ -32,7 +32,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * upstream, and the imports nothing refers to anymore.
  *
  * Rows still used by rows that stay (a stop on a current track) are kept. Nothing is removed unless an import
- * finished within the retention period, so a stalled or failing import can't wipe the data.
+ * succeeded within the retention period, so a stalled or failing import can't wipe the data.
  */
 class StaleDataCollector
 {
@@ -77,7 +77,7 @@ class StaleDataCollector
     {
         $cutoff = $this->clock->now()->sub(\DateInterval::createFromDateString($this->retention));
 
-        if (!$this->hasFinishedImportSince($cutoff)) {
+        if (!$this->hasSucceededImportSince($cutoff)) {
             return [];
         }
 
@@ -94,11 +94,11 @@ class StaleDataCollector
         });
     }
 
-    private function hasFinishedImportSince(\DateTimeImmutable $cutoff): bool
+    private function hasSucceededImportSince(\DateTimeImmutable $cutoff): bool
     {
         return (bool) $this->connection->fetchOne(
-            'SELECT 1 FROM import WHERE finished_at IS NOT NULL AND started_at >= :cutoff',
-            ['cutoff' => $cutoff],
+            'SELECT 1 FROM import WHERE status = :succeeded AND started_at >= :cutoff',
+            ['succeeded' => ImportStatus::Succeeded->value, 'cutoff' => $cutoff],
             ['cutoff' => Types::DATETIME_IMMUTABLE],
         );
     }
