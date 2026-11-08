@@ -27,6 +27,7 @@ use App\Dto\Departure;
 use App\Dto\DepartureState;
 use App\Dto\Line;
 use App\Dto\Stop;
+use App\Dto\TimetableRange;
 use App\Filter\Requirement\Requirement;
 use App\Provider\Database\ObservedTimetableRepository;
 use App\Provider\Live\DepartureStatus;
@@ -161,6 +162,12 @@ final class ObservedTimetableRepositoryTest extends TestCase
             public function departures(Requirement ...$requirements): Seq
             {
                 return new Seq($this->planned);
+            }
+
+            #[\Override]
+            public function range(): ?TimetableRange
+            {
+                return null;
             }
         };
 

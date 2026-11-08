@@ -62,6 +62,11 @@ class Provider implements Fillable, Referable, Dto
      */
     private Location $location;
 
+    /**
+     * Service days the provider has a timetable for, null when it has none.
+     */
+    private ?TimetableRange $timetable = null;
+
     #[\Override]
     public function getId(): string
     {
@@ -121,5 +126,15 @@ class Provider implements Fillable, Referable, Dto
     public function setLocation(Location $location): void
     {
         $this->location = $location;
+    }
+
+    public function getTimetable(): ?TimetableRange
+    {
+        return $this->timetable;
+    }
+
+    public function setTimetable(?TimetableRange $timetable): void
+    {
+        $this->timetable = $timetable;
     }
 }

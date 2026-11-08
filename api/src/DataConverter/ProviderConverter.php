@@ -38,6 +38,7 @@ class ProviderConverter implements Converter
             'attribution' => $entity->getAttribution(),
             'lastUpdate'  => $entity->getLastUpdate() ? clone $entity->getLastUpdate() : null,
             'location'    => $entity->getLocation(),
+            'timetable'   => $entity->getTimetableRepository()->range(),
         ]);
     }
 

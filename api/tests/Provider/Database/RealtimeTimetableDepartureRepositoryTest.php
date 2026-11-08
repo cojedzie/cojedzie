@@ -24,6 +24,7 @@ namespace App\Tests\Provider\Database;
 
 use App\Dto\Departure;
 use App\Dto\Stop;
+use App\Dto\TimetableRange;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\Requirement;
 use App\Provider\Database\RealtimeTimetableDepartureRepository;
@@ -114,6 +115,12 @@ final class RealtimeTimetableDepartureRepositoryTest extends TestCase
                 public function departures(Requirement ...$requirements): Seq
                 {
                     return new Seq($this->planned);
+                }
+
+                #[\Override]
+                public function range(): ?TimetableRange
+                {
+                    return null;
                 }
             },
             new readonly class($real) implements DepartureRepository {

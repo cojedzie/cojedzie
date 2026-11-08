@@ -31,6 +31,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table('trip')]
 #[ORM\Index(columns: ['valid_to'])]
 #[ORM\Index(name: 'trip_service_date_idx', columns: ['service_date'])]
+// answers the first and the last service day of a provider without reading its trips
+#[ORM\Index(name: 'trip_provider_service_date_idx', columns: ['provider_id', 'service_date'])]
 class TripEntity implements Entity, Fillable, ValidityAwareInterface
 {
     use ReferableEntityTrait, ProviderReferenceTrait, FillTrait, ImportedTrait, ValidityTrait;

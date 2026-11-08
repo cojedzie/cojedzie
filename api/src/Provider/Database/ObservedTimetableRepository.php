@@ -27,6 +27,7 @@ use App\DepartureHistory\DepartureHistoryException;
 use App\DepartureHistory\ObservedDeparture;
 use App\Dto\Departure;
 use App\Dto\DepartureState;
+use App\Dto\TimetableRange;
 use App\Dto\Vehicle;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DeparturePairing;
@@ -71,6 +72,12 @@ final readonly class ObservedTimetableRepository implements TimetableRepository
     public function all(Requirement ...$requirements): Seq
     {
         return $this->inner->all(...$requirements);
+    }
+
+    #[\Override]
+    public function range(): ?TimetableRange
+    {
+        return $this->inner->range();
     }
 
     #[\Override]
