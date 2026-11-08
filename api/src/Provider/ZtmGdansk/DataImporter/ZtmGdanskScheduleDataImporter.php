@@ -523,7 +523,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
 
         return $stopTimes
             |> c\groupBy(fn (array $stopTime) => $this->tripIdOf($stopTime, $date))
-            |> c\map(fn (Seq $stopTimesOfTrip) => $this->tripWithStops($stopTimesOfTrip, $midnight))
+            |> c\map(fn (Seq $stopTimesOfTrip) => $this->tripWithStops($stopTimesOfTrip, $date, $midnight))
             |> c\toArray();
     }
 
@@ -532,10 +532,10 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
      *
      * @return array{trip: array<string, mixed>, stops: list<array<string, mixed>>}
      */
-    private function tripWithStops(Seq $stopTimes, CarbonImmutable $midnight): array
+    private function tripWithStops(Seq $stopTimes, string $date, CarbonImmutable $midnight): array
     {
         $stops     = $stopTimes |> c\map(fn (array $stopTime) => $this->tripStopOf($stopTime, $midnight));
-        $firstTrip = $this->tripOf($stopTimes->first(), $stops->first());
+        $firstTrip = $this->tripOf($stopTimes->first(), $date, $stops->first());
 
         return $stops |> c\reduce(fn (array $trip, array $stop) => $this->withStop($trip, $stop), $firstTrip);
     }
@@ -558,24 +558,26 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     }
 
     /**
-     * A trip without stops yet, valid while its first stop.
+     * A trip of the service day without stops yet, valid while its first stop.
      *
      * @param array<string, mixed> $stopTime
+     * @param string               $date     the service day, Y-m-d
      * @param array<string, mixed> $stop     the trip stop of the stop time
      *
      * @return array{trip: array<string, mixed>, stops: list<array<string, mixed>>}
      */
-    private function tripOf(array $stopTime, array $stop): array
+    private function tripOf(array $stopTime, string $date, array $stop): array
     {
         $trackId = sprintf('R%sT%sV%s', $stopTime['routeId'], $stopTime['tripId'], $stopTime['topologyVersionId']);
 
         return [
             'trip' => [
-                'operator_id' => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stopTime['agencyId']),
-                'track_id'    => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $trackId),
-                'note'        => $stopTime['noteDescription'],
-                'valid_from'  => $stop['arrival'],
-                'valid_to'    => $stop['departure'],
+                'operator_id'  => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stopTime['agencyId']),
+                'track_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $trackId),
+                'note'         => $stopTime['noteDescription'],
+                'service_date' => $date,
+                'valid_from'   => $stop['arrival'],
+                'valid_to'     => $stop['departure'],
             ],
             'stops' => [],
         ];
@@ -648,7 +650,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
                 'provider_id' => ZtmGdanskProvider::IDENTIFIER,
                 'import_id'   => $event->import->getId(),
             ],
-            $types,
+            [...$types, 'service_date' => Types::STRING],
         );
 
         $knownStops = $stops |> c\filter(fn (array $stop) => $stopIds->contains($stop['stop_id']));

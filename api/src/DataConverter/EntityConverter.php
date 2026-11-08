@@ -95,10 +95,11 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
                     : null,
             ]),
             $entity instanceof TripEntity => $result->fill([
-                'variant'   => $entity->getVariant(),
-                'note'      => $entity->getNote(),
-                'timetable' => $this->collection($entity->getStops()) |> c\map($convert),
-                'track'     => $convert($entity->getTrack()),
+                'variant'    => $entity->getVariant(),
+                'note'       => $entity->getNote(),
+                'serviceDay' => $entity->getServiceDate()->format('Y-m-d'),
+                'timetable'  => $this->collection($entity->getStops()) |> c\map($convert),
+                'track'      => $convert($entity->getTrack()),
             ]),
             default => $result,
         };

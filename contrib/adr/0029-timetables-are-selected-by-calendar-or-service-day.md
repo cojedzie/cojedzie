@@ -1,6 +1,6 @@
 # 0029. Timetables are selected by calendar day or service day
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-08
 - **Applies to:** `api/src/Entity/TripEntity.php`, `api/src/Provider/*/DataImporter/**`, `api/migrations/**`,
   `api/src/Controller/Api/v1/*Timetable*`, `api/src/Filter/**`
