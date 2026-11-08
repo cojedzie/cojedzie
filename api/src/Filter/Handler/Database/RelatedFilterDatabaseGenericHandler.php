@@ -21,8 +21,8 @@
 namespace App\Filter\Handler\Database;
 
 use App\Dto\Line;
-use App\Dto\ScheduledStop;
 use App\Dto\Stop;
+use App\Dto\TimetableEntry;
 use App\Dto\Track;
 use App\Dto\TrackStop;
 use App\Dto\Trip;
@@ -46,7 +46,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
             Stop::class  => 'stop',
             Track::class => 'track',
         ],
-        ScheduledStop::class => [
+        TimetableEntry::class => [
             Stop::class => 'stop',
             Trip::class => 'trip',
         ],

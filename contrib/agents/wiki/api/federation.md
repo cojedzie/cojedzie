@@ -43,6 +43,10 @@ stateless). Everything else stays anonymous. ADR 0008 records the decision.
 Routes declare `options: ['version' => 'x.y']`. `Service/StatusService` publishes every route that has a version
 (name, version, methods, path template). Nodes therefore advertise which endpoint versions they support.
 
+Adding fields is compatible and keeps the version. A change that breaks the response shape bumps the minor version,
+and the frontend requires the new one (its `version` constraint and the fallback in `src/api/endpoints.ts`), so it
+skips nodes still on an older image: `v1_trip_details` 1.1 renamed `Trip.schedule` to `timetable`.
+
 ## Client side
 
 The frontend picks nodes by endpoint name and version — see

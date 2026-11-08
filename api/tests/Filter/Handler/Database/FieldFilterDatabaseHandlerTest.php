@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Filter\Handler\Database;
 
-use App\Dto\ScheduledStop;
 use App\Dto\Stop;
+use App\Dto\TimetableEntry;
 use App\Dto\TrackStop;
 use App\Entity\StopEntity;
 use App\Entity\TrackStopEntity;
@@ -58,7 +58,7 @@ final class FieldFilterDatabaseHandlerTest extends KernelTestCase
         $builder = $this->filter(
             TripStopEntity::class,
             'trip_stop',
-            ScheduledStop::class,
+            TimetableEntry::class,
             new FieldFilter('departure', $time, FieldFilterOperator::GreaterOrEqual),
         );
 

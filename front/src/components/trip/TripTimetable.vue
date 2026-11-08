@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, PropType, useTemplateRef } from "vue";
-import { ScheduledStop } from "@/model/trip";
+import { TimetableEntry } from "@/model/trip";
 import { Stop } from "@/model";
 import moment from "moment";
 import StopLabel from "@/components/stop/StopLabel.vue";
@@ -29,13 +29,13 @@ import { useIsTouch } from "@/composables/useIsTouch";
 
 const isTouch = useIsTouch();
 
-type ScheduledStopInfo = ScheduledStop & { visited: boolean; current: boolean };
+type TimetableEntryInfo = TimetableEntry & { visited: boolean; current: boolean };
 
-defineOptions({ name: "TripSchedule" });
+defineOptions({ name: "TripTimetable" });
 
 const props = defineProps({
-    schedule: {
-        type: Array as PropType<ScheduledStop[]>,
+    timetable: {
+        type: Array as PropType<TimetableEntry[]>,
         required: true,
     },
     current: {
@@ -46,8 +46,8 @@ const props = defineProps({
 
 const list = useTemplateRef<HTMLOListElement>("stops");
 
-const stops = computed<ScheduledStopInfo[]>(() =>
-    props.schedule.map(stop => ({
+const stops = computed<TimetableEntryInfo[]>(() =>
+    props.timetable.map(stop => ({
         ...stop,
         current: stop.stop.id == props.current.id,
         visited: moment().isAfter(stop.departure),

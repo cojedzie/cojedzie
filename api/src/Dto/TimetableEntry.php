@@ -23,7 +23,7 @@ namespace App\Dto;
 use Carbon\Carbon;
 
 #[ContentType('vnd.cojedzie.trip.stop')]
-class ScheduledStop extends TrackStop
+class TimetableEntry extends TrackStop
 {
     /**
      * Arrival time.
@@ -36,7 +36,7 @@ class ScheduledStop extends TrackStop
     private Carbon $departure;
 
     /**
-     * Exact trip that this scheduled stop is part of.
+     * Exact trip that this entry is part of.
      */
     private ?Trip $trip = null;
 

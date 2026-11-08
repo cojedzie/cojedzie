@@ -21,12 +21,12 @@
 namespace App\DataConverter;
 
 use App\Dto\Dto;
-use App\Dto\ScheduledStop;
+use App\Dto\TimetableEntry;
 use App\Dto\TrackStop;
 use App\Entity\TrackStopEntity;
 use App\Entity\TripStopEntity;
 
-class ScheduledStopConverter implements Converter, RecursiveConverter
+class TimetableEntryConverter implements Converter, RecursiveConverter
 {
     use RecursiveConverterTrait;
 
@@ -42,7 +42,7 @@ class ScheduledStopConverter implements Converter, RecursiveConverter
         }
 
         if ($entity instanceof TripStopEntity) {
-            return ScheduledStop::createFromArray([
+            return TimetableEntry::createFromArray([
                 'arrival'   => $entity->getArrival(),
                 'departure' => $entity->getDeparture(),
                 'stop'      => $this->parent->convert($entity->getStop(), $type),

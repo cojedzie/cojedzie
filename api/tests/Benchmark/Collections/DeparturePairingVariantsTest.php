@@ -37,24 +37,24 @@ final class DeparturePairingVariantsTest extends TestCase
     #[DataProvider('sizes')]
     public function testVariantsProduceIdenticalOutput(int $scheduled, int $realtime): void
     {
-        $variants          = new DeparturePairingVariants();
-        [$schedule, $real] = DeparturePairingVariants::fixture($scheduled, $realtime);
+        $variants         = new DeparturePairingVariants();
+        [$planned, $real] = DeparturePairingVariants::fixture($scheduled, $realtime);
 
-        $materialized = $this->describe($variants->materialized($schedule, $real));
+        $materialized = $this->describe($variants->materialized($planned, $real));
 
         $this->assertCount($scheduled + $realtime - (int) round($realtime * 0.7), $materialized);
-        $this->assertSame($materialized, $this->describe($variants->lazy($schedule, $real)));
+        $this->assertSame($materialized, $this->describe($variants->lazy($planned, $real)));
     }
 
     #[DataProvider('sizes')]
     public function testProductionPairMatchesMaterializedVariant(int $scheduled, int $realtime): void
     {
-        $variants          = new DeparturePairingVariants();
-        [$schedule, $real] = DeparturePairingVariants::fixture($scheduled, $realtime);
+        $variants         = new DeparturePairingVariants();
+        [$planned, $real] = DeparturePairingVariants::fixture($scheduled, $realtime);
 
         $this->assertSame(
-            $this->describe($variants->production($schedule, $real)),
-            $this->describe($variants->materialized($schedule, $real))
+            $this->describe($variants->production($planned, $real)),
+            $this->describe($variants->materialized($planned, $real))
         );
     }
 

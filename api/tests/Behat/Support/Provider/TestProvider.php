@@ -26,11 +26,11 @@ use App\Dto\Location;
 use App\Entity\ProviderEntity;
 use App\Filter\Requirement\Requirement;
 use App\Provider\Database\GenericLineRepository;
-use App\Provider\Database\GenericScheduleRepository;
 use App\Provider\Database\GenericStopRepository;
+use App\Provider\Database\GenericTimetableRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\Database\GenericTripRepository;
-use App\Provider\Database\RealtimeScheduleDepartureRepository;
+use App\Provider\Database\RealtimeTimetableDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
@@ -57,7 +57,7 @@ final readonly class TestProvider implements Provider
         private GenericStopRepository $stops,
         private GenericTrackRepository $tracks,
         private GenericTripRepository $trips,
-        private GenericScheduleRepository $schedule,
+        private GenericTimetableRepository $timetable,
         private InMemoryDepartureRepository $live,
         private ClockInterface $clock,
     ) {
@@ -67,7 +67,7 @@ final readonly class TestProvider implements Provider
     public function getDepartureRepository(): DepartureRepository
     {
         // the timetable from the database joined with live departures, the same way real providers do it
-        return new RealtimeScheduleDepartureRepository($this->schedule->withProvider($this->entity()), $this->live, $this->clock);
+        return new RealtimeTimetableDepartureRepository($this->timetable->withProvider($this->entity()), $this->live, $this->clock);
     }
 
     #[\Override]

@@ -52,7 +52,7 @@ export type EndpointResult<TEndpoints extends EndpointCollection, TEndpoint exte
 export const endpoints: Endpoints = {
     v1_trip_details: {
         template: "/api/v1/{provider}/trips/{id}",
-        version: "1.0",
+        version: "1.1",
     },
     v1_departure_list: {
         template: "/api/v1/{provider}/departures",

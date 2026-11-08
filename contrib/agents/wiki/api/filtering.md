@@ -25,8 +25,8 @@ Marker interface `Requirement`; all implementations are immutable.
 | `Embed($relationship)` | Load an optional relation into the result (e.g. `destinations`, `track`, `$refs.stops`). |
 | `ValidityConstraint($at)` | Only versioned records valid at a moment (`ValidityAwareInterface`). Track repositories add one for now unless the requirements carry one; the `destinations` embed uses tracks valid now. |
 
-Requirements are also used **internally** between repositories — e.g. `Database\RealtimeScheduleDepartureRepository` queries the
-schedule repository with `RelatedFilter($stop, Stop::class)`, `FieldFilter('departure', $time, GreaterOrEqual)`,
+Requirements are also used **internally** between repositories — e.g. `Database\RealtimeTimetableDepartureRepository` queries the
+timetable repository with `RelatedFilter($stop, Stop::class)`, `FieldFilter('departure', $time, GreaterOrEqual)`,
 `Embed('track')`, `Embed('destination')`, and doubles the requested `LimitConstraint` before merging realtime data.
 
 ## HTTP bindings (`src/Filter/Binding/Http`)
@@ -116,7 +116,7 @@ The generic DB handlers translate DTO-level names into entity paths using `$mapp
 class from `meta['type']`. **Filtering by a new field or relation usually means adding a mapping entry here**,
 otherwise the handler throws `InvalidArgumentException`:
 
-- `FieldFilterDatabaseHandler::$mapping` — DTO field → entity field (e.g. `Stop.name`, `ScheduledStop.departure`).
+- `FieldFilterDatabaseHandler::$mapping` — DTO field → entity field (e.g. `Stop.name`, `TimetableEntry.departure`).
   Case-insensitive comparison uses `LOWER()`; string operators become `LIKE` with `%` wrapping.
 - `RelatedFilterDatabaseGenericHandler::$mapping` — relationship → entity association to join, or another
   handler service to delegate to (e.g. `Track` + `'stop'`/`'destination'` → `TrackByStopDatabaseHandler`).
