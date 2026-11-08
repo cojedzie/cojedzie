@@ -30,7 +30,7 @@ export function useAboutLinks(): { version: string; year: number; links: AboutLi
     const config = useAppConfig();
 
     const links: AboutLink[] = [
-        { label: "API", href: "/api/doc", icon: "api" },
+        { label: "API", href: "/api/", icon: "api" },
         ...(config.production
             ? []
             : [{ label: "Storybook", href: "/storybook/", icon: "storybook" } satisfies AboutLink]),
