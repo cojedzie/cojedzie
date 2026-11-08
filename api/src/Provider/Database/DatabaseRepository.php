@@ -131,15 +131,19 @@ abstract class DatabaseRepository implements Repository
         return $reducers;
     }
 
-    protected function allFromQueryBuilder(QueryBuilder $builder, iterable $requirements, array $meta = []): Seq
-    {
+    protected function allFromQueryBuilder(
+        QueryBuilder $builder,
+        iterable $requirements,
+        array $meta = [],
+        ?\Closure $convert = null
+    ): Seq {
         $builder->setMaxResults(self::DEFAULT_LIMIT);
 
         $reducers = $this->processQueryBuilder($builder, $requirements, $meta);
         $query    = $builder->getQuery();
 
         $paginator = new Paginator($query);
-        $result    = $paginator |> c\map($this->convert(...));
+        $result    = $paginator |> c\map($convert ?? $this->convert(...));
 
         return $reducers |> c\reduce(fn (Seq $result, \Closure $reducer) => $reducer($result), $result);
     }

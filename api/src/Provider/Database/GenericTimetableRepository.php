@@ -20,6 +20,7 @@
 
 namespace App\Provider\Database;
 
+use App\Dto\Departure;
 use App\Dto\TimetableEntry;
 use App\Entity\TripStopEntity;
 use App\Filter\Requirement\Requirement;
@@ -42,6 +43,46 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
             'alias'  => 'trip_stop',
             'type'   => TimetableEntry::class,
             'entity' => TripStopEntity::class,
+        ]);
+    }
+
+    #[\Override]
+    public function departures(Requirement ...$requirements): Seq
+    {
+        // the aliases are the ones the embeds use, so asking for them again joins nothing twice
+        $builder = $this->em
+            ->createQueryBuilder()
+            ->select('trip_stop', 'trip_stop_trip', 'trip_stop_trip_track', 'trip_stop_trip_track_final', 'trip_stop_trip_track_line')
+            ->from(TripStopEntity::class, 'trip_stop')
+            ->join('trip_stop.trip', 'trip_stop_trip')
+            ->join('trip_stop_trip.track', 'trip_stop_trip_track')
+            ->join('trip_stop_trip_track.final', 'trip_stop_trip_track_final')
+            ->join('trip_stop_trip_track.line', 'trip_stop_trip_track_line')
+            ->orderBy('trip_stop.departure', 'ASC')
+            ->addOrderBy('trip_stop_trip_track_line.symbol', 'ASC')
+        ;
+
+        return $this->allFromQueryBuilder($builder, $requirements, [
+            'alias'  => 'trip_stop',
+            'type'   => TimetableEntry::class,
+            'entity' => TripStopEntity::class,
+        ], fn (TripStopEntity $entry) => $this->toDeparture($this->convert($entry)));
+    }
+
+    private function toDeparture(TimetableEntry $entry): Departure
+    {
+        $track = $entry->getTrack();
+
+        return Departure::createFromArray([
+            // a trip may visit a stop twice, its place in the trip tells the visits apart
+            'key'        => sprintf('%s::%s::%d', $entry->getTrip()->getId(), $entry->getStop()->getId(), $entry->getOrder()),
+            'line'       => $track->getLine(),
+            'stop'       => $entry->getStop(),
+            'track'      => $track,
+            'trip'       => $entry->getTrip(),
+            'display'    => $track->getDestination()->getName(),
+            'scheduled'  => $entry->getDeparture(),
+            'serviceDay' => $entry->getTrip()->getServiceDay(),
         ]);
     }
 }

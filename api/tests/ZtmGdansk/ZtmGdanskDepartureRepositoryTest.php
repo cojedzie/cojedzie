@@ -25,7 +25,6 @@ namespace App\Tests\ZtmGdansk;
 use App\Dto\Departure;
 use App\Dto\Line;
 use App\Dto\Stop;
-use App\Dto\TimetableEntry;
 use App\Dto\Track;
 use App\Dto\Trip;
 use App\Filter\Requirement\IdConstraint;
@@ -60,7 +59,7 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     private array $lines = [];
 
     /**
-     * @var list<TimetableEntry>
+     * @var list<Departure>
      */
     private array $planned = [];
 
@@ -232,11 +231,11 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
     {
         $departure = Carbon::parse('2026-10-20 ' . $time, self::ZONE)->tz('UTC');
 
-        $this->planned[] = TimetableEntry::createFromArray([
-            'order'     => 1,
+        $this->planned[] = Departure::createFromArray([
             'stop'      => $this->stop,
-            'arrival'   => $departure,
-            'departure' => $departure,
+            'line'      => $this->lines[$line],
+            'scheduled' => $departure,
+            'display'   => $destination,
             'track'     => Track::createFromArray([
                 'id'          => $line . '-1',
                 'line'        => $this->lines[$line],
@@ -376,6 +375,12 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
 
             #[\Override]
             public function all(Requirement ...$requirements): Seq
+            {
+                return new Seq();
+            }
+
+            #[\Override]
+            public function departures(Requirement ...$requirements): Seq
             {
                 return new Seq($this->planned);
             }

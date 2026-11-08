@@ -21,7 +21,6 @@
 namespace App\Tests\Benchmark\Collections;
 
 use App\Dto\Departure;
-use App\Dto\TimetableEntry;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
@@ -41,7 +40,7 @@ final class DeparturePairingBench
     private DeparturePairingVariants $variants;
 
     /**
-     * @var list<TimetableEntry>
+     * @var list<Departure>
      */
     private array $planned;
 

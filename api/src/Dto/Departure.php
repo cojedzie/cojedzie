@@ -92,6 +92,13 @@ class Departure implements Fillable, Dto
     #[OA\Property(type: 'string', format: 'date-time')]
     private Carbon $scheduled;
 
+    /**
+     * Service day of the trip, as Y-m-d in the provider's timezone. A departure after midnight belongs to the day
+     * the trip started, null when unknown.
+     */
+    #[OA\Property(type: 'string', format: 'date')]
+    private ?string $serviceDay = null;
+
     public function getKey(): ?string
     {
         return $this->key;
@@ -150,6 +157,16 @@ class Departure implements Fillable, Dto
     public function setScheduled(Carbon $scheduled): void
     {
         $this->scheduled = $scheduled;
+    }
+
+    public function getServiceDay(): ?string
+    {
+        return $this->serviceDay;
+    }
+
+    public function setServiceDay(?string $serviceDay): void
+    {
+        $this->serviceDay = $serviceDay;
     }
 
     #[Ignore]
