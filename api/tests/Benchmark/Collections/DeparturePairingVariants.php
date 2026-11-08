@@ -25,6 +25,7 @@ use App\Dto\Line;
 use App\Dto\Stop;
 use App\Dto\Track;
 use App\Provider\Database\RealtimeTimetableDepartureRepository;
+use App\Provider\DeparturePairing;
 use Carbon\Carbon;
 use Ds\Seq;
 use Kadet\Functional\Collections as c;
@@ -219,8 +220,8 @@ final readonly class DeparturePairingVariants
         return [$planned, $real];
     }
 
-    private static function key(Departure $departure): string
+    public static function key(Departure $departure): string
     {
-        return sprintf("%s::%s::%s", $departure->getStop()->getId(), $departure->getLine()->getId(), $departure->getScheduled()->format("H:i"));
+        return DeparturePairing::key($departure->getStop()->getId(), $departure->getLine()->getId(), $departure->getScheduled());
     }
 }

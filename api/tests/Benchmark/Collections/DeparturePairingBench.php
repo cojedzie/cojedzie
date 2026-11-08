@@ -21,6 +21,7 @@
 namespace App\Tests\Benchmark\Collections;
 
 use App\Dto\Departure;
+use App\Provider\DeparturePairing;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
@@ -80,5 +81,15 @@ final class DeparturePairingBench
     public function benchLazy(): void
     {
         $this->variants->lazy($this->planned, $this->real);
+    }
+
+    /**
+     * The production pairing alone, without merging and sorting the pairs.
+     */
+    public function benchPairing(): void
+    {
+        $key = DeparturePairingVariants::key(...);
+
+        DeparturePairing::pair($this->planned, $this->real, $key, $key);
     }
 }

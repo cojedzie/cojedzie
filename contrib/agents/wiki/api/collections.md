@@ -52,8 +52,7 @@ $byLine = $departures
   `$map->get($key, null)`, `$map->hasKey($key)`.
 - Never mutate a collection you received (argument, DTO property, repository result): `Seq::sort()`, `push()`,
   `unshift()`, `apply()` and `Map::put()`/`remove()` change it in place for every other reader. Use `c\` functions,
-  or build your own copy first (`RealtimeTimetableDepartureRepository::pair()` re-keys the planned entries into a new `Map`
-  before calling `remove()` on it).
+  or work on a copy (`DeparturePairing::pair()` calls `remove()` on the new `Map` its `c\map` built).
 
 ## Translations from Illuminate
 

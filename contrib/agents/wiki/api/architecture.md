@@ -50,7 +50,9 @@ returning departures with estimates for the given stops; there is no separate re
 the two: a live departure replaces the timetable entry with the same line and scheduled minute (keeping the
 timetable's destination, track and trip), live departures without a timetable entry are kept, departures that
 left are dropped, then ordering and `limit`/`offset`. Override `pair()`/`merge()` in a subclass to change matching.
-Entries are matched per stop (`stop::line::HH:MM`), the timetable is read from now or from the earliest late live
+Matching is `DeparturePairing` (`Provider\DeparturePairing`): the key is
+`stop::line::` plus the scheduled minute in UTC including the date, the first live entry per key wins, and planned
+entries sharing a key all stay (each is paired with the same live one only once). The timetable is read from now or from the earliest late live
 departure, and `offset` is applied once to the joined list. A live source that fails returns no estimates, so
 departures fall back to the timetable. Behaviour is pinned by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest`
 and the departures scenarios.
