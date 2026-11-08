@@ -58,6 +58,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0025](0025-imported-schedules-are-versioned-by-validity.md) | Imported schedules are versioned by validity | Accepted |
 | [0026](0026-the-import-is-a-graph-of-messages.md) | The import is a persisted graph of importers that may split into jobs | Accepted |
 | [0027](0027-stale-imported-data-is-collected-by-retention-and-validity.md) | Stale imported data is collected by retention and validity | Accepted |
+| [0029](0029-timetables-are-selected-by-calendar-or-service-day.md) | Timetables are selected by calendar day or service day | Proposed |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
