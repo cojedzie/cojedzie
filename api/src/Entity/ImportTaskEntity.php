@@ -29,7 +29,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * A node of an import: one importer. Workers run them as RunImportTask messages, see ImportGraph.
+ * A node of an import: one importer. Workers run them as RunImportTask messages, see ImportGraph; the importer may
+ * split its work into jobs (ImportJobEntity).
  */
 #[ORM\Entity]
 #[ORM\Table('import_task')]

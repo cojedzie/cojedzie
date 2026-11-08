@@ -23,18 +23,25 @@ namespace App\Tests\DataImport;
 
 use App\DataImport\DataImporter;
 use App\DataImport\ImportGraph;
+use App\DataImport\ImportJobCounts;
 use App\DataImport\ImportStatus;
 use App\DataImport\ImportTaskRunner;
 use App\DataImport\ImportTaskStatus;
 use App\DataImport\ProgressReporterFactory;
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\SplittingDataImporter;
 use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
 use App\Event\ImportFinishedEvent;
 use App\Event\ImportStartedEvent;
+use App\Message\RunImportJob;
 use App\Message\RunImportTask;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as PdoDriverException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -45,7 +52,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * The import is a graph of tasks, one per importer, run by workers as RunImportTask messages.
+ * The import is a graph of tasks, one per importer, run by workers as RunImportTask messages. An importer may split
+ * its work into jobs, run as RunImportJob messages.
  *
  * Importers are named after their class: LinesImporter is the task "lines".
  */
@@ -156,17 +164,21 @@ final class ImportGraphTest extends KernelTestCase
         $this->assertFinished($previous, ImportStatus::Superseded);
     }
 
-    public function testProgressOfTasksIsStored(): void
+    public function testProgressOfTasksAndJobsIsStored(): void
     {
-        $lines           = $this->importer(LinesImporter::class);
-        $lines->onImport = fn (DataUpdateEvent $event, ProgressReporterInterface $reporter) => $reporter->progress(2, max: 3, comment: 'planned', finished: true);
+        $schedule           = $this->schedule(jobs: [['part' => 1, 'progress' => 7]]);
+        $schedule->onImport = fn (DataUpdateEvent $event, ProgressReporterInterface $reporter) => $reporter->progress(2, max: 3, comment: 'planned', finished: true);
 
-        $this->graph($lines)->start();
+        $this->graph($schedule)->start();
         $this->work();
 
         $this->assertEquals(
             [['progress' => 2, 'progress_max' => 3, 'progress_comment' => 'planned']],
             $this->connection->fetchAllAssociative('SELECT progress, progress_max, progress_comment FROM import_task'),
+        );
+        $this->assertEquals(
+            [['progress' => 7, 'progress_max' => 10, 'progress_comment' => 'part 1']],
+            $this->connection->fetchAllAssociative('SELECT progress, progress_max, progress_comment FROM import_job'),
         );
     }
 
@@ -347,6 +359,190 @@ final class ImportGraphTest extends KernelTestCase
         $this->assertTrue($current->getId()->equals($this->importSeenBy('lines')->getId()));
     }
 
+    public function testStartIsRetriedWhenItsTransactionDeadlocks(): void
+    {
+        // superseding can deadlock with a worker claiming a job of the superseded import
+        $import = $this->graphOn(new DeadlockingClock(deadlocks: 2), $this->importer(LinesImporter::class))->start();
+
+        $this->assertSame(1, $this->rowsIn('import'));
+        $this->assertSame(['lines' => ImportTaskStatus::Queued], $this->statuses($import));
+        $this->assertCount(1, $this->bus->messages);
+    }
+
+    public function testNodeWaitsForItsJobsAndItsDependentsWaitForIt(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+        $tracks   = $this->importer(TracksImporter::class, dependsOn: [ScheduleImporter::class]);
+
+        $import = $this->graph($schedule, $tracks)->start();
+
+        // the node hands out its jobs
+        $this->workOne();
+        $this->assertSame(['schedule' => ImportTaskStatus::Waiting, 'tracks' => ImportTaskStatus::Pending], $this->statuses($import));
+        $this->assertSame(self::parts(2), $this->dispatchedJobPayloads());
+
+        // the first job ends
+        $this->workOne();
+        $this->assertSame(['schedule' => ImportTaskStatus::Waiting, 'tracks' => ImportTaskStatus::Pending], $this->statuses($import));
+        $this->assertNull($this->importRow($import)['finished_at']);
+
+        // the last job ends the node
+        $this->workOne();
+        $this->assertSame(['schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Queued], $this->statuses($import));
+        $this->assertEquals([new ImportJobCounts(total: 2, done: 2, failed: 0)], $schedule->countsAfterLastJob);
+
+        $this->work();
+        $this->assertSame(['schedule', 'tracks'], $this->ran());
+        $this->assertFinished($import, ImportStatus::Succeeded);
+    }
+
+    #[DataProvider('jobsEndingWhileAnotherRuns')]
+    public function testJobEndingWhileAnotherStillRunsDoesNotEndTheNode(int $running, int $ending): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+        $tracks   = $this->importer(TracksImporter::class, dependsOn: [ScheduleImporter::class]);
+
+        $import = $this->graph($schedule, $tracks)->start();
+        $this->workOne();
+        $jobs = $this->takeJobsByPart();
+
+        $schedule->whileRunningPart($running, fn () => $this->runner->runJob($jobs[$ending]));
+        $this->runner->runJob($jobs[$running]);
+
+        $this->assertEquals([new ImportJobCounts(total: 2, done: 2, failed: 0)], $schedule->countsAfterLastJob);
+        $this->assertDispatchedOnly($import, 'tracks');
+    }
+
+    public static function jobsEndingWhileAnotherRuns(): iterable
+    {
+        yield 'second ends while the first runs' => [1, 2];
+        yield 'first ends while the second runs' => [2, 1];
+    }
+
+    public function testNodeEndsOnceWhenItsLastJobsEndTogether(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+        $tracks   = $this->importer(TracksImporter::class, dependsOn: [ScheduleImporter::class]);
+
+        $import = $this->graph($schedule, $tracks)->start();
+        $this->workOne();
+        $this->bus->take();
+
+        // both workers mark their job done, then both see no job left
+        $this->markAllJobsDone();
+        $this->runner->endTask($this->taskId($import, 'schedule'));
+        $this->runner->endTask($this->taskId($import, 'schedule'));
+
+        $this->assertEquals([new ImportJobCounts(total: 2, done: 2, failed: 0)], $schedule->countsAfterLastJob);
+        $this->assertDispatchedOnly($import, 'tracks');
+    }
+
+    public function testNodeSupersededWhileHandingOutJobsQueuesNone(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+        $graph    = $this->graph($schedule);
+
+        $previous = $graph->start();
+        [$task]   = $this->bus->take();
+
+        $schedule->onImport = fn () => $graph->start();
+        $this->runner->run($task->taskId);
+
+        $this->assertSame(['schedule' => ImportTaskStatus::Skipped], $this->statuses($previous));
+        $this->assertSame(0, $this->rowsIn('import_job'));
+        $this->assertSame([], $this->dispatchedJobPayloads());
+    }
+
+    public function testJobsQueuedAfterTheirImportWasSupersededAreSkipped(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+
+        $previous = $this->graph($schedule)->start();
+        $this->workOne();
+
+        // the new import committed after the node read its import as unfinished, so superseding missed the jobs
+        $this->finishImportsWithoutSupersedingThem();
+        $this->work();
+
+        $this->assertSame([], $schedule->jobsRan);
+        $this->assertSame([], $schedule->countsAfterLastJob);
+        $this->assertSame(['skipped', 'skipped'], $this->jobStatuses());
+        $this->assertSame(['schedule' => ImportTaskStatus::Skipped], $this->statuses($previous));
+    }
+
+    public function testJobDeliveredTwiceRunsOnce(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+
+        $this->graph($schedule)->start();
+        $this->workOne();
+        $jobs = $this->takeJobsByPart();
+
+        $this->runner->runJob($jobs[1]);
+        $this->runner->runJob($jobs[1]);
+
+        $this->assertSame([['part' => 1]], $schedule->jobsRan);
+        $this->assertEquals([new ImportJobCounts(total: 2, done: 1, failed: 0)], $schedule->countsAfterEachJob);
+    }
+
+    public function testRedeliveredLastJobEndsTheNodeItsFirstDeliveryDidNot(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+        $tracks   = $this->importer(TracksImporter::class, dependsOn: [ScheduleImporter::class]);
+
+        $import = $this->graph($schedule, $tracks)->start();
+        $this->workOne();
+        $jobs = $this->takeJobsByPart();
+
+        // both jobs committed done, but the delivery of the last one failed before it ended the node
+        $this->markAllJobsDone();
+        $this->runner->runJob($jobs[2]);
+
+        $this->assertSame([], $schedule->jobsRan);
+        $this->assertEquals([new ImportJobCounts(total: 2, done: 2, failed: 0)], $schedule->countsAfterLastJob);
+        $this->assertSame(['schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Queued], $this->statuses($import));
+        $this->assertDispatchedOnly($import, 'tracks');
+    }
+
+    public function testRedeliveredJobDispatchesWhatItsEndedNodeDidNot(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(1));
+        $tracks   = $this->importer(TracksImporter::class, dependsOn: [ScheduleImporter::class]);
+
+        $import = $this->graph($schedule, $tracks)->start();
+        $this->workOne();
+        $jobs = $this->takeJobsByPart();
+
+        // the node ended, but the delivery failed before it dispatched its dependents
+        $this->markAllJobsDone();
+        $this->markTasksDone('schedule');
+        $this->runner->runJob($jobs[1]);
+
+        $this->assertSame([], $schedule->countsAfterLastJob);
+        $this->assertDispatchedOnly($import, 'tracks');
+    }
+
+    public function testRedeliveredTaskDispatchesItsQueuedJobs(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+
+        $this->graph($schedule)->start();
+        [$task] = $this->bus->take();
+
+        // the jobs committed, but the delivery failed before it dispatched them
+        $this->runner->run($task->taskId);
+        $this->bus->take();
+
+        $this->runner->run($task->taskId);
+
+        $this->assertSame(['schedule'], $this->ran());
+        $this->assertSame(self::parts(2), $this->dispatchedJobPayloads());
+
+        $this->work();
+        $this->assertSame(self::parts(2), $schedule->jobsRan);
+        $this->assertEquals([new ImportJobCounts(total: 2, done: 2, failed: 0)], $schedule->countsAfterLastJob);
+    }
+
     public function testRedeliveredTaskDispatchesWhatItsEndedNodeDidNot(): void
     {
         $lines = $this->importer(LinesImporter::class);
@@ -363,21 +559,102 @@ final class ImportGraphTest extends KernelTestCase
         $this->assertDispatchedOnly($import, 'stops');
     }
 
-    public function testRunSynchronouslyRunsTasksWithoutWorkers(): void
+    public function testImporterDecidesHowANodeWithFailedJobsEnds(): void
+    {
+        $schedule = $this->schedule(jobs: [['part' => 1, 'fail' => true], ['part' => 2]], succeeds: false);
+        $tracks   = $this->importer(TracksImporter::class, dependsOn: [ScheduleImporter::class]);
+
+        $import = $this->graph($schedule, $tracks)->start();
+        $this->work();
+
+        $this->assertEquals([new ImportJobCounts(total: 2, done: 1, failed: 1)], $schedule->countsAfterLastJob);
+        $this->assertSame(['schedule' => ImportTaskStatus::Failed, 'tracks' => ImportTaskStatus::Skipped], $this->statuses($import));
+        $this->assertSame(
+            [['status' => 'failed', 'error' => 'Part 1 failed'], ['status' => 'done', 'error' => null]],
+            $this->connection->fetchAllAssociative('SELECT status, error FROM import_job ORDER BY id'),
+        );
+        $this->assertFinished($import, ImportStatus::Failed);
+    }
+
+    public function testImporterIsToldTheCountsAfterEachJob(): void
+    {
+        $schedule = $this->schedule(jobs: [['part' => 1], ['part' => 2, 'fail' => true], ['part' => 3]]);
+
+        $import = $this->graph($schedule)->start();
+        $this->work();
+
+        $this->assertEquals(
+            [
+                new ImportJobCounts(total: 3, done: 1, failed: 0),
+                new ImportJobCounts(total: 3, done: 1, failed: 1),
+                new ImportJobCounts(total: 3, done: 2, failed: 1),
+            ],
+            $schedule->countsAfterEachJob,
+        );
+        $this->assertSame(['schedule' => ImportTaskStatus::Done], $this->statuses($import));
+        $this->assertFinished($import, ImportStatus::Succeeded);
+    }
+
+    public function testSupersedingSkipsQueuedJobs(): void
+    {
+        $schedule = $this->schedule(jobs: self::parts(2));
+        $graph    = $this->graph($schedule);
+
+        $previous = $graph->start();
+        $this->workOne();
+        $jobs = $this->takeJobsByPart();
+
+        $graph->start();
+
+        $this->assertSame(['skipped', 'skipped'], $this->jobStatuses());
+
+        // messages of the superseded jobs are still delivered, but do nothing
+        array_map($this->runner->runJob(...), $jobs);
+
+        $this->assertSame([], $schedule->jobsRan);
+        $this->assertSame(['schedule' => ImportTaskStatus::Skipped], $this->statuses($previous));
+    }
+
+    public function testRunSynchronouslyRunsTasksAndJobsWithoutWorkers(): void
     {
         $provider = $this->importer(ProviderImporter::class);
-        $lines    = $this->importer(LinesImporter::class, dependsOn: [ProviderImporter::class]);
-        $tracks   = $this->importer(TracksImporter::class, dependsOn: [LinesImporter::class]);
+        $schedule = $this->schedule(jobs: self::parts(2), dependsOn: [ProviderImporter::class]);
+        $tracks   = $this->importer(TracksImporter::class, dependsOn: [ScheduleImporter::class]);
 
-        $import = $this->graph($tracks, $lines, $provider)->runSynchronously();
+        $import = $this->graph($tracks, $schedule, $provider)->runSynchronously();
 
         $this->assertSame([], $this->bus->messages);
-        $this->assertSame(['provider', 'lines', 'tracks'], $this->ran());
+        $this->assertSame(['provider', 'schedule', 'tracks'], $this->ran());
+        $this->assertSame(self::parts(2), $schedule->jobsRan);
         $this->assertSame(
-            ['lines' => ImportTaskStatus::Done, 'provider' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Done],
+            ['provider' => ImportTaskStatus::Done, 'schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Done],
             $this->statuses($import),
         );
         $this->assertSame(ImportStatus::Succeeded, $import->getStatus());
+    }
+
+    public function testImporterThatDoesNotSplitCannotAddJobs(): void
+    {
+        $lines           = $this->importer(LinesImporter::class);
+        $lines->onImport = fn (DataUpdateEvent $event) => $event->addJob(['part' => 1]);
+
+        $import = $this->graph($lines)->start();
+        $this->work();
+
+        $this->assertSame(['lines' => ImportTaskStatus::Failed], $this->statuses($import));
+        $this->assertSame(0, $this->rowsIn('import_job'));
+        $this->assertFinished($import, ImportStatus::Failed);
+    }
+
+    public function testJobAddingJobsFails(): void
+    {
+        $schedule = $this->schedule(jobs: [['part' => 1, 'addsJob' => true]]);
+
+        $this->graph($schedule)->start();
+        $this->work();
+
+        $this->assertSame(['failed'], $this->jobStatuses());
+        $this->assertStringContainsString('added jobs', (string) $this->connection->fetchOne('SELECT error FROM import_job'));
     }
 
     /**
@@ -393,9 +670,31 @@ final class ImportGraphTest extends KernelTestCase
         return new $class($dependsOn, $this->log);
     }
 
+    /**
+     * @param list<array<string, mixed>> $jobs      payloads of the jobs it hands out
+     * @param list<string>               $dependsOn
+     * @param bool                       $succeeds  how it decides the node ends
+     */
+    private function schedule(array $jobs, array $dependsOn = [], bool $succeeds = true): ScheduleImporter
+    {
+        return new ScheduleImporter($dependsOn, $this->log, $jobs, $succeeds);
+    }
+
+    /**
+     * @return list<array{part: int}>
+     */
+    private static function parts(int $count): array
+    {
+        return array_map(fn (int $part) => ['part' => $part], range(1, $count));
+    }
+
     private function graph(DataImporter ...$importers): ImportGraph
     {
-        $clock   = new MockClock(self::NOW);
+        return $this->graphOn(new MockClock(self::NOW), ...$importers);
+    }
+
+    private function graphOn(ClockInterface $clock, DataImporter ...$importers): ImportGraph
+    {
         $locator = new ServiceLocator(array_combine(
             array_map(fn (DataImporter $importer) => $importer::class, $importers),
             array_map(fn (DataImporter $importer) => fn () => $importer, $importers),
@@ -423,11 +722,26 @@ final class ImportGraphTest extends KernelTestCase
     {
         $message = array_shift($this->bus->messages);
 
-        if ($message !== null) {
-            $this->runner->run($message->taskId);
-        }
+        match (true) {
+            $message instanceof RunImportJob  => $this->runner->runJob($message->jobId),
+            $message instanceof RunImportTask => $this->runner->run($message->taskId),
+            default                           => null,
+        };
 
         return $message !== null;
+    }
+
+    /**
+     * @return array<int, string> ids of the jobs dispatched since the last take, by the part in their payload
+     */
+    private function takeJobsByPart(): array
+    {
+        $jobs = $this->bus->take();
+
+        return array_combine(
+            array_map(fn (RunImportJob $job) => $this->jobPayload($job)['part'], $jobs),
+            array_map(fn (RunImportJob $job) => $job->jobId, $jobs),
+        );
     }
 
     private function markTasksDone(string ...$descriptions): void
@@ -435,6 +749,16 @@ final class ImportGraphTest extends KernelTestCase
         foreach ($descriptions as $description) {
             $this->connection->executeStatement("UPDATE import_task SET status = 'done' WHERE description = ?", [$description]);
         }
+    }
+
+    private function markAllJobsDone(): void
+    {
+        $this->connection->executeStatement("UPDATE import_job SET status = 'done'");
+    }
+
+    private function finishImportsWithoutSupersedingThem(): void
+    {
+        $this->connection->executeStatement("UPDATE import SET finished_at = ?, status = 'failed'", [self::NOW]);
     }
 
     /**
@@ -496,6 +820,35 @@ final class ImportGraphTest extends KernelTestCase
     }
 
     /**
+     * @return list<string>
+     */
+    private function jobStatuses(): array
+    {
+        return $this->connection->fetchFirstColumn('SELECT status FROM import_job ORDER BY id');
+    }
+
+    /**
+     * @return list<mixed> payloads of the jobs dispatched and not yet run
+     */
+    private function dispatchedJobPayloads(): array
+    {
+        $jobs = array_filter($this->bus->messages, fn (object $message) => $message instanceof RunImportJob);
+
+        return array_values(array_map($this->jobPayload(...), $jobs));
+    }
+
+    private function jobPayload(RunImportJob $message): mixed
+    {
+        $payload = $this->connection->fetchOne(
+            'SELECT payload FROM import_job WHERE id = :id',
+            ['id' => $message->jobId],
+            ['id' => 'uuid'],
+        );
+
+        return json_decode((string) $payload, true);
+    }
+
+    /**
      * @return array{started_at: string, finished_at: ?string, status: string}
      */
     private function importRow(ImportEntity $import): array
@@ -535,12 +888,35 @@ final class ImportGraphTest extends KernelTestCase
 }
 
 /**
+ * A clock whose first readings deadlock, as the first statement of start()'s transaction would.
+ */
+final class DeadlockingClock implements ClockInterface
+{
+    public function __construct(
+        private int $deadlocks,
+    ) {
+    }
+
+    #[\Override]
+    public function now(): \DateTimeImmutable
+    {
+        if ($this->deadlocks > 0) {
+            $this->deadlocks--;
+
+            throw new DeadlockException(PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')), null);
+        }
+
+        return new \DateTimeImmutable('2026-10-28 12:00:00');
+    }
+}
+
+/**
  * Keeps dispatched messages instead of sending them.
  */
 final class RecordingBus implements MessageBusInterface
 {
     /**
-     * @var list<RunImportTask>
+     * @var list<RunImportTask|RunImportJob>
      */
     public array $messages = [];
 
@@ -553,7 +929,7 @@ final class RecordingBus implements MessageBusInterface
     }
 
     /**
-     * @return list<RunImportTask> messages dispatched since the last call
+     * @return list<RunImportTask|RunImportJob> messages dispatched since the last call
      */
     public function take(): array
     {
@@ -662,5 +1038,106 @@ final class FailingImporter extends RecordingImporter
         parent::import($reporter, $event);
 
         throw new \RuntimeException('Feed is unavailable');
+    }
+}
+
+/**
+ * Hands out a job per given payload and records what it is told about them. A job fails when its payload has
+ * `fail`, adds a job when it has `addsJob` and reports the `progress` it has.
+ */
+final class ScheduleImporter extends RecordingImporter implements SplittingDataImporter
+{
+    /**
+     * @var list<array<string, mixed>> payloads of the jobs run
+     */
+    public array $jobsRan = [];
+
+    /**
+     * @var list<ImportJobCounts> what jobEnded() was told
+     */
+    public array $countsAfterEachJob = [];
+
+    /**
+     * @var list<ImportJobCounts> what jobsEnded() was told
+     */
+    public array $countsAfterLastJob = [];
+
+    /**
+     * @var array<int, \Closure(): mixed> run once while the job of the part runs, by part
+     */
+    private array $whileRunning = [];
+
+    /**
+     * @param list<array<string, mixed>> $jobs
+     */
+    public function __construct(
+        array $dependencies,
+        \ArrayObject $log,
+        private readonly array $jobs,
+        private readonly bool $succeeds,
+    ) {
+        parent::__construct($dependencies, $log);
+    }
+
+    /**
+     * Runs the action while the job of the part runs, as another worker would.
+     */
+    public function whileRunningPart(int $part, \Closure $action): void
+    {
+        $this->whileRunning[$part] = $action;
+    }
+
+    #[\Override]
+    public function import(ProgressReporterInterface $reporter, DataUpdateEvent $event): void
+    {
+        parent::import($reporter, $event);
+
+        foreach ($this->jobs as $payload) {
+            $event->addJob($payload);
+        }
+    }
+
+    #[\Override]
+    public function runJob(ProgressReporterInterface $reporter, DataUpdateEvent $event, array $payload): void
+    {
+        $this->jobsRan[] = $payload;
+
+        $this->runActionWhileRunning($payload['part']);
+
+        if (isset($payload['progress'])) {
+            $reporter->progress($payload['progress'], max: 10, comment: sprintf('part %d', $payload['part']), finished: true);
+        }
+
+        if ($payload['addsJob'] ?? false) {
+            $event->addJob(['part' => $payload['part'] + 1]);
+        }
+
+        if ($payload['fail'] ?? false) {
+            throw new \RuntimeException(sprintf('Part %d failed', $payload['part']));
+        }
+    }
+
+    #[\Override]
+    public function jobEnded(ProgressReporterInterface $reporter, ImportJobCounts $counts): void
+    {
+        $this->countsAfterEachJob[] = $counts;
+    }
+
+    #[\Override]
+    public function jobsEnded(ProgressReporterInterface $reporter, ImportJobCounts $counts): bool
+    {
+        $this->countsAfterLastJob[] = $counts;
+
+        return $this->succeeds;
+    }
+
+    private function runActionWhileRunning(int $part): void
+    {
+        $action = $this->whileRunning[$part] ?? null;
+        unset($this->whileRunning[$part]);
+
+        if ($action !== null) {
+            $action();
+        }
     }
 }

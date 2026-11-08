@@ -26,8 +26,11 @@ use App\Entity\ImportEntity;
 use App\Entity\ImportTaskEntity;
 use App\Event\ImportFinishedEvent;
 use App\Event\ImportStartedEvent;
+use App\Message\RunImportJob;
 use App\Message\RunImportTask;
+use App\Utility\Retry;
 use Carbon\Carbon;
+use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Ds\Map;
@@ -41,16 +44,17 @@ use Symfony\Contracts\Service\ServiceProviderInterface;
 
 /**
  * The import as a persisted graph of tasks, one per importer, with the importers' dependencies. Workers run the
- * tasks as RunImportTask messages (see ImportTaskRunner), so several of them can work on one import.
+ * tasks as RunImportTask messages (see ImportTaskRunner), so several of them can work on one import. An importer may
+ * split its work into jobs (see SplittingDataImporter), run as RunImportJob messages while its task waits.
  *
- * Every change of an import's or task's status that two workers could race for is a single UPDATE checked by the
- * number of rows it changed. An import that starts or ends is announced with ImportStartedEvent and
+ * Every change of an import's, task's or job's status that two workers could race for is a single UPDATE checked by
+ * the number of rows it changed. An import that starts or ends is announced with ImportStartedEvent and
  * ImportFinishedEvent.
  */
 class ImportGraph
 {
     /**
-     * @var list<RunImportTask>|null messages while running synchronously, null when they go to workers
+     * @var list<RunImportTask|RunImportJob>|null messages while running synchronously, null when they go to workers
      */
     private ?array $queue = null;
 
@@ -73,11 +77,16 @@ class ImportGraph
      * Supersedes the unfinished imports, creates a new one with a task per importer and dispatches the tasks that
      * depend on nothing.
      *
-     * @throws \LogicException when importers depend on missing importers or on each other, before anything is written
+     * @throws \LogicException     when importers depend on missing importers or on each other, before anything is written
+     * @throws RetryableException when the transaction deadlocked or timed out on a lock in every attempt
      */
     public function start(): ImportEntity
     {
-        [$import, $superseded] = $this->create($this->resolve());
+        $importers = $this->resolve();
+
+        // superseding can deadlock with a worker claiming a job of the superseded import (MySQL); a failed flush
+        // closes the entity manager, then nothing can be retried
+        [$import, $superseded] = Retry::onLockFailure(fn () => $this->create($importers), canRetry: $this->em->isOpen(...));
 
         foreach ($superseded as $previous) {
             $this->events->dispatch(new ImportFinishedEvent($previous));
@@ -101,8 +110,20 @@ class ImportGraph
     }
 
     /**
-     * Finishes the import when no task is left to run: it succeeded when every task was done, else it failed. Only the
-     * one caller that finishes it announces it.
+     * Dispatches queued jobs, after the transaction that wrote them.
+     *
+     * @param list<string> $jobIds
+     */
+    public function dispatchJobs(array $jobIds): void
+    {
+        foreach ($jobIds as $jobId) {
+            $this->send(new RunImportJob($jobId));
+        }
+    }
+
+    /**
+     * Finishes the import when no task is left to run or waiting for its jobs: it succeeded when every task was done,
+     * else it failed. Only the one caller that finishes it announces it.
      */
     public function finishIfComplete(ImportEntity $import): void
     {
@@ -117,7 +138,7 @@ class ImportGraph
     }
 
     /**
-     * Runs the whole import in this process, without workers.
+     * Runs the whole import in this process, jobs included, without workers.
      */
     public function runSynchronously(): ImportEntity
     {
@@ -157,7 +178,9 @@ class ImportGraph
     }
 
     /**
-     * Supersedes the unfinished imports and creates the new one with its tasks, in one transaction.
+     * Supersedes the unfinished imports and creates the new one with its tasks, in one transaction. A DBAL
+     * transaction, unlike EntityManager::wrapInTransaction(), leaves the entity manager open when it fails before the
+     * flush, so start() can try again.
      *
      * @param array<string, array{DataImporter, list<string>}> $importers
      *
@@ -210,8 +233,8 @@ class ImportGraph
     }
 
     /**
-     * Ends the unfinished imports, so a stalled one can't block the import forever. Their tasks still running finish,
-     * but nothing more runs.
+     * Ends the unfinished imports, so a stalled one can't block the import forever. Their tasks and jobs still
+     * running finish, but nothing more runs.
      *
      * @return list<ImportEntity> the imports this call ended, an import finishing meanwhile isn't one of them
      */
@@ -239,6 +262,8 @@ class ImportGraph
     private function supersedeImport(ImportEntity $import, Carbon $now): bool
     {
         $this->skipUnstartedTasks($import, $now);
+        $this->skipQueuedJobs($import, $now);
+        $this->skipWaitingTasksWithoutRunningJobs($import, $now);
 
         return $this->claimEnd($import, ImportStatus::Superseded, $now);
     }
@@ -254,6 +279,43 @@ class ImportGraph
                     'now'       => $now,
                     'import'    => $import->getId(),
                     'unstarted' => ImportTaskStatus::unstarted(),
+                ],
+            )
+            ->execute();
+    }
+
+    private function skipQueuedJobs(ImportEntity $import, Carbon $now): void
+    {
+        $this
+            ->query(
+                'UPDATE App\Entity\ImportJobEntity j SET j.status = :skipped, j.finishedAt = :now
+                 WHERE j.status = :queued AND j.task IN (SELECT t.id FROM App\Entity\ImportTaskEntity t WHERE t.import = :import)',
+                [
+                    'skipped' => ImportJobStatus::Skipped,
+                    'now'     => $now,
+                    'queued'  => ImportJobStatus::Queued,
+                    'import'  => $import->getId(),
+                ],
+            )
+            ->execute();
+    }
+
+    /**
+     * A task whose jobs are all skipped would wait forever; one with a job still running ends with that job.
+     */
+    private function skipWaitingTasksWithoutRunningJobs(ImportEntity $import, Carbon $now): void
+    {
+        $this
+            ->query(
+                'UPDATE App\Entity\ImportTaskEntity t SET t.status = :skipped, t.finishedAt = :now
+                 WHERE t.import = :import AND t.status = :waiting
+                   AND NOT EXISTS (SELECT j.id FROM App\Entity\ImportJobEntity j WHERE j.task = t AND j.status = :running)',
+                [
+                    'skipped' => ImportTaskStatus::Skipped,
+                    'now'     => $now,
+                    'import'  => $import->getId(),
+                    'waiting' => ImportTaskStatus::Waiting,
+                    'running' => ImportJobStatus::Running,
                 ],
             )
             ->execute();
@@ -465,11 +527,15 @@ class ImportGraph
     private function runQueuedMessages(): void
     {
         while (($message = array_shift($this->queue)) !== null) {
-            ($this->runner)()->run($message->taskId);
+            if ($message instanceof RunImportJob) {
+                ($this->runner)()->runJob($message->jobId);
+            } else {
+                ($this->runner)()->run($message->taskId);
+            }
         }
     }
 
-    private function send(RunImportTask $message): void
+    private function send(RunImportTask|RunImportJob $message): void
     {
         if ($this->queue !== null) {
             $this->queue[] = $message;

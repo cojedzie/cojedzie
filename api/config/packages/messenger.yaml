@@ -11,4 +11,5 @@ framework:
     routing:
       App\Message\UpdateDataSources: main
       App\Message\RunImportTask: main
+      App\Message\RunImportJob: main
       App\Message\CollectStaleData: main

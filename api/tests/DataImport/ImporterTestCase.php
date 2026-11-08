@@ -21,8 +21,11 @@ declare(strict_types=1);
 
 namespace App\Tests\DataImport;
 
+use App\DataImport\DataImporter;
+use App\DataImport\ImportJobCounts;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
+use App\DataImport\SplittingDataImporter;
 use App\Entity\ImportEntity;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
@@ -54,6 +57,13 @@ abstract class ImporterTestCase extends KernelTestCase
      * @var list<float>
      */
     protected array $progressTotals = [];
+
+    /**
+     * Messages of the jobs that failed, see runImporter().
+     *
+     * @var list<string>
+     */
+    protected array $failures = [];
 
     #[\Override]
     protected function setUp(): void
@@ -102,6 +112,56 @@ abstract class ImporterTestCase extends KernelTestCase
         );
 
         return new DataUpdateEvent($import);
+    }
+
+    /**
+     * Runs the importer, then the jobs it handed out, as the import graph would: a job that fails is recorded in
+     * $failures and the others still run.
+     *
+     * @return ?bool whether the importer's node succeeded after its jobs, null when it handed out none
+     */
+    protected function runImporter(DataImporter $importer, DataUpdateEvent $event): ?bool
+    {
+        $importer->import($this->reporter(), $event);
+
+        $jobs = $event->getJobs();
+        if ($jobs === []) {
+            return null;
+        }
+
+        $this->assertInstanceOf(SplittingDataImporter::class, $importer);
+
+        $done   = 0;
+        $failed = 0;
+        foreach ($jobs as $payload) {
+            if ($this->runJob($importer, $event, $payload)) {
+                $done++;
+            } else {
+                $failed++;
+            }
+
+            $importer->jobEnded($this->reporter(), new ImportJobCounts(count($jobs), $done, $failed));
+        }
+
+        return $importer->jobsEnded($this->reporter(), new ImportJobCounts(count($jobs), $done, $failed));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return bool whether the job succeeded, a failure is recorded in $failures
+     */
+    private function runJob(SplittingDataImporter $importer, DataUpdateEvent $event, array $payload): bool
+    {
+        try {
+            $importer->runJob($this->reporter(), new DataUpdateEvent($event->import), $payload);
+
+            return true;
+        } catch (\Exception $exception) {
+            $this->failures[] = $exception->getMessage();
+
+            return false;
+        }
     }
 
     /**
