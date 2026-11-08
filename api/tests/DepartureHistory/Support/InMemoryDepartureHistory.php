@@ -25,7 +25,10 @@ namespace App\Tests\DepartureHistory\Support;
 
 use App\DepartureHistory\DepartureHistory;
 use App\DepartureHistory\DepartureHistoryException;
+use App\DepartureHistory\ObservedDeparture;
 use App\Provider\Live\LiveDeparture;
+use Ds\Seq;
+use Kadet\Functional\Collections as c;
 
 final class InMemoryDepartureHistory implements DepartureHistory
 {
@@ -38,6 +41,7 @@ final class InMemoryDepartureHistory implements DepartureHistory
     // failures still to come from prepare()
     public int $failingPreparations = 0;
     public bool $failingRecords     = false;
+    public bool $failingReads       = false;
 
     public function __construct(
         private readonly bool $enabled = true,
@@ -73,5 +77,38 @@ final class InMemoryDepartureHistory implements DepartureHistory
             'observedAt' => $observedAt,
             'departures' => [...$departures],
         ];
+    }
+
+    #[\Override]
+    public function observed(string $provider, \DateTimeImmutable $from, \DateTimeImmutable $to, array $stopIds = [], array $lineIds = []): Seq
+    {
+        if ($this->failingReads) {
+            throw new DepartureHistoryException('Storage is down');
+        }
+
+        $newest = [];
+        foreach ($this->recorded as $record) {
+            if ($record['provider'] !== $provider) {
+                continue;
+            }
+
+            foreach ($record['departures'] as $departure) {
+                if ($departure->scheduledAt < $from || $departure->scheduledAt >= $to) {
+                    continue;
+                }
+
+                if (($stopIds !== [] && !in_array($departure->stopId, $stopIds, true)) || ($lineIds !== [] && !in_array($departure->lineId, $lineIds, true))) {
+                    continue;
+                }
+
+                $key = implode('|', [$departure->stopId, $departure->lineId, $departure->tripKey, $departure->scheduledAt->getTimestamp()]);
+
+                if (!isset($newest[$key]) || $newest[$key]->observedAt <= $record['observedAt']) {
+                    $newest[$key] = new ObservedDeparture($departure, $record['observedAt']);
+                }
+            }
+        }
+
+        return array_values($newest) |> c\toSeq();
     }
 }
