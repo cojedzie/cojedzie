@@ -23,6 +23,12 @@ import { Moment } from "moment";
 import { Identity } from "./identity";
 import { Trip } from "./trip";
 
+/**
+ * What is known about a departure: planned without live data, realtime with a live estimate, or departed once the
+ * estimated (else scheduled) time has passed.
+ */
+export type DepartureState = "planned" | "realtime" | "departed";
+
 export interface Departure {
     key: string;
     display: string;
@@ -34,6 +40,10 @@ export interface Departure {
 
     vehicle?: Vehicle;
     trip?: Identity<Trip>;
+
+    state?: DepartureState;
+    /** Service day of the trip, Y-m-d in the provider's time zone; null when unknown */
+    serviceDay?: string | null;
 }
 
 export interface Vehicle {
