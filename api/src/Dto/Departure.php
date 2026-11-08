@@ -34,14 +34,22 @@ class Departure implements Fillable, Dto
     use FillTrait;
 
     /**
+     * Serialization group of timetable responses, in which the line and the stop are references: a day repeats the
+     * same few of them on every entry.
+     */
+    final public const string TIMETABLE_GROUP = 'timetable';
+
+    /**
      * Unique identifier of departure, can be meaningless.
      */
     private ?string $key = null;
 
     /**
-     * Information about line.
+     * Information about line, a reference in a timetable.
      */
-    #[OA\Property(ref: new Model(type: Line::class))]
+    #[Context(context: [
+        AbstractNormalizer::GROUPS => ['reference'],
+    ], groups: [self::TIMETABLE_GROUP])]
     private Line $line;
 
     /**
@@ -65,8 +73,11 @@ class Departure implements Fillable, Dto
     private ?Trip $trip = null;
 
     /**
-     * Information about stop.
+     * Information about stop, a reference in a timetable.
      */
+    #[Context(context: [
+        AbstractNormalizer::GROUPS => ['reference'],
+    ], groups: [self::TIMETABLE_GROUP])]
     private Stop $stop;
 
     /**

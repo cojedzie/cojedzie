@@ -22,14 +22,17 @@ namespace App\Provider\Dummy;
 
 use App\Dto\Location;
 use App\Exception\NotSupportedException;
+use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Provider\Provider;
 use App\Provider\StopRepository;
+use App\Provider\TimetableRepository;
 use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
 use Carbon\Carbon;
+use Ds\Seq;
 
 class DummyProvider implements Provider
 {
@@ -109,5 +112,29 @@ class DummyProvider implements Provider
     public function getTripRepository(): TripRepository
     {
         throw new NotSupportedException();
+    }
+
+    #[\Override]
+    public function getTimetableRepository(): TimetableRepository
+    {
+        return new class() implements TimetableRepository {
+            #[\Override]
+            public function first(Requirement ...$requirements)
+            {
+                return null;
+            }
+
+            #[\Override]
+            public function all(Requirement ...$requirements): Seq
+            {
+                return new Seq();
+            }
+
+            #[\Override]
+            public function departures(Requirement ...$requirements): Seq
+            {
+                return new Seq();
+            }
+        };
     }
 }

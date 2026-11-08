@@ -122,6 +122,15 @@ final readonly class ApiContext implements Context
         Assert::assertSame($value, is_scalar($actual) ? (string) $actual : json_encode($actual), sprintf('"%s" differs.', $field));
     }
 
+    #[Then('the response\'s :field should contain :text')]
+    public function theResponsesFieldShouldContain(string $field, string $text): void
+    {
+        $actual = $this->client->json()[$field] ?? null;
+
+        Assert::assertIsString($actual, sprintf('"%s" is not a string.', $field));
+        Assert::assertStringContainsString($text, $actual, sprintf('"%s" differs.', $field));
+    }
+
     #[Then('the response should be a JSON list of :count items')]
     public function theResponseShouldBeAJsonListOfItems(int $count): void
     {

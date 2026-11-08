@@ -23,12 +23,27 @@ namespace App\Provider\Database;
 use App\Dto\Departure;
 use App\Dto\TimetableEntry;
 use App\Entity\TripStopEntity;
+use App\Filter\Handler\Database\TimetableDayDatabaseHandler;
 use App\Filter\Requirement\Requirement;
+use App\Filter\Requirement\TimetableDay;
 use App\Provider\TimetableRepository;
 use Ds\Seq;
 
 class GenericTimetableRepository extends DatabaseRepository implements TimetableRepository
 {
+    /**
+     * Time zone of the provider, in which timetable days are dates.
+     */
+    private ?\DateTimeZone $timezone = null;
+
+    public function withTimezone(\DateTimeZone $timezone): static
+    {
+        $result           = clone $this;
+        $result->timezone = $timezone;
+
+        return $result;
+    }
+
     #[\Override]
     public function all(Requirement ...$requirements): Seq
     {
@@ -39,11 +54,7 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
             ->orderBy('trip_stop.departure', 'ASC')
         ;
 
-        return $this->allFromQueryBuilder($builder, $requirements, [
-            'alias'  => 'trip_stop',
-            'type'   => TimetableEntry::class,
-            'entity' => TripStopEntity::class,
-        ]);
+        return $this->allFromQueryBuilder($builder, $requirements, $this->meta());
     }
 
     #[\Override]
@@ -60,13 +71,34 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
             ->join('trip_stop_trip_track.line', 'trip_stop_trip_track_line')
             ->orderBy('trip_stop.departure', 'ASC')
             ->addOrderBy('trip_stop_trip_track_line.symbol', 'ASC')
+            // a line has many entries at the same time, a unique key keeps the pages from overlapping
+            ->addOrderBy('trip_stop.id', 'ASC')
         ;
 
-        return $this->allFromQueryBuilder($builder, $requirements, [
-            'alias'  => 'trip_stop',
-            'type'   => TimetableEntry::class,
-            'entity' => TripStopEntity::class,
-        ], fn (TripStopEntity $entry) => $this->toDeparture($this->convert($entry)));
+        return $this->allFromQueryBuilder(
+            $builder,
+            $requirements,
+            $this->meta(),
+            fn (TripStopEntity $entry) => $this->toDeparture($this->convert($entry)),
+        );
+    }
+
+    #[\Override]
+    protected static function getHandlers()
+    {
+        return array_merge(parent::getHandlers(), [
+            TimetableDay::class => TimetableDayDatabaseHandler::class,
+        ]);
+    }
+
+    private function meta(): array
+    {
+        return [
+            'alias'    => 'trip_stop',
+            'type'     => TimetableEntry::class,
+            'entity'   => TripStopEntity::class,
+            'timezone' => $this->timezone,
+        ];
     }
 
     private function toDeparture(TimetableEntry $entry): Departure

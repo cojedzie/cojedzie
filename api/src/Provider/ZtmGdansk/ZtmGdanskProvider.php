@@ -33,6 +33,7 @@ use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Provider\Provider;
 use App\Provider\StopRepository;
+use App\Provider\TimetableRepository;
 use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
 use Carbon\Carbon;
@@ -52,6 +53,7 @@ class ZtmGdanskProvider implements Provider
     private $stops;
     private $tracks;
     private $trips;
+    private readonly GenericTimetableRepository $timetable;
     private ProviderEntity $entity;
 
     /**
@@ -123,7 +125,7 @@ class ZtmGdanskProvider implements Provider
         $lines     = $lines->withProvider($provider);
         $stops     = $stops->withProvider($provider);
         $tracks    = $tracks->withProvider($provider);
-        $timetable = $timetable->withProvider($provider);
+        $timetable = $timetable->withProvider($provider)->withTimezone(new \DateTimeZone(self::TIMEZONE));
         $trips     = $trips->withProvider($provider);
 
         $this->lines      = $lines;
@@ -132,10 +134,11 @@ class ZtmGdanskProvider implements Provider
             new ZtmGdanskRealtimeDepartureRepository($lines, $live),
             $clock,
         );
-        $this->stops  = $stops;
-        $this->tracks = $tracks;
-        $this->entity = $provider;
-        $this->trips  = $trips;
+        $this->stops     = $stops;
+        $this->tracks    = $tracks;
+        $this->entity    = $provider;
+        $this->trips     = $trips;
+        $this->timetable = $timetable;
 
         $this->messages->setProvider($provider);
     }
@@ -174,6 +177,12 @@ class ZtmGdanskProvider implements Provider
     public function getTripRepository(): TripRepository
     {
         return $this->trips;
+    }
+
+    #[\Override]
+    public function getTimetableRepository(): TimetableRepository
+    {
+        return $this->timetable;
     }
 
     #[\Override]

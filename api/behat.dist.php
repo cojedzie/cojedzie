@@ -8,6 +8,7 @@ use App\Tests\Behat\Context\DepartureContext;
 use App\Tests\Behat\Context\FederationContext;
 use App\Tests\Behat\Context\StopContext;
 use App\Tests\Behat\Context\TimeContext;
+use App\Tests\Behat\Context\TimetableContext;
 use Behat\Config\Config;
 use Behat\Config\Extension;
 use Behat\Config\Profile;
@@ -28,6 +29,7 @@ return (new Config())
                         StopContext::class,
                         TimeContext::class,
                         DepartureContext::class,
+                        TimetableContext::class,
                         FederationContext::class,
                     )
             )

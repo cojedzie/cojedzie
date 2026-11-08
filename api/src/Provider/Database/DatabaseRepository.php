@@ -135,7 +135,7 @@ abstract class DatabaseRepository implements Repository
         QueryBuilder $builder,
         iterable $requirements,
         array $meta = [],
-        ?\Closure $convert = null
+        ?\Closure $convert = null,
     ): Seq {
         $builder->setMaxResults(self::DEFAULT_LIMIT);
 

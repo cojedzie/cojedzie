@@ -36,6 +36,7 @@ use App\Provider\LineRepository;
 use App\Provider\MessageRepository;
 use App\Provider\Provider;
 use App\Provider\StopRepository;
+use App\Provider\TimetableRepository;
 use App\Provider\TrackRepository;
 use App\Provider\TripRepository;
 use Carbon\Carbon;
@@ -50,6 +51,11 @@ final readonly class TestProvider implements Provider
 {
     public const string IDENTIFIER = 'test';
     public const string NAME       = 'Test City';
+
+    /**
+     * Time zone in which the scenarios' timetable days are dates.
+     */
+    public const string TIMEZONE = 'Europe/Warsaw';
 
     public function __construct(
         private EntityManagerInterface $em,
@@ -110,6 +116,12 @@ final readonly class TestProvider implements Provider
     public function getTripRepository(): TripRepository
     {
         return $this->trips->withProvider($this->entity());
+    }
+
+    #[\Override]
+    public function getTimetableRepository(): TimetableRepository
+    {
+        return $this->timetable->withProvider($this->entity())->withTimezone(new \DateTimeZone(self::TIMEZONE));
     }
 
     #[\Override]

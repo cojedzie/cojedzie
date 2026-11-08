@@ -32,7 +32,7 @@ interface TimetableRepository extends FluentRepository
 {
     /**
      * Planned departures: timetable entries without any live data, ordered by time and then by line. Accepts the
-     * requirements `all()` does.
+     * requirements `all()` does, including its default limit when no `LimitConstraint` is given.
      *
      * @return Seq<Departure>
      */

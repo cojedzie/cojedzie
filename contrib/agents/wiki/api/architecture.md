@@ -55,6 +55,32 @@ departure, and `offset` is applied once to the joined list. A live source that f
 departures fall back to the timetable. Behaviour is pinned by `tests/ZtmGdansk/ZtmGdanskDepartureRepositoryTest`
 and the departures scenarios.
 
+**Timetable** ([ADR 0029](../../../adr/0029-timetables-are-selected-by-calendar-or-service-day.md)) is the plan: what
+the imported timetable says for stops or lines over a day or a range, while `/departures` stays rooted in live data
+for one stop, now. Both return a flat list of `Departure` in the same shape; grouping (hour rows, lists per day) is
+the frontend's job, never a response format. Only imported entries are listed: TRISTAR's own `scheduled` entries
+for lines missing from the import have no service day and no track. A day outside the stored window
+(`ZTM_GDANSK_SCHEDULE_DAYS`, past days are collected) is an empty list, not an error. `TimetableController` serves
+`/{provider}/timetable`, `/stops/{stop}/timetable` and `/lines/{line}/timetable` (`TimetableScopeParameterBinding`,
+`TimetableTimeParameterBinding`, see [filtering.md](filtering.md)) from `Provider::getTimetableRepository()`, a
+`TimetableRepository` of `Departure`s. DB-backed providers use `Database\GenericTimetableRepository`, which needs
+`withTimezone()` (the provider's zone, e.g. `Europe/Warsaw`) to resolve a day into a range.
+A page holds at most 1000 entries (`LimitParameterBinding(1000, 1000)`, the default too) and `offset` pages
+through the rest, in a stable order (departure, line symbol, then the trip stop's id, since a line has many
+entries at the same time). The controller serializes with group `timetable` (`Departure::TIMETABLE_GROUP`), in
+which `Departure.line` and `Departure.stop` are references (`{id, $type}`), like `track` and `trip`: a day repeats
+the same few lines and stops on every entry. `/departures` keeps the full objects. Clients look them up once.
+
+Timetable queries need no index of their own (checked with `EXPLAIN` on MariaDB, a week of ZTM data, 1.65M trip
+stops): a stop scope reads `trip_stop` by `stop_id`, a line scope walks line → tracks → trips → `trip_stop` by
+`trip_id`, then the day (`departure` range or `trip.service_date`) filters those rows; no mode scans a table. The
+queries take 7–50 ms. The cost is in hydrating, converting and serializing, about 0.5 ms and 20 kB of memory per
+entry. In `prod` mode, a page of 1000 entries of line 8 is ~0.46 MB of JSON, ~0.53 s and ~22 MB peak; the whole
+weekday (~5.6k entries) takes six pages. A stop day (945 entries) is one page of 0.45 MB, ~0.5 s and ~24 MB.
+Before the page limit and the references, the line day came in one response of 3.9 MB, ~3 s and ~95 MB peak, close
+to PHP's default 128 MB. Leaving the line out of the SELECT (it is joined for the order anyway) saves nothing
+measurable: lines and stops are shared by many entries and hydrated once.
+
 **Upstream addresses** are configuration ([ADR 0004](../../../adr/0004-upstream-data-addresses-are-configuration.md)), grouped in `ZtmGdansk\ZtmGdanskConfig` (injected where needed, one
 environment variable each, defaults in `config/services.yaml`): `ZTM_GDANSK_API_URL` is the TRISTAR API base
 (classes add `/departures`, `/displayMessages`, `/stopTimes`); every dataset file has its own full URL, because its

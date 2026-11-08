@@ -47,9 +47,10 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
             Track::class => 'track',
         ],
         TimetableEntry::class => [
-            Stop::class => 'stop',
-            Trip::class => 'trip',
-            Line::class => TimetableEntryByLineDatabaseHandler::class,
+            Stop::class  => 'stop',
+            Trip::class  => 'trip',
+            Line::class  => TimetableEntryByLineDatabaseHandler::class,
+            Track::class => TimetableEntryByTrackDatabaseHandler::class,
         ],
     ];
 
@@ -109,6 +110,7 @@ class RelatedFilterDatabaseGenericHandler implements ModifierHandler, ServiceSub
         return [
             TrackByStopDatabaseHandler::class,
             TimetableEntryByLineDatabaseHandler::class,
+            TimetableEntryByTrackDatabaseHandler::class,
         ];
     }
 }

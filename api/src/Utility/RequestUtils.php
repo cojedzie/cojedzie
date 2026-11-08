@@ -71,4 +71,22 @@ final class RequestUtils
 
         return array_map(strval(...), array_values($value));
     }
+
+    /**
+     * A single value of a query parameter.
+     *
+     * @throws InvalidParameterException when the parameter is a list
+     *
+     * @return string|null null when the parameter is missing
+     */
+    public static function getString(Request $request, string $parameter): ?string
+    {
+        $value = $request->query->all()[$parameter] ?? null;
+
+        if (is_array($value)) {
+            throw InvalidParameterException::invalid($parameter, 'expected a single value');
+        }
+
+        return $value === null ? null : (string) $value;
+    }
 }
