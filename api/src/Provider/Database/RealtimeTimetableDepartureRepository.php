@@ -21,6 +21,7 @@
 namespace App\Provider\Database;
 
 use App\Dto\Departure;
+use App\Dto\DepartureState;
 use App\Dto\Stop;
 use App\Filter\Requirement\FieldFilter;
 use App\Filter\Requirement\FieldFilterOperator;
@@ -109,22 +110,25 @@ class RealtimeTimetableDepartureRepository implements DepartureRepository
         );
     }
 
+    /**
+     * Joins a live departure with its timetable entry; the result is realtime when it has an estimate, else planned.
+     */
     protected function merge(?Departure $live, ?Departure $planned): Departure
     {
-        if (!$live) {
-            return $planned;
-        }
+        $result = match (true) {
+            $live === null    => $planned,
+            $planned === null => $live,
+            default           => setup(clone $live, function (Departure $departure) use ($planned) {
+                $departure->setDisplay($planned->getDisplay());
+                $departure->setTrack($planned->getTrack());
+                $departure->setTrip($planned->getTrip());
+                $departure->setServiceDay($planned->getServiceDay());
+            }),
+        };
 
-        if (!$planned) {
-            return $live;
-        }
+        $result->setState($result->getEstimated() !== null ? DepartureState::Realtime : DepartureState::Planned);
 
-        return setup(clone $live, function (Departure $departure) use ($planned) {
-            $departure->setDisplay($planned->getDisplay());
-            $departure->setTrack($planned->getTrack());
-            $departure->setTrip($planned->getTrip());
-            $departure->setServiceDay($planned->getServiceDay());
-        });
+        return $result;
     }
 
     private function extractRequirements(iterable $requirements)

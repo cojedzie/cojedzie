@@ -32,6 +32,9 @@ parameters:
   env(COJEDZIE_CLICKHOUSE_URL): ''
   # how many days a recorded departure is kept
   env(COJEDZIE_DEPARTURE_HISTORY_RETENTION_DAYS): '365'
+  # how old a recorded estimate may be to show a timetable entry as realtime, see
+  # App\Provider\Database\ObservedTimetableRepository
+  env(COJEDZIE_TIMETABLE_ESTIMATE_MAX_AGE): '1 minute'
 
   env(CORS_ALLOW_ORIGIN): '^https?://.*'
 

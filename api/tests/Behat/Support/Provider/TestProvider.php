@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat\Support\Provider;
 
+use App\DepartureHistory\DepartureHistory;
 use App\Dto\Location;
 use App\Entity\ProviderEntity;
 use App\Filter\Requirement\Requirement;
@@ -30,6 +31,7 @@ use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTimetableRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\Database\GenericTripRepository;
+use App\Provider\Database\ObservedTimetableRepository;
 use App\Provider\Database\RealtimeTimetableDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
@@ -43,6 +45,8 @@ use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Ds\Seq;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Provider used only by behavioural tests; its data is defined by scenarios.
@@ -66,6 +70,10 @@ final readonly class TestProvider implements Provider
         private GenericTimetableRepository $timetable,
         private InMemoryDepartureRepository $live,
         private ClockInterface $clock,
+        private DepartureHistory $history,
+        private LoggerInterface $logger,
+        #[Autowire(env: 'COJEDZIE_TIMETABLE_ESTIMATE_MAX_AGE')]
+        private string $estimateMaxAge,
     ) {
     }
 
@@ -121,7 +129,14 @@ final readonly class TestProvider implements Provider
     #[\Override]
     public function getTimetableRepository(): TimetableRepository
     {
-        return $this->timetable->withProvider($this->entity())->withTimezone(new \DateTimeZone(self::TIMEZONE));
+        return new ObservedTimetableRepository(
+            $this->timetable->withProvider($this->entity())->withTimezone(new \DateTimeZone(self::TIMEZONE)),
+            $this->history,
+            $this->clock,
+            $this->logger,
+            self::IDENTIFIER,
+            $this->estimateMaxAge,
+        );
     }
 
     #[\Override]

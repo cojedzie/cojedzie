@@ -20,6 +20,7 @@
 
 namespace App\Provider\ZtmGdansk;
 
+use App\DepartureHistory\DepartureHistory;
 use App\Dto\Location;
 use App\Entity\ProviderEntity;
 use App\Provider\Database\GenericLineRepository;
@@ -27,6 +28,7 @@ use App\Provider\Database\GenericStopRepository;
 use App\Provider\Database\GenericTimetableRepository;
 use App\Provider\Database\GenericTrackRepository;
 use App\Provider\Database\GenericTripRepository;
+use App\Provider\Database\ObservedTimetableRepository;
 use App\Provider\Database\RealtimeTimetableDepartureRepository;
 use App\Provider\DepartureRepository;
 use App\Provider\LineRepository;
@@ -39,6 +41,8 @@ use App\Provider\TripRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ZtmGdanskProvider implements Provider
 {
@@ -53,7 +57,7 @@ class ZtmGdanskProvider implements Provider
     private $stops;
     private $tracks;
     private $trips;
-    private readonly GenericTimetableRepository $timetable;
+    private readonly TimetableRepository $timetable;
     private ProviderEntity $entity;
 
     /**
@@ -119,6 +123,10 @@ class ZtmGdanskProvider implements Provider
         private readonly ZtmGdanskMessageRepository $messages,
         ClockInterface $clock,
         ZtmGdanskLiveDepartures $live,
+        DepartureHistory $history,
+        LoggerInterface $logger,
+        #[Autowire(env: 'COJEDZIE_TIMETABLE_ESTIMATE_MAX_AGE')]
+        string $estimateMaxAge,
     ) {
         $provider = $this->refreshProviderEntity();
 
@@ -138,7 +146,7 @@ class ZtmGdanskProvider implements Provider
         $this->tracks    = $tracks;
         $this->entity    = $provider;
         $this->trips     = $trips;
-        $this->timetable = $timetable;
+        $this->timetable = new ObservedTimetableRepository($timetable, $history, $clock, $logger, self::IDENTIFIER, $estimateMaxAge);
 
         $this->messages->setProvider($provider);
     }

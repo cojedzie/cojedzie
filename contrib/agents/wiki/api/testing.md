@@ -64,6 +64,8 @@ see `features/contract/nested-references.feature`) never happen in tests.
   - `Given there are departures:` (`stop | line | scheduled | estimated | display [| live display]`): timetable
     entries; a non-empty estimate also adds a live departure
   - `Given there are live departures not in the timetable:` (same columns): live data without a timetable entry
+  - `Then I should see departures:` (`line | stop | scheduled | estimated | delay [| state]`): the state is compared
+    only when the table has a column for it
   - `Given there are timetable entries:` (`line | stop | departure | service day | display`): departure as
     `Y-m-d H:i` local, service day optional (defaults to the departure's local date); `Given line 6 leaves "a" every
     10 minutes from "05:00" to "23:50" on "2026-11-16"`. `When I ask for the timetable of "stops/a/timetable" with
@@ -72,6 +74,12 @@ see `features/contract/nested-references.feature`) never happen in tests.
     timetable entries`, and `Then the first timetable entry should be line 6 at "2026-11-16 21:40"`. Two lines
     every 2 minutes for a day give 1140 entries, more than a page. The test provider's zone is
     `Europe/Warsaw`.
+  - `Given the departure history recorded line "8" leaving stop "a" scheduled at "2026-11-13 12:30" estimated at
+    "2026-11-13 12:34" observed at "2026-11-13 11:59"` records into `InMemoryDepartureHistory`, which
+    `config/services_test.yaml` aliases as the `DepartureHistory` of the test environment (enabled, emptied before
+    each scenario); the history's ids are the DTO ids (`8`, `a`), not `test::8`. `Then the timetable entry of line "8"
+    at "2026-11-13 12:30" should be "realtime"` (also `should be estimated at "…"`, `should have no estimate`). The
+    estimate max age is the default of one minute. `/departures` doesn't read the history, so it has no such steps.
 - `FrozenTime::moment('Y-m-d H:i')` is a local date and time in the scenario's zone, for tables spanning several days
   (the timetable steps use it); `localDateTime()` formats an API timestamp back the same way.
 - `Given the current time is "2026-10-25 12:00" in "Europe/Warsaw"` freezes `MockClock` and Carbon. Times in

@@ -97,6 +97,9 @@ final readonly class DepartureContext implements Context
     #[Then('I should see departures:')]
     public function iShouldSeeDepartures(TableNode $expected): void
     {
+        // the state is compared only when the table has a column for it
+        $withState = in_array('state', $expected->getRow(0), true);
+
         $actual = array_map(
             fn (array $departure) => [
                 'line'      => $departure['line']['symbol'],
@@ -104,6 +107,7 @@ final readonly class DepartureContext implements Context
                 'scheduled' => $this->time->local($departure['scheduled']),
                 'estimated' => $this->time->local($departure['estimated'] ?? null),
                 'delay'     => isset($departure['delay']) ? (string) $departure['delay'] : '',
+                ...($withState ? ['state' => $departure['state']] : []),
             ],
             $this->departures(),
         );

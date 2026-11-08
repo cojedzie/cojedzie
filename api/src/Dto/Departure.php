@@ -110,6 +110,13 @@ class Departure implements Fillable, Dto
     #[OA\Property(type: 'string', format: 'date')]
     private ?string $serviceDay = null;
 
+    /**
+     * What is known about the departure: planned without live data, realtime with a live estimate, or departed once
+     * the estimated (else scheduled) time has passed.
+     */
+    #[OA\Property(type: 'string', enum: [DepartureState::Planned->value, DepartureState::Realtime->value, DepartureState::Departed->value])]
+    private DepartureState $state = DepartureState::Planned;
+
     public function getKey(): ?string
     {
         return $this->key;
@@ -178,6 +185,16 @@ class Departure implements Fillable, Dto
     public function setServiceDay(?string $serviceDay): void
     {
         $this->serviceDay = $serviceDay;
+    }
+
+    public function getState(): DepartureState
+    {
+        return $this->state;
+    }
+
+    public function setState(DepartureState $state): void
+    {
+        $this->state = $state;
     }
 
     #[Ignore]

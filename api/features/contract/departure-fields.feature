@@ -26,6 +26,7 @@ Feature: Departure fields
       | estimated |
       | scheduled |
       | delay     |
+      | state     |
     And every item's "line" should have the fields:
       | field  |
       | symbol |
