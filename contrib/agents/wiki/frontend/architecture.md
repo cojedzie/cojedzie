@@ -33,6 +33,16 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
+- `src/timetable` — the timetable's logic, framework-free so the views can be ported to another framework.
+  `fetchTimetableDay(client, { stop, line?, date })`
+  takes the API client as an argument, reads every page of a stop's day (`v1_stop_timetable`, pages of 1000) and fills
+  in the lines from the stop's tracks, because timetable entries carry only a reference of their line.
+  `TIMETABLE_DAY_MODE` (`extended`, provisional) is the only place the day mode is set. Pure builders turn the
+  entries into the list (`buildTimetableList`), hour rows per line with headsign footnotes (`buildLineTimetables`) and
+  combined hour rows (`buildCombinedTimetable`). They take the requested date, to mark entries of another service day,
+  and the provider's time zone, which the hours are shown in. Hour rows group consecutive entries of the same hour,
+  so with `extended` the runs after midnight get their own rows at the end of the day. `todayIn(timeZone)` and
+  `nearestEntry(entries, now)` pick the default date and the entry to scroll to. Tests: `test/timetable/`.
 - `components/ui/UiSection.vue` + `UiSectionSettings.vue` — the page's titled blocks. A section has an optional
   `icon` and `title` (or a `#title` slot getting both), an `#actions` slot on the right of the header and the
   content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).
