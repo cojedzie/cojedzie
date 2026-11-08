@@ -33,8 +33,8 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `src/utils/container.ts` — small service container, accessed via `composables/useService`; tested in
   `front/test/container.test.ts`.
 - `src/model` — domain types mirroring the API DTOs.
-- `src/timetable` — the timetable's logic, framework-free so the views can be ported to another framework.
-  `fetchTimetableDay(client, { stop, line?, date })`
+- `src/timetable` — the timetable's logic, framework-free so the views can be ported to another framework (ESLint
+  forbids Vue, Pinia, stores, composables and components there). `fetchTimetableDay(client, { stop, line?, date })`
   takes the API client as an argument, reads every page of a stop's day (`v1_stop_timetable`, pages of 1000) and fills
   in the lines from the stop's tracks, because timetable entries carry only a reference of their line.
   `TIMETABLE_DAY_MODE` (`extended`, provisional) is the only place the day mode is set. Pure builders turn the
