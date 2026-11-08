@@ -27,6 +27,7 @@ use App\Filter\Requirement\FieldFilterOperator;
 use App\Filter\Requirement\LimitConstraint;
 use App\Filter\Requirement\RelatedFilter;
 use App\Filter\Requirement\Requirement;
+use App\Provider\DeparturePairing;
 use App\Provider\DepartureRepository;
 use App\Provider\TimetableRepository;
 use App\Utility\ModifierUtils;
@@ -86,37 +87,26 @@ class RealtimeTimetableDepartureRepository implements DepartureRepository
      */
     protected function pair(Seq $planned, Seq $real): Seq
     {
-        $key = fn (Departure $departure) => sprintf(
-            "%s::%s::%s",
-            $departure->getStop()->getId(),
-            $departure->getLine()->getId(),
-            $departure->getScheduled()->format("H:i")
-        );
+        $pairs = DeparturePairing::pair($planned, $real, self::key(...), self::key(...));
 
-        // a new map, so taking the matched entries out of it leaves the given planned departures untouched
-        $planned = $planned |> c\keyBy($key);
-
-        $pairs = $real
-            |> c\keyBy($key)
-            |> c\map(fn (Departure $real, string $key) => [
-                'live'    => $real,
-                'planned' => $planned->remove($key, null),
-            ]);
-
-        /** @var Seq<array{live: Departure|null, planned: Departure|null}> $unmatched */
-        $unmatched = $planned
-            |> c\map(fn (Departure $planned) => [
-                'live'    => null,
-                'planned' => $planned,
-            ]);
-
+        // departures that tie on time keep the order the sort receives them in: live ones go before planned-only ones
         return $pairs
-            |> c\concat($unmatched)
+            |> c\filter(fn (array $pair) => $pair['live'] !== null)
+            |> c\concat($pairs |> c\filter(fn (array $pair) => $pair['live'] === null))
             |> c\map(fn (array $pair) => $this->merge($pair['live'], $pair['planned']))
             |> c\sortBy(function (Departure $departure) {
                 $time = $departure->getEstimated() ?? $departure->getScheduled();
                 return $time->getTimestamp();
             });
+    }
+
+    private static function key(Departure $departure): string
+    {
+        return DeparturePairing::key(
+            $departure->getStop()->getId(),
+            $departure->getLine()->getId(),
+            $departure->getScheduled()
+        );
     }
 
     protected function merge(?Departure $live, ?Departure $planned): Departure
