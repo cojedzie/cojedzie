@@ -105,6 +105,93 @@ final class StaleDataCollectorTest extends ImporterTestCase
         $this->assertSame(['stop'], $this->ids('stop'));
     }
 
+    public function testRemovesOldImportsNothingRefersTo(): void
+    {
+        $unused = $this->import('-10 days');
+        $used   = $this->import('-9 days');
+        $fresh  = $this->import('-1 day');
+
+        $this->row('stop', 'stop', $fresh);
+        $this->connection->update('provider', ['import_id' => $used], ['id' => self::PROVIDER], ['import_id' => 'uuid']);
+
+        $this->collect();
+
+        $imports = $this->imports();
+        $this->assertNotContains($unused->toRfc4122(), $imports);
+        $this->assertContains($used->toRfc4122(), $imports);
+        $this->assertContains($fresh->toRfc4122(), $imports);
+    }
+
+    public function testExpiredTripsAreCollectedEvenIfRecentlyImported(): void
+    {
+        $fresh = $this->import('-1 day');
+        $this->network($fresh);
+
+        $this->tripWithAStop('expired', $fresh, validTo: '2026-10-28 11:00:00');
+        $this->tripWithAStop('running', $fresh, validTo: '2026-10-28 13:00:00');
+
+        $this->collect();
+
+        $this->assertSame(['running'], $this->ids('trip'));
+        $this->assertSame(['running'], $this->tripsWithStops());
+    }
+
+    public function testFutureTripsOutliveTheRetentionOfTheirImport(): void
+    {
+        $old   = $this->import('-10 days');
+        $fresh = $this->import('-1 day');
+        $this->network($fresh);
+
+        $this->tripWithAStop('future', $old, validTo: '2026-11-07 12:00:00');
+        $this->tripWithAStop('undated', $old);
+
+        $this->collect();
+
+        $this->assertSame(['future'], $this->ids('trip'));
+        $this->assertSame(['future'], $this->tripsWithStops());
+    }
+
+    public function testOpenEndedTracksStay(): void
+    {
+        $fresh = $this->import('-1 day');
+        $this->network($fresh);
+
+        $this->collect();
+
+        $this->assertSame(['track'], $this->ids('track'));
+        $this->assertSame(1, $this->countRows('track_stop'));
+    }
+
+    public function testExpiredTrackStillReferencedByAValidTripStays(): void
+    {
+        $fresh = $this->import('-1 day');
+        $this->network($fresh, validTo: '2026-10-27 22:59:59');
+
+        $this->row('trip', 'trip', $fresh, ['track_id' => 'track', 'valid_to' => '2026-10-28 13:00:00']);
+
+        $this->collect();
+
+        $this->assertSame(['track'], $this->ids('track'));
+        $this->assertSame(['trip'], $this->ids('trip'));
+        // the trip's track keeps its stops while it stays
+        $this->assertSame(1, $this->countRows('track_stop'));
+    }
+
+    public function testCollectingAnOldImportKeepsTheScheduleDays(): void
+    {
+        $old   = $this->import('-10 days');
+        $fresh = $this->import('-1 day');
+        $this->network($fresh);
+
+        // written by the old import, nothing refers to it anymore
+        $this->scheduleDay('2026-10-30');
+
+        $this->collect();
+
+        $this->assertNotContains($old->toRfc4122(), $this->imports());
+        $this->assertSame(1, $this->countRows('ztm_gdansk_schedule_day'));
+    }
+
     #[DataProvider('importsThatDidNotSucceed')]
     public function testImportThatDidNotSucceedDoesNotReleaseTheBrake(ImportStatus $status): void
     {
@@ -123,32 +210,37 @@ final class StaleDataCollectorTest extends ImporterTestCase
         yield 'superseded' => [ImportStatus::Superseded];
     }
 
-    public function testRemovesOldImportsNothingRefersTo(): void
+    public function testNothingIsCollectedWhileAnImportRuns(): void
     {
-        $unused = $this->import('-10 days');
-        $used   = $this->import('-9 days');
-        $fresh  = $this->import('-1 day');
+        $old = $this->import('-10 days');
+        $this->import('-1 day');
+        $this->import('-30 minutes', ImportStatus::Running);
 
-        $this->row('stop', 'stop', $fresh);
-        $this->connection->update('provider', ['import_id' => $used], ['id' => self::PROVIDER], ['import_id' => 'uuid']);
+        $this->row('stop', 'stop', $old);
+
+        $this->assertSame([], $this->collect());
+        $this->assertSame(['stop'], $this->ids('stop'));
+    }
+
+    public function testAbandonedImportDoesNotBlockCollection(): void
+    {
+        $old = $this->import('-10 days');
+        $this->import('-1 day');
+        $this->import('-2 hours', ImportStatus::Running);
+
+        $this->row('stop', 'stop', $old);
 
         $this->collect();
 
-        $imports = array_map(
-            fn ($id) => Type::getType('uuid')->convertToPHPValue($id, $this->connection->getDatabasePlatform())->toRfc4122(),
-            $this->connection->fetchFirstColumn('SELECT id FROM import'),
-        );
-        $this->assertNotContains($unused->toRfc4122(), $imports);
-        $this->assertContains($used->toRfc4122(), $imports);
-        $this->assertContains($fresh->toRfc4122(), $imports);
+        $this->assertSame([], $this->ids('stop'));
     }
 
     /**
      * @return array<string, int>
      */
-    private function collect(string $retention = '7 days'): array
+    private function collect(string $retention = '7 days', string $now = self::NOW): array
     {
-        return new StaleDataCollector($this->connection, new MockClock(self::NOW), $retention)->collect();
+        return new StaleDataCollector($this->connection, new MockClock($now), $retention, '1 hour')->collect();
     }
 
     private function import(string $started, ImportStatus $status = ImportStatus::Succeeded): Uuid
@@ -175,7 +267,51 @@ final class StaleDataCollectorTest extends ImporterTestCase
     }
 
     /**
-     * @param array<string, string> $columns
+     * A line with a track of one stop.
+     */
+    private function network(Uuid $import, ?string $validTo = null): void
+    {
+        $this->row('stop', 'stop', $import);
+        $this->row('line', 'line', $import);
+        $this->row('track', 'track', $import, ['line_id' => 'line', 'valid_to' => $validTo]);
+        $this->row('track_stop', null, $import, ['track_id' => 'track', 'stop_id' => 'stop', 'valid_to' => $validTo]);
+    }
+
+    /**
+     * A trip on the track of the network, with one stop sharing its validity.
+     */
+    private function tripWithAStop(string $id, Uuid $import, ?string $validTo = null): void
+    {
+        $this->row('trip', $id, $import, ['track_id' => 'track', 'valid_to' => $validTo]);
+        $this->row('trip_stop', null, $import, ['trip_id' => $id, 'stop_id' => 'stop', 'valid_to' => $validTo]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function tripsWithStops(): array
+    {
+        return $this->connection->fetchFirstColumn('SELECT DISTINCT trip_id FROM trip_stop ORDER BY trip_id');
+    }
+
+    private function scheduleDay(string $date): void
+    {
+        $this->connection->insert('ztm_gdansk_schedule_day', ['line_id' => 'line', 'date' => $date, 'imported_at' => self::NOW]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function imports(): array
+    {
+        return array_map(
+            fn ($id) => Type::getType('uuid')->convertToPHPValue($id, $this->connection->getDatabasePlatform())->toRfc4122(),
+            $this->connection->fetchFirstColumn('SELECT id FROM import'),
+        );
+    }
+
+    /**
+     * @param array<string, ?string> $columns
      */
     private function row(string $table, ?string $id, Uuid $import, array $columns = []): void
     {
