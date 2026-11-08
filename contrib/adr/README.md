@@ -56,6 +56,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0022](0022-app-shell-with-top-bar-and-mobile-bottom-bar.md) | App shell: a top bar and a mobile bottom bar, built from one navigation list | Accepted |
 | [0023](0023-dependabot-merges-minor-and-patch-updates.md) | Dependabot merges minor and patch updates on its own | Accepted |
 | [0024](0024-releases-are-made-by-ci-from-tags-on-master-or-release-branches.md) | Releases are made by CI from tags, on master or on release branches | Accepted |
+| [0028](0028-ids-are-typed-value-objects.md) | Ids are typed value objects | Proposed |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
