@@ -39,7 +39,7 @@ done. Nothing is added to the graph at runtime. An importer whose dependencies a
   claims a job only while its import is unfinished (else the job is skipped, and its node once no job is left).
   `jobsEnded()` can therefore still run for an import superseded meanwhile.
 - No reaper: a worker killed mid-job leaves that job `running` and its node `waiting`. The next run supersedes the
-  import.
+  import, and the collector ignores an import older than `COJEDZIE_IMPORT_TIMEOUT`.
 
 ### Events, check-ins and progress
 
@@ -123,6 +123,50 @@ Use cron syntax for `COJEDZIE_SCHEDULE_*`, not `@daily`: in `services.yaml` a le
 `bin/docker-init.sh` runs migrations **and** `app:update --async` on container start whenever migrations
 are out of date: a first import of the whole window takes too long to block the start, so the workers run it.
 
+## Schedule window (ADRs 0025, 0026)
+
+`ZTM_GDANSK_SCHEDULE_DAYS` (default 7, at least 1) days of schedules are kept, today first (Warsaw). Upstream's dated
+feeds (stops, routes, trips, stopsInTrip) hold 10 days, so lines, stops and tracks are imported for the whole
+window without extra downloads; only `stopTimes` costs a request per route and day. The stops, lines and tracks bars
+advance one step per day of the window, with the window as their total (they used to count only rows not seen on an
+earlier day, so after day one they barely moved and had no total).
+
+`JsonStreamer::streamDated()` reads those feeds in 1 MB chunks, cuts them into days at the top-level date keys and
+`json_decode`s each requested day lazily, once its rows are read (a generator keeps its last yielded value, so
+yielding decoded rows directly kept two days alive). Measured on the 2026-11-07 feeds without xdebug, 7 days of
+stopsInTrip: streaming parser 15.7 s / ~4 MB, whole-file `json_decode` 0.14 s / 238 MB, per day 0.13 s / 35 MB.
+Xdebug (the dev containers' default `debug` mode) makes the streaming parser about 4.7× slower again; measure
+imports with `task api:update` (performance mode). Single-day reads (`stream()`, e.g. `stopTimes`) still stream.
+
+- Tracks, track stops, trips and trip stops carry `valid_from` / `valid_to` (`ValidityTrait`, `NULL` = until
+  changed). Track ids are `R{routeId}T{tripId}V{topologyVersionId}`, trip ids
+  `R{routeId}T{tripId}S{busServiceName}O{order}D{date}` (unique per run and service day). A track
+  is valid for the days the dated feeds list it in; a trip for its run. Track listings return tracks valid now.
+- ZTM labels every published day with an agency's current topology version, so after a bump the old version is
+  missing from the whole window while keeping the `valid_to` an earlier import gave it (up to today + 6). The track
+  importer therefore sets `valid_to` = now on the tracks (and their stops) that share `R{routeId}T{tripId}` with a
+  track listed by this import, have another version and weren't listed. Tracks whose route+trip this import doesn't
+  list keep their validity, so a partial feed expires nothing it doesn't cover.
+- `ztm_gdansk_schedule_day` (line, date, imported at; entity `Entity\ZtmGdansk\ZtmGdanskScheduleDayEntity`) records
+  the imported line+days, also those without trips. It is the ZTM importer's own table: no other code names it, the
+  importer deletes the days before today (Warsaw) when its node runs, and it has no `import_id`, so the collector
+  removing an old import can't take a day of the window with it (it used to cascade). A row goes with its line
+  (`ON DELETE CASCADE`). A line+day is downloaded only if it has no row, so a daily run fetches the day that entered the window. The first
+  run after deploy downloads everything: about 1,300 line+days, measured 20 minutes on 3 workers with the earlier version
+  that ran a task per line+day (not measured since the job per line).
+- Workers scale with `docker compose up -d --scale worker=N` (production: replicas of the `worker` service); the dev
+  stack runs 3 (`scale: 3` in `docker-compose.yml`).
+
+Known behaviour:
+
+- Upstream answers 404 for `stopTimes` of a route on a day it doesn't run (weekends, holidays; 138 such line+days
+  on one run). `plan()` therefore plans only the dates the dated `routes` feed lists the line on; a 404 of a planned
+  line+day is a real failure: it is a warning of its line job, writes no `ztm_gdansk_schedule_day` row and the next run retries
+  it. A failed day doesn't fail the import, unless no day of any line was imported.
+- **Open problem:** a published day is assumed not to change. Timetable changes inside the window are not
+  detected, as the topology version is per agency and changes every few days and the feeds are streamed. Where a
+  signal could be added: `ZtmGdanskScheduleDataImporter::plan()`.
+
 ## Provider importers
 
 ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operators, stops, tracks, schedule).
@@ -159,19 +203,30 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
   any line failed.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
-## Stale data (ADR 0010)
+## Stale data (ADR 0027)
 
 `DataImport\StaleDataCollector` (`app:collect-stale-data`, scheduled by `COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`) removes
 operators, lines, stops, tracks, track stops, trips and trip stops whose `import_id` points to an import started
 more than `COJEDZIE_STALE_DATA_RETENTION` ago (default `7 days`, any `DateInterval::createFromDateString()` string), i.e. that
-no import has written since. Then it removes the `import` rows nothing refers to anymore. Provider rows stay.
+no import has written since. Tracks, track stops, trips and trip stops go once their `valid_to` passed; the
+retention applies to them only with `valid_to IS NULL` (rows from before validity), so a window longer than the
+retention keeps its future days. Then it removes the `import` rows nothing refers to anymore. Provider rows stay.
+Tables of one provider (`ztm_gdansk_schedule_day`) are left to its importer.
 
 - Children are collected first, and a stale row still referenced by a row that stays is kept (a stop on a current
   track, an operator of a current line), so foreign keys never block and fresh data never loses a relation.
 - Brake: unless an import **succeeded** (`status = 'succeeded'`) within the retention period, nothing is removed and
-  the handler logs a warning, so a stalled, failing or superseded import can't wipe the data.
+  the handler logs a warning, so a stalled, failing or superseded import can't wipe the data. Nothing is removed
+  either while an import runs (`running` and started less than `COJEDZIE_IMPORT_TIMEOUT` ago, default `1 hour`).
 - One transaction; plain `DELETE … WHERE import_id IN (…) AND NOT EXISTS (…)`, checked on SQLite, MariaDB and
   Postgres.
+- Track stops stay while a trip of their track exists, as the track does, so a kept track never loses its stops.
+- Rows from before validity (`valid_to IS NULL`: undated trip ids `{route}-{service}-{trip}-{order}`, track ids
+  `R{route}T{trip}` without a version) are deleted by the one-time migration `Version20261107173924` (per engine,
+  children first, `track.final_id` cleared before the track stops go; a few seconds for a day of data on MySQL).
+  The importers have no code for them. On the deploy day a line has no timetable departures until the import
+  reaches it; live departures are unaffected. An old worker importing once more after the migration writes undated
+  rows again; the `import_id` retention above removes them.
 
 Tests: `tests/DataImport/ImporterTestCase` runs an importer against the test database inside a transaction rolled
 back after each test, with `StubJsonStreamer` serving inline feed rows; `runImporter()` also runs the jobs an

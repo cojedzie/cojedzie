@@ -16,7 +16,7 @@ Doctrine, and production runs on a single shared server with limited memory and 
 
 ## Considered options
 
-1. **A table in the existing database** with a cleanup job like ADR 0010's. No new service, but 100M rows a year
+1. **A table in the existing database** with a cleanup job like ADR 0027's. No new service, but 100M rows a year
    strain MySQL on the shared server, aggregations over months are slow, and all three engines need migrations.
 2. **ClickHouse.** Columnar and compressed, built for aggregations over large append-heavy tables, with
    `ReplacingMergeTree` for "last observation wins" and TTL for retention. One more service to run.
