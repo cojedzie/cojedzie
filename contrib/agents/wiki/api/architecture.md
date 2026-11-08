@@ -86,6 +86,15 @@ Before the page limit and the references, the line day came in one response of 3
 to PHP's default 128 MB. Leaving the line out of the SELECT (it is joined for the order anyway) saves nothing
 measurable: lines and stops are shared by many entries and hydrated once.
 
+**Which days exist**: the provider details (`/providers`, `/providers/{provider}`) carry `timetable: {from, to}`
+(`Dto\TimetableRange`, Y-m-d), the first and last `trip.service_date` of the provider, or `null` without trips.
+`ProviderConverter` asks `TimetableRepository::range()`: `GenericTimetableRepository` reads `MIN`/`MAX` of
+`service_date` for the provider in one query, which the `(provider_id, service_date)` index
+(`trip_provider_service_date_idx`) answers from its two ends instead of reading the provider's trips. It comes from the
+stored data, not `ZTM_GDANSK_SCHEDULE_DAYS`, so it follows retention; retention keeps the window contiguous, so every
+day in the range has a timetable. Decorators (`ObservedTimetableRepository`) delegate it; providers without a
+database timetable return `null`.
+
 **Upstream addresses** are configuration ([ADR 0004](../../../adr/0004-upstream-data-addresses-are-configuration.md)), grouped in `ZtmGdansk\ZtmGdanskConfig` (injected where needed, one
 environment variable each, defaults in `config/services.yaml`): `ZTM_GDANSK_API_URL` is the TRISTAR API base
 (classes add `/departures`, `/displayMessages`, `/stopTimes`); every dataset file has its own full URL, because its

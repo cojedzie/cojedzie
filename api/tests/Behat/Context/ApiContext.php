@@ -117,7 +117,12 @@ final readonly class ApiContext implements Context
     #[Then('the response\'s :field should be :value')]
     public function theResponsesFieldShouldBe(string $field, string $value): void
     {
-        $actual = $this->client->json()[$field] ?? null;
+        $json = $this->client->json();
+
+        // a missing field is not a null one
+        Assert::assertArrayHasKey($field, $json, sprintf('The response has no "%s".', $field));
+
+        $actual = $json[$field];
 
         Assert::assertSame($value, is_scalar($actual) ? (string) $actual : json_encode($actual), sprintf('"%s" differs.', $field));
     }

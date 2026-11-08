@@ -22,6 +22,8 @@ namespace App\Provider\Database;
 
 use App\Dto\Departure;
 use App\Dto\TimetableEntry;
+use App\Dto\TimetableRange;
+use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
 use App\Filter\Handler\Database\TimetableDayDatabaseHandler;
 use App\Filter\Requirement\Requirement;
@@ -81,6 +83,24 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
             $this->meta(),
             fn (TripStopEntity $entry) => $this->toDeparture($this->convert($entry)),
         );
+    }
+
+    #[\Override]
+    public function range(): ?TimetableRange
+    {
+        // one lookup at each end of the (provider_id, service_date) index
+        ['first' => $first, 'last' => $last] = $this->em
+            ->createQueryBuilder()
+            ->select('MIN(trip.serviceDate) AS first', 'MAX(trip.serviceDate) AS last')
+            ->from(TripEntity::class, 'trip')
+            ->where('trip.provider = :provider')
+            ->setParameter('provider', $this->provider)
+            ->getQuery()
+            ->getSingleResult()
+        ;
+
+        // aggregates come back as the database's date strings, Y-m-d in every engine
+        return $first !== null ? new TimetableRange($first, $last) : null;
     }
 
     #[\Override]

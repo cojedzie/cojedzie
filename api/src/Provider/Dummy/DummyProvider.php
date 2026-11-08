@@ -21,6 +21,7 @@
 namespace App\Provider\Dummy;
 
 use App\Dto\Location;
+use App\Dto\TimetableRange;
 use App\Exception\NotSupportedException;
 use App\Filter\Requirement\Requirement;
 use App\Provider\DepartureRepository;
@@ -134,6 +135,12 @@ class DummyProvider implements Provider
             public function departures(Requirement ...$requirements): Seq
             {
                 return new Seq();
+            }
+
+            #[\Override]
+            public function range(): ?TimetableRange
+            {
+                return null;
             }
         };
     }

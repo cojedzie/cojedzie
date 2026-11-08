@@ -22,6 +22,7 @@ namespace App\Provider;
 
 use App\Dto\Departure;
 use App\Dto\TimetableEntry;
+use App\Dto\TimetableRange;
 use App\Filter\Requirement\Requirement;
 use Ds\Seq;
 
@@ -37,4 +38,9 @@ interface TimetableRepository extends FluentRepository
      * @return Seq<Departure>
      */
     public function departures(Requirement ...$requirements): Seq;
+
+    /**
+     * The first and the last service day the timetable has trips for, null when it has none.
+     */
+    public function range(): ?TimetableRange;
 }

@@ -25,6 +25,7 @@ namespace App\Tests\ZtmGdansk;
 use App\Dto\Departure;
 use App\Dto\Line;
 use App\Dto\Stop;
+use App\Dto\TimetableRange;
 use App\Dto\Track;
 use App\Dto\Trip;
 use App\Filter\Requirement\IdConstraint;
@@ -383,6 +384,12 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
             public function departures(Requirement ...$requirements): Seq
             {
                 return new Seq($this->planned);
+            }
+
+            #[\Override]
+            public function range(): ?TimetableRange
+            {
+                return null;
             }
         };
     }
