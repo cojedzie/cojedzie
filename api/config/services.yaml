@@ -22,6 +22,8 @@ parameters:
 
   # how long imported rows stay after the last import that wrote them, see App\DataImport\StaleDataCollector
   env(COJEDZIE_STALE_DATA_RETENTION): '7 days'
+  # how long an unfinished import counts as running, see App\DataImport\StaleDataCollector
+  env(COJEDZIE_IMPORT_TIMEOUT): '1 hour'
 
   # persistent Redis, see config/packages/cache.yaml
   env(COJEDZIE_REDIS_URL): 'redis://redis:6379'
