@@ -41,6 +41,7 @@ export type Endpoints = {
     v1_track_list: Endpoint<"provider", Jsonified<Track>[]>;
     v1_stop_group_list: Endpoint<"provider", Jsonified<{ name: string; stops: Stop[] }>[]>;
     v1_stop_tracks: Endpoint<"provider" | "stop", Jsonified<{ order: number; track: Track }>[]>;
+    v1_stop_timetable: Endpoint<"provider" | "stop", Jsonified<Departure>[]>;
 };
 
 export type EndpointParams<TEndpoints extends EndpointCollection, TEndpoint extends keyof TEndpoints> =
@@ -84,6 +85,10 @@ export const endpoints: Endpoints = {
     },
     v1_stop_tracks: {
         template: "/api/v1/{provider}/stops/{stop}/tracks",
+        version: "1.0",
+    },
+    v1_stop_timetable: {
+        template: "/api/v1/{provider}/stops/{stop}/timetable",
         version: "1.0",
     },
 };
