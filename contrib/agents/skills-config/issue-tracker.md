@@ -3,15 +3,16 @@
 Issues for this repo live as markdown files in `contrib/agents/issues/`. Specs keep living in
 `contrib/agents/specs/` (see `AGENTS.md`).
 
-Issues are **temporary**, like specs and plans: commit them in their own commits, separate from code, distill
-anything worth keeping into the wiki or an ADR when the task is complete, and drop them from the history before
-merging. They must not reach `master`.
+The directory is an **Obsidian vault kept out of git** (`/contrib/agents/issues/` in `.gitignore`): issues are
+local to the maintainer's machine and never committed. `INDEX.md` lists the features, each feature directory has
+its own `INDEX.md` listing its tickets; link tickets with relative markdown links. Issues outlive specs and plans, so
+reference ADRs and wiki pages rather than a spec that is dropped when its task is done.
 
 ## Conventions
 
-- One feature per directory: `contrib/agents/issues/<feature-slug>/`
+- One feature per directory: `contrib/agents/issues/<feature-slug>/`, listed in `contrib/agents/issues/INDEX.md`
 - The spec is `contrib/agents/specs/YYYY-MM-DD-<feature-slug>-design.md` (superpowers file naming), never inside
-  the issues directory. Reference it from the issues by path.
+  the issues directory. While the task runs, issues may reference it by path.
 - Implementation issues are one file per ticket at `contrib/agents/issues/<feature-slug>/<NN>-<slug>.md`, numbered
   from `01`, never a single combined tickets file
 - Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role
@@ -20,7 +21,8 @@ merging. They must not reach `master`.
 
 ## When a skill says "publish to the issue tracker"
 
-Create a new file under `contrib/agents/issues/<feature-slug>/` (creating the directory if needed). A spec goes to
+Create a new file under `contrib/agents/issues/<feature-slug>/` (creating the directory and its `INDEX.md` if needed)
+and add it to the indexes. A spec goes to
 `contrib/agents/specs/` instead.
 
 ## When a skill says "fetch the relevant ticket"

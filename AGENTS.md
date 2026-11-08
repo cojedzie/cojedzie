@@ -17,7 +17,8 @@ Everything related to agentic workflows is stored in `contrib/agents/`, not in v
 - `contrib/agents/specs/` and `contrib/agents/plans/` — design specs and implementation plans. This overrides
   the superpowers plugin defaults (`docs/superpowers/specs/`, `docs/superpowers/plans/`); keep its file naming.
   They are **temporary**, see below.
-- `contrib/agents/issues/` — local issue tracker (tickets per feature). Temporary like specs and plans.
+- `contrib/agents/issues/` — local issue tracker (tickets per feature), an Obsidian vault ignored by git: never
+  committed.
 - `contrib/agents/skills-config/` — per-repo configuration read by the plugin engineering skills (see
   [Agent skills](#agent-skills)).
 - Any other agent artifact (notes, prompts, reports) goes into a fitting subdirectory of `contrib/agents/`.
@@ -68,8 +69,8 @@ relevant page (or add one and register it in both tables).
 
 ### Issue tracker
 
-Issues are local markdown files under `contrib/agents/issues/<feature>/`; specs stay in `contrib/agents/specs/`.
-See `contrib/agents/skills-config/issue-tracker.md`.
+Issues are untracked local markdown files under `contrib/agents/issues/<feature>/`; specs stay in
+`contrib/agents/specs/`. See `contrib/agents/skills-config/issue-tracker.md`.
 
 ### Triage labels
 
