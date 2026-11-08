@@ -72,6 +72,11 @@ class FieldFilterDatabaseHandler implements ModifierHandler
 
         $parameter = sprintf(":%s_%s", $alias, $field);
 
+        // another filter of the same field (both ends of a range) needs a parameter of its own
+        for ($index = 2; $builder->getParameter($parameter) !== null; $index++) {
+            $parameter = sprintf(":%s_%s_%d", $alias, $field, $index);
+        }
+
         if ($operator->isSetOperator()) {
             $parameter = "($parameter)";
             $value     = encapsulate($value);

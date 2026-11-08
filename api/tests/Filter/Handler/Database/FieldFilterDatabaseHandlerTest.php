@@ -67,6 +67,24 @@ final class FieldFilterDatabaseHandlerTest extends KernelTestCase
         $this->assertSame($time, $builder->getParameter(':trip_stop_departure')->getValue());
     }
 
+    public function testFiltersOfOneFieldKeepTheirOwnValues(): void
+    {
+        $from    = Carbon::parse('2026-10-25 12:00', 'Europe/Warsaw');
+        $to      = Carbon::parse('2026-10-25 14:00', 'Europe/Warsaw');
+        $builder = $this->filter(
+            TripStopEntity::class,
+            'trip_stop',
+            TimetableEntry::class,
+            new FieldFilter('departure', $from, FieldFilterOperator::GreaterOrEqual),
+            new FieldFilter('departure', $to, FieldFilterOperator::Less),
+        );
+
+        $this->assertStringContainsString('trip_stop.departure >= :trip_stop_departure', $builder->getDQL());
+        $this->assertStringContainsString('trip_stop.departure < :trip_stop_departure_2', $builder->getDQL());
+        $this->assertSame($from, $builder->getParameter(':trip_stop_departure')->getValue());
+        $this->assertSame($to, $builder->getParameter(':trip_stop_departure_2')->getValue());
+    }
+
     public function testIntegerFieldIsNotLowercased(): void
     {
         $builder = $this->filter(TrackStopEntity::class, 'track_stop', TrackStop::class, new FieldFilter('order', '3'));
@@ -75,7 +93,7 @@ final class FieldFilterDatabaseHandlerTest extends KernelTestCase
         $this->assertStringNotContainsString('LOWER', $builder->getDQL());
     }
 
-    private function filter(string $entity, string $alias, string $type, FieldFilter $filter): QueryBuilder
+    private function filter(string $entity, string $alias, string $type, FieldFilter ...$filters): QueryBuilder
     {
         self::bootKernel();
 
@@ -84,16 +102,18 @@ final class FieldFilterDatabaseHandlerTest extends KernelTestCase
             ->select($alias)
             ->from($entity, $alias);
 
-        new FieldFilterDatabaseHandler()->process(new HandleDatabaseRequirementEvent(
-            $filter,
-            $this->createStub(Repository::class),
-            $builder,
-            [
-                'alias'  => $alias,
-                'type'   => $type,
-                'entity' => $entity,
-            ],
-        ));
+        foreach ($filters as $filter) {
+            new FieldFilterDatabaseHandler()->process(new HandleDatabaseRequirementEvent(
+                $filter,
+                $this->createStub(Repository::class),
+                $builder,
+                [
+                    'alias'  => $alias,
+                    'type'   => $type,
+                    'entity' => $entity,
+                ],
+            ));
+        }
 
         return $builder;
     }

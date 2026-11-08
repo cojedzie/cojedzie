@@ -130,6 +130,7 @@ otherwise the handler throws `InvalidArgumentException`:
 
 - `DatabaseRepository::allFromQueryBuilder()` sets `setMaxResults(100)` (`DEFAULT_LIMIT`) before handlers run,
   and uses Doctrine's `Paginator`. Without a `LimitConstraint`, results are silently capped at 100.
+- Two `FieldFilter`s on one field (both ends of a range) get parameters `:alias_field` and `:alias_field_2`.
 - `first()` prepends `LimitConstraint::count(1)`.
 - `FieldFilterParameterBinding` checks the operator suffix of **every** `name:suffix` query parameter before it
   checks the name. A suffix that this binding doesn't allow throws `InvalidOperatorException`, even when the
