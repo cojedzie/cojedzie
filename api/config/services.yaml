@@ -23,6 +23,9 @@ parameters:
   # how long imported rows stay after the last import that wrote them, see App\DataImport\StaleDataCollector
   env(COJEDZIE_STALE_DATA_RETENTION): '7 days'
 
+  # persistent Redis, see config/packages/cache.yaml
+  env(COJEDZIE_REDIS_URL): 'redis://redis:6379'
+
   # departure history in ClickHouse, see App\ClickHouse\ClickHouseConnection; empty disables recording
   env(COJEDZIE_CLICKHOUSE_URL): ''
   # how many days a recorded departure is kept
@@ -110,10 +113,6 @@ services:
 
   App\Service\HandlerProviderFactory:
     arguments: [ !tagged_locator app.handler ]
-
-  App\Service\DataUpdater:
-    arguments:
-      $importers: !tagged_iterator app.data_importer
 
   App\DataImport\ImportGraph:
     arguments:

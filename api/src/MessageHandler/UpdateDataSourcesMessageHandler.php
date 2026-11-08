@@ -20,43 +20,30 @@
 
 namespace App\MessageHandler;
 
+use App\DataImport\ImportGraph;
 use App\Message\UpdateDataSources;
-use App\Schedule\ScheduleConfig;
-use App\Service\DataUpdater;
-use App\Utility\SentryCronMonitorTrait;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Sentry\MonitorConfig;
-use Sentry\MonitorSchedule;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+/**
+ * Starts the import; workers run its tasks. Its check-ins are reported by ImportCronMonitorSubscriber.
+ */
 #[AsMessageHandler]
 final class UpdateDataSourcesMessageHandler implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
-    use SentryCronMonitorTrait;
-
-    // Sentry cron monitor, alerts when the daily update is missed or fails
-    private const string MONITOR = 'update-data-sources';
 
     public function __construct(
-        private readonly DataUpdater $updater,
-        private readonly ScheduleConfig $schedules,
+        private readonly ImportGraph $graph,
     ) {
     }
 
-    public function __invoke(UpdateDataSources $message)
+    public function __invoke(UpdateDataSources $message): void
     {
-        $config = new MonitorConfig(
-            MonitorSchedule::crontab($this->schedules->updateDataSources),
-            checkinMargin: 30,
-            maxRuntime: 120,
-            timezone: date_default_timezone_get(),
-        );
-
         try {
-            $this->monitored(self::MONITOR, $config, $this->updater->update(...));
-        } catch (\Exception $exception) {
+            $this->graph->start();
+        } catch (\Throwable $exception) {
             $this->logger->critical($exception->getMessage(), [
                 'backtrace' => $exception->getTraceAsString(),
             ]);
