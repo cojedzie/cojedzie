@@ -88,6 +88,12 @@ Before the page limit and the references, the line day came in one response of 3
 to PHP's default 128 MB. Leaving the line out of the SELECT (it is joined for the order anyway) saves nothing
 measurable: lines and stops are shared by many entries and hydrated once.
 
+**Lines**: `LinesController` serves `/{provider}/lines` (filters `id`, several, and `symbol`, a case-insensitive
+prefix by default, so `1` finds 1, 10 and 111; up to 1000 per page) and `/{provider}/lines/{line}` (404 when
+unknown) from `Provider::getLineRepository()`. `GenericLineRepository` orders lines by symbol in natural order, night
+lines last: `night`, `LENGTH(symbol)`, `symbol`, then `id` for stable pages. Symbols aren't unique (ZTM has several
+lines `700`, from different operators), so clients key lines by id.
+
 **Which days exist**: the provider details (`/providers`, `/providers/{provider}`) carry `timetable: {from, to}`
 (`Dto\TimetableRange`, Y-m-d), the first and last `trip.service_date` of the provider, or `null` without trips.
 `ProviderConverter` asks `TimetableRepository::range()`: `GenericTimetableRepository` reads `MIN`/`MAX` of

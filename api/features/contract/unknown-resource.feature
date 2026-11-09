@@ -11,3 +11,4 @@ Feature: Unknown resource
       | endpoint   |
       | stops/nope |
       | trips/nope |
+      | lines/nope |

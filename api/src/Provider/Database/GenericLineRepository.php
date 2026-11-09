@@ -35,6 +35,11 @@ class GenericLineRepository extends DatabaseRepository implements LineRepository
             ->createQueryBuilder()
             ->from(LineEntity::class, 'line')
             ->select('line')
+            // natural order of symbols ("3" before "10"), night lines last, id to keep pages stable
+            ->orderBy('line.night', 'ASC')
+            ->addOrderBy('LENGTH(line.symbol)', 'ASC')
+            ->addOrderBy('line.symbol', 'ASC')
+            ->addOrderBy('line.id', 'ASC')
         ;
 
         return $this->allFromQueryBuilder($builder, $requirements, [

@@ -21,3 +21,4 @@ Feature: Filter values
       | stop-groups?name=%20%20Oliwa  | 1     |
       | stops?name:begins=%20Oli      | 1     |
       | track-stops?order=%201%20     | 1     |
+      | lines?symbol=%206%20          | 1     |
