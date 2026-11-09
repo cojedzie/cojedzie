@@ -1,0 +1,45 @@
+import { Canvas, Meta, Controls } from "@storybook/addon-docs/blocks";
+import * as UiToggleGroupStories from "./UiToggleGroup.stories";
+
+<Meta of={UiToggleGroupStories} />
+
+# Toggle group
+
+A row of buttons of which one is selected, for choosing between a few options shown side by side, like the
+timetable's "Lista | Godziny". Bind the selected value with `v-model`; each of the `options` has a `value`, a `label`
+and an optional `icon` from the icon registry. `label` names the choice for screen readers.
+
+It looks like the switch with more options: a thumb under the selected option slides to the one picked. The
+`variant` decides its fill: `normal` is black, `primary` the blue gradient of the app's navigation. `size` is
+`small`, `normal` or `large`; only `large` is 44px high, the comfortable size to tap, so prefer it where the group is
+the main control of a page on a phone.
+
+The buttons form a `role="group"` and tell which one is selected with `aria-pressed`. They are ordinary buttons, so
+Tab moves between them and Enter or Space selects one.
+
+<Canvas of={UiToggleGroupStories.TwoOptions} />
+
+<Controls of={UiToggleGroupStories.TwoOptions} />
+
+## Three options
+
+<Canvas of={UiToggleGroupStories.ThreeOptions} />
+
+## With icons
+
+<Canvas of={UiToggleGroupStories.WithIcons} />
+
+## Primary
+
+<Canvas of={UiToggleGroupStories.Primary} />
+
+## Sizes
+
+<Canvas of={UiToggleGroupStories.Sizes} />
+
+## Narrow width
+
+On a phone the group can take the full width (`w-full`); the options share it and long labels are cut with an
+ellipsis.
+
+<Canvas of={UiToggleGroupStories.Narrow} />

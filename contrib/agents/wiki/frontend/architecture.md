@@ -50,6 +50,12 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).
   `UiSectionSettings` is the gear button for `#actions`: it opens its slot in a `UiDialog` anchored to itself,
   teleported to `#popups`. Stories: `Ui/Section`, `Ui/Section/Settings`.
+- `components/ui/UiToggleGroup.vue` — one of a few options side by side (`v-model`, `options` of `{ value, label,
+  icon? }`, `label` for screen readers, `variant` `normal`/`primary`, `size` `small`/`normal`/`large`): a
+  `role="group"` of buttons with `aria-pressed`, styled like the switch. A thumb measured from the selected button
+  slides under it; until it is measured (first render, tests) the selected button fills itself. Only `large` is 44px
+  high. Generic in the value type, so its story casts it to a component with string values for `Meta`. Story:
+  `Ui/ToggleGroup`.
 - `components/ui/UiMenu.vue` + `UiMenuItem.vue` — the list of actions in a popup or sheet (`AppMoreMenu`,
   `ProviderSwitcher`). The menu reaches the popup's edges (negative `$popup-padding` margins), so item hovers do too.
   An item renders a `<button type="button">` inside an `<li>`, or the `tag` it is given (`tag="a"`,
