@@ -38,6 +38,22 @@ export type TimetableListEntry = Marked & {
     delay?: number;
 };
 
+/** Footnote letters of a line's headsigns; empty when the line has one headsign at the stop */
+export type Legend = { note: string; headsign: string }[];
+
+export type LineListEntry = TimetableListEntry & {
+    /** Footnote letter of the headsign, only when the line has several at the stop */
+    note?: string;
+};
+
+export type LineList = {
+    line: Line;
+    /** The headsign of most of the line's entries */
+    headsign: string;
+    entries: LineListEntry[];
+    legend: Legend;
+};
+
 export type HourRow<TMinute> = { hour: number; minutes: TMinute[] };
 
 export type LineMinute = Marked & {
@@ -50,8 +66,7 @@ export type LineMinute = Marked & {
 export type LineTimetable = {
     line: Line;
     rows: HourRow<LineMinute>[];
-    /** Empty when the line has one headsign at the stop */
-    legend: { note: string; headsign: string }[];
+    legend: Legend;
 };
 
 export type CombinedMinute = Marked & {
@@ -64,43 +79,33 @@ export type CombinedTimetable = HourRow<CombinedMinute>[];
 
 /** The entries of the day in departure order. */
 export function buildTimetableList(departures: Departure[], date: string, timeZone: string): TimetableListEntry[] {
-    return sorted(departures).map(departure => {
-        const realtime = departure.state === "realtime" && departure.estimated;
+    return sorted(departures).map(departure => listEntry(departure, date, timeZone));
+}
 
-        return {
-            ...mark(departure, date),
-            planned: clock(departure.scheduled, timeZone),
-            estimated: realtime ? clock(departure.estimated, timeZone) : undefined,
-            delay: realtime ? departure.delay : undefined,
-        };
-    });
+/** The entries of the day in departure order, one list per line ordered by line symbol. */
+export function buildLineLists(departures: Departure[], date: string, timeZone: string): LineList[] {
+    return byLine(departures).map(({ line, entries, legend, notes }) => ({
+        line,
+        headsign: mostFrequent(entries.map(entry => entry.display)),
+        legend,
+        entries: entries.map(departure => ({
+            ...listEntry(departure, date, timeZone),
+            note: notes.get(departure.display),
+        })),
+    }));
 }
 
 /** One table of hour rows per line, ordered by line symbol, like printed stop timetables. */
 export function buildLineTimetables(departures: Departure[], date: string, timeZone: string): LineTimetable[] {
-    const byLine = new Map<string, Departure[]>();
-    for (const departure of sorted(departures)) {
-        byLine.set(departure.line.id, [...(byLine.get(departure.line.id) ?? []), departure]);
-    }
-
-    return [...byLine.values()]
-        .map(entries => {
-            const headsigns = [...new Set(entries.map(entry => entry.display))];
-            const legend =
-                headsigns.length > 1 ? headsigns.map((headsign, index) => ({ note: letter(index), headsign })) : [];
-            const notes = new Map(legend.map(({ note, headsign }) => [headsign, note]));
-
-            return {
-                line: entries[0].line,
-                legend,
-                rows: hourRows(entries, timeZone, (departure, minute) => ({
-                    ...mark(departure, date),
-                    minute,
-                    note: notes.get(departure.display),
-                })),
-            };
-        })
-        .sort((a, b) => a.line.symbol.localeCompare(b.line.symbol, undefined, { numeric: true }));
+    return byLine(departures).map(({ line, entries, legend, notes }) => ({
+        line,
+        legend,
+        rows: hourRows(entries, timeZone, (departure, minute) => ({
+            ...mark(departure, date),
+            minute,
+            note: notes.get(departure.display),
+        })),
+    }));
 }
 
 /** One table of hour rows for the whole stop, each minute with its line and headsign. */
@@ -128,6 +133,60 @@ export function nearestEntry<T extends { departure: Departure }>(entries: T[], n
 
 function sorted(departures: Departure[]): Departure[] {
     return [...departures].sort((a, b) => a.scheduled.valueOf() - b.scheduled.valueOf());
+}
+
+type LineEntries = {
+    line: Line;
+    /** In departure order */
+    entries: Departure[];
+    legend: Legend;
+    /** Footnote letter by headsign */
+    notes: Map<string, string>;
+};
+
+/** Entries grouped by line, ordered by line symbol, with letters for the headsigns of lines that have several. */
+function byLine(departures: Departure[]): LineEntries[] {
+    const groups = new Map<string, Departure[]>();
+    for (const departure of sorted(departures)) {
+        groups.set(departure.line.id, [...(groups.get(departure.line.id) ?? []), departure]);
+    }
+
+    return [...groups.values()]
+        .map(entries => {
+            // letters in the order the headsigns first run
+            const headsigns = [...new Set(entries.map(entry => entry.display))];
+            const legend =
+                headsigns.length > 1 ? headsigns.map((headsign, index) => ({ note: letter(index), headsign })) : [];
+
+            return {
+                line: entries[0].line,
+                entries,
+                legend,
+                notes: new Map(legend.map(({ note, headsign }) => [headsign, note])),
+            };
+        })
+        .sort((a, b) => a.line.symbol.localeCompare(b.line.symbol, undefined, { numeric: true }));
+}
+
+function listEntry(departure: Departure, date: string, timeZone: string): TimetableListEntry {
+    const realtime = departure.state === "realtime" && departure.estimated;
+
+    return {
+        ...mark(departure, date),
+        planned: clock(departure.scheduled, timeZone),
+        estimated: realtime ? clock(departure.estimated, timeZone) : undefined,
+        delay: realtime ? departure.delay : undefined,
+    };
+}
+
+/** The most frequent value; of equally frequent ones, the first given. */
+function mostFrequent(values: string[]): string {
+    const counts = new Map<string, number>();
+    for (const value of values) {
+        counts.set(value, (counts.get(value) ?? 0) + 1);
+    }
+
+    return [...counts.entries()].reduce((best, current) => (current[1] > best[1] ? current : best))[0];
 }
 
 function mark(departure: Departure, date: string): Marked {
