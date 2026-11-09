@@ -72,6 +72,16 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   slides under it; until it is measured (first render, tests) the selected button fills itself. Only `large` is 44px
   high. Generic in the value type, so its story casts it to a component with string values for `Meta`. Story:
   `Ui/ToggleGroup`.
+- `components/ui/UiDatePicker.vue` + `UiCalendar.vue` — choosing one day (`v-model` `Temporal.PlainDate`, `min`/`max`,
+  `today` override, `label`, `variant`, `size`): day arrows around a field opening `UiCalendar` in a `UiDialog`, and a
+  "dziś" button after a separator, so it isn't hit instead of the arrow. Nothing may move while clicking through days:
+  "dziś" (optional, `todayButton`, on by default) stays, disabled on today, and the field's grid cell holds, besides the
+  long and short labels, hidden long labels of the whole week, so it is as wide as the longest day name. The long label
+  switches to the short one when it is cut (measured with a ResizeObserver). `UiCalendar` is the month grid
+  (`buildMonth`), outlined on its own (e.g. as a filter) and `flat` in the picker's popup, keyboard-navigable after the
+  WAI-ARIA date picker dialog pattern with one focusable day (roving tabindex); Escape in the popup closes it and
+  returns focus to the field. A click on the field while open is ignored by the dialog's `leave`, so the field toggles.
+  Story: `Ui/DatePicker`.
 - `components/ui/UiMenu.vue` + `UiMenuItem.vue` — the list of actions in a popup or sheet (`AppMoreMenu`,
   `ProviderSwitcher`). The menu reaches the popup's edges (negative `$popup-padding` margins), so item hovers do too.
   An item renders a `<button type="button">` inside an `<li>`, or the `tag` it is given (`tag="a"`,
@@ -141,7 +151,7 @@ pill of the items of both bars (header links, bottom bar tabs, both "Więcej" bu
 `$primary-gradient` when it is the current page (its `--active` modifier) and `$primary-gradient-light` when that
 one is hovered. Icon-only buttons carry an `aria-label`.
 
-The compact controls of the UI kit (`UiToggleGroup`) share `ui-control` (the outlined row: custom
+The compact controls of the UI kit (`UiToggleGroup`, `UiDatePicker`) share `ui-control` (the outlined row: custom
 properties `--ui-control-*`, `--primary`, `--small` and `--large` modifiers) and `ui-control-segment` (a button in it).
 
 The bottom bar names only the current tab until it is 576 px wide: it takes the `size-*` classes of `v-responsive`
