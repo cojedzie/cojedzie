@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { mount } from "@vue/test-utils";
 import UiDatePicker from "@/components/ui/UiDatePicker.vue";
 import UiCalendar from "@/components/ui/UiCalendar.vue";
-import { Temporal } from "@/calendar";
+import { Temporal } from "@/time";
 
 const global = {
     stubs: { UiIcon: true, teleport: true, UiDialog: { template: "<div class='dialog'><slot /></div>" } },

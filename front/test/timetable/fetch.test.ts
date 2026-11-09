@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Temporal } from "@/calendar";
+import { Temporal } from "@/time";
 import { describe, expect, it, vi } from "vitest";
 import moment from "moment";
 import { fetchTimetableDay, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";

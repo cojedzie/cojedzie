@@ -19,14 +19,14 @@
 
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
-import moment, { type Moment } from "moment";
 import type { Stop } from "@/model";
 import { storages } from "@/stores/persistence/storages";
 import type { Jsonified } from "@/utils";
+import { Temporal } from "@/time";
 
 export interface HistoryEntry {
     stop: Stop;
-    date: Moment;
+    date: Temporal.Instant;
 }
 
 export interface HistorySettings {
@@ -35,8 +35,12 @@ export interface HistorySettings {
 
 type SerializedEntry = Jsonified<HistoryEntry>;
 
-const serialize = (entry: HistoryEntry): SerializedEntry => ({ ...entry, date: entry.date.toISOString() });
-const deserialize = (entry: SerializedEntry): HistoryEntry => ({ ...entry, date: moment(entry.date) });
+// saved with milliseconds, as moment wrote them before (2026-10-31T08:00:00.000Z), so the saved format stays the same
+const serialize = (entry: HistoryEntry): SerializedEntry => ({
+    ...entry,
+    date: entry.date.toString({ fractionalSecondDigits: 3 }),
+});
+const deserialize = (entry: SerializedEntry): HistoryEntry => ({ ...entry, date: Temporal.Instant.from(entry.date) });
 
 export const useHistoryStore = defineStore(
     "history",

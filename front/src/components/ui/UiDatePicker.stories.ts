@@ -2,7 +2,7 @@ import UiDatePicker from "./UiDatePicker.vue";
 import UiCalendar from "./UiCalendar.vue";
 import { Meta, StoryObj } from "@storybook/vue3-vite";
 import { shallowRef } from "vue";
-import { Temporal } from "@/calendar";
+import { Temporal } from "@/time";
 
 const day = (date: string) => Temporal.PlainDate.from(date);
 

@@ -18,7 +18,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { buildMonth, clampDate, formatLongDate, formatMonth, formatShortDate, Temporal, todayIn } from "@/calendar";
+import { buildMonth, clampDate, formatLongDate, formatMonth, formatShortDate, Temporal, todayIn } from "@/time";
 
 const day = (date: string) => Temporal.PlainDate.from(date);
 

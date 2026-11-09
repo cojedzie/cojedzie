@@ -1,6 +1,6 @@
 # 0032. Calendar dates are Temporal plain dates
 
-- **Status:** Accepted
+- **Status:** Superseded by [0033](../0033-dates-and-times-in-the-frontend-are-temporal.md)
 - **Date:** 2026-11-10
 - **Applies to:** `front/src/calendar/**`, `front/src/timetable/**`, `front/src/model/**`, `front/src/stores/**`,
   `front/src/components/**`, `front/src/composables/**`, `front/package.json`, `front/eslint.config.mjs`

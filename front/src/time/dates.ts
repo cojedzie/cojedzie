@@ -53,6 +53,11 @@ export function formatShortDate(date: Temporal.PlainDate): string {
     return `${date.toLocaleString("pl", { weekday: "short" })} ${date.toLocaleString("pl", { day: "2-digit", month: "2-digit" })}`;
 }
 
+/** "10 listopada 2026" */
+export function formatDateInWords(date: Temporal.PlainDate): string {
+    return date.toLocaleString("pl", { dateStyle: "long" });
+}
+
 /** "listopad 2026" */
 export function formatMonth(month: Temporal.PlainYearMonth): string {
     // a year-month formats only in its own calendar, which isn't the locale's, so it goes through its first day

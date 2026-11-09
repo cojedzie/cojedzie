@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
-import moment from "moment";
+import { Temporal } from "@/time";
 import { mount } from "@vue/test-utils";
 import StopPickerHistory from "@/components/stop-picker/StopPickerHistory.vue";
 import { useHistoryStore } from "@/stores/history";
@@ -19,8 +19,8 @@ function mountHistory() {
     setActivePinia(pinia);
 
     const history = useHistoryStore();
-    history.push({ stop: stop("1"), date: moment() });
-    history.push({ stop: stop("2"), date: moment() });
+    history.push({ stop: stop("1"), date: Temporal.Now.instant() });
+    history.push({ stop: stop("2"), date: Temporal.Now.instant() });
 
     const wrapper = mount(StopPickerHistory, {
         global: { plugins: [pinia], stubs: { StopPickerEntry: entryStub, UiIcon: true } },

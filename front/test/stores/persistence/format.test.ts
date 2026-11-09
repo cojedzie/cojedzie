@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 import { createApp, nextTick } from "vue";
-import moment from "moment";
+import { Temporal } from "@/time";
 import type { Stop } from "@/model";
 import { persistence, flushPersistence } from "@/stores/persistence/plugin";
 import { replaceStorages } from "@/stores/persistence/storages";
@@ -77,7 +77,7 @@ describe("persisted store format", () => {
     it("saves history entries with ISO dates and the settings", async () => {
         await change(useHistoryStore(), history => {
             history.saveSettings({ maxEntries: 5 });
-            history.push({ stop, date: moment("2026-10-31T08:00:00Z") });
+            history.push({ stop, date: Temporal.Instant.from("2026-10-31T08:00:00Z") });
         });
 
         expect(saved("history")).toEqual({

@@ -58,7 +58,7 @@
 
 <script lang="ts" setup>
 import { computed, nextTick, shallowRef, useId, useTemplateRef, watch } from "vue";
-import { buildMonth, clampDate, formatLongDate, formatMonth, Temporal, weekdayNames } from "@/calendar";
+import { buildMonth, clampDate, formatLongDate, formatMonth, Temporal, weekdayNames } from "@/time";
 import { useToday } from "@/composables/useToday";
 import UiIcon from "@/components/ui/UiIcon.vue";
 

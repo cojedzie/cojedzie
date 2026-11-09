@@ -6,7 +6,7 @@ import * as UiDatePickerStories from "./UiDatePicker.stories";
 # Date picker
 
 Chooses one day. Arrows step a day back and forth around a field naming the chosen day ("poniedziałek, 09.11.2026");
-the field opens a month calendar. Bind the day with `v-model`, as a `Temporal.PlainDate` (ADR 0032); `min` and `max` limit
+the field opens a month calendar. Bind the day with `v-model`, as a `Temporal.PlainDate` (ADR 0033); `min` and `max` limit
 the days that can be chosen, the arrows are disabled at the ends and the calendar disables the days beyond them. A
 "dziś" button goes back to today, set apart from the arrows by a line so it isn't tapped by mistake.
 
@@ -58,7 +58,7 @@ When the field has too little room, it names the day shortly ("pt. 13.11").
 
 The month calendar is `UiCalendar`, which can be used on its own, for example as a filter. It always shows six weeks
 from Monday, so it keeps its height. On its own it has an outline like the other controls; `flat` leaves it out
-where something frames the calendar already (the picker's popup, a filter panel). Its days come from `buildMonth` in `src/calendar/`, one cell model per day: what a day shows (later, for
+where something frames the calendar already (the picker's popup, a filter panel). Its days come from `buildMonth` in `src/time/`, one cell model per day: what a day shows (later, for
 example, whether there is service on it) belongs in that model.
 
 <Canvas of={UiDatePickerStories.Calendar} />

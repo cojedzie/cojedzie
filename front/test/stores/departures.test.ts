@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 import moment from "moment";
+import { Temporal } from "@/time";
 import type { Stop } from "@/model";
 import { useDeparturesStore } from "@/stores/departures";
 import { useDeparturesSettingsStore } from "@/stores/departures-settings";
@@ -53,12 +54,12 @@ describe("departures store", () => {
         get.mockResolvedValue({ data: [departure, { ...departure, key: "d2", estimated: null }] });
         useSelectionStore().replace([stop("1")]);
         const store = useDeparturesStore();
-        const before = moment();
+        const before = Temporal.Now.instant();
 
         await store.update();
 
         expect(store.state).toBe("ready");
-        expect(store.lastUpdate.isSameOrAfter(before)).toBe(true);
+        expect(Temporal.Instant.compare(store.lastUpdate, before)).toBeGreaterThanOrEqual(0);
         expect(store.departures.map(d => d.key)).toEqual(["d1", "d2"]);
         expect(store.departures[0].scheduled.isSame(moment("2026-10-30T11:00:00Z"))).toBe(true);
         expect(store.departures[0].estimated.isSame(moment("2026-10-30T11:01:00Z"))).toBe(true);

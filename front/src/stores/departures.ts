@@ -20,7 +20,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import moment from "moment";
-import { Temporal } from "@/calendar";
+import { Temporal } from "@/time";
 import type { Departure, Line } from "@/model";
 import api from "@/api";
 import { useFetching } from "@/stores/fetching";

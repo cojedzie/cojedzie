@@ -14,8 +14,10 @@ import { useRoute } from "vue-router";
 import AppBottomBar from "@/components/app/AppBottomBar.vue";
 import AppFooter from "@/components/app/AppFooter.vue";
 import AppHeader from "@/components/app/AppHeader.vue";
+import { provideDisplayTimeZone } from "@/composables/useDisplayTimeZone";
 import { provideToday, useTodayIn } from "@/composables/useToday";
 import { useSelectionStore } from "@/stores/selection";
+import { Temporal } from "@/time";
 
 const main = useTemplateRef<HTMLElement>("main");
 const route = useRoute();
@@ -25,6 +27,8 @@ const provider = computed(() => route.params.provider as string | undefined);
 // dates the app shows are the provider's, so is today
 const selection = useSelectionStore();
 provideToday(useTodayIn(() => selection.provider?.timezone));
+// clock times are shown in the provider's zone too, where a rider's preference would go
+provideDisplayTimeZone(computed(() => selection.provider?.timezone ?? Temporal.Now.timeZoneId()));
 
 onMounted(() => {
     main.value.classList.remove("not-ready");

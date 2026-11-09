@@ -21,7 +21,7 @@ import moment from "moment";
 import type { ApiClient } from "@/api/client";
 import type { Endpoints } from "@/api/endpoints";
 import type { UrlParams } from "@/api/utils";
-import { Temporal } from "@/calendar";
+import { Temporal } from "@/time";
 import type { Departure, Line } from "@/model";
 
 /**

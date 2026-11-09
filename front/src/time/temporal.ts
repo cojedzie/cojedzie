@@ -18,5 +18,5 @@
  */
 
 // Temporal is native in Chrome, Edge and Firefox, but not yet in Safari. The polyfill is imported here only, so
-// switching to the native API is this one line (ADR 0032).
+// switching to the native API is this one line (ADR 0033).
 export { Temporal } from "temporal-polyfill";
