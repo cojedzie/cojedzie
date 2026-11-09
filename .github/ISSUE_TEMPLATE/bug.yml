@@ -1,0 +1,40 @@
+name: Bug report
+description: Something in the app or the API doesn't work as it should.
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Polish is fine too / Możesz pisać po polsku.
+  - type: checkboxes
+    id: refreshed
+    attributes:
+      label: Before reporting
+      options:
+        - label: The bug remains after a hard refresh of the app (usually `ctrl+F5`).
+          required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce
+      description: The city, stop or line, and the steps that lead to the bug.
+      placeholder: |
+        1. Open https://cojedzie.pl/...
+        2. ...
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: e.g. Android 16, Chrome 142
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots and console logs
+      description: Screenshots help with visual bugs, browser console logs with connection problems.

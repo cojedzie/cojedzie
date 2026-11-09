@@ -27,6 +27,14 @@ PRs and other issues (`#N`) rather than a spec that is dropped when its task is 
 - **Close**: a PR that implements the issue says `Closes #N` in its body, so merging closes it. Otherwise
   `gh issue close <number> --comment "..."`.
 
+## Issues filed by people
+
+People file issues from the web through the forms in `.github/ISSUE_TEMPLATE/` (blank issues are off): a bug report
+or a feature, labelled `bug` / `enhancement` and `needs-triage`. The `Issues` workflow (`.github/workflows/issues.yml`)
+adds `needs-triage` to any issue opened without a triage label, and removes the triage labels when an issue is
+closed. So `gh issue list --label needs-triage` is the whole triage queue, wherever an issue came from. Reporters may
+write in Polish; keep their wording when quoting them, and write the triage notes in English.
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage`

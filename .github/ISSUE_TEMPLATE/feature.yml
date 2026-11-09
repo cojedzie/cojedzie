@@ -1,0 +1,21 @@
+name: Feature or change
+description: Propose something new, or a change to how the app works.
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! Polish is fine too / Możesz pisać po polsku. To support an existing proposal, add a 👍 to
+        it instead of opening a new one.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you'd like to do
+      description: The situation you're in and what the app doesn't let you do yet.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Your proposal
+      description: How it could work, if you have an idea.
