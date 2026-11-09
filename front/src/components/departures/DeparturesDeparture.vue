@@ -17,7 +17,7 @@
 
             <template v-if="!showRelativeTime">
                 <span v-if="timeDiffers" :class="['departure__time', 'departure__time--delayed']">
-                    {{ departure.scheduled.format("HH:mm") }}
+                    {{ clock(departure.scheduled) }}
                 </span>
                 {{ " " }}
                 <span
@@ -28,10 +28,10 @@
                     {{ signed(departure.delay) }}s
                 </span>
                 {{ " " }}
-                <span class="departure__time">{{ time.format("HH:mm") }}</span>
+                <span class="departure__time">{{ clock(time) }}</span>
             </template>
             <template v-else>
-                {{ timeLeft.humanize(true) }}
+                {{ timeLeft }}
             </template>
         </div>
 
@@ -63,12 +63,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import moment from "moment";
 import type { Departure } from "@/model";
 import type { Trip } from "@/model/trip";
 import api from "@/api";
 import { type Jsonified, signed } from "@/utils";
 import { useDeparturesSettingsStore } from "@/stores/departures-settings";
+import { useDisplayTimeZone } from "@/composables/useDisplayTimeZone";
+import { formatClockTime, formatRelativeTime, Temporal, wholeMinutesBetween } from "@/time";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiFold from "@/components/ui/UiFold.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
@@ -85,8 +86,8 @@ function convertTripDtoToTrip(trip: Jsonified<Trip>): Trip {
         ...trip,
         timetable: trip.timetable.map(scheduled => ({
             ...scheduled,
-            arrival: moment.parseZone(scheduled.arrival).local(),
-            departure: moment.parseZone(scheduled.departure).local(),
+            arrival: Temporal.Instant.from(scheduled.arrival),
+            departure: Temporal.Instant.from(scheduled.departure),
         })),
     };
 }
@@ -98,10 +99,13 @@ const showTrip = ref<boolean>(false);
 const scheduledTrip = ref<Trip>(null);
 
 const time = computed(() => props.departure.estimated || props.departure.scheduled);
-const timeLeft = computed(() => moment.duration(time.value.diff(moment())));
+const timeZone = useDisplayTimeZone();
+const clock = (instant: Temporal.Instant) => formatClockTime(instant, timeZone.value);
+
+const timeLeft = computed(() => formatRelativeTime(time.value, Temporal.Now.instant()));
 const timeDiffers = computed(() => {
     const { departure } = props;
-    return departure.estimated && departure.scheduled.format("HH:mm") !== departure.estimated.format("HH:mm");
+    return departure.estimated && clock(departure.scheduled) !== clock(departure.estimated);
 });
 
 const trip = computed(() => {
@@ -112,8 +116,8 @@ const trip = computed(() => {
             ...trip,
             timetable: trip.timetable.map(stop => ({
                 ...stop,
-                arrival: stop.arrival.clone().add(props.departure.delay, "seconds"),
-                departure: stop.departure.clone().add(props.departure.delay, "seconds"),
+                arrival: stop.arrival.add({ seconds: props.departure.delay }),
+                departure: stop.departure.add({ seconds: props.departure.delay }),
             })),
         }
     );
@@ -128,7 +132,10 @@ const showRelativeTime = computed(() => {
         return false;
     }
 
-    return !(relativeTimesLimitEnabled.value && time.value.diff(moment(), "minutes") > relativeTimesLimit.value);
+    return !(
+        relativeTimesLimitEnabled.value &&
+        wholeMinutesBetween(Temporal.Now.instant(), time.value) > relativeTimesLimit.value
+    );
 });
 
 async function downloadTrips() {

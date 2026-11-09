@@ -20,7 +20,8 @@
 import { computed, inject, type InjectionKey, provide, type Ref } from "vue";
 import { Temporal } from "@/time";
 
-const DisplayTimeZoneKey: InjectionKey<Readonly<Ref<string>>> = Symbol("display time zone");
+/** Exported for tests, which provide a zone directly */
+export const DisplayTimeZoneKey: InjectionKey<Readonly<Ref<string>>> = Symbol("display time zone");
 
 /**
  * Makes `timeZone` the zone components below show clock times in, see `useDisplayTimeZone`. Days are not affected:

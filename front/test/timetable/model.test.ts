@@ -18,7 +18,6 @@
  */
 
 import { describe, expect, it } from "vitest";
-import moment from "moment";
 import { Temporal } from "@/time";
 import type { Departure, DepartureState, Line } from "@/model";
 import {
@@ -59,9 +58,11 @@ function entry(scheduled: string, options: Options = {}): Departure {
         display: options.display ?? "Łostowice",
         line: options.line ?? six,
         stop: { id: "s", name: "Brama Wyżynna", $type: "vnd.cojedzie.stop" },
-        scheduled: moment.utc(scheduled),
-        estimated: options.estimated ? moment.utc(options.estimated) : null,
-        delay: options.estimated ? moment.utc(options.estimated).diff(moment.utc(scheduled), "seconds") : null,
+        scheduled: Temporal.Instant.from(scheduled),
+        estimated: options.estimated ? Temporal.Instant.from(options.estimated) : null,
+        delay: options.estimated
+            ? Temporal.Instant.from(scheduled).until(Temporal.Instant.from(options.estimated)).total("seconds")
+            : null,
         serviceDay: Temporal.PlainDate.from(options.serviceDay ?? "2026-11-13"),
         state: options.state ?? "planned",
     };
@@ -82,10 +83,7 @@ describe("timetable list", () => {
             zone,
         );
 
-        expect(list.map(e => e.planned)).toEqual([
-            { hour: 0, minute: 30 },
-            { hour: 12, minute: 0 },
-        ]);
+        expect(list.map(e => e.planned.toString())).toEqual(["00:30:00", "12:00:00"]);
     });
 
     it("marks runs of the previous night and runs after midnight with their service day", () => {
@@ -114,7 +112,8 @@ describe("timetable list", () => {
             zone,
         );
 
-        expect(realtime).toMatchObject({ estimated: { hour: 12, minute: 3 }, delay: 180, departed: false });
+        expect(realtime).toMatchObject({ delay: 180, departed: false });
+        expect(realtime.estimated?.toString()).toBe("12:03:00");
         expect(departed).toMatchObject({ estimated: undefined, delay: undefined, departed: true });
         expect(planned).toMatchObject({ estimated: undefined, delay: undefined, departed: false });
     });
@@ -195,10 +194,7 @@ describe("timetable list per line", () => {
             ["6", "Łostowice"],
             ["12", "Oliwa"],
         ]);
-        expect(lists[0].entries.map(e => e.planned)).toEqual([
-            { hour: 6, minute: 5 },
-            { hour: 6, minute: 45 },
-        ]);
+        expect(lists[0].entries.map(e => e.planned.toString())).toEqual(["06:05:00", "06:45:00"]);
     });
 
     it("has no footnotes when the line has one headsign", () => {
@@ -257,12 +253,8 @@ describe("timetable list per line", () => {
 
         expect(list.entries[0]).toMatchObject({ departed: true, estimated: undefined });
         expect(list.entries[0].otherDay?.toString()).toBe("2026-11-12");
-        expect(list.entries[1]).toMatchObject({
-            departed: false,
-            otherDay: undefined,
-            estimated: { hour: 12, minute: 3 },
-            delay: 180,
-        });
+        expect(list.entries[1]).toMatchObject({ departed: false, otherDay: undefined, delay: 180 });
+        expect(list.entries[1].estimated?.toString()).toBe("12:03:00");
     });
 });
 
@@ -303,9 +295,9 @@ describe("timetable helpers", () => {
             zone,
         );
 
-        expect(nearestEntry(list, moment.utc("2026-11-13T09:00:00Z"))).toBe(list[0]);
-        expect(nearestEntry(list, moment.utc("2026-11-13T10:16:00Z"))).toBe(list[1]);
-        expect(nearestEntry(list, moment.utc("2026-11-13T10:21:00Z"))).toBeUndefined();
-        expect(nearestEntry([], moment.utc("2026-11-13T11:00:00Z"))).toBeUndefined();
+        expect(nearestEntry(list, Temporal.Instant.from("2026-11-13T09:00:00Z"))).toBe(list[0]);
+        expect(nearestEntry(list, Temporal.Instant.from("2026-11-13T10:16:00Z"))).toBe(list[1]);
+        expect(nearestEntry(list, Temporal.Instant.from("2026-11-13T10:21:00Z"))).toBeUndefined();
+        expect(nearestEntry([], Temporal.Instant.from("2026-11-13T11:00:00Z"))).toBeUndefined();
     });
 });

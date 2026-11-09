@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
-import moment from "moment";
+import { ref } from "vue";
+import { Temporal } from "@/time";
+import { DisplayTimeZoneKey } from "@/composables/useDisplayTimeZone";
 import TripTimetable from "@/components/trip/TripTimetable.vue";
 
 const stops = ["a", "b", "c"].map((id, i) => ({
@@ -9,11 +11,12 @@ const stops = ["a", "b", "c"].map((id, i) => ({
     name: `Stop ${id}`,
     order: i,
 }));
-const now = moment("2026-01-01T12:00:00");
+// 12:00 in Warsaw, the display time zone
+const now = Temporal.Instant.from("2026-01-01T11:00:00Z");
 const timetable = [
-    { order: 0, stop: stops[0], departure: moment(now).subtract(20, "minutes") },
-    { order: 1, stop: stops[1], departure: moment(now).add(5, "minutes") },
-    { order: 2, stop: stops[2], departure: moment(now).add(10, "minutes") },
+    { order: 0, stop: stops[0], departure: now.subtract({ minutes: 20 }) },
+    { order: 1, stop: stops[1], departure: now.add({ minutes: 5 }) },
+    { order: 2, stop: stops[2], departure: now.add({ minutes: 10 }) },
 ];
 
 const mountTimetable = (attachTo?: HTMLElement) =>
@@ -21,6 +24,7 @@ const mountTimetable = (attachTo?: HTMLElement) =>
         props: { timetable, current: stops[1] },
         attachTo,
         global: {
+            provide: { [DisplayTimeZoneKey as symbol]: ref("Europe/Warsaw") },
             stubs: { StopLabel: { props: ["stop"], template: "<span>{{ stop.name }}</span>" } },
             directives: { dragscroll: {} },
             config: { globalProperties: { $isTouch: false } },
@@ -30,7 +34,7 @@ const mountTimetable = (attachTo?: HTMLElement) =>
 describe("TripTimetable", () => {
     beforeEach(() => {
         vi.useFakeTimers({ toFake: ["Date"] });
-        vi.setSystemTime(now.toDate());
+        vi.setSystemTime(now.epochMilliseconds);
     });
     afterEach(() => vi.useRealTimers());
 
