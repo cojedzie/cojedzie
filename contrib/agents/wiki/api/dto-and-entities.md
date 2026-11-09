@@ -48,7 +48,7 @@ and `TripStopEntity` also carries `arrival`/`departure`.
 | `TrackStopEntity` | `TrackStop` | `stop`, `track`, `order` |
 | `TripStopEntity` | `TimetableEntry` | `arrival`, `departure`, `stop`, `order`, `track` (via trip), `trip` |
 | `Federation\FederatedConnectionEntity` | `Federation\Node` | `ConnectionConverter` (also deserializes stored `Status\Aggregated`) |
-| *(service)* `App\Provider\Provider` | `Dto\Provider` | `ProviderConverter` — converts the provider service, not `ProviderEntity`; `timetable` (`TimetableRange`, from `TimetableRepository::range()`) |
+| *(service)* `App\Provider\Provider` | `Dto\Provider` | `ProviderConverter` — converts the provider service, not `ProviderEntity`; `timetable` (`TimetableRange`, from `TimetableRepository::range()`), `timezone` (IANA name, from `Provider::getTimezone()`) |
 
 `trip.service_date` (`TripEntity::getServiceDate()`, not null, indexed) is the service day the trip belongs to; its
 stops may fall on the next calendar day. `Departure.serviceDay` carries it for timetable entries (null when unknown)
