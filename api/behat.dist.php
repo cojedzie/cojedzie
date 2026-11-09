@@ -6,6 +6,7 @@ use App\Kernel;
 use App\Tests\Behat\Context\ApiContext;
 use App\Tests\Behat\Context\DepartureContext;
 use App\Tests\Behat\Context\FederationContext;
+use App\Tests\Behat\Context\LineContext;
 use App\Tests\Behat\Context\StopContext;
 use App\Tests\Behat\Context\TimeContext;
 use App\Tests\Behat\Context\TimetableContext;
@@ -27,6 +28,7 @@ return (new Config())
                     ->withContexts(
                         ApiContext::class,
                         StopContext::class,
+                        LineContext::class,
                         TimeContext::class,
                         DepartureContext::class,
                         TimetableContext::class,

@@ -84,7 +84,7 @@ final class TestData
         return $this->stops[$id] = $this->persist($stop);
     }
 
-    public function line(string $symbol, string $type = 'bus'): LineEntity
+    public function line(string $symbol, string $type = 'bus', bool $night = false): LineEntity
     {
         if (isset($this->lines[$symbol])) {
             return $this->lines[$symbol];
@@ -95,6 +95,7 @@ final class TestData
             'id'       => $this->ids->generate(TestProvider::IDENTIFIER, $symbol),
             'symbol'   => $symbol,
             'type'     => $type,
+            'night'    => $night,
             'operator' => $this->operator(),
         ]);
 

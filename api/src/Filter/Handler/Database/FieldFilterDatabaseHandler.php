@@ -20,6 +20,7 @@
 
 namespace App\Filter\Handler\Database;
 
+use App\Dto\Line;
 use App\Dto\Stop;
 use App\Dto\TimetableEntry;
 use App\Dto\TrackStop;
@@ -42,6 +43,9 @@ class FieldFilterDatabaseHandler implements ModifierHandler
         FieldFilterOperator::EndsWith,
     ];
     protected $mapping = [
+        Line::class => [
+            'symbol' => 'symbol',
+        ],
         Stop::class => [
             'name' => 'name',
         ],

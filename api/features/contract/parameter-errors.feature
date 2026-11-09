@@ -36,6 +36,8 @@ Feature: Parameter errors
       | messages                                  | offset | x     |
       | stops/brama-wyzynna-01/timetable          | limit  | abc   |
       | lines/6/timetable                         | offset | -1    |
+      | lines                                     | limit  | abc   |
+      | lines                                     | offset | x     |
 
   Scenario Outline: A limit of zero gives an empty list
     When I request "/api/v1/test/<endpoint>" with query:
@@ -53,6 +55,7 @@ Feature: Parameter errors
       | track-stops                        |
       | messages                           |
       | stops/brama-wyzynna-01/timetable   |
+      | lines                              |
 
   Scenario Outline: An unknown name operator is a bad request
     When I request "/api/v1/test/<endpoint>" with query:
