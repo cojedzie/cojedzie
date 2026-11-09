@@ -18,6 +18,7 @@
  */
 
 import type { Moment } from "moment";
+import type { Temporal } from "@/calendar";
 import type { Departure, Line } from "@/model";
 
 /** A wall clock time in the provider's time zone */
@@ -26,8 +27,8 @@ export type ClockTime = { hour: number; minute: number };
 type Marked = {
     departure: Departure;
     departed: boolean;
-    /** The service day (Y-m-d) of an entry that belongs to another day than the requested one */
-    otherDay?: string;
+    /** The service day of an entry that belongs to another day than the requested one */
+    otherDay?: Temporal.PlainDate;
 };
 
 export type TimetableListEntry = Marked & {
@@ -78,12 +79,16 @@ export type CombinedMinute = Marked & {
 export type CombinedTimetable = HourRow<CombinedMinute>[];
 
 /** The entries of the day in departure order. */
-export function buildTimetableList(departures: Departure[], date: string, timeZone: string): TimetableListEntry[] {
+export function buildTimetableList(
+    departures: Departure[],
+    date: Temporal.PlainDate,
+    timeZone: string,
+): TimetableListEntry[] {
     return sorted(departures).map(departure => listEntry(departure, date, timeZone));
 }
 
 /** The entries of the day in departure order, one list per line ordered by line symbol. */
-export function buildLineLists(departures: Departure[], date: string, timeZone: string): LineList[] {
+export function buildLineLists(departures: Departure[], date: Temporal.PlainDate, timeZone: string): LineList[] {
     return byLine(departures).map(({ line, entries, legend, notes }) => ({
         line,
         headsign: mostFrequent(entries.map(entry => entry.display)),
@@ -96,7 +101,11 @@ export function buildLineLists(departures: Departure[], date: string, timeZone: 
 }
 
 /** One table of hour rows per line, ordered by line symbol, like printed stop timetables. */
-export function buildLineTimetables(departures: Departure[], date: string, timeZone: string): LineTimetable[] {
+export function buildLineTimetables(
+    departures: Departure[],
+    date: Temporal.PlainDate,
+    timeZone: string,
+): LineTimetable[] {
     return byLine(departures).map(({ line, entries, legend, notes }) => ({
         line,
         legend,
@@ -109,21 +118,17 @@ export function buildLineTimetables(departures: Departure[], date: string, timeZ
 }
 
 /** One table of hour rows for the whole stop, each minute with its line and headsign. */
-export function buildCombinedTimetable(departures: Departure[], date: string, timeZone: string): CombinedTimetable {
+export function buildCombinedTimetable(
+    departures: Departure[],
+    date: Temporal.PlainDate,
+    timeZone: string,
+): CombinedTimetable {
     return hourRows(sorted(departures), timeZone, (departure, minute) => ({
         ...mark(departure, date),
         minute,
         line: departure.line,
         headsign: departure.display,
     }));
-}
-
-/** Today's calendar date (Y-m-d) in the given time zone. */
-export function todayIn(timeZone: string, now: Date = new Date()): string {
-    // the Swedish locale writes dates as Y-m-d
-    return new Intl.DateTimeFormat("sv-SE", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(
-        now,
-    );
 }
 
 /** The first entry, in the order given, that hasn't left by `now`, judged by its estimate when it has one. */
@@ -168,7 +173,7 @@ function byLine(departures: Departure[]): LineEntries[] {
         .sort((a, b) => a.line.symbol.localeCompare(b.line.symbol, undefined, { numeric: true }));
 }
 
-function listEntry(departure: Departure, date: string, timeZone: string): TimetableListEntry {
+function listEntry(departure: Departure, date: Temporal.PlainDate, timeZone: string): TimetableListEntry {
     const realtime = departure.state === "realtime" && departure.estimated;
 
     return {
@@ -189,8 +194,8 @@ function mostFrequent(values: string[]): string {
     return [...counts.entries()].reduce((best, current) => (current[1] > best[1] ? current : best))[0];
 }
 
-function mark(departure: Departure, date: string): Marked {
-    const otherDay = departure.serviceDay && departure.serviceDay !== date ? departure.serviceDay : undefined;
+function mark(departure: Departure, date: Temporal.PlainDate): Marked {
+    const otherDay = departure.serviceDay && !departure.serviceDay.equals(date) ? departure.serviceDay : undefined;
 
     return { departure, departed: departure.state === "departed", otherDay };
 }

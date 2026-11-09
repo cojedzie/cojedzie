@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import { createMemoryHistory, createRouter } from "vue-router";
+import { createPinia } from "pinia";
 import Application from "@/components/Application.vue";
 
 async function mountApp(path: string) {
@@ -19,7 +20,7 @@ async function mountApp(path: string) {
 
     const wrapper = mount(Application, {
         global: {
-            plugins: [router],
+            plugins: [router, createPinia()],
             stubs: {
                 AppHeader: { template: "<header class='header' />" },
                 AppFooter: { template: "<footer class='footer' />" },

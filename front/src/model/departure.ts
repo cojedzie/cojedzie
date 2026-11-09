@@ -20,6 +20,7 @@
 import { Stop } from "./stop";
 import { Line } from "./line";
 import { Moment } from "moment";
+import type { Temporal } from "@/calendar";
 import { Identity } from "./identity";
 import { Trip } from "./trip";
 
@@ -42,8 +43,8 @@ export interface Departure {
     trip?: Identity<Trip>;
 
     state?: DepartureState;
-    /** Service day of the trip, Y-m-d in the provider's time zone; null when unknown */
-    serviceDay?: string | null;
+    /** Service day of the trip, in the provider's time zone; null when unknown */
+    serviceDay?: Temporal.PlainDate | null;
 }
 
 export interface Vehicle {

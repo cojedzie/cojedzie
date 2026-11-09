@@ -18,6 +18,7 @@
  */
 
 import { Moment } from "moment";
+import type { Temporal } from "@/calendar";
 import cloneDeep from "lodash/cloneDeep";
 
 export * from "./object";
@@ -34,13 +35,15 @@ type Simplify<T> = T extends string | number | boolean
     ? T
     : T extends Moment
       ? string
-      : T extends Array<infer K>
-        ? Array<Simplify<K>>
-        : T extends (infer K)[]
-          ? Simplify<K>[]
-          : T extends Record<string, unknown>
-            ? Jsonified<T>
-            : T;
+      : T extends Temporal.PlainDate
+        ? string
+        : T extends Array<infer K>
+          ? Array<Simplify<K>>
+          : T extends (infer K)[]
+            ? Simplify<K>[]
+            : T extends Record<string, unknown>
+              ? Jsonified<T>
+              : T;
 
 export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> };
 export type Optionalify<T> = { [K in keyof T]?: T[K] };

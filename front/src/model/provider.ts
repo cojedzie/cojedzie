@@ -28,6 +28,8 @@ export interface Provider {
     attribution?: string;
     lastUpdate?: Moment;
     location: Location;
+    /** IANA time zone the provider's timetable is in, e.g. "Europe/Warsaw" */
+    timezone: string;
 }
 
 export function convertProviderDtoToProvider(dto: Jsonified<Provider>): Provider {
