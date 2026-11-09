@@ -4,6 +4,26 @@ Realtime public transport departures: what leaves a stop now, and what is planne
 
 ## Language
 
+### Network
+
+**Stop**:
+One place where vehicles call, served in one direction, e.g. "Brama Wyżynna 01". Timetables and departures are
+always about stops.
+_Avoid_: Post, platform
+
+**Stop group**:
+Stops sharing a name, usually on both sides of a street or around one interchange. A way to find stops, not a place
+vehicles call at.
+
+**Track**:
+The ordered stops one variant of a line runs through, ending at its destination. A line has several: one per
+direction, plus shortened and depot runs.
+_Avoid_: Route, variant
+
+**Main track**:
+The track of a line that riders know as the line in one direction, as opposed to its shortened or depot runs.
+_Avoid_: Canonical track, default track
+
 ### Planned service
 
 **Timetable**:
