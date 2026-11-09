@@ -53,7 +53,20 @@ class TracksController extends Controller
     #[EmbedParameterBinding(['stops'])]
     #[IdConstraintParameterBinding]
     #[LimitParameterBinding]
-    #[OA\Response(response: 200, description: 'Returns all tracks for specific provider, e.g. ZTM Gdańsk.', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Track::class)))])]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns all tracks for specific provider, e.g. ZTM Gdańsk.',
+        content: [
+            new OA\MediaType(
+                mediaType: 'application/vnd.cojedzie.collection+json',
+                schema: new OA\Schema(ref: new Model(type: CollectionResult::class)),
+            ),
+            new OA\JsonContent(
+                type: 'array',
+                items: new OA\Items(ref: new Model(type: Track::class)),
+            ),
+        ],
+    )]
     public function index(
         TrackRepository $trackRepository,
         array $requirements
@@ -70,7 +83,20 @@ class TracksController extends Controller
      */
     #[Route(path: '/{track}/stops', name: 'stops_in_track', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([TrackStopsController::class, 'getParameterBindings'])]
-    #[OA\Response(response: 200, description: 'List of track stops matching given criteria.', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: TrackStop::class)))])]
+    #[OA\Response(
+        response: 200,
+        description: 'List of track stops matching given criteria.',
+        content: [
+            new OA\MediaType(
+                mediaType: 'application/vnd.cojedzie.collection+json',
+                schema: new OA\Schema(ref: new Model(type: CollectionResult::class)),
+            ),
+            new OA\JsonContent(
+                type: 'array',
+                items: new OA\Items(ref: new Model(type: TrackStop::class)),
+            ),
+        ],
+    )]
     public function stops(
         TrackRepository $trackRepository,
         array $requirements

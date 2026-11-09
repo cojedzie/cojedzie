@@ -68,7 +68,12 @@ class FederatedConnectionEntity implements Referable, Fillable
      */
     final public const string STATE_CLOSED = "closed";
 
-    final public const array OPEN_STATES   = [self::STATE_NEW, self::STATE_READY, self::STATE_SUSPENDED, self::STATE_BACKOFF];
+    final public const array OPEN_STATES = [
+        self::STATE_NEW,
+        self::STATE_READY,
+        self::STATE_SUSPENDED,
+        self::STATE_BACKOFF,
+    ];
     final public const array CLOSED_STATES = [self::STATE_ERROR, self::STATE_CLOSED];
 
     /**

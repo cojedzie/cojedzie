@@ -114,7 +114,10 @@ class Departure implements Fillable, Dto
      * What is known about the departure: planned without live data, realtime with a live estimate, or departed once
      * the estimated (else scheduled) time has passed.
      */
-    #[OA\Property(type: 'string', enum: [DepartureState::Planned->value, DepartureState::Realtime->value, DepartureState::Departed->value])]
+    #[OA\Property(
+        type: 'string',
+        enum: [DepartureState::Planned->value, DepartureState::Realtime->value, DepartureState::Departed->value],
+    )]
     private DepartureState $state = DepartureState::Planned;
 
     public function getKey(): ?string

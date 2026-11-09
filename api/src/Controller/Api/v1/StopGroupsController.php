@@ -28,7 +28,20 @@ class StopGroupsController extends Controller
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.0'])]
     #[ParameterBindingProvider([StopsController::class, 'getParameterBinding'])]
-    #[OA\Response(response: 200, description: 'List of stop groups.', content: [new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: StopGroup::class))), new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class)))])]
+    #[OA\Response(
+        response: 200,
+        description: 'List of stop groups.',
+        content: [
+            new OA\JsonContent(
+                type: 'array',
+                items: new OA\Items(ref: new Model(type: StopGroup::class)),
+            ),
+            new OA\MediaType(
+                mediaType: 'application/vnd.cojedzie.collection+json',
+                schema: new OA\Schema(ref: new Model(type: CollectionResult::class)),
+            ),
+        ],
+    )]
     public function groups(
         StopRepository $stopRepository,
         iterable $requirements

@@ -37,7 +37,10 @@ class StopGroup implements Dto
      * All stops in group.
      * @var Seq<Stop>
      */
-    #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Stop::class, groups: ['Default', 'WithDestinations'])))]
+    #[OA\Property(
+        type: 'array',
+        items: new OA\Items(ref: new Model(type: Stop::class, groups: ['Default', 'WithDestinations'])),
+    )]
     private Seq $stops;
 
     public function __construct()

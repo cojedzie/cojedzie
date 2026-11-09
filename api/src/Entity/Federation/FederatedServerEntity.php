@@ -72,7 +72,12 @@ class FederatedServerEntity implements Referable, Fillable, UserInterface, Passw
      * All servers that are connected at the moment.
      * @var Collection<FederatedConnectionEntity>
      */
-    #[ORM\OneToMany(targetEntity: FederatedConnectionEntity::class, cascade: ['persist'], mappedBy: 'server', orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: FederatedConnectionEntity::class,
+        cascade: ['persist'],
+        mappedBy: 'server',
+        orphanRemoval: true,
+    )]
     #[Groups(['connections', 'all'])]
     private Collection $connections;
 

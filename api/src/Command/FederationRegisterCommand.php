@@ -52,7 +52,11 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
     {
         $this
             ->addArgument('email', InputArgument::REQUIRED, 'Contact e-mail for registered federated server.')
-            ->addArgument('allowed-url', InputArgument::REQUIRED, 'URL prefix the server\'s connections must start with.')
+            ->addArgument(
+                'allowed-url',
+                InputArgument::REQUIRED,
+                'URL prefix the server\'s connections must start with.',
+            )
             ->addOption('maintainer', 'm', InputOption::VALUE_OPTIONAL, 'Name of the maintainer for this server.')
         ;
     }
@@ -69,7 +73,10 @@ class FederationRegisterCommand extends Command implements CustomSentrySampleRat
         ]);
 
         if (count($violations) > 0) {
-            $io->error(sprintf('Allowed URL must be an http(s) URL with a host: %s', $violations->get(0)->getMessage()));
+            $io->error(sprintf(
+                'Allowed URL must be an http(s) URL with a host: %s',
+                $violations->get(0)->getMessage(),
+            ));
             return Command::INVALID;
         }
 

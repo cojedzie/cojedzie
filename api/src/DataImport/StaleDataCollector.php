@@ -123,7 +123,12 @@ class StaleDataCollector
             $removed[$table] = $this->delete($table, self::staleCondition($table), $references, $parameters);
         }
 
-        $removed['import'] = $this->delete('import', self::OLD_IMPORT, array_fill_keys(self::STAMPED, 'import_id'), $parameters);
+        $removed['import'] = $this->delete(
+            'import',
+            self::OLD_IMPORT,
+            array_fill_keys(self::STAMPED, 'import_id'),
+            $parameters,
+        );
 
         return $removed;
     }
@@ -131,7 +136,10 @@ class StaleDataCollector
     private static function staleCondition(string $table): string
     {
         return match (true) {
-            in_array($table, self::VERSIONED, true) => sprintf('(valid_to < :now OR (valid_to IS NULL AND %s))', self::NOT_IMPORTED),
+            in_array($table, self::VERSIONED, true) => sprintf(
+                '(valid_to < :now OR (valid_to IS NULL AND %s))',
+                self::NOT_IMPORTED,
+            ),
             default                                 => self::NOT_IMPORTED,
         };
     }
@@ -140,7 +148,10 @@ class StaleDataCollector
     {
         return (bool) $this->connection->fetchOne(
             'SELECT 1 FROM import WHERE status = :running AND started_at >= :since',
-            ['running' => ImportStatus::Running->value, 'since' => $now->sub(\DateInterval::createFromDateString($this->importTimeout))],
+            [
+                'running' => ImportStatus::Running->value,
+                'since'   => $now->sub(\DateInterval::createFromDateString($this->importTimeout)),
+            ],
             ['since' => Types::DATETIME_IMMUTABLE],
         );
     }
@@ -184,7 +195,13 @@ class StaleDataCollector
     {
         [$column, $referred] = is_array($reference) ? $reference : [$reference, 'id'];
 
-        return sprintf('NOT EXISTS (SELECT 1 FROM %1$s WHERE %1$s.%2$s = %3$s.%4$s)', $referring, $column, $table, $referred);
+        return sprintf(
+            'NOT EXISTS (SELECT 1 FROM %1$s WHERE %1$s.%2$s = %3$s.%4$s)',
+            $referring,
+            $column,
+            $table,
+            $referred,
+        );
     }
 
     /**
@@ -194,6 +211,10 @@ class StaleDataCollector
      */
     private static function usedIn(string $condition, array $parameters): array
     {
-        return array_filter($parameters, fn (string $name) => str_contains($condition, ':' . $name), ARRAY_FILTER_USE_KEY);
+        return array_filter(
+            $parameters,
+            fn (string $name) => str_contains($condition, ':' . $name),
+            ARRAY_FILTER_USE_KEY,
+        );
     }
 }

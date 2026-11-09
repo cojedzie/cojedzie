@@ -60,7 +60,10 @@ class ClickHouseMigrateCommand extends Command
             return Command::SUCCESS;
         }
 
-        $io->listing(array_map(fn (Migration $migration) => sprintf('%s: %s', Migrator::version($migration), $migration->getDescription()), $applied));
+        $io->listing(array_map(
+            fn (Migration $migration) => sprintf('%s: %s', Migrator::version($migration), $migration->getDescription()),
+            $applied,
+        ));
         $io->success(sprintf('Applied %d migration(s).', count($applied)));
 
         return Command::SUCCESS;

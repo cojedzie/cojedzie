@@ -66,7 +66,13 @@ final class Environment
             $useLegacy = !array_key_exists($name, $variables) || in_array($name, $dotenv, true);
 
             if ($useLegacy) {
-                trigger_deprecation('cojedzie/api', '2026.10', 'The %s environment variable is deprecated, use %s.', $legacy, $name);
+                trigger_deprecation(
+                    'cojedzie/api',
+                    '2026.10',
+                    'The %s environment variable is deprecated, use %s.',
+                    $legacy,
+                    $name,
+                );
 
                 $variables[$name] = $variables[$legacy];
             }

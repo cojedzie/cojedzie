@@ -48,7 +48,20 @@ class MessagesController extends Controller
      */
     #[Route(path: '', name: 'all', methods: ['GET'], options: ['version' => '1.1'])]
     #[ParameterBindingProvider([self::class, 'getParameterBinding'])]
-    #[OA\Response(response: 200, description: 'List of messages valid at time of request', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Message::class)))])]
+    #[OA\Response(
+        response: 200,
+        description: 'List of messages valid at time of request',
+        content: [
+            new OA\MediaType(
+                mediaType: 'application/vnd.cojedzie.collection+json',
+                schema: new OA\Schema(ref: new Model(type: CollectionResult::class)),
+            ),
+            new OA\JsonContent(
+                type: 'array',
+                items: new OA\Items(ref: new Model(type: Message::class)),
+            ),
+        ],
+    )]
     public function all(
         MessageRepository $messageRepository,
         iterable $requirements

@@ -60,5 +60,11 @@ interface DepartureHistory
      *
      * @throws DepartureHistoryException
      */
-    public function observed(string $provider, \DateTimeImmutable $from, \DateTimeImmutable $to, array $stopIds = [], array $lineIds = []): Seq;
+    public function observed(
+        string $provider,
+        \DateTimeImmutable $from,
+        \DateTimeImmutable $to,
+        array $stopIds = [],
+        array $lineIds = [],
+    ): Seq;
 }

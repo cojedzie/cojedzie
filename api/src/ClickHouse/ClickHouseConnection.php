@@ -62,7 +62,9 @@ final class ClickHouseConnection
     {
         $url = parse_url($this->url);
         if (!$this->isEnabled() || $url === false || !isset($url['host'])) {
-            throw new \InvalidArgumentException('COJEDZIE_CLICKHOUSE_URL is not a valid URL (credentials must be URL-encoded)');
+            throw new \InvalidArgumentException(
+                'COJEDZIE_CLICKHOUSE_URL is not a valid URL (credentials must be URL-encoded)',
+            );
         }
 
         $client = new Client([

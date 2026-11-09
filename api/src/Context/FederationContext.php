@@ -100,7 +100,8 @@ class FederationContext implements LoggerAwareInterface
             $this->logger->notice(
                 sprintf(
                     "%s::%s get called when connection ID is not available. " .
-                    "You first should call %s::isConnected method to check if this instance is working in federation and is connected.",
+                    "You first should call %s::isConnected method to check if this instance is working in federation " .
+                    "and is connected.",
                     self::class,
                     __METHOD__,
                     self::class

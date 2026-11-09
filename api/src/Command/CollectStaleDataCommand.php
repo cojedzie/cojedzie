@@ -27,7 +27,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'app:collect-stale-data', description: 'Remove imported data that no import has written within the retention period.')]
+#[AsCommand(
+    name: 'app:collect-stale-data',
+    description: 'Remove imported data that no import has written within the retention period.',
+)]
 class CollectStaleDataCommand extends Command
 {
     public function __construct(
@@ -43,7 +46,10 @@ class CollectStaleDataCommand extends Command
         $removed = $this->collector->collect();
 
         if ($removed === []) {
-            $io->warning('An import is running or none succeeded within the retention period (COJEDZIE_STALE_DATA_RETENTION), nothing was removed.');
+            $io->warning(
+                'An import is running or none succeeded within the retention period ' .
+                '(COJEDZIE_STALE_DATA_RETENTION), nothing was removed.',
+            );
             return Command::SUCCESS;
         }
 

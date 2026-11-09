@@ -54,7 +54,11 @@ class NetworkController extends Controller
     }
 
     #[Route(path: '/nodes', name: 'nodes', methods: ['GET'], options: ['version' => '1.0'])]
-    #[OA\Response(response: 200, description: 'Nodes that are currently available in the network.', content: new OA\JsonContent(ref: new Model(type: Node::class)))]
+    #[OA\Response(
+        response: 200,
+        description: 'Nodes that are currently available in the network.',
+        content: new OA\JsonContent(ref: new Model(type: Node::class)),
+    )]
     public function nodes(
         FederatedConnectionEntityRepository $connectionRepository,
         Converter $converter,

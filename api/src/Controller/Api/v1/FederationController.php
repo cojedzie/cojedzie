@@ -88,7 +88,9 @@ class FederationController extends Controller
         }
 
         if (!$server->allows($connection->getUrl())) {
-            throw new AccessDeniedHttpException(sprintf('Server %s cannot connect at this URL.', $server->getUserIdentifier()));
+            throw new AccessDeniedHttpException(
+                sprintf('Server %s cannot connect at this URL.', $server->getUserIdentifier()),
+            );
         }
 
         $connection->setOpenedAt(Carbon::now());
@@ -114,7 +116,13 @@ class FederationController extends Controller
      */
     #[IsGranted(FederatedConnectionVoter::CLOSE, subject: 'connection')]
     #[Route(path: '/connections/{connection}', name: 'disconnect', methods: ['DELETE'], options: ['version' => '1.0'])]
-    #[OA\Parameter(name: 'connection', description: 'Identifier of connection to be closed', in: 'path', example: 'a0b562d1-e0ce-4fc0-96e4-8d28a370a9e1', schema: new OA\Schema(type: 'string', format: 'uuid'))]
+    #[OA\Parameter(
+        name: 'connection',
+        description: 'Identifier of connection to be closed',
+        in: 'path',
+        example: 'a0b562d1-e0ce-4fc0-96e4-8d28a370a9e1',
+        schema: new OA\Schema(type: 'string', format: 'uuid'),
+    )]
     public function disconnect(
         #[MapEntity(id: 'connection')]
         FederatedConnectionEntity $connection,

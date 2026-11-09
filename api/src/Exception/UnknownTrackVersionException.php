@@ -31,6 +31,11 @@ final class UnknownTrackVersionException extends \RuntimeException
         public readonly string $date,
         public readonly int $trips,
     ) {
-        parent::__construct(sprintf('All %d trips of line %s on %s have an unknown track, left for the next import', $trips, $lineId, $date));
+        parent::__construct(sprintf(
+            'All %d trips of line %s on %s have an unknown track, left for the next import',
+            $trips,
+            $lineId,
+            $date,
+        ));
     }
 }
