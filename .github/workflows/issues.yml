@@ -1,0 +1,46 @@
+name: Issues
+
+# Keeps every issue in the triage process of contrib/agents/skills-config/triage-labels.md, whoever filed it: an issue
+# opened without a triage label waits for triage, and a closed one keeps only its category label.
+on:
+  issues:
+    types: [opened, closed]
+
+permissions:
+  issues: write
+
+env:
+  TRIAGE_LABELS: needs-triage needs-info ready-for-agent ready-for-human
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark for triage
+        if: github.event.action == 'opened'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          LABELS: ${{ join(github.event.issue.labels.*.name, ' ') }}
+        run: |
+          for label in $TRIAGE_LABELS wontfix; do
+            if [[ " $LABELS " == *" $label "* ]]; then
+              echo "Already labelled $label"
+              exit 0
+            fi
+          done
+          gh issue edit "$ISSUE" --add-label needs-triage
+      - name: Drop triage labels
+        if: github.event.action == 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          LABELS: ${{ join(github.event.issue.labels.*.name, ' ') }}
+        run: |
+          for label in $TRIAGE_LABELS; do
+            if [[ " $LABELS " == *" $label "* ]]; then
+              gh issue edit "$ISSUE" --remove-label "$label"
+            fi
+          done

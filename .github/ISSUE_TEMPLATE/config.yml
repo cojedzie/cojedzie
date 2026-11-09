@@ -1,0 +1,7 @@
+# Issues filed from the web go through a form, so each one arrives labelled for triage. Issues created with gh or the
+# API (maintainers, agents) are not affected; the Issues workflow labels those that come without a triage label.
+blank_issues_enabled: false
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/cojedzie/cojedzie/blob/master/CONTRIBUTING.md
+    about: How to propose changes, report bugs and contribute code.
