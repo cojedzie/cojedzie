@@ -25,8 +25,10 @@ use App\Dto\Track;
 use App\Dto\TrackStop;
 use App\Entity\TrackEntity;
 use App\Entity\TrackStopEntity;
+use App\Filter\Handler\Database\TrackKindDatabaseHandler;
 use App\Filter\Handler\Database\ValidityDatabaseHandler;
 use App\Filter\Requirement\Requirement;
+use App\Filter\Requirement\TrackKindConstraint;
 use App\Filter\Requirement\ValidityConstraint;
 use App\Provider\TrackRepository;
 use App\Service\HandlerProviderFactory;
@@ -55,7 +57,7 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
             ->from(TrackStopEntity::class, 'track_stop')
             ->select(['track_stop']);
 
-        return $this->allFromQueryBuilder($builder, $this->validNowByDefault($requirements), [
+        return $this->allFromQueryBuilder($builder, $this->riderFacingByDefault($requirements), [
             'alias'  => 'track_stop',
             'entity' => TrackStopEntity::class,
             'type'   => TrackStop::class,
@@ -70,7 +72,7 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
             ->from(TrackEntity::class, 'track')
             ->select('track');
 
-        return $this->allFromQueryBuilder($builder, $this->validNowByDefault($requirements), [
+        return $this->allFromQueryBuilder($builder, $this->riderFacingByDefault($requirements), [
             'alias'  => 'track',
             'entity' => TrackEntity::class,
             'type'   => Track::class,
@@ -81,24 +83,25 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
     protected static function getHandlers()
     {
         return array_merge(parent::getHandlers(), [
-            ValidityConstraint::class => ValidityDatabaseHandler::class,
+            ValidityConstraint::class  => ValidityDatabaseHandler::class,
+            TrackKindConstraint::class => TrackKindDatabaseHandler::class,
         ]);
     }
 
     /**
-     * Unless asked for another moment, lists what is valid now: the other versions of a route are past or future ones.
+     * Unless asked otherwise, lists what riders can take now: the other versions of a route are past or future ones,
+     * and depot runs aren't for riders (ADR 0031).
      *
      * @param Requirement[] $requirements
      *
      * @return Requirement[]
      */
-    private function validNowByDefault(array $requirements): array
+    private function riderFacingByDefault(array $requirements): array
     {
-        $asksForValidity = array_any(
+        return self::withDefaults(
             $requirements,
-            fn (Requirement $requirement) => $requirement instanceof ValidityConstraint,
+            new ValidityConstraint($this->clock->now()),
+            TrackKindConstraint::passenger(),
         );
-
-        return $asksForValidity ? $requirements : [...$requirements, new ValidityConstraint($this->clock->now())];
     }
 }

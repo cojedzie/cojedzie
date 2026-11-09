@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace App\Tests\Behat\Context;
 
 use App\DepartureHistory\DepartureHistory;
+use App\Dto\TrackKind;
 use App\Provider\Live\DepartureStatus;
 use App\Provider\Live\LiveDeparture;
 use App\Tests\Behat\Support\ApiClient;
@@ -64,6 +65,7 @@ final readonly class TimetableContext implements Context
                 $this->time->moment($entry['departure']),
                 $entry['display'],
                 ($entry['service day'] ?? '') ?: null,
+                TrackKind::from(($entry['kind'] ?? '') ?: 'side'),
             );
         }
 
