@@ -68,8 +68,12 @@ class DtoNormalizer implements NormalizerInterface, DenormalizerInterface, Seria
     }
 
     #[\Override]
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = [],
+    ): bool {
         return $this->decorated->supportsDenormalization($data, $type, $format, $context);
     }
 

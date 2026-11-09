@@ -65,7 +65,13 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
         // the aliases are the ones the embeds use, so asking for them again joins nothing twice
         $builder = $this->em
             ->createQueryBuilder()
-            ->select('trip_stop', 'trip_stop_trip', 'trip_stop_trip_track', 'trip_stop_trip_track_final', 'trip_stop_trip_track_line')
+            ->select(
+                'trip_stop',
+                'trip_stop_trip',
+                'trip_stop_trip_track',
+                'trip_stop_trip_track_final',
+                'trip_stop_trip_track_line',
+            )
             ->from(TripStopEntity::class, 'trip_stop')
             ->join('trip_stop.trip', 'trip_stop_trip')
             ->join('trip_stop_trip.track', 'trip_stop_trip_track')
@@ -127,7 +133,12 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
 
         return Departure::createFromArray([
             // a trip may visit a stop twice, its place in the trip tells the visits apart
-            'key'        => sprintf('%s::%s::%d', $entry->getTrip()->getId(), $entry->getStop()->getId(), $entry->getOrder()),
+            'key'        => sprintf(
+                '%s::%s::%d',
+                $entry->getTrip()->getId(),
+                $entry->getStop()->getId(),
+                $entry->getOrder(),
+            ),
             'line'       => $track->getLine(),
             'stop'       => $entry->getStop(),
             'track'      => $track,

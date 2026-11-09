@@ -14,8 +14,11 @@ class LinkNormalizer implements NormalizerInterface
     }
 
     #[\Override]
-    public function normalize($object, ?string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
-    {
+    public function normalize(
+        $object,
+        ?string $format = null,
+        array $context = [],
+    ): array|bool|string|int|float|null|\ArrayObject {
         $base = $this->normalizer->normalize($object, $format, $context);
 
         // If method is get we do not need to state that

@@ -77,7 +77,9 @@ class ZtmGdanskRealtimeDepartureRepository implements DepartureRepository
             return Departure::createFromArray([
                 'key'       => sprintf('%s::%s', $departure->lineId, $scheduled->format('H:i')),
                 'scheduled' => $scheduled,
-                'estimated' => $departure->estimatedAt !== null ? Carbon::instance($departure->estimatedAt)->tz('UTC') : null,
+                'estimated' => $departure->estimatedAt !== null
+                    ? Carbon::instance($departure->estimatedAt)->tz('UTC')
+                    : null,
                 'stop'      => $stop,
                 'display'   => $departure->headsign,
                 'vehicle'   => $departure->vehicle !== null ? Vehicle::reference($departure->vehicle) : null,

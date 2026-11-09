@@ -126,7 +126,8 @@ class TimetableTimeParameterBinding implements ParameterBinding
     {
         yield new Parameter(
             name: 'date',
-            description: 'Day of the timetable, in the provider\'s time zone. Defaults to today. Can\'t be combined with from and to.',
+            description: 'Day of the timetable, in the provider\'s time zone. Defaults to today. ' .
+                'Can\'t be combined with from and to.',
             in: 'query',
             required: false,
             schema: new Schema(type: 'string', format: 'date'),
@@ -134,15 +135,22 @@ class TimetableTimeParameterBinding implements ParameterBinding
 
         yield new Parameter(
             name: 'day',
-            description: 'How the day is selected: calendar (departures between its midnights), service (trips of its service day, including their runs after midnight) or extended (both). Defaults to calendar.',
+            description: 'How the day is selected: calendar (departures between its midnights), ' .
+                'service (trips of its service day, including their runs after midnight) or extended (both). ' .
+                'Defaults to calendar.',
             in: 'query',
             required: false,
-            schema: new Schema(type: 'string', default: DayMode::Calendar->value, enum: array_map(fn (DayMode $mode) => $mode->value, DayMode::cases())),
+            schema: new Schema(
+                type: 'string',
+                default: DayMode::Calendar->value,
+                enum: array_map(fn (DayMode $mode) => $mode->value, DayMode::cases()),
+            ),
         );
 
         yield new Parameter(
             name: 'from',
-            description: 'Start of a range of departure times, inclusive, as an ISO 8601 date-time with an offset. Requires to. The offset\'s + must be URL-encoded (%2B01:00), or use Z.',
+            description: 'Start of a range of departure times, inclusive, as an ISO 8601 date-time with an offset. ' .
+                'Requires to. The offset\'s + must be URL-encoded (%2B01:00), or use Z.',
             in: 'query',
             required: false,
             schema: new Schema(type: 'string', format: 'date-time'),
@@ -150,7 +158,8 @@ class TimetableTimeParameterBinding implements ParameterBinding
 
         yield new Parameter(
             name: 'to',
-            description: 'End of a range of departure times, exclusive, as an ISO 8601 date-time with an offset. Requires from. The offset\'s + must be URL-encoded (%2B01:00), or use Z.',
+            description: 'End of a range of departure times, exclusive, as an ISO 8601 date-time with an offset. ' .
+                'Requires from. The offset\'s + must be URL-encoded (%2B01:00), or use Z.',
             in: 'query',
             required: false,
             schema: new Schema(type: 'string', format: 'date-time'),

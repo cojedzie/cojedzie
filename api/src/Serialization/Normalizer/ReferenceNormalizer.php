@@ -34,8 +34,11 @@ class ReferenceNormalizer implements NormalizerInterface
     }
 
     #[\Override]
-    public function normalize($object, ?string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
-    {
+    public function normalize(
+        $object,
+        ?string $format = null,
+        array $context = [],
+    ): array|bool|string|int|float|null|\ArrayObject {
         return $this->normalizer->normalize(
             object: $object,
             format: $format,

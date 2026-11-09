@@ -31,7 +31,11 @@ class LimitConstraint implements Requirement
         private readonly ?int $count = null
     ) {
         if ($offset < 0 || ($count !== null && $count < 0)) {
-            throw new InvalidArgumentException(sprintf('Offset and count must not be negative, %d and %d given.', $offset, $count));
+            throw new InvalidArgumentException(sprintf(
+                'Offset and count must not be negative, %d and %d given.',
+                $offset,
+                $count,
+            ));
         }
     }
 

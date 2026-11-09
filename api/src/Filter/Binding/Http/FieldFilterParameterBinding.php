@@ -89,7 +89,11 @@ class FieldFilterParameterBinding implements ParameterBinding
                 $operator === null                             => $this->defaultOperator,
                 array_key_exists($operator, $this->operators)  => $this->operators[$operator],
 
-                default => throw InvalidOperatorException::unsupported($operator, array_keys($this->operators), $this->parameter),
+                default => throw InvalidOperatorException::unsupported(
+                    $operator,
+                    array_keys($this->operators),
+                    $this->parameter,
+                ),
             };
 
             if ($name === $this->parameter) {

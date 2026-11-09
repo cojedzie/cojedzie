@@ -101,7 +101,11 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     #[\Override]
     public function jobEnded(ProgressReporterInterface $reporter, ImportJobCounts $counts): void
     {
-        $reporter->progress($counts->ended(), max: $counts->total, comment: sprintf('%d lines failed', $counts->failed));
+        $reporter->progress(
+            $counts->ended(),
+            max: $counts->total,
+            comment: sprintf('%d lines failed', $counts->failed),
+        );
     }
 
     /**
@@ -154,8 +158,12 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
      * @throws RetryableException                 when a day's transaction deadlocked or timed out on a lock in every
      *                                            attempt
      */
-    public function importLine(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, array $dates): void
-    {
+    public function importLine(
+        ProgressReporterInterface $reporter,
+        DataUpdateEvent $event,
+        string $lineId,
+        array $dates,
+    ): void {
         $responses = $this->requestDays($lineId, $dates);
 
         try {
@@ -181,8 +189,13 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
      * @throws UniqueConstraintViolationException when another import wrote it meanwhile
      * @throws RetryableException                 when the transaction deadlocked or timed out on a lock in every attempt
      */
-    public function importLineDay(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date, array $stopTimes): void
-    {
+    public function importLineDay(
+        ProgressReporterInterface $reporter,
+        DataUpdateEvent $event,
+        string $lineId,
+        string $date,
+        array $stopTimes,
+    ): void {
         Retry::onLockFailure(fn () => $this->importLineDayOnce($reporter, $event, $lineId, $date, $stopTimes));
     }
 
@@ -206,7 +219,10 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     {
         [$today] = ZtmGdanskProvider::feedDates($this->clock, 1);
 
-        $this->connection->executeStatement('DELETE FROM ztm_gdansk_schedule_day WHERE date < :today', ['today' => $today]);
+        $this->connection->executeStatement(
+            'DELETE FROM ztm_gdansk_schedule_day WHERE date < :today',
+            ['today' => $today],
+        );
     }
 
     /**
@@ -245,7 +261,9 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     private function lineDaysOf(array $lineIds, array $dates): array
     {
         return $lineIds
-            |> c\flatMap(fn (string $lineId) => $dates |> c\map(fn (string $date) => ['line' => $lineId, 'date' => $date]));
+            |> c\flatMap(
+                fn (string $lineId) => $dates |> c\map(fn (string $date) => ['line' => $lineId, 'date' => $date]),
+            );
     }
 
     /**
@@ -325,10 +343,22 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
      *
      * @return int how many of the days are imported now, by this call or before
      */
-    private function importDownloadedDays(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, array $responses): int
-    {
+    private function importDownloadedDays(
+        ProgressReporterInterface $reporter,
+        DataUpdateEvent $event,
+        string $lineId,
+        array $responses,
+    ): int {
         return $responses
-            |> c\map(fn (ResponseInterface $response, string $date) => $this->importDownloadedDay($reporter, $event, $lineId, $date, $response))
+            |> c\map(
+                fn (ResponseInterface $response, string $date) => $this->importDownloadedDay(
+                    $reporter,
+                    $event,
+                    $lineId,
+                    $date,
+                    $response,
+                ),
+            )
             |> c\filter()
             |> c\count();
     }
@@ -351,12 +381,19 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     /**
      * @return ?list<array<string, mixed>> the day's stopTimes, null when the download failed, reported as a warning
      */
-    private function downloadedStopTimes(ProgressReporterInterface $reporter, string $lineId, string $date, ResponseInterface $response): ?array
-    {
+    private function downloadedStopTimes(
+        ProgressReporterInterface $reporter,
+        string $lineId,
+        string $date,
+        ResponseInterface $response,
+    ): ?array {
         try {
             return $this->stopTimesOf($response);
         } catch (HttpClientException|\JsonException|\UnexpectedValueException $exception) {
-            $reporter->milestone(sprintf('Line %s on %s: %s', $lineId, $date, $exception->getMessage()), MilestoneType::Warning);
+            $reporter->milestone(
+                sprintf('Line %s on %s: %s', $lineId, $date, $exception->getMessage()),
+                MilestoneType::Warning,
+            );
 
             return null;
         }
@@ -383,8 +420,13 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
      *
      * @return bool whether the day is imported now, by this call or before
      */
-    private function storeLineDay(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date, array $stopTimes): bool
-    {
+    private function storeLineDay(
+        ProgressReporterInterface $reporter,
+        DataUpdateEvent $event,
+        string $lineId,
+        string $date,
+        array $stopTimes,
+    ): bool {
         try {
             $this->importLineDay($reporter, $event, $lineId, $date, $stopTimes);
 
@@ -410,8 +452,13 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     /**
      * @param list<array<string, mixed>> $stopTimes
      */
-    private function importLineDayOnce(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date, array $stopTimes): void
-    {
+    private function importLineDayOnce(
+        ProgressReporterInterface $reporter,
+        DataUpdateEvent $event,
+        string $lineId,
+        string $date,
+        array $stopTimes,
+    ): void {
         $this->connection->transactional(function () use ($reporter, $event, $lineId, $date, $stopTimes): void {
             if ($this->isImported($lineId, $date)) {
                 return;
@@ -439,8 +486,13 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
      * @throws UnknownTrackVersionException when no trip is on a known track, as recording the day would keep it empty
      *                                      for good
      */
-    private function saveTripsOnKnownTracks(ProgressReporterInterface $reporter, DataUpdateEvent $event, string $lineId, string $date, array $trips): void
-    {
+    private function saveTripsOnKnownTracks(
+        ProgressReporterInterface $reporter,
+        DataUpdateEvent $event,
+        string $lineId,
+        string $date,
+        array $trips,
+    ): void {
         $trackIds = $this->trackIdsOfLine($lineId);
         $known    = $trips |> c\filter(fn (array $trip) => $trackIds->contains($trip['trip']['track_id']));
         $skipped  = count($trips) - count($known);

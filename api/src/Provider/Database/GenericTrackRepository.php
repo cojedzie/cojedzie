@@ -94,7 +94,10 @@ class GenericTrackRepository extends DatabaseRepository implements TrackReposito
      */
     private function validNowByDefault(array $requirements): array
     {
-        $asksForValidity = array_any($requirements, fn (Requirement $requirement) => $requirement instanceof ValidityConstraint);
+        $asksForValidity = array_any(
+            $requirements,
+            fn (Requirement $requirement) => $requirement instanceof ValidityConstraint,
+        );
 
         return $asksForValidity ? $requirements : [...$requirements, new ValidityConstraint($this->clock->now())];
     }

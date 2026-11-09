@@ -67,14 +67,19 @@ final class StreamingParser
     }
 
     #[Pure]
-    public static function separatedBy(StreamingParserInterface $consumer, ParserInterface $separator): SeparatedByStreamingParser
-    {
+    public static function separatedBy(
+        StreamingParserInterface $consumer,
+        ParserInterface $separator,
+    ): SeparatedByStreamingParser {
         return new SeparatedByStreamingParser($consumer, $separator);
     }
 
     #[Pure]
-    public static function between(StreamingParserInterface $consumer, ParserInterface $left, ?ParserInterface $right = null)
-    {
+    public static function between(
+        StreamingParserInterface $consumer,
+        ParserInterface $left,
+        ?ParserInterface $right = null,
+    ) {
         return new BetweenStreamingParser($consumer, $left, $right);
     }
 

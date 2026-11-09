@@ -83,7 +83,11 @@ class RelatedFilterParameterBinding implements ParameterBinding
     private function reference(string $id): Referable
     {
         if (!method_exists($this->resource, 'reference')) {
-            throw new \LogicException(sprintf('%s can\'t be referenced, it doesn\'t use %s.', $this->resource, ReferableTrait::class));
+            throw new \LogicException(sprintf(
+                '%s can\'t be referenced, it doesn\'t use %s.',
+                $this->resource,
+                ReferableTrait::class,
+            ));
         }
 
         return $this->resource::reference($id);

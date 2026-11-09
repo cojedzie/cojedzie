@@ -57,8 +57,12 @@ final class EntityReferenceFactory
     {
         return match (true) {
             $object instanceof Referable  => $this->createEntityReference($object, $provider),
-            is_array($object)             => array_map(partial(ref($this->createEntityReference(...)), _, $provider), $object),
-            $object instanceof Seq        => $object |> c\map(fn (Referable $referable) => $this->createEntityReference($referable, $provider)),
+            is_array($object)             => array_map(
+                partial(ref($this->createEntityReference(...)), _, $provider),
+                $object,
+            ),
+            $object instanceof Seq        => $object
+                |> c\map(fn (Referable $referable) => $this->createEntityReference($referable, $provider)),
             default                       => throw InvalidArgumentException::invalidType(
                 'object',
                 $object,

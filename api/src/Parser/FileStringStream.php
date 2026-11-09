@@ -44,7 +44,11 @@ class FileStringStream implements StreamInterface
         ]));
 
         if ($handle === false) {
-            throw new StreamOpenException(sprintf('Cannot open "%s": %s', $filename, error_get_last()['message'] ?? 'unknown error'));
+            throw new StreamOpenException(sprintf(
+                'Cannot open "%s": %s',
+                $filename,
+                error_get_last()['message'] ?? 'unknown error',
+            ));
         }
 
         $this->handle   = $handle;

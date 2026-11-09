@@ -7,9 +7,12 @@ use Ds\Set;
 
 class ZtmGdanskMessageLineExtractor
 {
+    private const string LINES_PATTERN = '/lini(?:i?|ach)\s*(?:nr\.?|autobusow(?:ych|ej)|tramwajow(?:ych|ej))?:?\s+' .
+        '((?:(?-i:[A-Z]{1,2}|\d+|[A-Z]{1,2}\d+)\b\s*(?:[,;]|i|oraz)?\s*)*)\.?/imu';
+
     public function extractLinesFromMessage(Message $message): Set
     {
-        if (preg_match_all('/lini(?:i?|ach)\s*(?:nr\.?|autobusow(?:ych|ej)|tramwajow(?:ych|ej))?:?\s+((?:(?-i:[A-Z]{1,2}|\d+|[A-Z]{1,2}\d+)\b\s*(?:[,;]|i|oraz)?\s*)*)\.?/imu', $message->getMessage(), $matches) === 0) {
+        if (preg_match_all(self::LINES_PATTERN, $message->getMessage(), $matches) === 0) {
             return new Set();
         }
 

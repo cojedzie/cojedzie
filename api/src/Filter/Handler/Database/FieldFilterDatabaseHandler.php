@@ -90,7 +90,9 @@ class FieldFilterDatabaseHandler implements ModifierHandler
 
         if (!$modifier->isCaseSensitive() && $this->isTextField($builder, $event->getMeta()['entity'], $field)) {
             $where = sprintf('LOWER(%s)', $where);
-            $value = is_array($value) ? array_map(fn ($x) => mb_strtolower((string) $x), $value) : mb_strtolower((string) $value);
+            $value = is_array($value)
+                ? array_map(fn ($x) => mb_strtolower((string) $x), $value)
+                : mb_strtolower((string) $value);
         }
 
         $pattern = in_array($operator, self::PATTERN_OPERATORS, true);

@@ -152,7 +152,14 @@ class ZtmGdanskProvider implements Provider
         $this->tracks    = $tracks;
         $this->entity    = $provider;
         $this->trips     = $trips;
-        $this->timetable = new ObservedTimetableRepository($timetable, $history, $clock, $logger, self::IDENTIFIER, $estimateMaxAge);
+        $this->timetable = new ObservedTimetableRepository(
+            $timetable,
+            $history,
+            $clock,
+            $logger,
+            self::IDENTIFIER,
+            $estimateMaxAge,
+        );
 
         $this->messages->setProvider($provider);
     }
