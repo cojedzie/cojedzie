@@ -25,6 +25,7 @@ Marker interface `Requirement`; all implementations are immutable.
 | `Embed($relationship)` | Load an optional relation into the result (e.g. `destinations`, `track`, `$refs.stops`). |
 | `TimetableDay(?$date, DayMode)` | Timetable entries of a day in the provider's time zone (ADR 0029): `Calendar` (departure between the local midnights, so 23 or 25 h over DST), `Service` (`trip.serviceDate`), `Extended` (either). Handled by `TimetableDayDatabaseHandler`, which reads the zone from meta `timezone` (`GenericTimetableRepository::withTimezone()`, given `Provider::getTimezone()`) and today from the clock. |
 | `ValidityConstraint($at)` | Only versioned records valid at a moment (`ValidityAwareInterface`). Track repositories add one for now unless the requirements carry one; the `destinations` embed uses tracks valid now. |
+| `TrackKindConstraint(...TrackKind)` | Only tracks of the given kinds, or the track stops and timetable entries on them (ADR 0031). `GenericTrackRepository` (tracks and track stops) and `GenericTimetableRepository` (entries and departures) add `TrackKindConstraint::passenger()` (main and side) unless the requirements carry one, so depot runs never reach riders; the `destinations` embed applies it too. `TrackKindDatabaseHandler` reaches the track from meta `entity` with its own joins. |
 
 Requirements are also used **internally** between repositories — e.g. `Database\RealtimeTimetableDepartureRepository` queries the
 timetable repository with `RelatedFilter($stop, Stop::class)`, `FieldFilter('departure', $time, GreaterOrEqual)`,
@@ -108,8 +109,11 @@ Defaults:
 | `RelatedFilter` | `RelatedFilterDatabaseGenericHandler` | — |
 | `Embed` | `GenericWithDatabaseHandler` | `RefsEmbedHandler` |
 | `ValidityConstraint` | `ValidityDatabaseHandler` (registered by `GenericTrackRepository`) | — |
+| `TrackKindConstraint` | `TrackKindDatabaseHandler` (registered by `GenericTrackRepository` and `GenericTimetableRepository`) | — |
 
 Subclasses extend the map in `protected static function getHandlers()` (always `array_merge(parent::getHandlers(), …)`).
+Default requirements are added with `DatabaseRepository::withDefaults($requirements, ...$defaults)`, which skips a
+default whose class the requirements already carry.
 Example — `GenericStopRepository` routes `Embed('destinations')` to `EmbedDestinationsDatabaseHandler`
 (post-processing) and any other `Embed` to `GenericWithDatabaseHandler`.
 

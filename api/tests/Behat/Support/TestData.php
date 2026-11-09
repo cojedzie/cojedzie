@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat\Support;
 
+use App\Dto\TrackKind;
 use App\Entity\ImportEntity;
 use App\Entity\LineEntity;
 use App\Entity\OperatorEntity;
@@ -61,7 +62,7 @@ final class TestData
     private int $trips   = 0;
 
     /**
-     * @var array<string, TrackEntity> tracks of departures, by line, stop and destination
+     * @var array<string, TrackEntity> tracks of departures, by line, stop, destination and kind
      */
     private array $routes = [];
 
@@ -112,11 +113,13 @@ final class TestData
         array $stopIds,
         ?Carbon $validFrom = null,
         ?Carbon $validTo = null,
+        TrackKind $kind = TrackKind::Side,
     ): TrackEntity {
         $track = new TrackEntity();
         $track->fill([
             'id'   => $this->ids->generate(TestProvider::IDENTIFIER, sprintf('%s-%d', $lineSymbol, ++$this->tracks)),
             'line' => $this->line($lineSymbol),
+            'kind' => $kind,
         ]);
         $track->setValidFrom($validFrom);
         $track->setValidTo($validTo);
@@ -155,14 +158,15 @@ final class TestData
         Carbon $departure,
         string $display,
         ?string $serviceDay = null,
+        TrackKind $kind = TrackKind::Side,
     ): TripEntity {
         $destination = 'destination-' . new AsciiSlugger()->slug($display)->lower();
         if (!isset($this->stops[$destination])) {
             $this->stop($destination, $display);
         }
 
-        $route = sprintf('%s|%s|%s', $lineSymbol, $stopId, $destination);
-        $track = $this->routes[$route] ??= $this->track($lineSymbol, [$stopId, $destination]);
+        $route = sprintf('%s|%s|%s|%s', $lineSymbol, $stopId, $destination, $kind->value);
+        $track = $this->routes[$route] ??= $this->track($lineSymbol, [$stopId, $destination], kind: $kind);
 
         $trip = new TripEntity();
         $trip->fill([

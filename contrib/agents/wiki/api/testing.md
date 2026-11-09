@@ -61,6 +61,9 @@ see `features/contract/nested-references.feature`) never happen in tests.
   - `Given line 6 runs through "a, b, c"` (creates the line and a track; destinations come from tracks)
   - `Given line 6 ran through "a, b" until "11:00"` / `Given line 6 will run through "a, b" from "13:00"`: a track
     valid only until / from that time (`HH:MM` like the tables), for the valid-now filter of track listings
+  - `Given there are tracks:` (`line | kind | stops`, kind `main`/`side`/`non-passenger`); `When I list tracks
+    through stop "a"`, `Then I should see tracks:` (`line | kind | destination`, in order). Tracks of the other
+    steps are `side`; departures and timetable entries take an optional `kind` column for their track.
   - `Given there are lines:` (`symbol | type | night`, night `yes`/`no`); `When I list lines`, `When I list lines
     "8, 111"` (by id), `When I search for lines with symbol "1"`, `Then I should see lines "10, 111"` (symbols in order,
     `""` for none), `When I look up line "N1"`

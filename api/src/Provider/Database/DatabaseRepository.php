@@ -150,6 +150,24 @@ abstract class DatabaseRepository implements Repository
 
     abstract public function all(Requirement ...$requirements): Seq;
 
+    /**
+     * Adds the defaults of the kinds the requirements don't ask for, e.g. tracks valid now unless asked for another
+     * moment.
+     *
+     * @param Requirement[] $requirements
+     *
+     * @return Requirement[]
+     */
+    protected static function withDefaults(array $requirements, Requirement ...$defaults): array
+    {
+        $isAskedFor = fn (Requirement $default) => array_any(
+            $requirements,
+            fn (Requirement $requirement) => $requirement instanceof $default,
+        );
+
+        return [...$requirements, ...array_filter($defaults, fn (Requirement $default) => !$isAskedFor($default))];
+    }
+
     public function first(Requirement ...$requirements)
     {
         return $this->all(LimitConstraint::count(1), ...$requirements) |> c\first();

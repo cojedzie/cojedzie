@@ -10,6 +10,7 @@ use App\Tests\Behat\Context\LineContext;
 use App\Tests\Behat\Context\StopContext;
 use App\Tests\Behat\Context\TimeContext;
 use App\Tests\Behat\Context\TimetableContext;
+use App\Tests\Behat\Context\TrackContext;
 use Behat\Config\Config;
 use Behat\Config\Extension;
 use Behat\Config\Profile;
@@ -29,6 +30,7 @@ return (new Config())
                         ApiContext::class,
                         StopContext::class,
                         LineContext::class,
+                        TrackContext::class,
                         TimeContext::class,
                         DepartureContext::class,
                         TimetableContext::class,

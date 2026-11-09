@@ -31,6 +31,7 @@ use App\Entity\TrackStopEntity;
 use App\Event\HandleDatabaseRequirementEvent;
 use App\Event\PostProcessEvent;
 use App\Filter\Handler\PostProcessingHandler;
+use App\Filter\Requirement\TrackKindConstraint;
 use App\Filter\Requirement\ValidityConstraint;
 use App\Service\IdUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -50,6 +51,7 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
         private readonly IdUtils $id,
         private readonly ClockInterface $clock,
         private readonly ValidityDatabaseHandler $validity,
+        private readonly TrackKindDatabaseHandler $kind,
     ) {
         if ($this->converter instanceof CacheableConverter) {
             $this->converter = clone $this->converter;
@@ -78,6 +80,14 @@ class EmbedDestinationsDatabaseHandler implements PostProcessingHandler
         // destinations of the tracks valid now, other versions of a route are past or future ones
         $this->validity->process(new HandleDatabaseRequirementEvent(
             new ValidityConstraint($this->clock->now()),
+            $event->getRepository(),
+            $builder,
+            ['alias' => 't'],
+        ));
+
+        // depot runs aren't for riders (ADR 0031)
+        $this->kind->process(new HandleDatabaseRequirementEvent(
+            TrackKindConstraint::passenger(),
             $event->getRepository(),
             $builder,
             ['alias' => 't'],

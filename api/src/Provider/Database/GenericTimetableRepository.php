@@ -26,8 +26,10 @@ use App\Dto\TimetableRange;
 use App\Entity\TripEntity;
 use App\Entity\TripStopEntity;
 use App\Filter\Handler\Database\TimetableDayDatabaseHandler;
+use App\Filter\Handler\Database\TrackKindDatabaseHandler;
 use App\Filter\Requirement\Requirement;
 use App\Filter\Requirement\TimetableDay;
+use App\Filter\Requirement\TrackKindConstraint;
 use App\Provider\TimetableRepository;
 use Ds\Seq;
 
@@ -56,7 +58,7 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
             ->orderBy('trip_stop.departure', 'ASC')
         ;
 
-        return $this->allFromQueryBuilder($builder, $requirements, $this->meta());
+        return $this->allFromQueryBuilder($builder, self::passengerByDefault($requirements), $this->meta());
     }
 
     #[\Override]
@@ -85,7 +87,7 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
 
         return $this->allFromQueryBuilder(
             $builder,
-            $requirements,
+            self::passengerByDefault($requirements),
             $this->meta(),
             fn (TripStopEntity $entry) => $this->toDeparture($this->convert($entry)),
         );
@@ -113,8 +115,21 @@ class GenericTimetableRepository extends DatabaseRepository implements Timetable
     protected static function getHandlers()
     {
         return array_merge(parent::getHandlers(), [
-            TimetableDay::class => TimetableDayDatabaseHandler::class,
+            TimetableDay::class        => TimetableDayDatabaseHandler::class,
+            TrackKindConstraint::class => TrackKindDatabaseHandler::class,
         ]);
+    }
+
+    /**
+     * Unless asked otherwise, leaves out trips of depot runs, which aren't for riders (ADR 0031).
+     *
+     * @param Requirement[] $requirements
+     *
+     * @return Requirement[]
+     */
+    private static function passengerByDefault(array $requirements): array
+    {
+        return self::withDefaults($requirements, TrackKindConstraint::passenger());
     }
 
     private function meta(): array

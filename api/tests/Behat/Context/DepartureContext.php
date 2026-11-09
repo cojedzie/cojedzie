@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat\Context;
 
+use App\Dto\TrackKind;
 use App\Tests\Behat\Support\ApiClient;
 use App\Tests\Behat\Support\FrozenTime;
 use App\Tests\Behat\Support\Provider\InMemoryDepartureRepository;
@@ -60,6 +61,7 @@ final readonly class DepartureContext implements Context
                 $departure['stop'],
                 $this->time->at($departure['scheduled']),
                 $departure['display'],
+                kind: TrackKind::from(($departure['kind'] ?? '') ?: 'side'),
             );
 
             if ($departure['estimated'] !== '') {
