@@ -147,6 +147,11 @@ imports with `task api:update` (performance mode). Single-day reads (`stream()`,
   importer therefore sets `valid_to` = now on the tracks (and their stops) that share `R{routeId}T{tripId}` with a
   track listed by this import, have another version and weren't listed. Tracks whose route+trip this import doesn't
   list keep their validity, so a partial feed expires nothing it doesn't cover.
+- `track.kind` (`TrackKind`, ADR 0031) comes from the trip's `type` in the trips feed: `MAIN` → `main`,
+  `NON_PASSENGER` (depot runs) → `non-passenger`, anything else → `side`. `SIDE` is ZTM's shortened runs; other
+  agencies send `UNKNOWN`, so about half the routes (90 of 183 on 2026-10-28) have no main track. Providers that
+  can't tell leave the default `side`. Non-passenger tracks and their trips are imported like any other; the API
+  hides them (see the filtering page).
 - `trip.service_date` (not null, indexed) is the service day of the trip: **importers must set it**
   (`TripEntity::setServiceDate()`, or the `service_date` column in bulk inserts). The ZTM importer uses the date of the
   `stopTimes` request that listed the trip, so a run after midnight stays on its day. The rollout migration deleted

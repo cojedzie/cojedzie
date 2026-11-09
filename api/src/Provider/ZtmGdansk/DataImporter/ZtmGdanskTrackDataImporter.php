@@ -23,6 +23,7 @@ namespace App\Provider\ZtmGdansk\DataImporter;
 use App\DataImport\MilestoneType;
 use App\DataImport\ProgressReporterInterface;
 use App\DataImport\TableUpserter;
+use App\Dto\TrackKind;
 use App\Event\DataUpdateEvent;
 use App\Provider\ZtmGdansk\ZtmGdanskConfig;
 use App\Provider\ZtmGdansk\ZtmGdanskProvider;
@@ -109,7 +110,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
      * Writes the tracks first listed on this day and extends the listing of those listed on an earlier one.
      *
      * @param iterable<string, array{string, iterable<array>}>             $tracks   trip id and stops, by track id
-     * @param array<string, array{line_id: string, description: string}> $trips    trips of the day, by id
+     * @param array<string, array{line_id: string, description: string, kind: string}> $trips    trips of the day, by id
      * @param array<string, array{string, string}>                        $listings first and last date listing each track, updated
      *
      * @return array{imported: int, skipped: int} tracks written, and tracks without a trip in the trips feed
@@ -196,7 +197,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
      *
      * @param list<string> $dates
      *
-     * @return array<string, array<string, array{line_id: string, description: string}>>
+     * @return array<string, array<string, array{line_id: string, description: string, kind: string}>>
      */
     private function tripsByDate(array $dates): array
     {
@@ -211,7 +212,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     /**
      * @param iterable<array> $trips records of the trips feed
      *
-     * @return array<string, array{line_id: string, description: string}>
+     * @return array<string, array{line_id: string, description: string, kind: string}>
      */
     private function tripsById(iterable $trips): array
     {
@@ -221,6 +222,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
                 'line_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $trip['routeId']),
                 // without the number ZTM appends to some headsigns, e.g. "Oliwa (123)"
                 'description' => preg_replace('/\(\d+\)/', '', (string) $trip['tripHeadsign']),
+                'kind'        => self::kind($trip['type'] ?? null)->value,
             ];
         }
 
@@ -228,7 +230,20 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     }
 
     /**
-     * @param array{line_id: string, description: string}                $trip
+     * Kind of the track of a trip, from its type: MAIN, SIDE or NON_PASSENGER. Agencies other than ZTM Gdańsk send
+     * UNKNOWN, so their tracks are side ones, as are tracks of a type added later.
+     */
+    private static function kind(?string $type): TrackKind
+    {
+        return match ($type) {
+            'MAIN'          => TrackKind::Main,
+            'NON_PASSENGER' => TrackKind::NonPassenger,
+            default         => TrackKind::Side,
+        };
+    }
+
+    /**
+     * @param array{line_id: string, description: string, kind: string}                $trip
      * @param iterable<array{stop_id: string, track_id: string, sequence: int}> $stops
      */
     private function writeTrack(string $trackId, array $trip, iterable $stops, DataUpdateEvent $event): void
