@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
-import moment from "moment";
 import { Temporal } from "@/time";
 import { useMessagesStore } from "@/stores/messages";
 
@@ -33,7 +32,7 @@ describe("messages store", () => {
         });
     });
 
-    it("parses the validity into local moments and becomes ready", async () => {
+    it("parses the validity into instants and becomes ready", async () => {
         get.mockResolvedValue({ data: [message("1", "info")] });
         const store = useMessagesStore();
         const before = Temporal.Now.instant();
@@ -42,9 +41,8 @@ describe("messages store", () => {
 
         expect(store.state).toBe("ready");
         expect(Temporal.Instant.compare(store.lastUpdate, before)).toBeGreaterThanOrEqual(0);
-        expect(store.messages[0].validFrom.isSame(moment("2026-10-30T11:00:00Z"))).toBe(true);
-        expect(store.messages[0].validTo.isSame(moment("2026-10-30T17:00:00Z"))).toBe(true);
-        expect(store.messages[0].validFrom.utcOffset()).toBe(moment().utcOffset());
+        expect(store.messages[0].validFrom.toString()).toBe("2026-10-30T11:00:00Z");
+        expect(store.messages[0].validTo.toString()).toBe("2026-10-30T17:00:00Z");
     });
 
     it("counts the messages by type", async () => {

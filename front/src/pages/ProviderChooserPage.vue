@@ -12,7 +12,7 @@
                                 <div class="provider__name">{{ provider.name }}</div>
                             </div>
                             <ui-tooltip v-if="provider.lastUpdate != null"
-                                >Ostatnia akutalizacja: {{ provider.lastUpdate.format("YYYY-MM-DD HH:mm") }}</ui-tooltip
+                                >Ostatnia aktualizacja: {{ formatDateTime(provider.lastUpdate, timeZone) }}</ui-tooltip
                             >
                         </a>
                     </li>
@@ -48,12 +48,15 @@ import useService from "@/composables/useService";
 import ProviderRepository from "@/services/ProviderRepository";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
+import { useDisplayTimeZone } from "@/composables/useDisplayTimeZone";
+import { formatDateTime } from "@/time";
 
 const UiMap = defineAsyncComponent(() => import("@/components/ui/UiMap.vue"));
 const LMarker = defineAsyncComponent(() => import("@/components/map").then(module => module.LMarker));
 const LIcon = defineAsyncComponent(() => import("@/components/map").then(module => module.LIcon));
 
 const repository = useService(ProviderRepository.service);
+const timeZone = useDisplayTimeZone();
 
 const { state: providers } = useAsyncState(repository.getAllProviders(), []);
 

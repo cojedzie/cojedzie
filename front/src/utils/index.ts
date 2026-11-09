@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Moment } from "moment";
 import type { Temporal } from "@/time";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -33,17 +32,15 @@ try {
 
 type Simplify<T> = T extends string | number | boolean
     ? T
-    : T extends Moment
+    : T extends Temporal.PlainDate | Temporal.Instant
       ? string
-      : T extends Temporal.PlainDate | Temporal.Instant
-        ? string
-        : T extends Array<infer K>
-          ? Array<Simplify<K>>
-          : T extends (infer K)[]
-            ? Simplify<K>[]
-            : T extends Record<string, unknown>
-              ? Jsonified<T>
-              : T;
+      : T extends Array<infer K>
+        ? Array<Simplify<K>>
+        : T extends (infer K)[]
+          ? Simplify<K>[]
+          : T extends Record<string, unknown>
+            ? Jsonified<T>
+            : T;
 
 export type Jsonified<T> = { [K in keyof T]: Simplify<T[K]> };
 export type Optionalify<T> = { [K in keyof T]?: T[K] };

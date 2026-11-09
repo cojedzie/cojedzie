@@ -1,12 +1,19 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
-import moment from "moment";
+import { Temporal } from "@/time";
 import ProviderChooserPage from "@/pages/ProviderChooserPage.vue";
 import { ContainerKey } from "@/services";
+import { DisplayTimeZoneKey } from "@/composables/useDisplayTimeZone";
+import { ref } from "vue";
 
 const providers = [
-    { id: "trojmiasto", shortName: "ZTM", name: "Trójmiasto", lastUpdate: moment("2024-05-01T10:30:00") },
+    {
+        id: "trojmiasto",
+        shortName: "ZTM",
+        name: "Trójmiasto",
+        lastUpdate: Temporal.Instant.from("2024-05-01T10:30:00Z"),
+    },
     { id: "warszawa", shortName: "WTP", name: "Warszawa", lastUpdate: null },
 ];
 
@@ -15,7 +22,10 @@ const getAllProviders = vi.fn();
 async function mountPage() {
     const wrapper = mount(ProviderChooserPage, {
         global: {
-            provide: { [ContainerKey as symbol]: { get: () => ({ getAllProviders }) } },
+            provide: {
+                [ContainerKey as symbol]: { get: () => ({ getAllProviders }) },
+                [DisplayTimeZoneKey as symbol]: ref("Europe/Warsaw"),
+            },
             stubs: {
                 UiMap: { template: '<div class="ui-map"><slot /></div>' },
                 LMarker: true,
@@ -52,11 +62,11 @@ describe("ProviderChooserPage", () => {
         expect(links.map(link => link.attributes("href"))).toEqual(["/trojmiasto", "/warszawa"]);
     });
 
-    it("shows when the provider was last updated", async () => {
+    it("shows when the provider was last updated, in the display time zone", async () => {
         const wrapper = await mountPage();
 
         const entries = wrapper.findAll(".provider-picker__provider");
-        expect(entries[0].find(".tooltip").text()).toContain("2024-05-01 10:30");
+        expect(entries[0].find(".tooltip").text()).toBe("Ostatnia aktualizacja: 01.05.2024, 12:30");
         expect(entries[1].find(".tooltip").exists()).toBe(false);
     });
 

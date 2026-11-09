@@ -9,8 +9,6 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import filters from "../src/filters";
 import { install as api } from "../src/api";
 
-import "moment/dist/locale/pl";
-
 // shell components link to the named routes, stories render them inside a provider's page
 const page = { render: () => null };
 const router = createRouter({

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import moment, { Moment } from "moment";
+import { Temporal } from "@/time";
 import { Location } from "./common";
 import { Jsonified } from "@/utils";
 
@@ -26,7 +26,7 @@ export interface Provider {
     name: string;
     shortName: string;
     attribution?: string;
-    lastUpdate?: Moment;
+    lastUpdate?: Temporal.Instant | null;
     location: Location;
     /** IANA time zone the provider's timetable is in, e.g. "Europe/Warsaw" */
     timezone: string;
@@ -35,6 +35,6 @@ export interface Provider {
 export function convertProviderDtoToProvider(dto: Jsonified<Provider>): Provider {
     return {
         ...dto,
-        lastUpdate: moment.parseZone(dto.lastUpdate).local(),
+        lastUpdate: dto.lastUpdate ? Temporal.Instant.from(dto.lastUpdate) : null,
     };
 }

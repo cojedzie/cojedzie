@@ -1,13 +1,16 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
-import moment from "moment";
+import { ref } from "vue";
+import { Temporal } from "@/time";
+import { DisplayTimeZoneKey } from "@/composables/useDisplayTimeZone";
 import MessagesMessage from "@/components/messages/MessagesMessage.vue";
 
 function mountMessage(props = {}) {
     return mount(MessagesMessage, {
         props: { message: "Tram detour", ...props },
         global: {
+            provide: { [DisplayTimeZoneKey as symbol]: ref("Europe/Warsaw") },
             stubs: {
                 UiIcon: { props: ["icon"], template: '<i :class="icon" />' },
                 StopLabel: { props: ["stop"], template: '<span class="stop">{{ stop.name }}</span>' },
@@ -41,13 +44,38 @@ describe("MessagesMessage", () => {
     it("renders the validity and the given tag", () => {
         const wrapper = mountMessage({
             tag: "li",
-            validFrom: moment("2020-01-02T10:00:00"),
-            validTo: moment("2020-01-03T10:00:00"),
+            validFrom: Temporal.Instant.from("2020-01-02T10:00:00Z"),
+            validTo: Temporal.Instant.from("2020-01-03T10:00:00Z"),
         });
 
         expect(wrapper.element.tagName).toBe("LI");
         expect(wrapper.find(".message__validity").text().replace(/\s+/g, " ")).toBe(
-            `ważne od ${moment("2020-01-02").format("LL")} do ${moment("2020-01-03").format("LL")}`,
+            "ważne od 2 stycznia 2020 do 3 stycznia 2020",
         );
+    });
+
+    describe("validity today", () => {
+        // 12:00 in Warsaw
+        const now = Temporal.Instant.from("2026-11-10T11:00:00Z");
+
+        beforeEach(() => {
+            vi.useFakeTimers({ toFake: ["Date"] });
+            vi.setSystemTime(now.epochMilliseconds);
+        });
+        afterEach(() => vi.useRealTimers());
+
+        const validity = (props: object) => mountMessage(props).find(".message__validity").text().replace(/\s+/g, " ");
+
+        it("says today with the time, and only the time for an end later the same day", () => {
+            expect(validity({ validFrom: now.subtract({ hours: 2 }), validTo: now.add({ hours: 2 }) })).toBe(
+                "ważne od dziś o 10:00 do 14:00",
+            );
+        });
+
+        it("says today for the end that is today, and the date for the other", () => {
+            expect(validity({ validFrom: now, validTo: now.add({ hours: 48 }) })).toBe(
+                "ważne od dziś o 12:00 do 12 listopada 2026",
+            );
+        });
     });
 });

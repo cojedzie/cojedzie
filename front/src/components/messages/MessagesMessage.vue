@@ -22,30 +22,19 @@
             ważne
             <template v-if="validFrom">
                 od
-                {{
-                    validFrom.isSame(today, "day")
-                        ? validFrom.isSame(validTo)
-                            ? validFrom.calendar("LT")
-                            : validFrom.calendar().toLowerCase()
-                        : validFrom.format("LL")
-                }}
+                {{ validity(validFrom) }}
             </template>
             <template v-if="validTo">
                 do
-                {{
-                    validTo.isSame(today, "day")
-                        ? validTo.isSame(validFrom)
-                            ? validTo.calendar("LT")
-                            : validTo.calendar().toLowerCase()
-                        : validTo.format("LL")
-                }}
+                {{ validity(validTo, validFrom) }}
             </template>
         </div>
     </component>
 </template>
 
 <script setup lang="ts">
-import moment, { type Moment } from "moment";
+import { useDisplayTimeZone } from "@/composables/useDisplayTimeZone";
+import { dateIn, formatClockTime, formatDateInWords, Temporal } from "@/time";
 import type { Line, Stop } from "@/model";
 import type { MessageType } from "@/model/message";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -60,8 +49,8 @@ withDefaults(
         lines?: Line[];
         stops?: Stop[];
         type?: MessageType;
-        validFrom?: Moment | null;
-        validTo?: Moment | null;
+        validFrom?: Temporal.Instant | null;
+        validTo?: Temporal.Instant | null;
         tag?: string;
     }>(),
     {
@@ -74,5 +63,21 @@ withDefaults(
     },
 );
 
-const today = moment();
+const timeZone = useDisplayTimeZone();
+
+/**
+ * One end of the validity: "dziś o 14:05" today, only the time when the other end is earlier the same day ("od dziś
+ * o 10:00 do 14:00"), the date in words on other days. "Today" is taken in the zone the time is shown in, so the two
+ * agree.
+ */
+function validity(end: Temporal.Instant, start?: Temporal.Instant | null): string {
+    const day = dateIn(end, timeZone.value);
+    const time = formatClockTime(end, timeZone.value);
+
+    if (!day.equals(dateIn(Temporal.Now.instant(), timeZone.value))) {
+        return formatDateInWords(day);
+    }
+
+    return start && dateIn(start, timeZone.value).equals(day) ? time : `dziś o ${time}`;
+}
 </script>

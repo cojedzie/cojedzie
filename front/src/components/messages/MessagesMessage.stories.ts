@@ -1,5 +1,5 @@
 import { Message } from "@/model/message";
-import moment from "moment";
+import { Temporal } from "@/time";
 import { Meta, StoryFn } from "@storybook/vue3-vite";
 import MessagesMessage from "@/components/messages/MessagesMessage.vue";
 import { Line, Stop } from "@/model";
@@ -352,8 +352,8 @@ const message: Message = {
     id: "example",
     message:
         "Awaria tramwaju linii nr 9 w kierunku Strzyża SKM przy przystanku Opera Bałtycka, opóźnienia na liniach: 6, 9, 12.",
-    validFrom: moment().subtract(1, "day"),
-    validTo: moment().subtract(-1, "hour"),
+    validFrom: Temporal.Now.instant().subtract({ hours: 24 }),
+    validTo: Temporal.Now.instant().add({ hours: 1 }),
     $refs: {
         lines: {
             items: lines,
@@ -407,8 +407,9 @@ export default {
         showStops: true,
         stops: message.$refs.stops,
         showValidity: true,
-        validFrom: message.validFrom,
-        validTo: message.validTo,
+        // the date control works with epoch milliseconds
+        validFrom: message.validFrom.epochMilliseconds,
+        validTo: message.validTo.epochMilliseconds,
     },
 } as Meta;
 
@@ -418,8 +419,8 @@ export const Primary: StoryFn = args => ({
         return {
             message,
             args,
-            validFrom: computed(() => moment(args.validFrom)),
-            validTo: computed(() => moment(args.validTo)),
+            validFrom: computed(() => Temporal.Instant.fromEpochMilliseconds(args.validFrom)),
+            validTo: computed(() => Temporal.Instant.fromEpochMilliseconds(args.validTo)),
         };
     },
     template: `

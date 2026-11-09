@@ -60,7 +60,7 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   first day, as a year-month formats only in its own calendar). Times: `formatClockTime(instant, zone)` "14:05",
   `formatDateTime` "10.11.2026, 14:05", `dateIn`, `clockTimeIn`, `wholeMinutesBetween` (towards zero) and
   `formatRelativeTime(target, now)` through `Intl.RelativeTimeFormat`: "za chwilę" within a minute, whole minutes
-  rounded down within an hour ("za 44 minuty", where moment said "za godzinę"), hours beyond. `buildMonth` lays a month
+  rounded down within an hour ("za 44 minuty"), hours beyond. `buildMonth` lays a month
   out as six weeks from Monday of `CalendarDay` cells (today, selected, out of range). Whatever a calendar day shows
   belongs in that cell model; marking days (no service, day categories) is expected later. Tests: `test/time/`.
 - `composables/useToday.ts` — today as the app sees it: `Application.vue` provides today in the current provider's time
@@ -236,8 +236,8 @@ Vite does not type check, so a broken type only shows up in these checks (`vue-t
 
 TypeScript is 6: version 7 (the native compiler) is not supported by typescript-eslint and has no API for `vue-tsc`
 yet. TypeScript 6 turns `strict` on by default; the code was written without it, so both `tsconfig.json` files set
-`"strict": false` (turning it on reports about 170 errors). Module declarations for untyped imports, including
-side-effect ones like moment's locales, are in `src/types/webpack.d.ts`.
+`"strict": false` (turning it on reports about 170 errors). Module declarations for untyped imports (icons, images,
+`.vue` files) are in `src/types/webpack.d.ts`.
 
 ## State: stores and persistence
 

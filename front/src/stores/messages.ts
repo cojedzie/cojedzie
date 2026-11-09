@@ -19,7 +19,7 @@
 
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import moment from "moment";
+import { Temporal } from "@/time";
 import type { Message, MessageType } from "@/model/message";
 import api from "@/api";
 import { useFetching } from "@/stores/fetching";
@@ -44,8 +44,8 @@ export const useMessagesStore = defineStore("messages", () => {
 
             messages.value = response.data.map(message => ({
                 ...message,
-                validFrom: moment.parseZone(message.validFrom).local(),
-                validTo: moment.parseZone(message.validTo).local(),
+                validFrom: message.validFrom ? Temporal.Instant.from(message.validFrom) : null,
+                validTo: message.validTo ? Temporal.Instant.from(message.validTo) : null,
             })) as Message[];
         });
     }
