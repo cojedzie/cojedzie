@@ -1,0 +1,70 @@
+import { Canvas, Meta, Controls } from "@storybook/addon-docs/blocks";
+import * as UiDatePickerStories from "./UiDatePicker.stories";
+
+<Meta of={UiDatePickerStories} />
+
+# Date picker
+
+Chooses one day. Arrows step a day back and forth around a field naming the chosen day ("poniedziałek, 09.11.2026");
+the field opens a month calendar. Bind the day with `v-model`, as a `Temporal.PlainDate` (ADR 0032); `min` and `max` limit
+the days that can be chosen, the arrows are disabled at the ends and the calendar disables the days beyond them. A
+"dziś" button goes back to today, set apart from the arrows by a line so it isn't tapped by mistake.
+
+Nothing moves while clicking through days: the field is as wide as the longest day name of the week, and "dziś" stays
+in place, disabled on today. `:today-button="false"` leaves it out.
+
+**Today** is the app's: the day in the provider's time zone, provided by the application (`provideToday`) and read
+with `useToday()`. Without a provided one it is today in the device's time zone. The `today` prop overrides it, as
+the stories do.
+
+It belongs to the family of `UiToggleGroup`: the same `ui-control` look, `variant` (`normal` black, `primary` blue)
+and `size` (`small`, `normal`, `large`; only `large` is 44px high, the comfortable size to tap).
+
+<Canvas of={UiDatePickerStories.AnotherDay} />
+
+<Controls of={UiDatePickerStories.AnotherDay} />
+
+## Keyboard
+
+The calendar follows the date picker dialog pattern of the WAI-ARIA practices: the arrows move a day or a week, Home
+and End go to the week's ends, Page Up and Page Down move a month (a year with Shift), Enter or Space picks the day
+and Escape closes the calendar. Focus returns to the field when it closes.
+
+## At the ends of the range
+
+<Canvas of={UiDatePickerStories.FirstDay} />
+
+<Canvas of={UiDatePickerStories.LastDay} />
+
+## Without the today button
+
+<Canvas of={UiDatePickerStories.WithoutTodayButton} />
+
+## Primary
+
+<Canvas of={UiDatePickerStories.Primary} />
+
+## Sizes
+
+<Canvas of={UiDatePickerStories.Sizes} />
+
+## Narrow width
+
+When the field has too little room, it names the day shortly ("pt. 13.11").
+
+<Canvas of={UiDatePickerStories.Narrow} />
+
+## Calendar
+
+The month calendar is `UiCalendar`, which can be used on its own, for example as a filter. It always shows six weeks
+from Monday, so it keeps its height. On its own it has an outline like the other controls; `flat` leaves it out
+where something frames the calendar already (the picker's popup, a filter panel). Its days come from `buildMonth` in `src/calendar/`, one cell model per day: what a day shows (later, for
+example, whether there is service on it) belongs in that model.
+
+<Canvas of={UiDatePickerStories.Calendar} />
+
+<Canvas of={UiDatePickerStories.CalendarPrimary} />
+
+### Flat
+
+<Canvas of={UiDatePickerStories.CalendarFlat} />
