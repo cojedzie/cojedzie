@@ -101,17 +101,28 @@ final class ObservedTimetableRepositoryTest extends TestCase
         $this->observe('2026-11-12 12:05', $this->live('2026-11-12 12:05', '2026-11-12 12:20'));
         $this->observe('2026-11-13 11:59:30', $this->live('2026-11-13 12:05', '2026-11-13 12:06'));
 
-        $departures = $this->repository($this->history, $this->planned('2026-11-12 12:05'), $this->planned('2026-11-13 12:05'))->departures();
+        $departures = $this->repository(
+            $this->history,
+            $this->planned('2026-11-12 12:05'),
+            $this->planned('2026-11-13 12:05'),
+        )->departures();
 
         $this->assertSame(
-            [['2026-11-12 12:05', 'departed', '2026-11-12 12:20'], ['2026-11-13 12:05', 'realtime', '2026-11-13 12:06']],
+            [
+                ['2026-11-12 12:05', 'departed', '2026-11-12 12:20'],
+                ['2026-11-13 12:05', 'realtime', '2026-11-13 12:06'],
+            ],
             $this->describe($departures),
         );
     }
 
     public function testLiveOnlyDeparturesAreNotAdded(): void
     {
-        $this->observe('2026-11-13 11:59:30', $this->live('2026-11-13 12:05', '2026-11-13 12:08'), $this->live('2026-11-13 12:06', '2026-11-13 12:07', stop: 'S2'));
+        $this->observe(
+            '2026-11-13 11:59:30',
+            $this->live('2026-11-13 12:05', '2026-11-13 12:08'),
+            $this->live('2026-11-13 12:06', '2026-11-13 12:07', stop: 'S2'),
+        );
 
         $departures = $this->repository($this->history, $this->planned('2026-11-13 12:05'))->departures();
 
@@ -120,18 +131,32 @@ final class ObservedTimetableRepositoryTest extends TestCase
 
     public function testWithoutHistoryEntriesArePlannedOrDeparted(): void
     {
-        $departures = $this->repository(new InMemoryDepartureHistory(enabled: false), $this->planned('2026-11-13 11:50'), $this->planned('2026-11-13 12:05'))->departures();
+        $departures = $this->repository(
+            new InMemoryDepartureHistory(enabled: false),
+            $this->planned('2026-11-13 11:50'),
+            $this->planned('2026-11-13 12:05'),
+        )->departures();
 
-        $this->assertSame([['2026-11-13 11:50', 'departed', null], ['2026-11-13 12:05', 'planned', null]], $this->describe($departures));
+        $this->assertSame(
+            [['2026-11-13 11:50', 'departed', null], ['2026-11-13 12:05', 'planned', null]],
+            $this->describe($departures),
+        );
     }
 
     public function testAFailingHistoryIsLoggedAndIgnored(): void
     {
         $this->history->failingReads = true;
 
-        $departures = $this->repository($this->history, $this->planned('2026-11-13 11:50'), $this->planned('2026-11-13 12:05'))->departures();
+        $departures = $this->repository(
+            $this->history,
+            $this->planned('2026-11-13 11:50'),
+            $this->planned('2026-11-13 12:05'),
+        )->departures();
 
-        $this->assertSame([['2026-11-13 11:50', 'departed', null], ['2026-11-13 12:05', 'planned', null]], $this->describe($departures));
+        $this->assertSame(
+            [['2026-11-13 11:50', 'departed', null], ['2026-11-13 12:05', 'planned', null]],
+            $this->describe($departures),
+        );
 
         $warnings = array_filter($this->logger->cleanLogs(), fn (array $log) => $log[0] === 'warning');
         $this->assertCount(1, $warnings);
@@ -191,7 +216,11 @@ final class ObservedTimetableRepositoryTest extends TestCase
 
     private function observe(string $at, LiveDeparture ...$departures): void
     {
-        $this->history->record('trojmiasto', new \DateTimeImmutable($at, new \DateTimeZone(self::TIMEZONE)), $departures);
+        $this->history->record(
+            'trojmiasto',
+            new \DateTimeImmutable($at, new \DateTimeZone(self::TIMEZONE)),
+            $departures,
+        );
     }
 
     private function planned(string $scheduled): Departure
@@ -224,7 +253,9 @@ final class ObservedTimetableRepositoryTest extends TestCase
     private function local(?\DateTimeInterface $time): ?string
     {
         return $time !== null
-            ? \DateTimeImmutable::createFromInterface($time)->setTimezone(new \DateTimeZone(self::TIMEZONE))->format('Y-m-d H:i')
+            ? \DateTimeImmutable::createFromInterface($time)
+                ->setTimezone(new \DateTimeZone(self::TIMEZONE))
+                ->format('Y-m-d H:i')
             : null;
     }
 
@@ -237,7 +268,11 @@ final class ObservedTimetableRepositoryTest extends TestCase
     {
         $result = [];
         foreach ($departures as $departure) {
-            $result[] = [$this->local($departure->getScheduled()), $departure->getState()->value, $this->local($departure->getEstimated())];
+            $result[] = [
+                $this->local($departure->getScheduled()),
+                $departure->getState()->value,
+                $this->local($departure->getEstimated()),
+            ];
         }
 
         return $result;

@@ -71,8 +71,14 @@ final readonly class TimetableContext implements Context
     }
 
     #[Given('line :line leaves :stop every :minutes minutes from :first to :last on :date')]
-    public function lineLeavesEvery(string $line, string $stop, int $minutes, string $first, string $last, string $date): void
-    {
+    public function lineLeavesEvery(
+        string $line,
+        string $stop,
+        int $minutes,
+        string $first,
+        string $last,
+        string $date,
+    ): void {
         $departure = $this->time->moment("$date $first");
         $end       = $this->time->moment("$date $last");
 
@@ -87,9 +93,17 @@ final readonly class TimetableContext implements Context
      * The departure history saw the departure at the time it was observed; the times are local dates and times
      * ("Y-m-d H:i").
      */
-    #[Given('the departure history recorded line :line leaving stop :stop scheduled at :scheduled estimated at :estimated observed at :observed')]
-    public function theDepartureHistoryRecorded(string $line, string $stop, string $scheduled, string $estimated, string $observed): void
-    {
+    #[Given(
+        'the departure history recorded line :line leaving stop :stop scheduled at :scheduled ' .
+        'estimated at :estimated observed at :observed',
+    )]
+    public function theDepartureHistoryRecorded(
+        string $line,
+        string $stop,
+        string $scheduled,
+        string $estimated,
+        string $observed,
+    ): void {
         $scheduledAt = $this->time->moment($scheduled)->toDateTimeImmutable();
 
         $this->history()->record(TestProvider::IDENTIFIER, $this->time->moment($observed)->toDateTimeImmutable(), [
@@ -174,7 +188,10 @@ final readonly class TimetableContext implements Context
     #[Then('the timetable entry of line :line at :scheduled should be estimated at :estimated')]
     public function theTimetableEntryShouldBeEstimatedAt(string $line, string $scheduled, string $estimated): void
     {
-        Assert::assertSame($estimated, $this->time->localDateTime($this->entry($line, $scheduled)['estimated'] ?? null));
+        Assert::assertSame(
+            $estimated,
+            $this->time->localDateTime($this->entry($line, $scheduled)['estimated'] ?? null),
+        );
     }
 
     #[Then('the timetable entry of line :line at :scheduled should have no estimate')]

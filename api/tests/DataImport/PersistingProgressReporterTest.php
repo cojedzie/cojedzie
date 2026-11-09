@@ -112,7 +112,12 @@ final class PersistingProgressReporterTest extends KernelTestCase
 
     private function reporterOfTask(): PersistingProgressReporter
     {
-        return PersistingProgressReporter::ofTask($this->task->getId(), $this->recordingReporter(), $this->em, $this->clock);
+        return PersistingProgressReporter::ofTask(
+            $this->task->getId(),
+            $this->recordingReporter(),
+            $this->em,
+            $this->clock,
+        );
     }
 
     private function recordingReporter(): ProgressReporterInterface
@@ -147,8 +152,14 @@ final class PersistingProgressReporterTest extends KernelTestCase
      */
     private function storedProgress(string $table): array
     {
-        $row = $this->em->getConnection()->fetchAssociative(sprintf('SELECT progress, progress_max, progress_comment FROM %s', $table));
+        $row = $this->em->getConnection()->fetchAssociative(
+            sprintf('SELECT progress, progress_max, progress_comment FROM %s', $table),
+        );
 
-        return [(int) $row['progress'], $row['progress_max'] === null ? null : (int) $row['progress_max'], $row['progress_comment']];
+        return [
+            (int) $row['progress'],
+            $row['progress_max'] === null ? null : (int) $row['progress_max'],
+            $row['progress_comment'],
+        ];
     }
 }

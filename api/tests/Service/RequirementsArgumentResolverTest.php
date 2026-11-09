@@ -40,7 +40,8 @@ final class RequirementsArgumentResolverTest extends TestCase
         }, 'action'];
         $request = new Request(['limit' => '5']);
 
-        new RequirementsArgumentResolver($this->createStub(ArgumentResolverInterface::class))->getArguments($request, $controller);
+        $resolver = new RequirementsArgumentResolver($this->createStub(ArgumentResolverInterface::class));
+        $resolver->getArguments($request, $controller);
 
         $this->assertFalse($request->attributes->has('untyped'));
         $this->assertContainsOnlyInstancesOf(LimitConstraint::class, $request->attributes->get('requirements'));

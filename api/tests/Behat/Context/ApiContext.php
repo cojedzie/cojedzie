@@ -111,7 +111,10 @@ final readonly class ApiContext implements Context
     #[Then('the response should not have the header :name')]
     public function theResponseShouldNotHaveTheHeader(string $name): void
     {
-        Assert::assertFalse($this->client->lastResponse()->headers->has($name), sprintf('The response has the header "%s".', $name));
+        Assert::assertFalse(
+            $this->client->lastResponse()->headers->has($name),
+            sprintf('The response has the header "%s".', $name),
+        );
     }
 
     #[Then('the response\'s :field should be :value')]
@@ -124,7 +127,11 @@ final readonly class ApiContext implements Context
 
         $actual = $json[$field];
 
-        Assert::assertSame($value, is_scalar($actual) ? (string) $actual : json_encode($actual), sprintf('"%s" differs.', $field));
+        Assert::assertSame(
+            $value,
+            is_scalar($actual) ? (string) $actual : json_encode($actual),
+            sprintf('"%s" differs.', $field),
+        );
     }
 
     #[Then('the response\'s :field should contain :text')]
@@ -164,7 +171,11 @@ final readonly class ApiContext implements Context
             Assert::assertIsArray($item[$field] ?? null, sprintf('Item %d has no object "%s".', $index, $field));
 
             foreach (array_slice($fields->getColumn(0), 1) as $name) {
-                Assert::assertArrayHasKey($name, $item[$field], sprintf('Item %d "%s" has no field "%s".', $index, $field, $name));
+                Assert::assertArrayHasKey(
+                    $name,
+                    $item[$field],
+                    sprintf('Item %d "%s" has no field "%s".', $index, $field, $name),
+                );
             }
         }
     }

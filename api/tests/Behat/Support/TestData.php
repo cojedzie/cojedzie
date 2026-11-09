@@ -107,8 +107,12 @@ final class TestData
      * @param ?Carbon  $validFrom start of the track's validity, null for always
      * @param ?Carbon  $validTo   end of the track's validity, null for until changed
      */
-    public function track(string $lineSymbol, array $stopIds, ?Carbon $validFrom = null, ?Carbon $validTo = null): TrackEntity
-    {
+    public function track(
+        string $lineSymbol,
+        array $stopIds,
+        ?Carbon $validFrom = null,
+        ?Carbon $validTo = null,
+    ): TrackEntity {
         $track = new TrackEntity();
         $track->fill([
             'id'   => $this->ids->generate(TestProvider::IDENTIFIER, sprintf('%s-%d', $lineSymbol, ++$this->tracks)),
@@ -145,8 +149,13 @@ final class TestData
      *
      * @param ?string $serviceDay Y-m-d, by default the local date of the departure
      */
-    public function trip(string $lineSymbol, string $stopId, Carbon $departure, string $display, ?string $serviceDay = null): TripEntity
-    {
+    public function trip(
+        string $lineSymbol,
+        string $stopId,
+        Carbon $departure,
+        string $display,
+        ?string $serviceDay = null,
+    ): TripEntity {
         $destination = 'destination-' . new AsciiSlugger()->slug($display)->lower();
         if (!isset($this->stops[$destination])) {
             $this->stop($destination, $display);
@@ -160,7 +169,9 @@ final class TestData
             'id'          => $this->ids->generate(TestProvider::IDENTIFIER, sprintf('trip-%d', ++$this->trips)),
             'track'       => $track,
             'operator'    => $this->operator(),
-            'serviceDate' => new \DateTimeImmutable($serviceDay ?? $departure->clone()->tz(self::TIMEZONE)->format('Y-m-d')),
+            'serviceDate' => new \DateTimeImmutable(
+                $serviceDay ?? $departure->clone()->tz(self::TIMEZONE)->format('Y-m-d'),
+            ),
         ]);
         $this->persist($trip);
 

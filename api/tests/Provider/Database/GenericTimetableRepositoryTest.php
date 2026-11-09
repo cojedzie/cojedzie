@@ -67,7 +67,13 @@ final class GenericTimetableRepositoryTest extends KernelTestCase
     public function testDeparturesCarryLineDestinationAndServiceDay(): void
     {
         // a night run of the service day before, past midnight in the provider's timezone
-        $this->data->trip('6', 'a', Carbon::parse('2026-11-14 00:40', 'Europe/Warsaw')->tz('UTC'), 'Zaspa', '2026-11-13');
+        $this->data->trip(
+            '6',
+            'a',
+            Carbon::parse('2026-11-14 00:40', 'Europe/Warsaw')->tz('UTC'),
+            'Zaspa',
+            '2026-11-13',
+        );
         $this->data->flush();
 
         $departures = $this->departures();

@@ -80,8 +80,13 @@ final class InMemoryDepartureHistory implements DepartureHistory
     }
 
     #[\Override]
-    public function observed(string $provider, \DateTimeImmutable $from, \DateTimeImmutable $to, array $stopIds = [], array $lineIds = []): Seq
-    {
+    public function observed(
+        string $provider,
+        \DateTimeImmutable $from,
+        \DateTimeImmutable $to,
+        array $stopIds = [],
+        array $lineIds = [],
+    ): Seq {
         if ($this->failingReads) {
             throw new DepartureHistoryException('Storage is down');
         }
@@ -97,11 +102,19 @@ final class InMemoryDepartureHistory implements DepartureHistory
                     continue;
                 }
 
-                if (($stopIds !== [] && !in_array($departure->stopId, $stopIds, true)) || ($lineIds !== [] && !in_array($departure->lineId, $lineIds, true))) {
+                if (
+                    ($stopIds !== [] && !in_array($departure->stopId, $stopIds, true))
+                    || ($lineIds !== [] && !in_array($departure->lineId, $lineIds, true))
+                ) {
                     continue;
                 }
 
-                $key = implode('|', [$departure->stopId, $departure->lineId, $departure->tripKey, $departure->scheduledAt->getTimestamp()]);
+                $key = implode('|', [
+                    $departure->stopId,
+                    $departure->lineId,
+                    $departure->tripKey,
+                    $departure->scheduledAt->getTimestamp(),
+                ]);
 
                 if (!isset($newest[$key]) || $newest[$key]->observedAt <= $record['observedAt']) {
                     $newest[$key] = new ObservedDeparture($departure, $record['observedAt']);

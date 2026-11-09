@@ -112,7 +112,12 @@ final class StaleDataCollectorTest extends ImporterTestCase
         $fresh  = $this->import('-1 day');
 
         $this->row('stop', 'stop', $fresh);
-        $this->connection->update('provider', ['import_id' => $used], ['id' => self::PROVIDER], ['import_id' => 'uuid']);
+        $this->connection->update(
+            'provider',
+            ['import_id' => $used],
+            ['id' => self::PROVIDER],
+            ['import_id' => 'uuid'],
+        );
 
         $this->collect();
 
@@ -296,7 +301,10 @@ final class StaleDataCollectorTest extends ImporterTestCase
 
     private function scheduleDay(string $date): void
     {
-        $this->connection->insert('ztm_gdansk_schedule_day', ['line_id' => 'line', 'date' => $date, 'imported_at' => self::NOW]);
+        $this->connection->insert(
+            'ztm_gdansk_schedule_day',
+            ['line_id' => 'line', 'date' => $date, 'imported_at' => self::NOW],
+        );
     }
 
     /**
@@ -305,7 +313,9 @@ final class StaleDataCollectorTest extends ImporterTestCase
     private function imports(): array
     {
         return array_map(
-            fn ($id) => Type::getType('uuid')->convertToPHPValue($id, $this->connection->getDatabasePlatform())->toRfc4122(),
+            fn ($id) => Type::getType('uuid')
+                ->convertToPHPValue($id, $this->connection->getDatabasePlatform())
+                ->toRfc4122(),
             $this->connection->fetchFirstColumn('SELECT id FROM import'),
         );
     }

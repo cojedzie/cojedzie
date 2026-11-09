@@ -46,14 +46,21 @@ final class DepartureRecorderTest extends TestCase
     public function testRecordsEverySourceAsObservedNow(): void
     {
         $succeeded = $this->recorder(
-            FakeLiveDepartureSource::with('trojmiasto', FakeLiveDepartureSource::departure('8227'), FakeLiveDepartureSource::departure('114')),
+            FakeLiveDepartureSource::with(
+                'trojmiasto',
+                FakeLiveDepartureSource::departure('8227'),
+                FakeLiveDepartureSource::departure('114'),
+            ),
             FakeLiveDepartureSource::with('poznan', FakeLiveDepartureSource::departure('1')),
         )->record();
 
         $this->assertTrue($succeeded);
         $this->assertSame(['trojmiasto', 'poznan'], array_column($this->history->recorded, 'provider'));
         $this->assertCount(2, $this->history->recorded[0]['departures']);
-        $this->assertEquals(new \DateTimeImmutable('2026-11-01 11:00:40 UTC'), $this->history->recorded[0]['observedAt']);
+        $this->assertEquals(
+            new \DateTimeImmutable('2026-11-01 11:00:40 UTC'),
+            $this->history->recorded[0]['observedAt'],
+        );
         $this->assertSame([], $this->logger->cleanLogs());
     }
 
@@ -73,7 +80,9 @@ final class DepartureRecorderTest extends TestCase
     {
         $this->history->failingRecords = true;
 
-        $this->assertFalse($this->recorder(FakeLiveDepartureSource::with('trojmiasto', FakeLiveDepartureSource::departure()))->record());
+        $recorder = $this->recorder(FakeLiveDepartureSource::with('trojmiasto', FakeLiveDepartureSource::departure()));
+
+        $this->assertFalse($recorder->record());
         $this->assertWarning('Storage is down');
     }
 
@@ -90,7 +99,9 @@ final class DepartureRecorderTest extends TestCase
     public function testPreparationIsRetriedAfterItFailed(): void
     {
         $this->history->failingPreparations = 1;
-        $recorder                           = $this->recorder(FakeLiveDepartureSource::with('trojmiasto', FakeLiveDepartureSource::departure()));
+        $recorder                           = $this->recorder(
+            FakeLiveDepartureSource::with('trojmiasto', FakeLiveDepartureSource::departure()),
+        );
 
         $this->assertFalse($recorder->record());
         $this->assertSame([], $this->history->recorded);

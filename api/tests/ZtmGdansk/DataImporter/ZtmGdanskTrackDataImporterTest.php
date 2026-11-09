@@ -177,8 +177,16 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ]);
 
         $this->assertSame([
-            ['id' => 'trojmiasto::R6T1V100', 'valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-28 22:59:59'],
-            ['id' => 'trojmiasto::R6T1V101', 'valid_from' => '2026-10-28 23:00:00', 'valid_to' => '2026-10-29 22:59:59'],
+            [
+                'id'         => 'trojmiasto::R6T1V100',
+                'valid_from' => '2026-10-27 23:00:00',
+                'valid_to'   => '2026-10-28 22:59:59',
+            ],
+            [
+                'id'         => 'trojmiasto::R6T1V101',
+                'valid_from' => '2026-10-28 23:00:00',
+                'valid_to'   => '2026-10-29 22:59:59',
+            ],
         ], $this->rows('track', 'id', 'valid_from', 'valid_to'));
 
         $this->assertSame([
@@ -225,8 +233,16 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ]);
 
         $this->assertSame([
-            ['stop_id' => 'trojmiasto::100', 'valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-29 22:59:59'],
-            ['stop_id' => 'trojmiasto::101', 'valid_from' => '2026-10-27 23:00:00', 'valid_to' => '2026-10-29 22:59:59'],
+            [
+                'stop_id'    => 'trojmiasto::100',
+                'valid_from' => '2026-10-27 23:00:00',
+                'valid_to'   => '2026-10-29 22:59:59',
+            ],
+            [
+                'stop_id'    => 'trojmiasto::101',
+                'valid_from' => '2026-10-27 23:00:00',
+                'valid_to'   => '2026-10-29 22:59:59',
+            ],
         ], $this->rows('track_stop', 'stop_id', 'valid_from', 'valid_to'));
     }
 
@@ -306,7 +322,10 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
     {
         $config = $this->config();
 
-        $this->importFrom($event, new StubJsonStreamer(fn (string $url) => $url === $config->tripsUrl ? $trips : $stopsInTrips));
+        $this->importFrom(
+            $event,
+            new StubJsonStreamer(fn (string $url) => $url === $config->tripsUrl ? $trips : $stopsInTrips),
+        );
     }
 
     /**
@@ -367,6 +386,8 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
      */
     private function trackStops(): array
     {
-        return $this->connection->fetchAllNumeric('SELECT track_id, stop_id, sequence FROM track_stop ORDER BY track_id, sequence');
+        return $this->connection->fetchAllNumeric(
+            'SELECT track_id, stop_id, sequence FROM track_stop ORDER BY track_id, sequence',
+        );
     }
 }

@@ -106,7 +106,13 @@ final class ImportCronMonitorSubscriberTest extends TestCase
     {
         $hub = $this->createStub(HubInterface::class);
         $hub->method('captureCheckIn')->willReturnCallback(
-            function (string $slug, CheckInStatus $status, $duration = null, ?MonitorConfig $config = null, ?string $id = null) use ($checkInId): ?string {
+            function (
+                string $slug,
+                CheckInStatus $status,
+                $duration = null,
+                ?MonitorConfig $config = null,
+                ?string $id = null,
+            ) use ($checkInId): ?string {
                 $this->checkIns[] = [$slug, $status, $config, $id];
 
                 return $checkInId;

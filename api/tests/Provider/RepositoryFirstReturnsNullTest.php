@@ -78,7 +78,9 @@ final class RepositoryFirstReturnsNullTest extends KernelTestCase
             ]),
         ]);
 
-        return new class(self::getContainer()->get(HandlerProviderFactory::class), $messages) extends InMemoryRepository implements MessageRepository {
+        $handlerProviderFactory = self::getContainer()->get(HandlerProviderFactory::class);
+
+        return new class($handlerProviderFactory, $messages) extends InMemoryRepository implements MessageRepository {
             public function __construct(
                 HandlerProviderFactory $handlerProviderFactory,
                 private readonly Seq $messages

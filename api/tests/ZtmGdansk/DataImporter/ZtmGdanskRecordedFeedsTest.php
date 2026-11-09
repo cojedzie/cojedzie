@@ -100,8 +100,22 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
 
         foreach ([
             new ZtmGdanskOperatorsDataImporter($this->connection, $upserter, $streamer, $ids, $this->config()),
-            new ZtmGdanskStopDataImporter($this->connection, $upserter, $streamer, $ids, $this->config(), $this->clock()),
-            new ZtmGdanskLineDataImporter($this->connection, $upserter, $streamer, $ids, $this->config(), $this->clock()),
+            new ZtmGdanskStopDataImporter(
+                $this->connection,
+                $upserter,
+                $streamer,
+                $ids,
+                $this->config(),
+                $this->clock(),
+            ),
+            new ZtmGdanskLineDataImporter(
+                $this->connection,
+                $upserter,
+                $streamer,
+                $ids,
+                $this->config(),
+                $this->clock(),
+            ),
         ] as $importer) {
             $importer->import($this->reporter(), $this->event);
         }

@@ -89,7 +89,10 @@ final class ZtmGdanskStopDataImporterTest extends ImporterTestCase
             '2026-10-30' => [$this->stop(2, 'Drugi', '01')],
         ]);
 
-        $this->assertSame([['trojmiasto::1'], ['trojmiasto::2']], $this->connection->fetchAllNumeric('SELECT id FROM stop ORDER BY id'));
+        $this->assertSame(
+            [['trojmiasto::1'], ['trojmiasto::2']],
+            $this->connection->fetchAllNumeric('SELECT id FROM stop ORDER BY id'),
+        );
     }
 
     public function testTodaysVersionWinsOverLaterDays(): void
@@ -129,7 +132,10 @@ final class ZtmGdanskStopDataImporterTest extends ImporterTestCase
      */
     private function importDays(array $days): void
     {
-        $this->importFrom($this->newImport(), StubJsonStreamer::byDate(fn (string $url, string $date) => $days[$date] ?? []));
+        $this->importFrom(
+            $this->newImport(),
+            StubJsonStreamer::byDate(fn (string $url, string $date) => $days[$date] ?? []),
+        );
     }
 
     private function importFrom(DataUpdateEvent $event, StubJsonStreamer $streamer): void
@@ -163,6 +169,17 @@ final class ZtmGdanskStopDataImporterTest extends ImporterTestCase
 
     private function stops(): array
     {
-        return $this->rows('stop', 'id', 'provider_id', 'import_id', 'name', 'variant', 'latitude', 'longitude', 'on_demand', 'group_name');
+        return $this->rows(
+            'stop',
+            'id',
+            'provider_id',
+            'import_id',
+            'name',
+            'variant',
+            'latitude',
+            'longitude',
+            'on_demand',
+            'group_name',
+        );
     }
 }

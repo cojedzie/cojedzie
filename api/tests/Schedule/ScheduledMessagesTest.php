@@ -48,8 +48,15 @@ final class ScheduledMessagesTest extends KernelTestCase
         self::bootKernel();
 
         $messages = [];
-        foreach (self::getContainer()->get(DefaultScheduleProvider::class)->getSchedule()->getRecurringMessages() as $recurring) {
-            $messages = [...$messages, ...$recurring->getProvider()->getMessages(new MessageContext('default', $recurring->getId(), $recurring->getTrigger(), new \DateTimeImmutable()))];
+        $schedule = self::getContainer()->get(DefaultScheduleProvider::class)->getSchedule();
+        foreach ($schedule->getRecurringMessages() as $recurring) {
+            $context = new MessageContext(
+                'default',
+                $recurring->getId(),
+                $recurring->getTrigger(),
+                new \DateTimeImmutable(),
+            );
+            $messages = [...$messages, ...$recurring->getProvider()->getMessages($context)];
         }
 
         $this->assertCount(2, $messages);
@@ -59,7 +66,10 @@ final class ScheduledMessagesTest extends KernelTestCase
 
         foreach ($messages as $message) {
             foreach ((array) $message->transportNames as $transport) {
-                $this->assertTrue(self::getContainer()->has('messenger.transport.' . $transport), sprintf('Transport "%s" does not exist', $transport));
+                $this->assertTrue(
+                    self::getContainer()->has('messenger.transport.' . $transport),
+                    sprintf('Transport "%s" does not exist', $transport),
+                );
             }
         }
     }
@@ -74,22 +84,33 @@ final class ScheduledMessagesTest extends KernelTestCase
             recordDepartures: '30 seconds',
         );
 
-        $hub = new HubScheduleProvider($this->createStub(FederatedConnectionEntityRepository::class), $config);
+        $default  = new DefaultScheduleProvider($config);
+        $hub      = new HubScheduleProvider($this->createStub(FederatedConnectionEntityRepository::class), $config);
+        $recorder = new RecorderScheduleProvider(self::history(), $config);
 
-        $this->assertSame(['30 2 * * *', '45 2 * * *'], self::triggers(new DefaultScheduleProvider($config)->getSchedule()));
+        $this->assertSame(['30 2 * * *', '45 2 * * *'], self::triggers($default->getSchedule()));
         $this->assertSame(['*/5 * * * *', '0 3 * * 0'], self::triggers($hub->getSchedule()));
-        $this->assertSame(['every 30 seconds'], self::triggers(new RecorderScheduleProvider(self::history(), $config)->getSchedule()));
+        $this->assertSame(['every 30 seconds'], self::triggers($recorder->getSchedule()));
     }
 
     public function testRecorderRunsOnlyWithClickHouse(): void
     {
         $config = new ScheduleConfig('0 5 * * *', '* * * * *', '0 0 * * *', '0 6 * * *', '20 seconds');
 
-        $this->assertSame([], self::triggers(new RecorderScheduleProvider(self::history(false), $config)->getSchedule()));
+        $disabled = new RecorderScheduleProvider(self::history(false), $config);
+        $enabled  = new RecorderScheduleProvider(self::history(), $config);
 
-        $recurring = array_values(new RecorderScheduleProvider(self::history(), $config)->getSchedule()->getRecurringMessages());
+        $this->assertSame([], self::triggers($disabled->getSchedule()));
+
+        $recurring = array_values($enabled->getSchedule()->getRecurringMessages());
         $this->assertCount(1, $recurring);
-        $messages = [...$recurring[0]->getProvider()->getMessages(new MessageContext('recorder', $recurring[0]->getId(), $recurring[0]->getTrigger(), new \DateTimeImmutable()))];
+        $context = new MessageContext(
+            'recorder',
+            $recurring[0]->getId(),
+            $recurring[0]->getTrigger(),
+            new \DateTimeImmutable(),
+        );
+        $messages = [...$recurring[0]->getProvider()->getMessages($context)];
         $this->assertCount(1, $messages);
         $this->assertInstanceOf(RecordDepartures::class, $messages[0]);
     }
@@ -98,8 +119,11 @@ final class ScheduledMessagesTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $this->assertSame(['0 5 * * *', '0 6 * * *'], self::triggers(self::getContainer()->get(DefaultScheduleProvider::class)->getSchedule()));
-        $this->assertSame(['* * * * *', '0 0 * * *'], self::triggers(self::getContainer()->get(HubScheduleProvider::class)->getSchedule()));
+        $default = self::getContainer()->get(DefaultScheduleProvider::class);
+        $hub     = self::getContainer()->get(HubScheduleProvider::class);
+
+        $this->assertSame(['0 5 * * *', '0 6 * * *'], self::triggers($default->getSchedule()));
+        $this->assertSame(['* * * * *', '0 0 * * *'], self::triggers($hub->getSchedule()));
         $this->assertSame('20 seconds', self::getContainer()->get(ScheduleConfig::class)->recordDepartures);
     }
 
@@ -110,8 +134,12 @@ final class ScheduledMessagesTest extends KernelTestCase
         /** @var SendersLocatorInterface $senders */
         $senders = self::getContainer()->get('messenger.senders_locator');
 
-        $this->assertSame(['main'], array_keys(iterator_to_array($senders->getSenders(new Envelope(new UpdateDataSources())))));
-        $this->assertSame(['main'], array_keys(iterator_to_array($senders->getSenders(new Envelope(new CollectStaleData())))));
+        $sendersOf = fn (object $message) => array_keys(
+            iterator_to_array($senders->getSenders(new Envelope($message))),
+        );
+
+        $this->assertSame(['main'], $sendersOf(new UpdateDataSources()));
+        $this->assertSame(['main'], $sendersOf(new CollectStaleData()));
     }
 
     public function testScheduledMessagesHaveHandlers(): void
@@ -121,7 +149,9 @@ final class ScheduledMessagesTest extends KernelTestCase
         /** @var HandlersLocatorInterface $handlers */
         $handlers = self::getContainer()->get('messenger.bus.default.messenger.handlers_locator');
 
-        $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new CleanupFederatedConnections()))));
+        $this->assertNotEmpty(
+            iterator_to_array($handlers->getHandlers(new Envelope(new CleanupFederatedConnections()))),
+        );
         $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new CollectStaleData()))));
         $this->assertNotEmpty(iterator_to_array($handlers->getHandlers(new Envelope(new RecordDepartures()))));
     }
@@ -136,6 +166,9 @@ final class ScheduledMessagesTest extends KernelTestCase
      */
     private static function triggers(Schedule $schedule): array
     {
-        return array_map(fn (RecurringMessage $message) => (string) $message->getTrigger(), array_values($schedule->getRecurringMessages()));
+        return array_map(
+            fn (RecurringMessage $message) => (string) $message->getTrigger(),
+            array_values($schedule->getRecurringMessages()),
+        );
     }
 }

@@ -47,9 +47,10 @@ final class MigratorTest extends TestCase
         $first  = new Migrator($connection, $migrations)->migrate();
         $second = new Migrator($connection, $migrations)->migrate();
 
-        $this->assertSame(['LoggedMigration20261101000000', 'LoggedMigration20261102000000'], array_map(Migrator::version(...), $first));
+        $inOrder = ['LoggedMigration20261101000000', 'LoggedMigration20261102000000'];
+        $this->assertSame($inOrder, array_map(Migrator::version(...), $first));
         $this->assertSame([], $second);
-        $this->assertSame(['LoggedMigration20261101000000', 'LoggedMigration20261102000000'], LoggedMigration::$log);
+        $this->assertSame($inOrder, LoggedMigration::$log);
     }
 
     public function testOnlyNewMigrationsAreApplied(): void
@@ -57,7 +58,10 @@ final class MigratorTest extends TestCase
         $connection = TestClickHouse::connection();
 
         new Migrator($connection, [new LoggedMigration20261101000000()])->migrate();
-        $applied = new Migrator($connection, [new LoggedMigration20261101000000(), new LoggedMigration20261102000000()])->migrate();
+        $applied = new Migrator(
+            $connection,
+            [new LoggedMigration20261101000000(), new LoggedMigration20261102000000()],
+        )->migrate();
 
         $this->assertSame(['LoggedMigration20261102000000'], array_map(Migrator::version(...), $applied));
     }

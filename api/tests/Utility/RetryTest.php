@@ -83,7 +83,10 @@ final class RetryTest extends TestCase
     {
         return function () use ($deadlocks): string {
             if (++$this->attempts <= $deadlocks) {
-                throw new DeadlockException(PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')), null);
+                throw new DeadlockException(
+                    PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')),
+                    null,
+                );
             }
 
             return 'done';

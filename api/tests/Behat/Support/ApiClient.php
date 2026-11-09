@@ -59,8 +59,13 @@ final class ApiClient
     /**
      * @param array<string, string> $headers
      */
-    public function request(string $method, string $uri, array $query = [], ?string $body = null, array $headers = []): Response
-    {
+    public function request(
+        string $method,
+        string $uri,
+        array $query = [],
+        ?string $body = null,
+        array $headers = [],
+    ): Response {
         // a real request starts with an empty identity map, so relations its query doesn't fetch stay lazy
         $this->em->clear();
 

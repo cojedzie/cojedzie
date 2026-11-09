@@ -115,7 +115,9 @@ final readonly class DeparturePairingVariants
         return $pairs
             |> c\concat($unmatched)
             |> c\map($this->repository->mergePair(...))
-            |> c\sortBy(fn (Departure $departure) => ($departure->getEstimated() ?? $departure->getScheduled())->getTimestamp())
+            |> c\sortBy(
+                fn (Departure $departure) => ($departure->getEstimated() ?? $departure->getScheduled())->getTimestamp(),
+            )
             |> c\toArray();
     }
 
@@ -147,7 +149,9 @@ final readonly class DeparturePairingVariants
             ])
             |> lazy\concat($unmatched)
             |> lazy\map($this->repository->mergePair(...))
-            |> c\sortBy(fn (Departure $departure) => ($departure->getEstimated() ?? $departure->getScheduled())->getTimestamp())
+            |> c\sortBy(
+                fn (Departure $departure) => ($departure->getEstimated() ?? $departure->getScheduled())->getTimestamp(),
+            )
             |> c\toArray();
     }
 
@@ -222,6 +226,10 @@ final readonly class DeparturePairingVariants
 
     public static function key(Departure $departure): string
     {
-        return DeparturePairing::key($departure->getStop()->getId(), $departure->getLine()->getId(), $departure->getScheduled());
+        return DeparturePairing::key(
+            $departure->getStop()->getId(),
+            $departure->getLine()->getId(),
+            $departure->getScheduled(),
+        );
     }
 }

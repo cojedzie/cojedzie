@@ -99,7 +99,10 @@ final class ZtmGdanskLineDataImporterTest extends ImporterTestCase
             '2026-10-30' => [$this->route(2, '2', 1)],
         ]);
 
-        $this->assertSame([['trojmiasto::1'], ['trojmiasto::2']], $this->connection->fetchAllNumeric('SELECT id FROM line ORDER BY id'));
+        $this->assertSame(
+            [['trojmiasto::1'], ['trojmiasto::2']],
+            $this->connection->fetchAllNumeric('SELECT id FROM line ORDER BY id'),
+        );
     }
 
     public function testTodaysVersionWinsOverLaterDays(): void
@@ -139,7 +142,10 @@ final class ZtmGdanskLineDataImporterTest extends ImporterTestCase
      */
     private function importDays(array $days): void
     {
-        $this->importFrom($this->newImport(), StubJsonStreamer::byDate(fn (string $url, string $date) => $days[$date] ?? []));
+        $this->importFrom(
+            $this->newImport(),
+            StubJsonStreamer::byDate(fn (string $url, string $date) => $days[$date] ?? []),
+        );
     }
 
     private function importFrom(DataUpdateEvent $event, StubJsonStreamer $streamer): void
