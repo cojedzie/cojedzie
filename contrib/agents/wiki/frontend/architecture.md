@@ -141,6 +141,8 @@ pill of the items of both bars (header links, bottom bar tabs, both "Więcej" bu
 `$primary-gradient` when it is the current page (its `--active` modifier) and `$primary-gradient-light` when that
 one is hovered. Icon-only buttons carry an `aria-label`.
 
+The compact controls of the UI kit (`UiToggleGroup`) share `ui-control` (the outlined row: custom
+properties `--ui-control-*`, `--primary`, `--small` and `--large` modifiers) and `ui-control-segment` (a button in it).
 
 The bottom bar names only the current tab until it is 576 px wide: it takes the `size-*` classes of `v-responsive`
 (`src/filters.ts`), and component tests stub the directive (`directives: { responsive: {} }`).

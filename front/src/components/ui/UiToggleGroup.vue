@@ -78,59 +78,18 @@ useResizeObserver(group, () => {
 $ui-toggle-group-duration: 200ms;
 
 .ui-toggle-group {
-    --ui-toggle-group-color: #{$dark};
-    --ui-toggle-group-thumb: #{$dark};
-    --ui-toggle-group-hover: #{rgba($dark, 0.08)};
-    --ui-toggle-group-radius: 0.375rem;
-    --ui-toggle-group-height: 2rem;
-    --ui-toggle-group-padding: 0.75rem;
-    --ui-toggle-group-font-size: #{$font-size-sm};
+    @include ui-control;
 
     position: relative;
     isolation: isolate;
-    display: inline-flex;
-    max-inline-size: 100%;
-    padding: 2px;
-    border: 1px solid var(--ui-toggle-group-color);
-    border-radius: var(--ui-toggle-group-radius);
-    background-color: $white;
-    color: var(--ui-toggle-group-color);
-    font-size: var(--ui-toggle-group-font-size);
-    font-weight: bold;
-    line-height: 1.25;
-
-    &--primary {
-        --ui-toggle-group-color: #{$primary};
-        --ui-toggle-group-thumb: #{$primary-gradient};
-        --ui-toggle-group-hover: #{$nav-hover-background};
-    }
-
-    &--small {
-        --ui-toggle-group-radius: 0.25rem;
-        --ui-toggle-group-height: 1.5rem;
-        --ui-toggle-group-padding: 0.5rem;
-        --ui-toggle-group-font-size: 0.75rem;
-    }
-
-    &--large {
-        --ui-toggle-group-radius: 0.5rem;
-        // a comfortable touch target, with the outline and padding it is 44px high
-        --ui-toggle-group-height: 2.5rem;
-        --ui-toggle-group-padding: 1rem;
-    }
 
     &__thumb {
         position: absolute;
         z-index: -1;
         inset-block: 2px;
         // the group's padding is inside the button's offset already
-        border-radius: calc(var(--ui-toggle-group-radius) - 2px);
-        background: var(--ui-toggle-group-thumb);
-    }
-
-    // until the thumb is in place, the selected option is filled itself
-    &:not(&--animated) &__option--selected {
-        background: var(--ui-toggle-group-thumb);
+        border-radius: calc(var(--ui-control-radius) - 2px);
+        background: var(--ui-control-fill);
     }
 
     &--animated &__thumb {
@@ -140,35 +99,25 @@ $ui-toggle-group-duration: 200ms;
     }
 
     &__option {
-        display: inline-flex;
+        @include ui-control-segment;
+
         flex: 1 1 auto;
         min-inline-size: 0;
-        align-items: center;
-        justify-content: center;
-        gap: 0.375rem;
-        min-block-size: var(--ui-toggle-group-height);
-        padding-inline: var(--ui-toggle-group-padding);
-        border: 0;
-        border-radius: calc(var(--ui-toggle-group-radius) - 2px);
-        background: none;
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-        transition:
-            color $ui-toggle-group-duration ease-in-out,
-            background-color $ui-toggle-group-duration ease-in-out;
-
-        &:hover:not(.ui-toggle-group__option--selected) {
-            background-color: var(--ui-toggle-group-hover);
-        }
-
-        &:focus-visible {
-            outline: 2px solid rgba($primary, 0.5);
-            outline-offset: 1px;
-        }
 
         &--selected {
             color: $white;
+
+            &:hover:not(:disabled) {
+                background-color: transparent;
+            }
+        }
+    }
+
+    // until the thumb is in place, the selected option is filled itself
+    &:not(&--animated) &__option--selected {
+        &,
+        &:hover:not(:disabled) {
+            background: var(--ui-control-fill);
         }
     }
 
@@ -179,8 +128,7 @@ $ui-toggle-group-duration: 200ms;
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &__thumb,
-        &__option {
+        &__thumb {
             transition: none !important;
         }
     }
