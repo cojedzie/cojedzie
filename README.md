@@ -8,13 +8,13 @@ aims to be the central hub for all public transport information you will need.
 You can use the app at [cojedzie.pl](https://cojedzie.pl).
 
 ## Roadmap
-Co Jedzie is in active development, roadmap of the project can be found on [trello]. This roadmap is regularly updated 
-and represents current state of the project. Feel free to take a look.
+Co Jedzie is in active development. The roadmap lives in [GitHub issues][issues]: larger features are parent issues
+with their tasks as sub-issues, and labels show where each one stands. Feel free to take a look.
 
 ### Contributing to roadmap
-If you have found a bug or want to propose some changes feel free to create an [issue] explaining your proposal or 
-problem. Issue management and discussion would be done on the github, but planning will be carried away to the [trello] 
-trello with linked issue.
+If you have found a bug or want to propose some changes, [create an issue][new issue] explaining your problem or
+proposal. Every new issue is triaged and then planned on GitHub, and discussion happens there too. To support an
+existing proposal, give it a 👍.
 
 ## Contributing
 Want to contribute? Nice! Please see [CONTRIBUTING.md]
@@ -27,6 +27,6 @@ published under the same license in case of distribution (Network use is distrib
 Note that data collected from available data sources is licensed by their respective owners, thus it may be 
 available under different terms than the project itself and may require additional permissions to use.
 
-[trello]: https://trello.com/b/QXqDvmoG/co-jedzie
-[issue]: https://github.com/cojedzie/cojedzie/issues/new
+[issues]: https://github.com/cojedzie/cojedzie/issues
+[new issue]: https://github.com/cojedzie/cojedzie/issues/new/choose
 [CONTRIBUTING.md]: ./CONTRIBUTING.md
