@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff;
 use PhpCsFixer\Fixer\ArrayNotation\ArraySyntaxFixer;
 use PhpCsFixer\Fixer\Casing\ConstantCaseFixer;
 use PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer;
@@ -54,5 +55,11 @@ return ECSConfig::configure()
             'method'   => 'one',
             'property' => 'only_if_meta',
         ],
+    ])
+    // Only reports; long lines are wrapped by hand, every argument on its own line
+    ->withConfiguredRule(LineLengthSniff::class, [
+        'lineLimit'         => 120,
+        'absoluteLineLimit' => 120,
+        'ignoreComments'    => true,
     ])
 ;
