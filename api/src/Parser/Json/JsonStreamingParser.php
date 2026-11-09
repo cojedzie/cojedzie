@@ -111,7 +111,9 @@ class JsonStreamingParser extends AbstractStreamingParser
             ) {
                 $this->objectStart = JsonStreamingParser::token(ObjectStartToken::class);
                 $this->objectEnd   = JsonStreamingParser::token(ObjectEndToken::class);
-                $this->key         = JsonStreamingParser::token(KeyToken::class)->map(fn (KeyToken $token) => $token->key)->optional();
+                $this->key         = JsonStreamingParser::token(KeyToken::class)
+                    ->map(fn (KeyToken $token) => $token->key)
+                    ->optional();
             }
 
             public function label(): string
@@ -194,7 +196,11 @@ class JsonStreamingParser extends AbstractStreamingParser
                     $token = $stream->peek()->first();
 
                     if (!$token instanceof $this->class) {
-                        throw UnexpectedTokenException::createWithExpected(get_debug_type($token), $this->class, $stream->tell());
+                        throw UnexpectedTokenException::createWithExpected(
+                            get_debug_type($token),
+                            $this->class,
+                            $stream->tell(),
+                        );
                     }
 
                     return $stream->read()->first();

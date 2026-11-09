@@ -102,7 +102,9 @@ class JsonValueAccumulatorParser extends AbstractParser
                 {
                     $this->objectStart = JsonStreamingParser::token(ObjectStartToken::class);
                     $this->objectEnd   = JsonStreamingParser::token(ObjectEndToken::class);
-                    $this->key         = JsonStreamingParser::token(KeyToken::class)->map(fn (KeyToken $token) => $token->key)->optional();
+                    $this->key         = JsonStreamingParser::token(KeyToken::class)
+                        ->map(fn (KeyToken $token) => $token->key)
+                        ->optional();
                 }
 
                 public function label(): string

@@ -98,7 +98,9 @@ class RefsEmbedHandler implements PostProcessingHandler
         return match ($type) {
             'vnd.cojedzie.line' => $provider->getLineRepository(),
             'vnd.cojedzie.stop' => $provider->getStopRepository(),
-            default             => throw new \LogicException(sprintf('References of type %s can\'t be embedded.', $type)),
+            default             => throw new \LogicException(
+                sprintf('References of type %s can\'t be embedded.', $type),
+            ),
         };
     }
 }

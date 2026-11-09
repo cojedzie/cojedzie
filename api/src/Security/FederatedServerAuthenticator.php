@@ -81,10 +81,18 @@ class FederatedServerAuthenticator extends AbstractAuthenticator implements Auth
     #[\Override]
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
-        $exception = new UnauthorizedHttpException(self::CHALLENGE, 'Invalid federated server credentials.', $authException);
+        $exception = new UnauthorizedHttpException(
+            self::CHALLENGE,
+            'Invalid federated server credentials.',
+            $authException,
+        );
 
         return new JsonResponse(
-            $this->serializer->serialize(FlattenException::createFromThrowable($exception), 'json', ['exception' => $exception]),
+            $this->serializer->serialize(
+                FlattenException::createFromThrowable($exception),
+                'json',
+                ['exception' => $exception],
+            ),
             $exception->getStatusCode(),
             $exception->getHeaders(),
             json: true,

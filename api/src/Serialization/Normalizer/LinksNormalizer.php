@@ -14,8 +14,11 @@ class LinksNormalizer implements NormalizerInterface
     }
 
     #[\Override]
-    public function normalize($object, ?string $format = null, array $context = []): array|bool|string|int|float|null|\ArrayObject
-    {
+    public function normalize(
+        $object,
+        ?string $format = null,
+        array $context = [],
+    ): array|bool|string|int|float|null|\ArrayObject {
         return $this->normalizer->normalize($object, $format, [
             ...$context,
             AbstractObjectNormalizer::SKIP_NULL_VALUES       => true,

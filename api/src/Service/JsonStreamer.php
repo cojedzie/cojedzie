@@ -126,7 +126,11 @@ class JsonStreamer
         $handle = @fopen($url, 'rb', false, stream_context_create(['http' => ['timeout' => 60.0]]));
 
         if ($handle === false) {
-            throw new StreamOpenException(sprintf('Cannot open "%s": %s', $url, error_get_last()['message'] ?? 'unknown error'));
+            throw new StreamOpenException(sprintf(
+                'Cannot open "%s": %s',
+                $url,
+                error_get_last()['message'] ?? 'unknown error',
+            ));
         }
 
         return $handle;
@@ -151,7 +155,10 @@ class JsonStreamer
         try {
             $value = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $exception) {
-            throw new StreamReadException(sprintf('"%s" is not valid JSON: %s', $url, $exception->getMessage()), previous: $exception);
+            throw new StreamReadException(
+                sprintf('"%s" is not valid JSON: %s', $url, $exception->getMessage()),
+                previous: $exception,
+            );
         }
 
         return is_array($value) ? $value : [];

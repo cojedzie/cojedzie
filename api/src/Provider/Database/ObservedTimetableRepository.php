@@ -91,8 +91,16 @@ final readonly class ObservedTimetableRepository implements TimetableRepository
         $pairs = DeparturePairing::pair(
             $planned,
             $this->observed($planned),
-            fn (Departure $departure) => DeparturePairing::key($departure->getStop()->getId(), $departure->getLine()->getId(), $departure->getScheduled()),
-            fn (ObservedDeparture $observed) => DeparturePairing::key($observed->departure->stopId, $observed->departure->lineId, $observed->departure->scheduledAt),
+            fn (Departure $departure) => DeparturePairing::key(
+                $departure->getStop()->getId(),
+                $departure->getLine()->getId(),
+                $departure->getScheduled(),
+            ),
+            fn (ObservedDeparture $observed) => DeparturePairing::key(
+                $observed->departure->stopId,
+                $observed->departure->lineId,
+                $observed->departure->scheduledAt,
+            ),
         );
 
         return $pairs
@@ -100,8 +108,12 @@ final readonly class ObservedTimetableRepository implements TimetableRepository
             |> c\map(fn (array $pair) => $this->enrich($pair['planned'], $pair['live'], $now, $fresh));
     }
 
-    private function enrich(Departure $planned, ?ObservedDeparture $observed, \DateTimeImmutable $now, \DateTimeImmutable $fresh): Departure
-    {
+    private function enrich(
+        Departure $planned,
+        ?ObservedDeparture $observed,
+        \DateTimeImmutable $now,
+        \DateTimeImmutable $fresh,
+    ): Departure {
         return setup(clone $planned, function (Departure $departure) use ($observed, $now, $fresh) {
             $live      = $observed?->departure;
             $estimated = $live?->estimatedAt !== null ? Carbon::instance($live->estimatedAt)->tz('UTC') : null;
@@ -142,8 +154,14 @@ final readonly class ObservedTimetableRepository implements TimetableRepository
                 $this->provider,
                 $scheduled |> c\min(),
                 ($scheduled |> c\max())->modify('+1 minute'),
-                $planned |> c\map(fn (Departure $departure) => $departure->getStop()->getId()) |> c\unique() |> c\toArray(),
-                $planned |> c\map(fn (Departure $departure) => $departure->getLine()->getId()) |> c\unique() |> c\toArray(),
+                $planned
+                    |> c\map(fn (Departure $departure) => $departure->getStop()->getId())
+                    |> c\unique()
+                    |> c\toArray(),
+                $planned
+                    |> c\map(fn (Departure $departure) => $departure->getLine()->getId())
+                    |> c\unique()
+                    |> c\toArray(),
             );
         } catch (DepartureHistoryException $exception) {
             $this->logger->warning('Departure history could not be read for the timetable of {provider}: {message}', [

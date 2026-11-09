@@ -42,8 +42,12 @@ class FederatedConnectionVoter extends Voter
     }
 
     #[\Override]
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
-    {
+    protected function voteOnAttribute(
+        string $attribute,
+        mixed $subject,
+        TokenInterface $token,
+        ?Vote $vote = null,
+    ): bool {
         $server = $token->getUser();
 
         return $server instanceof FederatedServerEntity && $subject->getServer()->getId()->equals($server->getId());

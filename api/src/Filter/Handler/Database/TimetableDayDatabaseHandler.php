@@ -53,7 +53,8 @@ class TimetableDayDatabaseHandler implements ModifierHandler
         $day      = $event->getRequirement();
         $builder  = $event->getBuilder();
         $alias    = $event->getMeta()['alias'];
-        $timezone = $event->getMeta()['timezone'] ?? throw new \LogicException('Timetable days need the provider\'s time zone.');
+        $timezone = $event->getMeta()['timezone']
+            ?? throw new \LogicException('Timetable days need the provider\'s time zone.');
 
         $date = $day->date ?? $this->clock->now()->setTimezone($timezone)->format('Y-m-d');
 

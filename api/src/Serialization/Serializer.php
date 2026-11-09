@@ -10,10 +10,19 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class Serializer implements SerializerInterface, NormalizerInterface, DenormalizerInterface, EncoderInterface, DecoderInterface
+class Serializer implements
+    SerializerInterface,
+    NormalizerInterface,
+    DenormalizerInterface,
+    EncoderInterface,
+    DecoderInterface
 {
     public function __construct(
-        private readonly SerializerInterface&NormalizerInterface&DenormalizerInterface&EncoderInterface&DecoderInterface $decorated,
+        private readonly SerializerInterface
+            &NormalizerInterface
+            &DenormalizerInterface
+            &EncoderInterface
+            &DecoderInterface $decorated,
     ) {
     }
 
@@ -50,8 +59,11 @@ class Serializer implements SerializerInterface, NormalizerInterface, Denormaliz
     }
 
     #[\Override]
-    public function normalize($object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
-    {
+    public function normalize(
+        $object,
+        ?string $format = null,
+        array $context = [],
+    ): array|string|int|float|bool|\ArrayObject|null {
         return $this->decorated->normalize($object, $format, $context);
     }
 
@@ -68,8 +80,12 @@ class Serializer implements SerializerInterface, NormalizerInterface, Denormaliz
     }
 
     #[\Override]
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = [],
+    ): bool {
         return $this->decorated->supportsDenormalization($data, $type, $format, $context);
     }
 

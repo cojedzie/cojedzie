@@ -83,7 +83,10 @@ final readonly class ZtmGdanskLiveDepartures implements LiveDepartureSource
         try {
             return $this->http->request('GET', $url, ['query' => $query])->toArray();
         } catch (ExceptionInterface $exception) {
-            throw new LiveDepartureException(sprintf('ZTM departures at %s can\'t be read: %s', $url, $exception->getMessage()), previous: $exception);
+            throw new LiveDepartureException(
+                sprintf('ZTM departures at %s can\'t be read: %s', $url, $exception->getMessage()),
+                previous: $exception,
+            );
         }
     }
 

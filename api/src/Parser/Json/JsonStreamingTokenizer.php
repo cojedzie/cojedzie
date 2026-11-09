@@ -164,7 +164,10 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
                                 '"'  => '"',
                                 'u'  => mb_chr(hexdec((string) $stream->read(4))),
                                 // no break
-                                default => throw UnexpectedTokenException::create("Undefined escape sequence \\$character", $stream->tell()),
+                                default => throw UnexpectedTokenException::create(
+                                    "Undefined escape sequence \\$character",
+                                    $stream->tell(),
+                                ),
                             },
                             default => $input,
                         };
@@ -225,7 +228,11 @@ class JsonStreamingTokenizer extends AbstractStreamingParser
                         $first == 'f' || $first == 't'                => yield $stream->consume($this->boolean),
                         $first == 'n'                                 => yield $stream->consume($this->null),
                         ctype_digit((string) $first) || $first == '-' => yield $stream->consume($this->number),
-                        default => throw UnexpectedTokenException::createWithExpected($first, '[, {, ", true, false, null or digit', $stream->tell()),
+                        default => throw UnexpectedTokenException::createWithExpected(
+                            $first,
+                            '[, {, ", true, false, null or digit',
+                            $stream->tell(),
+                        ),
                     };
 
                     return true;

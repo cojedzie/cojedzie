@@ -134,7 +134,12 @@ class ZtmGdanskMessageRepository extends InMemoryRepository implements MessageRe
         $item = $this->cache->getItem('ztm-gdansk.messages');
 
         if (!$item->isHit()) {
-            $messages = json_decode(file_get_contents($this->config->apiUrl . self::MESSAGES_PATH), true, 512, JSON_THROW_ON_ERROR);
+            $messages = json_decode(
+                file_get_contents($this->config->apiUrl . self::MESSAGES_PATH),
+                true,
+                512,
+                JSON_THROW_ON_ERROR,
+            );
 
             $item->expiresAfter(60);
             $item->set($messages['displaysMsg']);

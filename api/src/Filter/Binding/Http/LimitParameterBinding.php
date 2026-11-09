@@ -45,7 +45,10 @@ class LimitParameterBinding implements ParameterBinding
     {
         yield new LimitConstraint(
             offset: self::nonNegativeInteger($request, self::OFFSET_QUERY_PARAMETER, 0),
-            count: min(self::nonNegativeInteger($request, self::LIMIT_QUERY_PARAMETER, $this->defaultLimit), $this->maxLimit),
+            count: min(
+                self::nonNegativeInteger($request, self::LIMIT_QUERY_PARAMETER, $this->defaultLimit),
+                $this->maxLimit,
+            ),
         );
     }
 

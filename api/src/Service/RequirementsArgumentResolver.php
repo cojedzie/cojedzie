@@ -36,8 +36,11 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
     }
 
     #[\Override]
-    public function getArguments(Request $request, callable $controller, ?\ReflectionFunctionAbstract $reflector = null): array
-    {
+    public function getArguments(
+        Request $request,
+        callable $controller,
+        ?\ReflectionFunctionAbstract $reflector = null,
+    ): array {
         $controllerReflection = reflect($controller);
 
         $global = $this->extractRequirementsFromReflection($controllerReflection, $request);
@@ -55,8 +58,11 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
         return $this->resolver->getArguments($request, $controller, $reflector);
     }
 
-    private function applyRequirementToParameter(Request $request, ReflectionParameter $parameter, array $resolved): array|false
-    {
+    private function applyRequirementToParameter(
+        Request $request,
+        ReflectionParameter $parameter,
+        array $resolved,
+    ): array|false {
         $type  = $parameter->getType();
         $types = match (true) {
             $type instanceof \ReflectionNamedType                                               => [$type],
@@ -90,8 +96,10 @@ class RequirementsArgumentResolver implements ArgumentResolverInterface
         return $resolved;
     }
 
-    private function extractRequirementsFromReflection(\ReflectionMethod|\ReflectionParameter|\ReflectionFunction $reflection, Request $request): array|false
-    {
+    private function extractRequirementsFromReflection(
+        \ReflectionMethod|\ReflectionParameter|\ReflectionFunction $reflection,
+        Request $request,
+    ): array|false {
         $attributes = $reflection->getAttributes(ParameterBinding::class, ReflectionAttribute::IS_INSTANCEOF);
 
         if (!$attributes) {

@@ -84,7 +84,8 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $total    = 0;
         $day      = 0;
 
-        foreach ($this->jsonStreamer->streamDated($this->config->stopsInTripsUrl, 'stopsInTrip', $dates) as $date => $records) {
+        $days = $this->jsonStreamer->streamDated($this->config->stopsInTripsUrl, 'stopsInTrip', $dates);
+        foreach ($days as $date => $records) {
             $tracks = $this->groupTrackStops($records, $knownStops);
             $result = $this->importTracksOfDay($date, $tracks, $trips[$date] ?? [], $listings, $event);
             unset($trips[$date]);
@@ -96,7 +97,12 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
         $this->writeValidity($listings, $event);
         $this->expireSupersededVersions(array_keys($listings));
 
-        $reporter->progress(count($dates), max: count($dates), comment: sprintf('OK, %d tracks', $total), finished: true);
+        $reporter->progress(
+            count($dates),
+            max: count($dates),
+            comment: sprintf('OK, %d tracks', $total),
+            finished: true,
+        );
     }
 
     /**
@@ -108,8 +114,13 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
      *
      * @return array{imported: int, skipped: int} tracks written, and tracks without a trip in the trips feed
      */
-    private function importTracksOfDay(string $date, iterable $tracks, array $trips, array &$listings, DataUpdateEvent $event): array
-    {
+    private function importTracksOfDay(
+        string $date,
+        iterable $tracks,
+        array $trips,
+        array &$listings,
+        DataUpdateEvent $event,
+    ): array {
         $imported = 0;
         $skipped  = 0;
 
@@ -145,8 +156,13 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     /**
      * @param array{imported: int, skipped: int} $result
      */
-    private function reportDay(ProgressReporterInterface $reporter, int $day, int $days, string $date, array $result): void
-    {
+    private function reportDay(
+        ProgressReporterInterface $reporter,
+        int $day,
+        int $days,
+        string $date,
+        array $result,
+    ): void {
         $reporter->progress($day, max: $days, comment: sprintf('%s: %d tracks', $date, $result['imported']));
 
         if ($result['skipped'] > 0) {
