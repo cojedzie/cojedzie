@@ -81,6 +81,24 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ], $this->tracks());
     }
 
+    public function testKindComesFromTheTypeOfTheTrip(): void
+    {
+        $this->import($this->event, [
+            $this->trip(1, type: 'MAIN'),
+            $this->trip(2, type: 'SIDE'),
+            $this->trip(3, type: 'NON_PASSENGER'),
+            // other agencies don't tell their tracks apart
+            $this->trip(4, type: 'UNKNOWN'),
+        ], array_map(fn (int $trip) => $this->stopInTrip($trip, 100, 1), [1, 2, 3, 4]));
+
+        $this->assertSame([
+            ['trojmiasto::R6T1V1', 'main'],
+            ['trojmiasto::R6T2V1', 'side'],
+            ['trojmiasto::R6T3V1', 'non-passenger'],
+            ['trojmiasto::R6T4V1', 'side'],
+        ], $this->connection->fetchAllNumeric('SELECT id, kind FROM track ORDER BY id'));
+    }
+
     public function testTrackStopsAreOrderedAndRenumbered(): void
     {
         $this->import($this->event, [$this->trip(1), $this->trip(2)], [
@@ -356,12 +374,13 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         )->import($this->reporter(), $event);
     }
 
-    private function trip(int $trip, string $headsign = 'Oliwa'): array
+    private function trip(int $trip, string $headsign = 'Oliwa', string $type = 'MAIN'): array
     {
         return [
             'id'           => sprintf('R6T%d', $trip),
             'routeId'      => 6,
             'tripHeadsign' => $headsign,
+            'type'         => $type,
         ];
     }
 

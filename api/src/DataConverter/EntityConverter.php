@@ -79,6 +79,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
             $entity instanceof TrackEntity => $result->fill([
                 'variant'     => $entity->getVariant(),
                 'description' => $entity->getDescription(),
+                'kind'        => $entity->getKind(),
                 'stops'       => $this->collection($entity->getStopsInTrack())
                     |> c\map(t\property('stop'))
                     |> c\map($convert),

@@ -42,7 +42,7 @@ and `TripStopEntity` also carries `arrival`/`departure`.
 |---|---|---|
 | `OperatorEntity` | `Operator` | |
 | `LineEntity` | `Line` | `operator`, `tracks` |
-| `TrackEntity` | `Track` | `stops` (flattened from `stopsInTrack[].stop`), `line`, `destination` (= `final.stop`) |
+| `TrackEntity` | `Track` | `stops` (flattened from `stopsInTrack[].stop`), `line`, `destination` (= `final.stop`), `kind` (`TrackKind`: `main`, `side`, `non-passenger`; column `track.kind`, default `side`, ADR 0031) |
 | `StopEntity` | `Stop` | lat/lon → `Location`; `destinations` only filled by an embed |
 | `TripEntity` | `Trip` | `timetable` (from `stops`), `track`, `serviceDay` (from `service_date`, Y-m-d in the provider's zone) |
 | `TrackStopEntity` | `TrackStop` | `stop`, `track`, `order` |

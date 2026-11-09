@@ -44,6 +44,16 @@ class Track implements ReferableDto, Fillable, Dto
     private ?string $description = null;
 
     /**
+     * What the track is to riders: the main track of the line in one direction, a side one (shortened or otherwise
+     * different runs), or a non-passenger one (runs to and from the depot), which listings leave out.
+     */
+    #[OA\Property(
+        type: 'string',
+        enum: [TrackKind::Main->value, TrackKind::Side->value, TrackKind::NonPassenger->value],
+    )]
+    private TrackKind $kind = TrackKind::Side;
+
+    /**
      * Line reference
      */
     #[OA\Property(ref: new Model(type: Line::class, groups: ['Default']))]
@@ -85,6 +95,16 @@ class Track implements ReferableDto, Fillable, Dto
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getKind(): TrackKind
+    {
+        return $this->kind;
+    }
+
+    public function setKind(TrackKind $kind): void
+    {
+        $this->kind = $kind;
     }
 
     public function getLine(): ?Line

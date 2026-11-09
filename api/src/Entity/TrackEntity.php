@@ -22,8 +22,10 @@ namespace App\Entity;
 
 use App\Dto\Fillable;
 use App\Dto\FillTrait;
+use App\Dto\TrackKind;
 use App\Utility\IterableUtils;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -44,6 +46,12 @@ class TrackEntity implements Entity, Fillable, ValidityAwareInterface
      */
     #[ORM\Column(type: 'string', length: 256, nullable: true)]
     private ?string $description = null;
+
+    /**
+     * What the track is to riders; a provider that can't tell leaves it a side track
+     */
+    #[ORM\Column(type: Types::STRING, length: 16, enumType: TrackKind::class, options: ['default' => 'side'])]
+    private TrackKind $kind = TrackKind::Side;
 
     /**
      * Line reference
@@ -91,6 +99,16 @@ class TrackEntity implements Entity, Fillable, ValidityAwareInterface
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getKind(): TrackKind
+    {
+        return $this->kind;
+    }
+
+    public function setKind(TrackKind $kind): void
+    {
+        $this->kind = $kind;
     }
 
     public function getLine(): LineEntity
