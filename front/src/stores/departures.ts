@@ -19,7 +19,6 @@
 
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import moment from "moment";
 import { Temporal } from "@/time";
 import type { Departure, Line } from "@/model";
 import api from "@/api";
@@ -53,8 +52,8 @@ export const useDeparturesStore = defineStore("departures", () => {
             departures.value = response.data.map((departure): Departure => ({
                 ...departure,
                 line: departure.line as Line,
-                scheduled: moment.parseZone(departure.scheduled).local(),
-                estimated: departure.estimated && moment.parseZone(departure.estimated).local(),
+                scheduled: Temporal.Instant.from(departure.scheduled),
+                estimated: departure.estimated ? Temporal.Instant.from(departure.estimated) : null,
                 serviceDay: departure.serviceDay ? Temporal.PlainDate.from(departure.serviceDay) : null,
             }));
         });

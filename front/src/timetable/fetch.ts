@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import moment from "moment";
 import type { ApiClient } from "@/api/client";
 import type { Endpoints } from "@/api/endpoints";
 import type { UrlParams } from "@/api/utils";
@@ -53,8 +52,8 @@ export async function fetchTimetableDay(client: Client, { stop, line, date }: Ti
     return entries.map((entry): Departure => ({
         ...entry,
         line: lines.get(entry.line.id) ?? unknownLine(entry.line.id),
-        scheduled: moment.parseZone(entry.scheduled),
-        estimated: entry.estimated ? moment.parseZone(entry.estimated) : null,
+        scheduled: Temporal.Instant.from(entry.scheduled),
+        estimated: entry.estimated ? Temporal.Instant.from(entry.estimated) : null,
         serviceDay: entry.serviceDay ? Temporal.PlainDate.from(entry.serviceDay) : null,
     }));
 }

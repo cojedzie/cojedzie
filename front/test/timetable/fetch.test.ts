@@ -19,7 +19,6 @@
 
 import { Temporal } from "@/time";
 import { describe, expect, it, vi } from "vitest";
-import moment from "moment";
 import { fetchTimetableDay, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
 
 const six = { id: "l6", symbol: "6", type: "tram", night: false, fast: false, $type: "vnd.cojedzie.line" };
@@ -78,7 +77,7 @@ describe("fetching a timetable day", () => {
             date: Temporal.PlainDate.from("2026-11-13"),
         });
 
-        expect(known.scheduled.isSame(moment.utc("2026-11-13T09:00:00Z"))).toBe(true);
+        expect(known.scheduled.toString()).toBe("2026-11-13T09:00:00Z");
         expect(known.estimated).toBeNull();
         expect(known.serviceDay?.toString()).toBe("2026-11-13");
         expect(known.line).toEqual(six);

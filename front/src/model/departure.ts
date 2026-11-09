@@ -19,7 +19,6 @@
 
 import { Stop } from "./stop";
 import { Line } from "./line";
-import { Moment } from "moment";
 import type { Temporal } from "@/time";
 import { Identity } from "./identity";
 import { Trip } from "./trip";
@@ -33,8 +32,8 @@ export type DepartureState = "planned" | "realtime" | "departed";
 export interface Departure {
     key: string;
     display: string;
-    estimated: Moment;
-    scheduled?: Moment;
+    estimated: Temporal.Instant;
+    scheduled?: Temporal.Instant;
     stop: Stop;
     line: Line;
     delay: number;

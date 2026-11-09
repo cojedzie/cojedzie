@@ -12,7 +12,7 @@
                     <stop-label :stop="stop.stop" />
                 </div>
                 <div class="trip__departure">
-                    {{ stop.departure.format("HH:mm") }}
+                    {{ formatClockTime(stop.departure, timeZone) }}
                 </div>
             </li>
         </ol>
@@ -23,11 +23,13 @@
 import { computed, onMounted, PropType, useTemplateRef } from "vue";
 import { TimetableEntry } from "@/model/trip";
 import { Stop } from "@/model";
-import moment from "moment";
+import { formatClockTime, Temporal } from "@/time";
+import { useDisplayTimeZone } from "@/composables/useDisplayTimeZone";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import { useIsTouch } from "@/composables/useIsTouch";
 
 const isTouch = useIsTouch();
+const timeZone = useDisplayTimeZone();
 
 type TimetableEntryInfo = TimetableEntry & { visited: boolean; current: boolean };
 
@@ -50,7 +52,7 @@ const stops = computed<TimetableEntryInfo[]>(() =>
     props.timetable.map(stop => ({
         ...stop,
         current: stop.stop.id == props.current.id,
-        visited: moment().isAfter(stop.departure),
+        visited: Temporal.Instant.compare(Temporal.Now.instant(), stop.departure) > 0,
     })),
 );
 

@@ -18,12 +18,12 @@
  */
 
 import { Stop } from "./stop";
-import { Moment } from "moment";
+import type { Temporal } from "@/time";
 
 export type TimetableEntry = {
     stop: Stop;
-    departure: Moment;
-    arrival: Moment;
+    departure: Temporal.Instant;
+    arrival: Temporal.Instant;
     order: number;
 };
 

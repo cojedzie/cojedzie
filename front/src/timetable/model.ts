@@ -17,12 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { Moment } from "moment";
-import type { Temporal } from "@/time";
+import { clockTimeIn, Temporal } from "@/time";
 import type { Departure, Line } from "@/model";
-
-/** A wall clock time in the provider's time zone */
-export type ClockTime = { hour: number; minute: number };
 
 type Marked = {
     departure: Departure;
@@ -32,9 +28,10 @@ type Marked = {
 };
 
 export type TimetableListEntry = Marked & {
-    planned: ClockTime;
+    /** Wall clock time in the provider's time zone */
+    planned: Temporal.PlainTime;
     /** Only when the entry is realtime */
-    estimated?: ClockTime;
+    estimated?: Temporal.PlainTime;
     /** Seconds, only when the entry is realtime */
     delay?: number;
 };
@@ -132,12 +129,14 @@ export function buildCombinedTimetable(
 }
 
 /** The first entry, in the order given, that hasn't left by `now`, judged by its estimate when it has one. */
-export function nearestEntry<T extends { departure: Departure }>(entries: T[], now: Moment): T | undefined {
-    return entries.find(({ departure }) => !(departure.estimated ?? departure.scheduled).isBefore(now));
+export function nearestEntry<T extends { departure: Departure }>(entries: T[], now: Temporal.Instant): T | undefined {
+    return entries.find(
+        ({ departure }) => Temporal.Instant.compare(departure.estimated ?? departure.scheduled, now) >= 0,
+    );
 }
 
 function sorted(departures: Departure[]): Departure[] {
-    return [...departures].sort((a, b) => a.scheduled.valueOf() - b.scheduled.valueOf());
+    return [...departures].sort((a, b) => Temporal.Instant.compare(a.scheduled, b.scheduled));
 }
 
 type LineEntries = {
@@ -178,8 +177,8 @@ function listEntry(departure: Departure, date: Temporal.PlainDate, timeZone: str
 
     return {
         ...mark(departure, date),
-        planned: clock(departure.scheduled, timeZone),
-        estimated: realtime ? clock(departure.estimated, timeZone) : undefined,
+        planned: clockTimeIn(departure.scheduled, timeZone),
+        estimated: realtime ? clockTimeIn(departure.estimated, timeZone) : undefined,
         delay: realtime ? departure.delay : undefined,
     };
 }
@@ -209,7 +208,7 @@ function hourRows<TMinute>(
     const rows: HourRow<TMinute>[] = [];
 
     for (const departure of departures) {
-        const time = clock(departure.scheduled, timeZone);
+        const time = clockTimeIn(departure.scheduled, timeZone);
         const last = rows.at(-1);
 
         if (last?.hour === time.hour) {
@@ -220,22 +219,6 @@ function hourRows<TMinute>(
     }
 
     return rows;
-}
-
-const formats = new Map<string, Intl.DateTimeFormat>();
-
-function clock(time: Moment, timeZone: string): ClockTime {
-    if (!formats.has(timeZone)) {
-        formats.set(
-            timeZone,
-            new Intl.DateTimeFormat("en-GB", { timeZone, hour: "numeric", minute: "numeric", hourCycle: "h23" }),
-        );
-    }
-
-    const parts = formats.get(timeZone).formatToParts(time.toDate());
-    const part = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find(p => p.type === type).value);
-
-    return { hour: part("hour"), minute: part("minute") };
 }
 
 function letter(index: number): string {
