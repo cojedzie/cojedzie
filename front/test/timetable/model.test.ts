@@ -20,7 +20,14 @@
 import { describe, expect, it } from "vitest";
 import moment from "moment";
 import type { Departure, DepartureState, Line } from "@/model";
-import { buildCombinedTimetable, buildLineTimetables, buildTimetableList, nearestEntry, todayIn } from "@/timetable";
+import {
+    buildCombinedTimetable,
+    buildLineLists,
+    buildLineTimetables,
+    buildTimetableList,
+    nearestEntry,
+    todayIn,
+} from "@/timetable";
 
 const zone = "Europe/Warsaw";
 const date = "2026-11-13";
@@ -65,6 +72,7 @@ describe("timetable list", () => {
         expect(buildTimetableList([], date, zone)).toEqual([]);
         expect(buildLineTimetables([], date, zone)).toEqual([]);
         expect(buildCombinedTimetable([], date, zone)).toEqual([]);
+        expect(buildLineLists([], date, zone)).toEqual([]);
     });
 
     it("orders entries by planned time in the provider's time zone", () => {
@@ -167,6 +175,92 @@ describe("timetable hour rows per line", () => {
         );
 
         expect(table.rows[0].minutes[0]).toMatchObject({ departed: true, otherDay: "2026-11-12" });
+    });
+});
+
+describe("timetable list per line", () => {
+    it("has one list per line, ordered by symbol, with entries in time order", () => {
+        const lists = buildLineLists(
+            [
+                entry("2026-11-13T05:10:00Z", { line: twelve, display: "Oliwa" }),
+                entry("2026-11-13T05:45:00Z"),
+                entry("2026-11-13T05:05:00Z"),
+            ],
+            date,
+            zone,
+        );
+
+        expect(lists.map(list => [list.line.symbol, list.headsign])).toEqual([
+            ["6", "Łostowice"],
+            ["12", "Oliwa"],
+        ]);
+        expect(lists[0].entries.map(e => e.planned)).toEqual([
+            { hour: 6, minute: 5 },
+            { hour: 6, minute: 45 },
+        ]);
+    });
+
+    it("has no footnotes when the line has one headsign", () => {
+        const [list] = buildLineLists([entry("2026-11-13T05:05:00Z"), entry("2026-11-13T06:05:00Z")], date, zone);
+
+        expect(list.legend).toEqual([]);
+        expect(list.entries.map(e => e.note)).toEqual([undefined, undefined]);
+    });
+
+    it("heads a line with several headsigns with its most frequent one", () => {
+        const [list] = buildLineLists(
+            [
+                entry("2026-11-13T05:05:00Z", { display: "Zajezdnia" }),
+                entry("2026-11-13T05:15:00Z", { display: "Łostowice" }),
+                entry("2026-11-13T05:25:00Z", { display: "Łostowice" }),
+            ],
+            date,
+            zone,
+        );
+
+        expect(list.headsign).toBe("Łostowice");
+        expect(list.legend).toEqual([
+            { note: "a", headsign: "Zajezdnia" },
+            { note: "b", headsign: "Łostowice" },
+        ]);
+        expect(list.entries.map(e => e.note)).toEqual(["a", "b", "b"]);
+    });
+
+    it("gives entries the letters of the same line's hour rows", () => {
+        const departures = [
+            entry("2026-11-13T05:05:00Z", { display: "Łostowice" }),
+            entry("2026-11-13T05:10:00Z", { line: twelve, display: "Oliwa" }),
+            entry("2026-11-13T05:15:00Z", { display: "Zajezdnia" }),
+            entry("2026-11-13T05:20:00Z", { line: twelve, display: "Jelitkowo" }),
+            entry("2026-11-13T06:25:00Z", { display: "Łostowice" }),
+        ];
+
+        const lists = buildLineLists(departures, date, zone);
+        const tables = buildLineTimetables(departures, date, zone);
+
+        expect(lists.map(list => list.legend)).toEqual(tables.map(table => table.legend));
+        expect(lists.map(list => list.entries.map(e => e.note))).toEqual(
+            tables.map(table => table.rows.flatMap(row => row.minutes.map(m => m.note))),
+        );
+    });
+
+    it("carries the estimate and delay of realtime entries, the departed flag and the other-day marker", () => {
+        const [list] = buildLineLists(
+            [
+                entry("2026-11-12T23:30:00Z", { serviceDay: "2026-11-12", state: "departed" }),
+                entry("2026-11-13T11:00:00Z", { state: "realtime", estimated: "2026-11-13T11:03:00Z" }),
+            ],
+            date,
+            zone,
+        );
+
+        expect(list.entries[0]).toMatchObject({ departed: true, otherDay: "2026-11-12", estimated: undefined });
+        expect(list.entries[1]).toMatchObject({
+            departed: false,
+            otherDay: undefined,
+            estimated: { hour: 12, minute: 3 },
+            delay: 180,
+        });
     });
 });
 
