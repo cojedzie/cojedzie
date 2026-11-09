@@ -19,6 +19,7 @@
 
 import { describe, expect, it } from "vitest";
 import moment from "moment";
+import { Temporal } from "@/calendar";
 import type { Departure, DepartureState, Line } from "@/model";
 import {
     buildCombinedTimetable,
@@ -26,11 +27,10 @@ import {
     buildLineTimetables,
     buildTimetableList,
     nearestEntry,
-    todayIn,
 } from "@/timetable";
 
 const zone = "Europe/Warsaw";
-const date = "2026-11-13";
+const date = Temporal.PlainDate.from("2026-11-13");
 
 const line = (id: string, symbol: string): Line => ({
     id,
@@ -62,7 +62,7 @@ function entry(scheduled: string, options: Options = {}): Departure {
         scheduled: moment.utc(scheduled),
         estimated: options.estimated ? moment.utc(options.estimated) : null,
         delay: options.estimated ? moment.utc(options.estimated).diff(moment.utc(scheduled), "seconds") : null,
-        serviceDay: options.serviceDay ?? date,
+        serviceDay: Temporal.PlainDate.from(options.serviceDay ?? "2026-11-13"),
         state: options.state ?? "planned",
     };
 }
@@ -100,7 +100,7 @@ describe("timetable list", () => {
             zone,
         );
 
-        expect(list.map(e => e.otherDay)).toEqual(["2026-11-12", undefined, undefined, "2026-11-14"]);
+        expect(list.map(e => e.otherDay?.toString())).toEqual(["2026-11-12", undefined, undefined, "2026-11-14"]);
     });
 
     it("shows the estimate and delay of realtime entries only", () => {
@@ -174,7 +174,8 @@ describe("timetable hour rows per line", () => {
             zone,
         );
 
-        expect(table.rows[0].minutes[0]).toMatchObject({ departed: true, otherDay: "2026-11-12" });
+        expect(table.rows[0].minutes[0]).toMatchObject({ departed: true });
+        expect(table.rows[0].minutes[0].otherDay?.toString()).toBe("2026-11-12");
     });
 });
 
@@ -254,7 +255,8 @@ describe("timetable list per line", () => {
             zone,
         );
 
-        expect(list.entries[0]).toMatchObject({ departed: true, otherDay: "2026-11-12", estimated: undefined });
+        expect(list.entries[0]).toMatchObject({ departed: true, estimated: undefined });
+        expect(list.entries[0].otherDay?.toString()).toBe("2026-11-12");
         expect(list.entries[1]).toMatchObject({
             departed: false,
             otherDay: undefined,
@@ -284,16 +286,12 @@ describe("combined timetable hour rows", () => {
                 { minute: 10, line: twelve, headsign: "Stogi", departed: false },
             ],
         });
-        expect(rows[1]).toMatchObject({ hour: 7, minutes: [{ minute: 0, otherDay: "2026-11-12" }] });
+        expect(rows[1]).toMatchObject({ hour: 7, minutes: [{ minute: 0 }] });
+        expect(rows[1].minutes[0].otherDay?.toString()).toBe("2026-11-12");
     });
 });
 
 describe("timetable helpers", () => {
-    it("gives today's date in the provider's time zone", () => {
-        expect(todayIn(zone, new Date("2026-11-13T23:30:00Z"))).toBe("2026-11-14");
-        expect(todayIn(zone, new Date("2026-11-13T22:30:00Z"))).toBe("2026-11-13");
-    });
-
     it("finds the first entry that hasn't left yet, by its estimate when it has one", () => {
         const list = buildTimetableList(
             [

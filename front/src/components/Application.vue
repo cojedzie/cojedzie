@@ -14,11 +14,17 @@ import { useRoute } from "vue-router";
 import AppBottomBar from "@/components/app/AppBottomBar.vue";
 import AppFooter from "@/components/app/AppFooter.vue";
 import AppHeader from "@/components/app/AppHeader.vue";
+import { provideToday, useTodayIn } from "@/composables/useToday";
+import { useSelectionStore } from "@/stores/selection";
 
 const main = useTemplateRef<HTMLElement>("main");
 const route = useRoute();
 
 const provider = computed(() => route.params.provider as string | undefined);
+
+// dates the app shows are the provider's, so is today
+const selection = useSelectionStore();
+provideToday(useTodayIn(() => selection.provider?.timezone));
 
 onMounted(() => {
     main.value.classList.remove("not-ready");

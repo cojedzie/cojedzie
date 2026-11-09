@@ -21,6 +21,7 @@ import moment from "moment";
 import type { ApiClient } from "@/api/client";
 import type { Endpoints } from "@/api/endpoints";
 import type { UrlParams } from "@/api/utils";
+import { Temporal } from "@/calendar";
 import type { Departure, Line } from "@/model";
 
 /**
@@ -36,8 +37,8 @@ export type TimetableDayQuery = {
     stop: string;
     /** Only this line's entries */
     line?: string;
-    /** Y-m-d in the provider's time zone */
-    date: string;
+    /** The day in the provider's time zone */
+    date: Temporal.PlainDate;
 };
 
 type Client = ApiClient<Endpoints, "provider">;
@@ -54,6 +55,7 @@ export async function fetchTimetableDay(client: Client, { stop, line, date }: Ti
         line: lines.get(entry.line.id) ?? unknownLine(entry.line.id),
         scheduled: moment.parseZone(entry.scheduled),
         estimated: entry.estimated ? moment.parseZone(entry.estimated) : null,
+        serviceDay: entry.serviceDay ? Temporal.PlainDate.from(entry.serviceDay) : null,
     }));
 }
 
@@ -61,7 +63,7 @@ async function fetchEntries(client: Client, { stop, line, date }: TimetableDayQu
     const entries = [];
 
     for (let offset = 0; ; offset += TIMETABLE_PAGE_SIZE) {
-        const query: UrlParams = { date, day: TIMETABLE_DAY_MODE };
+        const query: UrlParams = { date: date.toString(), day: TIMETABLE_DAY_MODE };
         if (line) {
             query.line = line;
         }

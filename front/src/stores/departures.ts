@@ -20,6 +20,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import moment from "moment";
+import { Temporal } from "@/calendar";
 import type { Departure, Line } from "@/model";
 import api from "@/api";
 import { useFetching } from "@/stores/fetching";
@@ -54,6 +55,7 @@ export const useDeparturesStore = defineStore("departures", () => {
                 line: departure.line as Line,
                 scheduled: moment.parseZone(departure.scheduled).local(),
                 estimated: departure.estimated && moment.parseZone(departure.estimated).local(),
+                serviceDay: departure.serviceDay ? Temporal.PlainDate.from(departure.serviceDay) : null,
             }));
         });
     }

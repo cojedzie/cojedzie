@@ -43,8 +43,24 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   Both per-line builders share one grouping (`byLine`: line order, headsign footnote letters and legend), so a line's
   letters match between the list and hour rows. They take the requested date, to mark entries of another service day,
   and the provider's time zone, which the hours are shown in. Hour rows group consecutive entries of the same hour,
-  so with `extended` the runs after midnight get their own rows at the end of the day. `todayIn(timeZone)` and
-  `nearestEntry(entries, now)` pick the default date and the entry to scroll to. Tests: `test/timetable/`.
+  so with `extended` the runs after midnight get their own rows at the end of the day. `nearestEntry(entries, now)`
+  picks the entry to scroll to. Tests: `test/timetable/`.
+- `src/calendar` — calendar dates, framework-free like `src/timetable` (same ESLint rule). Dates are
+  `Temporal.PlainDate`, months `Temporal.PlainYearMonth` (ADR 0032), from `temporal-polyfill` until Safari ships
+  Temporal: `src/calendar/temporal.ts` is the only file importing it (ESLint enforces it), everything else imports
+  `Temporal` from `@/calendar`. ISO strings exist only at the edges: API responses (`serviceDay`, converted in the
+  departures store and `fetchTimetableDay`), API queries (`date`), URLs and saved state; `Jsonified` maps a
+  `PlainDate` to a string. Dates compare with `equals()`/`compare()`, never `===`, and tests compare `toString()`,
+  as matchers can't see into Temporal objects. Helpers: `todayIn(timeZone, now?)`, `clampDate`, `isWithin`, and
+  Polish labels through `toLocaleString` (`formatLongDate` "poniedziałek, 09.11.2026", `formatShortDate`
+  "pon. 09.11", `formatMonth`, which goes through the month's first day, as a year-month formats only in its own
+  calendar). `buildMonth` lays a month out as six weeks from Monday of `CalendarDay` cells (today, selected, out of
+  range). Whatever a calendar day shows belongs in that cell model; marking days (no service, day categories) is
+  expected later. Tests: `test/calendar/`.
+- `composables/useToday.ts` — today as the app sees it: `Application.vue` provides today in the current provider's time
+  zone (`provideToday(useTodayIn(() => selection.provider?.timezone))`, checked every minute, a new value only when the
+  day changes), `useToday()` injects it, falling back to the device's time zone where nothing provides one (stories,
+  tests). Components take an explicit `today` prop as an override.
 - `components/ui/UiSection.vue` + `UiSectionSettings.vue` — the page's titled blocks. A section has an optional
   `icon` and `title` (or a `#title` slot getting both), an `#actions` slot on the right of the header and the
   content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).
@@ -124,6 +140,7 @@ button or link tinted with `$nav-hover-background` when hovered or open (the pro
 pill of the items of both bars (header links, bottom bar tabs, both "Więcej" buttons), filled with
 `$primary-gradient` when it is the current page (its `--active` modifier) and `$primary-gradient-light` when that
 one is hovered. Icon-only buttons carry an `aria-label`.
+
 
 The bottom bar names only the current tab until it is 576 px wide: it takes the `size-*` classes of `v-responsive`
 (`src/filters.ts`), and component tests stub the directive (`directives: { responsive: {} }`).

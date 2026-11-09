@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { Temporal } from "@/calendar";
 import { describe, expect, it, vi } from "vitest";
 import moment from "moment";
 import { fetchTimetableDay, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
@@ -51,7 +52,7 @@ describe("fetching a timetable day", () => {
     it("asks for the day of a stop, optionally of one line, in the day mode", async () => {
         const api = client([[]]);
 
-        await fetchTimetableDay(api as never, { stop: "s", line: "l6", date: "2026-11-13" });
+        await fetchTimetableDay(api as never, { stop: "s", line: "l6", date: Temporal.PlainDate.from("2026-11-13") });
 
         expect(api.get).toHaveBeenCalledWith("v1_stop_timetable", {
             version: "^1.0",
@@ -64,18 +65,22 @@ describe("fetching a timetable day", () => {
         const full = Array.from({ length: TIMETABLE_PAGE_SIZE }, () => dto("2026-11-13T10:00:00+01:00"));
         const api = client([full, [dto("2026-11-13T23:00:00+01:00")]]);
 
-        const day = await fetchTimetableDay(api as never, { stop: "s", date: "2026-11-13" });
+        const day = await fetchTimetableDay(api as never, { stop: "s", date: Temporal.PlainDate.from("2026-11-13") });
 
         expect(day).toHaveLength(TIMETABLE_PAGE_SIZE + 1);
     });
 
-    it("parses times and fills in the lines from the stop's tracks", async () => {
+    it("parses times and the service day, and fills in the lines from the stop's tracks", async () => {
         const api = client([[dto("2026-11-13T10:00:00+01:00"), dto("2026-11-13T11:00:00+01:00", "gone")]]);
 
-        const [known, unknown] = await fetchTimetableDay(api as never, { stop: "s", date: "2026-11-13" });
+        const [known, unknown] = await fetchTimetableDay(api as never, {
+            stop: "s",
+            date: Temporal.PlainDate.from("2026-11-13"),
+        });
 
         expect(known.scheduled.isSame(moment.utc("2026-11-13T09:00:00Z"))).toBe(true);
         expect(known.estimated).toBeNull();
+        expect(known.serviceDay?.toString()).toBe("2026-11-13");
         expect(known.line).toEqual(six);
         expect(unknown.line).toMatchObject({ id: "gone", symbol: "gone", type: "unknown" });
     });
