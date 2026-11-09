@@ -23,7 +23,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { createHttpClient, http } from "@/api/client/http";
 import { AxiosRequestConfig } from "axios";
-import moment, { Moment } from "moment";
+import { Temporal } from "@/time";
 import yargs from "yargs";
 import { createStore } from "@/store/initializer";
 import { normal } from "@/utils/random";
@@ -102,7 +102,7 @@ const argv = yargs(hideBin(process.argv)).option({
     },
 }).argv as LoadtesterArgv;
 
-const requestStartTimes = new WeakMap<AxiosRequestConfig, Moment>();
+const requestStartTimes = new WeakMap<AxiosRequestConfig, Temporal.Instant>();
 
 let requestCounts: Record<string, number> = {};
 let requestErrors: Record<string, number> = {};
@@ -117,15 +117,15 @@ let totalRequestTimes: Record<string, number[]> = {};
 let runningClients = 0;
 
 const requestStartTimingInterceptor = req => {
-    requestStartTimes.set(req, moment());
+    requestStartTimes.set(req, Temporal.Now.instant());
     return req;
 };
 
 const requestEndTimingInterceptor = res => {
     const startTime = requestStartTimes.get(res.config);
-    const endTime = moment();
+    const endTime = Temporal.Now.instant();
 
-    const duration = endTime.diff(startTime, "milliseconds");
+    const duration = startTime.until(endTime).total("milliseconds");
 
     const fullUrl = res.config.baseURL + res.config.url;
 
@@ -162,7 +162,7 @@ function sorted(values: number[]) {
 
 const elastic = argv.elasticsearch;
 
-const runIdentifier: string = moment().toISOString();
+const runIdentifier: string = Temporal.Now.instant().toString();
 
 function reportProgress() {
     const requestTimeAvgs = map(requestTimes, v => mean(v));
@@ -201,7 +201,7 @@ function reportProgress() {
     totalRequestErrors = merge(totalRequestErrors, requestErrors, (tot, cur) => tot + cur);
     totalRequestFailures = merge(totalRequestFailures, requestFailures, (tot, cur) => tot + cur);
 
-    const timestamp = moment().toISOString();
+    const timestamp = Temporal.Now.instant().toString();
 
     const urls = [
         ...Object.keys(requestCounts),
@@ -231,7 +231,7 @@ function reportProgress() {
         };
 
         elastic.index({
-            index: `loadtest${moment().format("YYYYMMDD")}`,
+            index: `loadtest${Temporal.Now.plainDateISO().toString().replaceAll("-", "")}`,
             body: elasticData,
         });
     }

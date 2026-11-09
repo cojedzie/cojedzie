@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Moment } from "moment";
+import type { Temporal } from "@/time";
 import { Stop } from "@/model/stop";
 import { Line } from "@/model/line";
 import { Collection } from "@/model/common";
@@ -33,8 +33,8 @@ export interface Message {
     id: string;
     type: MessageType;
     message: string;
-    validFrom?: Moment;
-    validTo?: Moment;
+    validFrom?: Temporal.Instant;
+    validTo?: Temporal.Instant;
     $refs: MessageRefs;
     $type: "vnd.cojedzie.message";
 }

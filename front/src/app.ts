@@ -27,11 +27,6 @@ import { BrowserStorage } from "@/stores/persistence/browser";
 import { persistence } from "@/stores/persistence/plugin";
 import { dragscroll } from "vue-dragscroll";
 
-import moment from "moment";
-import "moment/dist/locale/pl";
-
-moment.locale("pl");
-
 import { app } from "@/components";
 import filters from "@/filters";
 import { install as api } from "@/api";

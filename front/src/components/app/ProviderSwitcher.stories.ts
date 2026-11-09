@@ -1,11 +1,16 @@
 import ProviderSwitcher from "./ProviderSwitcher.vue";
 import { Meta, StoryObj } from "@storybook/vue3-vite";
-import moment from "moment";
+import { Temporal } from "@/time";
 import type { Provider } from "@/model";
 
 const providers = [
-    { id: "trojmiasto", name: "Trójmiasto", shortName: "ZTM", lastUpdate: moment().subtract(3, "hours") },
-    { id: "poznan", name: "Poznań", shortName: "ZTM", lastUpdate: moment().subtract(1, "day") },
+    {
+        id: "trojmiasto",
+        name: "Trójmiasto",
+        shortName: "ZTM",
+        lastUpdate: Temporal.Now.instant().subtract({ hours: 3 }),
+    },
+    { id: "poznan", name: "Poznań", shortName: "ZTM", lastUpdate: Temporal.Now.instant().subtract({ hours: 24 }) },
     { id: "warszawa", name: "Warszawa", shortName: "WTP" },
 ] as Provider[];
 
