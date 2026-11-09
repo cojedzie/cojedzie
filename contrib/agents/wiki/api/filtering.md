@@ -23,7 +23,7 @@ Marker interface `Requirement`; all implementations are immutable.
 | `RelatedFilter($reference, ?$relationship)` | Restrict to records related to one or many `Referable` DTOs (e.g. `Stop::reference('123')`). Relationship defaults to the DTO class of the reference; it can also be a string key such as `'stop'` or `'destination'`. |
 | `LimitConstraint($offset, $count)` | Pagination. `LimitConstraint::count(n)` shorthand. |
 | `Embed($relationship)` | Load an optional relation into the result (e.g. `destinations`, `track`, `$refs.stops`). |
-| `TimetableDay(?$date, DayMode)` | Timetable entries of a day in the provider's time zone (ADR 0029): `Calendar` (departure between the local midnights, so 23 or 25 h over DST), `Service` (`trip.serviceDate`), `Extended` (either). Handled by `TimetableDayDatabaseHandler`, which reads the zone from meta `timezone` (`GenericTimetableRepository::withTimezone()`) and today from the clock. |
+| `TimetableDay(?$date, DayMode)` | Timetable entries of a day in the provider's time zone (ADR 0029): `Calendar` (departure between the local midnights, so 23 or 25 h over DST), `Service` (`trip.serviceDate`), `Extended` (either). Handled by `TimetableDayDatabaseHandler`, which reads the zone from meta `timezone` (`GenericTimetableRepository::withTimezone()`, given `Provider::getTimezone()`) and today from the clock. |
 | `ValidityConstraint($at)` | Only versioned records valid at a moment (`ValidityAwareInterface`). Track repositories add one for now unless the requirements carry one; the `destinations` embed uses tracks valid now. |
 
 Requirements are also used **internally** between repositories — e.g. `Database\RealtimeTimetableDepartureRepository` queries the

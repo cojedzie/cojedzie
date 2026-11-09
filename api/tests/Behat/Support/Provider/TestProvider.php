@@ -130,7 +130,7 @@ final readonly class TestProvider implements Provider
     public function getTimetableRepository(): TimetableRepository
     {
         return new ObservedTimetableRepository(
-            $this->timetable->withProvider($this->entity())->withTimezone(new \DateTimeZone(self::TIMEZONE)),
+            $this->timetable->withProvider($this->entity())->withTimezone($this->getTimezone()),
             $this->history,
             $this->clock,
             $this->logger,
@@ -173,6 +173,12 @@ final readonly class TestProvider implements Provider
     public function getLastUpdate(): ?Carbon
     {
         return null;
+    }
+
+    #[\Override]
+    public function getTimezone(): \DateTimeZone
+    {
+        return new \DateTimeZone(self::TIMEZONE);
     }
 
     private function entity(): ProviderEntity

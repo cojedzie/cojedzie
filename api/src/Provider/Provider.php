@@ -50,4 +50,9 @@ interface Provider
     public function getLocation(): Location;
 
     public function getLastUpdate(): ?Carbon;
+
+    /**
+     * Time zone the provider's timetable is in: its calendar days and local times.
+     */
+    public function getTimezone(): \DateTimeZone;
 }

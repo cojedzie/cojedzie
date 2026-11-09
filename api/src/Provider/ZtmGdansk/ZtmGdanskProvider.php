@@ -113,6 +113,12 @@ class ZtmGdanskProvider implements Provider
         return new Location(18.6466, 54.3520);
     }
 
+    #[\Override]
+    public function getTimezone(): \DateTimeZone
+    {
+        return new \DateTimeZone(self::TIMEZONE);
+    }
+
     public function __construct(
         private readonly EntityManagerInterface $em,
         GenericLineRepository $lines,
@@ -133,7 +139,7 @@ class ZtmGdanskProvider implements Provider
         $lines     = $lines->withProvider($provider);
         $stops     = $stops->withProvider($provider);
         $tracks    = $tracks->withProvider($provider);
-        $timetable = $timetable->withProvider($provider)->withTimezone(new \DateTimeZone(self::TIMEZONE));
+        $timetable = $timetable->withProvider($provider)->withTimezone($this->getTimezone());
         $trips     = $trips->withProvider($provider);
 
         $this->lines      = $lines;
