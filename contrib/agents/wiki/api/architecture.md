@@ -35,7 +35,8 @@ see [collections.md](collections.md).
 ## Providers
 
 `Provider\Provider` is the contract a data source implements (repositories + metadata). Providers are
-autoconfigured and tagged by `_instanceof` in `config/services.yaml`.
+autoconfigured and tagged by `_instanceof` in `config/services.yaml`. `getTimezone()` is the provider's time zone,
+declared once: DB-backed providers pass it to `GenericTimetableRepository::withTimezone()`.
 
 - `ZtmGdansk` (identifier `trojmiasto`) — the real provider. Static data (lines, stops, tracks, timetable,
   operators) lives in the DB via the `Database\Generic*Repository` classes bound with `withProvider()`;
@@ -66,7 +67,7 @@ for lines missing from the import have no service day and no track. A day outsid
 `/{provider}/timetable`, `/stops/{stop}/timetable` and `/lines/{line}/timetable` (`TimetableScopeParameterBinding`,
 `TimetableTimeParameterBinding`, see [filtering.md](filtering.md)) from `Provider::getTimetableRepository()`, a
 `TimetableRepository` of `Departure`s. DB-backed providers use `Database\GenericTimetableRepository`, which needs
-`withTimezone()` (the provider's zone, e.g. `Europe/Warsaw`) to resolve a day into a range; the ZTM provider wraps it
+`withTimezone()` (the provider's zone, `Provider::getTimezone()`) to resolve a day into a range; the ZTM provider wraps it
 in `Database\ObservedTimetableRepository`, which sets `Departure.state` from the departure history (see
 [departure-history.md](departure-history.md#reading-it-back-the-timetable)). `COJEDZIE_TIMETABLE_ESTIMATE_MAX_AGE`
 (default `1 minute`, in `config/services.yaml`) is how old an observation may be to count as `realtime`.

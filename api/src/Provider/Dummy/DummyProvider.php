@@ -110,6 +110,12 @@ class DummyProvider implements Provider
     }
 
     #[\Override]
+    public function getTimezone(): \DateTimeZone
+    {
+        return new \DateTimeZone('Europe/Warsaw');
+    }
+
+    #[\Override]
     public function getTripRepository(): TripRepository
     {
         throw new NotSupportedException();
