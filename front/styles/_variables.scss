@@ -262,6 +262,89 @@ $app-bar-shadow-color: rgba($black, 0.2);
   }
 }
 
+// A compact control of the UI kit (UiToggleGroup, UiDatePicker): a 1px outline with rounded corners around a row of
+// segments, in small bold text like the app's navigation. The `--primary` modifier makes it blue, `--small` and
+// `--large` change its size; its parts read the custom properties it sets.
+@mixin ui-control {
+  --ui-control-color: #{$dark};
+  // the selected segment
+  --ui-control-fill: #{$dark};
+  --ui-control-hover: #{rgba($dark, 0.08)};
+  --ui-control-radius: 0.375rem;
+  --ui-control-height: 2rem;
+  --ui-control-padding: 0.75rem;
+  --ui-control-font-size: #{$font-size-sm};
+
+  display: inline-flex;
+  max-inline-size: 100%;
+  padding: 2px;
+  border: 1px solid var(--ui-control-color);
+  border-radius: var(--ui-control-radius);
+  background-color: $white;
+  color: var(--ui-control-color);
+  font-size: var(--ui-control-font-size);
+  font-weight: bold;
+  line-height: 1.25;
+
+  &--primary {
+    --ui-control-color: #{$primary};
+    --ui-control-fill: #{$primary-gradient};
+    --ui-control-hover: #{$nav-hover-background};
+  }
+
+  &--small {
+    --ui-control-radius: 0.25rem;
+    --ui-control-height: 1.5rem;
+    --ui-control-padding: 0.5rem;
+    --ui-control-font-size: 0.75rem;
+  }
+
+  &--large {
+    --ui-control-radius: 0.5rem;
+    // a comfortable touch target, with the outline and padding it is 44px high
+    --ui-control-height: 2.5rem;
+    --ui-control-padding: 1rem;
+  }
+}
+
+// A button inside a `ui-control`.
+@mixin ui-control-segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-inline-size: var(--ui-control-height);
+  min-block-size: var(--ui-control-height);
+  padding-inline: var(--ui-control-padding);
+  border: 0;
+  border-radius: calc(var(--ui-control-radius) - 2px);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    color 200ms ease-in-out,
+    background-color 200ms ease-in-out;
+
+  &:hover:not(:disabled) {
+    background-color: var(--ui-control-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba($primary, 0.5);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 // The header bar of UiSection: underlined, with the heading and its buttons in one line. Shared with headers that
 // look the same without being a section (stop groups).
 @mixin ui-section-header {
