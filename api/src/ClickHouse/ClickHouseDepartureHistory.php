@@ -61,7 +61,10 @@ final readonly class ClickHouseDepartureHistory implements DepartureHistory
             $this->migrator->migrate();
             $this->applyRetention();
         } catch (\Exception $exception) {
-            throw new DepartureHistoryException('Departure history could not be prepared: ' . $exception->getMessage(), previous: $exception);
+            throw new DepartureHistoryException(
+                'Departure history could not be prepared: ' . $exception->getMessage(),
+                previous: $exception,
+            );
         }
     }
 
@@ -93,13 +96,21 @@ final readonly class ClickHouseDepartureHistory implements DepartureHistory
         try {
             $this->connection->client()->insertAssocBulk(self::TABLE, $rows);
         } catch (\Exception $exception) {
-            throw new DepartureHistoryException('Departures could not be recorded: ' . $exception->getMessage(), previous: $exception);
+            throw new DepartureHistoryException(
+                'Departures could not be recorded: ' . $exception->getMessage(),
+                previous: $exception,
+            );
         }
     }
 
     #[\Override]
-    public function observed(string $provider, \DateTimeImmutable $from, \DateTimeImmutable $to, array $stopIds = [], array $lineIds = []): Seq
-    {
+    public function observed(
+        string $provider,
+        \DateTimeImmutable $from,
+        \DateTimeImmutable $to,
+        array $stopIds = [],
+        array $lineIds = [],
+    ): Seq {
         $bindings = ['provider' => $provider, 'from' => self::time($from), 'to' => self::time($to)];
         $where    = ['provider = :provider', 'scheduled_at >= :from', 'scheduled_at < :to'];
 
@@ -114,7 +125,8 @@ final readonly class ClickHouseDepartureHistory implements DepartureHistory
         }
 
         $sql = sprintf(
-            'SELECT stop_id, line_id, line_symbol, trip_key, scheduled_at, estimated_at, status, headsign, vehicle, duty, observed_at FROM %s FINAL WHERE %s',
+            'SELECT stop_id, line_id, line_symbol, trip_key, scheduled_at, estimated_at, status, headsign, ' .
+            'vehicle, duty, observed_at FROM %s FINAL WHERE %s',
             self::TABLE,
             implode(' AND ', $where),
         );
@@ -139,7 +151,10 @@ final readonly class ClickHouseDepartureHistory implements DepartureHistory
                     self::parse($row['observed_at']),
                 ));
         } catch (\Exception|\ValueError|\TypeError $exception) {
-            throw new DepartureHistoryException('Departures could not be read: ' . $exception->getMessage(), previous: $exception);
+            throw new DepartureHistoryException(
+                'Departures could not be read: ' . $exception->getMessage(),
+                previous: $exception,
+            );
         }
     }
 
@@ -150,14 +165,21 @@ final readonly class ClickHouseDepartureHistory implements DepartureHistory
     {
         $client = $this->connection->client();
         $engine = $client
-            ->select('SELECT engine_full FROM system.tables WHERE database = currentDatabase() AND name = :table', ['table' => self::TABLE])
+            ->select(
+                'SELECT engine_full FROM system.tables WHERE database = currentDatabase() AND name = :table',
+                ['table' => self::TABLE],
+            )
             ->fetchOne('engine_full');
 
         if (str_contains((string) $engine, sprintf('TTL scheduled_at + toIntervalDay(%d)', $this->retentionDays))) {
             return;
         }
 
-        $client->write(sprintf('ALTER TABLE %s MODIFY TTL scheduled_at + INTERVAL %d DAY', self::TABLE, $this->retentionDays));
+        $client->write(sprintf(
+            'ALTER TABLE %s MODIFY TTL scheduled_at + INTERVAL %d DAY',
+            self::TABLE,
+            $this->retentionDays,
+        ));
     }
 
     private static function time(\DateTimeImmutable $time): string

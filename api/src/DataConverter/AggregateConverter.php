@@ -42,7 +42,8 @@ class AggregateConverter implements Converter, CacheableConverter
         $this->ensureCachedConverters();
 
         /** @var Converter $converter */
-        $converter = $this->cachedConverters |> c\first(fn (Converter $converter) => $converter->supports($entity, $type));
+        $converter = $this->cachedConverters
+            |> c\first(fn (Converter $converter) => $converter->supports($entity, $type));
 
         if ($converter == null) {
             throw new \InvalidArgumentException(sprintf(
@@ -96,7 +97,9 @@ class AggregateConverter implements Converter, CacheableConverter
     {
         if (!$this->cachedConverters) {
             $this->cachedConverters = $this->converters
-                |> c\filter(fn (Converter $converter) => $converter !== $this && !$converter instanceof AggregateConverter)
+                |> c\filter(
+                    fn (Converter $converter) => $converter !== $this && !$converter instanceof AggregateConverter,
+                )
                 |> c\each(function (Converter $converter) {
                     if ($converter instanceof RecursiveConverter) {
                         $converter->setParent($this);

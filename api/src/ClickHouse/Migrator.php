@@ -69,7 +69,11 @@ final readonly class Migrator
 
         foreach ($pending as $migration) {
             $migration->up($client);
-            $client->insert('migration_versions', [[self::version($migration), gmdate('Y-m-d H:i:s')]], ['version', 'executed_at']);
+            $client->insert(
+                'migration_versions',
+                [[self::version($migration), gmdate('Y-m-d H:i:s')]],
+                ['version', 'executed_at'],
+            );
         }
 
         return $pending;

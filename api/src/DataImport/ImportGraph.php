@@ -86,7 +86,10 @@ class ImportGraph
 
         // superseding can deadlock with a worker claiming a job of the superseded import (MySQL); a failed flush
         // closes the entity manager, then nothing can be retried
-        [$import, $superseded] = Retry::onLockFailure(fn () => $this->create($importers), canRetry: $this->em->isOpen(...));
+        [$import, $superseded] = Retry::onLockFailure(
+            fn () => $this->create($importers),
+            canRetry: $this->em->isOpen(...),
+        );
 
         foreach ($superseded as $previous) {
             $this->events->dispatch(new ImportFinishedEvent($previous));
@@ -225,7 +228,8 @@ class ImportGraph
                 import: $import,
                 importer: $key,
                 description: $importer->getDescription(),
-                dependencies: $dependencies |> c\map(fn (string $dependency) => $tasks[$dependency]->getId()->toRfc4122()),
+                dependencies: $dependencies
+                    |> c\map(fn (string $dependency) => $tasks[$dependency]->getId()->toRfc4122()),
             );
 
             $this->em->persist($tasks[$key]);
@@ -251,7 +255,10 @@ class ImportGraph
     private function unfinishedImports(): array
     {
         return $this
-            ->query('SELECT i FROM App\Entity\ImportEntity i WHERE i.status = :running', ['running' => ImportStatus::Running])
+            ->query(
+                'SELECT i FROM App\Entity\ImportEntity i WHERE i.status = :running',
+                ['running' => ImportStatus::Running],
+            )
             ->setHint(Query::HINT_REFRESH, true)
             ->getResult();
     }
@@ -289,7 +296,8 @@ class ImportGraph
         $this
             ->query(
                 'UPDATE App\Entity\ImportJobEntity j SET j.status = :skipped, j.finishedAt = :now
-                 WHERE j.status = :queued AND j.task IN (SELECT t.id FROM App\Entity\ImportTaskEntity t WHERE t.import = :import)',
+                 WHERE j.status = :queued
+                   AND j.task IN (SELECT t.id FROM App\Entity\ImportTaskEntity t WHERE t.import = :import)',
                 [
                     'skipped' => ImportJobStatus::Skipped,
                     'now'     => $now,
@@ -309,7 +317,9 @@ class ImportGraph
             ->query(
                 'UPDATE App\Entity\ImportTaskEntity t SET t.status = :skipped, t.finishedAt = :now
                  WHERE t.import = :import AND t.status = :waiting
-                   AND NOT EXISTS (SELECT j.id FROM App\Entity\ImportJobEntity j WHERE j.task = t AND j.status = :running)',
+                   AND NOT EXISTS (
+                       SELECT j.id FROM App\Entity\ImportJobEntity j WHERE j.task = t AND j.status = :running
+                   )',
                 [
                     'skipped' => ImportTaskStatus::Skipped,
                     'now'     => $now,
@@ -332,8 +342,14 @@ class ImportGraph
 
         $changed = $this
             ->query(
-                'UPDATE App\Entity\ImportEntity i SET i.status = :status, i.finishedAt = :now WHERE i.id = :id AND i.status = :running',
-                ['status' => $status, 'now' => $now, 'id' => $import->getId(), 'running' => ImportStatus::Running],
+                'UPDATE App\Entity\ImportEntity i SET i.status = :status, i.finishedAt = :now
+                 WHERE i.id = :id AND i.status = :running',
+                [
+                    'status'  => $status,
+                    'now'     => $now,
+                    'id'      => $import->getId(),
+                    'running' => ImportStatus::Running,
+                ],
             )
             ->execute();
 
@@ -358,11 +374,14 @@ class ImportGraph
         $now     = $this->now();
         $claimed = [];
 
+        $failed = fn (ImportTaskStatus $status) => $status->hasNotSucceeded();
+        $done   = fn (ImportTaskStatus $status) => $status === ImportTaskStatus::Done;
+
         do {
             $pending = $this->dependencyStatusesOfPendingTasks($import);
 
-            $doomed = $pending |> c\filter(fn (array $dependencies) => $dependencies |> c\any(fn (ImportTaskStatus $status) => $status->hasNotSucceeded()));
-            $ready  = $pending |> c\filter(fn (array $dependencies) => $dependencies |> c\every(fn (ImportTaskStatus $status) => $status === ImportTaskStatus::Done));
+            $doomed = $pending |> c\filter(fn (array $dependencies) => $dependencies |> c\any($failed));
+            $ready  = $pending |> c\filter(fn (array $dependencies) => $dependencies |> c\every($done));
 
             $skipped = $this->skipPendingTasks($doomed |> c\keys(), $now);
             $claimed = [...$claimed, ...$this->queuePendingTasks($ready |> c\keys())];
@@ -392,7 +411,10 @@ class ImportGraph
     private function tasksOf(ImportEntity $import): array
     {
         return $this
-            ->query('SELECT t FROM App\Entity\ImportTaskEntity t WHERE t.import = :import ORDER BY t.id', ['import' => $import->getId()])
+            ->query(
+                'SELECT t FROM App\Entity\ImportTaskEntity t WHERE t.import = :import ORDER BY t.id',
+                ['import' => $import->getId()],
+            )
             ->setHint(Query::HINT_REFRESH, true)
             ->getResult();
     }
@@ -413,8 +435,14 @@ class ImportGraph
     {
         $changed = $this
             ->query(
-                'UPDATE App\Entity\ImportTaskEntity t SET t.status = :skipped, t.finishedAt = :now WHERE t.id = :id AND t.status = :pending',
-                ['skipped' => ImportTaskStatus::Skipped, 'now' => $now, 'id' => $taskId, 'pending' => ImportTaskStatus::Pending],
+                'UPDATE App\Entity\ImportTaskEntity t SET t.status = :skipped, t.finishedAt = :now
+                 WHERE t.id = :id AND t.status = :pending',
+                [
+                    'skipped' => ImportTaskStatus::Skipped,
+                    'now'     => $now,
+                    'id'      => $taskId,
+                    'pending' => ImportTaskStatus::Pending,
+                ],
             )
             ->execute();
 
@@ -452,7 +480,8 @@ class ImportGraph
     {
         return (int) $this
             ->query(
-                'SELECT COUNT(t.id) FROM App\Entity\ImportTaskEntity t WHERE t.import = :import AND t.status IN (:statuses)',
+                'SELECT COUNT(t.id) FROM App\Entity\ImportTaskEntity t
+                 WHERE t.import = :import AND t.status IN (:statuses)',
                 ['import' => $import->getId(), 'statuses' => $statuses],
             )
             ->getSingleScalarResult();
@@ -508,7 +537,8 @@ class ImportGraph
     {
         $ordered = [];
         while ($pending !== []) {
-            $ready = $pending |> c\filter(fn (array $dependencies) => array_diff($dependencies, array_keys($ordered)) === []);
+            $ready = $pending
+                |> c\filter(fn (array $dependencies) => array_diff($dependencies, array_keys($ordered)) === []);
 
             if ($ready === []) {
                 throw new \LogicException(sprintf(

@@ -43,7 +43,20 @@ class DeparturesController extends Controller
      */
     #[Route(path: '', name: 'list', methods: ['GET'], options: ['version' => '1.1'])]
     #[LimitParameterBinding]
-    #[OA\Response(description: 'List of departures valid at time of request', response: 200, content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: Departure::class)))])]
+    #[OA\Response(
+        description: 'List of departures valid at time of request',
+        response: 200,
+        content: [
+            new OA\MediaType(
+                mediaType: 'application/vnd.cojedzie.collection+json',
+                schema: new OA\Schema(ref: new Model(type: CollectionResult::class)),
+            ),
+            new OA\JsonContent(
+                type: 'array',
+                items: new OA\Items(ref: new Model(type: Departure::class)),
+            ),
+        ],
+    )]
     public function stops(
         DepartureRepository $departureRepository,
         StopRepository $stopRepository,

@@ -59,7 +59,20 @@ class TrackStopsController extends Controller
         ]
     )]
     #[ParameterBindingProvider([self::class, 'getParameterBindings'])]
-    #[OA\Response(response: 200, description: 'List of track stops matching given criteria.', content: [new OA\MediaType(mediaType: 'application/vnd.cojedzie.collection+json', schema: new OA\Schema(ref: new Model(type: CollectionResult::class))), new OA\JsonContent(type: 'array', items: new OA\Items(ref: new Model(type: TrackStop::class)))])]
+    #[OA\Response(
+        response: 200,
+        description: 'List of track stops matching given criteria.',
+        content: [
+            new OA\MediaType(
+                mediaType: 'application/vnd.cojedzie.collection+json',
+                schema: new OA\Schema(ref: new Model(type: CollectionResult::class)),
+            ),
+            new OA\JsonContent(
+                type: 'array',
+                items: new OA\Items(ref: new Model(type: TrackStop::class)),
+            ),
+        ],
+    )]
     public function list(
         TrackRepository $trackRepository,
         array $requirements

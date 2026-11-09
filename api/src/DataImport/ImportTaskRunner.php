@@ -186,7 +186,9 @@ class ImportTaskRunner
             ));
         }
 
-        return $this->em->getConnection()->transactional(fn (): array => $this->endOrWaitForJobs($task, $event->getJobs()));
+        return $this->em->getConnection()->transactional(
+            fn (): array => $this->endOrWaitForJobs($task, $event->getJobs()),
+        );
     }
 
     /**
@@ -290,28 +292,41 @@ class ImportTaskRunner
     /**
      * @param SplittingDataImporter $importer
      */
-    private function runJobOf(DataImporter $importer, array $payload, ImportEntity $import, ProgressReporterInterface $reporter): void
-    {
+    private function runJobOf(
+        DataImporter $importer,
+        array $payload,
+        ImportEntity $import,
+        ProgressReporterInterface $reporter,
+    ): void {
         $event = new DataUpdateEvent($import);
 
         MemoryLimit::raisedWhile(self::MEMORY_LIMIT, fn () => $importer->runJob($reporter, $event, $payload));
 
         // nothing would run them, the graph only gets jobs of a running node
         if ($event->getJobs() !== []) {
-            throw new \LogicException(sprintf('Importer %s added jobs in a job, only its node can add them.', $importer::class));
+            throw new \LogicException(sprintf(
+                'Importer %s added jobs in a job, only its node can add them.',
+                $importer::class,
+            ));
         }
     }
 
     /**
      * @param ?SplittingDataImporter $importer
      */
-    private function reportJobEnded(?DataImporter $importer, ProgressReporterInterface $reporter, ImportJobCounts $counts): void
-    {
+    private function reportJobEnded(
+        ?DataImporter $importer,
+        ProgressReporterInterface $reporter,
+        ImportJobCounts $counts,
+    ): void {
         try {
             $importer?->jobEnded($reporter, $counts);
         } catch (\Throwable $exception) {
             // only progress, the task must still end
-            $reporter->milestone(sprintf('Reporting progress failed: %s', $exception->getMessage()), MilestoneType::Warning);
+            $reporter->milestone(
+                sprintf('Reporting progress failed: %s', $exception->getMessage()),
+                MilestoneType::Warning,
+            );
         }
     }
 
@@ -348,8 +363,14 @@ class ImportTaskRunner
     {
         $this
             ->query(
-                'UPDATE App\Entity\ImportTaskEntity t SET t.status = :failed, t.finishedAt = :now, t.error = :error WHERE t.id = :id',
-                ['failed' => ImportTaskStatus::Failed, 'now' => $this->now(), 'error' => $exception->getMessage(), 'id' => $taskId],
+                'UPDATE App\Entity\ImportTaskEntity t SET t.status = :failed, t.finishedAt = :now, t.error = :error
+                 WHERE t.id = :id',
+                [
+                    'failed' => ImportTaskStatus::Failed,
+                    'now'    => $this->now(),
+                    'error'  => $exception->getMessage(),
+                    'id'     => $taskId,
+                ],
             )
             ->execute();
 
@@ -360,8 +381,14 @@ class ImportTaskRunner
     {
         $changed = $this
             ->query(
-                'UPDATE App\Entity\ImportTaskEntity t SET t.status = :running, t.startedAt = :now WHERE t.id = :id AND t.status = :queued',
-                ['running' => ImportTaskStatus::Running, 'now' => $this->now(), 'id' => $taskId, 'queued' => ImportTaskStatus::Queued],
+                'UPDATE App\Entity\ImportTaskEntity t SET t.status = :running, t.startedAt = :now
+                 WHERE t.id = :id AND t.status = :queued',
+                [
+                    'running' => ImportTaskStatus::Running,
+                    'now'     => $this->now(),
+                    'id'      => $taskId,
+                    'queued'  => ImportTaskStatus::Queued,
+                ],
             )
             ->execute();
 
@@ -398,7 +425,9 @@ class ImportTaskRunner
             ->query(
                 'UPDATE App\Entity\ImportTaskEntity t SET t.status = :running
                  WHERE t.id = :id AND t.status = :waiting
-                   AND NOT EXISTS (SELECT j.id FROM App\Entity\ImportJobEntity j WHERE j.task = t AND j.status IN (:unended))',
+                   AND NOT EXISTS (
+                       SELECT j.id FROM App\Entity\ImportJobEntity j WHERE j.task = t AND j.status IN (:unended)
+                   )',
                 [
                     'running' => ImportTaskStatus::Running,
                     'id'      => $taskId,
@@ -417,7 +446,9 @@ class ImportTaskRunner
             ->query(
                 'UPDATE App\Entity\ImportTaskEntity t SET t.status = :skipped, t.finishedAt = :now
                  WHERE t.id = :id AND t.status = :waiting
-                   AND NOT EXISTS (SELECT j.id FROM App\Entity\ImportJobEntity j WHERE j.task = t AND j.status IN (:unended))',
+                   AND NOT EXISTS (
+                       SELECT j.id FROM App\Entity\ImportJobEntity j WHERE j.task = t AND j.status IN (:unended)
+                   )',
                 [
                     'skipped' => ImportTaskStatus::Skipped,
                     'now'     => $now,
@@ -434,7 +465,8 @@ class ImportTaskRunner
         $changed = $this
             ->query(
                 'UPDATE App\Entity\ImportTaskEntity t SET t.status = :waiting
-                 WHERE t.id = :id AND t.import IN (SELECT i.id FROM App\Entity\ImportEntity i WHERE i.status = :unfinished)',
+                 WHERE t.id = :id
+                   AND t.import IN (SELECT i.id FROM App\Entity\ImportEntity i WHERE i.status = :unfinished)',
                 ['waiting' => ImportTaskStatus::Waiting, 'id' => $taskId, 'unfinished' => ImportStatus::Running],
             )
             ->execute();
@@ -466,8 +498,14 @@ class ImportTaskRunner
     {
         $this
             ->query(
-                'UPDATE App\Entity\ImportJobEntity j SET j.status = :failed, j.finishedAt = :now, j.error = :error WHERE j.id = :id',
-                ['failed' => ImportJobStatus::Failed, 'now' => $this->now(), 'error' => $exception->getMessage(), 'id' => $jobId],
+                'UPDATE App\Entity\ImportJobEntity j SET j.status = :failed, j.finishedAt = :now, j.error = :error
+                 WHERE j.id = :id',
+                [
+                    'failed' => ImportJobStatus::Failed,
+                    'now'    => $this->now(),
+                    'error'  => $exception->getMessage(),
+                    'id'     => $jobId,
+                ],
             )
             ->execute();
     }
@@ -476,8 +514,14 @@ class ImportTaskRunner
     {
         $changed = $this
             ->query(
-                'UPDATE App\Entity\ImportJobEntity j SET j.status = :skipped, j.finishedAt = :now WHERE j.id = :id AND j.status = :queued',
-                ['skipped' => ImportJobStatus::Skipped, 'now' => $now, 'id' => $jobId, 'queued' => ImportJobStatus::Queued],
+                'UPDATE App\Entity\ImportJobEntity j SET j.status = :skipped, j.finishedAt = :now
+                 WHERE j.id = :id AND j.status = :queued',
+                [
+                    'skipped' => ImportJobStatus::Skipped,
+                    'now'     => $now,
+                    'id'      => $jobId,
+                    'queued'  => ImportJobStatus::Queued,
+                ],
             )
             ->execute();
 
@@ -525,7 +569,8 @@ class ImportTaskRunner
     {
         $rows = $this
             ->query(
-                'SELECT j.status, COUNT(j.id) AS jobs FROM App\Entity\ImportJobEntity j WHERE j.task = :task GROUP BY j.status',
+                'SELECT j.status, COUNT(j.id) AS jobs FROM App\Entity\ImportJobEntity j
+                 WHERE j.task = :task GROUP BY j.status',
                 ['task' => $taskId],
             )
             ->getArrayResult();
@@ -556,12 +601,19 @@ class ImportTaskRunner
      */
     private function jobReporter(ImportJobEntity $job): ProgressReporterInterface
     {
-        return PersistingProgressReporter::ofJob($job->getId(), $this->outputOf($job->getTask()), $this->em, $this->clock);
+        return PersistingProgressReporter::ofJob(
+            $job->getId(),
+            $this->outputOf($job->getTask()),
+            $this->em,
+            $this->clock,
+        );
     }
 
     private function outputOf(ImportTaskEntity $task): ProgressReporterInterface
     {
-        return $this->outputs[$task->getId()->toRfc4122()] ??= $this->progressReporterFactory->create()->subtask($task->getDescription());
+        return $this->outputs[$task->getId()->toRfc4122()] ??= $this->progressReporterFactory
+            ->create()
+            ->subtask($task->getDescription());
     }
 
     private function forgetReporters(Uuid $taskId): void

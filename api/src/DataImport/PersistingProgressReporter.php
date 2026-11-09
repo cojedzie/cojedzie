@@ -49,13 +49,21 @@ final class PersistingProgressReporter implements ProgressReporterInterface
     ) {
     }
 
-    public static function ofTask(Uuid $taskId, ProgressReporterInterface $reporter, EntityManagerInterface $em, ClockInterface $clock): self
-    {
+    public static function ofTask(
+        Uuid $taskId,
+        ProgressReporterInterface $reporter,
+        EntityManagerInterface $em,
+        ClockInterface $clock,
+    ): self {
         return new self($reporter, $em, $clock, ImportTaskEntity::class, $taskId);
     }
 
-    public static function ofJob(Uuid $jobId, ProgressReporterInterface $reporter, EntityManagerInterface $em, ClockInterface $clock): self
-    {
+    public static function ofJob(
+        Uuid $jobId,
+        ProgressReporterInterface $reporter,
+        EntityManagerInterface $em,
+        ClockInterface $clock,
+    ): self {
         return new self($reporter, $em, $clock, ImportJobEntity::class, $jobId);
     }
 
@@ -92,7 +100,8 @@ final class PersistingProgressReporter implements ProgressReporterInterface
     {
         $this->em
             ->createQuery(sprintf(
-                'UPDATE %s e SET e.progress = :progress, e.progressMax = :max, e.progressComment = :comment WHERE e.id = :id',
+                'UPDATE %s e SET e.progress = :progress, e.progressMax = :max, e.progressComment = :comment
+                 WHERE e.id = :id',
                 $this->entity,
             ))
             ->setParameter('progress', (int) $progress)

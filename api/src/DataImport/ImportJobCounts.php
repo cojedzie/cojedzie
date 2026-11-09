@@ -44,7 +44,8 @@ final readonly class ImportJobCounts
         return new self(
             total: array_sum($statuses),
             done: $statuses[ImportJobStatus::Done->value] ?? 0,
-            failed: ImportJobStatus::notSucceeded() |> c\sum(fn (ImportJobStatus $status) => $statuses[$status->value] ?? 0),
+            failed: ImportJobStatus::notSucceeded()
+                |> c\sum(fn (ImportJobStatus $status) => $statuses[$status->value] ?? 0),
         );
     }
 

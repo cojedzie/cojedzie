@@ -40,7 +40,14 @@ class TripController extends Controller
      * Get information about specific trip.
      */
     #[Route(path: '/{id}', name: 'details', methods: ['GET'], options: ['version' => '1.1'])]
-    #[OA\Response(response: 200, description: 'Trip details.', content: new OA\MediaType(mediaType: 'application/vnd.cojedzie.trip+json', schema: new OA\Schema(ref: new Model(type: Trip::class))))]
+    #[OA\Response(
+        response: 200,
+        description: 'Trip details.',
+        content: new OA\MediaType(
+            mediaType: 'application/vnd.cojedzie.trip+json',
+            schema: new OA\Schema(ref: new Model(type: Trip::class)),
+        ),
+    )]
     #[OA\Response(response: 404, description: 'Trip not found.')]
     public function one(
         #[IdConstraintParameterBinding(from: ['attributes'])]

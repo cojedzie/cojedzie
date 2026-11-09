@@ -56,7 +56,9 @@ class FederationServersCommand extends Command implements CustomSentrySampleRate
                 fn (FederatedServerEntity $server) => [
                     $server->getId()->toRfc4122(),
                     $server->getAllowedUrl(),
-                    $server->getMaintainer() ? sprintf("%s <%s>", $server->getMaintainer(), $server->getEmail()) : $server->getEmail(),
+                    $server->getMaintainer()
+                        ? sprintf("%s <%s>", $server->getMaintainer(), $server->getEmail())
+                        : $server->getEmail(),
                 ],
                 $servers
             )

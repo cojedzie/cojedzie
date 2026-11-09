@@ -51,7 +51,17 @@ class Line implements Fillable, ReferableDto, Dto
     /**
      * Line type tram, bus or whatever.
      */
-    #[OA\Property(type: 'string', enum: [Line::TYPE_BUS, Line::TYPE_UNKNOWN, Line::TYPE_METRO, Line::TYPE_TRAIN, Line::TYPE_TRAM, Line::TYPE_TROLLEYBUS])]
+    #[OA\Property(
+        type: 'string',
+        enum: [
+            Line::TYPE_BUS,
+            Line::TYPE_UNKNOWN,
+            Line::TYPE_METRO,
+            Line::TYPE_TRAIN,
+            Line::TYPE_TRAM,
+            Line::TYPE_TROLLEYBUS,
+        ],
+    )]
     private string $type;
 
     /**

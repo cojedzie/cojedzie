@@ -55,7 +55,11 @@ final readonly class ImportCronMonitorSubscriber
     #[AsEventListener]
     public function onImportStarted(ImportStartedEvent $event): void
     {
-        $checkInId = $this->sentry->captureCheckIn(self::MONITOR, CheckInStatus::inProgress(), monitorConfig: $this->monitorConfig());
+        $checkInId = $this->sentry->captureCheckIn(
+            self::MONITOR,
+            CheckInStatus::inProgress(),
+            monitorConfig: $this->monitorConfig(),
+        );
 
         // without a Sentry client there is no check-in
         if ($checkInId === null) {

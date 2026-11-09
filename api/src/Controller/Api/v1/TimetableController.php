@@ -48,9 +48,24 @@ class TimetableController extends Controller
      *
      * @param list<Requirement> $requirements
      */
-    #[Route(path: '/{provider}/timetable', name: 'timetable_list', methods: ['GET'], options: ['version' => '1.0'])]
-    #[Route(path: '/{provider}/stops/{stop}/timetable', name: 'stop_timetable', methods: ['GET'], options: ['version' => '1.0'])]
-    #[Route(path: '/{provider}/lines/{line}/timetable', name: 'line_timetable', methods: ['GET'], options: ['version' => '1.0'])]
+    #[Route(
+        path: '/{provider}/timetable',
+        name: 'timetable_list',
+        methods: ['GET'],
+        options: ['version' => '1.0'],
+    )]
+    #[Route(
+        path: '/{provider}/stops/{stop}/timetable',
+        name: 'stop_timetable',
+        methods: ['GET'],
+        options: ['version' => '1.0'],
+    )]
+    #[Route(
+        path: '/{provider}/lines/{line}/timetable',
+        name: 'line_timetable',
+        methods: ['GET'],
+        options: ['version' => '1.0'],
+    )]
     #[ParameterBindingProvider([self::class, 'getParameterBinding'])]
     #[OA\Response(
         response: 200,

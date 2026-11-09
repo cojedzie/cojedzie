@@ -76,8 +76,12 @@ trait SentryCronMonitorTrait
     /**
      * An ok check-in at most once per interval, for jobs that run more often than a monitor can be scheduled.
      */
-    protected function heartbeat(string $monitor, MonitorConfig $config, \DateTimeInterface $now, int $intervalSeconds = 60): void
-    {
+    protected function heartbeat(
+        string $monitor,
+        MonitorConfig $config,
+        \DateTimeInterface $now,
+        int $intervalSeconds = 60,
+    ): void {
         $last = $this->heartbeats[$monitor] ?? null;
         if ($last !== null && $now->getTimestamp() - $last < $intervalSeconds) {
             return;

@@ -54,7 +54,16 @@ class FederationConnectionsListCommand extends Command implements CustomSentrySa
         foreach ($connectionsByServer as $serverId => $connections) {
             $io->writeln("Server $serverId");
             $io->table(
-                ['Connection ID', 'State', 'Url', 'Opened at', 'Closed at', 'Last check', 'Next check', 'Failures (Total)'],
+                [
+                    'Connection ID',
+                    'State',
+                    'Url',
+                    'Opened at',
+                    'Closed at',
+                    'Last check',
+                    'Next check',
+                    'Failures (Total)',
+                ],
                 $connections
                     |> c\map(
                         fn (FederatedConnectionEntity $connection) => [

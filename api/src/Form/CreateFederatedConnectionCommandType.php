@@ -40,7 +40,8 @@ class CreateFederatedConnectionCommandType extends AbstractType
                 ],
                 'documentation' => [
                     'type'        => 'text',
-                    'description' => 'Base URL for this connection, must start with the URL the server was registered with.',
+                    'description' => 'Base URL for this connection, ' .
+                        'must start with the URL the server was registered with.',
                     'example'     => 'https://cojedzie.pl',
                 ],
             ])

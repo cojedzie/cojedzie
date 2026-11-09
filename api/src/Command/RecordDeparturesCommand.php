@@ -29,7 +29,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'app:record-departures', description: 'Record a snapshot of every provider\'s departures into the departure history now.')]
+#[AsCommand(
+    name: 'app:record-departures',
+    description: 'Record a snapshot of every provider\'s departures into the departure history now.',
+)]
 class RecordDeparturesCommand extends Command
 {
     public function __construct(
