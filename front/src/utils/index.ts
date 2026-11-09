@@ -18,7 +18,7 @@
  */
 
 import { Moment } from "moment";
-import type { Temporal } from "@/calendar";
+import type { Temporal } from "@/time";
 import cloneDeep from "lodash/cloneDeep";
 
 export * from "./object";
@@ -35,7 +35,7 @@ type Simplify<T> = T extends string | number | boolean
     ? T
     : T extends Moment
       ? string
-      : T extends Temporal.PlainDate
+      : T extends Temporal.PlainDate | Temporal.Instant
         ? string
         : T extends Array<infer K>
           ? Array<Simplify<K>>

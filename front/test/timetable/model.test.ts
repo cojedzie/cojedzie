@@ -19,7 +19,7 @@
 
 import { describe, expect, it } from "vitest";
 import moment from "moment";
-import { Temporal } from "@/calendar";
+import { Temporal } from "@/time";
 import type { Departure, DepartureState, Line } from "@/model";
 import {
     buildCombinedTimetable,

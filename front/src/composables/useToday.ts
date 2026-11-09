@@ -28,7 +28,7 @@ import {
     watchEffect,
 } from "vue";
 import { useIntervalFn, useNow } from "@vueuse/core";
-import { Temporal, todayIn } from "@/calendar";
+import { Temporal, todayIn } from "@/time";
 
 const TodayKey: InjectionKey<Readonly<Ref<Temporal.PlainDate>>> = Symbol("today");
 

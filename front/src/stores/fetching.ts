@@ -18,7 +18,7 @@
  */
 
 import { ref } from "vue";
-import moment, { type Moment } from "moment";
+import { Temporal } from "@/time";
 import type { FetchingState } from "@/utils";
 
 /**
@@ -27,7 +27,7 @@ import type { FetchingState } from "@/utils";
  */
 export function useFetching() {
     const state = ref<FetchingState>("not-initialized");
-    const lastUpdate = ref<Moment>(moment());
+    const lastUpdate = ref<Temporal.Instant>(Temporal.Now.instant());
     const error = ref<string>("");
 
     async function fetching(request: () => Promise<void>) {
@@ -36,7 +36,7 @@ export function useFetching() {
         try {
             await request();
 
-            lastUpdate.value = moment();
+            lastUpdate.value = Temporal.Now.instant();
             state.value = "ready";
         } catch (response) {
             error.value = JSON.stringify(response);

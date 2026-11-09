@@ -18,7 +18,7 @@
  */
 
 import type { Moment } from "moment";
-import type { Temporal } from "@/calendar";
+import type { Temporal } from "@/time";
 import type { Departure, Line } from "@/model";
 
 /** A wall clock time in the provider's time zone */

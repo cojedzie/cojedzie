@@ -20,7 +20,7 @@
 import { Stop } from "./stop";
 import { Line } from "./line";
 import { Moment } from "moment";
-import type { Temporal } from "@/calendar";
+import type { Temporal } from "@/time";
 import { Identity } from "./identity";
 import { Trip } from "./trip";
 

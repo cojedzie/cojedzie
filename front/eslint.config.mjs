@@ -6,7 +6,7 @@ import { defineConfig } from "eslint/config";
 import globals from "globals";
 import typescript from "typescript-eslint";
 
-const temporalPolyfill = [{ name: "temporal-polyfill", message: "Import Temporal from @/calendar (ADR 0032)." }];
+const temporalPolyfill = [{ name: "temporal-polyfill", message: "Import Temporal from @/time (ADR 0033)." }];
 
 export default defineConfig([
     { ignores: ["**/build/**", "resources/**", "src/types/**/*.d.ts"] },
@@ -42,17 +42,17 @@ export default defineConfig([
         },
     },
     {
-        // Temporal comes from @/calendar, the one place that decides between the polyfill and the native API
+        // Temporal comes from @/time, the one place that decides between the polyfill and the native API
         files: ["src/**", "test/**", ".storybook/**"],
-        ignores: ["src/calendar/temporal.ts"],
+        ignores: ["src/time/temporal.ts"],
         rules: {
             "no-restricted-imports": ["error", { paths: temporalPolyfill }],
         },
     },
     {
         // framework-free logic, kept portable to another UI framework
-        files: ["src/timetable/**", "src/calendar/**"],
-        ignores: ["src/calendar/temporal.ts"],
+        files: ["src/timetable/**", "src/time/**"],
+        ignores: ["src/time/temporal.ts"],
         rules: {
             "no-restricted-imports": [
                 "error",

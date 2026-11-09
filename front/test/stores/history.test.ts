@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 import { createApp } from "vue";
-import moment from "moment";
+import { Temporal } from "@/time";
 import type { Stop } from "@/model";
 import { MemoryStorage } from "@/stores/persistence/memory";
 import { persistence } from "@/stores/persistence/plugin";
@@ -28,8 +28,8 @@ describe("history store", () => {
     it("puts the newest entry first", () => {
         const store = createStore();
 
-        store.push({ stop: stop("1"), date: moment("2026-10-30T10:00:00Z") });
-        store.push({ stop: stop("2"), date: moment("2026-10-30T11:00:00Z") });
+        store.push({ stop: stop("1"), date: Temporal.Instant.from("2026-10-30T10:00:00Z") });
+        store.push({ stop: stop("2"), date: Temporal.Instant.from("2026-10-30T11:00:00Z") });
 
         expect(store.all.map(entry => entry.stop.id)).toEqual(["2", "1"]);
     });
@@ -37,9 +37,9 @@ describe("history store", () => {
     it("keeps one entry per stop", () => {
         const store = createStore();
 
-        store.push({ stop: stop("1"), date: moment("2026-10-30T10:00:00Z") });
-        store.push({ stop: stop("2"), date: moment("2026-10-30T11:00:00Z") });
-        store.push({ stop: stop("1"), date: moment("2026-10-30T12:00:00Z") });
+        store.push({ stop: stop("1"), date: Temporal.Instant.from("2026-10-30T10:00:00Z") });
+        store.push({ stop: stop("2"), date: Temporal.Instant.from("2026-10-30T11:00:00Z") });
+        store.push({ stop: stop("1"), date: Temporal.Instant.from("2026-10-30T12:00:00Z") });
 
         expect(store.all.map(entry => entry.stop.id)).toEqual(["1", "2"]);
     });
@@ -49,19 +49,19 @@ describe("history store", () => {
         store.saveSettings({ maxEntries: 2 });
 
         for (const id of ["1", "2", "3"]) {
-            store.push({ stop: stop(id), date: moment() });
+            store.push({ stop: stop(id), date: Temporal.Now.instant() });
         }
 
         expect(store.entries.map(entry => entry.stop.id)).toEqual(["3", "2"]);
     });
 
-    it("stores dates as ISO strings and returns moments", () => {
+    it("stores dates as ISO strings with milliseconds and returns instants", () => {
         const store = createStore();
 
-        store.push({ stop: stop("1"), date: moment("2026-10-30T10:00:00Z") });
+        store.push({ stop: stop("1"), date: Temporal.Instant.from("2026-10-30T10:00:00Z") });
 
         expect(store.entries[0].date).toBe("2026-10-30T10:00:00.000Z");
-        expect(store.latest(1)[0].date.toISOString()).toBe("2026-10-30T10:00:00.000Z");
+        expect(store.latest(1)[0].date.equals(Temporal.Instant.from("2026-10-30T10:00:00Z"))).toBe(true);
     });
 
     it("hydrates from its key", async () => {
@@ -76,6 +76,7 @@ describe("history store", () => {
 
         expect(store.settings.maxEntries).toBe(5);
         expect(store.all[0].stop.id).toBe("1");
-        expect(store.all[0].date.toISOString()).toBe("2026-10-30T10:00:00.000Z");
+        // saved by moment, with milliseconds
+        expect(store.all[0].date.equals(Temporal.Instant.from("2026-10-30T10:00:00Z"))).toBe(true);
     });
 });

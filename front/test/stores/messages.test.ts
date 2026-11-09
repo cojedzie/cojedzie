@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 import moment from "moment";
+import { Temporal } from "@/time";
 import { useMessagesStore } from "@/stores/messages";
 
 const get = vi.hoisted(() => vi.fn());
@@ -35,12 +36,12 @@ describe("messages store", () => {
     it("parses the validity into local moments and becomes ready", async () => {
         get.mockResolvedValue({ data: [message("1", "info")] });
         const store = useMessagesStore();
-        const before = moment();
+        const before = Temporal.Now.instant();
 
         await store.update();
 
         expect(store.state).toBe("ready");
-        expect(store.lastUpdate.isSameOrAfter(before)).toBe(true);
+        expect(Temporal.Instant.compare(store.lastUpdate, before)).toBeGreaterThanOrEqual(0);
         expect(store.messages[0].validFrom.isSame(moment("2026-10-30T11:00:00Z"))).toBe(true);
         expect(store.messages[0].validTo.isSame(moment("2026-10-30T17:00:00Z"))).toBe(true);
         expect(store.messages[0].validFrom.utcOffset()).toBe(moment().utcOffset());

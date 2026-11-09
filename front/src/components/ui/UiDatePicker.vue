@@ -86,7 +86,7 @@
 <script lang="ts" setup>
 import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import { useResizeObserver } from "@vueuse/core";
-import { formatLongDate, formatShortDate, isWithin, Temporal } from "@/calendar";
+import { formatLongDate, formatShortDate, isWithin, Temporal } from "@/time";
 import { useToday } from "@/composables/useToday";
 import UiCalendar from "@/components/ui/UiCalendar.vue";
 import UiDialog from "@/components/ui/UiDialog.vue";

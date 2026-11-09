@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { mount } from "@vue/test-utils";
 import UiCalendar from "@/components/ui/UiCalendar.vue";
-import { Temporal } from "@/calendar";
+import { Temporal } from "@/time";
 
 const global = { stubs: { UiIcon: true } };
 const day = (date: string) => Temporal.PlainDate.from(date);

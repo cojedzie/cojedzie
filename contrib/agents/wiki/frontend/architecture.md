@@ -45,22 +45,31 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   and the provider's time zone, which the hours are shown in. Hour rows group consecutive entries of the same hour,
   so with `extended` the runs after midnight get their own rows at the end of the day. `nearestEntry(entries, now)`
   picks the entry to scroll to. Tests: `test/timetable/`.
-- `src/calendar` — calendar dates, framework-free like `src/timetable` (same ESLint rule). Dates are
-  `Temporal.PlainDate`, months `Temporal.PlainYearMonth` (ADR 0032), from `temporal-polyfill` until Safari ships
-  Temporal: `src/calendar/temporal.ts` is the only file importing it (ESLint enforces it), everything else imports
-  `Temporal` from `@/calendar`. ISO strings exist only at the edges: API responses (`serviceDay`, converted in the
-  departures store and `fetchTimetableDay`), API queries (`date`), URLs and saved state; `Jsonified` maps a
-  `PlainDate` to a string. Dates compare with `equals()`/`compare()`, never `===`, and tests compare `toString()`,
-  as matchers can't see into Temporal objects. Helpers: `todayIn(timeZone, now?)`, `clampDate`, `isWithin`, and
-  Polish labels through `toLocaleString` (`formatLongDate` "poniedziałek, 09.11.2026", `formatShortDate`
-  "pon. 09.11", `formatMonth`, which goes through the month's first day, as a year-month formats only in its own
-  calendar). `buildMonth` lays a month out as six weeks from Monday of `CalendarDay` cells (today, selected, out of
-  range). Whatever a calendar day shows belongs in that cell model; marking days (no service, day categories) is
-  expected later. Tests: `test/calendar/`.
+- `src/time` — dates and times (ADR 0033), framework-free like `src/timetable` (same ESLint rule). Calendar dates are
+  `Temporal.PlainDate`, months `Temporal.PlainYearMonth`, moments `Temporal.Instant`, clock times of a day
+  `Temporal.PlainTime`, from `temporal-polyfill` until Safari ships Temporal: `src/time/temporal.ts` is the only file
+  importing it (ESLint enforces it), everything else imports `Temporal` from `@/time`. Models and stores hold
+  `Instant`s; a zone is applied only when a moment is shown or split into a day and a time, so reading API data never
+  needs the provider's details. ISO strings exist only at the edges: API responses (`serviceDay`, converted in the
+  departures store and `fetchTimetableDay`), API queries (`date`), URLs and saved state (the stop history writes dates
+  with milliseconds, `toString({ fractionalSecondDigits: 3 })`, as moment did, so the saved format didn't change);
+  `Jsonified` maps `PlainDate` and `Instant` to strings. Values compare with `equals()`/`compare()`, never `===`, and
+  tests compare `toString()`, as matchers can't see into Temporal objects. Dates: `todayIn(timeZone, now?)`,
+  `clampDate`, `isWithin`, Polish labels through `toLocaleString` (`formatLongDate` "poniedziałek, 09.11.2026",
+  `formatShortDate` "pon. 09.11", `formatDateInWords` "10 listopada 2026", `formatMonth`, which goes through the month's
+  first day, as a year-month formats only in its own calendar). Times: `formatClockTime(instant, zone)` "14:05",
+  `formatDateTime` "10.11.2026, 14:05", `dateIn`, `clockTimeIn`, `wholeMinutesBetween` (towards zero) and
+  `formatRelativeTime(target, now)` through `Intl.RelativeTimeFormat`: "za chwilę" within a minute, whole minutes
+  rounded down within an hour ("za 44 minuty", where moment said "za godzinę"), hours beyond. `buildMonth` lays a month
+  out as six weeks from Monday of `CalendarDay` cells (today, selected, out of range). Whatever a calendar day shows
+  belongs in that cell model; marking days (no service, day categories) is expected later. Tests: `test/time/`.
 - `composables/useToday.ts` — today as the app sees it: `Application.vue` provides today in the current provider's time
   zone (`provideToday(useTodayIn(() => selection.provider?.timezone))`, checked every minute, a new value only when the
   day changes), `useToday()` injects it, falling back to the device's time zone where nothing provides one (stories,
   tests). Components take an explicit `today` prop as an override.
+- `composables/useDisplayTimeZone.ts` — the time zone clock times are shown in: `Application.vue` provides the
+  provider's (`provideDisplayTimeZone`), the one place a rider's preference would change; `useDisplayTimeZone()` falls
+  back to the device's zone where nothing provides one. Days never follow it: they stay the provider's (`useToday`).
 - `components/ui/UiSection.vue` + `UiSectionSettings.vue` — the page's titled blocks. A section has an optional
   `icon` and `title` (or a `#title` slot getting both), an `#actions` slot on the right of the header and the
   content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).

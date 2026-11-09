@@ -4,6 +4,17 @@ Realtime public transport departures: what leaves a stop now, and what is planne
 
 ## Language
 
+### Providers
+
+**Provider**:
+A source of one network's data, e.g. "ZTM Gdańsk": its stops, lines, timetable and live departures.
+_Avoid_: Agency, operator (an operator runs vehicles; one provider can cover several)
+
+**Provider time zone**:
+The time zone a provider's timetable is in. Days (service days, "today") are always its days, and clock times are
+shown in it by default, so they match the stop's displays and printed timetables wherever the rider is.
+_Avoid_: Local time (it could mean the device's or the provider's)
+
 ### Network
 
 **Stop**:

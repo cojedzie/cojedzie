@@ -52,7 +52,6 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from "vue";
-import moment from "moment";
 import type { StopGroups, StopWithDestinations as Stop } from "@/model";
 import { type FetchingState, filter as filterObject, map } from "@/utils";
 import api from "@/api";
@@ -62,6 +61,7 @@ import StopPickerEntry from "./StopPickerEntry.vue";
 import StopPickerHistory from "./StopPickerHistory.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
+import { Temporal } from "@/time";
 
 defineOptions({ name: "StopPicker" });
 
@@ -113,7 +113,7 @@ watch(filter, () => {
 onBeforeUnmount(() => clearTimeout(timeout));
 
 function select(stop: Stop | Stop[]) {
-    history.push({ date: moment(), stop: stop as Stop });
+    history.push({ date: Temporal.Now.instant(), stop: stop as Stop });
 
     emit("select", stop);
 }

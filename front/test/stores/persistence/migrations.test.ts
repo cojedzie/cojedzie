@@ -17,6 +17,7 @@ import { useMessagesSettingsStore } from "@/stores/messages-settings";
 import { useHistoryStore } from "@/stores/history";
 import { migrate, migrations, type Migration } from "@/stores/persistence/migrations";
 import { BrowserStorage } from "@/stores/persistence/browser";
+import { Temporal } from "@/time";
 
 const stops = {
     "1": { id: "1", name: "Brama Wyżynna", $type: "vnd.cojedzie.stop" },
@@ -303,7 +304,7 @@ describe("persisted state migrations", () => {
             expect(messages.$state).toEqual(snapshot["messages-settings"]);
             expect(history.settings).toEqual(snapshot.history.settings);
             expect(history.entries).toEqual(snapshot.history.entries);
-            expect(history.all[0].date.toISOString()).toBe("2026-10-30T10:00:00.000Z");
+            expect(history.all[0].date.equals(Temporal.Instant.from("2026-10-30T10:00:00Z"))).toBe(true);
         });
     });
 });
