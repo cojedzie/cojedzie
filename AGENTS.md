@@ -17,8 +17,6 @@ Everything related to agentic workflows is stored in `contrib/agents/`, not in v
 - `contrib/agents/specs/` and `contrib/agents/plans/` — design specs and implementation plans. This overrides
   the superpowers plugin defaults (`docs/superpowers/specs/`, `docs/superpowers/plans/`); keep its file naming.
   They are **temporary**, see below.
-- `contrib/agents/issues/` — local issue tracker (tickets per feature), an Obsidian vault ignored by git: never
-  committed.
 - `contrib/agents/skills-config/` — per-repo configuration read by the plugin engineering skills (see
   [Agent skills](#agent-skills)).
 - Any other agent artifact (notes, prompts, reports) goes into a fitting subdirectory of `contrib/agents/`.
@@ -69,13 +67,13 @@ relevant page (or add one and register it in both tables).
 
 ### Issue tracker
 
-Issues are untracked local markdown files under `contrib/agents/issues/<feature>/`; specs stay in
-`contrib/agents/specs/`. See `contrib/agents/skills-config/issue-tracker.md`.
+GitHub Issues of `cojedzie/cojedzie` (public), via `gh`; a feature's tickets are sub-issues of a parent issue. Specs
+stay in `contrib/agents/specs/`. See `contrib/agents/skills-config/issue-tracker.md`.
 
 ### Triage labels
 
-The default five roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), recorded as
-a `Status:` line in each issue file. See `contrib/agents/skills-config/triage-labels.md`.
+The default five roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), as GitHub
+labels. See `contrib/agents/skills-config/triage-labels.md`.
 
 ### Domain docs
 
