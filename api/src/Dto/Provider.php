@@ -63,6 +63,12 @@ class Provider implements Fillable, Referable, Dto
     private Location $location;
 
     /**
+     * IANA name of the time zone the provider's timetable is in, ex. "Europe/Warsaw".
+     */
+    #[OA\Property(type: 'string', format: 'timezone', example: 'Europe/Warsaw')]
+    private string $timezone;
+
+    /**
      * Service days the provider has a timetable for, null when it has none.
      */
     private ?TimetableRange $timetable = null;
@@ -126,6 +132,16 @@ class Provider implements Fillable, Referable, Dto
     public function setLocation(Location $location): void
     {
         $this->location = $location;
+    }
+
+    public function getTimezone(): string
+    {
+        return $this->timezone;
+    }
+
+    public function setTimezone(string $timezone): void
+    {
+        $this->timezone = $timezone;
     }
 
     public function getTimetable(): ?TimetableRange

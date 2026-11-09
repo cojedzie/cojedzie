@@ -36,7 +36,8 @@ see [collections.md](collections.md).
 
 `Provider\Provider` is the contract a data source implements (repositories + metadata). Providers are
 autoconfigured and tagged by `_instanceof` in `config/services.yaml`. `getTimezone()` is the provider's time zone,
-declared once: DB-backed providers pass it to `GenericTimetableRepository::withTimezone()`.
+declared once: DB-backed providers pass it to `GenericTimetableRepository::withTimezone()`, and the provider details
+expose its IANA name as `timezone` (e.g. `Europe/Warsaw`), which clients need for DST rules that offsets don't tell.
 
 - `ZtmGdansk` (identifier `trojmiasto`) — the real provider. Static data (lines, stops, tracks, timetable,
   operators) lives in the DB via the `Database\Generic*Repository` classes bound with `withProvider()`;
