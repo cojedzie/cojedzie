@@ -91,7 +91,9 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->line(self::LINE_6);
 
         $this->runImporter(
-            $this->importer(fn (string $route, string $date) => $date === '2026-10-28' ? [$this->stopTime($route, $date)] : []),
+            $this->importer(
+                fn (string $route, string $date) => $date === '2026-10-28' ? [$this->stopTime($route, $date)] : [],
+            ),
             $this->event,
         );
 
@@ -199,9 +201,14 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     {
         $this->line(self::LINE_6);
 
-        $this->runImporter($this->importer(fn (string $route, string $date) => in_array($date, ['2026-10-28', '2026-10-29'], true)
-            ? [$this->stopTime($route, $date)]
-            : []), $this->event);
+        $this->runImporter(
+            $this->importer(
+                fn (string $route, string $date) => in_array($date, ['2026-10-28', '2026-10-29'], true)
+                    ? [$this->stopTime($route, $date)]
+                    : [],
+            ),
+            $this->event,
+        );
 
         $this->assertSame(
             [self::tripOf('6', '2026-10-28'), self::tripOf('6', '2026-10-29')],
@@ -220,13 +227,24 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         ]);
 
         $this->importer(fn () => [])->importLineDay($this->reporter(), $this->event, self::LINE_6, '2026-10-28', [
-            $this->stopTime('6', '2026-10-28', ['arrivalTime' => '1899-12-30T23:50:00', 'departureTime' => '1899-12-30T23:51:00']),
-            $this->stopTime('6', '2026-10-28', ['arrivalTime' => '1899-12-31T00:29:00', 'departureTime' => '1899-12-31T00:30:00', 'stopId' => 101, 'stopSequence' => 1]),
+            $this->stopTime('6', '2026-10-28', [
+                'arrivalTime'   => '1899-12-30T23:50:00',
+                'departureTime' => '1899-12-30T23:51:00',
+            ]),
+            $this->stopTime('6', '2026-10-28', [
+                'arrivalTime'   => '1899-12-31T00:29:00',
+                'departureTime' => '1899-12-31T00:30:00',
+                'stopId'        => 101,
+                'stopSequence'  => 1,
+            ]),
         ]);
 
         // Warsaw is UTC+1 after 2026-10-25
         $validity = ['valid_from' => '2026-10-28 22:50:00', 'valid_to' => '2026-10-28 23:30:00'];
-        $this->assertSame([['id' => self::tripOf('6', '2026-10-28'), ...$validity]], $this->rows('trip', 'id', 'valid_from', 'valid_to'));
+        $this->assertSame(
+            [['id' => self::tripOf('6', '2026-10-28'), ...$validity]],
+            $this->rows('trip', 'id', 'valid_from', 'valid_to'),
+        );
         $this->assertSame([$validity, $validity], $this->rows('trip_stop', 'valid_from', 'valid_to'));
     }
 
@@ -236,13 +254,25 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
         $this->importer(fn () => [])->importLineDay($this->reporter(), $this->event, self::LINE_6, '2026-11-07', [
             $this->stopTime('6', '2026-11-07'),
-            $this->stopTime('6', '2026-11-07', ['order' => 2, 'arrivalTime' => '1899-12-31T01:05:00', 'departureTime' => '1899-12-31T01:06:00']),
+            $this->stopTime('6', '2026-11-07', [
+                'order'         => 2,
+                'arrivalTime'   => '1899-12-31T01:05:00',
+                'departureTime' => '1899-12-31T01:06:00',
+            ]),
         ]);
 
         $this->assertSame(
             [
-                ['id' => self::tripOf('6', '2026-11-07'), 'service_date' => '2026-11-07', 'valid_to' => '2026-11-07 11:01:00'],
-                ['id' => self::tripOf('6', '2026-11-07', 2), 'service_date' => '2026-11-07', 'valid_to' => '2026-11-08 00:06:00'],
+                [
+                    'id'           => self::tripOf('6', '2026-11-07'),
+                    'service_date' => '2026-11-07',
+                    'valid_to'     => '2026-11-07 11:01:00',
+                ],
+                [
+                    'id'           => self::tripOf('6', '2026-11-07', 2),
+                    'service_date' => '2026-11-07',
+                    'valid_to'     => '2026-11-08 00:06:00',
+                ],
             ],
             $this->rows('trip', 'id', 'service_date', 'valid_to'),
         );
@@ -260,8 +290,9 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             $this->stopTimesWithAnUnknownTrack('6', '2026-10-28'),
         );
 
-        $this->assertSame([self::tripOf('6', '2026-10-28')], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
-        $this->assertSame([self::tripOf('6', '2026-10-28')], $this->connection->fetchFirstColumn('SELECT trip_id FROM trip_stop'));
+        $tripIds = [self::tripOf('6', '2026-10-28')];
+        $this->assertSame($tripIds, $this->connection->fetchFirstColumn('SELECT id FROM trip'));
+        $this->assertSame($tripIds, $this->connection->fetchFirstColumn('SELECT trip_id FROM trip_stop'));
         $this->assertCount(1, $this->warnings);
     }
 
@@ -282,12 +313,14 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     {
         $this->line(self::LINE_6);
 
-        $importer = $this->importer(fn () => []);
-        $importer->importLineDay($this->reporter(), $this->event, self::LINE_6, '2026-10-28', [$this->stopTime('6', '2026-10-28')]);
-        $importer->importLineDay($this->reporter(), $this->event, self::LINE_6, '2026-10-28', [$this->stopTime('6', '2026-10-28')]);
+        $importer  = $this->importer(fn () => []);
+        $stopTimes = [$this->stopTime('6', '2026-10-28')];
+        $importer->importLineDay($this->reporter(), $this->event, self::LINE_6, '2026-10-28', $stopTimes);
+        $importer->importLineDay($this->reporter(), $this->event, self::LINE_6, '2026-10-28', $stopTimes);
 
-        $this->assertSame([self::tripOf('6', '2026-10-28')], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
-        $this->assertSame([self::tripOf('6', '2026-10-28')], $this->connection->fetchFirstColumn('SELECT trip_id FROM trip_stop'));
+        $tripIds = [self::tripOf('6', '2026-10-28')];
+        $this->assertSame($tripIds, $this->connection->fetchFirstColumn('SELECT id FROM trip'));
+        $this->assertSame($tripIds, $this->connection->fetchFirstColumn('SELECT trip_id FROM trip_stop'));
         $this->assertSame(['2026-10-28'], $this->scheduleDays());
     }
 
@@ -347,7 +380,11 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         $this->line(self::LINE_6);
         $this->scheduleDay(self::LINE_6, '2026-10-28');
 
-        $this->importer(fn () => [])->runJob($this->reporter(), $this->event, ['line' => self::LINE_6, 'dates' => ['2026-10-28']]);
+        $this->importer(fn () => [])->runJob(
+            $this->reporter(),
+            $this->event,
+            ['line' => self::LINE_6, 'dates' => ['2026-10-28']],
+        );
 
         $this->assertSame([], $this->warnings);
     }
@@ -358,7 +395,9 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
     #[DataProvider('scheduleOutcomes')]
     public function testScheduleFailsOnlyWhenNoLineWasImported(array $counts, bool $succeeds, bool $warns): void
     {
-        $this->assertSame($succeeds, $this->importer(fn () => [])->jobsEnded($this->reporter(), new ImportJobCounts(...$counts)));
+        $succeeded = $this->importer(fn () => [])->jobsEnded($this->reporter(), new ImportJobCounts(...$counts));
+
+        $this->assertSame($succeeds, $succeeded);
         $this->assertCount($warns ? 1 : 0, $this->warnings);
     }
 
@@ -386,7 +425,14 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
         // another run writes the day after this one checked it wasn't imported, so this one collides
         $importer = $this->getMockBuilder(ZtmGdanskScheduleDataImporter::class)
-            ->setConstructorArgs([$this->connection, new IdUtils(), new StubJsonStreamer(fn () => []), $this->httpClient(fn () => []), $this->config(), $this->clock()])
+            ->setConstructorArgs([
+                $this->connection,
+                new IdUtils(),
+                new StubJsonStreamer(fn () => []),
+                $this->httpClient(fn () => []),
+                $this->config(),
+                $this->clock(),
+            ])
             ->onlyMethods(['importLineDay'])
             ->getMock();
         $importer->expects($this->once())->method('importLineDay')->willReturnCallback(function (): void {
@@ -426,13 +472,19 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
         $this->assertSame(0, $this->deadlocks);
         $this->assertSame(1, $requests);
-        $this->assertSame([self::tripOf('6', '2026-10-29')], $this->connection->fetchFirstColumn('SELECT id FROM trip'));
+        $this->assertSame(
+            [self::tripOf('6', '2026-10-29')],
+            $this->connection->fetchFirstColumn('SELECT id FROM trip'),
+        );
         $this->assertSame(['2026-10-29'], $this->scheduleDays());
     }
 
     private function deadlock(): DeadlockException
     {
-        return new DeadlockException(PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')), null);
+        return new DeadlockException(
+            PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')),
+            null,
+        );
     }
 
     /**
@@ -504,7 +556,10 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
 
     private function scheduleDay(string $lineId, string $date): void
     {
-        $this->connection->insert('ztm_gdansk_schedule_day', ['line_id' => $lineId, 'date' => $date, 'imported_at' => self::NOW]);
+        $this->connection->insert(
+            'ztm_gdansk_schedule_day',
+            ['line_id' => $lineId, 'date' => $date, 'imported_at' => self::NOW],
+        );
     }
 
     /**

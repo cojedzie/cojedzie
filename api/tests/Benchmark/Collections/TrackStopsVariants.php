@@ -123,7 +123,10 @@ final class TrackStopsVariants
     private static function compactor(IdUtils $ids): \Closure
     {
         return fn (array $stop) => [
-            'track_id' => $ids->generate(ZtmGdanskProvider::IDENTIFIER, sprintf("R%sT%sV%s", $stop['routeId'], $stop['tripId'], $stop['topologyVersionId'])),
+            'track_id' => $ids->generate(
+                ZtmGdanskProvider::IDENTIFIER,
+                sprintf("R%sT%sV%s", $stop['routeId'], $stop['tripId'], $stop['topologyVersionId']),
+            ),
             'stop_id'  => $ids->generate(ZtmGdanskProvider::IDENTIFIER, $stop['stopId']),
             'sequence' => $stop['stopSequence'],
         ];

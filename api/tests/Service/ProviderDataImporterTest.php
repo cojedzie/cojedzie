@@ -47,7 +47,8 @@ final class ProviderDataImporterTest extends ImporterTestCase
 
     private function import(ProviderResolver $providers): void
     {
-        new ProviderDataImporter($this->connection, $providers, $this->clock())->import($this->reporter(), $this->newImport());
+        $importer = new ProviderDataImporter($this->connection, $providers, $this->clock());
+        $importer->import($this->reporter(), $this->newImport());
     }
 
     private function provider(string $id): Provider

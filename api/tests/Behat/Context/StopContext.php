@@ -180,7 +180,8 @@ final readonly class StopContext implements Context
 
     private function groups(): array
     {
-        Assert::assertSame(200, $this->client->lastResponse()->getStatusCode(), (string) $this->client->lastResponse()->getContent());
+        $response = $this->client->lastResponse();
+        Assert::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         return $this->client->json();
     }

@@ -31,7 +31,10 @@ final class EnvironmentTest extends TestCase
     #[IgnoreDeprecations]
     public function testOldNameFillsTheNewOne(): void
     {
-        $this->expectUserDeprecationMessage('Since cojedzie/api 2026.10: The STALE_DATA_RETENTION environment variable is deprecated, use COJEDZIE_STALE_DATA_RETENTION.');
+        $this->expectUserDeprecationMessage(
+            'Since cojedzie/api 2026.10: The STALE_DATA_RETENTION environment variable is deprecated, ' .
+            'use COJEDZIE_STALE_DATA_RETENTION.',
+        );
 
         $variables = Environment::withLegacyNames(['STALE_DATA_RETENTION' => '3 days']);
 

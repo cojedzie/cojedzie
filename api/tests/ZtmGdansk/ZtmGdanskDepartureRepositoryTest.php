@@ -170,7 +170,10 @@ final class ZtmGdanskDepartureRepositoryTest extends KernelTestCase
 
         $departures = $this->departures(new LimitConstraint(0, 2));
 
-        $this->assertSame(['12:10', '12:20'], array_map(fn (Departure $d) => $this->local($d->getScheduled()), $departures));
+        $this->assertSame(
+            ['12:10', '12:20'],
+            array_map(fn (Departure $d) => $this->local($d->getScheduled()), $departures),
+        );
     }
 
     public function testEstimateForLineUnknownToTimetableIsShown(): void

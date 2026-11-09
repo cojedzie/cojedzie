@@ -70,7 +70,10 @@ final class RepositoryValueResolverTest extends KernelTestCase
     {
         $this->expectException(NotFoundHttpException::class);
 
-        [...$this->resolver->resolve(new Request(attributes: ['provider' => 'nope']), $this->argument(StopRepository::class))];
+        [...$this->resolver->resolve(
+            new Request(attributes: ['provider' => 'nope']),
+            $this->argument(StopRepository::class),
+        )];
     }
 
     public function testDoesNotReplaceProviderAttribute(): void

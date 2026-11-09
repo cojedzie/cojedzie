@@ -54,7 +54,10 @@ final class FederatedConnectionServiceTest extends TestCase
         $this->service(connectionId: self::CONNECTION_ID, response: $response)->disconnect();
 
         $this->assertSame('DELETE', $response->getRequestMethod());
-        $this->assertSame('http://nginx/api/v1/federation/connections/' . self::CONNECTION_ID, $response->getRequestUrl());
+        $this->assertSame(
+            'http://nginx/api/v1/federation/connections/' . self::CONNECTION_ID,
+            $response->getRequestUrl(),
+        );
         $this->assertContains($this->authorization(), $response->getRequestOptions()['headers']);
     }
 

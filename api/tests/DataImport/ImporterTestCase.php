@@ -176,11 +176,13 @@ abstract class ImporterTestCase extends KernelTestCase
                 $this->progressTotals[] = $max;
             }
         });
-        $reporter->method('milestone')->willReturnCallback(function (string $comment, MilestoneType $type = MilestoneType::Info): void {
-            if ($type === MilestoneType::Warning) {
-                $this->warnings[] = $comment;
-            }
-        });
+        $reporter->method('milestone')->willReturnCallback(
+            function (string $comment, MilestoneType $type = MilestoneType::Info): void {
+                if ($type === MilestoneType::Warning) {
+                    $this->warnings[] = $comment;
+                }
+            },
+        );
 
         return $reporter;
     }

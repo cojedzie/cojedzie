@@ -40,8 +40,16 @@ final class ClickHouseDepartureHistoryTest extends TestCase
         [$history, $connection] = $this->history();
 
         // a slow poll can be inserted after the next one
-        $history->record('trojmiasto', new \DateTimeImmutable('2026-11-01 11:00:20 UTC'), [$this->departure('2026-11-01T11:12:03+00:00')]);
-        $history->record('trojmiasto', new \DateTimeImmutable('2026-11-01 11:00:00 UTC'), [$this->departure('2026-11-01T11:14:00Z')]);
+        $history->record(
+            'trojmiasto',
+            new \DateTimeImmutable('2026-11-01 11:00:20 UTC'),
+            [$this->departure('2026-11-01T11:12:03+00:00')],
+        );
+        $history->record(
+            'trojmiasto',
+            new \DateTimeImmutable('2026-11-01 11:00:00 UTC'),
+            [$this->departure('2026-11-01T11:14:00Z')],
+        );
 
         $this->assertSame([[
             'provider'     => 'trojmiasto',
@@ -55,7 +63,8 @@ final class ClickHouseDepartureHistoryTest extends TestCase
             'duty'         => '171-01',
             'observed_at'  => '2026-11-01 11:00:20',
         ]], $connection->client()->select(
-            'SELECT provider, stop_id, line_symbol, scheduled_at, estimated_at, delay, status, vehicle, duty, observed_at FROM departures FINAL'
+            'SELECT provider, stop_id, line_symbol, scheduled_at, estimated_at, delay, status, vehicle, duty, ' .
+            'observed_at FROM departures FINAL'
         )->rows());
     }
 
@@ -68,7 +77,9 @@ final class ClickHouseDepartureHistoryTest extends TestCase
 
         $this->assertSame(
             [['estimated_at' => null, 'delay' => null, 'status' => 'scheduled', 'vehicle' => null, 'duty' => null]],
-            $connection->client()->select('SELECT estimated_at, delay, status, vehicle, duty FROM departures FINAL')->rows(),
+            $connection->client()
+                ->select('SELECT estimated_at, delay, status, vehicle, duty FROM departures FINAL')
+                ->rows(),
         );
     }
 
@@ -77,10 +88,22 @@ final class ClickHouseDepartureHistoryTest extends TestCase
     {
         [$history] = $this->history();
 
-        $history->record('trojmiasto', new \DateTimeImmutable('2026-11-01 11:00:00 UTC'), [$this->departure('2026-11-01T11:14:00Z')]);
-        $history->record('trojmiasto', new \DateTimeImmutable('2026-11-01 11:00:20 UTC'), [$this->departure('2026-11-01T11:12:03+00:00')]);
+        $history->record(
+            'trojmiasto',
+            new \DateTimeImmutable('2026-11-01 11:00:00 UTC'),
+            [$this->departure('2026-11-01T11:14:00Z')],
+        );
+        $history->record(
+            'trojmiasto',
+            new \DateTimeImmutable('2026-11-01 11:00:20 UTC'),
+            [$this->departure('2026-11-01T11:12:03+00:00')],
+        );
 
-        $observed = $history->observed('trojmiasto', new \DateTimeImmutable('2026-11-01 00:00:00 UTC'), new \DateTimeImmutable('2026-11-02 00:00:00 UTC'));
+        $observed = $history->observed(
+            'trojmiasto',
+            new \DateTimeImmutable('2026-11-01 00:00:00 UTC'),
+            new \DateTimeImmutable('2026-11-02 00:00:00 UTC'),
+        );
 
         $this->assertCount(1, $observed);
         $this->assertEquals(new \DateTimeImmutable('2026-11-01 11:12:03 UTC'), $observed[0]->departure->estimatedAt);
@@ -108,7 +131,11 @@ final class ClickHouseDepartureHistoryTest extends TestCase
         $from = new \DateTimeImmutable('2026-11-01 11:13:00 UTC');
         $to   = new \DateTimeImmutable('2026-11-01 12:13:00 UTC');
         $keys = fn (iterable $observed) => array_map(
-            fn ($o) => $o->departure->stopId . '|' . $o->departure->lineId . '|' . $o->departure->scheduledAt->format('H:i'),
+            fn ($o) => implode('|', [
+                $o->departure->stopId,
+                $o->departure->lineId,
+                $o->departure->scheduledAt->format('H:i'),
+            ]),
             [...$observed],
         );
         $sorted = function (array $values): array {
@@ -118,9 +145,15 @@ final class ClickHouseDepartureHistoryTest extends TestCase
         };
 
         // from is inclusive, to is exclusive
-        $this->assertSame(['8227|171|11:13', '8227|172|11:13', '8228|171|11:13'], $sorted($keys($history->observed('trojmiasto', $from, $to))));
+        $this->assertSame(
+            ['8227|171|11:13', '8227|172|11:13', '8228|171|11:13'],
+            $sorted($keys($history->observed('trojmiasto', $from, $to))),
+        );
         $this->assertSame(['8228|171|11:13'], $keys($history->observed('trojmiasto', $from, $to, stopIds: ['8228'])));
-        $this->assertSame(['8227|172|11:13'], $keys($history->observed('trojmiasto', $from, $to, stopIds: ['8227', '8228'], lineIds: ['172'])));
+        $this->assertSame(
+            ['8227|172|11:13'],
+            $keys($history->observed('trojmiasto', $from, $to, stopIds: ['8227', '8228'], lineIds: ['172'])),
+        );
         $this->assertSame([], $keys($history->observed('trojmiasto', $from, $to, stopIds: ["8227' OR 1=1 --"])));
     }
 
@@ -152,7 +185,11 @@ final class ClickHouseDepartureHistoryTest extends TestCase
     private function history(int $retentionDays = 365): array
     {
         $connection = TestClickHouse::connection();
-        $history    = new ClickHouseDepartureHistory($connection, TestClickHouse::migrator($connection), $retentionDays);
+        $history    = new ClickHouseDepartureHistory(
+            $connection,
+            TestClickHouse::migrator($connection),
+            $retentionDays,
+        );
         $history->prepare();
 
         return [$history, $connection];
@@ -165,8 +202,12 @@ final class ClickHouseDepartureHistoryTest extends TestCase
             ->fetchOne('engine_full');
     }
 
-    private function departure(?string $estimated, string $stopId = '8227', string $lineId = '171', string $scheduled = '2026-11-01T12:13:00+01:00'): LiveDeparture
-    {
+    private function departure(
+        ?string $estimated,
+        string $stopId = '8227',
+        string $lineId = '171',
+        string $scheduled = '2026-11-01T12:13:00+01:00',
+    ): LiveDeparture {
         return new LiveDeparture(
             stopId: $stopId,
             lineId: $lineId,

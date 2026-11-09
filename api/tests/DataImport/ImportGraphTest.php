@@ -143,7 +143,10 @@ final class ImportGraphTest extends KernelTestCase
         $this->work();
 
         $this->assertSame(
-            [[ImportStartedEvent::class, $import, ImportStatus::Running], [ImportFinishedEvent::class, $import, ImportStatus::Failed]],
+            [
+                [ImportStartedEvent::class, $import, ImportStatus::Running],
+                [ImportFinishedEvent::class, $import, ImportStatus::Failed],
+            ],
             $this->events->take(),
         );
     }
@@ -158,7 +161,10 @@ final class ImportGraphTest extends KernelTestCase
         $current = $graph->start();
 
         $this->assertSame(
-            [[ImportFinishedEvent::class, $previous, ImportStatus::Superseded], [ImportStartedEvent::class, $current, ImportStatus::Running]],
+            [
+                [ImportFinishedEvent::class, $previous, ImportStatus::Superseded],
+                [ImportStartedEvent::class, $current, ImportStatus::Running],
+            ],
             $this->events->take(),
         );
         $this->assertFinished($previous, ImportStatus::Superseded);
@@ -167,7 +173,12 @@ final class ImportGraphTest extends KernelTestCase
     public function testProgressOfTasksAndJobsIsStored(): void
     {
         $schedule           = $this->schedule(jobs: [['part' => 1, 'progress' => 7]]);
-        $schedule->onImport = fn (DataUpdateEvent $event, ProgressReporterInterface $reporter) => $reporter->progress(2, max: 3, comment: 'planned', finished: true);
+        $schedule->onImport = fn (DataUpdateEvent $event, ProgressReporterInterface $reporter) => $reporter->progress(
+            2,
+            max: 3,
+            comment: 'planned',
+            finished: true,
+        );
 
         $this->graph($schedule)->start();
         $this->work();
@@ -281,7 +292,11 @@ final class ImportGraphTest extends KernelTestCase
 
         $this->assertCount(2, $this->bus->messages);
         $this->assertSame(
-            ['lines' => ImportTaskStatus::Queued, 'provider' => ImportTaskStatus::Queued, 'stops' => ImportTaskStatus::Pending],
+            [
+                'lines'    => ImportTaskStatus::Queued,
+                'provider' => ImportTaskStatus::Queued,
+                'stops'    => ImportTaskStatus::Pending,
+            ],
             $this->statuses($import),
         );
         $this->assertSame([], $this->ran());
@@ -349,7 +364,10 @@ final class ImportGraphTest extends KernelTestCase
         $previous = $graph->start();
         $current  = $graph->start();
 
-        $this->assertSame(['lines' => ImportTaskStatus::Skipped, 'stops' => ImportTaskStatus::Skipped], $this->statuses($previous));
+        $this->assertSame(
+            ['lines' => ImportTaskStatus::Skipped, 'stops' => ImportTaskStatus::Skipped],
+            $this->statuses($previous),
+        );
         $this->assertFinished($previous, ImportStatus::Superseded);
 
         // the message of the superseded task is still delivered, but does nothing
@@ -378,17 +396,26 @@ final class ImportGraphTest extends KernelTestCase
 
         // the node hands out its jobs
         $this->workOne();
-        $this->assertSame(['schedule' => ImportTaskStatus::Waiting, 'tracks' => ImportTaskStatus::Pending], $this->statuses($import));
+        $this->assertSame(
+            ['schedule' => ImportTaskStatus::Waiting, 'tracks' => ImportTaskStatus::Pending],
+            $this->statuses($import),
+        );
         $this->assertSame(self::parts(2), $this->dispatchedJobPayloads());
 
         // the first job ends
         $this->workOne();
-        $this->assertSame(['schedule' => ImportTaskStatus::Waiting, 'tracks' => ImportTaskStatus::Pending], $this->statuses($import));
+        $this->assertSame(
+            ['schedule' => ImportTaskStatus::Waiting, 'tracks' => ImportTaskStatus::Pending],
+            $this->statuses($import),
+        );
         $this->assertNull($this->importRow($import)['finished_at']);
 
         // the last job ends the node
         $this->workOne();
-        $this->assertSame(['schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Queued], $this->statuses($import));
+        $this->assertSame(
+            ['schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Queued],
+            $this->statuses($import),
+        );
         $this->assertEquals([new ImportJobCounts(total: 2, done: 2, failed: 0)], $schedule->countsAfterLastJob);
 
         $this->work();
@@ -500,7 +527,10 @@ final class ImportGraphTest extends KernelTestCase
 
         $this->assertSame([], $schedule->jobsRan);
         $this->assertEquals([new ImportJobCounts(total: 2, done: 2, failed: 0)], $schedule->countsAfterLastJob);
-        $this->assertSame(['schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Queued], $this->statuses($import));
+        $this->assertSame(
+            ['schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Queued],
+            $this->statuses($import),
+        );
         $this->assertDispatchedOnly($import, 'tracks');
     }
 
@@ -568,7 +598,10 @@ final class ImportGraphTest extends KernelTestCase
         $this->work();
 
         $this->assertEquals([new ImportJobCounts(total: 2, done: 1, failed: 1)], $schedule->countsAfterLastJob);
-        $this->assertSame(['schedule' => ImportTaskStatus::Failed, 'tracks' => ImportTaskStatus::Skipped], $this->statuses($import));
+        $this->assertSame(
+            ['schedule' => ImportTaskStatus::Failed, 'tracks' => ImportTaskStatus::Skipped],
+            $this->statuses($import),
+        );
         $this->assertSame(
             [['status' => 'failed', 'error' => 'Part 1 failed'], ['status' => 'done', 'error' => null]],
             $this->connection->fetchAllAssociative('SELECT status, error FROM import_job ORDER BY id'),
@@ -627,7 +660,11 @@ final class ImportGraphTest extends KernelTestCase
         $this->assertSame(['provider', 'schedule', 'tracks'], $this->ran());
         $this->assertSame(self::parts(2), $schedule->jobsRan);
         $this->assertSame(
-            ['provider' => ImportTaskStatus::Done, 'schedule' => ImportTaskStatus::Done, 'tracks' => ImportTaskStatus::Done],
+            [
+                'provider' => ImportTaskStatus::Done,
+                'schedule' => ImportTaskStatus::Done,
+                'tracks'   => ImportTaskStatus::Done,
+            ],
             $this->statuses($import),
         );
         $this->assertSame(ImportStatus::Succeeded, $import->getStatus());
@@ -654,7 +691,8 @@ final class ImportGraphTest extends KernelTestCase
         $this->work();
 
         $this->assertSame(['failed'], $this->jobStatuses());
-        $this->assertStringContainsString('added jobs', (string) $this->connection->fetchOne('SELECT error FROM import_job'));
+        $error = (string) $this->connection->fetchOne('SELECT error FROM import_job');
+        $this->assertStringContainsString('added jobs', $error);
     }
 
     /**
@@ -701,7 +739,13 @@ final class ImportGraphTest extends KernelTestCase
         ));
 
         $graph        = new ImportGraph($this->em, $locator, $this->bus, $this->events, $clock, fn () => $this->runner);
-        $this->runner = new ImportTaskRunner($this->em, $locator, $graph, new ProgressReporterFactory(new NullLogger()), $clock);
+        $this->runner = new ImportTaskRunner(
+            $this->em,
+            $locator,
+            $graph,
+            new ProgressReporterFactory(new NullLogger()),
+            $clock,
+        );
 
         return $graph;
     }
@@ -747,7 +791,10 @@ final class ImportGraphTest extends KernelTestCase
     private function markTasksDone(string ...$descriptions): void
     {
         foreach ($descriptions as $description) {
-            $this->connection->executeStatement("UPDATE import_task SET status = 'done' WHERE description = ?", [$description]);
+            $this->connection->executeStatement(
+                "UPDATE import_task SET status = 'done' WHERE description = ?",
+                [$description],
+            );
         }
     }
 
@@ -903,7 +950,10 @@ final class DeadlockingClock implements ClockInterface
         if ($this->deadlocks > 0) {
             $this->deadlocks--;
 
-            throw new DeadlockException(PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')), null);
+            throw new DeadlockException(
+                PdoDriverException::new(new \PDOException('Deadlock found when trying to get lock')),
+                null,
+            );
         }
 
         return new \DateTimeImmutable('2026-10-28 12:00:00');
@@ -1105,7 +1155,12 @@ final class ScheduleImporter extends RecordingImporter implements SplittingDataI
         $this->runActionWhileRunning($payload['part']);
 
         if (isset($payload['progress'])) {
-            $reporter->progress($payload['progress'], max: 10, comment: sprintf('part %d', $payload['part']), finished: true);
+            $reporter->progress(
+                $payload['progress'],
+                max: 10,
+                comment: sprintf('part %d', $payload['part']),
+                finished: true,
+            );
         }
 
         if ($payload['addsJob'] ?? false) {

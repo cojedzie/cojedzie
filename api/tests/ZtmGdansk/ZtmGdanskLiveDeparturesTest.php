@@ -49,12 +49,18 @@ final class ZtmGdanskLiveDeparturesTest extends TestCase
         $departures = $this->live(file_get_contents(self::RESOURCES . '/all-stops.json'))->all();
 
         $this->assertSame([self::API . '/departures'], $this->urls);
-        $this->assertSame(['8227', '114'], $departures |> c\map(fn (LiveDeparture $departure) => $departure->stopId) |> c\toArray());
+        $this->assertSame(
+            ['8227', '114'],
+            $departures
+                |> c\map(fn (LiveDeparture $departure) => $departure->stopId)
+                |> c\toArray(),
+        );
     }
 
     public function testRealtimeEntryHasAnEstimate(): void
     {
-        $departure = $this->departureFrom($this->live(file_get_contents(self::RESOURCES . '/all-stops.json'))->all(), '8227');
+        $departures = $this->live(file_get_contents(self::RESOURCES . '/all-stops.json'))->all();
+        $departure  = $this->departureFrom($departures, '8227');
 
         $this->assertSame('171', $departure->lineId);
         $this->assertSame('171', $departure->lineSymbol);
@@ -69,7 +75,8 @@ final class ZtmGdanskLiveDeparturesTest extends TestCase
 
     public function testTimetableOnlyEntryHasNoEstimate(): void
     {
-        $departure = $this->departureFrom($this->live(file_get_contents(self::RESOURCES . '/all-stops.json'))->all(), '114');
+        $departures = $this->live(file_get_contents(self::RESOURCES . '/all-stops.json'))->all();
+        $departure  = $this->departureFrom($departures, '114');
 
         $this->assertSame('910', $departure->lineId);
         $this->assertSame('C10', $departure->lineSymbol);

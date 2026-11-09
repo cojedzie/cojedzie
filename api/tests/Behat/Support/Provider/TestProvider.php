@@ -81,7 +81,11 @@ final readonly class TestProvider implements Provider
     public function getDepartureRepository(): DepartureRepository
     {
         // the timetable from the database joined with live departures, the same way real providers do it
-        return new RealtimeTimetableDepartureRepository($this->timetable->withProvider($this->entity()), $this->live, $this->clock);
+        return new RealtimeTimetableDepartureRepository(
+            $this->timetable->withProvider($this->entity()),
+            $this->live,
+            $this->clock,
+        );
     }
 
     #[\Override]

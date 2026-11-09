@@ -53,8 +53,13 @@ final class InMemoryDepartureRepository implements DepartureRepository
     ) {
     }
 
-    public function add(string $stopId, string $lineSymbol, Carbon $scheduled, Carbon $estimated, ?string $display): void
-    {
+    public function add(
+        string $stopId,
+        string $lineSymbol,
+        Carbon $scheduled,
+        Carbon $estimated,
+        ?string $display,
+    ): void {
         $this->departures[] = [
             'stop'      => $stopId,
             'line'      => $lineSymbol,

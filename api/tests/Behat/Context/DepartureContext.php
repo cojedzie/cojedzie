@@ -55,7 +55,12 @@ final readonly class DepartureContext implements Context
     public function thereAreDepartures(TableNode $departures): void
     {
         foreach ($departures->getHash() as $departure) {
-            $this->data->trip($departure['line'], $departure['stop'], $this->time->at($departure['scheduled']), $departure['display']);
+            $this->data->trip(
+                $departure['line'],
+                $departure['stop'],
+                $this->time->at($departure['scheduled']),
+                $departure['display'],
+            );
 
             if ($departure['estimated'] !== '') {
                 $this->live($departure, ($departure['live display'] ?? '') ?: $departure['display']);

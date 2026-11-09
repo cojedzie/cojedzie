@@ -50,7 +50,13 @@ final class SentrySamplerTest extends TestCase
         $router->method('getRouteCollection')->willReturn($routes);
 
         $this->requestStack = new RequestStack();
-        $this->sampler      = new SentrySampler(0.05, $this->requestStack, new ConsoleCommandContext(), $router, new ArrayAdapter());
+        $this->sampler      = new SentrySampler(
+            0.05,
+            $this->requestStack,
+            new ConsoleCommandContext(),
+            $router,
+            new ArrayAdapter(),
+        );
     }
 
     public function testUsesConfiguredRateForRequests(): void

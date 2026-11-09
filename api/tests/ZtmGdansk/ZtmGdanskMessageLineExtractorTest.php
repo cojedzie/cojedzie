@@ -42,12 +42,14 @@ final class ZtmGdanskMessageLineExtractorTest extends TestCase
         ];
 
         yield [
-            'Od 16.01 do 27.01, w związku z zimową przerwą w nauce szkolnej, autobusy linii: 126, 127, 199 i 269 jeżdżą wg feryjnych powszednich rozkładów jazdy.',
+            'Od 16.01 do 27.01, w związku z zimową przerwą w nauce szkolnej, autobusy linii: 126, 127, 199 i 269 ' .
+            'jeżdżą wg feryjnych powszednich rozkładów jazdy.',
             ['126', '127', '199', '269'],
         ];
 
         yield [
-            'Awaria tramwaju linii nr 9 w kierunku Srzyża KSM przy przystanku Opera Bałtycka, opóźnienia na liniach: 6, 9, 12.',
+            'Awaria tramwaju linii nr 9 w kierunku Srzyża KSM przy przystanku Opera Bałtycka, ' .
+            'opóźnienia na liniach: 6, 9, 12.',
             ['6', '9', '12'],
         ];
     }
