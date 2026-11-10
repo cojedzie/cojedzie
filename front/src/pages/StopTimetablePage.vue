@@ -56,6 +56,7 @@ import { storeToRefs } from "pinia";
 import api from "@/api";
 import { convertTimetableRange, type Departure, type Line, type StopWithDestinations, type Track } from "@/model";
 import {
+    chooseTrack,
     fetchStopTracks,
     fetchTimetableDay,
     linesOfTracks,
@@ -185,9 +186,11 @@ const lineRoute = (line: Line): RouteLocationRaw => ({
     query: route.query,
 });
 
-// the line page (#157), on the line's track through this stop, once it exists
+// the line page on the track in the URL when it runs through this stop, otherwise on the line's first track through
+// it, main before side; all the stop's tracks run through it
 const trackRoute = computed((): RouteLocationRaw | null => {
-    const track = tracks.value?.find(track => track.line.id === lineId.value);
+    const lineTracks = (tracks.value ?? []).filter(track => track.line.id === lineId.value);
+    const track = chooseTrack(lineTracks, { query: route.query.track });
 
     if (!track || !router.hasRoute("timetable-line")) {
         return null;

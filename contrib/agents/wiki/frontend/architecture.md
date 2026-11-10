@@ -299,7 +299,9 @@ line or the date changes; stale responses are dropped. The header: `StopLabel` (
 lines (`components/stop/StopDestinations.vue`, shared with `StopPickerEntry`, which compacts the lines into groups by
 type first and keeps the list to one row; the page shows every line and lets it wrap, `wrap`) and line chips, router links keeping the query (`?date=`): "Wszystkie" to `timetable-stop` and one per line to
 `timetable-line-stop`, the current one `aria-current="page"`. With a line, "pokaż trasę" links to `timetable-line`
-with `?track=` (the line's first track through the stop) only once the router has that route (#157). The date comes
+with `?track=`: the page's `?track=` when that track runs through the stop, otherwise the line's first track through
+it, main before side (`chooseTrack` over the line's tracks among the stop's, which `fetchStopTracks` asks for at
+version `^1.1` to get their `kind`). The date comes
 from `?date=` (`timetableDateFromQuery`) and picking one pushes it (`timetableDateQuery`). A provider with
 `timetable: null` gets a message instead of the timetable. `StopDetailsDialog` links to `timetable-stop` by name with
 only the stop's id; vue-router takes the provider from the current route.

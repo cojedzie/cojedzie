@@ -90,9 +90,9 @@ async function fetchEntries(client: Client, { stop, line, date }: TimetableDayQu
     }
 }
 
-/** The tracks running through a stop. */
+/** The tracks running through a stop, with their kind (version 1.1). */
 export async function fetchStopTracks(client: Client, stop: string): Promise<Track[]> {
-    const { data } = await client.get("v1_stop_tracks", { version: "^1.0", params: { stop } });
+    const { data } = await client.get("v1_stop_tracks", { version: "^1.1", params: { stop } });
 
     return data.map(({ track }) => track as Track);
 }
