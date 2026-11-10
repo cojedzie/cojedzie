@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter, type RouteRecordRaw } from "vue-router";
 import StopTimetablePage from "@/pages/StopTimetablePage.vue";
@@ -67,6 +67,9 @@ async function mountPage(path: string, { routes = baseRoutes, details = provider
 
     return { wrapper, router };
 }
+
+/** The "pokaż trasę" link, if the page shows one */
+const routeLink = (wrapper: VueWrapper) => wrapper.findAll("a").find(link => link.text() === "pokaż trasę");
 
 const timetableQueries = () =>
     get.mock.calls.filter(([endpoint]) => endpoint === "v1_stop_timetable").map(([, options]) => options.query);
@@ -168,16 +171,39 @@ describe("StopTimetablePage", () => {
         expect(timetableQueries()).toEqual([]);
     });
 
-    it("links a line to its route through the stop once the line page exists", async () => {
-        const without = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1");
-        expect(without.wrapper.find(".route-link").exists()).toBe(false);
+    describe("with the line page", () => {
+        const routes = [
+            ...baseRoutes,
+            { path: "/:provider/timetable/lines/:line", name: "timetable-line", component: page },
+        ];
 
-        const { wrapper } = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1", {
-            routes: [
-                ...baseRoutes,
-                { path: "/:provider/timetable/lines/:line", name: "timetable-line", component: page },
-            ],
+        beforeEach(() => {
+            const fallback = get.getMockImplementation()!;
+            get.mockImplementation(async (endpoint: string, options: unknown) =>
+                endpoint === "v1_stop_tracks"
+                    ? {
+                          data: [
+                              { order: 1, track: { id: "t6-short", kind: "side", line: six } },
+                              { order: 2, track: { id: "t8", kind: "main", line: eight } },
+                              { order: 3, track: { id: "t6", kind: "main", line: six } },
+                          ],
+                      }
+                    : fallback(endpoint, options),
+            );
         });
-        expect(wrapper.find(".route-link").attributes("href")).toBe("/trojmiasto/timetable/lines/l6?track=t6");
+
+        it("links a line to its route through the stop, preferring a main track", async () => {
+            const { wrapper } = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1", { routes });
+
+            expect(routeLink(wrapper)?.attributes("href")).toBe("/trojmiasto/timetable/lines/l6?track=t6");
+        });
+
+        it("keeps the track in the URL when it runs through the stop", async () => {
+            const kept = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1?track=t6-short", { routes });
+            expect(routeLink(kept.wrapper)?.attributes("href")).toBe("/trojmiasto/timetable/lines/l6?track=t6-short");
+
+            const elsewhere = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1?track=t8", { routes });
+            expect(routeLink(elsewhere.wrapper)?.attributes("href")).toBe("/trojmiasto/timetable/lines/l6?track=t6");
+        });
     });
 });
