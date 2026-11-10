@@ -31,16 +31,9 @@
 @import "components/alert";
 
 @import "common";
-@import "stop";
 @import "controls";
 @import "animations";
 @import "form";
-@import "favourites";
-@import "map";
-
-@import "page/provider-picker";
-
-@import "stop/stop-details-dialog";
 
 @import "storybook/_icon-catalog.scss";
 
@@ -97,25 +90,8 @@ body {
       display: block;
     }
   }
-
-  .attribution {
-    font-size: small;
-    color: $text-muted;
-    text-align: right;
-    margin-top: 0.5rem;
-  }
-}
-
-#app {
-  margin-top: math.div($grid-gutter-width, 2);
 }
 
 pre {
   color: white;
-}
-
-@include media-breakpoint-up("md") {
-  #app {
-    padding-top: 2rem;
-  }
 }

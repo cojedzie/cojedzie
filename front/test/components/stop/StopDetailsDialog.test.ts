@@ -64,7 +64,7 @@ describe("StopDetailsDialog", () => {
             "v1_stop_tracks",
             expect.objectContaining({ params: { stop: "1" } }),
         );
-        expect(wrapper.find(".stop-details-dialog__lines").findAll(".line")).toHaveLength(2);
+        expect(wrapper.find(".details > .lines").findAll(".line")).toHaveLength(2);
     });
 
     it("loads the tracks to the chosen destination and offers them for picking", async () => {
@@ -73,7 +73,7 @@ describe("StopDetailsDialog", () => {
 
         expect(wrapper.find(".picker").exists()).toBe(false);
 
-        await wrapper.find(".stop-details-dialog__actions button").trigger("click");
+        await wrapper.find(".tools button").trigger("click");
         await flushPromises();
 
         expect(getTracksForDestination).toHaveBeenCalledWith(stop, stop.destinations[0].stop);

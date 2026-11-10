@@ -1,17 +1,16 @@
 <template>
     <div class="form-group">
-        <div class="label hstack">
-            <label class="text" for="departures-auto-refresh">
+        <div class="field">
+            <label class="field-name" for="departures-auto-refresh">
                 <ui-icon icon="refresh" fixed-width />
                 autoodświeżanie
             </label>
             <ui-switch
                 id="departures-auto-refresh"
-                class="flex-space-left"
                 :value="autorefresh"
                 @update:value="update({ autorefresh: $event })"
             />
-            <ui-help class="label__button">
+            <ui-help>
                 <template #title>
                     <ui-icon icon="refresh" fixed-width />
                     autoodświeżanie
@@ -41,18 +40,16 @@
                     <span class="input-group-text" aria-label="sekund">s</span>
                 </div>
             </div>
-            <label for="departures-auto-refresh-interval" class="text mt-1 label--secondary">
-                częstotliwość odświeżania
-            </label>
+            <label for="departures-auto-refresh-interval" class="field-note"> częstotliwość odświeżania </label>
         </div>
     </div>
     <div class="form-group">
-        <div class="label hstack">
-            <label class="text" for="departures-count">
+        <div class="field">
+            <label class="field-name" for="departures-count">
                 <ui-icon icon="line-bus" fixed-width />
                 liczba wpisów
             </label>
-            <ui-help class="flex-space-left label__button">
+            <ui-help>
                 <template #title>
                     <ui-icon icon="line-bus" fixed-width />
                     liczba wpisów
@@ -73,15 +70,15 @@
         />
     </div>
     <div class="form-group">
-        <div class="label hstack">
-            <label class="text mr-1" for="departures-relative-times">
+        <div class="field">
+            <label class="field-name" for="departures-relative-times">
                 <ui-icon icon="relative-time" fixed-width />
                 pokazuj czas do odjazdu
             </label>
             <button
                 type="button"
-                class="label__button mr-1 flex-space-left"
-                :class="[relativeTimesShowAdvancedOptions && 'label__button--pressed']"
+                class="field-button"
+                :class="[relativeTimesShowAdvancedOptions && 'pressed']"
                 :disabled="!relativeTimes"
                 @click="relativeTimesShowAdvancedOptions = !relativeTimesShowAdvancedOptions"
             >
@@ -94,7 +91,7 @@
                 @update:value="update({ relativeTimes: $event })"
             />
 
-            <ui-help class="label__button">
+            <ui-help>
                 <template #title>
                     <ui-icon icon="relative-time" fixed-width />
                     pokazuj czas do odjazdu
@@ -108,22 +105,18 @@
                 </p>
             </ui-help>
         </div>
-        <ui-fold
-            :visible="relativeTimes && relativeTimesShowAdvancedOptions"
-            style="margin-left: 7px; border-left: 1px solid lightgray; padding-left: 10px"
-        >
-            <div class="label hstack">
-                <label class="text label--secondary" for="departures-relative-times-for-scheduled">
+        <ui-fold :visible="relativeTimes && relativeTimesShowAdvancedOptions" class="advanced">
+            <div class="field">
+                <label class="field-name secondary" for="departures-relative-times-for-scheduled">
                     <ui-icon icon="departure-warning" fixed-width />
                     również dla czasu rozkładowego
                 </label>
                 <ui-switch
                     id="departures-relative-times-for-scheduled"
-                    class="flex-space-left"
                     :value="relativeTimesForScheduled"
                     @update:value="update({ relativeTimesForScheduled: $event })"
                 />
-                <ui-help class="label__button">
+                <ui-help>
                     <template #title>
                         <ui-icon icon="departure-warning" fixed-width />
                         również dla czasu rozkładowego
@@ -141,17 +134,13 @@
                     </p>
                 </ui-help>
             </div>
-            <div class="hstack">
-                <label class="text label--secondary" for="departures-has-relative-time-limit">
+            <div class="field">
+                <label class="field-name secondary" for="departures-has-relative-time-limit">
                     <ui-icon icon="relative-time-limit" fixed-width />
                     tylko dla odjazdów szybciej niż
                 </label>
-                <ui-switch
-                    id="departures-has-relative-time-limit"
-                    v-model:value="relativeTimesHasLimit"
-                    class="flex-space-left"
-                />
-                <ui-help class="label__button">
+                <ui-switch id="departures-has-relative-time-limit" v-model:value="relativeTimesHasLimit" />
+                <ui-help>
                     <template #title>
                         <ui-icon icon="relative-time-limit" fixed-width />
                         tylko dla odjazdów szybciej niż
@@ -174,8 +163,8 @@
                     </p>
                 </ui-help>
             </div>
-            <div class="hstack">
-                <label for="departures-max-relative-time" class="text">
+            <div class="field">
+                <label for="departures-max-relative-time" class="field-name">
                     <span class="visually-hidden">maksymalny czas do odjazdu</span>
                 </label>
                 <div v-if="relativeTimesHasLimit" class="input-group input-group-sm">
@@ -224,3 +213,35 @@ const relativeTimesHasLimit = computed({
 
 const relativeTimesShowAdvancedOptions = ref(false);
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.field {
+    @apply settings-field;
+}
+
+.field-name {
+    @apply settings-field-name;
+
+    &.secondary {
+        font-weight: normal;
+    }
+}
+
+.field-button {
+    @apply settings-field-button;
+}
+
+.field-note {
+    margin-block-start: --spacing(1);
+    font-weight: normal;
+}
+
+.advanced {
+    margin-inline-start: --spacing(2);
+    padding-inline-start: --spacing(2);
+    /* hairline */
+    border-inline-start: 1px solid color-mix(in srgb, var(--color-dark) 20%, white);
+}
+</style>

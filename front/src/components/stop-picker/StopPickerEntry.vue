@@ -1,30 +1,26 @@
 <template>
     <div>
-        <div class="flex">
-            <div class="flex relative" style="min-width: 0; flex: 1 1 auto">
+        <div class="row">
+            <div class="main">
                 <slot name="primary-action" />
-                <div class="overflow-hidden self-center">
+                <div class="description">
                     <stop-label :stop="stop" />
-                    <div v-if="destinations && destinations.length > 0" class="stop__destinations">
-                        <ul>
-                            <li
-                                v-for="destination in destinations"
-                                :key="destination.stop.id"
-                                class="stop__destination destination"
-                            >
-                                <ul class="destination__lines">
+                    <div v-if="destinations && destinations.length > 0" class="destinations">
+                        <ul class="destination-list">
+                            <li v-for="destination in destinations" :key="destination.stop.id" class="destination">
+                                <ul class="destination-lines">
                                     <li v-for="line in destination.lines" :key="line.id">
                                         <line-symbol :key="line.symbol" :line="line" simple />
                                     </li>
                                 </ul>
-                                <span class="destination__name ml-1">{{ destination.stop.name }}</span>
+                                <span class="destination-name">{{ destination.stop.name }}</span>
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <div class="stop__actions">
+            <div class="tools">
                 <slot name="actions">
                     <button ref="action-info" class="btn btn-action" @click="details = !details">
                         <ui-tooltip>dodatkowe informacje</ui-tooltip>
@@ -54,10 +50,10 @@
                 reference="action-map"
                 arrow
                 flush
-                style="width: 500px"
+                class="map-popup"
                 placement="right-start"
             >
-                <stop-map :stop="stop" style="height: 300px" />
+                <stop-map :stop="stop" class="map" />
             </ui-dialog>
         </keep-alive>
     </div>
@@ -115,3 +111,64 @@ const destinations = computed(() =>
     unique(props.stop.destinations || [], destination => destination.stop && destination.stop.name).map(compactLines),
 );
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.row {
+    display: flex;
+}
+
+.main {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+}
+
+.description {
+    align-self: center;
+    overflow: hidden;
+}
+
+.destinations {
+    display: flex;
+    align-items: center;
+    font-size: var(--text-xs);
+}
+
+.destination-list {
+    @apply stop-list-inline;
+    max-inline-size: 100%;
+}
+
+.destination-lines {
+    display: inline;
+    padding: 0;
+
+    & > li {
+        display: inline-block;
+
+        &:not(:first-child) {
+            margin-inline-start: 0.25em;
+        }
+    }
+}
+
+.destination-name {
+    margin-inline-start: --spacing(1);
+}
+
+.tools {
+    display: flex;
+}
+
+/* the map popup's own size */
+.map-popup {
+    inline-size: 500px;
+}
+
+.map {
+    block-size: 300px;
+}
+</style>

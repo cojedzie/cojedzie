@@ -5,7 +5,7 @@
         :style="{ '--ui-pin-color': `var(--color-line-${type})` }"
     >
         <slot v-if="!noLabel" name="sign">
-            <div class="stop-sign" :class="[`stop-sign--type-${type}`]">
+            <div class="sign" :class="type">
                 <slot name="label">
                     <stop-label :stop="stop" />
                 </slot>
@@ -42,3 +42,46 @@ defineProps({
     },
 });
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+/* the stop's name above its pin */
+.sign {
+    --sign-color: currentColor;
+
+    position: absolute;
+    inset-block-start: calc(--spacing(3) * -1);
+    inset-inline-start: 50%;
+    padding: --spacing(1) --spacing(2);
+    /* hairline */
+    border: 1px solid var(--sign-color);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: black;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+    translate: -50% -100%;
+
+    &.trolleybus {
+        --sign-color: var(--color-line-trolleybus);
+    }
+
+    &.tram {
+        --sign-color: var(--color-line-tram);
+    }
+
+    &.bus {
+        --sign-color: var(--color-line-bus);
+    }
+
+    &.train {
+        --sign-color: var(--color-line-train);
+    }
+
+    &.unknown {
+        --sign-color: var(--color-line-unknown);
+    }
+}
+</style>

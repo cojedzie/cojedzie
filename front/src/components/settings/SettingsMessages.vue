@@ -1,17 +1,16 @@
 <template>
     <div class="form-group">
-        <div class="label hstack">
-            <label class="text" for="departures-auto-refresh-interval">
+        <div class="field">
+            <label class="field-name" for="departures-auto-refresh-interval">
                 <ui-icon icon="refresh" fixed-width />
                 autoodświeżanie
             </label>
             <ui-switch
                 id="departures-auto-refresh"
-                class="flex-space-left"
                 :value="autorefresh"
                 @update:value="update({ autorefresh: $event })"
             />
-            <ui-help class="label__button">
+            <ui-help>
                 <template #title>
                     <ui-icon icon="refresh" fixed-width />
                     autoodświeżanie
@@ -24,8 +23,8 @@
                 </p>
             </ui-help>
         </div>
-        <div v-if="autorefresh" class="hstack">
-            <label for="departures-auto-refresh-interval" class="text">
+        <div v-if="autorefresh" class="field">
+            <label for="departures-auto-refresh-interval" class="field-name">
                 <span class="visually-hidden">częstotliwość odświeżania</span>
                 co
             </label>
@@ -48,12 +47,12 @@
         </div>
     </div>
     <div class="form-group">
-        <div class="label hstack">
-            <label class="text" for="departures-count">
+        <div class="field">
+            <label class="field-name" for="departures-count">
                 <ui-icon icon="messages" fixed-width />
                 wyświetlanych komunikatów
             </label>
-            <ui-help class="flex-space-left label__button">
+            <ui-help>
                 <template #title>
                     <ui-icon icon="line-bus" fixed-width />
                     liczba wpisów
@@ -85,3 +84,15 @@ const store = useMessagesSettingsStore();
 const { update } = store;
 const { autorefresh, autorefreshInterval, displayedEntriesCount } = storeToRefs(store);
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.field {
+    @apply settings-field;
+}
+
+.field-name {
+    @apply settings-field-name;
+}
+</style>

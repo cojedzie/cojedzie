@@ -70,7 +70,7 @@ describe("StopPicker", () => {
             "v1_stop_group_list",
             expect.objectContaining({ query: { name: "Bra", embed: "destinations" } }),
         );
-        expect(wrapper.find(".stop-group__name").text()).toBe("Brama");
+        expect(wrapper.find(".group-name").text()).toBe("Brama");
         expect(wrapper.findAll(".entry")).toHaveLength(2);
         expect(wrapper.find(".favourites").exists()).toBe(false);
     });
@@ -87,7 +87,7 @@ describe("StopPicker", () => {
         const { wrapper, history } = mountPicker();
         await type(wrapper, "Bra");
 
-        await wrapper.findAll(".finder__stops li button")[0].trigger("click");
+        await wrapper.findAll(".group-stops li button")[0].trigger("click");
 
         expect(wrapper.emitted("select")).toEqual([[stop("1")]]);
         expect(history.all.map(entry => entry.stop.id)).toEqual(["1"]);

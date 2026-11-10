@@ -7,31 +7,31 @@
             @input="filter = ($event.target as HTMLInputElement).value"
         />
 
-        <div v-if="filter.length < 3" class="mt-2">
+        <div v-if="filter.length < 3" class="saved">
             <favourites-list />
             <stop-picker-history />
         </div>
 
-        <div v-if="state === 'fetching'" class="text-center p-6">
+        <div v-if="state === 'fetching'" class="loading">
             <ui-icon icon="spinner" />
         </div>
-        <div v-else-if="filter.length > 2 && Object.keys(filtered).length > 0" class="finder__stops">
-            <div v-for="(group, name) in filtered" :key="name" class="stop-group">
-                <div class="stop-group__header">
-                    <h3 class="stop-group__name">
+        <div v-else-if="filter.length > 2 && Object.keys(filtered).length > 0">
+            <div v-for="(group, name) in filtered" :key="name" class="group">
+                <div class="group-header">
+                    <h3 class="group-name">
                         {{ name }}
                     </h3>
 
-                    <div class="actions flex-space-left">
+                    <div class="group-tools">
                         <button class="btn btn-action" @click="select(group)">
                             <ui-tooltip>wybierz wszystkie</ui-tooltip>
                             <ui-icon icon="add-all" />
                         </button>
                     </div>
                 </div>
-                <ul class="stop-group__stops list-underlined">
-                    <li v-for="stop in group" :key="stop.id" class="flex">
-                        <stop-picker-entry :stop="stop" class="grow finder__stop">
+                <ul class="group-stops">
+                    <li v-for="stop in group" :key="stop.id" class="group-stop">
+                        <stop-picker-entry :stop="stop" class="entry">
                             <template #primary-action>
                                 <button class="btn btn-action stretched-link" @click="select(stop)">
                                     <ui-tooltip>dodaj przystanek</ui-tooltip>
@@ -118,3 +118,49 @@ function select(stop: Stop | Stop[]) {
     emit("select", stop);
 }
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.saved {
+    margin-block-start: --spacing(2);
+}
+
+.loading {
+    padding: --spacing(6);
+    text-align: center;
+}
+
+.group:not(:last-child) {
+    margin-block-end: --spacing(4);
+}
+
+.group-header {
+    @apply ui-section-header;
+    margin-block-end: 0;
+}
+
+.group-name {
+    margin-block-end: 0;
+    font-size: var(--text-base);
+    font-weight: bold;
+}
+
+.group-tools {
+    margin: calc(--spacing(2) * -1) calc(--spacing(3) * -1);
+    margin-inline-start: auto;
+}
+
+.group-stops {
+    @apply list-underlined;
+}
+
+.group-stop {
+    display: flex;
+}
+
+.entry {
+    flex-grow: 1;
+    max-inline-size: 100%;
+}
+</style>
