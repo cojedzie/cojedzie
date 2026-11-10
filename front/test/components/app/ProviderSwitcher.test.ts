@@ -30,7 +30,7 @@ function mountSwitcher(props: Partial<{ providers: any[] }> = {}) {
 }
 
 async function open(wrapper: ReturnType<typeof mountSwitcher>) {
-    await wrapper.find(".provider-switcher__chip").trigger("click");
+    await wrapper.find(".chip").trigger("click");
 }
 
 describe("ProviderSwitcher", () => {
@@ -39,7 +39,7 @@ describe("ProviderSwitcher", () => {
     });
 
     it("shows the current provider", () => {
-        expect(mountSwitcher().find(".provider-switcher__chip").text()).toContain("Trójmiasto");
+        expect(mountSwitcher().find(".chip").text()).toContain("Trójmiasto");
     });
 
     it("opens a sheet on mobile", async () => {
@@ -63,7 +63,7 @@ describe("ProviderSwitcher", () => {
         const wrapper = mountSwitcher();
         await open(wrapper);
 
-        const items = wrapper.findAll(".provider-switcher__provider");
+        const items = wrapper.findAll("[aria-current]");
         expect(items.map(item => item.text())).toEqual([
             expect.stringContaining("Trójmiasto"),
             expect.stringContaining("Warszawa"),
@@ -74,7 +74,7 @@ describe("ProviderSwitcher", () => {
         const wrapper = mountSwitcher();
         await open(wrapper);
 
-        const items = wrapper.findAll(".provider-switcher__provider");
+        const items = wrapper.findAll("[aria-current]");
         expect(items.map(item => item.attributes("aria-current") === "true")).toEqual([true, false]);
     });
 
@@ -82,7 +82,7 @@ describe("ProviderSwitcher", () => {
         const wrapper = mountSwitcher();
         await open(wrapper);
 
-        await wrapper.findAll(".provider-switcher__provider")[1].trigger("click");
+        await wrapper.findAll("[aria-current]")[1].trigger("click");
 
         expect(wrapper.emitted("select")).toEqual([["warszawa"]]);
         expect(wrapper.find(".sheet").exists()).toBe(false);
@@ -92,7 +92,7 @@ describe("ProviderSwitcher", () => {
         const wrapper = mountSwitcher({ providers: [] });
         await open(wrapper);
 
-        expect(wrapper.find(".provider-switcher__provider").exists()).toBe(false);
-        expect(wrapper.find(".provider-switcher__empty").exists()).toBe(true);
+        expect(wrapper.find("[aria-current]").exists()).toBe(false);
+        expect(wrapper.find(".empty").exists()).toBe(true);
     });
 });
