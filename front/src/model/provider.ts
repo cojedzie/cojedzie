@@ -30,11 +30,21 @@ export interface Provider {
     location: Location;
     /** IANA time zone the provider's timetable is in, e.g. "Europe/Warsaw" */
     timezone: string;
+    /** The service days the provider has a timetable for, null when it has none */
+    timetable: TimetableRange | null;
 }
+
+/** First and last service day, both included, in the provider's time zone */
+export type TimetableRange = { from: Temporal.PlainDate; to: Temporal.PlainDate };
 
 export function convertProviderDtoToProvider(dto: Jsonified<Provider>): Provider {
     return {
         ...dto,
         lastUpdate: dto.lastUpdate ? Temporal.Instant.from(dto.lastUpdate) : null,
+        timetable: dto.timetable ? convertTimetableRange(dto.timetable) : null,
     };
+}
+
+export function convertTimetableRange(dto: Jsonified<TimetableRange>): TimetableRange {
+    return { from: Temporal.PlainDate.from(dto.from), to: Temporal.PlainDate.from(dto.to) };
 }
