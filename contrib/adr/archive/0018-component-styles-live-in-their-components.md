@@ -1,6 +1,6 @@
 # 0018. Component styles live in their components
 
-- **Status:** Accepted
+- **Status:** Superseded by [0035](../0035-component-styles-are-scoped-css-processed-by-tailwind.md)
 - **Date:** 2026-10-31
 - **Applies to:** `front/src/components/**`, `front/styles/**`
 

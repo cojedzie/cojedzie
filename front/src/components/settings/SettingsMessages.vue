@@ -26,7 +26,7 @@
         </div>
         <div v-if="autorefresh" class="hstack">
             <label for="departures-auto-refresh-interval" class="text">
-                <span class="sr-only">częstotliwość odświeżania</span>
+                <span class="visually-hidden">częstotliwość odświeżania</span>
                 co
             </label>
             <div class="input-group input-group-sm">

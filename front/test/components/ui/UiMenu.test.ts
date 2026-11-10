@@ -12,7 +12,7 @@ describe("UiMenu", () => {
     it("renders items as buttons by default", () => {
         const wrapper = mountMenu("<ui-menu><ui-menu-item>Tablica</ui-menu-item></ui-menu>");
 
-        const item = wrapper.find("ul.ui-menu > li > .ui-menu__item");
+        const item = wrapper.find("ul.menu > li > .item");
         expect(item.element.tagName).toBe("BUTTON");
         expect(item.attributes("type")).toBe("button");
         expect(item.text()).toBe("Tablica");
@@ -21,7 +21,7 @@ describe("UiMenu", () => {
     it("renders an item with the given tag", () => {
         const wrapper = mountMenu('<ui-menu><ui-menu-item tag="a" href="/api/doc">API</ui-menu-item></ui-menu>');
 
-        const item = wrapper.find(".ui-menu__item");
+        const item = wrapper.find(".item");
         expect(item.element.tagName).toBe("A");
         expect(item.attributes("type")).toBeUndefined();
         expect(item.attributes("href")).toBe("/api/doc");
@@ -39,9 +39,10 @@ describe("UiMenu", () => {
         });
 
         expect(wrapper.find("ul").classes()).toContain("custom-menu");
-        expect(wrapper.find("li").attributes()).toEqual({});
+        // apart from the scoping attribute of the menu's styles
+        expect(Object.keys(wrapper.find("li").attributes()).filter(name => !name.startsWith("data-v-"))).toEqual([]);
 
-        const item = wrapper.find(".ui-menu__item");
+        const item = wrapper.find(".item");
         expect(item.classes()).toContain("custom-item");
         expect(item.attributes("aria-current")).toBe("true");
 

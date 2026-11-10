@@ -1,24 +1,24 @@
 <template>
     <div
         ref="group"
-        class="ui-toggle-group"
-        :class="[`ui-toggle-group--${variant}`, `ui-toggle-group--${size}`, animated && 'ui-toggle-group--animated']"
+        class="toggle-group"
+        :class="[variant, size, animated && 'animated']"
         role="group"
         :aria-label="label"
     >
-        <div v-if="thumb" class="ui-toggle-group__thumb" :style="thumb" aria-hidden="true" />
+        <div v-if="thumb" class="thumb" :style="thumb" aria-hidden="true" />
         <button
             v-for="option in options"
             ref="buttons"
             :key="String(option.value)"
             type="button"
-            class="ui-toggle-group__option"
-            :class="{ 'ui-toggle-group__option--selected': option.value === modelValue }"
+            class="option"
+            :class="{ selected: option.value === modelValue }"
             :aria-pressed="option.value === modelValue ? 'true' : 'false'"
             @click="modelValue = option.value"
         >
             <ui-icon v-if="option.icon" :icon="option.icon" />
-            <span class="ui-toggle-group__label">{{ option.label }}</span>
+            <span class="caption">{{ option.label }}</span>
         </button>
     </div>
 </template>
@@ -72,40 +72,54 @@ useResizeObserver(group, () => {
 });
 </script>
 
-<style lang="scss">
-@import "@styles/variables";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-$ui-toggle-group-duration: 200ms;
-
-.ui-toggle-group {
-    @include ui-control;
+.toggle-group {
+    @apply ui-control;
 
     position: relative;
     isolation: isolate;
 
-    &__thumb {
+    &.primary {
+        @apply ui-control-primary;
+    }
+
+    &.small {
+        @apply ui-control-small;
+    }
+
+    &.large {
+        @apply ui-control-large;
+    }
+
+    & .thumb {
         position: absolute;
         z-index: -1;
+        /* the group's padding: the thumb sits inside it, as the buttons do */
         inset-block: 2px;
-        // the group's padding is inside the button's offset already
         border-radius: calc(var(--ui-control-radius) - 2px);
         background: var(--ui-control-fill);
     }
 
-    &--animated &__thumb {
-        transition:
-            inset-inline-start $ui-toggle-group-duration ease-in-out,
-            inline-size $ui-toggle-group-duration ease-in-out;
+    &.animated .thumb {
+        transition-property: inset-inline-start, inline-size;
+        transition-duration: var(--duration-normal);
+        transition-timing-function: var(--ease-in-out);
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
     }
 
-    &__option {
-        @include ui-control-segment;
+    & .option {
+        @apply ui-control-segment;
 
         flex: 1 1 auto;
         min-inline-size: 0;
 
-        &--selected {
-            color: $white;
+        &.selected {
+            color: white;
 
             &:hover:not(:disabled) {
                 background-color: transparent;
@@ -113,24 +127,18 @@ $ui-toggle-group-duration: 200ms;
         }
     }
 
-    // until the thumb is in place, the selected option is filled itself
-    &:not(&--animated) &__option--selected {
+    /* until the thumb is in place, the selected option is filled itself */
+    &:not(.animated) .option.selected {
         &,
         &:hover:not(:disabled) {
             background: var(--ui-control-fill);
         }
     }
 
-    &__label {
+    & .caption {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &__thumb {
-            transition: none !important;
-        }
     }
 }
 </style>

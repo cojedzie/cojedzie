@@ -1,24 +1,12 @@
 <template>
-    <div
-        ref="root"
-        class="ui-date-picker"
-        :class="[`ui-date-picker--${variant}`, `ui-date-picker--${size}`]"
-        role="group"
-        :aria-label="label"
-    >
-        <button
-            type="button"
-            class="ui-date-picker__step"
-            aria-label="Poprzedni dzień"
-            :disabled="!canStep(-1)"
-            @click="step(-1)"
-        >
+    <div ref="root" :class="['date-picker', variant, size]" role="group" :aria-label="label">
+        <button type="button" class="step" aria-label="Poprzedni dzień" :disabled="!canStep(-1)" @click="step(-1)">
             <ui-icon icon="chevron-left" />
         </button>
         <button
             ref="field"
             type="button"
-            class="ui-date-picker__field"
+            class="field"
             aria-haspopup="dialog"
             :aria-expanded="open ? 'true' : 'false'"
             :aria-label="`Wybierz dzień, wybrany: ${formatLongDate(modelValue)}`"
@@ -30,42 +18,23 @@
                 widest day name, so the arrows stay in place while clicking through days, and the long label can tell
                 when it is cut
             -->
-            <span ref="labels" class="ui-date-picker__labels" aria-hidden="true">
-                <span v-for="sizer in sizers" :key="sizer" class="ui-date-picker__sizer">{{ sizer }}</span>
-                <span ref="long" class="ui-date-picker__label" :class="{ 'ui-date-picker__label--hidden': short }">{{
-                    formatLongDate(modelValue)
-                }}</span>
-                <span class="ui-date-picker__label" :class="{ 'ui-date-picker__label--hidden': !short }">{{
-                    formatShortDate(modelValue)
-                }}</span>
+            <span ref="labels" class="names" aria-hidden="true">
+                <span v-for="sizer in sizers" :key="sizer" class="sizer">{{ sizer }}</span>
+                <span ref="long" class="name" :class="{ inactive: short }">{{ formatLongDate(modelValue) }}</span>
+                <span class="name" :class="{ inactive: !short }">{{ formatShortDate(modelValue) }}</span>
             </span>
         </button>
-        <button
-            type="button"
-            class="ui-date-picker__step"
-            aria-label="Następny dzień"
-            :disabled="!canStep(1)"
-            @click="step(1)"
-        >
+        <button type="button" class="step" aria-label="Następny dzień" :disabled="!canStep(1)" @click="step(1)">
             <ui-icon icon="chevron-right" />
         </button>
         <template v-if="todayButton">
             <!-- keeps "dziś" apart from the arrow next to it, so it isn't hit by mistake -->
-            <span class="ui-date-picker__separator" aria-hidden="true" />
+            <span class="separator" aria-hidden="true" />
             <!-- always there, so the control doesn't change its width when it leaves today -->
-            <button type="button" class="ui-date-picker__today" :disabled="!canGoToday" @click="modelValue = today">
-                dziś
-            </button>
+            <button type="button" class="today" :disabled="!canGoToday" @click="modelValue = today">dziś</button>
         </template>
         <teleport to="#popups">
-            <ui-dialog
-                v-if="open"
-                :reference="root"
-                placement="bottom"
-                arrow
-                class="ui-date-picker__popup"
-                @leave="handleLeave"
-            >
+            <ui-dialog v-if="open" :reference="root" placement="bottom" arrow @leave="handleLeave">
                 <div @keydown.esc.stop="close({ returnFocus: true })">
                     <ui-calendar
                         ref="calendar"
@@ -188,66 +157,72 @@ useResizeObserver(labels, measure);
 watch(modelValue, () => nextTick(measure));
 </script>
 
-<style lang="scss">
-@import "@styles/variables";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.ui-date-picker {
-    @include ui-control;
+.date-picker {
+    @apply ui-control;
 
     align-items: stretch;
 
-    &__step,
-    &__field,
-    &__today {
-        @include ui-control-segment;
+    &.primary {
+        @apply ui-control-primary;
     }
 
-    &__step {
+    &.small {
+        @apply ui-control-small;
+    }
+
+    &.large {
+        @apply ui-control-large;
+    }
+
+    & :is(.step, .field, .today) {
+        @apply ui-control-segment;
+    }
+
+    & .step {
         flex: none;
         padding-inline: 0;
     }
 
-    &__field {
+    & .field {
         flex: 0 1 auto;
         min-inline-size: 0;
     }
 
-    &__labels {
+    & .names {
         display: grid;
         grid-template-columns: minmax(0, auto);
         min-inline-size: 0;
     }
 
-    &__label,
-    &__sizer {
+    & :is(.name, .sizer) {
         grid-area: 1 / 1;
-        // digits of equal width, so only the day name changes the label's width
+        /* digits of equal width, so only the day name changes the label's width */
         font-variant-numeric: tabular-nums;
         text-align: center;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-
-        &--hidden {
-            visibility: hidden;
-        }
     }
 
-    &__sizer {
+    & :is(.sizer, .name.inactive) {
         visibility: hidden;
     }
 
-    &__separator {
+    & .separator {
         flex: none;
-        // shorter than the segments, a hint of a divide rather than a wall
+        /* shorter than the segments, a hint of a divide rather than a wall */
         margin-block: calc(var(--ui-control-height) / 6);
-        margin-inline: 0.25rem;
+        margin-inline: --spacing(1);
+        /* hairline */
         inline-size: 1px;
         background-color: var(--ui-control-color);
-        opacity: 0.5;
+        opacity: var(--opacity-muted);
     }
 
-    &__today {
+    & .today {
         flex: none;
     }
 }

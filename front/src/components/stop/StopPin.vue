@@ -1,5 +1,9 @@
 <template>
-    <ui-map-pin :lat-lng="stop.location" variant="filled-outline" :class="[`ui-pin--${type}`]">
+    <ui-map-pin
+        :lat-lng="stop.location"
+        variant="filled-outline"
+        :style="{ '--ui-pin-color': `var(--color-line-${type})` }"
+    >
         <slot v-if="!noLabel" name="sign">
             <div class="stop-sign" :class="[`stop-sign--type-${type}`]">
                 <slot name="label">

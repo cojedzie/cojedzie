@@ -22,7 +22,7 @@ describe("UiCalendar", () => {
         const wrapper = mount(UiCalendar, { props, global });
         const cell = (date: string) => wrapper.find(`[data-date='${date}']`);
 
-        expect(wrapper.find(".ui-calendar__month").text()).toBe("listopad 2026");
+        expect(wrapper.find(".month").text()).toBe("listopad 2026");
         expect(cell("2026-11-13").element.closest("td").getAttribute("aria-selected")).toBe("true");
         expect(cell("2026-11-09").attributes("aria-current")).toBe("date");
         expect([cell("2026-10-26"), cell("2026-11-22"), cell("2026-11-23")].map(d => d.attributes("disabled"))).toEqual(
@@ -55,13 +55,13 @@ describe("UiCalendar", () => {
         // a month back is out of range, the first day is as far as it goes
         await grid.trigger("keydown", { key: "PageUp" });
         expect(focusable(wrapper)).toBe("2026-10-26");
-        expect(wrapper.find(".ui-calendar__month").text()).toBe("październik 2026");
+        expect(wrapper.find(".month").text()).toBe("październik 2026");
         expect(picked(wrapper)).toBeUndefined();
     });
 
     it("disables the month buttons at the ends of the range", () => {
         const wrapper = mount(UiCalendar, { props: { ...props, min: day("2026-11-01") }, global });
 
-        expect(wrapper.findAll(".ui-calendar__nav").map(button => button.attributes("disabled"))).toEqual(["", ""]);
+        expect(wrapper.findAll(".nav").map(button => button.attributes("disabled"))).toEqual(["", ""]);
     });
 });

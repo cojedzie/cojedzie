@@ -14,8 +14,8 @@ describe("UiSection", () => {
             global,
         });
 
-        expect(wrapper.find(".ui-section__title").text()).toBe("Odjazdy");
-        expect(wrapper.find(".ui-section__actions .action").exists()).toBe(true);
+        expect(wrapper.find(".title").text()).toBe("Odjazdy");
+        expect(wrapper.find(".tools .action").exists()).toBe(true);
         expect(wrapper.find(".content").exists()).toBe(true);
         expect(wrapper.find(".fold").exists()).toBe(false);
     });
@@ -27,7 +27,7 @@ describe("UiSection", () => {
             global,
         });
 
-        expect(wrapper.find(".ui-section__title").text()).toBe("Komunikaty (3)");
+        expect(wrapper.find(".title").text()).toBe("Komunikaty (3)");
     });
 
     it("folds the content when collapsed and tells the binding", async () => {
@@ -36,7 +36,7 @@ describe("UiSection", () => {
             slots: { default: "<p class='content' />" },
             global,
         });
-        const toggle = wrapper.find(".ui-section__actions button");
+        const toggle = wrapper.find(".tools button");
 
         expect(wrapper.find(".fold").attributes("data-visible")).toBe("true");
 

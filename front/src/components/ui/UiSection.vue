@@ -1,13 +1,13 @@
 <template>
-    <section class="ui-section">
-        <header class="ui-section__header">
-            <h2 class="ui-section__title">
+    <section class="section">
+        <header class="header">
+            <h2 class="title">
                 <slot name="title" v-bind="{ icon, title }">
-                    <ui-icon v-if="icon" :icon="icon" fixed-width class="mr-1" />
+                    <ui-icon v-if="icon" :icon="icon" fixed-width class="title-icon" />
                     {{ title }}
                 </slot>
             </h2>
-            <div class="ui-section__actions">
+            <div class="tools">
                 <slot name="actions" />
                 <button
                     v-if="collapsible"
@@ -17,7 +17,7 @@
                 >
                     <ui-tooltip>
                         {{ collapsed ? "rozwiń" : "zwiń" }}
-                        <span v-if="title" class="sr-only">sekcję „{{ title }}”</span>
+                        <span v-if="title" class="visually-hidden">sekcję „{{ title }}”</span>
                     </ui-tooltip>
                     <ui-icon :icon="collapsed ? 'chevron-down' : 'chevron-up'" fixed-width />
                 </button>
@@ -55,29 +55,31 @@ defineSlots<{
 }>();
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-$ui-section-safe-margin: 0.5rem;
+.section {
+    /* the background reaches past the content, so the page background doesn't touch the text */
+    padding: --spacing(2);
+    margin: calc(--spacing(2) * -1) calc(--spacing(2) * -1) --spacing(4);
+    background: var(--color-surface);
 
-.ui-section {
-    // the background reaches past the content, so the page background doesn't touch the text
-    padding: $ui-section-safe-margin;
-    margin: (-$ui-section-safe-margin) (-$ui-section-safe-margin) 1rem;
-    background: rgba(white, 0.85);
-
-    &__header {
-        @include ui-section-header;
+    & .header {
+        @apply ui-section-header;
     }
 
-    &__title {
+    & .title {
         flex-grow: 1;
     }
 
-    &__actions {
+    & .title-icon {
+        margin-inline-end: --spacing(1);
+    }
+
+    & .tools {
         display: flex;
         align-items: center;
-        margin-block: -0.5rem;
+        margin-block: calc(--spacing(2) * -1);
     }
 }
 </style>

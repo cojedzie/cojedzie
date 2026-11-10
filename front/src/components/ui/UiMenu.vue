@@ -1,5 +1,5 @@
 <template>
-    <ul class="ui-menu">
+    <ul class="menu">
         <slot />
     </ul>
 </template>
@@ -10,12 +10,12 @@ defineOptions({ name: "UiMenu" });
 defineSlots<{ default?: () => unknown }>();
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.ui-menu {
-    // the items' hover background reaches the edges of the popup
-    margin: 0 (-$popup-padding);
+.menu {
+    /* the items' hover background reaches the edges of the popup, past its padding */
+    margin: 0 calc(--spacing(3) * -1);
     padding: 0;
     list-style: none;
 }

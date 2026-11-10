@@ -27,7 +27,7 @@ describe("UiSheet", () => {
     it("leaves when the backdrop is clicked", async () => {
         const wrapper = mountSheet();
 
-        await wrapper.find(".ui-sheet").trigger("click");
+        await wrapper.find(".sheet").trigger("click");
 
         expect(wrapper.emitted("leave")).toHaveLength(1);
     });

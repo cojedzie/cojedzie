@@ -14,7 +14,7 @@
             </ui-dialog>
         </transition>
     </teleport>
-    <span ref="root" class="sr-only"><slot /></span>
+    <span ref="root" class="visually-hidden"><slot /></span>
 </template>
 
 <script lang="ts">

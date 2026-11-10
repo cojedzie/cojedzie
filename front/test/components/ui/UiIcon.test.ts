@@ -8,7 +8,7 @@ describe("UiIcon", () => {
     it("renders a stacked icon as layers", () => {
         const wrapper = mount(UiIcon, { props: { icon: "relative-time-limit" } });
 
-        expect(wrapper.classes()).toEqual(expect.arrayContaining(["ui-icon", "ui-icon--stacked"]));
+        expect(wrapper.classes()).toEqual(expect.arrayContaining(["ui-icon", "stacked"]));
         expect(wrapper.findAll("svg")).toHaveLength(2);
     });
 
@@ -26,7 +26,7 @@ describe("UiIcon", () => {
     it("is fixed width when asked by the caller", () => {
         const wrapper = mount(UiIcon, { props: { icon: "favourite", fixedWidth: true } });
 
-        expect(wrapper.classes()).toContain("ui-icon--fixed-width");
+        expect(wrapper.classes()).toContain("fixed-width");
     });
 
     it("falls back to the unknown icon", () => {

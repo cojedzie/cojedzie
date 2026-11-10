@@ -54,32 +54,31 @@ const button = ref<HTMLElement>(null);
 const { active, toggle } = useMutex(props.mutex);
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
-
-$ui-help-width: 300px !default;
-$ui-help-spacing: 0.5rem !default;
-$ui-help-radius: 3px !default;
+<style scoped>
+@reference "@styles/tailwind.css";
 
 .help {
     box-sizing: content-box;
-    width: $ui-help-width;
-    font-size: 0.8rem;
+    /* the help popup's own width, its figures are 2:1 within it */
+    inline-size: 300px;
+    font-size: var(--text-xs);
 
-    &__image {
+    /* figures come from the help's content: `help-figure` and `help-image` are the slot's contract */
+    & :slotted(.help-image) {
         display: block;
-        width: 100%;
+        inline-size: 100%;
         aspect-ratio: 2 / 1;
-        margin-block: $ui-help-spacing * 0.5 $ui-help-spacing * 0.25;
-        border-radius: $ui-help-radius;
+        margin-block: --spacing(1);
+        border-radius: var(--radius-sm);
+        /* hairline frame */
         box-shadow: 0 0 1px black;
     }
 
-    &__figure {
-        margin-bottom: $ui-help-spacing;
+    & :slotted(.help-figure) {
+        margin-block-end: --spacing(2);
 
-        figcaption {
-            color: $text-muted;
+        & figcaption {
+            color: var(--color-muted);
         }
     }
 }

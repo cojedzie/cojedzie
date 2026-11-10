@@ -1,9 +1,9 @@
 <template>
     <teleport to="#popups">
-        <transition name="ui-sheet" appear>
-            <div class="ui-sheet" @click.self="emit('leave', $event)">
-                <div class="ui-sheet__panel" role="dialog" :aria-label="title">
-                    <div v-if="title" class="ui-sheet__title" role="heading">{{ title }}</div>
+        <transition name="sheet" appear>
+            <div class="sheet" @click.self="emit('leave', $event)">
+                <div class="panel" role="dialog" :aria-label="title">
+                    <div v-if="title" class="title" role="heading">{{ title }}</div>
                     <slot />
                 </div>
             </div>
@@ -34,47 +34,46 @@ onMounted(() => document.addEventListener("keydown", handleKeydown));
 onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.ui-sheet {
+.sheet {
     position: fixed;
     inset: 0;
     z-index: 1000;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background: rgba($black, 0.4);
+    background: var(--color-backdrop);
 
-    &__panel {
-        max-height: 80vh;
+    & .panel {
+        max-block-size: 80vh;
         overflow-y: auto;
         overscroll-behavior-y: contain;
-        padding: $spacer $spacer calc($spacer + env(safe-area-inset-bottom));
-        background: $white;
-        border-radius: 0.75rem 0.75rem 0 0;
-        box-shadow: 0 -0.25rem 1rem rgba($black, 0.2);
+        padding: --spacing(4) --spacing(4) calc(--spacing(4) + env(safe-area-inset-bottom));
+        background: white;
+        border-start-start-radius: var(--radius-xl);
+        border-start-end-radius: var(--radius-xl);
+        box-shadow: var(--shadow-sheet);
     }
 
-    &__title {
-        margin-bottom: 0.5rem;
+    & .title {
+        margin-block-end: --spacing(2);
         font-weight: bold;
     }
 
-    &-enter-active,
-    &-leave-active {
-        transition: background-color 0.2s ease;
+    &:is(.sheet-enter-active, .sheet-leave-active) {
+        transition: background-color var(--duration-normal) var(--ease-in-out);
 
-        .ui-sheet__panel {
-            transition: translate 0.2s ease;
+        & .panel {
+            transition: translate var(--duration-normal) var(--ease-in-out);
         }
     }
 
-    &-enter-from,
-    &-leave-to {
+    &:is(.sheet-enter-from, .sheet-leave-to) {
         background-color: transparent;
 
-        .ui-sheet__panel {
+        & .panel {
             translate: 0 100%;
         }
     }
