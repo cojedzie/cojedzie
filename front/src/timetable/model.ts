@@ -63,6 +63,8 @@ export type LineMinute = Marked & {
 
 export type LineTimetable = {
     line: Line;
+    /** The headsign of most of the line's entries */
+    headsign: string;
     rows: HourRow<LineMinute>[];
     legend: Legend;
 };
@@ -105,6 +107,7 @@ export function buildLineTimetables(
 ): LineTimetable[] {
     return byLine(departures).map(({ line, entries, legend, notes }) => ({
         line,
+        headsign: mostFrequent(entries.map(entry => entry.display)),
         legend,
         rows: hourRows(entries, timeZone, (departure, minute) => ({
             ...mark(departure, date),

@@ -148,7 +148,7 @@ describe("timetable hour rows per line", () => {
         expect(table.rows.flatMap(row => row.minutes.map(m => m.note))).toEqual([undefined, undefined]);
     });
 
-    it("marks each minute with a letter of its headsign when the line has several", () => {
+    it("marks each minute with a letter of its headsign when the line has several, headed by the most frequent", () => {
         const [table] = buildLineTimetables(
             [
                 entry("2026-11-13T05:05:00Z", { display: "Łostowice" }),
@@ -164,6 +164,7 @@ describe("timetable hour rows per line", () => {
             { note: "b", headsign: "Zajezdnia" },
         ]);
         expect(table.rows[0].minutes.map(m => m.note)).toEqual(["a", "b", "a"]);
+        expect(table.headsign).toBe("Łostowice");
     });
 
     it("carries the departed flag and the other-day marker", () => {
