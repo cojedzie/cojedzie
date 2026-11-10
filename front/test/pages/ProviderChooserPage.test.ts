@@ -50,22 +50,22 @@ describe("ProviderChooserPage", () => {
     it("lists the providers", async () => {
         const wrapper = await mountPage();
 
-        const entries = wrapper.findAll(".provider-picker__provider");
-        expect(entries.map(entry => entry.find(".provider__short-name").text())).toEqual(["ZTM", "WTP"]);
-        expect(entries.map(entry => entry.find(".provider__name").text())).toEqual(["Trójmiasto", "Warszawa"]);
+        const entries = wrapper.findAll(".providers li");
+        expect(entries.map(entry => entry.find(".short-name").text())).toEqual(["ZTM", "WTP"]);
+        expect(entries.map(entry => entry.find(".name").text())).toEqual(["Trójmiasto", "Warszawa"]);
     });
 
     it("links each provider to its route", async () => {
         const wrapper = await mountPage();
 
-        const links = wrapper.findAll(".provider-picker__provider a");
+        const links = wrapper.findAll(".providers li a");
         expect(links.map(link => link.attributes("href"))).toEqual(["/trojmiasto", "/warszawa"]);
     });
 
     it("shows when the provider was last updated, in the display time zone", async () => {
         const wrapper = await mountPage();
 
-        const entries = wrapper.findAll(".provider-picker__provider");
+        const entries = wrapper.findAll(".providers li");
         expect(entries[0].find(".tooltip").text()).toBe("Ostatnia aktualizacja: 01.05.2024, 12:30");
         expect(entries[1].find(".tooltip").exists()).toBe(false);
     });

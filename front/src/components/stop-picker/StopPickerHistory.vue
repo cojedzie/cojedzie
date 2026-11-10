@@ -1,7 +1,7 @@
 <template>
-    <ul class="list-underlined history" v-if="all.length > 0">
-        <li v-for="(entry, index) in all" :key="index" class="history__entry">
-            <stop-picker-entry :stop="entry.stop" class="grow finder__stop">
+    <ul v-if="all.length > 0" class="history">
+        <li v-for="(entry, index) in all" :key="index">
+            <stop-picker-entry :stop="entry.stop" class="entry">
                 <template #primary-action>
                     <button @click="select(entry.stop)" class="btn btn-action stretched-link">
                         <ui-icon icon="history" />
@@ -29,3 +29,20 @@ function select(stop: Stop) {
     selection.add(stop);
 }
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.history {
+    @apply list-underlined;
+
+    & > li {
+        display: flex;
+    }
+}
+
+.entry {
+    flex-grow: 1;
+    max-inline-size: 100%;
+}
+</style>

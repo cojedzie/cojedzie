@@ -29,7 +29,7 @@ describe("FavouritesList", () => {
         const { wrapper, selection } = mountList();
         selection.replace([stop("9")]);
 
-        await wrapper.findAll(".favourite__entry")[1].trigger("click");
+        await wrapper.findAll(".entry")[1].trigger("click");
 
         expect(selection.stops).toEqual([stop("2"), stop("3")]);
     });
@@ -37,7 +37,7 @@ describe("FavouritesList", () => {
     it("removes a favourite from the store", async () => {
         const { wrapper, store } = mountList();
 
-        await wrapper.findAll(".favourite .btn-action")[0].trigger("click");
+        await wrapper.findAll(".favourite .remove")[0].trigger("click");
 
         expect(store.favourites.map(favourite => favourite.name)).toEqual(["Work"]);
     });

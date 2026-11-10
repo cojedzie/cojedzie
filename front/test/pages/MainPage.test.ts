@@ -89,7 +89,7 @@ describe("MainPage", () => {
         });
         expect(selection.provider.id).toBe("trojmiasto");
         expect(messages.update).toHaveBeenCalled();
-        expect(wrapper.find(".attribution__attribution").text()).toBe("ZTM");
+        expect(wrapper.find(".attribution span").text()).toBe("ZTM");
         expect(document.querySelector<HTMLLinkElement>('link[rel="manifest"]').href).toContain(
             "/trojmiasto/manifest.json",
         );

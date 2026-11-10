@@ -1,6 +1,6 @@
 <template>
     <slot name="button" v-bind="{ toggle, ref: el => (button = el), $attrs }">
-        <button v-bind="$attrs" ref="button" type="button" @click="toggle">
+        <button v-bind="$attrs" ref="button" type="button" class="help-button" @click="toggle">
             <ui-icon icon="info" fixed-width />
         </button>
     </slot>
@@ -56,6 +56,10 @@ const { active, toggle } = useMutex(props.mutex);
 
 <style scoped>
 @reference "@styles/tailwind.css";
+
+.help-button {
+    @apply settings-field-button;
+}
 
 .help {
     box-sizing: content-box;

@@ -1,36 +1,34 @@
 <template>
-    <ui-dialog behaviour="modal" size="huge" flush class="stop-details-dialog" v-bind="$attrs">
+    <ui-dialog behaviour="modal" size="huge" flush v-bind="$attrs">
         <template #header="{ handleCloseClick }">
-            <button class="stop-details-dialog__close" @click="handleCloseClick">
+            <button class="close" @click="handleCloseClick">
                 <ui-icon icon="close" />
             </button>
         </template>
-        <div class="stop-details-dialog__body">
-            <div class="stop-details-dialog__details">
-                <div role="heading" class="stop-details-dialog__header">
+        <div class="body">
+            <div class="details">
+                <div role="heading" class="header">
                     <stop-label :stop="stop" />
                 </div>
-                <div class="stop-details-dialog__lines">
+                <div class="lines">
                     <line-symbol v-for="line in lines" :key="line.id" :line="line" />
                 </div>
-                <h3 class="stop-details-dialog__heading">Kierunki</h3>
-                <ul class="stop-details-dialog__destinations">
+                <h3 class="heading">Kierunki</h3>
+                <ul class="destinations">
                     <li
                         v-for="possibleDestination in stop.destinations"
                         :key="possibleDestination.stop.id"
-                        class="stop-details-dialog__destination"
+                        class="destination"
                     >
-                        <ui-icon icon="destination" class="mr-2" />
-                        <stop-label :stop="possibleDestination.stop" class="stop-details-dialog__destination-name" />
-                        <div class="stop-details-dialog__destination-lines">
+                        <ui-icon icon="destination" class="destination-icon" />
+                        <stop-label :stop="possibleDestination.stop" class="destination-name" />
+                        <div class="lines destination-lines">
                             <line-symbol v-for="line in possibleDestination.lines" :key="line.id" :line="line" />
                         </div>
-                        <div class="stop-details-dialog__actions">
+                        <div class="tools">
                             <button
-                                class="btn btn-action"
-                                :class="{
-                                    'btn-toggled': destination?.id == possibleDestination.stop.id,
-                                }"
+                                class="btn btn-action pick"
+                                :class="{ picked: destination?.id == possibleDestination.stop.id }"
                                 @click="destination = possibleDestination.stop"
                             >
                                 <ui-icon
@@ -45,7 +43,7 @@
                     </li>
                 </ul>
             </div>
-            <ui-map ref="map" :zoom="17" class="stop-details-modal__map">
+            <ui-map ref="map" :zoom="17" class="map">
                 <l-feature-group ref="features">
                     <stop-pin :stop="stop" :type="selectedTrack?.line.type ?? type" />
 
@@ -191,3 +189,144 @@ watch(bounds, async bounds => {
 
 const type = computed(() => getStopType(props.stop));
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+/* the modal's padding is the dialog's own: the modal is flush */
+.body {
+    --pad: --spacing(8);
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-block-size: 50vh;
+    max-block-size: 70vh;
+
+    @variant max-md {
+        grid-template-rows: 250px 1fr;
+        grid-template-columns: 1fr;
+        /* the whole screen, less the backdrop's padding */
+        block-size: calc(100dvh - --spacing(2));
+        max-block-size: none;
+        overflow-y: auto;
+    }
+}
+
+.close {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    z-index: var(--z-index-popup);
+    padding: --spacing(2) --spacing(4);
+    border-end-start-radius: var(--radius-sm);
+    background: white;
+    box-shadow: var(--shadow-popup);
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    padding: var(--pad);
+
+    @variant max-md {
+        grid-row: 2;
+    }
+}
+
+.map {
+    grid-column: 2;
+    min-block-size: 60vh;
+
+    @variant max-md {
+        grid-row: 1;
+        grid-column: 1;
+        min-block-size: 0;
+    }
+}
+
+.header {
+    margin-block-end: --spacing(4);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+}
+
+.heading {
+    margin-block-start: --spacing(4);
+    font-size: var(--text-lg);
+    font-weight: 600;
+}
+
+.lines {
+    display: flex;
+    flex-wrap: wrap;
+    gap: --spacing(1);
+}
+
+.destinations {
+    overflow-y: auto;
+    margin: 0 calc(var(--pad) * -1) calc(var(--pad) * -1);
+    padding: 0;
+    list-style: none;
+}
+
+.destination {
+    display: grid;
+    grid-template-columns: min-content auto min-content;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas:
+        "icon name tools"
+        "icon lines tools";
+    gap: --spacing(1);
+    padding: --spacing(2) var(--pad);
+
+    &:nth-child(2n) {
+        background: var(--color-hover);
+    }
+}
+
+.destination-icon {
+    grid-area: icon;
+    place-self: center;
+    margin-inline-end: --spacing(2);
+}
+
+.destination-name {
+    display: flex;
+    grid-area: name;
+    align-items: center;
+}
+
+.destination-lines {
+    grid-area: lines;
+}
+
+.tools {
+    display: flex;
+    grid-area: tools;
+    align-items: center;
+}
+
+.pick {
+    inline-size: --spacing(10);
+    block-size: --spacing(10);
+    padding: 0;
+    border-radius: var(--radius-full);
+
+    &:hover {
+        background-color: var(--color-hover);
+    }
+
+    &.picked {
+        color: var(--color-primary);
+    }
+}
+
+.track-selector {
+    @apply ui-popup;
+    position: absolute;
+    inset-block-end: --spacing(8);
+    inset-inline: --spacing(8);
+    padding: 0;
+}
+</style>

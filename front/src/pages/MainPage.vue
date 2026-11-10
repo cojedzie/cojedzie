@@ -1,12 +1,12 @@
 <template>
-    <div id="app" class="page-container">
-        <div class="-mx-4 flex flex-wrap">
-            <div class="w-full px-4 md:order-last md:w-2/3">
+    <div class="page-container board-page">
+        <div class="columns">
+            <div class="column board">
                 <ui-section v-show="messages.count > 0" class="messages" icon="messages" title="Komunikaty" collapsible>
                     <template #title="{ icon, title }">
-                        <ui-icon :icon="icon" fixed-width class="mr-1" />
+                        <ui-icon :icon="icon" fixed-width class="title-icon" />
                         {{ title }}
-                        <span class="ml-2 badge badge-pill badge-dark">{{ messages.count }}</span>
+                        <span class="badge badge-pill badge-dark count">{{ messages.count }}</span>
                     </template>
                     <template #actions>
                         <ui-section-settings>
@@ -37,11 +37,11 @@
                     <div v-if="provider && provider.attribution" class="attribution">
                         <ui-icon icon="info" />
                         Pochodzenie danych:
-                        <span class="attribution__attribution" v-html="provider.attribution" />
+                        <span v-html="provider.attribution" />
                     </div>
                 </ui-section>
             </div>
-            <div class="w-full px-4 md:order-first md:w-1/3">
+            <div class="column side">
                 <ui-section v-if="stops.length > 0" class="picker" icon="stop" title="Przystanki">
                     <template #actions>
                         <button class="btn btn-action" @click="selection.clear()">
@@ -50,8 +50,8 @@
                         </button>
                     </template>
 
-                    <ul class="picker__stops list-underlined">
-                        <li v-for="stop in stops" :key="stop.id" class="picker__stop">
+                    <ul class="picked-stops">
+                        <li v-for="stop in stops" :key="stop.id">
                             <stop-picker-entry :stop="stop">
                                 <template #primary-action>
                                     <button class="btn btn-action" @click="selection.remove(stop)">
@@ -63,12 +63,8 @@
                         </li>
                     </ul>
 
-                    <div class="flex mt-2">
-                        <button
-                            ref="save"
-                            class="btn btn-action btn-sm flex-space-left"
-                            @click="visibility.save = true"
-                        >
+                    <div class="save-row">
+                        <button ref="save" class="btn btn-action btn-sm" @click="visibility.save = true">
                             <ui-icon icon="favourite" fixed-width />
                             zapisz jako...
                         </button>
@@ -104,7 +100,7 @@
                             <ui-icon icon="search" fixed-width />
                         </button>
                     </template>
-                    <div class="transition-box">
+                    <div class="switcher">
                         <transition name="fade">
                             <stop-picker
                                 v-if="visibility.picker === 'search'"
@@ -201,3 +197,75 @@ if (selection.provider && selection.provider.id !== route.params.provider) {
     providerLoaded.value = true;
 })();
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.board-page {
+    margin-block-start: --spacing(4);
+
+    @variant md {
+        padding-block-start: --spacing(8);
+    }
+}
+
+.columns {
+    display: flex;
+    flex-wrap: wrap;
+    margin-inline: calc(--spacing(4) * -1);
+}
+
+.column {
+    inline-size: 100%;
+    padding-inline: --spacing(4);
+}
+
+.board {
+    @variant md {
+        order: 2;
+        inline-size: calc(100% * 2 / 3);
+    }
+}
+
+.side {
+    @variant md {
+        order: 1;
+        inline-size: calc(100% / 3);
+    }
+}
+
+.title-icon {
+    margin-inline-end: --spacing(1);
+}
+
+.count {
+    margin-inline-start: --spacing(2);
+}
+
+.attribution {
+    margin-block-start: --spacing(2);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    text-align: end;
+}
+
+.picked-stops {
+    @apply list-underlined;
+}
+
+.save-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-block-start: --spacing(2);
+}
+
+/* the search and the saved stops cross-fade in one place */
+.switcher {
+    display: grid;
+
+    & > * {
+        grid-area: 1 / 1;
+        min-block-size: 2px;
+    }
+}
+</style>

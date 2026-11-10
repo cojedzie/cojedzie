@@ -78,7 +78,7 @@ describe("StopPickerEntry", () => {
         });
 
         const destinations = wrapper.findAll(".destination");
-        expect(destinations.map(destination => destination.find(".destination__name").text())).toEqual([
+        expect(destinations.map(destination => destination.find(".destination-name").text())).toEqual([
             "Oliwa",
             "Wrzeszcz",
         ]);
@@ -103,12 +103,12 @@ describe("StopPickerEntry", () => {
     it("renders no destinations section without destinations", () => {
         const wrapper = mountEntry();
 
-        expect(wrapper.find(".stop__destinations").exists()).toBe(false);
+        expect(wrapper.find(".destinations").exists()).toBe(false);
     });
 
     it("toggles the stop details with the info button", async () => {
         const wrapper = mountEntry();
-        const info = wrapper.findAll(".stop__actions button")[0];
+        const info = wrapper.findAll(".tools button")[0];
 
         expect(wrapper.findComponent({ name: "StopDetailsDialog" }).exists()).toBe(false);
 
@@ -122,7 +122,7 @@ describe("StopPickerEntry", () => {
     it("closes the stop details when the dialog is left", async () => {
         const wrapper = mountEntry();
 
-        await wrapper.findAll(".stop__actions button")[0].trigger("click");
+        await wrapper.findAll(".tools button")[0].trigger("click");
         await wrapper.findComponent({ name: "StopDetailsDialog" }).vm.$emit("leave");
 
         expect(wrapper.findComponent({ name: "StopDetailsDialog" }).exists()).toBe(false);
@@ -130,7 +130,7 @@ describe("StopPickerEntry", () => {
 
     it("shows the stop on a map while the map button is hovered", async () => {
         const wrapper = mountEntry();
-        const map = wrapper.findAll(".stop__actions button")[1];
+        const map = wrapper.findAll(".tools button")[1];
         const popup = () => wrapper.findComponent({ name: "UiDialog" });
 
         expect(popup().exists()).toBe(false);
@@ -145,7 +145,7 @@ describe("StopPickerEntry", () => {
 
     it("keeps the map open while the map itself is hovered", async () => {
         const wrapper = mountEntry();
-        const map = wrapper.findAll(".stop__actions button")[1];
+        const map = wrapper.findAll(".tools button")[1];
         const popup = () => wrapper.findComponent({ name: "UiDialog" });
 
         await map.trigger("mouseenter");

@@ -1,5 +1,5 @@
 <template>
-    <form class="favourite-add-form" @submit.prevent="save">
+    <form class="adder" @submit.prevent="save">
         <div class="form-group">
             <label for="favourite_add_name">Nazwa</label>
             <div class="input-group">
@@ -18,12 +18,12 @@
                 </div>
             </div>
         </div>
-        <ul class="favourite__stops">
-            <li v-for="stop in stops" :key="stop.id" class="favourite__stop">
+        <ul class="stops">
+            <li v-for="stop in stops" :key="stop.id">
                 <stop-label :stop="stop" />
             </li>
         </ul>
-        <div class="favourite-add-form__actions">
+        <div class="tools">
             <template v-if="confirmation">
                 <button class="btn btn-xs btn-danger" type="submit">nadpisz</button>
                 <button class="btn btn-xs btn-action" @click="emit('close')">anuluj</button>
@@ -95,3 +95,20 @@ function save() {
     }
 }
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.adder {
+    @variant sm {
+        /* the form's own width in its popup */
+        inline-size: 300px;
+    }
+}
+
+.stops {
+    @apply stop-list-inline;
+    max-inline-size: 100%;
+    font-size: var(--text-xs);
+}
+</style>

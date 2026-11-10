@@ -9,6 +9,6 @@ describe("StopLabel", () => {
     it("renders the variant when the stop has one", () => {
         const wrapper = mount(StopLabel, { props: { stop: { ...stop, variant: "02" } } });
 
-        expect(wrapper.find(".stop__variant").text()).toBe("02");
+        expect(wrapper.find(".variant").text()).toBe("02");
     });
 });
