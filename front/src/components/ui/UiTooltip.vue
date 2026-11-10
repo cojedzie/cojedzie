@@ -23,7 +23,7 @@ import UiDialog from "@/components/ui/UiDialog.vue";
 import { FloatingPlacement } from "@/composables/useFloating";
 
 export type UiTooltipPlacement = FloatingPlacement;
-export type UiTooltipTrigger = "hover" | "focus" | "long-press";
+export type UiTooltipTrigger = "hover" | "focus" | "long-press" | "click";
 
 export const openedTooltips = new Set<{ show: Ref<boolean> }>();
 
@@ -165,10 +165,40 @@ function updateTriggers() {
         };
     }
 
+    if (props.triggers.includes("click")) {
+        events["click"] = () => {
+            show.value = !show.value;
+        };
+    }
+
     registerEventListeners();
 }
 
+// a tooltip opened by a click closes with a click anywhere else or with Escape
+function handleOutsideClick(event: Event) {
+    if (!anchor.value?.contains(event.target as Node)) {
+        show.value = false;
+    }
+}
+
+function handleEscape(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+        show.value = false;
+    }
+}
+
+function closingListeners(listen: boolean) {
+    const method = listen ? "addEventListener" : "removeEventListener";
+    document[method]("click", handleOutsideClick, true);
+    document[method]("keydown", handleEscape);
+}
+
+watch(show, visible => props.triggers.includes("click") && closingListeners(visible));
+
 watch([() => props.triggers, anchor], updateTriggers, { deep: true });
 
-onBeforeUnmount(removeEventListeners);
+onBeforeUnmount(() => {
+    removeEventListeners();
+    closingListeners(false);
+});
 </script>

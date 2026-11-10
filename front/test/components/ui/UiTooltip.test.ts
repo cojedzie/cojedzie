@@ -75,4 +75,26 @@ describe("UiTooltip", () => {
 
         expect(wrapper.findComponent(UiDialog).exists()).toBe(false);
     });
+
+    it("toggles with a click on its anchor and closes with a click elsewhere or Escape", async () => {
+        const wrapper = mountTooltip({ triggers: ["click"] });
+        await nextTick();
+        const anchor = wrapper.find(".anchor");
+        const shown = () => wrapper.findComponent(UiDialog).exists();
+
+        await anchor.trigger("click");
+        expect(shown()).toBe(true);
+        await anchor.trigger("click");
+        expect(shown()).toBe(false);
+
+        await anchor.trigger("click");
+        document.body.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        await nextTick();
+        expect(shown()).toBe(false);
+
+        await anchor.trigger("click");
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+        await nextTick();
+        expect(shown()).toBe(false);
+    });
 });
