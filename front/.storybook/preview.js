@@ -1,7 +1,7 @@
 import "./setup";
 
 import "../styles/tailwind.css";
-import "../styles/main.scss";
+import "../styles/global/storybook.css";
 
 import { setup } from "@storybook/vue3-vite";
 import { createPinia } from "pinia";

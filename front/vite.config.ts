@@ -82,14 +82,6 @@ export default defineConfig({
                 release: { name: process.env.COJEDZIE_VERSION },
             }),
     ],
-    css: {
-        preprocessorOptions: {
-            scss: {
-                // our stylesheets still use @import and the global functions Sass deprecated
-                silenceDeprecations: ["import", "global-builtin", "color-functions", "if-function"],
-            },
-        },
-    },
     publicDir: path.resolve(__dirname, "./public"),
     resolve: {
         alias: [

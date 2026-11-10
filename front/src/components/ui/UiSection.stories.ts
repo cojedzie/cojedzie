@@ -35,7 +35,7 @@ const render =
         template,
     });
 
-const content = `<p class="mb-0">Treść sekcji, np. lista odjazdów.</p>`;
+const content = `<p style="margin: 0">Treść sekcji, np. lista odjazdów.</p>`;
 
 export const Default: Story = {
     render: render(`<ui-section v-bind="args">${content}</ui-section>`),
@@ -50,9 +50,9 @@ export const CustomTitle: Story = {
     render: render(`
         <ui-section v-bind="args">
             <template #title="{ icon, title }">
-                <ui-icon :icon="icon" fixed-width class="mr-1" />
+                <ui-icon :icon="icon" fixed-width style="margin-inline-end: 0.25rem" />
                 {{ title }}
-                <span class="ml-2 badge badge-pill badge-dark">3</span>
+                <span class="badge badge-pill badge-dark" style="margin-inline-start: 0.5rem">3</span>
             </template>
             ${content}
         </ui-section>
@@ -65,7 +65,7 @@ export const WithActions: Story = {
         <ui-section v-bind="args">
             <template #actions>
                 <ui-section-settings>
-                    <p class="mb-0 p-2">Ustawienia sekcji</p>
+                    <p style="margin: 0; padding: 0.5rem">Ustawienia sekcji</p>
                 </ui-section-settings>
                 <button class="btn btn-action">
                     <ui-tooltip>odśwież</ui-tooltip>

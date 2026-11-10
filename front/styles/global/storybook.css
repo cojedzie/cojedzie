@@ -1,5 +1,5 @@
 /*!
- * Copyright (C) 2022 Kacper Donat
+ * Copyright (C) 2026 Kacper Donat
  *
  * @author Kacper Donat <kacper@kadet.net>
  *
@@ -17,26 +17,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@reference "../tailwind.css";
+
+/* The icon catalogue of the UiIcon docs page. */
 .icon-catalog {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.5rem;
-  width: 100%;
+  gap: --spacing(2);
+  inline-size: 100%;
 
-  &__entry {
-    border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(black, 0.3);
-    padding: 0.5rem;
-    flex: 1 1 auto;
+  & .icon-catalog__entry {
+    inline-size: 100%;
+    padding: --spacing(2);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-popup);
     text-align: center;
-    width: 100%;
-
-    &:last-child {
-      margin-right: auto;
-    }
   }
 
-  &__icon-name {
-    font-size: 0.875rem !important;
+  & .icon-catalog__icon-name {
+    font-size: var(--text-sm);
   }
 }
