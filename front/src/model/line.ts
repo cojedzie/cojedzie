@@ -38,9 +38,17 @@ export interface Operator {
     $type: "vnd.cojedzie.operator";
 }
 
+/**
+ * What a track is to riders (ADR 0031): the line in one direction, a shortened or otherwise different run, or a run to
+ * or from the depot, which the API never returns
+ */
+export type TrackKind = "main" | "side" | "non-passenger";
+
 export interface Track {
     id: string;
     description: string;
+    /** From version 1.1 of the track endpoints */
+    kind?: TrackKind;
     line: Line;
     destination?: Stop;
     stops?: Stop[];

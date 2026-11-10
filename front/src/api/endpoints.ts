@@ -36,6 +36,7 @@ export type Endpoints = {
     v1_departure_list: Endpoint<"provider", Jsonified<Departure>[]>;
     v1_message_all: Endpoint<"provider", Jsonified<Message>[]>;
     v1_line_list: Endpoint<"provider", Jsonified<Line>[]>;
+    v1_line_details: Endpoint<"provider" | "line", Jsonified<Line>>;
     v1_provider_details: Endpoint<"provider", Jsonified<Provider>>;
     v1_provider_list: Endpoint<never, Jsonified<Provider>[]>;
     v1_stop_list: Endpoint<"provider", Jsonified<Stop>[]>;
@@ -69,6 +70,10 @@ export const endpoints: Endpoints = {
         template: "/api/v1/{provider}/lines",
         version: "1.0",
     },
+    v1_line_details: {
+        template: "/api/v1/{provider}/lines/{line}",
+        version: "1.0",
+    },
     v1_provider_details: {
         template: "/api/v1/providers/{provider}",
         version: "1.0",
@@ -83,7 +88,7 @@ export const endpoints: Endpoints = {
     },
     v1_track_list: {
         template: "/api/v1/{provider}/tracks",
-        version: "1.0",
+        version: "1.1",
     },
     v1_stop_group_list: {
         template: "/api/v1/{provider}/stop-groups",
@@ -95,7 +100,7 @@ export const endpoints: Endpoints = {
     },
     v1_stop_tracks: {
         template: "/api/v1/{provider}/stops/{stop}/tracks",
-        version: "1.0",
+        version: "1.1",
     },
     v1_stop_timetable: {
         template: "/api/v1/{provider}/stops/{stop}/timetable",

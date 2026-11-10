@@ -104,6 +104,41 @@ export function linesOfTracks(tracks: Track[]): Line[] {
     return [...lines.values()].sort((a, b) => a.symbol.localeCompare(b.symbol, undefined, { numeric: true }));
 }
 
+/** The tracks of a line, in one request: the API's largest page, more than any line has. */
+const LINE_TRACKS_LIMIT = 100;
+
+export type LineWithTracks = {
+    line: Line;
+    /** The tracks riders can take, each with its stops in order */
+    tracks: Track[];
+};
+
+/** Fetches a line and its tracks with their stops, or `null` when the provider has no such line. */
+export async function fetchLine(client: Client, line: string): Promise<LineWithTracks | null> {
+    try {
+        const [details, tracks] = await Promise.all([
+            client.get("v1_line_details", { version: "^1.0", params: { line } }),
+            // `kind` is there from version 1.1; non-passenger tracks never are (ADR 0031)
+            client.get("v1_track_list", {
+                version: "^1.1",
+                query: { line, embed: "stops", limit: LINE_TRACKS_LIMIT },
+            }),
+        ]);
+
+        return { line: details.data as Line, tracks: tracks.data as Track[] };
+    } catch (error) {
+        if (isNotFound(error)) {
+            return null;
+        }
+
+        throw error;
+    }
+}
+
+function isNotFound(error: unknown): boolean {
+    return (error as { response?: { status?: number } } | null)?.response?.status === 404;
+}
+
 function unknownLine(id: string): Line {
     return { id, symbol: id, type: "unknown", night: false, fast: false, $type: "vnd.cojedzie.line" };
 }

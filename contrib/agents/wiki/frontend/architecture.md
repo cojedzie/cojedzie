@@ -50,7 +50,16 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   picks the entry to scroll to. `page.ts` holds the stop timetable page's logic: `timetableDateFromQuery(value, today,
   range)` reads `?date=` (only a strict, existing Y-m-d; anything else is today, a date outside the provider's range is
   clamped to it), `timetableDateQuery(date, today)` writes it back (none for today, so a saved link shows the day it is
-  opened on). Tests: `test/timetable/`.
+  opened on). The line page's logic: `fetchLine(client, line)` fetches the line (`v1_line_details`) and its tracks with
+  their stops in order (`v1_track_list` with `line`, `embed=stops` and `limit=100`, the API's default page being 20;
+  version `^1.1` for `kind`) together, and is `null` for a line the API answers 404 for. `tracks.ts` orders a line's
+  tracks as riders pick them (`orderTracks`: main before side, the API's order within a kind, a track without `kind`
+  counting as side), chooses the one shown (`chooseTrack(tracks, { query, stop })`: `?track=` when the line has it,
+  else the first through the open stop, main before side, judged by the tracks' stops, else the first; an unknown
+  `?track=` falls back silently) and labels them (`trackLabel`: "→ destination", the destination or else the last
+  stop, with the first stop in front when several of the line's tracks share a label; provisional, to be checked on
+  real data, where side tracks often end at a main track's destination).
+  Non-passenger tracks never come from the API (ADR 0031), so nothing filters them. Tests: `test/timetable/`.
 - `components/timetable/` — the timetable's views (#146), thin over the builders of `src/timetable`: `StopTimetable`
   puts them together for a stop's day: the date picker (`v-model:date`, limited to `range`), the "Lista | Godziny"
   switch (`v-model:view`, `list` / `hours`) and the "Linie | Razem" switch (`v-model:grouping`, `line` / `combined`,

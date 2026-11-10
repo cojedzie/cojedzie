@@ -19,7 +19,7 @@
 
 import { Temporal } from "@/time";
 import { describe, expect, it, vi } from "vitest";
-import { fetchTimetableDay, linesOfTracks, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
+import { fetchLine, fetchTimetableDay, linesOfTracks, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
 import type { Line, Track } from "@/model";
 
 const six = { id: "l6", symbol: "6", type: "tram", night: false, fast: false, $type: "vnd.cojedzie.line" };
@@ -114,5 +114,29 @@ describe("linesOfTracks", () => {
         ]);
 
         expect(lines.map(line => line.symbol)).toEqual(["6", "12", "111", "N1"]);
+    });
+});
+
+describe("fetching a line", () => {
+    const tracks = [{ id: "t1", kind: "main", description: "", line: six, stops: [] }];
+    const client = (line: () => Promise<unknown>) => ({
+        get: vi.fn(async (endpoint: string) => (endpoint === "v1_line_details" ? line() : { data: tracks })),
+    });
+
+    it("fetches the line and its tracks with their stops", async () => {
+        const api = client(async () => ({ data: six }));
+
+        expect(await fetchLine(api as never, "l6")).toEqual({ line: six, tracks });
+        expect(api.get).toHaveBeenCalledWith("v1_line_details", { version: "^1.0", params: { line: "l6" } });
+        expect(api.get).toHaveBeenCalledWith("v1_track_list", {
+            version: "^1.1",
+            query: { line: "l6", embed: "stops", limit: 100 },
+        });
+    });
+
+    it("fails on other errors", async () => {
+        const api = client(async () => Promise.reject({ response: { status: 500 } }));
+
+        await expect(fetchLine(api as never, "l6")).rejects.toEqual({ response: { status: 500 } });
     });
 });

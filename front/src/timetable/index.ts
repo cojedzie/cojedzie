@@ -18,5 +18,6 @@
  */
 
 export * from "./fetch";
+export * from "./tracks";
 export * from "./model";
 export * from "./page";
