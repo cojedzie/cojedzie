@@ -70,7 +70,7 @@ describe("StopPicker", () => {
             "v1_stop_group_list",
             expect.objectContaining({ query: { name: "Bra", embed: "destinations" } }),
         );
-        expect(wrapper.find(".group-name").text()).toBe("Brama");
+        expect(wrapper.find(".group h3").text()).toBe("Brama");
         expect(wrapper.findAll(".entry")).toHaveLength(2);
         expect(wrapper.find(".favourites").exists()).toBe(false);
     });

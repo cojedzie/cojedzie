@@ -18,7 +18,7 @@
         <div v-else-if="filter.length > 2 && Object.keys(filtered).length > 0">
             <div v-for="(group, name) in filtered" :key="name" class="group">
                 <div class="group-header">
-                    <h3 class="group-name">
+                    <h3>
                         {{ name }}
                     </h3>
 
@@ -30,8 +30,8 @@
                     </div>
                 </div>
                 <ul class="group-stops">
-                    <li v-for="stop in group" :key="stop.id" class="group-stop">
-                        <stop-picker-entry :stop="stop" class="entry">
+                    <li v-for="stop in group" :key="stop.id">
+                        <stop-picker-entry :stop="stop">
                             <template #primary-action>
                                 <button class="btn btn-action stretched-link" @click="select(stop)">
                                     <ui-tooltip>dodaj przystanek</ui-tooltip>
@@ -134,14 +134,7 @@ function select(stop: Stop | Stop[]) {
 }
 
 .group-header {
-    @apply ui-section-header;
-    margin-block-end: 0;
-}
-
-.group-name {
-    margin-block-end: 0;
-    font-size: var(--text-base);
-    font-weight: bold;
+    @apply list-header;
 }
 
 .group-tools {
@@ -150,15 +143,6 @@ function select(stop: Stop | Stop[]) {
 }
 
 .group-stops {
-    @apply list-underlined;
-}
-
-.group-stop {
-    display: flex;
-}
-
-.entry {
-    flex-grow: 1;
-    max-inline-size: 100%;
+    @apply stop-entry-list;
 }
 </style>
