@@ -24,9 +24,9 @@ export const Default: StoryObj<typeof UiSectionSettings> = {
         components: { UiSectionSettings },
         setup: () => ({ args }),
         template: `
-            <div class="flex justify-end">
+            <div style="display: flex; justify-content: flex-end">
                 <ui-section-settings v-bind="args">
-                    <p class="mb-0 p-2">Ustawienia sekcji</p>
+                    <p style="margin: 0; padding: 0.5rem">Ustawienia sekcji</p>
                 </ui-section-settings>
             </div>
         `,

@@ -93,7 +93,7 @@ export const Sizes: Story = {
 export const Narrow: Story = {
     render: render(`
         <div style="inline-size: 320px; padding-inline: 16px; box-sizing: border-box; border: 1px dashed #ccc">
-            <ui-toggle-group v-bind="args" v-model="value" class="w-full" />
+            <ui-toggle-group v-bind="args" v-model="value" style="inline-size: 100%" />
         </div>
     `),
     args: {

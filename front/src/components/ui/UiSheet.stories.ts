@@ -22,7 +22,7 @@ export const Default: StoryObj<typeof UiSheet> = {
         template: `
             <button class="btn btn-primary" @click="open = true">otwórz</button>
             <ui-sheet v-if="open" v-bind="args" @leave="open = false">
-                <p class="mb-0">Treść arkusza</p>
+                <p style="margin: 0">Treść arkusza</p>
             </ui-sheet>
         `,
     }),

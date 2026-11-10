@@ -28,7 +28,7 @@ const render: StoryObj<typeof ProviderSwitcher>["render"] = args => ({
     components: { ProviderSwitcher },
     setup: () => ({ args }),
     template: `
-        <div class="hstack p-2 bg-primary text-white">
+        <div style="display: flex; align-items: center; padding: 0.5rem; background: var(--color-primary); color: white">
             <provider-switcher v-bind="args" />
         </div>
     `,

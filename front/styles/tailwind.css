@@ -18,15 +18,14 @@
  */
 
 /*
- * Tailwind's base styles, the design tokens and the shared looks of components (ADRs 0034 and 0035). Components
- * reference this file in their scoped styles (`@reference "@styles/tailwind.css"`) to use the tokens, `@apply` and
- * the `@utility` definitions below. Global styles not yet moved are in main.scss, which mirrors the colours and
- * breakpoints (test/styles/theme.test.ts keeps them equal).
+ * The app's styles: Tailwind's base styles, the global CSS, the design tokens and the shared looks of components
+ * (ADRs 0034 and 0035). Components reference this file in their scoped styles (`@reference "@styles/tailwind.css"`)
+ * to use the tokens, `@apply` and the `@utility` definitions below. Templates use no utilities, so Tailwind scans no
+ * sources: `@apply` resolves utilities on its own.
  */
-@import "tailwindcss" important source(none);
-
-@source "../src";
-@source "../resources/views";
+@import "tailwindcss" source(none);
+@import "./global/base.css";
+@import "./global/components.css";
 
 /* Primitive tokens. `static`, so the ones only component styles read are emitted too. */
 @theme static {
@@ -39,6 +38,7 @@
   --color-primary-dark: #00508e;
   --color-primary-light: #0075d1;
   --color-primary-lighter: #0067b7;
+  --color-link-hover: #00335c;
   --color-danger: #cd2e12;
   --color-danger-dark: #9e230e;
   --color-success: #28a745;
@@ -49,6 +49,7 @@
   --color-light: #f8f9fa;
   --color-muted: #6c757d;
   --color-body: #212529;
+  --color-input: color-mix(in srgb, var(--color-dark) 6%, white);
 
   --color-line-trolleybus: #419517;
   --color-line-tram: var(--color-danger);
