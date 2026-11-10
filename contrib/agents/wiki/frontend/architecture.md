@@ -64,10 +64,11 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   30 s). Runs of another service day (after midnight) carry no mark, as it tells a rider nothing and takes room; the
   builders still compute `otherDay`. Departed runs are dimmed by the view's cell (`--opacity-muted`). Cells are a dense
   auto-fill grid with `grid-auto-rows: auto`: the global reset gives grids `minmax(0, 1fr)` rows, which makes every row
-  as tall as the tallest. Stories show how the views are composed: each part has its own (`Timetable/Parts/*`: one entry
-  per state, a heading per line type, a legend), and the views get small slices of `timetable.fixtures.ts`, a Friday at
-  a stop at 09:40 with three lines (one with two headsigns), a night line with runs after midnight at both ends of the
-  day, departed and live runs; `between(departures, "09:00", "10:30")` and `ofLine(departures, line)` cut the slices.
+  as tall as the tallest. The `Timetable/Overview` docs page draws the composition (`Timetable.mdx`). Stories show how
+  the views are composed: each part has its own (`Timetable/Parts/*`: one entry per state, a heading per line type, a
+  legend), and the views get small slices of `timetable.fixtures.ts`, a Friday at a stop at 09:40 with three lines (one
+  with two headsigns), a night line with runs after midnight at both ends of the day, departed and live runs;
+  `between(departures, "09:00", "10:30")` and `ofLine(departures, line)` cut the slices.
 - `src/time` — dates and times (ADR 0033), framework-free like `src/timetable` (same ESLint rule). Calendar dates are
   `Temporal.PlainDate`, months `Temporal.PlainYearMonth`, moments `Temporal.Instant`, clock times of a day
   `Temporal.PlainTime`, from `temporal-polyfill` until Safari ships Temporal: `src/time/temporal.ts` is the only file

@@ -1,0 +1,171 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stop from "./StopTimetable.stories";
+import * as ListPerLine from "./TimetableListPerLine.stories";
+import * as ListCombined from "./TimetableListCombined.stories";
+import * as Entry from "./TimetableEntry.stories";
+import * as Heading from "./TimetableLineHeading.stories";
+import * as Legend from "./TimetableLegend.stories";
+
+<Meta title="Timetable/Overview" />
+
+# Timetable
+
+A stop's timetable of one day, built from small parts. The components only lay out what the builders of
+`src/timetable` compute from the day's departures (`fetchTimetableDay`): grouping, footnote letters and hours
+are theirs.
+
+export const parts = {
+    TimetableLineHeading: {
+        tone: "var(--color-primary)",
+        what: "the line's symbol and main headsign, underlined in its colour",
+    },
+    TimetableEntry: {
+        tone: "var(--color-success)",
+        what: "a cell: the time, its letter, a live run's estimate and delay",
+    },
+    TimetableLegend: { tone: "var(--color-info)", what: "footnote letter → headsign" },
+    "LineSymbol simple": { tone: "var(--color-danger)", what: "the line of a run, small" },
+    UiTooltip: { tone: "var(--color-dark)", what: "the headsign, on tap" },
+};
+
+export const Part = ({ name }) => (
+    <span
+        title={parts[name].what}
+        style={{
+            display: "inline-block",
+            padding: "0.125rem 0.5rem",
+            border: `1px solid ${parts[name].tone}`,
+            borderInlineStartWidth: "4px",
+            borderRadius: "var(--radius-sm)",
+            background: "white",
+            color: "var(--color-body)",
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: "0.75rem",
+            whiteSpace: "nowrap",
+        }}
+    >
+        {name}
+    </span>
+);
+
+export const View = ({ name, builder, what, uses }) => (
+    <div
+        style={{
+            display: "grid",
+            gridAutoRows: "auto",
+            gap: "0.5rem",
+            alignContent: "start",
+            padding: "0.75rem",
+            border: "1px solid var(--color-divider)",
+            borderRadius: "var(--radius-lg)",
+            background: "white",
+        }}
+    >
+        <div>
+            <code style={{ fontWeight: "bold" }}>{name}</code>
+            <div style={{ fontSize: "0.75rem", color: "var(--color-muted)" }}>
+                {what} · from <code>{builder}</code>
+            </div>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
+            {uses.map(part => (
+                <Part key={part} name={part} />
+            ))}
+        </div>
+    </div>
+);
+
+<div
+    style={{
+        display: "grid",
+        gridAutoRows: "auto",
+        gap: "0.75rem",
+        padding: "1rem",
+        border: "2px solid var(--color-dark)",
+        borderRadius: "var(--radius-lg)",
+        background: "var(--color-light)",
+    }}
+>
+    <div>
+        <code style={{ fontWeight: "bold", fontSize: "1rem" }}>StopTimetable</code>
+        <div style={{ fontSize: "0.75rem", color: "var(--color-muted)" }}>
+            the date picker, “Lista | Godziny” and “Linie | Razem”, the empty day; shows one of its views:
+        </div>
+    </div>
+    <div
+        style={{
+            display: "grid",
+            gridAutoRows: "auto",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 22rem), 1fr))",
+            gap: "0.75rem",
+        }}
+    >
+        <View
+            name="TimetableListPerLine"
+            builder="buildLineLists"
+            what="a list per line"
+            uses={["TimetableLineHeading", "TimetableEntry", "TimetableLegend"]}
+        />
+        <View
+            name="TimetableListCombined"
+            builder="buildTimetableList"
+            what="all lines in one list"
+            uses={["TimetableEntry", "LineSymbol simple", "UiTooltip"]}
+        />
+        <View
+            name="TimetableHoursPerLine"
+            builder="buildLineTimetables"
+            what="a table of hours per line"
+            uses={["TimetableLineHeading", "TimetableLegend"]}
+        />
+        <View
+            name="TimetableHoursCombined"
+            builder="buildCombinedTimetable"
+            what="all lines in one table of hours"
+            uses={["LineSymbol simple", "UiTooltip"]}
+        />
+    </div>
+</div>
+
+<div style={{ display: "grid", gridAutoRows: "auto", gap: "0.25rem", marginBlock: "1rem 1.5rem", fontSize: "0.8rem" }}>
+    {Object.entries(parts).map(([name, { what }]) => (
+        <div key={name} style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+            <Part name={name} /> {what}
+        </div>
+    ))}
+</div>
+
+## The page
+
+`StopTimetable` takes the day's departures and the provider's time zone; the day, the view and the grouping are
+`v-model`s, kept by the page. For a stop's timetable of one line (`lineFixed`) there is no grouping to choose.
+
+<Canvas of={Stop.Stop} />
+
+## The views
+
+Each view gets what its builder made of the departures. Departed runs are dimmed by the view's cell.
+
+<Canvas of={ListPerLine.Live} />
+
+<Canvas of={ListCombined.Live} />
+
+## The parts
+
+A line's heading and legend frame its list or table:
+
+<Canvas of={Heading.Tram} />
+
+<Canvas of={Legend.TwoHeadsigns} />
+
+Every cell of the lists is a `TimetableEntry`. Hour rows show the planned minute only, so they don't use it.
+
+<Canvas of={Entry.Planned} />
+
+<Canvas of={Entry.WithNote} />
+
+<Canvas of={Entry.Late} />
+
+<Canvas of={Entry.Early} />
+
+<Canvas of={Entry.WithLine} />
