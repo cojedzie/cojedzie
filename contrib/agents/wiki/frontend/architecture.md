@@ -230,8 +230,24 @@ The "Rozkład" navigation entry (both bars) is the route `timetable` (`/:provide
 the left
 (`<router-view name="side">`, for the search #156 and the line page #157) and two thirds on the right (the default
 view). It loads the provider's details (`selection.loadProvider`), which the pages wait for: they carry the time zone
-and the timetable's range. On its own route it shows `TimetableStartPage` on the left, a placeholder until the search
-exists; on a phone a page on the right stands alone (the left column is hidden).
+and the timetable's range. On its own route it shows `TimetableStartPage` on the left, the search; on a phone a page
+on the right stands alone (the left column is hidden).
+
+The search (`pages/TimetableStartPage.vue`, "Rozkłady jazdy") has one field, "Przystanek lub linia" (lines join it in
+#202). Its "Przystanki" section searches stop groups by name from three characters, debounced 400 ms like
+`StopPicker`, through `searchStopGroups` (`components/stop-picker/search.ts`, framework-free, taking the API client,
+shared with `StopPicker` so both find stops alike); a late answer to an older query is dropped, and an empty answer
+says "Brak przystanków dla „…”". The results stay while a longer query is searched, as in `StopPicker`, so they don't
+flicker away while typing; the spinner shows only while there are none yet. Group names are only headings (timetables
+are of single stops); each stop is a `StopPickerEntry` whose `primary-action` is `TimetableStopLink`
+(`components/timetable/`), a stretched router link to `timetable-stop` with only the stop's id, so a newly opened stop
+starts at today. Below three characters the section is "Ostatnio wybierane", the history store rendered by
+`StopPickerHistory`, whose scoped `primary-action` slot (receiving the stop) the search fills with the same link; by
+default it adds the stop to the departures board's selection. It is hidden while the history is empty. A link in
+the results pushes the stop it opens to the history, shared with the departures page (`remember`); one in the recent
+stops doesn't, as on the departures page, so the list doesn't reorder under the rider. Deep links and
+`StopDetailsDialog` don't record either. The lists look like `StopPicker`'s through `@utility list-header` (a group's
+heading bar) and `@utility stop-entry-list` (rows of `StopPickerEntry`).
 
 Children: `timetable-stop` (`stops/:stop`) and `timetable-line-stop` (`lines/:line/stops/:stop`), both
 `pages/StopTimetablePage.vue`, of a single stop, never a group. It fetches the stop (`v1_stop_details`, with its
@@ -289,7 +305,7 @@ style inside child components (ADR 0036). There is no Sass and no PostCSS.
   styles read are emitted; Tailwind's default `--text-*` etc. are only emitted when a utility uses them, which is why
   the text scale is declared there) and `@utility` definitions (`focus-ring`, `app-bar-control`, `app-nav-item`,
   `app-nav-item-active`, `ui-control*`, `ui-control-segment`, `section-surface`, `ui-section-header`, `ui-popup`, `list-underlined`,
-  `stop-list-inline`, `no-scrollbars`, `settings-field*`).
+  `list-header`, `stop-entry-list`, `stop-list-inline`, `no-scrollbars`, `settings-field*`).
 
 `styles/tailwind.css` is the one entry point, imported by `src/app.ts` and `.storybook/preview.js` (which adds
 `styles/global/storybook.css` for the icon catalogue). It imports Tailwind (`@tailwindcss/vite`) with its preflight

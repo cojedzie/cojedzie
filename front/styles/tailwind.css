@@ -313,6 +313,34 @@
   }
 }
 
+/*
+ * The header of the list under it: UiSection's header bar flush with the list, its heading bold (stop groups). It is
+ * the heading itself, or a bar holding the heading and its buttons.
+ */
+@utility list-header {
+  @apply ui-section-header;
+  margin-block-end: 0;
+
+  &:is(h1, h2, h3, h4, h5, h6),
+  & > :is(h1, h2, h3, h4, h5, h6) {
+    font-weight: bold;
+  }
+}
+
+/* Rows of StopPickerEntry, each entry filling its row (the stop picker, its history, the timetable search). */
+@utility stop-entry-list {
+  @apply list-underlined;
+
+  & > li {
+    display: flex;
+  }
+
+  & > li > * {
+    flex-grow: 1;
+    max-inline-size: 100%;
+  }
+}
+
 /* Stops in one line, separated by commas, cut with an ellipsis (messages, favourites, destinations). */
 @utility stop-list-inline {
   display: block;

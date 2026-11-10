@@ -1,11 +1,14 @@
 <template>
     <ul v-if="all.length > 0" class="history">
         <li v-for="(entry, index) in all" :key="index">
-            <stop-picker-entry :stop="entry.stop" class="entry">
+            <stop-picker-entry :stop="entry.stop">
                 <template #primary-action>
-                    <button @click="select(entry.stop)" class="btn btn-action stretched-link">
-                        <ui-icon icon="history" />
-                    </button>
+                    <!-- the entry's main action, by default adding the stop to the departures board's selection -->
+                    <slot name="primary-action" :stop="entry.stop">
+                        <button @click="select(entry.stop)" class="btn btn-action stretched-link">
+                            <ui-icon icon="history" />
+                        </button>
+                    </slot>
                 </template>
             </stop-picker-entry>
         </li>
@@ -25,6 +28,8 @@ defineOptions({ name: "StopPickerHistory" });
 const selection = useSelectionStore();
 const { all } = storeToRefs(useHistoryStore());
 
+defineSlots<{ "primary-action"?: (props: { stop: Stop }) => unknown }>();
+
 function select(stop: Stop) {
     selection.add(stop);
 }
@@ -34,15 +39,6 @@ function select(stop: Stop) {
 @reference "@styles/tailwind.css";
 
 .history {
-    @apply list-underlined;
-
-    & > li {
-        display: flex;
-    }
-}
-
-.entry {
-    flex-grow: 1;
-    max-inline-size: 100%;
+    @apply stop-entry-list;
 }
 </style>

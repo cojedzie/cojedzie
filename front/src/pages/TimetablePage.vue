@@ -1,7 +1,7 @@
 <template>
     <div class="page-container timetable-page">
         <div class="columns" :class="{ 'with-main': !onStart }">
-            <!-- the search (#156) or the line page (#157); until they exist the start page only on its own route -->
+            <!-- the search on its own route, otherwise the route's side view (the line page, #157) -->
             <div class="column side">
                 <timetable-start-page v-if="onStart" />
                 <router-view v-else name="side" />
