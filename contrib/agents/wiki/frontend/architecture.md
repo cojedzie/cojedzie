@@ -58,11 +58,16 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   `clampDate`, `isWithin`, Polish labels through `toLocaleString` (`formatLongDate` "poniedziałek, 09.11.2026",
   `formatShortDate` "pon. 09.11", `formatDateInWords` "10 listopada 2026", `formatMonth`, which goes through the month's
   first day, as a year-month formats only in its own calendar). Times: `formatClockTime(instant, zone)` "14:05",
-  `formatDateTime` "10.11.2026, 14:05", `dateIn`, `clockTimeIn`, `wholeMinutesBetween` (towards zero) and
-  `formatRelativeTime(target, now)` through `Intl.RelativeTimeFormat`: "za chwilę" within a minute, whole minutes
-  rounded down within an hour ("za 44 minuty"), hours beyond. `buildMonth` lays a month
-  out as six weeks from Monday of `CalendarDay` cells (today, selected, out of range). Whatever a calendar day shows
-  belongs in that cell model; marking days (no service, day categories) is expected later. Tests: `test/time/`.
+  `formatDateTime` "10.11.2026, 14:05", `dateIn`, `clockTimeIn`, `wholeMinutesBetween` (towards zero),
+  `formatDayAndTime(instant, now, zone)` ("dzisiaj o 14:05", "jutro o 9:00" within a day, the date in words beyond; day
+  words from `Intl.RelativeTimeFormat` with `numeric: "auto"`) and `formatRelativeTime(target, now)` through
+  `Intl.RelativeTimeFormat`: "za chwilę" within a minute, whole minutes rounded down within an hour ("za 44 minuty"),
+  hours beyond. Every formatter uses one locale, `LOCALE` ("pl"), where a chosen locale would come in (#180). What Intl
+  can't say is written by hand and marked for translation: the "o" joining a day word and a time, and the short date
+  without Intl's comma. Polish also declines day words after prepositions ("do jutra", where Intl gives "jutro"), so
+  message validity uses a day word only for today. `buildMonth` lays a month out as six weeks from Monday of
+  `CalendarDay` cells (today, selected, out of range). Whatever a calendar day shows belongs in that cell model; marking
+  days (no service, day categories) is expected later. Tests: `test/time/`.
 - `composables/useToday.ts` — today as the app sees it: `Application.vue` provides today in the current provider's time
   zone (`provideToday(useTodayIn(() => selection.provider?.timezone))`, checked every minute, a new value only when the
   day changes), `useToday()` injects it, falling back to the device's time zone where nothing provides one (stories,

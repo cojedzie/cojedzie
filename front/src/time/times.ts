@@ -17,18 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { formatDateInWords } from "./dates";
+import { LOCALE } from "./locale";
 import { Temporal } from "./temporal";
 
 // Moments are Temporal.Instant; a time zone is applied only here, when one is shown (ADR 0033).
 
 /** "09:05" */
 export function formatClockTime(instant: Temporal.Instant, timeZone: string): string {
-    return instant.toZonedDateTimeISO(timeZone).toLocaleString("pl", { hour: "2-digit", minute: "2-digit" });
+    return instant.toZonedDateTimeISO(timeZone).toLocaleString(LOCALE, { hour: "2-digit", minute: "2-digit" });
 }
 
 /** "10.11.2026, 14:05" */
 export function formatDateTime(instant: Temporal.Instant, timeZone: string): string {
-    return instant.toZonedDateTimeISO(timeZone).toLocaleString("pl", {
+    return instant.toZonedDateTimeISO(timeZone).toLocaleString(LOCALE, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -52,7 +54,8 @@ export function wholeMinutesBetween(from: Temporal.Instant, to: Temporal.Instant
     return Math.trunc(from.until(to).total("minutes"));
 }
 
-const relative = new Intl.RelativeTimeFormat("pl", { numeric: "always" });
+const relative = new Intl.RelativeTimeFormat(LOCALE, { numeric: "always" });
+const relativeDays = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" });
 
 /**
  * How far `target` is from `now`, as a departure board says it: "za chwilę" within a minute, whole minutes rounded
@@ -70,4 +73,22 @@ export function formatRelativeTime(target: Temporal.Instant, now: Temporal.Insta
     return Math.abs(minutes) < 60
         ? relative.format(minutes, "minute")
         : relative.format(Math.trunc(minutes / 60), "hour");
+}
+
+/**
+ * When a moment is, as a day and a time: "dzisiaj o 14:05", "jutro o 9:00", "wczoraj o 22:10" within a day of `now`
+ * (the day words come from Intl), the date in words beyond ("10 listopada 2026"). Days are taken in the time zone the
+ * time is shown in, so the two agree.
+ */
+export function formatDayAndTime(instant: Temporal.Instant, now: Temporal.Instant, timeZone: string): string {
+    const day = dateIn(instant, timeZone);
+    const days = dateIn(now, timeZone).until(day, { largestUnit: "days" }).days;
+
+    if (Math.abs(days) > 1) {
+        return formatDateInWords(day);
+    }
+
+    // Intl has no pattern joining a day word and a time ("o" in Polish, "at" in English): translate it with the rest
+    // of the copy (#180)
+    return `${relativeDays.format(days, "day")} o ${formatClockTime(instant, timeZone)}`;
 }

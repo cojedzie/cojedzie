@@ -18,6 +18,7 @@
  */
 
 export * from "./temporal";
+export * from "./locale";
 export * from "./dates";
 export * from "./month";
 export * from "./times";
