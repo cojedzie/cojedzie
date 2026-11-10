@@ -59,6 +59,7 @@ import { useHistoryStore } from "@/stores/history";
 import FavouritesList from "@/components/favourites/FavouritesList.vue";
 import StopPickerEntry from "./StopPickerEntry.vue";
 import StopPickerHistory from "./StopPickerHistory.vue";
+import { searchStopGroups } from "./search";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
 import { Temporal } from "@/time";
@@ -89,12 +90,9 @@ async function fetch() {
 
     state.value = "fetching";
     try {
-        const response = await api.get("v1_stop_group_list", {
-            query: { name: filter.value, embed: "destinations" },
-            version: "^1.0",
-        });
+        const groups = await searchStopGroups(api, filter.value);
 
-        found.value = response.data.reduce(
+        found.value = groups.reduce(
             (accumulator, { name, stops }) => Object.assign(accumulator, { [name]: stops }),
             {},
         );
