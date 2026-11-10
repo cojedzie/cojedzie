@@ -5,17 +5,8 @@
                 <slot name="primary-action" />
                 <div class="description">
                     <stop-label :stop="stop" />
-                    <div v-if="destinations && destinations.length > 0" class="destinations">
-                        <ul class="destination-list">
-                            <li v-for="destination in destinations" :key="destination.stop.id" class="destination">
-                                <ul class="destination-lines">
-                                    <li v-for="line in destination.lines" :key="line.id">
-                                        <line-symbol :key="line.symbol" :line="line" simple />
-                                    </li>
-                                </ul>
-                                <span class="destination-name">{{ destination.stop.name }}</span>
-                            </li>
-                        </ul>
+                    <div v-if="stop.destinations?.length > 0" class="destinations">
+                        <stop-destinations :destinations="stop.destinations" />
                     </div>
                 </div>
             </div>
@@ -61,55 +52,24 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { Line, StopWithDestinations as Stop } from "@/model";
-import { match, unique } from "@/utils";
+import type { StopWithDestinations as Stop } from "@/model";
 import StopDetailsDialog from "@/components/stop/StopDetailsDialog.vue";
 import UiDialog from "@/components/ui/UiDialog.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import StopMap from "@/components/stop/StopMap.vue";
-import LineSymbol from "@/components/line/LineSymbol.vue";
+import StopDestinations from "@/components/stop/StopDestinations.vue";
 
 defineOptions({ name: "StopPickerEntry" });
 
-const props = defineProps<{ stop: Stop }>();
+defineProps<{ stop: Stop }>();
 
 const details = ref(false);
 const mapButtonHovered = ref(false);
 const mapHovered = ref(false);
 
 const showMap = computed(() => mapHovered.value || mapButtonHovered.value);
-
-const groupLinesByType = (lines: Line[]) =>
-    lines.reduce<{ [kind: string]: Line[] }>(
-        (groups, line) => ({
-            ...groups,
-            [line.type]: [...(groups[line.type] || []), line],
-        }),
-        {},
-    );
-
-const joinedSymbol = match<string, [Line[]]>(
-    [lines => lines.length === 1, lines => lines[0].symbol],
-    [lines => lines.length === 2, ([first, second]) => `${first.symbol}, ${second.symbol}`],
-    [lines => lines.length > 2, ([first]) => `${first.symbol}…`],
-);
-
-const compactLines = destination => ({
-    ...destination,
-    lines: Object.entries(groupLinesByType(destination.lines || [])).map(([type, lines]) => ({
-        type: type,
-        symbol: joinedSymbol(lines),
-        night: lines.every(line => line.night),
-        fast: lines.every(line => line.fast),
-    })),
-    all: destination.lines,
-});
-
-const destinations = computed(() =>
-    unique(props.stop.destinations || [], destination => destination.stop && destination.stop.name).map(compactLines),
-);
 </script>
 
 <style scoped>
@@ -135,28 +95,6 @@ const destinations = computed(() =>
     display: flex;
     align-items: center;
     font-size: var(--text-xs);
-}
-
-.destination-list {
-    @apply stop-list-inline;
-    max-inline-size: 100%;
-}
-
-.destination-lines {
-    display: inline;
-    padding: 0;
-
-    & > li {
-        display: inline-block;
-
-        &:not(:first-child) {
-            margin-inline-start: 0.25em;
-        }
-    }
-}
-
-.destination-name {
-    margin-inline-start: --spacing(1);
 }
 
 .tools {

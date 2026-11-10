@@ -56,7 +56,7 @@ describe("StopPickerEntry", () => {
         expect(wrapper.find(".custom-action").exists()).toBe(true);
     });
 
-    it("lists each destination once with its lines grouped by type", () => {
+    it("lists each direction once with the lines of all its stops, grouped by type", () => {
         const wrapper = mountEntry({
             stop: {
                 ...stop,
@@ -78,10 +78,7 @@ describe("StopPickerEntry", () => {
         });
 
         const destinations = wrapper.findAll(".destination");
-        expect(destinations.map(destination => destination.find(".destination-name").text())).toEqual([
-            "Oliwa",
-            "Wrzeszcz",
-        ]);
+        expect(destinations.map(destination => destination.find(".name").text())).toEqual(["Oliwa", "Wrzeszcz"]);
 
         const symbols = destination =>
             destination.findAll(".symbol").map(symbol => ({
@@ -91,7 +88,7 @@ describe("StopPickerEntry", () => {
             }));
 
         expect(symbols(destinations[0])).toEqual([
-            { symbol: "6, 8", night: false, fast: false },
+            { symbol: "6…", night: false, fast: false },
             { symbol: "N1", night: true, fast: false },
         ]);
         expect(symbols(destinations[1])).toEqual([
