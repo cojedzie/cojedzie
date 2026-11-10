@@ -2,8 +2,11 @@
     <div class="select" :class="{ open: isOpen }" @keydown="handleKeyboardNavigation">
         <div ref="controlElement" class="control" tabindex="0">
             <div class="option selected" :class="{ empty: !modelValue }" @click="open()">
-                <slot v-if="modelValue" :option="modelValue as T">
-                    {{ modelValue }}
+                <!-- the closed field shows the option as in the list unless told otherwise -->
+                <slot v-if="modelValue" name="selected" :option="modelValue as T">
+                    <slot :option="modelValue as T">
+                        {{ modelValue }}
+                    </slot>
                 </slot>
                 <slot v-else name="empty"> Brak wyboru </slot>
             </div>
@@ -69,6 +72,7 @@ const props = defineProps({
 
 defineSlots<{
     default?: (props: { option: T }) => unknown;
+    selected?: (props: { option: T }) => unknown;
     empty?: () => unknown;
     options?: (props: { options: T[] }) => unknown;
     "options-popup"?: (props: {

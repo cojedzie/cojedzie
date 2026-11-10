@@ -17,6 +17,7 @@ const router = createRouter({
         { path: "/", name: "providers", component: page },
         { path: "/:provider", name: "departures", component: page },
         { path: "/:provider/timetable", name: "timetable", component: page },
+        { path: "/:provider/timetable/lines/:line/stops/:stop", name: "timetable-line-stop", component: page },
     ],
 });
 router.push("/trojmiasto");

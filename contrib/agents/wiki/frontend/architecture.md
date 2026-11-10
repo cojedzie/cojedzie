@@ -87,6 +87,15 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   legend), and the views get small slices of `timetable.fixtures.ts`, a Friday at a stop at 09:40 with three lines (one
   with two headsigns), a night line with runs after midnight at both ends of the day, departed and live runs;
   `between(departures, "09:00", "10:30")` and `ofLine(departures, line)` cut the slices.
+- `components/track/` — tracks. `TrackPicker` (departure filters) shows each track's description and stops. The line
+  page has its own two, thin over `src/timetable`: `TrackDirectionPicker` (`v-model` track) over `UiSelect`, its closed
+  field "Kierunek: <destination>" (through `UiSelect`'s `selected` slot, which falls back to the default one), the
+  options in `orderTracks` order labelled by `trackLabel`, a side track with a quiet "skrócony / inny przebieg" (provisional, like the labels);
+  `TrackStopRail` (`track`, `current` stop id), the stops on a vertical line in `var(--color-line-<type>)` with a dot
+  each, filled at both ends, every stop but the last a stretched link to `timetable-line-stop` keeping `?track=`, the
+  last one "przystanek końcowy". The current stop's link is `aria-current="page"` and the rail highlights its own row
+  from that. Stories (`Track/*`) use `track.fixtures.ts`, a tram line with a shortened run and a bus line; Storybook's
+  router has `timetable-line-stop` for the rail's links.
 - `src/time` — dates and times (ADR 0033), framework-free like `src/timetable` (same ESLint rule). Calendar dates are
   `Temporal.PlainDate`, months `Temporal.PlainYearMonth`, moments `Temporal.Instant`, clock times of a day
   `Temporal.PlainTime`, from `temporal-polyfill` until Safari ships Temporal: `src/time/temporal.ts` is the only file
