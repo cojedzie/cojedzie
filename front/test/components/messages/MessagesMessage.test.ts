@@ -37,7 +37,7 @@ describe("MessagesMessage", () => {
     it("renders neither lines nor stops when there are none", () => {
         const wrapper = mountMessage();
 
-        expect(wrapper.find(".message__lines").exists()).toBe(false);
+        expect(wrapper.find(".lines").exists()).toBe(false);
         expect(wrapper.find(".stop-list").exists()).toBe(false);
     });
 
@@ -49,7 +49,7 @@ describe("MessagesMessage", () => {
         });
 
         expect(wrapper.element.tagName).toBe("LI");
-        expect(wrapper.find(".message__validity").text().replace(/\s+/g, " ")).toBe(
+        expect(wrapper.find(".validity").text().replace(/\s+/g, " ")).toBe(
             "ważne od 2 stycznia 2020 do 3 stycznia 2020",
         );
     });
@@ -64,7 +64,7 @@ describe("MessagesMessage", () => {
         });
         afterEach(() => vi.useRealTimers());
 
-        const validity = (props: object) => mountMessage(props).find(".message__validity").text().replace(/\s+/g, " ");
+        const validity = (props: object) => mountMessage(props).find(".validity").text().replace(/\s+/g, " ");
 
         it("says today with the time, and only the time for an end later the same day", () => {
             expect(validity({ validFrom: now.subtract({ hours: 2 }), validTo: now.add({ hours: 2 }) })).toBe(

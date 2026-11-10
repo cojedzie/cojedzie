@@ -1,22 +1,22 @@
 <template>
     <div class="departure">
-        <div class="departure__line">
-            <line-symbol :line="departure.line" />
-            <div class="line__display">
+        <div class="route">
+            <line-symbol :line="departure.line" class="symbol" />
+            <div class="headsign">
                 {{ departure.display }}
             </div>
         </div>
 
-        <div class="departure__time">
+        <div class="time">
             <template v-if="!departure.estimated">
                 <ui-tooltip placement="top-end">
                     Czas rozkładowy, nieuwzględniający aktualnej sytuacji komunikacyjnej.
                 </ui-tooltip>
-                <ui-icon icon="departure-warning" class="mr-2" />
+                <ui-icon icon="departure-warning" class="warning" />
             </template>
 
             <template v-if="!showRelativeTime">
-                <span v-if="timeDiffers" :class="['departure__time', 'departure__time--delayed']">
+                <span v-if="timeDiffers" class="scheduled">
                     {{ clock(departure.scheduled) }}
                 </span>
                 {{ " " }}
@@ -28,18 +28,18 @@
                     {{ signed(departure.delay) }}s
                 </span>
                 {{ " " }}
-                <span class="departure__time">{{ clock(time) }}</span>
+                <span>{{ clock(time) }}</span>
             </template>
             <template v-else>
                 {{ timeLeft }}
             </template>
         </div>
 
-        <div class="departure__stop">
-            <ui-icon icon="stop" fixed-width class="mr-1 shrink-0" />
+        <div class="place">
+            <ui-icon icon="stop" fixed-width class="place-icon" />
             <stop-label :stop="departure.stop" />
 
-            <div class="stop__actions flex-space-left">
+            <div class="tools">
                 <button class="btn btn-action" @click="showTrip = !showTrip">
                     <ui-tooltip>pokaż/ukryj trasę</ui-tooltip>
                     <ui-icon icon="track" />
@@ -48,13 +48,8 @@
         </div>
     </div>
     <ui-fold :visible="showTrip">
-        <trip-timetable
-            v-if="trip"
-            :timetable="trip.timetable"
-            :current="departure.stop"
-            :class="[`trip--${departure.line.type}`]"
-        />
-        <div v-else class="text-center">
+        <trip-timetable v-if="trip" :timetable="trip.timetable" :current="departure.stop" :type="departure.line.type" />
+        <div v-else class="loading">
             <ui-icon icon="spinner" />
         </div>
     </ui-fold>
@@ -155,3 +150,79 @@ async function downloadTrips() {
 
 watch(showTrip, downloadTrips);
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.departure {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    & .route {
+        display: flex;
+        flex: 3 0;
+        align-items: center;
+    }
+
+    & .symbol {
+        min-inline-size: --spacing(24);
+    }
+
+    & .headsign {
+        line-height: 1.2;
+    }
+
+    & .time {
+        /* room for a delayed time, its delay and the estimate */
+        inline-size: 9rem;
+        text-align: end;
+    }
+
+    & .warning {
+        margin-inline-end: --spacing(2);
+    }
+
+    & .scheduled {
+        text-decoration: line-through;
+    }
+
+    & .place {
+        display: flex;
+        align-items: center;
+        inline-size: 100%;
+    }
+
+    & .place-icon {
+        flex-shrink: 0;
+        margin-inline-end: --spacing(1);
+    }
+
+    & .tools {
+        display: flex;
+        margin-inline-start: auto;
+    }
+
+    /* the list's breakpoints */
+    @container departures (width >= 576px) {
+        & .time {
+            margin-inline-start: auto;
+        }
+    }
+
+    @container departures (width >= 768px) {
+        & .time {
+            order: 2;
+        }
+
+        & .place {
+            flex: 2 0;
+            inline-size: auto;
+        }
+    }
+}
+
+.loading {
+    text-align: center;
+}
+</style>

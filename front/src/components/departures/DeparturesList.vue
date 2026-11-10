@@ -1,6 +1,6 @@
 <template>
-    <div v-responsive class="departures">
-        <ul class="departures__list list-underlined list-underlined--condensed">
+    <div class="departures">
+        <ul class="list">
             <li v-for="departure in departures" :key="departure.key">
                 <departures-departure :departure="departure" />
             </li>
@@ -21,3 +21,16 @@ const props = withDefaults(defineProps<{ departures?: Departure[] | null }>(), {
 const store = useDeparturesStore();
 const departures = computed(() => props.departures || store.departures);
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+/* departures lay themselves out by the list's width (container queries) */
+.departures {
+    container: departures / inline-size;
+
+    & .list {
+        @apply list-underlined list-underlined-condensed;
+    }
+}
+</style>
