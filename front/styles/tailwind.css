@@ -56,6 +56,9 @@
   --color-line-train: var(--color-warning);
   --color-line-unknown: var(--color-dark);
 
+  --color-message-info: #0e626f;
+  --color-message-breakdown: #821d0b;
+
   --color-backdrop: rgb(0 0 0 / 0.5);
   /* sections' background over the page's drawing */
   --color-surface: rgb(255 255 255 / 0.85);
@@ -275,6 +278,57 @@
   background: white;
   box-shadow: var(--shadow-popup);
   z-index: var(--z-index-popup);
+}
+
+/* A list of rows divided by dotted lines (departures, history). */
+@utility list-underlined {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  & > li {
+    padding: --spacing(2) --spacing(1);
+    /* hairline */
+    border-block-end: 1px dotted color-mix(in srgb, var(--color-dark) 50%, transparent);
+    transition: background-color var(--duration-fast) var(--ease-in-out);
+  }
+}
+
+@utility list-underlined-condensed {
+  & > li {
+    padding-block: --spacing(1);
+  }
+}
+
+/* Stops in one line, separated by commas, cut with an ellipsis (messages, favourites, destinations). */
+@utility stop-list-inline {
+  display: block;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  & > li {
+    display: inline-flex;
+    align-items: center;
+
+    &:not(:last-child)::after {
+      margin-inline-end: --spacing(1);
+      content: ", ";
+    }
+  }
+}
+
+/* Scrolls without showing scrollbars. */
+@utility no-scrollbars {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    inline-size: 0;
+    block-size: 0;
+  }
 }
 
 /* Global helpers templates use. */

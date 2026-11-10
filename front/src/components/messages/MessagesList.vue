@@ -1,6 +1,6 @@
 <template>
-    <div class="messages mb-2">
-        <ul class="messages__list">
+    <div class="messages">
+        <ul class="list">
             <messages-message
                 v-for="message in messages"
                 :key="message.id"
@@ -14,8 +14,8 @@
             />
         </ul>
         <template v-if="nonDisplayedCount > 0">
-            <div class="hstack">
-                <button class="btn btn-action btn-sm flex-space-left" @click="showAll = !showAll">
+            <div class="more">
+                <button class="btn btn-action btn-sm" @click="showAll = !showAll">
                     <template v-if="showAll"> <ui-icon icon="chevron-up" /> {{ nonDisplayedCount }} mniej </template>
                     <template v-else> <ui-icon icon="chevron-down" /> {{ nonDisplayedCount }} więcej </template>
                 </button>
@@ -44,3 +44,20 @@ const messages = computed(() =>
 );
 const nonDisplayedCount = computed(() => Math.max(allMessages.value.length - displayedEntriesCount.value, 0));
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.messages {
+    margin-block-end: --spacing(2);
+
+    & .list {
+        padding: 0;
+    }
+
+    & .more {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+</style>

@@ -12,7 +12,7 @@ describe("LineSymbol", () => {
     it("marks night and fast lines", () => {
         const wrapper = mount(LineSymbol, { props: { line: { ...line, night: true, fast: true } }, global: { stubs } });
 
-        expect(wrapper.classes()).toEqual(expect.arrayContaining(["line--night", "line--fast"]));
+        expect(wrapper.classes()).toEqual(expect.arrayContaining(["night", "fast"]));
         expect(icons(wrapper)).toEqual(["line-tram", "night", "fast"]);
     });
 

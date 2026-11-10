@@ -39,17 +39,17 @@ describe("TripTimetable", () => {
     afterEach(() => vi.useRealTimers());
 
     it("lists the stops with their departure times", () => {
-        const items = mountTimetable().findAll(".trip__stop");
+        const items = mountTimetable().findAll(".stop");
 
-        expect(items.map(i => i.find(".trip__departure").text())).toEqual(["11:40", "12:05", "12:10"]);
+        expect(items.map(i => i.find(".departure").text())).toEqual(["11:40", "12:05", "12:10"]);
         expect(items[1].text()).toContain("Stop b");
     });
 
     it("marks the visited and the current stops", () => {
-        const items = mountTimetable().findAll(".trip__stop");
+        const items = mountTimetable().findAll(".stop");
 
-        expect(items.map(i => i.classes("trip__stop--visited"))).toEqual([true, false, false]);
-        expect(items.map(i => i.classes("trip__stop--current"))).toEqual([false, true, false]);
+        expect(items.map(i => i.classes("visited"))).toEqual([true, false, false]);
+        expect(items.map(i => i.classes("current"))).toEqual([false, true, false]);
     });
 
     it("scrolls the list to the current stop after mounting", () => {
@@ -63,7 +63,7 @@ describe("TripTimetable", () => {
 
         const wrapper = mountTimetable(host);
 
-        expect((wrapper.find(".trip__stops").element as HTMLElement).scrollLeft).toBe(300);
+        expect((wrapper.find(".stops").element as HTMLElement).scrollLeft).toBe(300);
         spies.forEach(s => s.mockRestore());
         wrapper.unmount();
     });
@@ -77,7 +77,7 @@ describe("TripTimetable", () => {
         ];
 
         const wrapper = mountTimetable(host);
-        const list = wrapper.find(".trip__stops").element as HTMLElement;
+        const list = wrapper.find(".stops").element as HTMLElement;
         list.scrollLeft = 10;
 
         await wrapper.setProps({ current: stops[2] });

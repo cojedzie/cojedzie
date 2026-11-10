@@ -54,7 +54,7 @@ function mountDeparture(settings = {}, overrides = {}) {
 }
 
 const time = (wrapper: ReturnType<typeof mountDeparture>) =>
-    wrapper.find(".departure > .departure__time").text().replace(/\s+/g, " ");
+    wrapper.find(".departure > .time").text().replace(/\s+/g, " ");
 
 describe("DeparturesDeparture", () => {
     beforeEach(() => {
@@ -114,7 +114,7 @@ describe("DeparturesDeparture", () => {
         expect(wrapper.find(".fold").exists()).toBe(false);
         expect(get).not.toHaveBeenCalled();
 
-        await wrapper.find(".stop__actions button").trigger("click");
+        await wrapper.find(".tools button").trigger("click");
         await flushPromises();
 
         expect(get).toHaveBeenCalledWith("v1_trip_details", { params: { id: "trip-1" }, version: "^1.1" });
@@ -132,7 +132,7 @@ describe("DeparturesDeparture", () => {
         });
         const wrapper = mountDeparture({}, { delay: 120 });
 
-        await wrapper.find(".stop__actions button").trigger("click");
+        await wrapper.find(".tools button").trigger("click");
         await flushPromises();
 
         expect(wrapper.find(".trip").text()).toBe("2026-10-25T01:01:00Z");
