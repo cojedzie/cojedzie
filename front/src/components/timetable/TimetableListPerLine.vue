@@ -8,6 +8,7 @@
                     :key="entry.departure.key"
                     class="cell"
                     :class="{ departed: entry.departed }"
+                    :data-nearest="entry.departure.key === nearest ? '' : undefined"
                 >
                     <timetable-entry :entry="entry" :note="entry.note" />
                 </li>
@@ -28,6 +29,8 @@ defineOptions({ name: "TimetableListPerLine" });
 defineProps<{
     /** The day's entries, one list per line (`buildLineLists`) */
     lists: LineList[];
+    /** The key of the run to scroll to, marked with `data-nearest` */
+    nearest?: string;
 }>();
 </script>
 

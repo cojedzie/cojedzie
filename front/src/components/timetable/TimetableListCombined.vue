@@ -1,6 +1,12 @@
 <template>
     <ol class="cells">
-        <li v-for="entry in entries" :key="entry.departure.key" class="cell" :class="{ departed: entry.departed }">
+        <li
+            v-for="entry in entries"
+            :key="entry.departure.key"
+            class="cell"
+            :class="{ departed: entry.departed }"
+            :data-nearest="entry.departure.key === nearest ? '' : undefined"
+        >
             <button type="button" class="entry" :aria-label="describe(entry)">
                 <timetable-entry :entry="entry">
                     <template #line>
@@ -27,6 +33,8 @@ defineOptions({ name: "TimetableListCombined" });
 defineProps<{
     /** The day's entries of all lines in departure order (`buildTimetableList`) */
     entries: TimetableListEntry[];
+    /** The key of the run to scroll to, marked with `data-nearest` */
+    nearest?: string;
 }>();
 
 // a cell shows the time and the line; its headsign is in the tooltip on tap, and here for screen readers

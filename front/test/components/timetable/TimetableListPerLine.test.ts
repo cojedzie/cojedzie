@@ -9,8 +9,8 @@ const global = {
     stubs: { LineSymbol: { props: ["line"], template: "<span class='symbol'>{{ line.symbol }}</span>" } },
 };
 
-const mountList = () =>
-    mount(TimetableListPerLine, { props: { lists: buildLineLists(liveDay, date, timeZone) }, global });
+const mountList = (nearest?: string) =>
+    mount(TimetableListPerLine, { props: { lists: buildLineLists(liveDay, date, timeZone), nearest }, global });
 
 const cells = (wrapper: ReturnType<typeof mountList>, line: number) => wrapper.findAll(".line")[line].findAll(".cell");
 
@@ -56,5 +56,12 @@ describe("TimetableListPerLine", () => {
                 .find(".badge-danger")
                 .text(),
         ).toBe("-40s");
+    });
+
+    it("marks the run to scroll to", () => {
+        const wrapper = mountList("l6-2026-11-13-09:40");
+
+        const marked = wrapper.findAll("[data-nearest]");
+        expect(marked.map(cell => cell.find(".planned").text())).toEqual(["09:40"]);
     });
 });

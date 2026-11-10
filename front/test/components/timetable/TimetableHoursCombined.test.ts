@@ -12,8 +12,11 @@ const global = {
     },
 };
 
-const mountTable = () =>
-    mount(TimetableHoursCombined, { props: { rows: buildCombinedTimetable(liveDay, date, timeZone) }, global });
+const mountTable = (nearest?: string) =>
+    mount(TimetableHoursCombined, {
+        props: { rows: buildCombinedTimetable(liveDay, date, timeZone), nearest },
+        global,
+    });
 
 const row = (wrapper: ReturnType<typeof mountTable>, hour: string) =>
     wrapper.findAll(".row").find(row => row.find(".hour").text() === hour);
@@ -44,5 +47,14 @@ describe("TimetableHoursCombined", () => {
                 .findAll(".minute")
                 .map(minute => minute.classes("departed")),
         ).toEqual([true, true, true, true, true, true, false, false, false]);
+    });
+
+    it("marks the run to scroll to", () => {
+        const wrapper = mountTable("l6-2026-11-13-09:40");
+
+        const marked = wrapper.findAll("[data-nearest]");
+        expect(marked.map(minute => `${minute.find(".digits").text()} ${minute.find(".symbol").text()}`)).toEqual([
+            "40 6",
+        ]);
     });
 });
