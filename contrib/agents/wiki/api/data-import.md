@@ -123,7 +123,7 @@ Use cron syntax for `COJEDZIE_SCHEDULE_*`, not `@daily`: in `services.yaml` a le
 `bin/docker-init.sh` runs migrations **and** `app:update --async` on container start whenever migrations
 are out of date: a first import of the whole window takes too long to block the start, so the workers run it.
 
-## Schedule window (ADRs 0025, 0026)
+## Schedule window (ADRs 0039, 0026)
 
 `ZTM_GDANSK_SCHEDULE_DAYS` (default 7, at least 1) days of schedules are kept, today first (Warsaw). Upstream's dated
 feeds (stops, routes, trips, stopsInTrip) hold 10 days, so lines, stops and tracks are imported for the whole
@@ -141,7 +141,10 @@ imports with `task api:update` (performance mode). Single-day reads (`stream()`,
 - Tracks, track stops, trips and trip stops carry `valid_from` / `valid_to` (`ValidityTrait`, `NULL` = until
   changed). Track ids are `R{routeId}T{tripId}V{topologyVersionId}`, trip ids
   `R{routeId}T{tripId}S{busServiceName}O{order}D{date}` (unique per run and service day). A track
-  is valid for the days the dated feeds list it in; a trip for its run. Track listings return tracks valid now.
+  is valid for the days the dated feeds list it in. A trip stop (a timetable entry) is valid from the start of its
+  trip's service day to the end of the day it departs on (Warsaw), so a run after midnight stays valid on the next day,
+  whose `extended` timetable shows it; a trip from its service day's start to the end of its last stop's day (#195).
+  Track listings return tracks valid now.
 - ZTM labels every published day with an agency's current topology version, so after a bump the old version is
   missing from the whole window while keeping the `valid_to` an earlier import gave it (up to today + 6). The track
   importer therefore sets `valid_to` = now on the tracks (and their stops) that share `R{routeId}T{tripId}` with a
