@@ -227,11 +227,14 @@ Storybook's preview installs Pinia and a memory router with stub `providers`, `d
 
 The "Rozkład" navigation entry (both bars) is the route `timetable` (`/:provider/timetable`), a feature section (ADR
 0037) whose component `pages/TimetablePage.vue` is the layout of its pages: the departures page's columns, a third on
-the left
-(`<router-view name="side">`, for the search #156 and the line page #157) and two thirds on the right (the default
-view). It loads the provider's details (`selection.loadProvider`), which the pages wait for: they carry the time zone
-and the timetable's range. On its own route it shows `TimetableStartPage` on the left, the search; on a phone a page
-on the right stands alone (the left column is hidden).
+the left and two thirds on the right. It loads the provider's details (`selection.loadProvider`), which the pages wait
+for: they carry the time zone and the timetable's range. The left column is the route's `side` view
+(`<router-view name="side">`, the line page #157) when it has one and `TimetableStartPage`, the search, otherwise, so
+the search sits next to `timetable-stop` (and `timetable-line-stop` until #157). It is the `v-else` of the side
+router view's slot, so it stays the same instance across these routes and what was typed and found survives opening a
+stop. The right column is the routed page (the default view); on `timetable` itself it says "Wybierz przystanek albo
+linię", from `md` only. On a phone a page on the right stands alone (the left column is hidden), and on `timetable`
+the search stands alone.
 
 The search (`pages/TimetableStartPage.vue`, "Rozkłady jazdy") has one field, "Przystanek lub linia" (lines join it in
 #202). Its "Przystanki" section searches stop groups by name from three characters, debounced 400 ms like

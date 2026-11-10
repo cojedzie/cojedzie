@@ -1,13 +1,18 @@
 <template>
     <div class="page-container timetable-page">
         <div class="columns" :class="{ 'with-main': !onStart }">
-            <!-- the search on its own route, otherwise the route's side view (the line page, #157) -->
+            <!-- the route's side view (the line page, #157), otherwise the search, kept across routes with its query -->
             <div class="column side">
-                <timetable-start-page v-if="onStart" />
-                <router-view v-else name="side" />
+                <router-view v-slot="{ Component }" name="side">
+                    <component :is="Component" v-if="Component" />
+                    <timetable-start-page v-else />
+                </router-view>
             </div>
             <div class="column main">
-                <router-view />
+                <router-view v-slot="{ Component }">
+                    <component :is="Component" v-if="Component" />
+                    <p v-else class="hint">Wybierz przystanek albo linię</p>
+                </router-view>
             </div>
         </div>
     </div>
@@ -62,6 +67,17 @@ const onStart = computed(() => route.name === "timetable");
 .main {
     @variant md {
         inline-size: calc(100% * 2 / 3);
+    }
+}
+
+/* on a phone the search stands alone, without the hint for the empty right column */
+.hint {
+    padding-block: --spacing(16);
+    color: var(--color-muted);
+    text-align: center;
+
+    @variant max-md {
+        display: none;
     }
 }
 
