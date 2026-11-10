@@ -1,6 +1,6 @@
 # 0022. App shell: a top bar and a mobile bottom bar, built from one navigation list
 
-- **Status:** Accepted
+- **Status:** Superseded by [0037](../0037-app-shell-navigates-between-feature-sections.md)
 - **Date:** 2026-11-01
 - **Applies to:** `front/src/components/Application.vue`, `front/src/components/app/**`, `front/src/navigation.ts`,
   `front/src/routes.ts`
