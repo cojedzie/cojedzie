@@ -1,31 +1,28 @@
 <template>
     <!-- the tabs in the middle of the bar whatever the width of Więcej at its end -->
-    <nav
-        v-responsive
-        class="app-bottom-bar fixed inset-x-0 bottom-0 grid grid-cols-[1fr_auto_1fr] items-center px-2 md:hidden"
-    >
-        <div class="col-start-2 flex gap-2">
+    <nav v-responsive class="bottom-bar">
+        <div class="tabs">
             <router-link
                 v-for="entry in tabs"
                 :key="entry.id"
                 :to="{ name: entry.route, params: { provider } }"
-                class="app-bottom-bar__tab flex items-center justify-center gap-2 px-5 py-1.5 text-sm"
-                exact-active-class="app-bottom-bar__tab--active"
+                class="tab"
+                exact-active-class="active"
                 :aria-label="entry.label"
                 :title="entry.label"
             >
-                <ui-icon :icon="entry.icon" class="text-lg" />
-                <span class="app-bottom-bar__label">{{ entry.label }}</span>
+                <ui-icon :icon="entry.icon" class="tab-icon" />
+                <span class="tab-name">{{ entry.label }}</span>
             </router-link>
         </div>
         <button
-            class="app-bottom-bar__tab app-bottom-bar__more flex items-center justify-center justify-self-end px-5 py-1.5"
+            class="tab more"
             :aria-expanded="moreOpen ? 'true' : 'false'"
             aria-haspopup="dialog"
             aria-label="Więcej"
             @click="moreOpen = !moreOpen"
         >
-            <ui-icon icon="more" class="text-lg" />
+            <ui-icon icon="more" class="tab-icon" />
         </button>
         <ui-sheet v-if="moreOpen" @leave="moreOpen = false">
             <app-more-menu :entries="rest" :provider="provider" @navigate="moreOpen = false" />
@@ -50,29 +47,65 @@ const rest = navigation.filter(entry => !entry.bottomBar);
 const moreOpen = ref(false);
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.app-bottom-bar {
-    z-index: $app-bar-z-index;
-    height: calc(var(--app-bottom-bar-height) + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
-    background: $white;
-    box-shadow: 0 -1px 3px $app-bar-shadow-color;
+.bottom-bar {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: var(--z-index-bar);
+    /* the tabs in the middle of the bar whatever the width of Więcej at its end */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    block-size: calc(var(--app-bottom-bar-height) + env(safe-area-inset-bottom));
+    padding-inline: --spacing(2);
+    padding-block-end: env(safe-area-inset-bottom);
+    background: white;
+    box-shadow: var(--shadow-bar-top);
 
-    &__tab {
-        color: $text-muted;
-
-        // before the pill states, so the active one stays white on hover
-        &:hover {
-            color: $body-color;
-        }
-
-        @include app-nav-item;
+    @variant md {
+        display: none;
     }
 
-    // a narrow bar names only the current tab, v-responsive tells how wide it is
-    &:not(.size-sm) &__tab:not(&__tab--active) &__label {
+    & .tabs {
+        grid-column-start: 2;
+        display: flex;
+        gap: --spacing(2);
+    }
+
+    & .tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: --spacing(2);
+        padding: --spacing(1.5) --spacing(5);
+        color: var(--color-muted);
+        font-size: var(--text-sm);
+
+        /* before the pill states, so the active one stays white on hover */
+        &:hover {
+            color: var(--color-body);
+        }
+
+        @apply app-nav-item;
+
+        &.active {
+            @apply app-nav-item-active;
+        }
+    }
+
+    & .more {
+        justify-self: end;
+    }
+
+    & .tab-icon {
+        font-size: var(--text-lg);
+    }
+
+    /* a narrow bar names only the current tab, v-responsive tells how wide it is */
+    &:not(.size-sm) .tab:not(.active) .tab-name {
         display: none;
     }
 }

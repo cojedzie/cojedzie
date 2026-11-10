@@ -34,9 +34,9 @@ describe("AppBottomBar", () => {
     it("shows a named tab per bottom bar entry and the more button", async () => {
         const wrapper = await mountBar();
 
-        const tabs = wrapper.findAll("a.app-bottom-bar__tab");
+        const tabs = wrapper.findAll("a.tab");
         expect(tabs).toHaveLength(navigation.filter(entry => entry.bottomBar).length);
-        for (const tab of [...tabs, wrapper.find(".app-bottom-bar__more")]) {
+        for (const tab of [...tabs, wrapper.find(".more")]) {
             expect(tab.attributes("aria-label")).toBeTruthy();
         }
     });
@@ -44,20 +44,20 @@ describe("AppBottomBar", () => {
     it("links the tabs to the provider's routes", async () => {
         const wrapper = await mountBar();
 
-        expect(wrapper.find("a.app-bottom-bar__tab").attributes("href")).toBe("/trojmiasto");
+        expect(wrapper.find("a.tab").attributes("href")).toBe("/trojmiasto");
     });
 
     it("opens the more menu in a sheet", async () => {
         const wrapper = await mountBar();
 
-        await wrapper.find("button.app-bottom-bar__tab").trigger("click");
+        await wrapper.find("button.tab").trigger("click");
 
         expect(wrapper.find(".sheet .more-menu").exists()).toBe(true);
     });
 
     it("closes the sheet after navigating", async () => {
         const wrapper = await mountBar();
-        await wrapper.find("button.app-bottom-bar__tab").trigger("click");
+        await wrapper.find("button.tab").trigger("click");
 
         await wrapper.find(".more-menu").trigger("click");
 

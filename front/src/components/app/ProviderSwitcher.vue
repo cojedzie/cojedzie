@@ -1,13 +1,13 @@
 <template>
     <button
         ref="chip"
-        class="provider-switcher__chip flex items-center gap-1 rounded-full px-3 py-1 text-sm"
+        class="chip"
         :aria-expanded="open ? 'true' : 'false'"
         aria-haspopup="dialog"
         @click="open = !open"
     >
         <ui-icon icon="provider" />
-        <span class="provider-switcher__name">{{ current.name }}</span>
+        <span>{{ current.name }}</span>
         <ui-icon icon="chevron-down" />
     </button>
     <teleport to="#popups">
@@ -16,24 +16,22 @@
             v-if="open"
             v-bind="desktop ? { reference: chip, arrow: true, placement: 'bottom-start' } : {}"
             title="Lokalizacja"
-            class="min-w-64"
+            class="popup"
             @leave="open = false"
         >
-            <ui-menu v-if="providers.length > 0" class="provider-switcher__providers">
+            <ui-menu v-if="providers.length > 0">
                 <ui-menu-item
                     v-for="provider in providers"
                     :key="provider.id"
-                    class="provider-switcher__provider"
-                    :class="[provider.id == current.id && 'provider-switcher__provider--active']"
                     :aria-current="provider.id === current.id ? 'true' : 'false'"
                     @click="pick(provider.id)"
                 >
                     <ui-icon icon="provider" />
                     {{ provider.name }}
-                    <ui-icon v-if="provider.id === current.id" icon="add" class="ms-auto" />
+                    <ui-icon v-if="provider.id === current.id" icon="add" class="current" />
                 </ui-menu-item>
             </ui-menu>
-            <p v-else class="provider-switcher__empty m-0 text-muted">Brak dostępnych lokalizacji</p>
+            <p v-else class="empty">Brak dostępnych lokalizacji</p>
         </component>
     </teleport>
 </template>
@@ -69,17 +67,30 @@ function pick(id: string) {
 }
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.provider-switcher {
-    &__chip {
-        @include app-bar-control;
-        color: inherit;
-    }
+.chip {
+    @apply app-bar-control;
+    display: flex;
+    align-items: center;
+    gap: --spacing(1);
+    padding: --spacing(1) --spacing(3);
+    border-radius: var(--radius-full);
+    color: inherit;
+    font-size: var(--text-sm);
+}
 
-    &__provider--active {
-        color: $primary;
-    }
+.popup {
+    min-inline-size: --spacing(64);
+}
+
+.current {
+    margin-inline-start: auto;
+}
+
+.empty {
+    margin: 0;
+    color: var(--color-muted);
 }
 </style>

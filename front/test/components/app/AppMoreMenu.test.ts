@@ -33,21 +33,21 @@ describe("AppMoreMenu", () => {
     it("lists the about links", async () => {
         const wrapper = await mountMenu();
 
-        const hrefs = wrapper.findAll(".app-more-menu__about a").map(link => link.attributes("href"));
+        const hrefs = wrapper.findAll(".about a").map(link => link.attributes("href"));
         expect(hrefs).toEqual(useAboutLinks().links.map(link => link.href));
     });
 
     it("links the given entries to the provider's routes", async () => {
         const wrapper = await mountMenu([entry]);
 
-        expect(wrapper.find(".app-more-menu__entry").attributes("href")).toBe("/trojmiasto");
+        expect(wrapper.find(".entries a").attributes("href")).toBe("/trojmiasto");
     });
 
     it("emits navigate when a link is clicked", async () => {
         const wrapper = await mountMenu([entry]);
 
-        await wrapper.find(".app-more-menu__entry").trigger("click");
-        await wrapper.find(".app-more-menu__about a").trigger("click");
+        await wrapper.find(".entries a").trigger("click");
+        await wrapper.find(".about a").trigger("click");
         await flushPromises();
 
         expect(wrapper.emitted("navigate")).toHaveLength(2);

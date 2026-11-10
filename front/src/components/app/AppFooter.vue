@@ -1,15 +1,15 @@
 <template>
-    <footer class="app-footer page-container hidden flex-wrap items-center md:flex">
+    <footer class="footer page-container">
         <span>
-            <img src="@resources/images/logo.png" alt="co jedzie logo" class="h-6" />
+            <img src="@resources/images/logo.png" alt="co jedzie logo" class="logo" />
             {{ about.version }}
             <template v-for="link in about.links" :key="link.href">
                 &bullet; <a :href="link.href">{{ link.label }}</a>
             </template>
         </span>
-        <span class="ms-auto flex items-center justify-end">
+        <span class="credits">
             <a href="https://kadet.net"
-                ><img src="@resources/images/kadet-net-logo.png" alt="kadet.net logo" class="mx-1 h-6"
+                ><img src="@resources/images/kadet-net-logo.png" alt="kadet.net logo" class="credits-logo"
             /></a>
             &copy; {{ about.year }}
         </span>
@@ -24,26 +24,49 @@ defineOptions({ name: "AppFooter" });
 const about = useAboutLinks();
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.app-footer {
-    padding: $alert-padding-y;
-    font-size: $font-size-sm;
-    opacity: 0.15;
+.footer {
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: --spacing(3);
+    font-size: var(--text-sm);
+    opacity: var(--opacity-faint);
     filter: grayscale(100%);
-    transition:
-        opacity 0.5s ease,
-        filter 0.5s ease;
+    transition-property: opacity, filter;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--ease-in-out);
+
+    @variant md {
+        display: flex;
+    }
 
     &:hover {
         opacity: 1;
         filter: none;
     }
 
-    > * {
+    & > * {
         flex: 0 1 auto;
-        padding-block: 0.4rem;
+        padding-block: --spacing(2);
+    }
+
+    & .logo {
+        block-size: --spacing(6);
+    }
+
+    & .credits {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-inline-start: auto;
+    }
+
+    & .credits-logo {
+        block-size: --spacing(6);
+        margin-inline: --spacing(1);
     }
 }
 </style>

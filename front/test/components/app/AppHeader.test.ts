@@ -70,17 +70,17 @@ describe("AppHeader", () => {
     it("gets a shadow once it sticks to the top", async () => {
         vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
         const { wrapper } = await mountHeader();
-        const header = () => wrapper.find(".app-header");
+        const header = () => wrapper.find(".header");
 
-        expect(header().classes()).not.toContain("app-header--stuck");
+        expect(header().classes()).not.toContain("stuck");
 
         observed([{ isIntersecting: false }]);
         await flushPromises();
-        expect(header().classes()).toContain("app-header--stuck");
+        expect(header().classes()).toContain("stuck");
 
         observed([{ isIntersecting: true }]);
         await flushPromises();
-        expect(header().classes()).not.toContain("app-header--stuck");
+        expect(header().classes()).not.toContain("stuck");
     });
 
     it("shows the route provider until the details load", async () => {
@@ -117,24 +117,24 @@ describe("AppHeader", () => {
         const { wrapper } = await mountHeader("/");
 
         expect(wrapper.find(".switcher").exists()).toBe(false);
-        expect(wrapper.find(".app-header__nav").exists()).toBe(false);
-        expect(wrapper.find(".app-header__logo").attributes("href")).toBe("/");
+        expect(wrapper.find(".nav").exists()).toBe(false);
+        expect(wrapper.find(".logo").attributes("href")).toBe("/");
     });
 
     it("links the menu entries to the provider", async () => {
         const { wrapper } = await mountHeader();
 
-        const links = wrapper.findAll("a.app-header__link");
+        const links = wrapper.findAll("a.link");
         expect(links).toHaveLength(navigation.length);
         for (const link of links) {
             expect(link.attributes("href")).toMatch(/^\/trojmiasto(\/|$)/);
         }
-        expect(wrapper.find(".app-header__logo").attributes("href")).toBe("/trojmiasto");
+        expect(wrapper.find(".logo").attributes("href")).toBe("/trojmiasto");
     });
 
     it("names the icon-only more button", async () => {
         const { wrapper } = await mountHeader();
 
-        expect(wrapper.find("button.app-header__link").attributes("aria-label")).toBeTruthy();
+        expect(wrapper.find("button.link").attributes("aria-label")).toBeTruthy();
     });
 });

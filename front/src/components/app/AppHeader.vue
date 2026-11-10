@@ -1,24 +1,24 @@
 <template>
-    <div ref="marker" class="-mb-px h-px" aria-hidden="true" />
-    <header class="app-header sticky top-0" :class="{ 'app-header--stuck': stuck }">
-        <div class="page-container flex min-h-12 items-center gap-4">
-            <router-link :to="home" class="app-header__logo">
-                <img src="@resources/images/logo.png" alt="co jedzie logo" class="h-6" />
+    <div ref="marker" class="marker" aria-hidden="true" />
+    <header class="header" :class="{ stuck }">
+        <div class="page-container bar">
+            <router-link :to="home" class="logo">
+                <img src="@resources/images/logo.png" alt="co jedzie logo" />
             </router-link>
             <provider-switcher v-if="provider" :current="current" :providers="providers" @select="switchProvider" />
-            <nav v-if="provider" class="app-header__nav hidden items-center gap-2 text-sm md:flex">
+            <nav v-if="provider" class="nav">
                 <router-link
                     v-for="entry in navigation"
                     :key="entry.id"
                     :to="{ name: entry.route, params: { provider } }"
-                    class="app-header__link flex items-center self-stretch px-4 py-1"
-                    exact-active-class="app-header__link--active"
+                    class="link"
+                    exact-active-class="active"
                 >
                     {{ entry.label }}
                 </router-link>
                 <button
                     ref="more"
-                    class="app-header__link flex items-center self-stretch px-4 py-1"
+                    class="link"
                     :aria-expanded="moreOpen ? 'true' : 'false'"
                     aria-haspopup="dialog"
                     aria-label="Więcej"
@@ -84,28 +84,67 @@ function switchProvider(id: string) {
 }
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.app-header {
-    z-index: $app-bar-z-index;
-    background: $white;
-    transition: box-shadow 0.2s ease;
+/* scrolls away with the page while the header sticks, see `stuck` */
+.marker {
+    /* a hairline that takes no room */
+    block-size: 1px;
+    margin-block-end: -1px;
+}
 
-    &--stuck {
-        box-shadow: 0 1px 3px $app-bar-shadow-color;
+.header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-index-bar);
+    background: white;
+    transition: box-shadow var(--duration-normal) var(--ease-in-out);
+
+    &.stuck {
+        box-shadow: var(--shadow-bar);
     }
 
-    &__logo {
+    & .bar {
+        display: flex;
+        align-items: center;
+        gap: --spacing(4);
+        min-block-size: --spacing(12);
+    }
+
+    & .logo {
         &,
         &:hover {
             color: inherit;
             text-decoration: none;
         }
+
+        & img {
+            block-size: --spacing(6);
+        }
     }
 
-    &__link {
-        @include app-nav-item;
+    & .nav {
+        display: none;
+        align-items: center;
+        gap: --spacing(2);
+        font-size: var(--text-sm);
+
+        @variant md {
+            display: flex;
+        }
+    }
+
+    & .link {
+        @apply app-nav-item;
+        display: flex;
+        align-items: center;
+        align-self: stretch;
+        padding: --spacing(1) --spacing(4);
+
+        &.active {
+            @apply app-nav-item-active;
+        }
     }
 }
 </style>

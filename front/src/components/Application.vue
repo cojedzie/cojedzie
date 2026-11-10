@@ -1,6 +1,6 @@
 <template>
     <app-header />
-    <main ref="main" class="flex" :class="{ 'app-main--bottom-bar': provider }">
+    <main ref="main" class="main" :class="{ 'with-bottom-bar': provider }">
         <!-- keyed by the provider, so a switch mounts the page anew and it loads the new provider -->
         <router-view :key="provider ?? ''" />
     </main>
@@ -35,13 +35,17 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss">
-@import "../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.app-main--bottom-bar {
-    // the fixed bottom bar covers the end of the page otherwise
-    @include media-breakpoint-down("sm") {
-        padding-bottom: calc(var(--app-bottom-bar-height) + env(safe-area-inset-bottom));
+.main {
+    display: flex;
+
+    /* the fixed bottom bar covers the end of the page otherwise */
+    &.with-bottom-bar {
+        @variant max-md {
+            padding-block-end: calc(var(--app-bottom-bar-height) + env(safe-area-inset-bottom));
+        }
     }
 }
 </style>
