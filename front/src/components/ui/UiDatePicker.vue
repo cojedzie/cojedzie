@@ -186,8 +186,9 @@ watch(modelValue, () => nextTick(measure));
         padding-inline: 0;
     }
 
+    /* a picker wider than its content (stretched by its parent) gives the room to the date, not after "dziś" */
     & .field {
-        flex: 0 1 auto;
+        flex: 1 1 auto;
         min-inline-size: 0;
     }
 
