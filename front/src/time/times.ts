@@ -28,6 +28,11 @@ export function formatClockTime(instant: Temporal.Instant, timeZone: string): st
     return instant.toZonedDateTimeISO(timeZone).toLocaleString(LOCALE, { hour: "2-digit", minute: "2-digit" });
 }
 
+/** "09:05", a clock time of a day */
+export function formatTime(time: Temporal.PlainTime): string {
+    return time.toLocaleString(LOCALE, { hour: "2-digit", minute: "2-digit" });
+}
+
 /** "10.11.2026, 14:05" */
 export function formatDateTime(instant: Temporal.Instant, timeZone: string): string {
     return instant.toZonedDateTimeISO(timeZone).toLocaleString(LOCALE, {
