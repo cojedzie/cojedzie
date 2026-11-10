@@ -146,7 +146,7 @@ watch(query, current => {
 
 onBeforeUnmount(() => clearTimeout(timeout));
 
-// the line page (#157), once it exists; until then lines are only shown
+// a found line opens its line page; a router without one (Storybook's, a test's) gets the symbols alone
 const hasLinePage = router.hasRoute("timetable-line");
 
 function lineRoute(line: Line): RouteLocationRaw {

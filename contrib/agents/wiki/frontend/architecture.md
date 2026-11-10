@@ -247,19 +247,32 @@ The "Rozkład" navigation entry (both bars) is the route `timetable` (`/:provide
 0037) whose component `pages/TimetablePage.vue` is the layout of its pages: the departures page's columns, a third on
 the left and two thirds on the right. It loads the provider's details (`selection.loadProvider`), which the pages wait
 for: they carry the time zone and the timetable's range. The left column is the route's `side` view
-(`<router-view name="side">`, the line page #157) when it has one and `TimetableStartPage`, the search, otherwise, so
-the search sits next to `timetable-stop` (and `timetable-line-stop` until #157). It is the `v-else` of the side
-router view's slot, so it stays the same instance across these routes and what was typed and found survives opening a
-stop. The right column is the routed page (the default view); on `timetable` itself it says "Wybierz przystanek albo
-linię", from `md` only. On a phone a page on the right stands alone (the left column is hidden), and on `timetable`
-the search stands alone.
+(`<router-view name="side">`, the line page) when it has one and `TimetableStartPage`, the search, otherwise, so the
+search sits next to `timetable-stop`. It is the `v-else` of the side router view's slot, so it stays the same instance
+across these routes and what was typed and found survives opening a stop. The right column is the routed page (the
+default view); without one it says "Wybierz przystanek albo linię" on `timetable` and "Wybierz przystanek na trasie
+linii" with the line's symbol on `timetable-line`, from `md` only. The layout doesn't fetch the line: the line page
+emits `line` with the line it loaded, and the hint shows its symbol once it matches the route's `:line`. On a phone
+an open stop's timetable stands alone (the left column is hidden, whenever the route has a `:stop`); otherwise the left
+column does (the search, or the line page).
+
+The line page (`pages/TimetableLinePage.vue`) is the `side` view of `timetable-line` (`lines/:line`, which has no
+default view) and of `timetable-line-stop`, so the same instance stays on the left while its stops are opened (vue-router
+renders the same component in the same view without remounting it). It fetches the line once per line
+(`fetchLine`, after the provider's details, dropping a late answer for a previous line) and heads itself "Linia" with
+the `LineSymbol`; while loading it is `aria-busy` with a spinner, and it says "Nie znaleziono linii." (404), "Ta linia
+nie ma żadnej trasy." or "Nie udało się wczytać linii." instead of the picker and rail. The track shown is
+`chooseTrack` of `?track=` and the open stop (`route.params.stop`); picking one in `TrackDirectionPicker` `replace`s
+`?track=`, so trying directions adds no history entries, and an unknown one stays in the URL. `TrackStopRail` gets the
+open stop as `current`. Its links carry `?track=` and no `?date=`, so an opened stop starts at today, and the stop
+timetable page's chips keep `track` along harmlessly.
 
 The search (`pages/TimetableStartPage.vue`, "Rozkłady jazdy") has one field, "Przystanek lub linia", and one 400 ms
 debounce per change of it. Its "Linie" section, above the stops, lists lines whose symbol starts with the query (the
 API's case-insensitive prefix, so "n1" finds N1) from one character, in the API's display order, as `LineSymbol`s,
 through `searchLines` (`components/line/search.ts`, `v1_line_list` with `symbol`); a late answer is dropped, the lines found stay until the
-next query's answer, and the section is hidden when no line matches or the search fails. A line links to `timetable-line` by its id, only when
-`router.hasRoute("timetable-line")` (the line page, #157); until then it is a plain symbol.
+next query's answer, and the section is hidden when no line matches or the search fails. A line links to `timetable-line` by its id (only when
+`router.hasRoute("timetable-line")`, otherwise it is a plain symbol).
 Its "Przystanki" section searches stop groups by name from three characters, through `searchStopGroups`
 (`components/stop-picker/search.ts`, framework-free, taking the API client, shared with `StopPicker` so both find stops
 alike); a late answer to an older query is dropped, and an empty answer
@@ -274,7 +287,7 @@ the results pushes the stop it opens to the history, shared with the departures 
 stops doesn't, as on the departures page, so the list doesn't reorder under the rider, who on a wide screen still sees
 it next to the opened stop. Deep links and `StopDetailsDialog` don't record either. The lists look like `StopPicker`'s
 through `@utility list-header` (a group's heading bar) and `@utility stop-entry-list` (rows of `StopPickerEntry`). The
-open stop (the route's `:stop`, also at a line's stop, where the router's exact-active match wouldn't see it) gets
+open stop (the route's `:stop`, where the router's exact-active match wouldn't see it) gets
 `aria-current="page"` on its link, and its row the background of the stop timetable page's current chip
 (`--color-hover-primary`): `stop-entry-list` highlights a row holding `[aria-current="page"]`, so the history's rows get
 it without the page styling inside `StopPickerHistory` (ADR 0036).
