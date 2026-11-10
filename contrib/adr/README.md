@@ -50,7 +50,6 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0019](0019-javascript-dependencies-are-managed-by-npm.md) | JavaScript dependencies are managed by npm | Accepted |
 | [0020](0020-departure-history-is-stored-in-clickhouse.md) | Departure history is stored in ClickHouse | Accepted |
 | [0021](0021-schedules-are-cron-expressions-or-intervals-from-environment-variables.md) | Schedules are cron expressions or intervals from environment variables | Accepted |
-| [0022](0022-app-shell-with-top-bar-and-mobile-bottom-bar.md) | App shell: a top bar and a mobile bottom bar, built from one navigation list | Accepted |
 | [0023](0023-dependabot-merges-minor-and-patch-updates.md) | Dependabot merges minor and patch updates on its own | Accepted |
 | [0024](0024-releases-are-made-by-ci-from-tags-on-master-or-release-branches.md) | Releases are made by CI from tags, on master or on release branches | Accepted |
 | [0025](0025-imported-schedules-are-versioned-by-validity.md) | Imported schedules are versioned by validity | Accepted |
@@ -63,6 +62,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0034](0034-primitive-style-values-are-design-tokens.md) | Primitive style values are design tokens | Accepted |
 | [0035](0035-component-styles-are-scoped-css-processed-by-tailwind.md) | Component styles are scoped CSS processed by Tailwind | Accepted |
 | [0036](0036-parents-dont-style-inside-child-components.md) | Parents don't style inside child components | Accepted |
+| [0037](0037-app-shell-navigates-between-feature-sections.md) | App shell: a top bar and a mobile bottom bar navigating between feature sections | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 
@@ -76,6 +76,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0014](archive/0014-frontend-styles-tailwind-utilities-and-scss.md) | Frontend styles: Tailwind utilities, components in SCSS | Superseded by [0035](0035-component-styles-are-scoped-css-processed-by-tailwind.md) |
 | [0015](archive/0015-icons-are-tabler-icons-behind-named-registry.md) | Icons are Tabler icons behind a named registry | Superseded by [0017](0017-icons-are-tabler-icons-ours-on-tablers-grid.md) |
 | [0018](archive/0018-component-styles-live-in-their-components.md) | Component styles live in their components | Superseded by [0035](0035-component-styles-are-scoped-css-processed-by-tailwind.md) |
+| [0022](archive/0022-app-shell-with-top-bar-and-mobile-bottom-bar.md) | App shell: a top bar and a mobile bottom bar, built from one navigation list | Superseded by [0037](0037-app-shell-navigates-between-feature-sections.md) |
 | [0032](archive/0032-calendar-dates-are-temporal-plain-dates.md) | Calendar dates are Temporal plain dates | Superseded by [0033](0033-dates-and-times-in-the-frontend-are-temporal.md) |
 
 <!-- Move rows here when archiving: | [0001](archive/0001-short-title.md) | Title | Superseded by [0002](0002-new-title.md) | -->
