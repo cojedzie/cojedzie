@@ -40,6 +40,11 @@ const routes = [
                 name: "timetable-stop",
                 component: { template: "<p class='stop-page'>{{ $route.params.stop }}</p>" },
             },
+            {
+                path: "lines/:line/stops/:stop",
+                name: "timetable-line-stop",
+                component: { template: "<p class='stop-page'>{{ $route.params.stop }}</p>" },
+            },
         ],
     },
 ];
@@ -206,5 +211,32 @@ describe("TimetablePage's search", () => {
         await flushPromises();
 
         expect(wrapper.findAll(".entry").map(entry => entry.text())).toEqual(["Bramka 01"]);
+    });
+
+    it("stays next to an opened stop with its query and results, marking the stop current", async () => {
+        const { wrapper, router } = await mountSection();
+
+        await type(wrapper, "Bra");
+        await wrapper.findAll("section[aria-label=Przystanki] .entry a")[1].trigger("click");
+        await flushPromises();
+
+        expect(router.currentRoute.value.name).toBe("timetable-stop");
+        expect(wrapper.find(".stop-page").text()).toBe("s2");
+        expect((wrapper.find("input").element as HTMLInputElement).value).toBe("Bra");
+        expect(stopGroupQueries()).toEqual([{ name: "Bra", embed: "destinations" }]);
+
+        const links = wrapper.findAll("section[aria-label=Przystanki] .entry a");
+        expect(links.map(link => link.attributes("aria-current"))).toEqual([undefined, "page", undefined]);
+    });
+
+    it("asks to pick a stop or a line while none is open", async () => {
+        const { wrapper, router } = await mountSection();
+
+        expect(wrapper.text()).toContain("Wybierz przystanek albo linię");
+
+        await router.push("/trojmiasto/timetable/stops/s1");
+        await flushPromises();
+
+        expect(wrapper.text()).not.toContain("Wybierz przystanek albo linię");
     });
 });
