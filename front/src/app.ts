@@ -69,18 +69,25 @@ app.directive("dragscroll", dragscroll);
     app.use(container);
 
     // saved stores load from the migrated keys, the app must not render with their defaults
-    const [{ useFavouritesStore }, { useDeparturesSettingsStore }, { useMessagesSettingsStore }, { useHistoryStore }] =
-        await Promise.all([
-            import("@/stores/favourites"),
-            import("@/stores/departures-settings"),
-            import("@/stores/messages-settings"),
-            import("@/stores/history"),
-        ]);
+    const [
+        { useFavouritesStore },
+        { useDeparturesSettingsStore },
+        { useMessagesSettingsStore },
+        { useTimetableSettingsStore },
+        { useHistoryStore },
+    ] = await Promise.all([
+        import("@/stores/favourites"),
+        import("@/stores/departures-settings"),
+        import("@/stores/messages-settings"),
+        import("@/stores/timetable-settings"),
+        import("@/stores/history"),
+    ]);
     await Promise.all(
         [
             useFavouritesStore,
             useDeparturesSettingsStore,
             useMessagesSettingsStore,
+            useTimetableSettingsStore,
             useHistoryStore,
             useSelectionStore,
         ].map(use => use(pinia).$hydrated),
