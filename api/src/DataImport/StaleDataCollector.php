@@ -28,7 +28,8 @@ use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Removes imported rows that are no longer needed: rows of versioned tables whose validity ended, rows that no
+ * Removes imported rows that are no longer needed: rows of versioned tables whose validity ended more than a grace
+ * period ago, rows that no
  * import has written within the retention period, i.e. data that disappeared upstream, and the imports nothing
  * refers to anymore. Tables of a single provider are left to its importers.
  *
@@ -67,13 +68,13 @@ class StaleDataCollector
     // tables stamped with the import that last wrote their rows
     private const array STAMPED = ['provider', 'trip_stop', 'trip', 'track_stop', 'track', 'line', 'stop', 'operator'];
 
-    // tables whose rows carry their validity, collected once it ended; the retention applies only to rows without
-    // an end, so a window longer than the retention keeps its future days
+    // tables whose rows carry their validity, collected once it ended more than the grace ago; the retention applies
+    // only to rows without an end, so a window longer than the retention keeps its future days
     private const array VERSIONED = ['trip_stop', 'trip', 'track_stop', 'track'];
 
     private const array PARAMETER_TYPES = [
-        'now'    => Types::DATETIME_IMMUTABLE,
-        'cutoff' => Types::DATETIME_IMMUTABLE,
+        'expired' => Types::DATETIME_IMMUTABLE,
+        'cutoff'  => Types::DATETIME_IMMUTABLE,
     ];
 
     private const string OLD_IMPORT = 'started_at < :cutoff';
@@ -87,6 +88,10 @@ class StaleDataCollector
         // how long rows stay after the last import that wrote them, e.g. "7 days"
         #[Autowire(env: 'COJEDZIE_STALE_DATA_RETENTION')]
         private readonly string $retention,
+        // how long versioned rows stay after their validity ended, e.g. "1 day": slack for a late collection, a
+        // clock or a time zone off, and for rows imported with a shorter validity
+        #[Autowire(env: 'COJEDZIE_STALE_DATA_GRACE')]
+        private readonly string $grace,
         // how long an unfinished import counts as running, e.g. "1 hour"
         #[Autowire(env: 'COJEDZIE_IMPORT_TIMEOUT')]
         private readonly string $importTimeout,
@@ -106,8 +111,8 @@ class StaleDataCollector
         }
 
         return $this->connection->transactional(fn () => $this->removeStaleRows([
-            'now'    => $now,
-            'cutoff' => $cutoff,
+            'expired' => $now->sub(\DateInterval::createFromDateString($this->grace)),
+            'cutoff'  => $cutoff,
         ]));
     }
 
@@ -137,7 +142,7 @@ class StaleDataCollector
     {
         return match (true) {
             in_array($table, self::VERSIONED, true) => sprintf(
-                '(valid_to < :now OR (valid_to IS NULL AND %s))',
+                '(valid_to < :expired OR (valid_to IS NULL AND %s))',
                 self::NOT_IMPORTED,
             ),
             default                                 => self::NOT_IMPORTED,
