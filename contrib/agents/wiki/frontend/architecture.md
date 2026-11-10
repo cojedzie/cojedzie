@@ -49,17 +49,19 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   `TimetableListPerLine` (`buildLineLists`), `TimetableListCombined` (`buildTimetableList`: each cell a button with the
   time and `LineSymbol simple`, the headsign in a `UiTooltip` with the `click` trigger, which toggles on a tap and
   closes with a click elsewhere or Escape; tooltips have no tap otherwise, as a tapped button isn't focused on iOS),
-  with shared parts `TimetableLineHeading` (`LineSymbol` and the main headsign in its default slot, underlined in the
-  line's colour, `var(--color-line-<type>)`), `TimetableLegend` (footnote letter → headsign) and `TimetableEntry` (a
-  cell's content: the planned time, its footnote letter, and for a live run the planned time struck through, the
-  estimate and the departure board's delay badge, early by any amount or late by over 30 s). Runs of another service day
-  (after midnight) carry no mark, as it tells a rider nothing and takes room; the builders still compute `otherDay`.
-  Departed runs are dimmed by the view's cell (`--opacity-muted`). Cells are a dense auto-fill grid with
-  `grid-auto-rows: auto`: the global reset gives grids `minmax(0, 1fr)` rows, which makes every row as tall as the
-  tallest. Stories show how the views are composed: each part has its own (`Timetable/Parts/*`: one entry per state, a
-  heading per line type, a legend), and the views get small slices of `timetable.fixtures.ts`, a Friday at a stop at
-  09:40 with three lines (one with two headsigns), a night line with runs after midnight at both ends of the day,
-  departed and live runs; `between(departures, "09:00", "10:30")` and `ofLine(departures, line)` cut the slices.
+  `TimetableHoursPerLine` (`buildLineTimetables`: a table of hour rows per line, the minutes zero-padded as in printed
+  timetables, lettered by headsign; the tables stand side by side in an auto-fill grid on wide screens; hour rows show
+  the planned minute only, no estimates), with shared parts `TimetableLineHeading` (`LineSymbol` and the main headsign
+  in its default slot, underlined in the line's colour, `var(--color-line-<type>)`), `TimetableLegend` (footnote letter
+  → headsign) and `TimetableEntry` (a cell's content: the planned time, its footnote letter, and for a live run the
+  planned time struck through, the estimate and the departure board's delay badge, early by any amount or late by over
+  30 s). Runs of another service day (after midnight) carry no mark, as it tells a rider nothing and takes room; the
+  builders still compute `otherDay`. Departed runs are dimmed by the view's cell (`--opacity-muted`). Cells are a dense
+  auto-fill grid with `grid-auto-rows: auto`: the global reset gives grids `minmax(0, 1fr)` rows, which makes every row
+  as tall as the tallest. Stories show how the views are composed: each part has its own (`Timetable/Parts/*`: one entry
+  per state, a heading per line type, a legend), and the views get small slices of `timetable.fixtures.ts`, a Friday at
+  a stop at 09:40 with three lines (one with two headsigns), a night line with runs after midnight at both ends of the
+  day, departed and live runs; `between(departures, "09:00", "10:30")` and `ofLine(departures, line)` cut the slices.
 - `src/time` — dates and times (ADR 0033), framework-free like `src/timetable` (same ESLint rule). Calendar dates are
   `Temporal.PlainDate`, months `Temporal.PlainYearMonth`, moments `Temporal.Instant`, clock times of a day
   `Temporal.PlainTime`, from `temporal-polyfill` until Safari ships Temporal: `src/time/temporal.ts` is the only file
