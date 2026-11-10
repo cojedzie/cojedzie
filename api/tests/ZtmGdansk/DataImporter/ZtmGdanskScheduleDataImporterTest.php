@@ -216,7 +216,7 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
         );
     }
 
-    public function testTripAfterMidnightBelongsToItsServiceDate(): void
+    public function testTripAfterMidnightBelongsToItsServiceDateAndIsValidThroughTheDaysItRuns(): void
     {
         $this->line(self::LINE_6);
         $this->connection->insert('stop', [
@@ -239,13 +239,23 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
             ]),
         ]);
 
-        // Warsaw is UTC+1 after 2026-10-25
-        $validity = ['valid_from' => '2026-10-28 22:50:00', 'valid_to' => '2026-10-28 23:30:00'];
+        // Warsaw is UTC+1 after 2026-10-25: an entry is valid from its service day's start to the end of the day it
+        // departs on, the trip from its service day's start to the end of its last entry's day
         $this->assertSame(
-            [['id' => self::tripOf('6', '2026-10-28'), ...$validity]],
+            [[
+                'id'         => self::tripOf('6', '2026-10-28'),
+                'valid_from' => '2026-10-27 23:00:00',
+                'valid_to'   => '2026-10-29 22:59:59',
+            ]],
             $this->rows('trip', 'id', 'valid_from', 'valid_to'),
         );
-        $this->assertSame([$validity, $validity], $this->rows('trip_stop', 'valid_from', 'valid_to'));
+        $this->assertSame(
+            [
+                ['valid_to' => '2026-10-28 22:59:59', 'valid_from' => '2026-10-27 23:00:00'],
+                ['valid_to' => '2026-10-29 22:59:59', 'valid_from' => '2026-10-27 23:00:00'],
+            ],
+            $this->rows('trip_stop', 'valid_to', 'valid_from'),
+        );
     }
 
     public function testTripsCarryTheServiceDayTheyWereDownloadedFor(): void
@@ -266,12 +276,12 @@ final class ZtmGdanskScheduleDataImporterTest extends ImporterTestCase
                 [
                     'id'           => self::tripOf('6', '2026-11-07'),
                     'service_date' => '2026-11-07',
-                    'valid_to'     => '2026-11-07 11:01:00',
+                    'valid_to'     => '2026-11-07 22:59:59',
                 ],
                 [
                     'id'           => self::tripOf('6', '2026-11-07', 2),
                     'service_date' => '2026-11-07',
-                    'valid_to'     => '2026-11-08 00:06:00',
+                    'valid_to'     => '2026-11-08 22:59:59',
                 ],
             ],
             $this->rows('trip', 'id', 'service_date', 'valid_to'),

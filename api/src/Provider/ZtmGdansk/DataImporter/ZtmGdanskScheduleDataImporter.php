@@ -610,7 +610,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     }
 
     /**
-     * A trip of the service day without stops yet, valid while its first stop.
+     * A trip of the service day without stops yet, valid as its first stop.
      *
      * @param array<string, mixed> $stopTime
      * @param string               $date     the service day, Y-m-d
@@ -628,15 +628,15 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
                 'track_id'     => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $trackId),
                 'note'         => $stopTime['noteDescription'],
                 'service_date' => $date,
-                'valid_from'   => $stop['arrival'],
-                'valid_to'     => $stop['departure'],
+                'valid_from'   => $stop['valid_from'],
+                'valid_to'     => $stop['valid_to'],
             ],
             'stops' => [],
         ];
     }
 
     /**
-     * Adds the stop to the trip, extending the trip's validity to it.
+     * Adds the stop to the trip, extending the trip's validity to the end of the stop's.
      *
      * @param array{trip: array<string, mixed>, stops: list<array<string, mixed>>} $trip
      * @param array<string, mixed>                                                  $stop
@@ -645,25 +645,32 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
      */
     private function withStop(array $trip, array $stop): array
     {
-        $trip['trip']['valid_from'] = min($trip['trip']['valid_from'], $stop['arrival']);
-        $trip['trip']['valid_to']   = max($trip['trip']['valid_to'], $stop['departure']);
-        $trip['stops'][]            = $stop;
+        $trip['trip']['valid_to'] = max($trip['trip']['valid_to'], $stop['valid_to']);
+        $trip['stops'][]          = $stop;
 
         return $trip;
     }
 
     /**
+     * A timetable entry, valid from the start of its service day to the end of the day it departs on (in the
+     * provider's time zone), so it stays as long as a timetable of one of those days can show it.
+     *
      * @param array<string, mixed> $stopTime
      *
      * @return array<string, mixed>
      */
     private function tripStopOf(array $stopTime, CarbonImmutable $midnight): array
     {
+        $departure = $this->momentOn($midnight, $stopTime['departureTime']);
+        $dayEnd    = $departure->setTimezone(ZtmGdanskProvider::TIMEZONE)->setTime(23, 59, 59);
+
         return [
-            'stop_id'   => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stopTime['stopId']),
-            'sequence'  => $stopTime['stopSequence'],
-            'arrival'   => $this->momentOn($midnight, $stopTime['arrivalTime']),
-            'departure' => $this->momentOn($midnight, $stopTime['departureTime']),
+            'stop_id'    => $this->idUtils->generate(ZtmGdanskProvider::IDENTIFIER, $stopTime['stopId']),
+            'sequence'   => $stopTime['stopSequence'],
+            'arrival'    => $this->momentOn($midnight, $stopTime['arrivalTime']),
+            'departure'  => $departure,
+            'valid_from' => $midnight->setTimezone('UTC'),
+            'valid_to'   => $dayEnd->setTimezone('UTC'),
         ];
     }
 
@@ -680,7 +687,7 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
     }
 
     /**
-     * Saves the trip and its stops at known stops, which inherit the trip's validity.
+     * Saves the trip and its stops at known stops.
      *
      * @param array<string, mixed>       $trip
      * @param list<array<string, mixed>> $stops
@@ -711,10 +718,8 @@ class ZtmGdanskScheduleDataImporter extends AbstractDataImporter implements Spli
                 'trip_stop',
                 [
                     ...$stop,
-                    'trip_id'    => $tripId,
-                    'import_id'  => $event->import->getId(),
-                    'valid_from' => $trip['valid_from'],
-                    'valid_to'   => $trip['valid_to'],
+                    'trip_id'   => $tripId,
+                    'import_id' => $event->import->getId(),
                 ],
                 [
                     ...$types,
