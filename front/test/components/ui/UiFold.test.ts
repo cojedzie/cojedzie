@@ -12,20 +12,20 @@ describe("UiFold", () => {
         const wrapper = mount(UiFold, { props: { visible: false }, slots: { default: "content" }, global });
 
         await wrapper.setProps({ visible: true });
-        expect(wrapper.classes()).toContain("fold--expanding");
+        expect(wrapper.classes()).toContain("expanding");
         expect(wrapper.attributes("aria-expanded")).toBe("true");
 
         await wrapper.trigger("transitionend");
-        expect(wrapper.classes()).toContain("fold--expanded");
+        expect(wrapper.classes()).toContain("expanded");
         expect((wrapper.element as HTMLElement).style.height).toBe("auto");
 
         await wrapper.setProps({ visible: false });
         await new Promise(resolve => setTimeout(resolve));
-        expect(wrapper.classes()).toContain("fold--folding");
+        expect(wrapper.classes()).toContain("folding");
         expect(wrapper.attributes("aria-expanded")).toBe("false");
 
         await wrapper.trigger("transitionend");
-        expect(wrapper.classes()).toContain("fold--folded");
+        expect(wrapper.classes()).toContain("folded");
     });
 
     it("ignores transitions of its children", async () => {
@@ -34,7 +34,7 @@ describe("UiFold", () => {
         await wrapper.setProps({ visible: true });
         await wrapper.find(".child").trigger("transitionend");
 
-        expect(wrapper.classes()).toContain("fold--expanding");
+        expect(wrapper.classes()).toContain("expanding");
     });
 
     it("renders lazy content only after the first expand", async () => {

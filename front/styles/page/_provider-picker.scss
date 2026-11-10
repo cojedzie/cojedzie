@@ -27,7 +27,7 @@
 }
 
 .provider-picker {
-  @extend .ui-popup;
+  @include ui-popup-surface;
   padding: 1rem;
   margin: 3rem;
 }

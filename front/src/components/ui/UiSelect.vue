@@ -1,35 +1,29 @@
 <template>
-    <div class="ui-select" :class="{ 'ui-select--active': isOpen }" @keydown="handleKeyboardNavigation">
-        <div class="ui-select__control" tabindex="0" ref="controlElement">
-            <div
-                class="ui-select__option ui-select__option--selected"
-                :class="{ 'ui-select__option--empty': !modelValue }"
-                @click="open()"
-            >
+    <div class="select" :class="{ open: isOpen }" @keydown="handleKeyboardNavigation">
+        <div ref="controlElement" class="control" tabindex="0">
+            <div class="option selected" :class="{ empty: !modelValue }" @click="open()">
                 <slot v-if="modelValue" :option="modelValue as T">
                     {{ modelValue }}
                 </slot>
                 <slot v-else name="empty"> Brak wyboru </slot>
             </div>
-            <button v-if="allowClearing" class="ui-select__clear" @click="clear">
+            <button v-if="allowClearing" class="action" @click="clear">
                 <ui-icon icon="clear" />
             </button>
-            <button class="ui-select__toggle" tabindex="-1" @click="toggle">
+            <button class="action" tabindex="-1" @click="toggle">
                 <ui-icon icon="ui-select:open" />
             </button>
         </div>
         <slot v-if="isOpen" name="options" :options="options">
             <slot name="options-popup" v-bind="{ options, isOpen, close, open, toggle }">
-                <div ref="optionsPopupElement" class="ui-select__options-popup">
+                <div ref="optionsPopupElement" class="popup">
                     <slot name="options" v-bind="{ options }">
-                        <ul class="ui-select__options">
+                        <ul class="options">
                             <li
                                 v-for="(option, index) in options"
                                 :key="index"
-                                class="ui-select__option"
-                                :class="{
-                                    'ui-select__option--hovered': index === selectedIndex,
-                                }"
+                                class="option"
+                                :class="{ hovered: index === selectedIndex }"
                                 @click="select(option, index)"
                                 @mouseenter="hover(option, index)"
                             >
@@ -165,3 +159,59 @@ function handleKeyboardNavigation(e: KeyboardEvent) {
     e.preventDefault();
 }
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.select {
+    & .control {
+        display: flex;
+        cursor: pointer;
+    }
+
+    & .option {
+        padding: --spacing(2) --spacing(3);
+        cursor: pointer;
+
+        &.hovered {
+            background: var(--color-hover);
+        }
+
+        &.selected {
+            flex: 1 1 auto;
+        }
+
+        &.empty {
+            display: grid;
+            align-items: center;
+            font-weight: bold;
+        }
+    }
+
+    & .action {
+        padding: --spacing(2) --spacing(3);
+        font-size: var(--text-base);
+
+        &:hover {
+            background-color: var(--color-hover);
+        }
+
+        &:active {
+            background-color: var(--color-pressed);
+        }
+    }
+
+    & .popup {
+        @apply ui-popup;
+        inline-size: 100%;
+        margin-block-end: --spacing(4);
+        padding: 0;
+    }
+
+    & .options {
+        margin-block-end: 0;
+        padding-inline-start: 0;
+        list-style: none;
+    }
+}
+</style>

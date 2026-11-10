@@ -3,7 +3,7 @@
         <transition name="tooltip">
             <ui-dialog
                 v-if="isVisible"
-                class="ui-popup--tooltip"
+                variant="tooltip"
                 aria-hidden="true"
                 arrow
                 :reference="anchor"

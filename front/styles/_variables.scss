@@ -373,3 +373,16 @@ $app-bar-shadow-color: rgba($black, 0.2);
     margin-bottom: -0.5rem;
   }
 }
+
+// The card of popups, as the `ui-popup` utility in tailwind.css, for global stylesheets not yet converted to CSS
+@mixin ui-popup-surface {
+  position: relative;
+  box-sizing: content-box;
+  min-width: 200px;
+  max-width: 500px;
+  padding: $popup-padding;
+  border-radius: 0.25rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(black, 0.5);
+  z-index: 1000;
+}

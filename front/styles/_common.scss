@@ -69,24 +69,6 @@
   }
 }
 
-.fold {
-  transition: height 250ms ease;
-  will-change: height;
-  overflow: hidden;
-
-  &--folded {
-    height: 0;
-
-    .fold__inner {
-      overflow: auto;
-    }
-  }
-
-  &--expanded {
-    overflow: visible;
-  }
-}
-
 .hstack {
   display: flex;
   align-items: center;

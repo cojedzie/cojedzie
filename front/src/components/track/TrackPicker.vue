@@ -1,12 +1,14 @@
 <template>
-    <ui-select v-slot="{ option: track }" class="track-picker" :options="tracks" allow-clearing>
-        <line-symbol :line="track.line" class="track-picker__line" />
-        <span class="track-picker__description">{{ track.description }}</span>
-        <ul class="track-picker__stops">
-            <li v-for="stop in track.stops" :key="stop.id">
-                <stop-label :stop="stop" />
-            </li>
-        </ul>
+    <ui-select v-slot="{ option: track }" :options="tracks" allow-clearing>
+        <div class="track">
+            <line-symbol :line="track.line" class="symbol" />
+            <span class="description">{{ track.description }}</span>
+            <ul class="stops">
+                <li v-for="stop in track.stops" :key="stop.id">
+                    <stop-label :stop="stop" />
+                </li>
+            </ul>
+        </div>
     </ui-select>
 </template>
 
@@ -25,43 +27,42 @@ defineProps({
 });
 </script>
 
-<style lang="scss">
-@import "@styles/variables";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.track-picker {
-    .ui-select__option:not(.ui-select__option--empty) {
-        display: grid;
+/* the option's content: the line and description in a row, the stops under them */
+.track {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    grid-template-areas:
+        "symbol description"
+        "stops stops";
 
-        grid-template-columns: min-content 1fr;
-        grid-template-areas:
-            "l d"
-            "s s";
+    & .symbol {
+        grid-area: symbol;
     }
 
-    &__description {
-        grid-area: d;
+    & .description {
+        grid-area: description;
+        padding-inline-start: --spacing(2);
         font-weight: 600;
-        padding-inline-start: 0.5rem;
     }
 
-    &__label {
-        grid-area: l;
-    }
-
-    &__stops {
-        padding-left: 0;
-        grid-area: s;
-        font-size: 0.8rem;
-        white-space: nowrap;
+    & .stops {
+        grid-area: stops;
         overflow-x: hidden;
+        margin-block-end: 0;
+        padding-inline-start: 0;
+        font-size: var(--text-xs);
         text-overflow: ellipsis;
-        margin-bottom: 0;
+        white-space: nowrap;
 
-        > li {
+        & > li {
             display: inline-flex;
+
             &:not(:last-child)::after {
+                margin-inline-end: --spacing(1);
                 content: ", ";
-                margin-right: 0.2rem;
             }
         }
     }
