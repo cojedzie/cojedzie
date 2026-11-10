@@ -99,7 +99,7 @@
                     <ui-icon icon="relative-time" fixed-width />
                     pokazuj czas do odjazdu
                 </template>
-                <img src="@resources/images/help/departures-relative-time.png" alt="" class="help__image" />
+                <img src="@resources/images/help/departures-relative-time.png" alt="" class="help-image" />
 
                 <p>Włączenie tej opcji spowoduje pokazywanie czasu pozostałego do odjazdu w miejsce godziny odjazdu.</p>
                 <p>
@@ -129,11 +129,7 @@
                         również dla czasu rozkładowego
                     </template>
 
-                    <img
-                        src="@resources/images/help/departures-relative-for-scheduled.png"
-                        alt=""
-                        class="help__image"
-                    />
+                    <img src="@resources/images/help/departures-relative-for-scheduled.png" alt="" class="help-image" />
 
                     <p>
                         Możliwość wyłączenia pokazywania czasu do odjazdu dla kursów, które nie posiadają informacji w
@@ -161,11 +157,11 @@
                         tylko dla odjazdów szybciej niż
                     </template>
 
-                    <figure class="help__figure">
+                    <figure class="help-figure">
                         <img
                             src="@resources/images/help/departures-relative-time-limit.png"
                             alt=""
-                            class="help__image"
+                            class="help-image"
                         />
                         <figcaption>
                             Zachowanie dla włączonego ustawienia z ustawionym domyślnym progiem 40 minut.
@@ -180,7 +176,7 @@
             </div>
             <div class="hstack">
                 <label for="departures-max-relative-time" class="text">
-                    <span class="sr-only">maksymalny czas do odjazdu</span>
+                    <span class="visually-hidden">maksymalny czas do odjazdu</span>
                 </label>
                 <div v-if="relativeTimesHasLimit" class="input-group input-group-sm">
                     <input

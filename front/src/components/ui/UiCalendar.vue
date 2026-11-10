@@ -1,19 +1,19 @@
 <template>
-    <div ref="root" class="ui-calendar" :class="[`ui-calendar--${variant}`, flat && 'ui-calendar--flat']">
-        <div class="ui-calendar__header">
+    <div ref="root" class="calendar" :class="[variant, flat && 'flat']">
+        <div class="header">
             <button
                 type="button"
-                class="ui-calendar__nav"
+                class="nav"
                 aria-label="Poprzedni miesiąc"
                 :disabled="!canMoveMonth(-1)"
                 @click="moveMonth(-1)"
             >
                 <ui-icon icon="chevron-left" />
             </button>
-            <div :id="titleId" class="ui-calendar__month" aria-live="polite">{{ formatMonth(month.month) }}</div>
+            <div :id="titleId" class="month" aria-live="polite">{{ formatMonth(month.month) }}</div>
             <button
                 type="button"
-                class="ui-calendar__nav"
+                class="nav"
                 aria-label="Następny miesiąc"
                 :disabled="!canMoveMonth(1)"
                 @click="moveMonth(1)"
@@ -21,7 +21,7 @@
                 <ui-icon icon="chevron-right" />
             </button>
         </div>
-        <table class="ui-calendar__grid" role="grid" :aria-labelledby="titleId" @keydown="handleKeydown">
+        <table class="weeks" role="grid" :aria-labelledby="titleId" @keydown="handleKeydown">
             <thead>
                 <tr>
                     <th v-for="name in weekdays" :key="name.long" scope="col" :abbr="name.long">
@@ -34,12 +34,8 @@
                     <td v-for="day in week" :key="day.date.toString()" :aria-selected="day.selected ? 'true' : 'false'">
                         <button
                             type="button"
-                            class="ui-calendar__day"
-                            :class="{
-                                'ui-calendar__day--outside': !day.inMonth,
-                                'ui-calendar__day--today': day.today,
-                                'ui-calendar__day--selected': day.selected,
-                            }"
+                            class="day"
+                            :class="{ outside: !day.inMonth, today: day.today, selected: day.selected }"
                             :data-date="day.date.toString()"
                             :tabindex="day.date.equals(focused) ? 0 : -1"
                             :disabled="day.disabled"
@@ -157,113 +153,111 @@ async function focus() {
 defineExpose({ focus });
 </script>
 
-<style lang="scss">
-@import "@styles/variables";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.ui-calendar {
-    --ui-calendar-fill: #{$dark};
-    --ui-calendar-accent: #{$dark};
+.calendar {
+    --calendar-fill: var(--color-dark);
+    --calendar-accent: var(--color-dark);
 
     display: inline-flex;
     flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border: 1px solid var(--ui-calendar-accent);
-    border-radius: 0.5rem;
-    background-color: $white;
-    font-size: $font-size-sm;
-    line-height: 1.25;
+    gap: --spacing(2);
+    padding: --spacing(3);
+    /* hairline */
+    border: 1px solid var(--calendar-accent);
+    border-radius: var(--radius-lg);
+    background-color: white;
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
 
-    &--primary {
-        --ui-calendar-fill: #{$primary-gradient};
-        --ui-calendar-accent: #{$primary};
+    &.primary {
+        --calendar-fill: var(--gradient-primary);
+        --calendar-accent: var(--color-primary);
     }
 
-    &--flat {
+    &.flat {
         padding: 0;
         border: 0;
         border-radius: 0;
         background: none;
     }
 
-    &__header {
+    & .header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 0.5rem;
+        gap: --spacing(2);
     }
 
-    &__month {
+    & .month {
         font-weight: bold;
-        // "październik 2026" without the month name breaking
+        /* "październik 2026" without the month name breaking */
         white-space: nowrap;
     }
 
-    &__nav,
-    &__day {
+    & :is(.nav, .day) {
+        @apply focus-ring;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-inline-size: 2.25rem;
-        min-block-size: 2.25rem;
+        min-inline-size: var(--control-height-lg);
+        min-block-size: var(--control-height-lg);
         padding: 0;
         border: 0;
-        border-radius: 0.375rem;
+        border-radius: var(--radius-md);
         background: none;
         color: inherit;
         font: inherit;
         cursor: pointer;
 
         &:hover:not(:disabled) {
-            background-color: rgba($dark, 0.08);
-        }
-
-        &:focus-visible {
-            outline: 2px solid rgba($primary, 0.5);
-            outline-offset: 1px;
+            background-color: var(--color-hover);
         }
 
         &:disabled {
-            opacity: 0.3;
+            opacity: var(--opacity-disabled);
             cursor: default;
         }
     }
 
-    &__grid {
+    & .weeks {
         border-collapse: collapse;
 
-        th {
-            padding-block-end: 0.25rem;
-            color: $text-muted;
-            font-size: 0.75rem;
+        & th {
+            padding-block-end: --spacing(1);
+            color: var(--color-muted);
+            font-size: var(--text-xs);
             font-weight: normal;
             text-align: center;
         }
 
-        td {
+        & td {
+            /* hairline gap between the days */
             padding: 1px;
         }
     }
 
-    &__day {
+    & .day {
         inline-size: 100%;
         font-variant-numeric: tabular-nums;
 
-        &--outside {
-            color: $text-muted;
+        &.outside {
+            color: var(--color-muted);
         }
 
-        &--today {
-            color: var(--ui-calendar-accent);
+        &.today {
+            color: var(--calendar-accent);
             font-weight: bold;
+            /* hairline */
             box-shadow: inset 0 0 0 1px currentColor;
         }
 
-        &--selected {
+        &.selected {
             &,
             &:hover:not(:disabled) {
-                background: var(--ui-calendar-fill);
-                color: $white;
+                background: var(--calendar-fill);
+                color: white;
                 font-weight: bold;
             }
         }

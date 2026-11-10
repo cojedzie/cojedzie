@@ -4,15 +4,12 @@
         v-if="definition.type === 'simple'"
         v-bind="crop"
         class="ui-icon"
-        :class="{
-            'ui-icon--spin': spin || definition.spin,
-            'ui-icon--fixed-width': fixedWidth || definition.fixedWidth,
-        }"
+        :class="{ spin: spin || definition.spin, 'fixed-width': fixedWidth || definition.fixedWidth }"
     />
     <span
         v-else-if="definition.type === 'stacked'"
-        class="ui-icon ui-icon--stacked"
-        :class="{ 'ui-icon--spin': spin, 'ui-icon--fixed-width': fixedWidth }"
+        class="ui-icon stacked"
+        :class="{ spin, 'fixed-width': fixedWidth }"
     >
         <component
             :is="layer.icon"
@@ -59,30 +56,32 @@ const transform = ({ scale = 1, x = 0, y = 0 }: IconLayer) => ({
 });
 </script>
 
-<style lang="scss">
+<style scoped>
+/* `ui-icon`, not a short name: global stylesheets not yet moved into their components still target icons by it */
 .ui-icon {
     display: inline-block;
-    width: 1em;
-    height: 1em;
+    /* icons are sized by the text around them */
+    inline-size: 1em;
+    block-size: 1em;
     overflow: visible;
     vertical-align: -0.125em;
 
-    &--fixed-width {
-        width: 1.25em;
+    &.fixed-width {
+        inline-size: 1.25em;
     }
 
-    &--spin {
+    &.spin {
         animation: ui-icon-spin 1s linear infinite;
     }
 
-    &--stacked {
+    &.stacked {
         position: relative;
 
-        > svg {
+        & > svg {
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
+            inline-size: 100%;
+            block-size: 100%;
         }
     }
 }

@@ -1,6 +1,6 @@
 <template>
     <li>
-        <component :is="tag" :type="tag === 'button' ? 'button' : undefined" class="ui-menu__item" v-bind="$attrs">
+        <component :is="tag" :type="tag === 'button' ? 'button' : undefined" class="item" v-bind="$attrs">
             <slot />
         </component>
     </li>
@@ -17,28 +17,32 @@ withDefaults(defineProps<{ tag?: string | Component }>(), { tag: "button" });
 defineSlots<{ default?: () => unknown }>();
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-.ui-menu__item {
+.item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.375rem $popup-padding;
-    color: $body-color;
-    font-size: 0.75rem;
-    font-weight: 700;
+    gap: --spacing(2);
+    inline-size: 100%;
+    padding: --spacing(2) --spacing(3);
+    color: var(--color-body);
+    font-size: var(--text-xs);
+    font-weight: bold;
     text-align: start;
     text-decoration: none;
     cursor: pointer;
 
-    // beats the global a:hover
-    &:hover,
-    &:focus-visible {
-        color: $body-color;
+    /* the current one of a list, e.g. the provider shown */
+    &[aria-current="true"] {
+        color: var(--color-primary);
+    }
+
+    /* beats the global a:hover */
+    &:is(:hover, :focus-visible) {
+        color: var(--color-body);
         text-decoration: none;
-        background: $gray-100;
+        background: var(--color-light);
     }
 }
 </style>

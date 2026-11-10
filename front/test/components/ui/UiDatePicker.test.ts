@@ -29,17 +29,13 @@ function picker(modelValue: string) {
 const picked = (wrapper: ReturnType<typeof picker>) =>
     (wrapper.emitted("update:modelValue") as [Temporal.PlainDate][] | undefined)?.map(([date]) => date.toString());
 
-const [previous, next] = [0, 1].map(
-    index => (wrapper: ReturnType<typeof picker>) => wrapper.findAll(".ui-date-picker__step")[index],
-);
+const [previous, next] = [0, 1].map(index => (wrapper: ReturnType<typeof picker>) => wrapper.findAll(".step")[index]);
 
 describe("UiDatePicker", () => {
     it("names the chosen day and steps a day with the arrows", async () => {
         const wrapper = picker("2026-11-13");
 
-        expect(wrapper.find(".ui-date-picker__label:not(.ui-date-picker__label--hidden)").text()).toBe(
-            "piątek, 13.11.2026",
-        );
+        expect(wrapper.find(".name:not(.inactive)").text()).toBe("piątek, 13.11.2026");
 
         await next(wrapper).trigger("click");
         await previous(wrapper).trigger("click");
@@ -55,7 +51,7 @@ describe("UiDatePicker", () => {
 
     it("goes back to today with a button disabled on today", async () => {
         const wrapper = picker("2026-11-13");
-        const button = wrapper.find(".ui-date-picker__today");
+        const button = wrapper.find(".today");
 
         await button.trigger("click");
 
@@ -66,12 +62,12 @@ describe("UiDatePicker", () => {
     it("leaves the today button out when asked to", () => {
         const wrapper = mount(UiDatePicker, { props: { modelValue: day("2026-11-13"), todayButton: false }, global });
 
-        expect(wrapper.find(".ui-date-picker__today").exists()).toBe(false);
+        expect(wrapper.find(".today").exists()).toBe(false);
     });
 
     it("opens the calendar from the field and closes it with the day picked", async () => {
         const wrapper = picker("2026-11-13");
-        const field = wrapper.find(".ui-date-picker__field");
+        const field = wrapper.find(".field");
 
         await field.trigger("click");
         expect(field.attributes("aria-expanded")).toBe("true");
@@ -86,7 +82,7 @@ describe("UiDatePicker", () => {
     it("closes the calendar with Escape", async () => {
         const wrapper = picker("2026-11-13");
 
-        await wrapper.find(".ui-date-picker__field").trigger("click");
+        await wrapper.find(".field").trigger("click");
         await wrapper.find("table").trigger("keydown", { key: "Escape" });
 
         expect(wrapper.findComponent(UiCalendar).exists()).toBe(false);

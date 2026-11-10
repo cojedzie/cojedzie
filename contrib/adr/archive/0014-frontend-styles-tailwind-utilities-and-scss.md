@@ -1,6 +1,6 @@
 # 0014. Frontend styles: Tailwind utilities, components in SCSS
 
-- **Status:** Accepted
+- **Status:** Superseded by [0035](../0035-component-styles-are-scoped-css-processed-by-tailwind.md)
 - **Date:** 2026-10-30
 - **Applies to:** `front/styles/**`, `front/src/**/*.vue`, `front/resources/views/**`, `front/vite.config.ts`,
   `front/.storybook/preview.js`

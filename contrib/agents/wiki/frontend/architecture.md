@@ -158,24 +158,25 @@ anew: it clears the previous provider's messages and departures, and `selection.
 the old provider when the id differs (so Back/Forward clears them too) and ignores details of a provider it was
 switched away from. Stops restored from the session on the first load are kept.
 
-The shell components lay themselves out with Tailwind utilities in their templates (ADR 0014); their `<style>`
-blocks only hold the look, mostly from mixins and variables in `_variables.scss`. `app-bar-control` is a borderless
-button or link tinted with `$nav-hover-background` when hovered or open (the provider chip). `app-nav-item` adds the
-pill of the items of both bars (header links, bottom bar tabs, both "Więcej" buttons), filled with
-`$primary-gradient` when it is the current page (its `--active` modifier) and `$primary-gradient-light` when that
-one is hovered. Icon-only buttons carry an `aria-label`.
+The shell components are styled like every other (see Stylesheets): scoped CSS with short class names, shared looks
+from `@utility` definitions. `app-bar-control` is a borderless button or link tinted with `--color-hover-primary` when
+hovered or open (the provider chip). `app-nav-item` is the pill of the items of both bars (header links, bottom bar
+tabs, both "Więcej" buttons); `app-nav-item-active` fills it with `--gradient-primary` for the current page (the
+router link's `exact-active-class="active"`), `--gradient-primary-hover` when hovered. Icon-only buttons carry an
+`aria-label`.
 
-The compact controls of the UI kit (`UiToggleGroup`, `UiDatePicker`) share `ui-control` (the outlined row: custom
-properties `--ui-control-*`, `--primary`, `--small` and `--large` modifiers) and `ui-control-segment` (a button in it).
+The compact controls of the UI kit (`UiToggleGroup`, `UiDatePicker`) share `@utility ui-control` (the outlined row,
+setting `--ui-control-*` custom properties), `ui-control-primary` / `-small` / `-large` (applied by the component's
+`.primary`, `.small`, `.large` classes) and `ui-control-segment` (a button in it).
 
 The bottom bar names only the current tab until it is 576 px wide: it takes the `size-*` classes of `v-responsive`
 (`src/filters.ts`), and component tests stub the directive (`directives: { responsive: {} }`).
 
-The phone/desktop split is 768 px everywhere: Tailwind `md:` in templates, `useMediaQuery("(min-width: 768px)")` in
-scripts.
+The phone/desktop split is 768 px everywhere: `@variant md` / `@variant max-md` in styles, `useMediaQuery("(min-width:
+768px)")` in scripts.
 
-The header and bottom bar use `$app-bar-z-index` (90): `UiDialog` puts a popup at 100 over its reference's stacking context, so
-board popups stay above the bars while the header's own dropdowns (90 + 100) stay above the header.
+The header and bottom bar use `--z-index-bar` (90): `UiDialog` puts a popup at 100 over its reference's stacking
+context, so board popups stay above the bars while the header's own dropdowns (90 + 100) stay above the header.
 
 `UiSheet` is the phone counterpart of `UiDialog`: teleported to `#popups`, slides up from the bottom, emits `leave` on
 a backdrop click or Escape. `ProviderSwitcher` picks between the two with `useMediaQuery("(min-width: 768px)")`.
@@ -193,30 +194,51 @@ carry the AGPL license header.
 
 ## Stylesheets
 
-Two entry points, imported in this order by `src/app.ts` and `.storybook/preview.js` (ADR 0014):
+Component styles are scoped plain CSS processed by Tailwind (ADR 0035), on design tokens (ADR 0034); parents don't
+style inside child components (ADR 0036). The move from Sass is in progress (#173): components converted so far are
+the UI kit and the app shell; the rest still use `<style lang="scss">` or the global stylesheets below.
 
-- `styles/tailwind.css`: Tailwind CSS 4 (`@tailwindcss/vite`) with its preflight and the utilities used in templates.
-  It is imported with `important`, so utilities are `!important` and beat the SCSS. Tailwind cascade layers lose to
-  unlayered CSS, so without the flag every SCSS rule would win over every utility. Classes are collected only from
-  `src/` and `resources/views/` (`source(none)` + `@source`). The `@theme` block sets Bootstrap 4's breakpoints
-  (sm 576, md 768, lg 992, xl 1200 px) and the project colours (`text-primary`, `bg-dark`, `text-muted`...).
-- `styles/main.scss`: everything else, in Sass with `@import`. `_variables.scss` holds the colours, sizes and
-  breakpoints the SCSS computes with, the `media-breakpoint-up`/`-down` mixins (Bootstrap 4 semantics:
-  `down("md")` is below 992 px) and `theme-color-level()`/`color-yiq()`. It emits no CSS, so component `<style>`
-  blocks import it too. `base/_reboot.scss` adds back what the styles expect on top of preflight (body font,
-  heading sizes, block margins, links, inline images). `components/` has the former Bootstrap components, kept under
-  their names: `btn` (`-primary`, `-danger`, `-sm`, `-link`, `-outline-dark`), `form-control(-sm)`, `form-group`,
-  `input-group(-sm|-append|-text)`, `badge` (`-pill`, `-warning`, `-danger`, `-dark`), `alert`
-  (`-info`, `-warning`, `-danger`, `-dark`), `list-unstyled`, `stretched-link` and `page-container`. Only the
-  variants in use exist; add one when a template needs it.
+- **A component's styles** are a `<style scoped>` block without `lang`, starting with `@reference
+  "@styles/tailwind.css"` (Tailwind's theme and utilities, without emitting them), then `@apply`, tokens
+  (`var(--radius-md)`, `--spacing(2)`), `@variant md` / `max-md`, `color-mix()` and native nesting (`& .day`,
+  `&.selected`, `&:hover`). Vite's esbuild lowers the nesting and adds prefixes for `build.target` (Safari 16.4 has no
+  nesting), so nothing else processes CSS: Tailwind doesn't process Sass at all (`@apply` in SCSS passes through
+  unexpanded), and there is no PostCSS. CSS Modules don't get Tailwind processing in this setup.
+- **Class names are short** (`.day`, `.selected`, `.tools`), not BEM: scoping keeps them apart. But a class still
+  matches global rules and Tailwind utilities of the same name, so component classes avoid the global class names
+  (`label`, `icon`, `actions`, `line`, `stop`… while `styles/` still has them; `btn`, `badge`, `alert`, `form-control`
+  after) and utility names (`hidden`, `grid`, `table`, `outline`…, generated as `!important` utilities because Tailwind
+  scans the templates). A variant whose natural name is a utility goes into a `data-` attribute (`UiPin`'s
+  `data-variant`). `UiIcon` keeps its root class `ui-icon`, as global stylesheets target icons by it.
+- **Templates carry no utilities**: layout and spacing are in the styles. Accessibility text uses the global
+  `visually-hidden` helper.
+- **Scoping in practice:** a parent styles a child's root (Vue gives it the parent's scope attribute), not its inside.
+  `UiDialog` binds `$attrs.class` itself, and its popup still gets the parent's scope, so `class="popup"` from a parent
+  works; a teleported `UiSheet` has no root to style. Content passed into a slot is styled by whoever wrote it; a
+  component styling content parents put in its slot uses `:slotted()` with a comment (`UiHelp` with `help-figure` /
+  `help-image`). Tests checking that an element has no attributes must ignore `data-v-*`.
+- **Tokens and shared looks** are in `styles/tailwind.css`: `@theme static` blocks (static, so tokens only component
+  styles read are emitted; Tailwind's default `--text-*` etc. are only emitted when a utility uses them, which is why
+  the text scale is declared there) and `@utility` definitions (`focus-ring`, `app-bar-control`, `app-nav-item`,
+  `app-nav-item-active`, `ui-control*`, `ui-control-segment`, `ui-section-header`).
 
-`test/styles/theme.test.ts` checks that the `@theme` values equal the Sass variables. Change both together.
+Two global entry points, imported in this order by `src/app.ts` and `.storybook/preview.js`:
 
-A component's own styles live in its `<style lang="scss">` block (ADR 0018), which `@import`s `_variables.scss`
-for variables, mixins and loops. `UiSection` is the first one moved; the files in `styles/` that style a single
-component (`_departure`, `_line`, `_message`, ...) are still to move. `@extend` doesn't reach across separately
-compiled `<style>` blocks, so a look shared with a global stylesheet is a mixin in `_variables.scss` instead
-(`ui-section-header`, used by `UiSection` and `.stop-group__header`).
+- `styles/tailwind.css`: Tailwind CSS 4 (`@tailwindcss/vite`) with its preflight, the tokens, the `@utility`
+  definitions, global helpers (`visually-hidden`) and the utilities still used in unconverted templates. It is
+  imported with `important`, so those utilities beat the SCSS. Classes are collected only from `src/` and
+  `resources/views/` (`source(none)` + `@source`).
+- `styles/main.scss`: the global Sass not yet converted. `_variables.scss` holds the colours, sizes and breakpoints the
+  SCSS computes with (mirroring the tokens), the `media-breakpoint-up`/`-down` mixins (Bootstrap 4 semantics:
+  `down("md")` is below 992 px), `theme-color-level()`/`color-yiq()` and the Sass mixins still used by global
+  stylesheets. `base/_reboot.scss` adds back what the styles expect on top of preflight. `components/` has the former
+  Bootstrap components, kept under their names: `btn` (`-primary`, `-danger`, `-sm`, `-link`, `-outline-dark`),
+  `form-control(-sm)`, `form-group`, `input-group(-sm|-append|-text)`, `badge` (`-pill`, `-warning`, `-danger`,
+  `-dark`), `alert` (`-info`, `-warning`, `-danger`, `-dark`), `list-unstyled`, `stretched-link` and `page-container`
+  (to become components, #181). Files that style a single component (`_departure`, `_line`, `_message`, ...) are to
+  move into their components.
+
+`test/styles/theme.test.ts` checks that the tokens mirrored in Sass equal the Sass variables. Change both together.
 
 Popups (`UiDialog`, `UiTooltip`, `UiSelect`) are positioned by `positionFloating()`/`useFloating()` in
 `src/composables/useFloating.ts`, over `@floating-ui/dom`. It sets `data-placement` (the arrow styles in
@@ -226,9 +248,9 @@ Popups (`UiDialog`, `UiTooltip`, `UiSelect`) are positioned by `positionFloating
 Gotchas:
 
 - The project's "row of centred items" helper is `hstack`, not `flex`: Tailwind's `flex` is only `display: flex`.
-- A word in a template or script that matches a utility (`hidden`, `border`, `transition`) generates it. That's
-  harmless unless an element really has that class.
-- Spacing follows Tailwind's scale (`*-4` is 1rem, `*-6` is 1.5rem), not Bootstrap's.
+- A word in a template or script that matches a utility (`hidden`, `border`, `transition`, `outline`) generates it,
+  as an `!important` utility: an element with a component class of that name gets it too (see Stylesheets).
+- Spacing follows Tailwind's scale (`--spacing(4)` is 1rem, `--spacing(6)` is 1.5rem), not Bootstrap's.
 - Tailwind 4 needs Chrome/Edge 111, Safari 16.4 and Firefox 128, which is the app's `build.target`.
 
 ## Checks

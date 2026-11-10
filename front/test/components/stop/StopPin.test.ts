@@ -26,14 +26,14 @@ describe("StopPin", () => {
         const wrapper = mountPin();
 
         expect(wrapper.findComponent(UiMapPin).props("latLng")).toEqual(stop.location);
-        expect(wrapper.classes()).toContain("ui-pin--bus");
+        expect(wrapper.find(".map-pin").attributes("style")).toContain("--ui-pin-color: var(--color-line-bus)");
         expect(wrapper.find(".ui-icon").attributes("data-icon")).toBe("stop");
     });
 
     it("prefers an explicit type", () => {
         const wrapper = mountPin({ type: "tram" });
 
-        expect(wrapper.classes()).toContain("ui-pin--tram");
+        expect(wrapper.find(".map-pin").attributes("style")).toContain("--ui-pin-color: var(--color-line-tram)");
     });
 
     it("hides the label with no-label and allows replacing the icon", () => {

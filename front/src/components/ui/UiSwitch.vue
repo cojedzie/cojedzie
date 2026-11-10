@@ -1,9 +1,9 @@
 <template>
-    <div class="ui-switch" :class="[value && 'ui-switch--checked']" v-bind="$attrs" @click="handleSwitchClick">
-        <div class="ui-switch__track">
-            <div class="ui-switch__thumb" />
+    <div class="switch" :class="[value && 'checked']" v-bind="$attrs" @click="handleSwitchClick">
+        <div class="track">
+            <div class="thumb" />
         </div>
-        <input type="checkbox" class="ui-switch__checkbox" :checked="value" @change="handleCheckboxChange" />
+        <input type="checkbox" class="checkbox" :checked="value" @change="handleCheckboxChange" />
     </div>
 </template>
 
@@ -28,54 +28,56 @@ const handleSwitchClick = () => emit("update:value", !props.value);
 const handleCheckboxChange = (ev: Event) => emit("update:value", (ev.target as HTMLInputElement).checked);
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-$ui-switch-marker-size: 0.7rem !default;
-$ui-switch-spacing: 1px !default;
-$ui-switch-duration: 150ms !default;
-$ui-switch-width-factor: 2.25 !default;
+.switch {
+    /* the switch's own geometry: the thumb's size and how far the track reaches past it */
+    --switch-thumb: 0.7rem;
+    --switch-length: 2.25;
 
-.ui-switch {
-    padding: 3px;
+    padding: --spacing(1);
 
-    &__checkbox {
+    & .checkbox {
         display: none;
     }
 
-    &__track {
+    & .track {
         position: relative;
         box-sizing: content-box;
-        width: $ui-switch-width-factor * $ui-switch-marker-size;
-        height: $ui-switch-marker-size;
-        padding: $ui-switch-spacing;
-        border: 1px solid $dark;
-        border-radius: $ui-switch-marker-size;
+        inline-size: calc(var(--switch-length) * var(--switch-thumb));
+        block-size: var(--switch-thumb);
+        /* hairlines: the gap around the thumb and the outline */
+        padding: 1px;
+        border: 1px solid var(--color-dark);
+        border-radius: var(--radius-full);
         background: white;
-        transition: background-color $ui-switch-duration ease-in-out;
+        transition: background-color var(--duration-fast) var(--ease-in-out);
         cursor: pointer;
     }
 
-    &__thumb {
+    & .thumb {
         position: absolute;
-        left: 0;
-        width: $ui-switch-marker-size;
-        height: $ui-switch-marker-size;
-        margin-inline-start: $ui-switch-spacing;
-        border-radius: 100%;
-        background: $dark;
-        transition:
-            background-color $ui-switch-duration ease-in-out,
-            left $ui-switch-duration ease-in-out;
+        inset-inline-start: 0;
+        inline-size: var(--switch-thumb);
+        block-size: var(--switch-thumb);
+        margin-inline-start: 1px;
+        border-radius: var(--radius-full);
+        background: var(--color-dark);
+        transition-property: background-color, inset-inline-start;
+        transition-duration: var(--duration-fast);
+        transition-timing-function: var(--ease-in-out);
     }
 
-    &--checked &__track {
-        background: $dark;
-    }
+    &.checked {
+        & .track {
+            background: var(--color-dark);
+        }
 
-    &--checked &__thumb {
-        left: ($ui-switch-width-factor - 1) * $ui-switch-marker-size;
-        background: white;
+        & .thumb {
+            inset-inline-start: calc((var(--switch-length) - 1) * var(--switch-thumb));
+            background: white;
+        }
     }
 }
 </style>

@@ -65,8 +65,8 @@ export const WithCoverPhoto = {
     render: createRenderFunction(`
       <ui-help v-bind='args' :mutex='mutex'>
         <template #title><ui-icon v-if="args.icon" :icon="args.icon"/> {{ args.title }}</template>
-        <figure class="help__figure">
-          <img src="${figure}" alt="" class="help__image"/>
+        <figure class="help-figure">
+          <img src="${figure}" alt="" class="help-image"/>
           <figcaption>{{ args.caption }}</figcaption>
         </figure>
         <p>{{ args.content }}</p>

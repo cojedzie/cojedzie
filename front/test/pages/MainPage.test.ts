@@ -144,7 +144,7 @@ describe("MainPage", () => {
         await wrapper.findAll(".entry button")[1].trigger("click");
         expect(selection.stops.map(s => s.id)).toEqual(["1", "3"]);
 
-        await wrapper.find(".picker .ui-section__header button").trigger("click");
+        await wrapper.find(".picker .header button").trigger("click");
         expect(selection.stops).toEqual([]);
     });
 
@@ -198,7 +198,7 @@ describe("MainPage", () => {
 
         expect(wrapper.find(".pick").exists()).toBe(true);
 
-        await wrapper.findAll(".picker .ui-section__header button").at(-1).trigger("click");
+        await wrapper.findAll(".picker .header button").at(-1).trigger("click");
 
         expect(wrapper.find(".pick").exists()).toBe(false);
         expect(wrapper.find(".favourites-list").exists()).toBe(true);

@@ -1,7 +1,7 @@
 <template>
-    <div class="ui-pin" :class="[`ui-pin--${variant}`]">
+    <div class="pin" :data-variant="variant">
         <svg
-            class="ui-pin__pin"
+            class="drawing"
             viewBox="0 0 24 35"
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
@@ -12,7 +12,7 @@
                 <path
                     d="M509.113,279.233C520.33,260.324 526.773,238.254 526.773,214.692C526.773,144.723 469.968,87.918 400,87.918C330.032,87.918 273.227,144.723 273.227,214.692C273.227,238.261 279.674,260.337 290.897,279.25C290.897,279.25 364.716,407.109 387.972,447.391C390.453,451.688 395.038,454.335 400,454.335C404.962,454.335 409.547,451.688 412.028,447.391C435.284,407.109 509.113,279.233 509.113,279.233Z"
                     transform="matrix(0.189314,0,0,0.189314,46.2742,-16.6442)"
-                    style="fill: var(--ui-pin-color)"
+                    style="fill: var(--pin-color)"
                 />
                 <path
                     v-if="variant !== 'filled'"
@@ -24,11 +24,11 @@
                     v-if="variant === 'filled-outline'"
                     d="M400,425.966L309.068,268.467C299.719,252.714 294.356,234.324 294.356,214.692C294.356,156.385 341.693,109.047 400,109.047C458.307,109.047 505.644,156.385 505.644,214.692C505.644,234.318 500.284,252.703 490.941,268.453L400,425.966Z"
                     transform="matrix(0.189314,0,0,0.189314,46.2742,-16.6442)"
-                    style="fill: var(--ui-pin-color)"
+                    style="fill: var(--pin-color)"
                 />
             </g>
         </svg>
-        <div class="ui-pin__content">
+        <div class="content">
             <slot />
         </div>
     </div>
@@ -51,39 +51,34 @@ defineProps({
 });
 </script>
 
-<style lang="scss">
-@import "../../../styles/_variables.scss";
+<style scoped>
+@reference "@styles/tailwind.css";
 
-:root {
-    --ui-pin-color: #{$primary};
-    --ui-pin-width: 32px;
-}
+.pin {
+    /* the pin's colour is set from outside through --ui-pin-color, the primary colour without one */
+    --pin-color: var(--ui-pin-color, var(--color-primary));
+    /* the pin's drawing, its anchor in UiMapPin depends on it */
+    --pin-width: 32px;
 
-.ui-pin {
     position: relative;
 
-    &__pin {
-        width: var(--ui-pin-width);
+    & .drawing {
+        inline-size: var(--pin-width);
     }
 
-    &__content {
+    & .content {
         position: absolute;
-        top: calc(var(--ui-pin-width) / 2);
-        left: calc(var(--ui-pin-width) / 2);
+        inset-block-start: calc(var(--pin-width) / 2);
+        inset-inline-start: calc(var(--pin-width) / 2);
         translate: -50% -50%;
         color: white;
-        font-size: 16px;
+        font-size: var(--text-base);
         text-align: center;
     }
 
-    &--outline &__content {
-        color: var(--ui-pin-color);
-    }
-
-    @each $type, $color in $line-types {
-        &--#{$type} {
-            --ui-pin-color: #{$color};
-        }
+    /* the variant is an attribute: "outline" as a class would be Tailwind's outline utility */
+    &[data-variant="outline"] .content {
+        color: var(--pin-color);
     }
 }
 </style>
