@@ -218,13 +218,14 @@ ZTM Gdańsk importers live in `Provider/ZtmGdansk/DataImporter` (lines, operator
   any line failed.
 - Upstream feeds are opened by `Parser\FileStringStream` with a 60 s timeout for answering and for each read.
 
-## Stale data (ADR 0027)
+## Stale data (ADR 0038)
 
 `DataImport\StaleDataCollector` (`app:collect-stale-data`, scheduled by `COJEDZIE_SCHEDULE_COLLECT_STALE_DATA`) removes
 operators, lines, stops, tracks, track stops, trips and trip stops whose `import_id` points to an import started
 more than `COJEDZIE_STALE_DATA_RETENTION` ago (default `7 days`, any `DateInterval::createFromDateString()` string), i.e. that
-no import has written since. Tracks, track stops, trips and trip stops go once their `valid_to` passed; the
-retention applies to them only with `valid_to IS NULL` (rows from before validity), so a window longer than the
+no import has written since. Tracks, track stops, trips and trip stops go once their validity ended more than
+`COJEDZIE_STALE_DATA_GRACE` ago (default `1 day`), slack for a late run or a validity a bit short (rows imported
+before whole-day validity, which ends with the run, stay a day after their run thanks to it); the retention applies to them only with `valid_to IS NULL` (rows from before validity), so a window longer than the
 retention keeps its future days. Then it removes the `import` rows nothing refers to anymore. Provider rows stay.
 Tables of one provider (`ztm_gdansk_schedule_day`) are left to its importer.
 

@@ -132,13 +132,42 @@ final class StaleDataCollectorTest extends ImporterTestCase
         $fresh = $this->import('-1 day');
         $this->network($fresh);
 
-        $this->tripWithAStop('expired', $fresh, validTo: '2026-10-28 11:00:00');
-        $this->tripWithAStop('running', $fresh, validTo: '2026-10-28 13:00:00');
+        $this->tripWithAStop('expired', $fresh, validTo: '2026-10-27 11:00:00');
+        $this->tripWithAStop('valid', $fresh, validTo: '2026-10-28 22:59:59');
 
         $this->collect();
 
-        $this->assertSame(['running'], $this->ids('trip'));
-        $this->assertSame(['running'], $this->tripsWithStops());
+        $this->assertSame(['valid'], $this->ids('trip'));
+        $this->assertSame(['valid'], $this->tripsWithStops());
+    }
+
+    public function testVersionedRowsStayForTheGraceAfterTheirValidityEnded(): void
+    {
+        $fresh = $this->import('-1 day');
+        $this->network($fresh, validTo: '2026-10-27 13:00:00');
+
+        // ended 23 hours ago, within the default grace of a day
+        $this->tripWithAStop('yesterday', $fresh, validTo: '2026-10-27 13:00:00');
+
+        $this->collect();
+
+        $this->assertSame(['yesterday'], $this->ids('trip'));
+        $this->assertSame(['yesterday'], $this->tripsWithStops());
+        $this->assertSame(['track'], $this->ids('track'));
+    }
+
+    public function testGraceIsConfigurable(): void
+    {
+        $fresh = $this->import('-1 day');
+        $this->network($fresh);
+
+        $this->tripWithAStop('ended', $fresh, validTo: '2026-10-28 09:00:00');
+
+        $this->collect(grace: '6 hours');
+        $this->assertSame(['ended'], $this->ids('trip'));
+
+        $this->collect(grace: '2 hours');
+        $this->assertSame([], $this->ids('trip'));
     }
 
     public function testFutureTripsOutliveTheRetentionOfTheirImport(): void
@@ -170,9 +199,9 @@ final class StaleDataCollectorTest extends ImporterTestCase
     public function testExpiredTrackStillReferencedByAValidTripStays(): void
     {
         $fresh = $this->import('-1 day');
-        $this->network($fresh, validTo: '2026-10-27 22:59:59');
+        $this->network($fresh, validTo: '2026-10-25 22:59:59');
 
-        $this->row('trip', 'trip', $fresh, ['track_id' => 'track', 'valid_to' => '2026-10-28 13:00:00']);
+        $this->row('trip', 'trip', $fresh, ['track_id' => 'track', 'valid_to' => '2026-10-28 22:59:59']);
 
         $this->collect();
 
@@ -243,9 +272,9 @@ final class StaleDataCollectorTest extends ImporterTestCase
     /**
      * @return array<string, int>
      */
-    private function collect(string $retention = '7 days', string $now = self::NOW): array
+    private function collect(string $retention = '7 days', string $now = self::NOW, string $grace = '1 day'): array
     {
-        return new StaleDataCollector($this->connection, new MockClock($now), $retention, '1 hour')->collect();
+        return new StaleDataCollector($this->connection, new MockClock($now), $retention, $grace, '1 hour')->collect();
     }
 
     private function import(string $started, ImportStatus $status = ImportStatus::Succeeded): Uuid
