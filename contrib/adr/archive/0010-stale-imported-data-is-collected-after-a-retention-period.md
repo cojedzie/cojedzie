@@ -1,6 +1,6 @@
 # 0010. Stale imported data is collected after a retention period
 
-- **Status:** Superseded by [0027](../0027-stale-imported-data-is-collected-by-retention-and-validity.md)
+- **Status:** Superseded by [0027](0027-stale-imported-data-is-collected-by-retention-and-validity.md)
 - **Date:** 2026-10-29
 - **Applies to:** `api/src/DataImport/**`, `api/src/Provider/*/DataImporter/**`, `api/config/services.yaml`
 

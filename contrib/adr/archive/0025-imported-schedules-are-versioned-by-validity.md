@@ -1,6 +1,6 @@
 # 0025. Imported schedules are versioned by validity
 
-- **Status:** Accepted
+- **Status:** Superseded by [0039](../0039-timetable-entries-are-valid-for-the-days-they-belong-to.md)
 - **Date:** 2026-11-07
 - **Applies to:** `api/src/Entity/Validity*.php`, `api/src/Entity/{Track,TrackStop,Trip,TripStop}Entity.php`,
   `api/src/Provider/*/DataImporter/**`, `api/src/DataImport/StaleDataCollector.php`,

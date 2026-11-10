@@ -93,7 +93,7 @@ We will run the import as a persisted graph of importers whose nodes may split t
   `queued` and a node that stays `waiting`, and is cleaned up by the next run rather than by a timer.
 - The importer reports its own progress (lines done of all) because it sees its jobs' counts.
 - A transient upstream error, a 404 included, fails a day until the next daily run. Only days the routes feed lists
-  the line on are planned (ADR 0025), so a 404 is a real failure, not a day the line doesn't run.
+  the line on are planned (ADR 0039), so a 404 is a real failure, not a day the line doesn't run.
 - Importers must be written so their steps and jobs can run on any worker, in any order the dependencies allow.
 - Concurrent downloads are bounded by the HTTP client: curl keeps 6 connections per host, so of 7 days one queues.
 
