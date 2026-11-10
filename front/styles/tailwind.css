@@ -243,6 +243,14 @@
   }
 }
 
+/* A section's background over the page's drawing; it reaches past the content, so the drawing doesn't touch the text
+   (UiSection, the timetable). */
+@utility section-surface {
+  padding: --spacing(2);
+  margin: calc(--spacing(2) * -1);
+  background: var(--color-surface);
+}
+
 /*
  * The header bar of UiSection: underlined, with the heading and its buttons in one line. Shared with headers that
  * look the same without being a section (stop groups).

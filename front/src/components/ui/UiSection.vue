@@ -59,10 +59,8 @@ defineSlots<{
 @reference "@styles/tailwind.css";
 
 .section {
-    /* the background reaches past the content, so the page background doesn't touch the text */
-    padding: --spacing(2);
-    margin: calc(--spacing(2) * -1) calc(--spacing(2) * -1) --spacing(4);
-    background: var(--color-surface);
+    @apply section-surface;
+    margin-block-end: --spacing(4);
 
     & .header {
         @apply ui-section-header;
