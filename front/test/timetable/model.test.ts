@@ -148,7 +148,7 @@ describe("timetable hour rows per line", () => {
         expect(table.rows.flatMap(row => row.minutes.map(m => m.note))).toEqual([undefined, undefined]);
     });
 
-    it("marks each minute with a letter of its headsign when the line has several, headed by the most frequent", () => {
+    it("marks the minutes of a line's other headsigns with letters, headed by the most frequent one, unmarked", () => {
         const [table] = buildLineTimetables(
             [
                 entry("2026-11-13T05:05:00Z", { display: "Łostowice" }),
@@ -159,11 +159,8 @@ describe("timetable hour rows per line", () => {
             zone,
         );
 
-        expect(table.legend).toEqual([
-            { note: "a", headsign: "Łostowice" },
-            { note: "b", headsign: "Zajezdnia" },
-        ]);
-        expect(table.rows[0].minutes.map(m => m.note)).toEqual(["a", "b", "a"]);
+        expect(table.legend).toEqual([{ note: "a", headsign: "Zajezdnia" }]);
+        expect(table.rows[0].minutes.map(m => m.note)).toEqual([undefined, "a", undefined]);
         expect(table.headsign).toBe("Łostowice");
     });
 
@@ -217,11 +214,8 @@ describe("timetable list per line", () => {
         );
 
         expect(list.headsign).toBe("Łostowice");
-        expect(list.legend).toEqual([
-            { note: "a", headsign: "Zajezdnia" },
-            { note: "b", headsign: "Łostowice" },
-        ]);
-        expect(list.entries.map(e => e.note)).toEqual(["a", "b", "b"]);
+        expect(list.legend).toEqual([{ note: "a", headsign: "Zajezdnia" }]);
+        expect(list.entries.map(e => e.note)).toEqual(["a", undefined, undefined]);
     });
 
     it("gives entries the letters of the same line's hour rows", () => {

@@ -36,11 +36,11 @@ export type TimetableListEntry = Marked & {
     delay?: number;
 };
 
-/** Footnote letters of a line's headsigns; empty when the line has one headsign at the stop */
+/** Footnote letters of a line's headsigns other than its main one; empty when the line has one at the stop */
 export type Legend = { note: string; headsign: string }[];
 
 export type LineListEntry = TimetableListEntry & {
-    /** Footnote letter of the headsign, only when the line has several at the stop */
+    /** Footnote letter of the headsign, only when it isn't the line's main one */
     note?: string;
 };
 
@@ -57,7 +57,7 @@ export type HourRow<TMinute> = { hour: number; minutes: TMinute[] };
 export type LineMinute = Marked & {
     /** The planned minute */
     minute: number;
-    /** Footnote letter of the headsign, only when the line has several at the stop */
+    /** Footnote letter of the headsign, only when it isn't the line's main one */
     note?: string;
 };
 
@@ -88,9 +88,9 @@ export function buildTimetableList(
 
 /** The entries of the day in departure order, one list per line ordered by line symbol. */
 export function buildLineLists(departures: Departure[], date: Temporal.PlainDate, timeZone: string): LineList[] {
-    return byLine(departures).map(({ line, entries, legend, notes }) => ({
+    return byLine(departures).map(({ line, headsign, entries, legend, notes }) => ({
         line,
-        headsign: mostFrequent(entries.map(entry => entry.display)),
+        headsign,
         legend,
         entries: entries.map(departure => ({
             ...listEntry(departure, date, timeZone),
@@ -105,9 +105,9 @@ export function buildLineTimetables(
     date: Temporal.PlainDate,
     timeZone: string,
 ): LineTimetable[] {
-    return byLine(departures).map(({ line, entries, legend, notes }) => ({
+    return byLine(departures).map(({ line, headsign, entries, legend, notes }) => ({
         line,
-        headsign: mostFrequent(entries.map(entry => entry.display)),
+        headsign,
         legend,
         rows: hourRows(entries, timeZone, (departure, minute) => ({
             ...mark(departure, date),
@@ -144,6 +144,8 @@ function sorted(departures: Departure[]): Departure[] {
 
 type LineEntries = {
     line: Line;
+    /** The most frequent headsign, the line's heading; its entries carry no letter */
+    headsign: string;
     /** In departure order */
     entries: Departure[];
     legend: Legend;
@@ -151,7 +153,10 @@ type LineEntries = {
     notes: Map<string, string>;
 };
 
-/** Entries grouped by line, ordered by line symbol, with letters for the headsigns of lines that have several. */
+/**
+ * Entries grouped by line, ordered by line symbol. The heading names a line's main headsign, so only its other
+ * headsigns get letters.
+ */
 function byLine(departures: Departure[]): LineEntries[] {
     const groups = new Map<string, Departure[]>();
     for (const departure of sorted(departures)) {
@@ -160,13 +165,14 @@ function byLine(departures: Departure[]): LineEntries[] {
 
     return [...groups.values()]
         .map(entries => {
-            // letters in the order the headsigns first run
-            const headsigns = [...new Set(entries.map(entry => entry.display))];
-            const legend =
-                headsigns.length > 1 ? headsigns.map((headsign, index) => ({ note: letter(index), headsign })) : [];
+            const headsign = mostFrequent(entries.map(entry => entry.display));
+            // letters in the order the other headsigns first run
+            const others = [...new Set(entries.map(entry => entry.display))].filter(other => other !== headsign);
+            const legend = others.map((other, index) => ({ note: letter(index), headsign: other }));
 
             return {
                 line: entries[0].line,
+                headsign,
                 entries,
                 legend,
                 notes: new Map(legend.map(({ note, headsign }) => [headsign, note])),

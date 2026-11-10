@@ -30,12 +30,12 @@ describe("TimetableHoursPerLine", () => {
         ]);
     });
 
-    it("lists a line's minutes in rows of hours, lettered by headsign when it has several", () => {
+    it("lists a line's minutes in rows of hours, its other headsigns lettered", () => {
         const wrapper = mountTables();
 
         expect(rows(wrapper, 0).slice(0, 2)).toEqual([
-            ["04", ["55a"]],
-            ["05", ["10a", "25b", "40a", "55a"]],
+            ["04", ["55"]],
+            ["05", ["10", "25a", "40", "55"]],
         ]);
         expect(rows(wrapper, 1)[0]).toEqual(["05", ["10", "30", "50"]]);
     });

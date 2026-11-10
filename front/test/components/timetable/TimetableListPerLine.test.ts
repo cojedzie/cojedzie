@@ -26,7 +26,7 @@ describe("TimetableListPerLine", () => {
         ]);
     });
 
-    it("marks the headsigns of a line with several by letters, explained under its list", () => {
+    it("marks the runs to a line's other headsigns by letters, explained under its list", () => {
         const wrapper = mountList();
         const six = wrapper.findAll(".line")[0];
 
@@ -34,9 +34,9 @@ describe("TimetableListPerLine", () => {
             six
                 .findAll(".cell")
                 .slice(0, 3)
-                .map(cell => cell.find(".note").text()),
-        ).toEqual(["a", "a", "b"]);
-        expect(six.findAll(".legend > span").map(item => item.text())).toEqual(["a — Łostowice", "b — Siedlce"]);
+                .map(cell => cell.find(".note").exists() && cell.find(".note").text()),
+        ).toEqual([false, false, "a"]);
+        expect(six.findAll(".legend > span").map(item => item.text())).toEqual(["a — Siedlce"]);
         expect(wrapper.findAll(".line")[1].find(".legend").exists()).toBe(false);
     });
 
