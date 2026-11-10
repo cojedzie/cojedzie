@@ -115,6 +115,8 @@
   --color-hover: color-mix(in srgb, var(--color-dark) 8%, transparent);
   --color-hover-primary: color-mix(in srgb, var(--color-primary) 10%, transparent);
   --color-pressed: color-mix(in srgb, var(--color-dark) 15%, transparent);
+  /* hairlines between the cells and rows of dense tables (the timetable) */
+  --color-divider: color-mix(in srgb, var(--color-dark) 15%, transparent);
   --gradient-primary: linear-gradient(120deg, var(--color-primary) 10%, var(--color-primary-dark) 90%);
   --gradient-primary-hover: linear-gradient(120deg, var(--color-primary-light) 10%, var(--color-primary-lighter) 90%);
   --gradient-danger: linear-gradient(120deg, var(--color-danger) 10%, var(--color-danger-dark) 90%);
