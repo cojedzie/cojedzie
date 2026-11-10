@@ -56,13 +56,13 @@ describe("UiDialog", () => {
             global: { stubs },
         });
 
-        expect(wrapper.find(".ui-modal").exists()).toBe(true);
+        expect(wrapper.find(".modal").exists()).toBe(true);
         expect(document.body.classList.contains("contains-modal")).toBe(true);
 
-        await wrapper.find(".ui-modal").trigger("click");
+        await wrapper.find(".modal").trigger("click");
         expect(wrapper.emitted("leave")).toBeUndefined();
 
-        await wrapper.find(".ui-backdrop").trigger("click");
+        await wrapper.find(".backdrop").trigger("click");
         expect(wrapper.emitted("leave")).toHaveLength(1);
 
         wrapper.unmount();
@@ -76,7 +76,7 @@ describe("UiDialog", () => {
             global: { stubs },
         });
 
-        await wrapper.find(".ui-modal__close").trigger("click");
+        await wrapper.find(".close").trigger("click");
 
         expect(wrapper.emitted("leave")).toHaveLength(1);
         expect(wrapper.emitted("close")).toHaveLength(1);
@@ -97,16 +97,16 @@ describe("UiDialog", () => {
 
     it("renders header and footer only when they have content", () => {
         const bare = mount(UiDialog, { props: { reference }, global: { stubs } });
-        expect(bare.find(".ui-popup__header").exists()).toBe(false);
-        expect(bare.find(".ui-popup__footer").exists()).toBe(false);
+        expect(bare.find(".header").exists()).toBe(false);
+        expect(bare.find(".footer").exists()).toBe(false);
 
         const full = mount(UiDialog, {
             props: { reference },
             slots: { title: "Custom title", footer: "Footer" },
             global: { stubs },
         });
-        expect(full.find(".ui-popup__header").text()).toBe("Custom title");
-        expect(full.find(".ui-popup__footer").text()).toBe("Footer");
+        expect(full.find(".header").text()).toBe("Custom title");
+        expect(full.find(".footer").text()).toBe("Footer");
     });
 
     it("stops positioning itself when the reference element disappears with it", async () => {

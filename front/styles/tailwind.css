@@ -56,7 +56,7 @@
   --color-line-train: var(--color-warning);
   --color-line-unknown: var(--color-dark);
 
-  --color-backdrop: rgb(0 0 0 / 0.4);
+  --color-backdrop: rgb(0 0 0 / 0.5);
   /* sections' background over the page's drawing */
   --color-surface: rgb(255 255 255 / 0.85);
 
@@ -92,6 +92,7 @@
   /* the app's bars are below the board's popups: UiDialog puts those at 100 over their nearest stacking context */
   --z-index-bar: 90;
   --z-index-popup: 1000;
+  --z-index-modal: 10000;
 
   --focus-ring-width: 2px;
   --focus-ring-offset: 1px;
@@ -107,6 +108,7 @@
 @theme static {
   --color-hover: color-mix(in srgb, var(--color-dark) 8%, transparent);
   --color-hover-primary: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  --color-pressed: color-mix(in srgb, var(--color-dark) 15%, transparent);
   --gradient-primary: linear-gradient(120deg, var(--color-primary) 10%, var(--color-primary-dark) 90%);
   --gradient-primary-hover: linear-gradient(120deg, var(--color-primary-light) 10%, var(--color-primary-lighter) 90%);
   --gradient-danger: linear-gradient(120deg, var(--color-danger) 10%, var(--color-danger-dark) 90%);
@@ -259,6 +261,20 @@
   & > .btn {
     margin-block: calc(--spacing(2) * -1);
   }
+}
+
+/* The card of popups (UiDialog and the popups drawn without it): white, padded, lifted. */
+@utility ui-popup {
+  position: relative;
+  box-sizing: content-box;
+  /* a popup's own width limits */
+  min-inline-size: 200px;
+  max-inline-size: 500px;
+  padding: --spacing(3);
+  border-radius: var(--radius-sm);
+  background: white;
+  box-shadow: var(--shadow-popup);
+  z-index: var(--z-index-popup);
 }
 
 /* Global helpers templates use. */

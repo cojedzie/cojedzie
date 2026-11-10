@@ -18,7 +18,7 @@
  */
 
 .map__label-box {
-  @extend .ui-popup;
+  @include ui-popup-surface;
 
   padding: 0.5rem;
   background: white;

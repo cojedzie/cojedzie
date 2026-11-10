@@ -17,6 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+// the modal's padding, which the dialog's parts reach into (UiDialog's modal pads with --spacing(8))
+$ui-dialog-margin: 2rem;
+
 @use "sass:math";
 
 .stop-details-dialog {
@@ -130,7 +133,7 @@
 }
 
 .track-selector {
-  @extend .ui-popup;
+  @include ui-popup-surface;
   padding: 0;
   position: absolute;
   bottom: 2rem;
@@ -158,4 +161,10 @@
       grid-row: 2;
     }
   }
+}
+
+.stop-details-dialog__heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1rem;
 }

@@ -53,7 +53,7 @@
                 v-hover="(hovered: boolean) => (mapHovered = hovered)"
                 reference="action-map"
                 arrow
-                class="ui-popup--no-padding"
+                flush
                 style="width: 500px"
                 placement="right-start"
             >

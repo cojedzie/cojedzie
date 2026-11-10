@@ -2,11 +2,11 @@
     <div
         ref="root"
         class="fold"
-        :class="[`fold--${state}`]"
+        :class="state"
         :aria-expanded="visible ? 'true' : 'false'"
         @transitionend="handleTransitionEnd"
     >
-        <div ref="inner" class="fold__inner" :tabindex="visible ? null : -1">
+        <div ref="inner" class="inner" :tabindex="visible ? null : -1">
             <Lazy v-if="lazy" :activate="visible">
                 <slot />
             </Lazy>
@@ -97,3 +97,25 @@ function expand() {
     }
 }
 </script>
+
+<style scoped>
+@reference "@styles/tailwind.css";
+
+.fold {
+    overflow: hidden;
+    transition: height var(--duration-normal) var(--ease-in-out);
+    will-change: height;
+
+    &.folded {
+        height: 0;
+
+        & .inner {
+            overflow: auto;
+        }
+    }
+
+    &.expanded {
+        overflow: visible;
+    }
+}
+</style>

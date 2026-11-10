@@ -41,7 +41,7 @@ describe("TrackPicker", () => {
 
         expect(options).toHaveLength(2);
         expect(options[0].find(".line").text()).toBe("6");
-        expect(options[0].find(".track-picker__description").text()).toBe("Brama - Oliwa");
+        expect(options[0].find(".description").text()).toBe("Brama - Oliwa");
         expect(options[0].findAll(".stop").map(s => s.text())).toEqual(["Brama Wyżynna", "Oliwa"]);
     });
 

@@ -1,5 +1,5 @@
 <template>
-    <ui-dialog behaviour="modal" class="ui-modal--huge ui-modal--no-padding stop-details-dialog" v-bind="$attrs">
+    <ui-dialog behaviour="modal" size="huge" flush class="stop-details-dialog" v-bind="$attrs">
         <template #header="{ handleCloseClick }">
             <button class="stop-details-dialog__close" @click="handleCloseClick">
                 <ui-icon icon="close" />
@@ -13,7 +13,7 @@
                 <div class="stop-details-dialog__lines">
                     <line-symbol v-for="line in lines" :key="line.id" :line="line" />
                 </div>
-                <h3 class="ui-modal__heading">Kierunki</h3>
+                <h3 class="stop-details-dialog__heading">Kierunki</h3>
                 <ul class="stop-details-dialog__destinations">
                     <li
                         v-for="possibleDestination in stop.destinations"

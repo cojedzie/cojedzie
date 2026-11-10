@@ -31,13 +31,6 @@ $stop-variant-color: mix($dark, white, 75%);
   display: flex;
 }
 
-.stop__details-fold {
-  flex-basis: 100%;
-  .fold__inner {
-    padding-bottom: 0.75rem;
-  }
-}
-
 .stop__variant {
   @extend .badge;
   border: solid 1px $stop-variant-color;
