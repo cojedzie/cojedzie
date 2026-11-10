@@ -15,9 +15,19 @@ export const routes: RouteRecordRaw[] = [
                 component: () => import("@/pages/StopTimetablePage.vue"),
             },
             {
+                // the line page alone on the left, its right column waits for a stop
+                path: "lines/:line",
+                name: "timetable-line",
+                components: { side: () => import("@/pages/TimetableLinePage.vue") },
+            },
+            {
+                // the same line page instance stays on the left while its stops are opened
                 path: "lines/:line/stops/:stop",
                 name: "timetable-line-stop",
-                component: () => import("@/pages/StopTimetablePage.vue"),
+                components: {
+                    default: () => import("@/pages/StopTimetablePage.vue"),
+                    side: () => import("@/pages/TimetableLinePage.vue"),
+                },
             },
         ],
     },
