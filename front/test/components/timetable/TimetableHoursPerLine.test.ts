@@ -9,8 +9,8 @@ const global = {
     stubs: { LineSymbol: { props: ["line"], template: "<span class='symbol'>{{ line.symbol }}</span>" } },
 };
 
-const mountTables = () =>
-    mount(TimetableHoursPerLine, { props: { tables: buildLineTimetables(liveDay, date, timeZone) }, global });
+const mountTables = (nearest?: string) =>
+    mount(TimetableHoursPerLine, { props: { tables: buildLineTimetables(liveDay, date, timeZone), nearest }, global });
 
 const rows = (wrapper: ReturnType<typeof mountTables>, line: number) =>
     wrapper
@@ -45,5 +45,12 @@ describe("TimetableHoursPerLine", () => {
         const nine = wrapper.findAll(".line")[0].findAll(".row")[5].findAll(".minute");
 
         expect(nine.map(minute => minute.classes("departed"))).toEqual([true, true, false, false]);
+    });
+
+    it("marks the run to scroll to", () => {
+        const wrapper = mountTables("l6-2026-11-13-09:40");
+
+        const marked = wrapper.findAll("[data-nearest]");
+        expect(marked.map(minute => minute.text())).toEqual(["40"]);
     });
 });

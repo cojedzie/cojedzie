@@ -10,6 +10,7 @@
                         :key="index"
                         class="minute"
                         :class="{ departed: minute.departed }"
+                        :data-nearest="minute.departure.key === nearest ? '' : undefined"
                     >
                         <span>{{ pad(minute.minute) }}</span>
                         <sup v-if="minute.note" class="note">{{ minute.note }}</sup>
@@ -31,6 +32,8 @@ defineOptions({ name: "TimetableHoursPerLine" });
 defineProps<{
     /** The day's entries, one table per line in rows of hours (`buildLineTimetables`) */
     tables: LineTimetable[];
+    /** The key of the run to scroll to, marked with `data-nearest` */
+    nearest?: string;
 }>();
 
 // hours and minutes as a printed timetable writes them: "05", "07"

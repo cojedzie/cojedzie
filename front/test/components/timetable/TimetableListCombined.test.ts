@@ -12,8 +12,8 @@ const global = {
     },
 };
 
-const mountList = () =>
-    mount(TimetableListCombined, { props: { entries: buildTimetableList(liveDay, date, timeZone) }, global });
+const mountList = (nearest?: string) =>
+    mount(TimetableListCombined, { props: { entries: buildTimetableList(liveDay, date, timeZone), nearest }, global });
 
 describe("TimetableListCombined", () => {
     it("lists all lines' entries in departure order, each with its line, its headsign on tap", () => {
@@ -39,5 +39,14 @@ describe("TimetableListCombined", () => {
         expect(at("10:02", "111").classes()).not.toContain("departed");
         expect(at("10:02", "111").find(".estimate b").text()).toBe("10:07");
         expect(at("10:02", "111").find(".badge-warning").text()).toBe("+300s");
+    });
+
+    it("marks the run to scroll to", () => {
+        const wrapper = mountList("l6-2026-11-13-09:40");
+
+        const marked = wrapper.findAll("[data-nearest]");
+        expect(marked.map(cell => `${cell.find(".planned").text()} ${cell.find(".symbol").text()}`)).toEqual([
+            "09:40 6",
+        ]);
     });
 });

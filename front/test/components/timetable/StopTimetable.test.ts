@@ -1,10 +1,14 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import StopTimetable from "@/components/timetable/StopTimetable.vue";
-import { date, liveDay, timeZone } from "@/components/timetable/timetable.fixtures";
+import { date, liveDay, now, timeZone } from "@/components/timetable/timetable.fixtures";
 
-const view = (name: string) => ({ props: ["lists", "entries", "tables", "rows"], template: `<div class="${name}" />` });
+const view = (name: string) => ({
+    props: ["lists", "entries", "tables", "rows", "nearest"],
+    template: `<div class="${name}" :data-nearest="nearest" />`,
+});
 const UiToggleGroup = {
     props: ["modelValue", "options", "label"],
     emits: ["update:modelValue"],
@@ -44,6 +48,8 @@ const shown = (wrapper: ReturnType<typeof mountTimetable>) =>
     );
 
 describe("StopTimetable", () => {
+    afterEach(() => vi.restoreAllMocks());
+
     it("shows the list per line first, and the view and grouping picked with the switches", async () => {
         const wrapper = mountTimetable();
         expect(shown(wrapper)).toEqual(["list-per-line"]);
@@ -65,10 +71,34 @@ describe("StopTimetable", () => {
         expect(shown(wrapper)).toEqual(["list-per-line"]);
     });
 
+    it("says the day is loading until it has come", () => {
+        const wrapper = mountTimetable({ departures: [], loading: true });
+
+        expect(wrapper.find(".empty").text()).toBe("Wczytywanie rozkładu…");
+        expect(shown(wrapper)).toEqual([]);
+    });
+
     it("says when the day has no departures", () => {
         const wrapper = mountTimetable({ departures: [] });
 
         expect(wrapper.find(".empty").text()).toBe("Brak odjazdów w wybranym dniu");
         expect(shown(wrapper)).toEqual([]);
+    });
+
+    it("marks the first run not gone yet on today, and scrolls to it", async () => {
+        const scrolled = vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(() => {});
+        const wrapper = mountTimetable({ now });
+        await nextTick();
+
+        // the 09:40 tram is two minutes late, so it hasn't left at 09:40
+        const nearest = wrapper.find("[data-nearest]");
+        expect(nearest.attributes("data-nearest")).toBe("l6-2026-11-13-09:40");
+        expect(scrolled.mock.contexts).toEqual([nearest.element]);
+    });
+
+    it("marks nothing on another day", () => {
+        const wrapper = mountTimetable();
+
+        expect(wrapper.find("[data-nearest]").exists()).toBe(false);
     });
 });

@@ -9,6 +9,7 @@
                     type="button"
                     class="minute"
                     :class="{ departed: minute.departed }"
+                    :data-nearest="minute.departure.key === nearest ? '' : undefined"
                     :aria-label="describe(row.hour, minute)"
                 >
                     <span class="digits">{{ pad(minute.minute) }}</span>
@@ -30,6 +31,8 @@ defineOptions({ name: "TimetableHoursCombined" });
 defineProps<{
     /** The day's entries of all lines, in rows of hours (`buildCombinedTimetable`) */
     rows: CombinedTimetable;
+    /** The key of the run to scroll to, marked with `data-nearest` */
+    nearest?: string;
 }>();
 
 // hours and minutes as a printed timetable writes them: "05", "07"

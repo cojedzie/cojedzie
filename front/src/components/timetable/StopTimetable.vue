@@ -1,5 +1,5 @@
 <template>
-    <section class="stop-timetable" aria-label="Rozkład jazdy">
+    <section ref="root" class="stop-timetable" aria-label="Rozkład jazdy">
         <div class="controls">
             <ui-date-picker v-model="date" v-bind="picker" class="picker" />
             <div class="switches">
@@ -14,20 +14,35 @@
             </div>
         </div>
 
-        <p v-if="departures.length === 0" class="empty">Brak odjazdów w wybranym dniu</p>
-        <timetable-list-per-line v-else-if="shown.kind === 'list-per-line'" :lists="shown.lists" />
-        <timetable-list-combined v-else-if="shown.kind === 'list-combined'" :entries="shown.entries" />
-        <timetable-hours-per-line v-else-if="shown.kind === 'hours-per-line'" :tables="shown.tables" />
-        <timetable-hours-combined v-else :rows="shown.rows" />
+        <p v-if="loading" class="empty">Wczytywanie rozkładu…</p>
+        <p v-else-if="departures.length === 0" class="empty">Brak odjazdów w wybranym dniu</p>
+        <timetable-list-per-line v-else-if="shown.kind === 'list-per-line'" :lists="shown.lists" :nearest="nearest" />
+        <timetable-list-combined
+            v-else-if="shown.kind === 'list-combined'"
+            :entries="shown.entries"
+            :nearest="nearest"
+        />
+        <timetable-hours-per-line
+            v-else-if="shown.kind === 'hours-per-line'"
+            :tables="shown.tables"
+            :nearest="nearest"
+        />
+        <timetable-hours-combined v-else :rows="shown.rows" :nearest="nearest" />
     </section>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, nextTick, useTemplateRef, watch } from "vue";
 import { useMediaQuery } from "@vueuse/core";
-import type { Departure } from "@/model";
-import { buildCombinedTimetable, buildLineLists, buildLineTimetables, buildTimetableList } from "@/timetable";
-import type { Temporal } from "@/time";
+import type { Departure, TimetableRange } from "@/model";
+import {
+    buildCombinedTimetable,
+    buildLineLists,
+    buildLineTimetables,
+    buildTimetableList,
+    nearestEntry,
+} from "@/timetable";
+import { Temporal } from "@/time";
 import type { UiToggleGroupOption } from "@/components/ui/UiToggleGroup.vue";
 import TimetableHoursCombined from "@/components/timetable/TimetableHoursCombined.vue";
 import TimetableHoursPerLine from "@/components/timetable/TimetableHoursPerLine.vue";
@@ -47,9 +62,13 @@ const props = defineProps<{
     /** The provider's time zone, the timetable's hours are in it */
     timeZone: string;
     /** The days the timetable has, the date picker's limits */
-    range?: { from: Temporal.PlainDate; to: Temporal.PlainDate };
+    range?: TimetableRange;
     /** The stop's timetable of one line: the grouping is moot, and its switch hidden */
     lineFixed?: boolean;
+    /** The day is being fetched: the controls stay, the views wait */
+    loading?: boolean;
+    /** The moment the day is seen at, only when it is today: the views mark the first run not gone yet, scrolled to */
+    now?: Temporal.Instant;
 }>();
 
 /** The day shown */
@@ -75,6 +94,19 @@ const groupings: UiToggleGroupOption<StopTimetableGrouping>[] = [
 // with one line both groupings look the same: its own table reads better
 const perLine = computed(() => props.lineFixed || grouping.value === "line");
 
+// the key of the first run not gone yet; the views mark it with `data-nearest`
+const nearest = computed(() => {
+    if (!props.now) {
+        return undefined;
+    }
+
+    const sorted = [...props.departures].sort((a, b) => Temporal.Instant.compare(a.scheduled, b.scheduled));
+    return nearestEntry(
+        sorted.map(departure => ({ departure })),
+        props.now,
+    )?.departure.key;
+});
+
 // only the view shown is built
 const shown = computed(() => {
     const { departures, timeZone } = props;
@@ -89,6 +121,17 @@ const shown = computed(() => {
         ? { kind: "hours-per-line" as const, tables: buildLineTimetables(departures, date.value, timeZone) }
         : { kind: "hours-combined" as const, rows: buildCombinedTimetable(departures, date.value, timeZone) };
 });
+
+// a view shown anew (the day loaded, another view picked) starts at the current time; a minute passing doesn't scroll
+const root = useTemplateRef<HTMLElement>("root");
+watch(
+    shown,
+    async () => {
+        await nextTick();
+        root.value?.querySelector("[data-nearest]")?.scrollIntoView({ block: "center" });
+    },
+    { immediate: true },
+);
 </script>
 
 <style scoped>
