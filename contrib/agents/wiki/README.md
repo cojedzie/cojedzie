@@ -26,7 +26,7 @@ in `frontend/`).
 
 | Page | Contents |
 |---|---|
-| [frontend/architecture.md](frontend/architecture.md) | Vue 3 app, app shell and navigation, Express server, Pinia stores and persistence, API client, node load balancing, stylesheets (Tailwind, scoped CSS, design tokens), Storybook |
+| [frontend/architecture.md](frontend/architecture.md) | Vue 3 app, app shell and navigation, timetable pages, Express server, Pinia stores and persistence, API client, node load balancing, stylesheets (Tailwind, scoped CSS, design tokens), Storybook |
 
 ## Maintaining the wiki
 

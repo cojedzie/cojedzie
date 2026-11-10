@@ -31,4 +31,5 @@ export interface NavigationEntry {
 
 export const navigation: NavigationEntry[] = [
     { id: "departures", label: "Odjazdy", icon: "timetable", route: "departures", bottomBar: true },
+    { id: "timetable", label: "Rozkład", icon: "calendar", route: "timetable", bottomBar: true },
 ];

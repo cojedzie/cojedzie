@@ -19,3 +19,4 @@
 
 export * from "./fetch";
 export * from "./model";
+export * from "./page";

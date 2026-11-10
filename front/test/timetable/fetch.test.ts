@@ -19,7 +19,8 @@
 
 import { Temporal } from "@/time";
 import { describe, expect, it, vi } from "vitest";
-import { fetchTimetableDay, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
+import { fetchTimetableDay, linesOfTracks, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
+import type { Line, Track } from "@/model";
 
 const six = { id: "l6", symbol: "6", type: "tram", night: false, fast: false, $type: "vnd.cojedzie.line" };
 
@@ -82,5 +83,36 @@ describe("fetching a timetable day", () => {
         expect(known.serviceDay?.toString()).toBe("2026-11-13");
         expect(known.line).toEqual(six);
         expect(unknown.line).toMatchObject({ id: "gone", symbol: "gone", type: "unknown" });
+    });
+
+    it("takes the stop's tracks when they are already at hand", async () => {
+        const api = client([[dto("2026-11-13T10:00:00+01:00")]]);
+        const tracks = [{ id: "t", description: "", line: six }] as Track[];
+
+        const [entry] = await fetchTimetableDay(
+            api as never,
+            { stop: "s", date: Temporal.PlainDate.from("2026-11-13") },
+            tracks,
+        );
+
+        expect(entry.line).toEqual(six);
+        expect(api.get).not.toHaveBeenCalledWith("v1_stop_tracks", expect.anything());
+    });
+});
+
+describe("linesOfTracks", () => {
+    it("lists the lines of a stop's tracks once each, by symbol", () => {
+        const line = (symbol: string) => ({ ...six, id: `l${symbol}`, symbol }) as Line;
+        const track = (line: Line, id: string) => ({ id, description: "", line }) as Track;
+
+        const lines = linesOfTracks([
+            track(line("12"), "a"),
+            track(line("6"), "b"),
+            track(line("N1"), "c"),
+            track(line("6"), "d"),
+            track(line("111"), "e"),
+        ]);
+
+        expect(lines.map(line => line.symbol)).toEqual(["6", "12", "111", "N1"]);
     });
 });
