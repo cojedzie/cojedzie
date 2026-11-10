@@ -20,6 +20,16 @@ const groups = [
     { name: "Bramka", stops: [bramka] },
 ];
 
+const line = (id: string, symbol: string, type = "bus", night = false) => ({
+    id,
+    symbol,
+    type,
+    night,
+    fast: false,
+    $type: "vnd.cojedzie.line",
+});
+const lines = [line("l1", "1", "tram"), line("l10", "10"), line("l111", "111")];
+
 const stubs = {
     UiIcon: true,
     UiTooltip: true,
@@ -49,14 +59,27 @@ const routes = [
     },
 ];
 
-async function mountSection(path = "/trojmiasto/timetable", recent: ReturnType<typeof stop>[] = []) {
+const linePage = {
+    path: "lines/:line",
+    name: "timetable-line",
+    component: { template: "<p class='line-page'>{{ $route.params.line }}</p>" },
+};
+
+/** The routes once the line page (#157) exists */
+const routesWithLinePage = [{ ...routes[0], children: [...routes[0].children, linePage] }];
+
+async function mountSection(
+    path = "/trojmiasto/timetable",
+    recent: ReturnType<typeof stop>[] = [],
+    withRoutes: typeof routes = routes,
+) {
     const pinia = createPinia();
     setActivePinia(pinia);
     for (const chosen of [...recent].reverse()) {
         useHistoryStore().push({ stop: chosen, date: Temporal.Instant.from("2026-11-10T08:00:00Z") });
     }
 
-    const router = createRouter({ history: createMemoryHistory(), routes });
+    const router = createRouter({ history: createMemoryHistory(), routes: withRoutes });
     await router.push(path);
     await router.isReady();
 
@@ -72,6 +95,9 @@ async function type(wrapper: Awaited<ReturnType<typeof mountSection>>["wrapper"]
     await flushPromises();
 }
 
+const lineQueries = () =>
+    get.mock.calls.filter(([endpoint]) => endpoint === "v1_line_list").map(([, options]) => options.query);
+
 const stopGroupQueries = () =>
     get.mock.calls.filter(([endpoint]) => endpoint === "v1_stop_group_list").map(([, options]) => options.query);
 
@@ -83,6 +109,8 @@ describe("TimetablePage's search", () => {
             switch (endpoint) {
                 case "v1_stop_group_list":
                     return { data: groups };
+                case "v1_line_list":
+                    return { data: lines };
                 default:
                     return { data: { id: "trojmiasto", timezone: "Europe/Warsaw" } };
             }
@@ -249,5 +277,83 @@ describe("TimetablePage's search", () => {
         await flushPromises();
 
         expect(wrapper.text()).not.toContain("Wybierz przystanek albo linię");
+    });
+
+    it("finds lines by symbol from one character, before the stops, and opens a line's page", async () => {
+        const { wrapper, router } = await mountSection("/trojmiasto/timetable", [bramka], routesWithLinePage);
+
+        await type(wrapper, "1");
+        expect(lineQueries()).toEqual([{ symbol: "1" }]);
+
+        const found = wrapper.find("section[aria-label=Linie]");
+        expect(found.findAll("a").map(link => [link.text(), link.attributes("href")])).toEqual([
+            ["1", "/trojmiasto/timetable/lines/l1"],
+            ["10", "/trojmiasto/timetable/lines/l10"],
+            ["111", "/trojmiasto/timetable/lines/l111"],
+        ]);
+        expect(wrapper.findAll("section[aria-label]").map(section => section.attributes("aria-label"))).toEqual([
+            "Linie",
+            "Przystanki",
+        ]);
+
+        await found.findAll("a")[1].trigger("click");
+        await flushPromises();
+
+        expect(router.currentRoute.value.fullPath).toBe("/trojmiasto/timetable/lines/l10");
+    });
+
+    it("shows lines as plain symbols until the line page exists", async () => {
+        const { wrapper } = await mountSection();
+
+        await type(wrapper, "1");
+
+        const found = wrapper.find("section[aria-label=Linie]");
+        expect(found.findAll("li").map(item => item.text())).toEqual(["1", "10", "111"]);
+        expect(found.findAll("a")).toHaveLength(0);
+    });
+
+    it("hides the lines section when no line matches", async () => {
+        get.mockImplementation(async (endpoint: string) => ({
+            data: endpoint === "v1_stop_group_list" ? groups : [],
+        }));
+        const { wrapper } = await mountSection();
+
+        await type(wrapper, "Bra");
+
+        expect(wrapper.find("section[aria-label=Przystanki]").exists()).toBe(true);
+        expect(wrapper.find("section[aria-label=Linie]").exists()).toBe(false);
+    });
+
+    it("keeps the found lines while the next query is searched", async () => {
+        const { wrapper } = await mountSection();
+
+        await type(wrapper, "1");
+        await wrapper.find("input").setValue("11");
+        await flushPromises();
+
+        expect(wrapper.findAll("section[aria-label=Linie] li").map(item => item.text())).toEqual(["1", "10", "111"]);
+    });
+
+    it("drops a late answer to an older line query", async () => {
+        let answerOld: (value: unknown) => void = () => {};
+        get.mockImplementation(async (endpoint: string, options: { query?: { symbol?: string } }) => {
+            if (endpoint !== "v1_line_list") {
+                return { data: [] };
+            }
+
+            if (options.query?.symbol === "1") {
+                return new Promise(resolve => (answerOld = resolve));
+            }
+
+            return { data: [line("l11", "11")] };
+        });
+        const { wrapper } = await mountSection();
+
+        await type(wrapper, "1");
+        await type(wrapper, "11");
+        answerOld({ data: lines });
+        await flushPromises();
+
+        expect(wrapper.findAll("section[aria-label=Linie] li").map(item => item.text())).toEqual(["11"]);
     });
 });

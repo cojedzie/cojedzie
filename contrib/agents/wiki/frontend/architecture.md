@@ -236,10 +236,15 @@ stop. The right column is the routed page (the default view); on `timetable` its
 linię", from `md` only. On a phone a page on the right stands alone (the left column is hidden), and on `timetable`
 the search stands alone.
 
-The search (`pages/TimetableStartPage.vue`, "Rozkłady jazdy") has one field, "Przystanek lub linia" (lines join it in
-#202). Its "Przystanki" section searches stop groups by name from three characters, debounced 400 ms like
-`StopPicker`, through `searchStopGroups` (`components/stop-picker/search.ts`, framework-free, taking the API client,
-shared with `StopPicker` so both find stops alike); a late answer to an older query is dropped, and an empty answer
+The search (`pages/TimetableStartPage.vue`, "Rozkłady jazdy") has one field, "Przystanek lub linia", and one 400 ms
+debounce per change of it. Its "Linie" section, above the stops, lists lines whose symbol starts with the query (the
+API's case-insensitive prefix, so "n1" finds N1) from one character, in the API's display order, as `LineSymbol`s,
+through `searchLines` (`components/line/search.ts`, `v1_line_list` with `symbol`); a late answer is dropped, the lines found stay until the
+next query's answer, and the section is hidden when no line matches or the search fails. A line links to `timetable-line` by its id, only when
+`router.hasRoute("timetable-line")` (the line page, #157); until then it is a plain symbol.
+Its "Przystanki" section searches stop groups by name from three characters, through `searchStopGroups`
+(`components/stop-picker/search.ts`, framework-free, taking the API client, shared with `StopPicker` so both find stops
+alike); a late answer to an older query is dropped, and an empty answer
 says "Brak przystanków dla „…”". The results stay while a longer query is searched, as in `StopPicker`, so they don't
 flicker away while typing; the spinner shows only while there are none yet. Group names are only headings (timetables
 are of single stops); each stop is a `StopPickerEntry` whose `primary-action` is `TimetableStopLink`
