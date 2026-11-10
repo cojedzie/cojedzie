@@ -339,6 +339,11 @@
     flex-grow: 1;
     max-inline-size: 100%;
   }
+
+  /* a row linking to the current page, e.g. the open stop's timetable in the timetable search */
+  & > li:has([aria-current="page"]) {
+    background: var(--color-hover-primary);
+  }
 }
 
 /* Stops in one line, separated by commas, cut with an ellipsis (messages, favourites, destinations). */
