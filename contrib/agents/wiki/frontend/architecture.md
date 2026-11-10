@@ -40,8 +40,9 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   `TIMETABLE_DAY_MODE` (`extended`, provisional) is the only place the day mode is set. Pure builders turn the
   entries into the list (`buildTimetableList`), the list per line (`buildLineLists`, headed by the line's most
   frequent headsign), hour rows per line (`buildLineTimetables`) and combined hour rows (`buildCombinedTimetable`).
-  Both per-line builders share one grouping (`byLine`: line order, headsign footnote letters and legend), so a line's
-  letters match between the list and hour rows. They take the requested date, to mark entries of another service day,
+  Both per-line builders share one grouping (`byLine`: line order, the main headsign, footnote letters and legend), so
+  a line's letters match between the list and hour rows. The main (most frequent) headsign heads the line and gets no
+  letter; only the others are lettered, in the order they first run, and listed in the legend. They take the requested date, to mark entries of another service day,
   and the provider's time zone, which the hours are shown in. Hour rows group consecutive entries of the same hour,
   so with `extended` the runs after midnight get their own rows at the end of the day. `nearestEntry(entries, now)`
   picks the entry to scroll to. Tests: `test/timetable/`.
@@ -54,7 +55,7 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   (`buildTimetableList`: each cell a button with the time and `LineSymbol simple`, the headsign in a `UiTooltip` with
   the `click` trigger, which toggles on a tap and closes with a click elsewhere or Escape; tooltips have no tap
   otherwise, as a tapped button isn't focused on iOS), `TimetableHoursPerLine` (`buildLineTimetables`: a table of hour
-  rows per line, the minutes zero-padded as in printed timetables, lettered by headsign; the tables stand side by side
+  rows per line, the minutes zero-padded as in printed timetables, the other headsigns' minutes lettered; the tables stand side by side
   in an auto-fill grid on wide screens; hour rows show the planned minute only, no estimates), `TimetableHoursCombined`
   (`buildCombinedTimetable`: one table of hour rows, each minute a button with `LineSymbol simple` under it and the
   headsign in the click tooltip), with shared parts `TimetableLineHeading` (`LineSymbol` and the main headsign in its
