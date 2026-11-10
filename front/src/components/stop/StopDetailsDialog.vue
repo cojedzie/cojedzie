@@ -13,6 +13,11 @@
                 <div class="lines">
                     <line-symbol v-for="line in lines" :key="line.id" :line="line" />
                 </div>
+                <!-- the provider is the current route's -->
+                <router-link :to="{ name: 'timetable-stop', params: { stop: stop.id } }" class="timetable-link">
+                    <ui-icon icon="calendar" />
+                    Rozkład jazdy
+                </router-link>
                 <h3 class="heading">Kierunki</h3>
                 <ul class="destinations">
                     <li
@@ -249,6 +254,14 @@ const type = computed(() => getStopType(props.stop));
     margin-block-end: --spacing(4);
     font-size: var(--text-2xl);
     font-weight: 600;
+}
+
+.timetable-link {
+    display: inline-flex;
+    gap: --spacing(1);
+    align-items: center;
+    align-self: flex-start;
+    margin-block-start: --spacing(3);
 }
 
 .heading {

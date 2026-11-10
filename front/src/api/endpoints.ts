@@ -18,7 +18,7 @@
  */
 
 import { Jsonified } from "@/utils";
-import { Departure, Provider, Stop, Track } from "@/model";
+import { Departure, Provider, Stop, StopWithDestinations, Track } from "@/model";
 import { Trip } from "@/model/trip";
 import { Message } from "@/model/message";
 
@@ -40,6 +40,7 @@ export type Endpoints = {
     v1_stop_list: Endpoint<"provider", Jsonified<Stop>[]>;
     v1_track_list: Endpoint<"provider", Jsonified<Track>[]>;
     v1_stop_group_list: Endpoint<"provider", Jsonified<{ name: string; stops: Stop[] }>[]>;
+    v1_stop_details: Endpoint<"provider" | "stop", Jsonified<StopWithDestinations>>;
     v1_stop_tracks: Endpoint<"provider" | "stop", Jsonified<{ order: number; track: Track }>[]>;
     v1_stop_timetable: Endpoint<"provider" | "stop", Jsonified<Departure>[]>;
 };
@@ -82,6 +83,10 @@ export const endpoints: Endpoints = {
     v1_stop_group_list: {
         template: "/api/v1/{provider}/stop-groups",
         version: "1.0",
+    },
+    v1_stop_details: {
+        template: "/api/v1/{provider}/stops/{stop}",
+        version: "1.2",
     },
     v1_stop_tracks: {
         template: "/api/v1/{provider}/stops/{stop}/tracks",

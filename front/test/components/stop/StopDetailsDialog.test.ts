@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises, mount, RouterLinkStub } from "@vue/test-utils";
 import StopDetailsDialog from "@/components/stop/StopDetailsDialog.vue";
 
 const line = (id: string, symbol: string) => ({ id, symbol, type: "tram" });
@@ -53,6 +53,7 @@ describe("StopDetailsDialog", () => {
                     StopLabel: stub("StopLabel", "<span class='label' />"),
                     LineSymbol: stub("LineSymbol", "<span class='line' />"),
                     TrackPicker: stub("TrackPicker", "<div class='picker' />"),
+                    RouterLink: RouterLinkStub,
                 },
             },
         });
@@ -78,5 +79,12 @@ describe("StopDetailsDialog", () => {
 
         expect(getTracksForDestination).toHaveBeenCalledWith(stop, stop.destinations[0].stop);
         expect(wrapper.find(".picker").exists()).toBe(true);
+    });
+
+    it("links to the stop's timetable", () => {
+        const link = mountDialog().findComponent(RouterLinkStub);
+
+        expect(link.props("to")).toEqual({ name: "timetable-stop", params: { stop: "1" } });
+        expect(link.text()).toContain("Rozkład jazdy");
     });
 });

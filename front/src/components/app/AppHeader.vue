@@ -12,7 +12,7 @@
                     :key="entry.id"
                     :to="{ name: entry.route, params: { provider } }"
                     class="link"
-                    exact-active-class="active"
+                    active-class="active"
                 >
                     {{ entry.label }}
                 </router-link>

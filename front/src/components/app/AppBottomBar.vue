@@ -7,7 +7,7 @@
                 :key="entry.id"
                 :to="{ name: entry.route, params: { provider } }"
                 class="tab"
-                exact-active-class="active"
+                active-class="active"
                 :aria-label="entry.label"
                 :title="entry.label"
             >

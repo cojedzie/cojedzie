@@ -37,6 +37,8 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   forbids Vue, Pinia, stores, composables and components there). `fetchTimetableDay(client, { stop, line?, date })`
   takes the API client as an argument, reads every page of a stop's day (`v1_stop_timetable`, pages of 1000) and fills
   in the lines from the stop's tracks, because timetable entries carry only a reference of their line.
+  `fetchTimetableDay` takes the stop's tracks as a third argument when the caller already has them
+  (`fetchStopTracks`), and `linesOfTracks` lists their lines once each, by symbol (the page's line chips).
   `TIMETABLE_DAY_MODE` (`extended`, provisional) is the only place the day mode is set. Pure builders turn the
   entries into the list (`buildTimetableList`), the list per line (`buildLineLists`, headed by the line's most
   frequent headsign), hour rows per line (`buildLineTimetables`) and combined hour rows (`buildCombinedTimetable`).
@@ -45,13 +47,19 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   letter; only the others are lettered, in the order they first run, and listed in the legend. They take the requested date, to mark entries of another service day,
   and the provider's time zone, which the hours are shown in. Hour rows group consecutive entries of the same hour,
   so with `extended` the runs after midnight get their own rows at the end of the day. `nearestEntry(entries, now)`
-  picks the entry to scroll to. Tests: `test/timetable/`.
+  picks the entry to scroll to. `page.ts` holds the stop timetable page's logic: `timetableDateFromQuery(value, today,
+  range)` reads `?date=` (only a strict, existing Y-m-d; anything else is today, a date outside the provider's range is
+  clamped to it), `timetableDateQuery(date, today)` writes it back (none for today, so a saved link shows the day it is
+  opened on). Tests: `test/timetable/`.
 - `components/timetable/` — the timetable's views (#146), thin over the builders of `src/timetable`: `StopTimetable`
   puts them together for a stop's day: the date picker (`v-model:date`, limited to `range`), the "Lista | Godziny"
   switch (`v-model:view`, `list` / `hours`) and the "Linie | Razem" switch (`v-model:grouping`, `line` / `combined`,
   hidden with `lineFixed`, where a line shows per line), a step smaller than the date on a phone (the `md` breakpoint,
-  `useMediaQuery`), the empty-day message, and only the shown view built (one computed); the page (#148) fetches the day
-  and persists the choices. The views: `TimetableListPerLine` (`buildLineLists`), `TimetableListCombined`
+  `useMediaQuery`), the loading and empty-day messages (`loading`), and only the shown view built (one computed); the
+  page fetches the day and persists the choices (see [Timetable pages](#timetable-pages)). With `now` (the page passes
+  it only for today) it marks the first run not gone yet (`nearestEntry` over the day sorted by planned time): each
+  view sets `data-nearest` on that run's cell (prop `nearest`, a departure key) and `StopTimetable` scrolls it to the
+  middle whenever the view shown is rebuilt (the day loaded, another view picked), not when a minute passes. The views: `TimetableListPerLine` (`buildLineLists`), `TimetableListCombined`
   (`buildTimetableList`: each cell a button with the time and `LineSymbol simple`, the headsign in a `UiTooltip` with
   the `click` trigger, which toggles on a tap and closes with a click elsewhere or Escape; tooltips have no tap
   otherwise, as a tapped button isn't focused on iOS), `TimetableHoursPerLine` (`buildLineTimetables`: a table of hour
@@ -173,10 +181,13 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
 - `AppMoreMenu`: the navigation entries it is given, then the about links from `useAboutLinks()` (API, Storybook
   only when `AppConfig.production` is false, GitHub), version and copyright.
 
-Routes are named: `providers` (`/`) and `departures` (`/:provider`). `src/navigation.ts` lists the menu entries
+Routes are named: `providers` (`/`), `departures` (`/:provider`) and the timetable's (see [Timetable
+pages](#timetable-pages)). `src/navigation.ts` lists the menu entries
 (`{ id, label, icon, route, bottomBar }`); the route takes the provider as its only param. **Adding a feature** is a
 route under `/:provider/<feature>` plus an entry there; it appears in the desktop menu, and in the bottom bar or the
-"Więcej" sheet depending on `bottomBar`. Nothing unbuilt is listed.
+"Więcej" sheet depending on `bottomBar`. Nothing unbuilt is listed. The bars mark an entry with `active-class`, not
+`exact-active-class`, so a section's entry stays lit on the pages nested under its route (the timetable's stop pages).
+Tests and Storybook build their own routers: each needs a stub route for every entry (`departures`, `timetable`).
 
 Switching the provider only pushes the new route. `<router-view>` is keyed by the provider, so `MainPage` mounts
 anew: it clears the previous provider's messages and departures, and `selection.loadProvider` clears the stops and
@@ -187,7 +198,7 @@ The shell components are styled like every other (see Stylesheets): scoped CSS w
 from `@utility` definitions. `app-bar-control` is a borderless button or link tinted with `--color-hover-primary` when
 hovered or open (the provider chip). `app-nav-item` is the pill of the items of both bars (header links, bottom bar
 tabs, both "Więcej" buttons); `app-nav-item-active` fills it with `--gradient-primary` for the current page (the
-router link's `exact-active-class="active"`), `--gradient-primary-hover` when hovered. Icon-only buttons carry an
+router link's `active-class="active"`), `--gradient-primary-hover` when hovered. Icon-only buttons carry an
 `aria-label`.
 
 The compact controls of the UI kit (`UiToggleGroup`, `UiDatePicker`) share `@utility ui-control` (the outlined row,
@@ -209,8 +220,35 @@ a backdrop click or Escape. `ProviderSwitcher` picks between the two with `useMe
 Images in templates go through `@resources/images/...`: a root-relative `src="/images/..."` is turned into a module
 import by `@vitejs/plugin-vue`, which the dev server answers with the PNG and the page fails to load.
 
-Storybook's preview installs Pinia and a memory router with stub `providers` and `departures` routes (at
+Storybook's preview installs Pinia and a memory router with stub `providers`, `departures` and `timetable` routes (at
 `/trojmiasto`), so shell components using `RouterLink` render; `.storybook/setup.js` sets `version` and `production`.
+
+## Timetable pages
+
+The "Rozkład" navigation entry (both bars) is the route `timetable` (`/:provider/timetable`), a feature section (ADR
+0037) whose component `pages/TimetablePage.vue` is the layout of its pages: the departures page's columns, a third on
+the left
+(`<router-view name="side">`, for the search #156 and the line page #157) and two thirds on the right (the default
+view). It loads the provider's details (`selection.loadProvider`), which the pages wait for: they carry the time zone
+and the timetable's range. On its own route it shows `TimetableStartPage` on the left, a placeholder until the search
+exists; on a phone a page on the right stands alone (the left column is hidden).
+
+Children: `timetable-stop` (`stops/:stop`) and `timetable-line-stop` (`lines/:line/stops/:stop`), both
+`pages/StopTimetablePage.vue`, of a single stop, never a group. It fetches the stop (`v1_stop_details`, with its
+destinations) and its tracks once per stop, then the day (`fetchTimetableDay` with those tracks) whenever the stop, the
+line or the date changes; stale responses are dropped. The header: `StopLabel` (name and code), the directions with their
+lines (`components/stop/StopDestinations.vue`, shared with `StopPickerEntry`, which compacts the lines into groups by
+type first and keeps the list to one row; the page shows every line and lets it wrap, `wrap`) and line chips, router links keeping the query (`?date=`): "Wszystkie" to `timetable-stop` and one per line to
+`timetable-line-stop`, the current one `aria-current="page"`. With a line, "pokaż trasę" links to `timetable-line`
+with `?track=` (the line's first track through the stop) only once the router has that route (#157). The date comes
+from `?date=` (`timetableDateFromQuery`) and picking one pushes it (`timetableDateQuery`). A provider with
+`timetable: null` gets a message instead of the timetable. `StopDetailsDialog` links to `timetable-stop` by name with
+only the stop's id; vue-router takes the provider from the current route.
+
+The view is remembered app-wide in the `timetable-settings` store, once for every page: `view` stays `null` until a
+rider picks one, and until then a whole stop shows the list and a line at a stop hour rows (remembering a view per kind
+of page was confusing in use). `grouping` defaults to `line`. The page has the section background of the departures board
+(`@utility section-surface`, shared with `UiSection`), so the page's drawing doesn't show through the timetable.
 
 ## Style
 
@@ -250,7 +288,7 @@ style inside child components (ADR 0036). There is no Sass and no PostCSS.
 - **Tokens and shared looks** are in `styles/tailwind.css`: `@theme static` blocks (static, so tokens only component
   styles read are emitted; Tailwind's default `--text-*` etc. are only emitted when a utility uses them, which is why
   the text scale is declared there) and `@utility` definitions (`focus-ring`, `app-bar-control`, `app-nav-item`,
-  `app-nav-item-active`, `ui-control*`, `ui-control-segment`, `ui-section-header`, `ui-popup`, `list-underlined`,
+  `app-nav-item-active`, `ui-control*`, `ui-control-segment`, `section-surface`, `ui-section-header`, `ui-popup`, `list-underlined`,
   `stop-list-inline`, `no-scrollbars`, `settings-field*`).
 
 `styles/tailwind.css` is the one entry point, imported by `src/app.ts` and `.storybook/preview.js` (which adds
@@ -293,7 +331,7 @@ yet. TypeScript 6 turns `strict` on by default; the code was written without it,
 
 State lives in Pinia **setup stores** (`defineStore("id", () => {...})`) in `src/stores`. Components use them through
 `useXxxStore()` and `storeToRefs`. Ids: `favourites`, `departures-settings`, `messages-settings`, `history`,
-`selection`, `network`, `departures`, `messages`. `fetching.ts` holds the fetching state shared by `departures` and
+`timetable-settings`, `selection`, `network`, `departures`, `messages`. `fetching.ts` holds the fetching state shared by `departures` and
 `messages`.
 
 The API client (`src/api/client/shared.ts`) is store-free. It reaches the network and provider state through
@@ -317,7 +355,8 @@ The API client (`src/api/client/shared.ts`) is store-free. It reaches the networ
   balanced client otherwise retries for about 30 s). A migration may reach `storages.session` too (the old
   `sessionStorage["vuex"]` is removed that way).
 
-Saved keys: `favourites`, `departures-settings`, `messages-settings`, `history` in `localStorage`; `selection` in
+Saved keys: `favourites`, `departures-settings`, `messages-settings`, `timetable-settings`, `history` in
+`localStorage`; `selection` in
 `sessionStorage`. `test/stores/persistence/format.test.ts` pins the exact JSON of each.
 
 ### Startup order (`src/app.ts`)

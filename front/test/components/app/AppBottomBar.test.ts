@@ -19,7 +19,10 @@ async function mountBar() {
     const page = { template: "<div />" };
     const router = createRouter({
         history: createMemoryHistory(),
-        routes: [{ path: "/:provider", name: "departures", component: page }],
+        routes: [
+            { path: "/:provider", name: "departures", component: page },
+            { path: "/:provider/timetable", name: "timetable", component: page },
+        ],
     });
     router.push("/trojmiasto");
     await router.isReady();

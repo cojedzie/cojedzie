@@ -21,7 +21,7 @@ import type { ApiClient } from "@/api/client";
 import type { Endpoints } from "@/api/endpoints";
 import type { UrlParams } from "@/api/utils";
 import { Temporal } from "@/time";
-import type { Departure, Line } from "@/model";
+import type { Departure, Line, Track } from "@/model";
 
 /**
  * Which entries make up a day (ADR 0029). Provisional: the views are to be tried with it, so nothing may depend on
@@ -44,10 +44,19 @@ type Client = ApiClient<Endpoints, "provider">;
 
 /**
  * Fetches every timetable entry of a stop's day. Entries carry only a reference of their line, so the lines are
- * filled in from the stop's tracks; a line no track of the stop has anymore shows its id as the symbol.
+ * filled in from the stop's tracks, fetched unless given; a line no track of the stop has anymore shows its id as the
+ * symbol.
  */
-export async function fetchTimetableDay(client: Client, { stop, line, date }: TimetableDayQuery): Promise<Departure[]> {
-    const [entries, lines] = await Promise.all([fetchEntries(client, { stop, line, date }), fetchLines(client, stop)]);
+export async function fetchTimetableDay(
+    client: Client,
+    { stop, line, date }: TimetableDayQuery,
+    tracks?: Track[],
+): Promise<Departure[]> {
+    const [entries, known] = await Promise.all([
+        fetchEntries(client, { stop, line, date }),
+        tracks ?? fetchStopTracks(client, stop),
+    ]);
+    const lines = new Map(known.map(track => [track.line.id, track.line]));
 
     return entries.map((entry): Departure => ({
         ...entry,
@@ -81,10 +90,18 @@ async function fetchEntries(client: Client, { stop, line, date }: TimetableDayQu
     }
 }
 
-async function fetchLines(client: Client, stop: string): Promise<Map<string, Line>> {
+/** The tracks running through a stop. */
+export async function fetchStopTracks(client: Client, stop: string): Promise<Track[]> {
     const { data } = await client.get("v1_stop_tracks", { version: "^1.0", params: { stop } });
 
-    return new Map(data.map(({ track }) => [track.line.id, track.line as Line]));
+    return data.map(({ track }) => track as Track);
+}
+
+/** The lines of the tracks, each once, in the order of their symbols ("6", "12", "N1"), as the timetable lists them. */
+export function linesOfTracks(tracks: Track[]): Line[] {
+    const lines = new Map(tracks.map(track => [track.line.id, track.line]));
+
+    return [...lines.values()].sort((a, b) => a.symbol.localeCompare(b.symbol, undefined, { numeric: true }));
 }
 
 function unknownLine(id: string): Line {
