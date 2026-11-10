@@ -11,6 +11,7 @@ import { useDeparturesSettingsStore } from "@/stores/departures-settings";
 import { useMessagesSettingsStore } from "@/stores/messages-settings";
 import { useHistoryStore } from "@/stores/history";
 import { useSelectionStore } from "@/stores/selection";
+import { useTimetableSettingsStore } from "@/stores/timetable-settings";
 
 // Users' saved data has this shape, so the stores must keep reading and writing it.
 
@@ -72,6 +73,12 @@ describe("persisted store format", () => {
             autorefreshInterval: 60,
             displayedEntriesCount: 3,
         });
+    });
+
+    it("saves timetable settings as a flat object", async () => {
+        await change(useTimetableSettingsStore(), store => store.update({ grouping: "combined" }));
+
+        expect(saved("timetable-settings")).toEqual({ view: null, grouping: "combined" });
     });
 
     it("saves history entries with ISO dates and the settings", async () => {
