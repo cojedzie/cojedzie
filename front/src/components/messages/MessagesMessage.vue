@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { useDisplayTimeZone } from "@/composables/useDisplayTimeZone";
-import { dateIn, formatClockTime, formatDateInWords, Temporal } from "@/time";
+import { dateIn, formatClockTime, formatDateInWords, formatDayAndTime, Temporal } from "@/time";
 import type { Line, Stop } from "@/model";
 import type { MessageType } from "@/model/message";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -66,18 +66,21 @@ withDefaults(
 const timeZone = useDisplayTimeZone();
 
 /**
- * One end of the validity: "dziś o 14:05" today, only the time when the other end is earlier the same day ("od dziś
- * o 10:00 do 14:00"), the date in words on other days. "Today" is taken in the zone the time is shown in, so the two
- * agree.
+ * One end of the validity: "dzisiaj o 10:00" today, only the time when the other end is earlier the same day ("od
+ * dzisiaj o 10:00 do 14:00"), the date in words on other days. Only today gets a day word: after "od" and "do" Polish
+ * needs "jutra" and "wczoraj" in another case than Intl gives them ("do jutro"); translating whole sentences (#180)
+ * would solve that.
  */
 function validity(end: Temporal.Instant, start?: Temporal.Instant | null): string {
+    const now = Temporal.Now.instant();
     const day = dateIn(end, timeZone.value);
-    const time = formatClockTime(end, timeZone.value);
 
-    if (!day.equals(dateIn(Temporal.Now.instant(), timeZone.value))) {
+    if (!day.equals(dateIn(now, timeZone.value))) {
         return formatDateInWords(day);
     }
 
-    return start && dateIn(start, timeZone.value).equals(day) ? time : `dziś o ${time}`;
+    return start && dateIn(start, timeZone.value).equals(day)
+        ? formatClockTime(end, timeZone.value)
+        : formatDayAndTime(end, now, timeZone.value);
 }
 </script>

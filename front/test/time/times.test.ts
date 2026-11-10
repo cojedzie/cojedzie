@@ -24,6 +24,7 @@ import {
     formatClockTime,
     formatDateInWords,
     formatDateTime,
+    formatDayAndTime,
     formatRelativeTime,
     Temporal,
     wholeMinutesBetween,
@@ -59,5 +60,17 @@ describe("times", () => {
         expect(formatRelativeTime(later({ hours: 2, minutes: 59 }), now)).toBe("za 2 godziny");
         expect(formatRelativeTime(now.subtract({ seconds: 30 }), now)).toBe("przed chwilą");
         expect(formatRelativeTime(now.subtract({ minutes: 5 }), now)).toBe("5 minut temu");
+    });
+
+    it("names the day of a moment within a day of now, and its date beyond", () => {
+        // 13:00 in Warsaw
+        const zone = "Europe/Warsaw";
+
+        expect(formatDayAndTime(later({ hours: 1 }), now, zone)).toBe("dzisiaj o 14:00");
+        expect(formatDayAndTime(later({ hours: 11 }), now, zone)).toBe("jutro o 00:00");
+        expect(formatDayAndTime(now.subtract({ hours: 14 }), now, zone)).toBe("wczoraj o 23:00");
+        expect(formatDayAndTime(later({ hours: 48 }), now, zone)).toBe("12 listopada 2026");
+        // the day is the zone's: 00:30 in Warsaw is still the previous day in London
+        expect(formatDayAndTime(later({ hours: 11, minutes: 30 }), now, "Europe/London")).toBe("dzisiaj o 23:30");
     });
 });

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { LOCALE } from "./locale";
 import { Temporal } from "./temporal";
 
 /** Today's calendar date in the given time zone. */
@@ -44,24 +45,25 @@ export function isWithin(date: Temporal.PlainDate, min?: Temporal.PlainDate, max
 
 /** "poniedziałek, 09.11.2026" */
 export function formatLongDate(date: Temporal.PlainDate): string {
-    return date.toLocaleString("pl", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+    return date.toLocaleString(LOCALE, { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 /** "pon. 09.11" */
 export function formatShortDate(date: Temporal.PlainDate): string {
-    // Intl puts a comma between the weekday and the date ("pon., 09.11"), dates of timetables go without it
-    return `${date.toLocaleString("pl", { weekday: "short" })} ${date.toLocaleString("pl", { day: "2-digit", month: "2-digit" })}`;
+    // Intl puts a comma between the weekday and the date ("pon., 09.11"), dates of timetables go without it. A pattern
+    // written by hand: translate it with the rest of the copy (#180).
+    return `${date.toLocaleString(LOCALE, { weekday: "short" })} ${date.toLocaleString(LOCALE, { day: "2-digit", month: "2-digit" })}`;
 }
 
 /** "10 listopada 2026" */
 export function formatDateInWords(date: Temporal.PlainDate): string {
-    return date.toLocaleString("pl", { dateStyle: "long" });
+    return date.toLocaleString(LOCALE, { dateStyle: "long" });
 }
 
 /** "listopad 2026" */
 export function formatMonth(month: Temporal.PlainYearMonth): string {
     // a year-month formats only in its own calendar, which isn't the locale's, so it goes through its first day
-    return month.toPlainDate({ day: 1 }).toLocaleString("pl", { month: "long", year: "numeric" });
+    return month.toPlainDate({ day: 1 }).toLocaleString(LOCALE, { month: "long", year: "numeric" });
 }
 
 /** Names of the days of the week from Monday, short ("pon.") and long ("poniedziałek"). */
@@ -73,8 +75,8 @@ export function weekdayNames(): { short: string; long: string }[] {
         const date = monday.add({ days: index });
 
         return {
-            short: date.toLocaleString("pl", { weekday: "short" }),
-            long: date.toLocaleString("pl", { weekday: "long" }),
+            short: date.toLocaleString(LOCALE, { weekday: "short" }),
+            long: date.toLocaleString(LOCALE, { weekday: "long" }),
         };
     });
 }

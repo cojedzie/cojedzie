@@ -68,13 +68,17 @@ describe("MessagesMessage", () => {
 
         it("says today with the time, and only the time for an end later the same day", () => {
             expect(validity({ validFrom: now.subtract({ hours: 2 }), validTo: now.add({ hours: 2 }) })).toBe(
-                "ważne od dziś o 10:00 do 14:00",
+                "ważne od dzisiaj o 10:00 do 14:00",
             );
+        });
+
+        it("gives other days as dates, as Polish declines day words after its prepositions", () => {
+            expect(validity({ validTo: now.add({ hours: 24 }) })).toBe("ważne do 11 listopada 2026");
         });
 
         it("says today for the end that is today, and the date for the other", () => {
             expect(validity({ validFrom: now, validTo: now.add({ hours: 48 }) })).toBe(
-                "ważne od dziś o 12:00 do 12 listopada 2026",
+                "ważne od dzisiaj o 12:00 do 12 listopada 2026",
             );
         });
     });
