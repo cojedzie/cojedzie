@@ -248,9 +248,13 @@ starts at today. Below three characters the section is "Ostatnio wybierane", the
 `StopPickerHistory`, whose scoped `primary-action` slot (receiving the stop) the search fills with the same link; by
 default it adds the stop to the departures board's selection. It is hidden while the history is empty. A link in
 the results pushes the stop it opens to the history, shared with the departures page (`remember`); one in the recent
-stops doesn't, as on the departures page, so the list doesn't reorder under the rider. Deep links and
-`StopDetailsDialog` don't record either. The lists look like `StopPicker`'s through `@utility list-header` (a group's
-heading bar) and `@utility stop-entry-list` (rows of `StopPickerEntry`).
+stops doesn't, as on the departures page, so the list doesn't reorder under the rider, who on a wide screen still sees
+it next to the opened stop. Deep links and `StopDetailsDialog` don't record either. The lists look like `StopPicker`'s
+through `@utility list-header` (a group's heading bar) and `@utility stop-entry-list` (rows of `StopPickerEntry`). The
+open stop (the route's `:stop`, also at a line's stop, where the router's exact-active match wouldn't see it) gets
+`aria-current="page"` on its link, and its row the background of the stop timetable page's current chip
+(`--color-hover-primary`): `stop-entry-list` highlights a row holding `[aria-current="page"]`, so the history's rows get
+it without the page styling inside `StopPickerHistory` (ADR 0036).
 
 Children: `timetable-stop` (`stops/:stop`) and `timetable-line-stop` (`lines/:line/stops/:stop`), both
 `pages/StopTimetablePage.vue`, of a single stop, never a group. It fetches the stop (`v1_stop_details`, with its

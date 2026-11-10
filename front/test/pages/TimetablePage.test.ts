@@ -229,6 +229,17 @@ describe("TimetablePage's search", () => {
         expect(links.map(link => link.attributes("aria-current"))).toEqual([undefined, "page", undefined]);
     });
 
+    it("marks the open stop current in the recent stops, also at a line's stop", async () => {
+        const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l1/stops/s1", [bramka, bramaUp]);
+
+        const links = wrapper.findAll("section[aria-label=Przystanki] .entry a");
+        expect(links.map(link => link.attributes("href"))).toEqual([
+            "/trojmiasto/timetable/stops/s3",
+            "/trojmiasto/timetable/stops/s1",
+        ]);
+        expect(links.map(link => link.attributes("aria-current"))).toEqual([undefined, "page"]);
+    });
+
     it("asks to pick a stop or a line while none is open", async () => {
         const { wrapper, router } = await mountSection();
 
