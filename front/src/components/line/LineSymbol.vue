@@ -44,6 +44,8 @@ defineProps({
     display: flex;
     align-items: center;
 
+    font-size: 1rem;
+
     &.trolleybus {
         --line-color: var(--color-line-trolleybus);
     }
