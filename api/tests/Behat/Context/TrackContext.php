@@ -24,11 +24,14 @@ namespace App\Tests\Behat\Context;
 
 use App\Dto\TrackKind;
 use App\Tests\Behat\Support\ApiClient;
+use App\Tests\Behat\Support\Provider\TestProvider;
 use App\Tests\Behat\Support\TestData;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use Behat\Step\When;
+use Kadet\Functional\Collections as c;
 use PHPUnit\Framework\Assert;
 
 final readonly class TrackContext implements Context
@@ -53,18 +56,31 @@ final readonly class TrackContext implements Context
         $this->data->flush();
     }
 
+    #[When('I list tracks of lines :ids')]
+    public function iListTracksOfLines(string $ids): void
+    {
+        $this->client->get(sprintf('/api/v1/%s/tracks', TestProvider::IDENTIFIER), [
+            'line' => explode(',', $ids) |> c\map(trim(...)) |> c\join(','),
+        ]);
+    }
+
+    /**
+     * Compares the columns the table has: the line's symbol, the kind, and the ids of the origin and destination.
+     */
     #[Then('I should see tracks:')]
     public function iShouldSeeTracks(TableNode $expected): void
     {
         $response = $this->client->lastResponse();
         Assert::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $actual = array_map(
-            fn (array $track) => [
+        $columns = $expected->getRow(0);
+        $actual  = array_map(
+            fn (array $track) => array_intersect_key([
                 'line'        => $track['line']['symbol'] ?? null,
                 'kind'        => $track['kind'] ?? null,
+                'origin'      => $track['origin']['id'] ?? null,
                 'destination' => $track['destination']['id'] ?? null,
-            ],
+            ], array_flip($columns)),
             $this->client->json(),
         );
 

@@ -75,7 +75,10 @@ final class ZtmGdanskRecordedFeedsTest extends ImporterTestCase
         $tracks = $this->rowCount('track');
         $this->assertSame(1481, $tracks);
         // stops in trips refer to tracks of the trips feed and to stops of the stops feed
-        $this->assertGreaterThan(0.95 * $tracks, $this->rowCount('track', 'final_id IS NOT NULL'));
+        $this->assertGreaterThan(
+            0.95 * $tracks,
+            $this->rowCount('track', 'origin_id IS NOT NULL AND final_id IS NOT NULL'),
+        );
         $this->assertGreaterThan(20000, $this->rowCount('track_stop'));
         // every kind is in the feed, other agencies' tracks of unknown kind are side ones
         $this->assertSame(

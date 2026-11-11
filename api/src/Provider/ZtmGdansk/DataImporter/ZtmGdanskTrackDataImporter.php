@@ -259,7 +259,7 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     }
 
     /**
-     * Replaces the stops of the track and sets its final stop to the last one.
+     * Replaces the stops of the track and sets its origin to the first one and its final stop to the last one.
      *
      * @param iterable<array{stop_id: string, track_id: string, sequence: int}> $stops
      */
@@ -267,13 +267,15 @@ class ZtmGdanskTrackDataImporter extends AbstractDataImporter
     {
         $this->connection->delete('track_stop', ['track_id' => $trackId]);
 
-        $final = null;
+        $origin = null;
+        $final  = null;
         foreach ($stops as $stop) {
             $final = $this->insertTrackStop($stop, $event);
+            $origin ??= $final;
         }
 
-        // a track whose stops are all unknown has no final stop
-        $this->connection->update('track', ['final_id' => $final], ['id' => $trackId]);
+        // a track whose stops are all unknown has neither an origin nor a final stop
+        $this->connection->update('track', ['origin_id' => $origin, 'final_id' => $final], ['id' => $trackId]);
     }
 
     /**

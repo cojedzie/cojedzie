@@ -84,6 +84,7 @@ final class EntityConverter implements Converter, RecursiveConverter, CacheableC
                     |> c\map(t\property('stop'))
                     |> c\map($convert),
                 'line'        => $convert($entity->getLine()),
+                'origin'      => ($origin = $entity->getOrigin()) !== null ? $convert($origin->getStop()) : null,
                 'destination' => $convert($entity->getFinal()->getStop()),
             ]),
             $entity instanceof StopEntity => $result->fill([

@@ -94,6 +94,29 @@ final class StaleDataCollectorTest extends ImporterTestCase
         $this->assertSame(1, $this->countRows('track_stop'));
     }
 
+    public function testKeepsTheOriginAndFinalStopOfAFreshTrack(): void
+    {
+        $old   = $this->import('-10 days');
+        $fresh = $this->import('-1 day');
+
+        $this->row('stop', 'stop', $fresh);
+        $this->row('line', 'line', $fresh);
+        $this->row('track', 'track', $fresh, ['line_id' => 'line']);
+        $this->row('track_stop', null, $old, ['track_id' => 'track', 'stop_id' => 'stop']);
+        $origin = $this->connection->lastInsertId();
+        $this->row('track_stop', null, $old, ['track_id' => 'track', 'stop_id' => 'stop', 'sequence' => '2']);
+        $final = $this->connection->lastInsertId();
+        $this->row('track_stop', null, $old, ['track_id' => 'track', 'stop_id' => 'stop', 'sequence' => '3']);
+        $this->connection->update('track', ['origin_id' => $origin, 'final_id' => $final], ['id' => 'track']);
+
+        $this->collect();
+
+        $this->assertEquals(
+            [$origin, $final],
+            $this->connection->fetchFirstColumn('SELECT id FROM track_stop ORDER BY sequence'),
+        );
+    }
+
     public function testDoesNothingWithoutARecentSucceededImport(): void
     {
         $old = $this->import('-10 days');

@@ -39,29 +39,30 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class StaleDataCollector
 {
     /**
-     * Tables in the order they are collected, children first, each with the columns that refer to its rows: a
-     * column referring to the row's id, or a pair of a column and the row's column it refers to.
+     * Tables in the order they are collected, children first, each with the columns of other tables that refer to
+     * its rows: a table and its column referring to the row's id, or also the row's column it refers to.
      */
     private const array TABLES = [
         'trip_stop'    => [],
-        'trip'         => ['trip_stop' => 'trip_id'],
+        'trip'         => [['trip_stop', 'trip_id']],
         'track_stop'   => [
-            'track' => 'final_id',
+            ['track', 'origin_id'],
+            ['track', 'final_id'],
             // a track stays while a trip runs on it, and keeps its stops
-            'trip'  => ['track_id', 'track_id'],
+            ['trip', 'track_id', 'track_id'],
         ],
         'track'        => [
-            'trip'       => 'track_id',
-            'track_stop' => 'track_id',
+            ['trip', 'track_id'],
+            ['track_stop', 'track_id'],
         ],
-        'line'         => ['track' => 'line_id'],
+        'line'         => [['track', 'line_id']],
         'stop'         => [
-            'track_stop' => 'stop_id',
-            'trip_stop'  => 'stop_id',
+            ['track_stop', 'stop_id'],
+            ['trip_stop', 'stop_id'],
         ],
         'operator'     => [
-            'line' => 'operator_id',
-            'trip' => 'operator_id',
+            ['line', 'operator_id'],
+            ['trip', 'operator_id'],
         ],
     ];
 
@@ -131,7 +132,7 @@ class StaleDataCollector
         $removed['import'] = $this->delete(
             'import',
             self::OLD_IMPORT,
-            array_fill_keys(self::STAMPED, 'import_id'),
+            array_map(fn (string $table) => [$table, 'import_id'], self::STAMPED),
             $parameters,
         );
 
@@ -173,14 +174,14 @@ class StaleDataCollector
     /**
      * Deletes the stale rows of the table that no other table refers to.
      *
-     * @param array<string, string|array{string, string}> $references columns of other tables referring to the table's rows, by table
-     * @param array<string, \DateTimeImmutable>           $parameters of the condition, unused ones are left out
+     * @param list<array{0: string, 1: string, 2?: string}> $references columns of other tables referring to the table's rows
+     * @param array<string, \DateTimeImmutable>             $parameters of the condition, unused ones are left out
      */
     private function delete(string $table, string $stale, array $references, array $parameters): int
     {
         $conditions = [$stale];
-        foreach ($references as $referring => $reference) {
-            $conditions[] = self::notReferencedBy($table, $referring, $reference);
+        foreach ($references as $reference) {
+            $conditions[] = self::notReferencedBy($table, ...$reference);
         }
 
         $parameters = self::usedIn($stale, $parameters);
@@ -193,13 +194,15 @@ class StaleDataCollector
     }
 
     /**
-     * @param string|array{string, string} $reference column referring to the row's id, or a pair of a column and the
-     *                                                row's column it refers to
+     * @param string $column   of the referring table
+     * @param string $referred the row's column it refers to
      */
-    private static function notReferencedBy(string $table, string $referring, string|array $reference): string
-    {
-        [$column, $referred] = is_array($reference) ? $reference : [$reference, 'id'];
-
+    private static function notReferencedBy(
+        string $table,
+        string $referring,
+        string $column,
+        string $referred = 'id',
+    ): string {
         return sprintf(
             'NOT EXISTS (SELECT 1 FROM %1$s WHERE %1$s.%2$s = %3$s.%4$s)',
             $referring,

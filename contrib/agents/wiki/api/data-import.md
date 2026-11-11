@@ -237,6 +237,8 @@ Tables of one provider (`ztm_gdansk_schedule_day`) are left to its importer.
 - One transaction; plain `DELETE … WHERE import_id IN (…) AND NOT EXISTS (…)`, checked on SQLite, MariaDB and
   Postgres.
 - Track stops stay while a trip of their track exists, as the track does, so a kept track never loses its stops.
+  The origin and final stop a track refers to (`track.origin_id`, `track.final_id`, set by the importer with its
+  stops) stay while the track does.
 - Rows from before validity (`valid_to IS NULL`: undated trip ids `{route}-{service}-{trip}-{order}`, track ids
   `R{route}T{trip}` without a version) are deleted by the one-time migration `Version20261107173924` (per engine,
   children first, `track.final_id` cleared before the track stops go; a few seconds for a day of data on MySQL).
@@ -278,7 +280,7 @@ three in line (2026-10-28, after DBAL 4 dropped the `DC2Type` column comments):
   (`MessengerTransportDoctrineSchemaListener`) and also creates it on first use (`auto_setup`). Migrations create it
   only when `$schema->hasTable()` says it is missing.
 - SQLite applies schema changes by rebuilding tables (copy to a temporary table, drop, recreate, copy back); the
-  rows survive, including `track.final_id`.
+  rows survive, including `track.origin_id` and `track.final_id`.
 - Postgres: the 2021 migrations used `SERIAL` for `track_stop.id` and `trip_stop.id`; DBAL 4 maps them to identity
   columns. The switch drops the old sequence and moves the identity past the existing ids, or the next insert
   collides. Postgres also lacked most foreign keys until then.
