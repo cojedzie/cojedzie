@@ -50,6 +50,8 @@ export interface Track {
     /** From version 1.1 of the track endpoints */
     kind?: TrackKind;
     line: Line;
+    /** The first stop; an API that doesn't tell it yet leaves it out */
+    origin?: Stop;
     destination?: Stop;
     stops?: Stop[];
 }

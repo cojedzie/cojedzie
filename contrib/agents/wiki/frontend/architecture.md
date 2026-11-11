@@ -268,11 +268,17 @@ open stop as `current`. Its links carry `?track=` and no `?date=`, so an opened 
 timetable page's chips keep `track` along harmlessly.
 
 The search (`pages/TimetableStartPage.vue`, "Rozkłady jazdy") has one field, "Przystanek lub linia", and one 400 ms
-debounce per change of it. Its "Linie" section, above the stops, lists lines whose symbol starts with the query (the
-API's case-insensitive prefix, so "n1" finds N1) from one character, in the API's display order, as `LineSymbol`s,
-through `searchLines` (`components/line/search.ts`, `v1_line_list` with `symbol`); a late answer is dropped, the lines found stay until the
-next query's answer, and the section is hidden when no line matches or the search fails. A line links to `timetable-line` by its id (only when
-`router.hasRoute("timetable-line")`, otherwise it is a plain symbol).
+debounce per change of it. Its "Linie" section, above the stops, finds lines whose symbol starts with the query (the
+API's case-insensitive prefix, so "n1" finds N1) from one character and lists their main tracks, one row each,
+"`LineSymbol` Lawendowe Wzgórze → Strzyża PKM" (`trackEndsLabel`: the track's `origin` → `destination`, only
+"→ Strzyża PKM" from a node without `origin`). `searchLineTracks` (`components/line/search.ts`) asks `v1_line_list`
+with `symbol`, then the tracks of the first ten lines found in one `v1_track_list` request (`line=<id>,<id>…`,
+version `^1.1` for `kind`, limit 100), without `embed=stops`; `mainTracksOfLines` (`src/timetable/tracks.ts`) keeps
+the main ones, grouped by line in the lines' display order, and gives a line without a main track one row of its
+symbol alone. A late answer is dropped, the rows stay until the next query's answer, and the section is hidden when no
+line matches or the search fails. A row links to `timetable-line` with `?track=<id>`, a lone line without it (only
+when `router.hasRoute("timetable-line")`, otherwise the rows aren't links); the rows are the page's own, styled like
+the stop rows (`list-underlined`).
 Its "Przystanki" section searches stop groups by name from three characters, through `searchStopGroups`
 (`components/stop-picker/search.ts`, framework-free, taking the API client, shared with `StopPicker` so both find stops
 alike); a late answer to an older query is dropped, and an empty answer
