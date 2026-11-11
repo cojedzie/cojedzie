@@ -11,12 +11,12 @@
 
         <section v-if="lines.length > 0" class="lines" aria-label="Linie">
             <h3 class="heading">Linie</h3>
-            <ul class="line-list">
-                <li v-for="line in lines" :key="line.id">
-                    <router-link v-if="hasLinePage" :to="lineRoute(line)" class="line-link">
-                        <line-symbol :line="line" />
-                    </router-link>
-                    <line-symbol v-else :line="line" />
+            <ul class="line-tracks">
+                <li v-for="row in lines" :key="row.track?.id ?? row.line.id">
+                    <component :is="hasLinePage ? RouterLink : 'div'" v-bind="lineLink(row)" class="line-track">
+                        <line-symbol :line="row.line" />
+                        <span v-if="row.track" class="ends">{{ trackEndsLabel(row.track) }}</span>
+                    </component>
                 </li>
             </ul>
         </section>
@@ -54,11 +54,11 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref, shallowRef, watch } from "vue";
-import { type RouteLocationRaw, useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import api from "@/api";
-import type { Line } from "@/model";
 import { useHistoryStore } from "@/stores/history";
-import { searchLines } from "@/components/line/search";
+import { type LineTrack, trackEndsLabel } from "@/timetable";
+import { searchLineTracks } from "@/components/line/search";
 import LineSymbol from "@/components/line/LineSymbol.vue";
 import { type FoundStopGroup, searchStopGroups } from "@/components/stop-picker/search";
 import StopPickerEntry from "@/components/stop-picker/StopPickerEntry.vue";
@@ -67,7 +67,8 @@ import TimetableStopLink from "@/components/timetable/TimetableStopLink.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiSection from "@/components/ui/UiSection.vue";
 
-// the timetable's search: lines by symbol, opening a line's page, and stops by name, opening a stop's timetable
+// the timetable's search: lines by symbol, opening a line's page on a main track, and stops by name, opening a stop's
+// timetable
 defineOptions({ name: "TimetableStartPage" });
 
 /** Stops are searched from this many characters, as on the departures page; below it the recent stops are shown. */
@@ -89,15 +90,15 @@ const query = ref("");
 const found = shallowRef<Found | null>(null);
 
 /**
- * The lines found for a recent query, kept while the next one is searched; empty below the threshold, until the first
- * answer, or when the search failed
+ * The main tracks of the lines found for a recent query, kept while the next one is searched; empty below the
+ * threshold, until the first answer, or when the search failed
  */
-const lines = shallowRef<Line[]>([]);
+const lines = shallowRef<LineTrack[]>([]);
 
 async function searchLinesFor(searched: string) {
-    let result: Line[];
+    let result: LineTrack[];
     try {
-        result = await searchLines(api, searched);
+        result = await searchLineTracks(api, searched);
     } catch {
         result = [];
     }
@@ -146,11 +147,16 @@ watch(query, current => {
 
 onBeforeUnmount(() => clearTimeout(timeout));
 
-// a found line opens its line page; a router without one (Storybook's, a test's) gets the symbols alone
+// a found track opens its line's page on it, a line without a main track the page alone; a router without the page
+// (Storybook's, a test's) gets the rows without links
 const hasLinePage = router.hasRoute("timetable-line");
 
-function lineRoute(line: Line): RouteLocationRaw {
-    return { name: "timetable-line", params: { line: line.id } };
+function lineLink({ line, track }: LineTrack) {
+    if (!hasLinePage) {
+        return {};
+    }
+
+    return { to: { name: "timetable-line", params: { line: line.id }, query: track ? { track: track.id } : {} } };
 }
 </script>
 
@@ -162,15 +168,32 @@ function lineRoute(line: Line): RouteLocationRaw {
     margin-block-start: --spacing(4);
 }
 
-.line-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: --spacing(2);
+.line-tracks {
+    @apply list-underlined;
+
+    & > li {
+        padding: 0;
+    }
 }
 
-.line-link {
-    display: block;
+/* a row like a stop's: the symbol, then where the track runs */
+.line-track {
+    display: flex;
+    align-items: center;
+    gap: --spacing(2);
+    padding: --spacing(2) --spacing(1);
+    color: inherit;
     text-decoration: none;
+
+    &:is(a):hover {
+        background: var(--color-hover-primary);
+    }
+}
+
+.ends {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .heading {

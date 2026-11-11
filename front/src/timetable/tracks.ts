@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { Stop, Track } from "@/model";
+import type { Line, Stop, Track } from "@/model";
 
 /** The order riders pick a line's tracks in: the main ones first, then the side ones, each kind in the API's order. */
 export function orderTracks(tracks: Track[]): Track[] {
@@ -65,6 +65,25 @@ export function trackLabel(track: Track, tracks: Track[]): string {
     const shared = tracks.some(other => other.id !== track.id && destinationLabel(other) === label);
 
     return shared ? `${track.stops?.[0]?.name ?? ""} ${label}` : label;
+}
+
+/** Where the track runs from and to, "Łostowice → Jelitkowo", or only "→ Jelitkowo" when its origin isn't known. */
+export function trackEndsLabel(track: Track): string {
+    const label = destinationLabel(track);
+
+    return track.origin ? `${track.origin.name} ${label}` : label;
+}
+
+/** A line as the timetable search lists it: one of its main tracks, or the line alone when it has none. */
+export type LineTrack = { line: Line; track?: Track };
+
+/** The main tracks of the lines, in the lines' order and the tracks' within each line; a line without one stays alone. */
+export function mainTracksOfLines(lines: Line[], tracks: Track[]): LineTrack[] {
+    return lines.flatMap(line => {
+        const main = tracks.filter(track => track.line.id === line.id && track.kind === "main");
+
+        return main.length > 0 ? main.map(track => ({ line, track })) : [{ line }];
+    });
 }
 
 function destinationLabel(track: Track): string {

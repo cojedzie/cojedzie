@@ -30,6 +30,32 @@ const line = (id: string, symbol: string, type = "bus", night = false) => ({
 });
 const lines = [line("l1", "1", "tram"), line("l10", "10"), line("l111", "111")];
 
+const lawendowe = stop("s4", "Lawendowe Wzgórze", "01");
+const strzyza = stop("s5", "Strzyża PKM", "01");
+const oliwa = stop("s6", "Oliwa", "01");
+
+type Stop = ReturnType<typeof stop>;
+const track = (id: string, onLine: string, kind: string, origin: Stop | undefined, destination: Stop) => ({
+    id,
+    kind,
+    description: "",
+    line: lines.find(({ id }) => id === onLine)!,
+    origin,
+    destination,
+    $type: "vnd.cojedzie.track",
+});
+/** In the API's order, not the lines': 111 first; line 10 has a side track only, 111's main track no origin */
+const tracks = [
+    track("t111", "l111", "main", undefined, oliwa),
+    track("t1-out", "l1", "main", lawendowe, strzyza),
+    track("t1-short", "l1", "side", lawendowe, oliwa),
+    track("t1-in", "l1", "main", strzyza, lawendowe),
+    track("t10-short", "l10", "side", oliwa, strzyza),
+];
+
+/** The tracks of the lines the query names, as the API filters them */
+const tracksOf = (query: { line: string }) => tracks.filter(({ line }) => query.line.split(",").includes(line.id));
+
 const stubs = {
     UiIcon: true,
     UiTooltip: true,
@@ -98,6 +124,9 @@ async function type(wrapper: Awaited<ReturnType<typeof mountSection>>["wrapper"]
 const lineQueries = () =>
     get.mock.calls.filter(([endpoint]) => endpoint === "v1_line_list").map(([, options]) => options.query);
 
+const trackQueries = () =>
+    get.mock.calls.filter(([endpoint]) => endpoint === "v1_track_list").map(([, options]) => options.query);
+
 const stopGroupQueries = () =>
     get.mock.calls.filter(([endpoint]) => endpoint === "v1_stop_group_list").map(([, options]) => options.query);
 
@@ -105,12 +134,14 @@ describe("TimetablePage's search", () => {
     beforeEach(() => {
         vi.useFakeTimers();
         get.mockReset();
-        get.mockImplementation(async (endpoint: string) => {
+        get.mockImplementation(async (endpoint: string, options: { query: { line: string } }) => {
             switch (endpoint) {
                 case "v1_stop_group_list":
                     return { data: groups };
                 case "v1_line_list":
                     return { data: lines };
+                case "v1_track_list":
+                    return { data: tracksOf(options.query) };
                 default:
                     return { data: { id: "trojmiasto", timezone: "Europe/Warsaw" } };
             }
@@ -279,17 +310,20 @@ describe("TimetablePage's search", () => {
         expect(wrapper.text()).not.toContain("Wybierz przystanek albo linię");
     });
 
-    it("finds lines by symbol from one character, before the stops, and opens a line's page", async () => {
+    it("finds lines by symbol from one character, before the stops, listing their main tracks", async () => {
         const { wrapper, router } = await mountSection("/trojmiasto/timetable", [bramka], routesWithLinePage);
 
         await type(wrapper, "1");
         expect(lineQueries()).toEqual([{ symbol: "1" }]);
+        expect(trackQueries()).toEqual([{ line: "l1,l10,l111", limit: 100 }]);
 
         const found = wrapper.find("section[aria-label=Linie]");
         expect(found.findAll("a").map(link => [link.text(), link.attributes("href")])).toEqual([
-            ["1", "/trojmiasto/timetable/lines/l1"],
+            ["1 Lawendowe Wzgórze → Strzyża PKM", "/trojmiasto/timetable/lines/l1?track=t1-out"],
+            ["1 Strzyża PKM → Lawendowe Wzgórze", "/trojmiasto/timetable/lines/l1?track=t1-in"],
+            // a line without a main track opens its page alone, which picks the track itself
             ["10", "/trojmiasto/timetable/lines/l10"],
-            ["111", "/trojmiasto/timetable/lines/l111"],
+            ["111 → Oliwa", "/trojmiasto/timetable/lines/l111?track=t111"],
         ]);
         expect(wrapper.findAll("section[aria-label]").map(section => section.attributes("aria-label"))).toEqual([
             "Linie",
@@ -299,16 +333,21 @@ describe("TimetablePage's search", () => {
         await found.findAll("a")[1].trigger("click");
         await flushPromises();
 
-        expect(router.currentRoute.value.fullPath).toBe("/trojmiasto/timetable/lines/l10");
+        expect(router.currentRoute.value.fullPath).toBe("/trojmiasto/timetable/lines/l1?track=t1-in");
     });
 
-    it("shows lines as plain symbols until the line page exists", async () => {
+    it("shows the tracks without links until the line page exists", async () => {
         const { wrapper } = await mountSection();
 
         await type(wrapper, "1");
 
         const found = wrapper.find("section[aria-label=Linie]");
-        expect(found.findAll("li").map(item => item.text())).toEqual(["1", "10", "111"]);
+        expect(found.findAll("li").map(item => item.text())).toEqual([
+            "1 Lawendowe Wzgórze → Strzyża PKM",
+            "1 Strzyża PKM → Lawendowe Wzgórze",
+            "10",
+            "111 → Oliwa",
+        ]);
         expect(found.findAll("a")).toHaveLength(0);
     });
 
@@ -322,16 +361,35 @@ describe("TimetablePage's search", () => {
 
         expect(wrapper.find("section[aria-label=Przystanki]").exists()).toBe(true);
         expect(wrapper.find("section[aria-label=Linie]").exists()).toBe(false);
+        expect(trackQueries()).toEqual([]);
     });
 
-    it("keeps the found lines while the next query is searched", async () => {
+    it("keeps the found tracks while the next query is searched", async () => {
         const { wrapper } = await mountSection();
 
         await type(wrapper, "1");
         await wrapper.find("input").setValue("11");
         await flushPromises();
 
-        expect(wrapper.findAll("section[aria-label=Linie] li").map(item => item.text())).toEqual(["1", "10", "111"]);
+        expect(wrapper.findAll("section[aria-label=Linie] li").map(item => item.text())).toEqual([
+            "1 Lawendowe Wzgórze → Strzyża PKM",
+            "1 Strzyża PKM → Lawendowe Wzgórze",
+            "10",
+            "111 → Oliwa",
+        ]);
+    });
+
+    it("lists the tracks of the first ten lines found only", async () => {
+        const many = Array.from({ length: 12 }, (_, i) => line(`l${i + 1}`, `${i + 1}`));
+        get.mockImplementation(async (endpoint: string) => ({
+            data: endpoint === "v1_line_list" ? many : endpoint === "v1_track_list" ? [] : groups,
+        }));
+        const { wrapper } = await mountSection();
+
+        await type(wrapper, "1");
+
+        expect(trackQueries()).toEqual([{ line: "l1,l2,l3,l4,l5,l6,l7,l8,l9,l10", limit: 100 }]);
+        expect(wrapper.findAll("section[aria-label=Linie] li")).toHaveLength(10);
     });
 
     it("drops a late answer to an older line query", async () => {
