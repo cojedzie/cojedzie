@@ -29,6 +29,7 @@ Every entity implements `Entity` (which extends `Dto\Referable`) and gets `Provi
 
 ```
 OperatorEntity ◀── LineEntity ──1:N──▶ TrackEntity ──1:N──▶ TrackStopEntity ──▶ StopEntity
+                                          │  ├─ origin (1:1 TrackStopEntity, the first stop)
                                           │  └─ final (1:1 TrackStopEntity, the last stop)
                                           ◀── TripEntity ──1:N──▶ TripStopEntity ──▶ StopEntity
 ```
@@ -42,7 +43,7 @@ and `TripStopEntity` also carries `arrival`/`departure`.
 |---|---|---|
 | `OperatorEntity` | `Operator` | |
 | `LineEntity` | `Line` | `operator`, `tracks` |
-| `TrackEntity` | `Track` | `stops` (flattened from `stopsInTrack[].stop`), `line`, `destination` (= `final.stop`), `kind` (`TrackKind`: `main`, `side`, `non-passenger`; column `track.kind`, default `side`, ADR 0031) |
+| `TrackEntity` | `Track` | `stops` (flattened from `stopsInTrack[].stop`), `line`, `origin` (= `origin.stop`, column `track.origin_id`), `destination` (= `final.stop`, column `track.final_id`); both are stored, set from the first and last of `stopsInTrack` by `setStopsInTrack()` or by the importer, so listing tracks loads no stops in track, `kind` (`TrackKind`: `main`, `side`, `non-passenger`; column `track.kind`, default `side`, ADR 0031) |
 | `StopEntity` | `Stop` | lat/lon → `Location`; `destinations` only filled by an embed |
 | `TripEntity` | `Trip` | `timetable` (from `stops`), `track`, `serviceDay` (from `service_date`, Y-m-d in the provider's zone) |
 | `TrackStopEntity` | `TrackStop` | `stop`, `track`, `order` |

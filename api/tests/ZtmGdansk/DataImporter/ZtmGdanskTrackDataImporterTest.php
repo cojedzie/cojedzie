@@ -132,25 +132,33 @@ final class ZtmGdanskTrackDataImporterTest extends ImporterTestCase
         ], $this->trackStops());
     }
 
-    public function testFinalStopIsTheLastStop(): void
+    public function testOriginIsTheFirstStopAndFinalStopTheLast(): void
     {
         $this->import($this->event, [$this->trip(1)], [
             $this->stopInTrip(1, 102, 3),
+            $this->stopInTrip(1, 101, 2),
             $this->stopInTrip(1, 100, 1),
         ]);
 
+        $this->assertSame(
+            'trojmiasto::100',
+            $this->connection->fetchOne('SELECT ts.stop_id FROM track t JOIN track_stop ts ON ts.id = t.origin_id'),
+        );
         $this->assertSame(
             'trojmiasto::102',
             $this->connection->fetchOne('SELECT ts.stop_id FROM track t JOIN track_stop ts ON ts.id = t.final_id'),
         );
     }
 
-    public function testTrackWithOnlyUnknownStopsHasNoFinalStop(): void
+    public function testTrackWithOnlyUnknownStopsHasNoOriginNorFinalStop(): void
     {
         $this->import($this->event, [$this->trip(1)], [$this->stopInTrip(1, 999, 1)]);
 
         $this->assertSame([], $this->trackStops());
-        $this->assertNull($this->connection->fetchOne('SELECT final_id FROM track'));
+        $this->assertSame(
+            ['origin_id' => null, 'final_id' => null],
+            $this->connection->fetchAssociative('SELECT origin_id, final_id FROM track'),
+        );
     }
 
     public function testReimportReplacesTrackStops(): void

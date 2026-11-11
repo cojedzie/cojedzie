@@ -70,6 +70,13 @@ class TrackEntity implements Entity, Fillable, ValidityAwareInterface
     private Collection $stopsInTrack;
 
     /**
+     * First stop in this track.
+     */
+    #[ORM\OneToOne(targetEntity: TrackStopEntity::class, fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'origin_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    private ?TrackStopEntity $origin = null;
+
+    /**
      * Final stop in this track.
      */
     #[ORM\OneToOne(targetEntity: TrackStopEntity::class, fetch: 'LAZY')]
@@ -131,8 +138,14 @@ class TrackEntity implements Entity, Fillable, ValidityAwareInterface
         $this->stopsInTrack = IterableUtils::toArrayCollection($stopsInTrack);
 
         if (!$this->stopsInTrack->isEmpty()) {
-            $this->final = $this->stopsInTrack->last();
+            $this->origin = $this->stopsInTrack->first();
+            $this->final  = $this->stopsInTrack->last();
         }
+    }
+
+    public function getOrigin(): ?TrackStopEntity
+    {
+        return $this->origin;
     }
 
     public function getFinal(): TrackStopEntity

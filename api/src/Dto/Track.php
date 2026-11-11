@@ -67,6 +67,12 @@ class Track implements ReferableDto, Fillable, Dto
     private Seq $stops;
 
     /**
+     * First stop of this track
+     */
+    #[OA\Property(ref: new Model(type: Stop::class))]
+    private ?Stop $origin = null;
+
+    /**
      * Destination stop of this track
      */
     #[OA\Property(ref: new Model(type: Stop::class))]
@@ -125,6 +131,16 @@ class Track implements ReferableDto, Fillable, Dto
     public function setStops(iterable $stops = []): void
     {
         $this->stops = new Seq($stops);
+    }
+
+    public function getOrigin(): ?Stop
+    {
+        return $this->origin;
+    }
+
+    public function setOrigin(?Stop $origin): void
+    {
+        $this->origin = $origin;
     }
 
     public function getDestination(): ?Stop

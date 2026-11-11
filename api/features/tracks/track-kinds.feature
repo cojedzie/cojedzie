@@ -24,6 +24,17 @@ Feature: Track kinds
       | 6    | main | oliwa-01         |
       | 6    | side | brama-oliwska-01 |
 
+  Scenario: Tracks of several lines tell where they start and where they end
+    Given there are tracks:
+      | line | kind | stops                        |
+      | 8    | main | oliwa-01, brama-oliwska-01    |
+    When I list tracks of lines "6, 8"
+    Then I should see tracks:
+      | line | kind | origin           | destination      |
+      | 6    | main | brama-wyzynna-01 | oliwa-01         |
+      | 6    | side | brama-wyzynna-01 | brama-oliwska-01 |
+      | 8    | main | oliwa-01         | brama-oliwska-01 |
+
   Scenario: A depot run is not a destination
     When I look up stop "brama-wyzynna-01"
     Then stop "brama-wyzynna-01" should have destinations:
