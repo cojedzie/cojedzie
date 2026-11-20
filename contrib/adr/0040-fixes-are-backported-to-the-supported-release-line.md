@@ -29,10 +29,10 @@ We will use option 3:
 
 - The **supported line** is the line `YYYY.N` of the newest `v*` tag. Only it gets backports. When `master` releases
   a new line, the supported line moves to it.
-- A PR merged into `master` with the `backport` label is backported: the Backport workflow cherry-picks its merged
-  commits onto `release/<supported line>` with `korthout/backport-action` (pinned by commit) and opens a PR against
-  that branch with auto-merge (rebase) and the original title. If the release branch doesn't exist yet, the
-  workflow cuts it from the line's newest tag first.
+- A PR merged into `master` with the `backport` label, added before or after the merge, is backported: the Backport
+  workflow cherry-picks its merged commits onto `release/<supported line>` with `korthout/backport-action` (pinned by
+  commit) and opens a PR against that branch with auto-merge (rebase) and the original title. If the release branch
+  doesn't exist yet, the workflow cuts it from the line's newest tag first.
 - The Dependabot workflow adds the `backport` label to exactly the updates it auto-merges (ADR 0023): minor and
   patch, without maintainer changes. Majors and updates with new maintainers are never backported automatically.
 - A cherry-pick that conflicts becomes a draft PR with the first conflict committed, and the original PR gets a
@@ -40,7 +40,8 @@ We will use option 3:
 - Branches and PRs are made with the merge app's token, so CI runs on the backport branch.
 - The workflow runs on `pull_request` (`closed`), not `pull_request_target`: the PRs we backport come from branches
   of this repository, so the run has the secrets, and public repositories need an extra Actions policy to run
-  `pull_request_target`. PRs from forks aren't backported automatically.
+  `pull_request_target`. PRs from forks aren't backported automatically. GitHub runs the workflow as it was in the
+  merged PR, so labelling a PR merged before the workflow existed does nothing; such a PR is backported by hand.
 - `release/*` branches are protected by a ruleset like `master`: changes come through PRs, the checks `test`,
   `test-front` and `build` are required, force pushes and deletion are blocked.
 
