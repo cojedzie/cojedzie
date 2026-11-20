@@ -1,0 +1,75 @@
+name: Backport
+
+# Brings a PR merged into master with the backport label to the supported release line, see ADR 0040: the line of
+# the newest v* tag, whose release/YYYY.N branch is cut from that tag when it doesn't exist yet. The merged commits
+# are cherry-picked into a PR against the release branch that merges itself once the required checks pass. A
+# conflict is committed into a draft PR for a human to finish.
+#
+# pull_request rather than pull_request_target: the PRs we backport come from branches of this repository, so the
+# run gets the secrets, and public repositories need an extra policy for pull_request_target.
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency: backport-${{ github.event.pull_request.number }}
+
+jobs:
+  backport:
+    if: github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'backport')
+    runs-on: ubuntu-latest
+    steps:
+      # pushes made with GITHUB_TOKEN don't start CI, so the backport PR would never get its checks
+      - name: Get a token of the merge app
+        id: token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.DEPENDABOT_MERGE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DEPENDABOT_MERGE_APP_PRIVATE_KEY }}
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ steps.token.outputs.token }}
+      - name: Find the supported line
+        id: line
+        run: |
+          tag=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
+          line=$(sed -E 's/^v([0-9]{4}\.[0-9]+)\..*$/\1/' <<< "$tag")
+          {
+            echo "tag=$tag"
+            echo "branch=release/$line"
+          } >> "$GITHUB_OUTPUT"
+          echo "Supported line: $line (newest release $tag)"
+      - name: Cut the release branch
+        env:
+          TAG: ${{ steps.line.outputs.tag }}
+          BRANCH: ${{ steps.line.outputs.branch }}
+        run: |
+          if git ls-remote --exit-code --heads origin "$BRANCH" > /dev/null; then
+            exit 0
+          fi
+          git push origin "$TAG^{commit}:refs/heads/$BRANCH"
+          echo "Cut $BRANCH from $TAG"
+      # third-party action with a write token, so pinned by commit
+      - name: Backport
+        uses: korthout/backport-action@ad272ff24e4a8593bf18a951a154ae6af93b26b8 # v5.0.0
+        with:
+          github_token: ${{ steps.token.outputs.token }}
+          target_branches: ${{ steps.line.outputs.branch }}
+          branch_name: backport/${pull_number}-to-${target_branch}
+          # the title keeps the Conventional Commit of the original
+          pull_title: ${pull_title}
+          pull_description: |-
+            Backport of #${pull_number} to `${target_branch}`, merged once the required checks pass.
+          auto_merge_enabled: true
+          auto_merge_method: rebase
+          merge_commits: skip
+          copy_labels_pattern: ^(dependencies|php|javascript|docker)$
+          experimental: >
+            {
+              "conflict_resolution": "draft_commit_conflicts"
+            }
