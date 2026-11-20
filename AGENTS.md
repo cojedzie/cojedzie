@@ -146,7 +146,9 @@ task benchmark:api                # phpbench
   Docker section of the API architecture page), creates the GitHub Release with notes from
   `contrib/release-notes.sh`, and deploys to `production` after approval unless a newer release exists. No version
   is committed. `.github/workflows/patch-release.yml` releases the supported line (`contrib/supported-line.sh`)
-  every Thursday when its release branch has tested, unreleased commits (ADR 0041).
+  every Thursday when its release branch has tested, unreleased commits, and at once after CI passes on it when a
+  newly merged PR is labelled `release-now`, which Dependabot updates fixing a high or critical alert get on their
+  own (ADR 0041).
 - CI (`.github/workflows/ci.yml`) runs the tests (jobs `test` for the API and `test-front`) and builds the `next`
   images with `docker-bake.hcl` on every push, pushing them only from `master`. `test`, `test-front` and `build`
   are the required checks. Jobs must pass without secrets outside `master`: Dependabot's runs don't get them.

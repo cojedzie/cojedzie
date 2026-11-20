@@ -2,7 +2,8 @@ name: Dependabot
 
 # Turns on auto-merge for Dependabot PRs that are safe to take without a review, see ADR 0023. GitHub merges
 # them once the required checks pass; everything else waits for a human. The same PRs are labelled backport, so the
-# Backport workflow brings them to the supported release line (ADR 0040).
+# Backport workflow brings them to the supported release line (ADR 0040), and release-now when they fix a high or
+# critical vulnerability, so the line is released at once (ADR 0041).
 on:
   pull_request:
 
@@ -38,11 +39,36 @@ jobs:
         with:
           client-id: ${{ secrets.DEPENDABOT_MERGE_APP_CLIENT_ID }}
           private-key: ${{ secrets.DEPENDABOT_MERGE_APP_PRIVATE_KEY }}
+      # open alerts of the updated packages; an update that doesn't reach the patched version releases a bit early
+      - name: Look for fixed vulnerabilities
+        id: alerts
+        if: steps.decide.outputs.merge == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          DEPENDENCIES: ${{ steps.metadata.outputs.dependency-names }}
+        run: |
+          if ! alerts=$(gh api --paginate "repos/$GITHUB_REPOSITORY/dependabot/alerts?state=open&severity=high,critical&per_page=100" \
+            --jq '.[] | "\(.dependency.package.name) \(.security_advisory.severity) \(.security_advisory.ghsa_id)"'); then
+            echo "::warning::Can't read Dependabot alerts, the merge app needs the Dependabot alerts permission"
+            exit 0
+          fi
+          IFS=',' read -ra names <<< "$DEPENDENCIES"
+          for name in "${names[@]}"; do
+            fixed=$(awk -v name="${name// /}" '$1 == name' <<< "$alerts")
+            if [[ -n "$fixed" ]]; then
+              echo "Fixes $fixed"
+              echo "release-now=true" >> "$GITHUB_OUTPUT"
+            fi
+          done
       - name: Enable auto-merge
         if: steps.decide.outputs.merge == 'true'
         env:
           GH_TOKEN: ${{ steps.token.outputs.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          RELEASE_NOW: ${{ steps.alerts.outputs.release-now }}
         run: |
           gh pr edit --add-label backport "$PR_URL"
+          if [[ "$RELEASE_NOW" == true ]]; then
+            gh pr edit --add-label release-now "$PR_URL"
+          fi
           gh pr merge --auto --rebase "$PR_URL"

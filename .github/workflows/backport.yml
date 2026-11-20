@@ -69,7 +69,7 @@ jobs:
           auto_merge_enabled: true
           auto_merge_method: rebase
           merge_commits: skip
-          copy_labels_pattern: ^(dependencies|php|javascript|docker)$
+          copy_labels_pattern: ^(dependencies|php|javascript|docker|release-now)$
           experimental: >
             {
               "conflict_resolution": "draft_commit_conflicts"
