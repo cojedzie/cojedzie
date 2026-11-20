@@ -1,11 +1,13 @@
 name: Release
+run-name: Release ${{ inputs.version || format('of {0}', github.ref_name) }}
 
+# Started by hand, or dispatched by other workflows on the branch to release
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: Version to release, e.g. 2026.1.0
-        required: true
+        description: Version to release, e.g. 2026.1.0; empty on a release branch for its next patch
+        required: false
 
 permissions:
   contents: write
@@ -40,6 +42,20 @@ jobs:
           else
             echo "::error::Releases are made from master or a release/YYYY.N branch, not $GITHUB_REF"
             exit 1
+          fi
+          # a release branch is cut from a tag of its line, so it always has one to count from
+          if [[ -z "$VERSION" ]]; then
+            if [[ -z "$line" ]]; then
+              echo "::error::A release from master needs a version"
+              exit 1
+            fi
+            last=$(git tag --list "v$line.*" --sort=-version:refname | head -n 1)
+            if [[ -z "$last" ]]; then
+              echo "::error::release/$line has no v$line.* tag to count the next patch from"
+              exit 1
+            fi
+            VERSION="$line.$(( ${last##*.} + 1 ))"
+            echo "Releasing the next patch of $line: $VERSION"
           fi
           if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::Version must look like YYYY.N.P, got $VERSION"

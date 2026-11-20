@@ -139,7 +139,8 @@ task benchmark:api                # phpbench
   with prettier — both via docker compose, so containers must be buildable.
 - Source files carry the AGPL-3.0 license header (copy from a neighbouring file).
 - PHP code style: ECS (`api/ecs.php`); Rector config in `api/rector.php`. Overridden methods use `#[\Override]`.
-- Releases: run the `Release` workflow (`.github/workflows/release.yml`) with a version, see ADR 0024. It tags a
+- Releases: run the `Release` workflow (`.github/workflows/release.yml`) with a version, see ADR 0024; on a release
+  branch the version may be left empty to release the next patch of its line. It tags a
   tested commit of `master` or of a `release/YYYY.N` hotfix branch (cut from the tag it fixes, releasing only
   patches of its line; the fix also goes to `master`), builds and publishes all images (`docker-bake.hcl`, see the
   Docker section of the API architecture page), creates the GitHub Release with notes from
