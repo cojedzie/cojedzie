@@ -1,17 +1,25 @@
 name: Patch release
 
-# Releases the supported release line (ADR 0040) every week: when its release branch has commits since the line's
-# newest tag and they passed the tests, the Release workflow is started on it for the next patch. The deployment to
-# production still waits for approval.
+# Releases the supported release line (ADR 0040, ADR 0041) every week: when its release branch has commits since the
+# line's newest tag and they passed the tests, the Release workflow is started on it for the next patch. Once CI
+# passes on the release branch, it is released at once if a PR merged since the tag is labelled release-now (a fix
+# of a high or critical vulnerability). The deployment to production still waits for approval.
 on:
   schedule:
     # Thursday morning, after Monday's Dependabot updates have been merged and backported
     - cron: '0 6 * * 4'
   workflow_dispatch:
+  # runs master's copy of this workflow, which a trigger on the release branch itself wouldn't
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: ['release/**']
 
 permissions:
   contents: read
   checks: read
+  # labels of the PRs merged into the release branch
+  pull-requests: read
   # starts the Release workflow
   actions: write
 
@@ -20,6 +28,9 @@ concurrency: patch-release
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: >
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -49,13 +60,46 @@ jobs:
             echo
             git log --format='- %s' "$TAG..$head"
           } | tee -a "$GITHUB_STEP_SUMMARY"
-          {
-            echo "head=$head"
-            echo "release=true"
-          } >> "$GITHUB_OUTPUT"
+          echo "head=$head" >> "$GITHUB_OUTPUT"
+      # after CI on the release branch, only a release-now PR is released before Thursday
+      - name: Decide
+        id: decide
+        if: steps.unreleased.outputs.head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ steps.line.outputs.tag }}
+          BRANCH: ${{ steps.line.outputs.branch }}
+          HEAD: ${{ steps.unreleased.outputs.head }}
+          CI_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          CI_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [[ "$EVENT" != workflow_run ]]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "$CI_BRANCH" != "$BRANCH" ]]; then
+            echo "$CI_BRANCH isn't the supported line's branch $BRANCH" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # the CI run of the newer commit decides
+          if [[ "$CI_SHA" != "$HEAD" ]]; then
+            echo "$BRANCH has moved past $CI_SHA" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          for commit in $(git rev-list "$TAG..$HEAD"); do
+            urgent=$(gh api "repos/$GITHUB_REPOSITORY/commits/$commit/pulls" \
+              --jq ".[] | select(.base.ref == \"$BRANCH\" and any(.labels[]; .name == \"release-now\")) | .html_url")
+            if [[ -n "$urgent" ]]; then
+              echo "Releasing now for $urgent" | tee -a "$GITHUB_STEP_SUMMARY"
+              echo "release=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "Nothing labelled release-now, waiting for Thursday" | tee -a "$GITHUB_STEP_SUMMARY"
       # a failing or unfinished branch fails this run, so it isn't skipped silently
       - name: Require passing tests
-        if: steps.unreleased.outputs.release == 'true'
+        if: steps.decide.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD: ${{ steps.unreleased.outputs.head }}
@@ -70,7 +114,7 @@ jobs:
           done
       # GITHUB_TOKEN may start workflow_dispatch runs; the release uses the release branch's copy of the workflow
       - name: Start the release
-        if: steps.unreleased.outputs.release == 'true'
+        if: steps.decide.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ steps.line.outputs.branch }}
