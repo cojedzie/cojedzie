@@ -1,0 +1,79 @@
+name: Patch release
+
+# Releases the supported release line (ADR 0040) every week: when its release branch has commits since the line's
+# newest tag and they passed the tests, the Release workflow is started on it for the next patch. The deployment to
+# production still waits for approval.
+on:
+  schedule:
+    # Thursday morning, after Monday's Dependabot updates have been merged and backported
+    - cron: '0 6 * * 4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
+  # starts the Release workflow
+  actions: write
+
+concurrency: patch-release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Find the supported line
+        id: line
+        shell: bash
+        run: contrib/supported-line.sh | tee -a "$GITHUB_OUTPUT"
+      - name: Find unreleased commits
+        id: unreleased
+        env:
+          TAG: ${{ steps.line.outputs.tag }}
+          BRANCH: ${{ steps.line.outputs.branch }}
+        run: |
+          if ! head=$(git rev-parse -q --verify "origin/$BRANCH"); then
+            echo "$BRANCH doesn't exist, nothing was backported since $TAG" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          count=$(git rev-list --count "$TAG..$head")
+          if [[ "$count" -eq 0 ]]; then
+            echo "Nothing on $BRANCH since $TAG" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          {
+            echo "$count commits on \`$BRANCH\` since \`$TAG\`:"
+            echo
+            git log --format='- %s' "$TAG..$head"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          {
+            echo "head=$head"
+            echo "release=true"
+          } >> "$GITHUB_OUTPUT"
+      # a failing or unfinished branch fails this run, so it isn't skipped silently
+      - name: Require passing tests
+        if: steps.unreleased.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD: ${{ steps.unreleased.outputs.head }}
+        run: |
+          for check in test test-front; do
+            passed=$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD/check-runs?check_name=$check" \
+              --jq '.check_runs | map(select(.conclusion == "success")) | length')
+            if [[ "$passed" -eq 0 ]]; then
+              echo "::error::The $check check has not passed on $HEAD, not releasing"
+              exit 1
+            fi
+          done
+      # GITHUB_TOKEN may start workflow_dispatch runs; the release uses the release branch's copy of the workflow
+      - name: Start the release
+        if: steps.unreleased.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.line.outputs.branch }}
+        run: |
+          gh workflow run release.yml --ref "$BRANCH"
+          echo "Started the release of the next patch of $BRANCH" | tee -a "$GITHUB_STEP_SUMMARY"

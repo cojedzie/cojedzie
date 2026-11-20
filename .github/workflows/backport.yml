@@ -43,14 +43,8 @@ jobs:
           token: ${{ steps.token.outputs.token }}
       - name: Find the supported line
         id: line
-        run: |
-          tag=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
-          line=$(sed -E 's/^v([0-9]{4}\.[0-9]+)\..*$/\1/' <<< "$tag")
-          {
-            echo "tag=$tag"
-            echo "branch=release/$line"
-          } >> "$GITHUB_OUTPUT"
-          echo "Supported line: $line (newest release $tag)"
+        shell: bash
+        run: contrib/supported-line.sh | tee -a "$GITHUB_OUTPUT"
       - name: Cut the release branch
         env:
           TAG: ${{ steps.line.outputs.tag }}
