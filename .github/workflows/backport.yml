@@ -1,15 +1,16 @@
 name: Backport
 
-# Brings a PR merged into master with the backport label to the supported release line, see ADR 0040: the line of
-# the newest v* tag, whose release/YYYY.N branch is cut from that tag when it doesn't exist yet. The merged commits
-# are cherry-picked into a PR against the release branch that merges itself once the required checks pass. A
-# conflict is committed into a draft PR for a human to finish.
+# Brings a PR merged into master with the backport label, added before or after the merge, to the supported release
+# line, see ADR 0040: the line of the newest v* tag, whose release/YYYY.N branch is cut from that tag when it doesn't
+# exist yet. The merged commits are cherry-picked into a PR against the release branch that merges itself once the
+# required checks pass. A conflict is committed into a draft PR for a human to finish.
 #
 # pull_request rather than pull_request_target: the PRs we backport come from branches of this repository, so the
-# run gets the secrets, and public repositories need an extra policy for pull_request_target.
+# run gets the secrets, and public repositories need an extra policy for pull_request_target. It runs the workflow
+# as it was in the PR, so labelling a PR merged before this workflow existed does nothing.
 on:
   pull_request:
-    types: [closed]
+    types: [closed, labeled]
     branches: [master]
 
 permissions:
@@ -19,7 +20,11 @@ concurrency: backport-${{ github.event.pull_request.number }}
 
 jobs:
   backport:
-    if: github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'backport')
+    if: >
+      github.event.pull_request.merged && (
+        (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'backport')) ||
+        (github.event.action == 'labeled' && github.event.label.name == 'backport')
+      )
     runs-on: ubuntu-latest
     steps:
       # pushes made with GITHUB_TOKEN don't start CI, so the backport PR would never get its checks
