@@ -29,9 +29,11 @@ jobs:
         with:
           client-id: ${{ secrets.DEPENDABOT_MERGE_APP_CLIENT_ID }}
           private-key: ${{ secrets.DEPENDABOT_MERGE_APP_PRIVATE_KEY }}
+      # the merge ref of a merged PR is gone, master has the tags and the merged commits
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0
           token: ${{ steps.token.outputs.token }}
       - name: Find the supported line
