@@ -1,7 +1,8 @@
 name: Dependabot
 
 # Turns on auto-merge for Dependabot PRs that are safe to take without a review, see ADR 0023. GitHub merges
-# them once the required checks pass; everything else waits for a human.
+# them once the required checks pass; everything else waits for a human. The same PRs are labelled backport, so the
+# Backport workflow brings them to the supported release line (ADR 0040).
 on:
   pull_request:
 
@@ -42,4 +43,6 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.token.outputs.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-        run: gh pr merge --auto --rebase "$PR_URL"
+        run: |
+          gh pr edit --add-label backport "$PR_URL"
+          gh pr merge --auto --rebase "$PR_URL"

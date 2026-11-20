@@ -154,6 +154,9 @@ task benchmark:api                # phpbench
   labels on close (see `contrib/agents/skills-config/issue-tracker.md`).
 - Dependabot (`.github/dependabot.yml`) proposes updates weekly or monthly; `.github/workflows/dependabot.yml`
   auto-merges minor and patch ones once the checks pass, majors wait for a review (ADR 0023).
+- PRs merged into `master` with the `backport` label (Dependabot's auto-merged updates get it on their own) are
+  cherry-picked by `.github/workflows/backport.yml` into an auto-merging PR against the release branch of the newest
+  release line, cut from its tag when missing; a conflict becomes a draft PR to finish by hand (ADR 0040).
 - `.github/workflows/deploy.yml` deploys images pinned by digest to any environment, reading the digests from the
   run that built them: `next` after each successful CI run on `master`, `production` when called by Release. Run
   it manually to redeploy.
