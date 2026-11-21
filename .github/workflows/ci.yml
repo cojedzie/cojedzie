@@ -156,52 +156,36 @@ jobs:
       - name: Describe the version
         id: version
         run: echo "version=$(git describe --tags)" >> "$GITHUB_OUTPUT"
+      # the GitHub runtime variables the gha cache needs, which bake-action used to pass on its own
+      - name: Expose the GitHub runtime
+        uses: crazy-max/ghaction-github-runtime@04d248b84655b509d8c44dc1d6f990c879747487 # v4.0.0
+      # the registry gives up on an upload its object storage rejects (503) and has no option to retry longer, so a
+      # failed push is tried twice more after a pause; layers already pushed are not sent again
       - name: Build and push
-        id: bake
-        # retried once below, layers pushed by the first attempt are not sent again
-        continue-on-error: true
-        uses: docker/bake-action@v7
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          # provenance makes the metadata too big to pass in an environment variable, only digests are read
-          BUILDX_METADATA_PROVENANCE: disabled
-        with:
-          source: .
-          files: docker-bake.hcl
-          targets: ci
-          push: ${{ github.ref == 'refs/heads/master' }}
-          vars: |
-            REGISTRIES=registry.kadet.net
-            TAGS=next
-            COJEDZIE_VERSION=${{ steps.version.outputs.version }}
-            COJEDZIE_REVISION=${{ github.sha }}
-            GHA_CACHE=true
-      - name: Build and push (retry)
-        id: bake-retry
-        if: steps.bake.outcome == 'failure'
-        uses: docker/bake-action@v7
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          # provenance makes the metadata too big to pass in an environment variable, only digests are read
-          BUILDX_METADATA_PROVENANCE: disabled
-        with:
-          source: .
-          files: docker-bake.hcl
-          targets: ci
-          push: ${{ github.ref == 'refs/heads/master' }}
-          vars: |
-            REGISTRIES=registry.kadet.net
-            TAGS=next
-            COJEDZIE_VERSION=${{ steps.version.outputs.version }}
-            COJEDZIE_REVISION=${{ github.sha }}
-            GHA_CACHE=true
+          REGISTRIES: registry.kadet.net
+          TAGS: next
+          COJEDZIE_VERSION: ${{ steps.version.outputs.version }}
+          COJEDZIE_REVISION: ${{ github.sha }}
+          GHA_CACHE: 'true'
+          PUSH: ${{ github.ref == 'refs/heads/master' && 'true' || '' }}
+        run: |
+          for attempt in 1 2 3; do
+            if docker buildx bake -f docker-bake.hcl --metadata-file metadata.json ${PUSH:+--push} ci; then
+              exit 0
+            fi
+            if [[ $attempt -lt 3 ]]; then
+              echo "::warning::Push failed (attempt $attempt of 3), trying again in $((attempt * 60)) s"
+              sleep $((attempt * 60))
+            fi
+          done
+          exit 1
       - name: Write image digests
         if: github.ref == 'refs/heads/master'
         env:
-          METADATA: ${{ steps.bake-retry.outputs.metadata || steps.bake.outputs.metadata }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          printf '%s' "$METADATA" > metadata.json
           contrib/bake-digests.sh metadata.json "$VERSION" next api worker front > digests.txt
       - name: Upload image digests
         if: github.ref == 'refs/heads/master'
