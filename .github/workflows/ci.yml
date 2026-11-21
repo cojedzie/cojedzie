@@ -138,8 +138,13 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      # few parallel uploads per registry: our registry's storage answers bursts with 503, failing the push
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-config-inline: |
+            [system]
+              maxRegistryConcurrency = 2
       # images are only pushed from master; Dependabot's runs have no access to the secrets
       - name: Login to registry.kadet.net
         if: github.ref == 'refs/heads/master'
@@ -153,6 +158,27 @@ jobs:
         run: echo "version=$(git describe --tags)" >> "$GITHUB_OUTPUT"
       - name: Build and push
         id: bake
+        # retried once below, layers pushed by the first attempt are not sent again
+        continue-on-error: true
+        uses: docker/bake-action@v7
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          # provenance makes the metadata too big to pass in an environment variable, only digests are read
+          BUILDX_METADATA_PROVENANCE: disabled
+        with:
+          source: .
+          files: docker-bake.hcl
+          targets: ci
+          push: ${{ github.ref == 'refs/heads/master' }}
+          vars: |
+            REGISTRIES=registry.kadet.net
+            TAGS=next
+            COJEDZIE_VERSION=${{ steps.version.outputs.version }}
+            COJEDZIE_REVISION=${{ github.sha }}
+            GHA_CACHE=true
+      - name: Build and push (retry)
+        id: bake-retry
+        if: steps.bake.outcome == 'failure'
         uses: docker/bake-action@v7
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -172,7 +198,7 @@ jobs:
       - name: Write image digests
         if: github.ref == 'refs/heads/master'
         env:
-          METADATA: ${{ steps.bake.outputs.metadata }}
+          METADATA: ${{ steps.bake-retry.outputs.metadata || steps.bake.outputs.metadata }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           printf '%s' "$METADATA" > metadata.json
