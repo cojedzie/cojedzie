@@ -204,6 +204,16 @@ async function createServer(): Promise<Express> {
     server.set("views", path.join(__dirname, "../../resources/views/"));
     server.set("view engine", "ejs");
 
+    // build output named by content hash: a missing file is a 404, never the page, so no cache keeps the page as an
+    // asset (a request can reach a replica of the previous version during a deploy)
+    server.use(
+        "/assets",
+        express.static(path.join(__dirname, "../public/assets/"), {
+            fallthrough: false,
+            immutable: true,
+            maxAge: "1y",
+        }),
+    );
     server.use(express.static(path.join(__dirname, "../public/")));
 
     server.get("{/:provider}/manifest.json", getWebManifestAction);

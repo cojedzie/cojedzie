@@ -11,7 +11,10 @@ It renders the HTML shell (EJS views in `resources/views`), injects runtime conf
 (`COJEDZIE_API`, `COJEDZIE_API_HUB`, `COJEDZIE_MAPTILER_KEY`, `COJEDZIE_GTM`, Sentry settings) and serves
 provider manifests. With `COJEDZIE_MODE=development` it mounts Vite as middleware (HMR on port 3001);
 otherwise it serves the built assets using Vite's `build/public/.vite/manifest.json` (in a dot-directory, so
-`express.static` doesn't serve it and `/manifest.json` stays the web manifest). Routes use Express 5 (path-to-regexp 8)
+`express.static` doesn't serve it and `/manifest.json` stays the web manifest). `/assets/` (the hashed build output)
+is served as immutable and never falls through to the page: a missing asset is a 404, because during a rolling
+deploy a request can reach a replica of the other version, and a 200 HTML page would be cached as the asset.
+Routes use Express 5 (path-to-regexp 8)
 syntax: optional parts are braces (`{/:provider}/manifest.json`), wildcards are named (`{/*path}`).
 
 Runtime config reaches components via `composables/useAppConfig`.
