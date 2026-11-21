@@ -56,7 +56,6 @@
 
         <% if (is_production) { %>
             <script type="module" src="/<%= manifest['src/app.ts'].file %>"></script>
-            <script src="/registerSW.js"></script>
         <% } else { %>
             <script type="module" src="/src/app.ts"></script>
         <% } %>

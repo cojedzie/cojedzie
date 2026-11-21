@@ -66,7 +66,9 @@ export default defineConfig({
     plugins: [
         vue(),
         tailwindcss(),
-        VitePWA({}),
+        // the service worker only cached assets (no offline page) and served stale ones; this one replaces it in
+        // browsers that installed it, then unregisters itself and drops its caches
+        VitePWA({ selfDestroying: true, injectRegister: false }),
         // lossy palette PNGs, like pngquant; the 80 keeps the gradients of the background and logo smooth
         ViteImageOptimizer({ png: { quality: 80, palette: true } }),
         SvgIconLoader({ match: /resources\/icons\/.*\.svg$/ }),
