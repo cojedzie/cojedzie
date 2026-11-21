@@ -58,3 +58,22 @@ live departure without one. Always about one stop.
 
 **Departure history**:
 The record of how departures really went, one last observation per departure per stop.
+
+### Riders
+
+**Rider**:
+Anyone using Co Jedzie, signed in or not. Everything a rider can do without an account keeps working without one.
+_Avoid_: User (it could mean any rider or only one with an account)
+
+**Account**:
+A rider's identity at Co Jedzie, created by signing up. It lets the rider's data follow them between devices.
+_Avoid_: User, profile
+
+**Favourite**:
+A single stop or line a rider marked to reach it quickly. It belongs to one provider.
+_Avoid_: Bookmark. A favourite is never a set of stops, that is a stop set
+
+**Stop set**:
+A named set of stops of one provider, whose departures a rider opens together, e.g. "Home" with both stops of the
+street outside.
+_Avoid_: Favourite, stop group (a stop group is formed by the network, a stop set by the rider)
