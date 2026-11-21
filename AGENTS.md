@@ -155,7 +155,7 @@ task benchmark:api                # phpbench
 - Issues go through triage whoever files them: the web forms (`.github/ISSUE_TEMPLATE/`) set their type (`Bug`,
   `Feature`; there are no category labels) and label them, and `.github/workflows/issues.yml` adds `needs-triage` to
   issues opened without a triage label, labels components from the title prefix and areas from the form, and drops
-  the triage labels on close. Label scheme:
+  the triage labels on close. `.github/workflows/labeler.yml` labels PRs by changed paths. Label scheme:
   `component:*`, `area:*`, `location:*` (see `contrib/agents/skills-config/issue-tracker.md`).
 - Dependabot (`.github/dependabot.yml`) proposes updates weekly or monthly; `.github/workflows/dependabot.yml`
   auto-merges minor and patch ones once the checks pass, majors wait for a review (ADR 0023).

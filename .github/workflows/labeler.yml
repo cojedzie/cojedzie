@@ -1,0 +1,21 @@
+name: Labeler
+
+# Adds component, area and location labels to a PR by the paths it changes (.github/labeler.yml). Labels are only
+# added, never removed, so labels set by hand stay.
+#
+# pull_request rather than pull_request_target, like the Backport workflow: PRs from branches of this repository and
+# Dependabot's get a token that can label, PRs from forks are labelled by hand.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v7
