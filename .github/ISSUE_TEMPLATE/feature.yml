@@ -1,12 +1,30 @@
 name: Feature or change
 description: Propose something new, or a change to how the app works.
-labels: [enhancement, needs-triage]
+type: Feature
+labels: [needs-triage]
 body:
   - type: markdown
     attributes:
       value: |
         Thanks for the idea! Polish is fine too / Możesz pisać po polsku. To support an existing proposal, add a 👍 to
         it instead of opening a new one.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Part of the app
+      description: Which part it is about, if you know.
+      options:
+        - Departures / Odjazdy
+        - Timetable / Rozkład jazdy
+        - Stops and lines / Przystanki i linie
+        - Something else / Coś innego
+  - type: dropdown
+    id: location
+    attributes:
+      label: City
+      description: Leave it empty if it isn't about one city.
+      options:
+        - Trójmiasto
   - type: textarea
     id: problem
     attributes:

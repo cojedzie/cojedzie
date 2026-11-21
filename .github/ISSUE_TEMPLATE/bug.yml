@@ -1,6 +1,7 @@
 name: Bug report
 description: Something in the app or the API doesn't work as it should.
-labels: [bug, needs-triage]
+type: Bug
+labels: [needs-triage]
 body:
   - type: markdown
     attributes:
@@ -13,6 +14,23 @@ body:
       options:
         - label: The bug remains after a hard refresh of the app (usually `ctrl+F5`).
           required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Part of the app
+      description: Which part it is about, if you know.
+      options:
+        - Departures / Odjazdy
+        - Timetable / Rozkład jazdy
+        - Stops and lines / Przystanki i linie
+        - Something else / Coś innego
+  - type: dropdown
+    id: location
+    attributes:
+      label: City
+      description: Leave it empty if it isn't about one city.
+      options:
+        - Trójmiasto
   - type: textarea
     id: what
     attributes:

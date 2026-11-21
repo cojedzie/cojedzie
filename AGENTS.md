@@ -152,9 +152,11 @@ task benchmark:api                # phpbench
 - CI (`.github/workflows/ci.yml`) runs the tests (jobs `test` for the API and `test-front`) and builds the `next`
   images with `docker-bake.hcl` on every push, pushing them only from `master`. `test`, `test-front` and `build`
   are the required checks. Jobs must pass without secrets outside `master`: Dependabot's runs don't get them.
-- Issues go through triage whoever files them: the web forms (`.github/ISSUE_TEMPLATE/`) label them, and
-  `.github/workflows/issues.yml` adds `needs-triage` to issues opened without a triage label and drops the triage
-  labels on close (see `contrib/agents/skills-config/issue-tracker.md`).
+- Issues go through triage whoever files them: the web forms (`.github/ISSUE_TEMPLATE/`) set their type (`Bug`,
+  `Feature`; there are no category labels) and label them, and `.github/workflows/issues.yml` adds `needs-triage` to
+  issues opened without a triage label, labels components from the title prefix and areas from the form, and drops
+  the triage labels on close. Label scheme:
+  `component:*`, `area:*`, `location:*` (see `contrib/agents/skills-config/issue-tracker.md`).
 - Dependabot (`.github/dependabot.yml`) proposes updates weekly or monthly; `.github/workflows/dependabot.yml`
   auto-merges minor and patch ones once the checks pass, majors wait for a review (ADR 0023).
 - PRs merged into `master` with the `backport` label, added before or after the merge (Dependabot's auto-merged

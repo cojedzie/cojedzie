@@ -8,10 +8,25 @@ PRs and other issues (`#N`) rather than a spec that is dropped when its task is 
 
 ## Conventions
 
-- **Create an issue**: `gh issue create --title "..." --body "..." --label "..."`. Use a heredoc for multi-line
-  bodies. GitHub renders single newlines in issue bodies as line breaks, so don't hard-wrap paragraphs.
-- **Labels**: one category label (`bug`, `enhancement`, `documentation`, ...) and one triage label (see
-  `triage-labels.md`). A closed issue keeps only its category label.
+- **Create an issue**: `gh issue create --title "..." --body "..." --label "..."`, then set its type (below). Use a
+  heredoc for multi-line bodies. GitHub renders single newlines in issue bodies as line breaks, so don't hard-wrap
+  paragraphs. Titles start with the components they touch: `API: …`, `Front: …`, `API, front: …`, `CI: …`.
+- **Type**: every issue has a GitHub issue type instead of a category label: `Bug`, `Feature` (new things and
+  changes) or `Task` (chores). `gh issue create` can't set it, so run
+  `gh api -X PATCH repos/cojedzie/cojedzie/issues/<n> -f type=Feature` afterwards. Filter with
+  `gh issue list --search "type:Bug"`.
+- **Labels**: one triage label (see `triage-labels.md`), plus what the issue is about, with as many of each as fit:
+  - `component:api`, `component:front`, `component:infra` (CI, Docker, releases, deploys);
+  - `area:departures` (live departures), `area:timetable` (planned service, timetable pages, stop sets),
+    `area:network` (stops, lines, tracks and finding them), `area:history` (departure history, ClickHouse),
+    `area:providers` (provider integrations, data import), `area:federation`, `area:ui` (design tokens, shared
+    components, Storybook, i18n);
+  - `location:trójmiasto` only when the issue is specific to that network (e.g. ZTM Gdańsk data).
+
+  A closed issue keeps its type and these labels, only the triage label goes.
+- **Automatic labels**: the `Issues` workflow adds the component labels a new issue's title prefix names, and the
+  area and location the reporter picked in the form. Other areas and locations are
+  set during triage.
 - **Features**: a feature with several tickets gets a parent issue holding the decisions they share; tickets are its
   sub-issues. Related issues that aren't part of the work are linked with a `Related: #N` line.
 - **Read an issue**: `gh issue view <number> --json number,title,body,labels,comments`.
@@ -30,7 +45,7 @@ PRs and other issues (`#N`) rather than a spec that is dropped when its task is 
 ## Issues filed by people
 
 People file issues from the web through the forms in `.github/ISSUE_TEMPLATE/` (blank issues are off): a bug report
-or a feature, labelled `bug` / `enhancement` and `needs-triage`. The `Issues` workflow (`.github/workflows/issues.yml`)
+or a feature, typed `Bug` / `Feature` and labelled `needs-triage`. The `Issues` workflow (`.github/workflows/issues.yml`)
 adds `needs-triage` to any issue opened without a triage label, and removes the triage labels when an issue is
 closed. So `gh issue list --label needs-triage` is the whole triage queue, wherever an issue came from. Reporters may
 write in Polish; keep their wording when quoting them, and write the triage notes in English.
