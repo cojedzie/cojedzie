@@ -1,8 +1,8 @@
 # Triage Labels
 
 The skills speak in terms of five canonical triage roles. This file maps those roles to the strings used in this
-repo's issue tracker: GitHub labels on `cojedzie/cojedzie`. An issue carries one of them next to its category label
-(`bug`, `enhancement`, ...).
+repo's issue tracker: GitHub labels on `cojedzie/cojedzie`. An issue carries one of them next to its type (`Bug`,
+`Feature`, `Task`) and its component, area and location labels (see `issue-tracker.md`).
 
 | Label in mattpocock/skills | Label in our tracker | Meaning                                  |
 | -------------------------- | -------------------- | ---------------------------------------- |

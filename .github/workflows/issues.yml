@@ -1,7 +1,8 @@
 name: Issues
 
 # Keeps every issue in the triage process of contrib/agents/skills-config/triage-labels.md, whoever filed it: an issue
-# opened without a triage label waits for triage, and a closed one keeps only its category label.
+# opened without a triage label waits for triage, and a closed one keeps only its other labels. A new issue also gets
+# the component, area and location labels its title and form answers name.
 on:
   issues:
     types: [opened, closed]
@@ -31,6 +32,43 @@ jobs:
             fi
           done
           gh issue edit "$ISSUE" --add-label needs-triage
+      # components from the title prefix used by maintainers and agents ("Front: …", "API, front: …", "CI: …"), area
+      # and location from the answers to the issue forms' dropdowns
+      - name: Label by title and form
+        if: github.event.action == 'opened'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          TITLE: ${{ github.event.issue.title }}
+          BODY: ${{ github.event.issue.body }}
+        run: |
+          labels=()
+          if [[ "$TITLE" =~ ^([A-Za-z, ]+): ]]; then
+            IFS=, read -ra prefixes <<< "${BASH_REMATCH[1],,}"
+            for prefix in "${prefixes[@]}"; do
+              case "${prefix// /}" in
+                api) labels+=(component:api) ;;
+                front) labels+=(component:front) ;;
+                ci) labels+=(component:infra) ;;
+              esac
+            done
+          fi
+
+          # a form renders each answer as "### <label>", a blank line, then the answer
+          answer() { tr -d '\r' <<< "$BODY" | awk -v heading="### $1" '$0 == heading { found = 1; next } found && NF { print; exit }'; }
+          case "$(answer 'Part of the app')" in
+            Departures*) labels+=(area:departures) ;;
+            Timetable*) labels+=(area:timetable) ;;
+            Stops*) labels+=(area:network) ;;
+          esac
+          case "$(answer 'City')" in
+            Trójmiasto) labels+=(location:trójmiasto) ;;
+          esac
+
+          if (( ${#labels[@]} )); then
+            gh issue edit "$ISSUE" --add-label "$(IFS=,; echo "${labels[*]}")"
+          fi
       - name: Drop triage labels
         if: github.event.action == 'closed'
         env:
