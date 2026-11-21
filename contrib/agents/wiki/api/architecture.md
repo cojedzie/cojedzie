@@ -140,6 +140,10 @@ Docblock annotations are no longer read. Served at `/api/` (UI) and `/api/swagge
   call `docker buildx bake -f docker-bake.hcl ...`: otherwise bake also reads `docker-compose.yml`, whose service
   names collide with the targets. `contrib/bake-digests.sh` writes `digests.txt` for the deploy workflow and
   `contrib/release-notes.sh` the release notes.
+- CI and Release push with at most 2 connections per registry (`maxRegistryConcurrency` in the builder's
+  `buildkitd-config-inline`) and run the bake a second time if the first fails. registry.kadet.net stores layers in
+  S3 storage that answers bursts of parallel uploads with 503; the registry then drops the upload and the push fails
+  with `blob upload unknown`. The retry only sends the layers that are still missing.
 - The dev stack (`docker-compose.yml`, commands in `AGENTS.md`) builds the `dev` targets and bind-mounts `api/` and
   `front/`. `api-setup` and `front-setup` install dependencies before the other services start. The `dev` image's
   `dev-server` picks php-fpm or RoadRunner from `COJEDZIE_DEV_SERVER`.
