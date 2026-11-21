@@ -25,8 +25,8 @@ PRs and other issues (`#N`) rather than a spec that is dropped when its task is 
 
   A closed issue keeps its type and these labels, only the triage label goes.
 - **Automatic labels**: the `Issues` workflow adds the component labels a new issue's title prefix names, and the
-  area and location the reporter picked in the form. Other areas and locations are
-  set during triage.
+  area and location the reporter picked in the form. The `Labeler` workflow labels PRs by the paths they change
+  (`.github/labeler.yml`). Areas and locations it can't tell are set during triage.
 - **Features**: a feature with several tickets gets a parent issue holding the decisions they share; tickets are its
   sub-issues. Related issues that aren't part of the work are linked with a `Related: #N` line.
 - **Read an issue**: `gh issue view <number> --json number,title,body,labels,comments`.

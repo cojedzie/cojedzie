@@ -1,0 +1,74 @@
+# Labels a PR by the paths it changes, see .github/workflows/labeler.yml. Areas are set only where a path says it
+# without doubt; the others are left to whoever opens or reviews the PR.
+
+component:api:
+  - changed-files:
+      - any-glob-to-any-file: api/**
+
+component:front:
+  - changed-files:
+      - any-glob-to-any-file: front/**
+
+component:infra:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+          - docker-bake.hcl
+          - docker-compose*.yml
+          - '**/Dockerfile'
+          - Taskfile.yml
+          - nginx/**
+          - clickhouse/**
+          - worker/**
+          - standalone/**
+          - contrib/*.sh
+
+area:departures:
+  - changed-files:
+      - any-glob-to-any-file:
+          - front/src/components/departures/**
+          - api/src/Controller/Api/v1/DeparturesController.php
+          - api/features/departures/**
+
+area:timetable:
+  - changed-files:
+      - any-glob-to-any-file:
+          - front/src/timetable/**
+          - front/src/components/timetable/**
+          - front/src/pages/*Timetable*
+          - api/src/**/*Timetable*
+
+area:history:
+  - changed-files:
+      - any-glob-to-any-file:
+          - api/src/DepartureHistory/**
+          - api/src/ClickHouse/**
+          - api/tests/DepartureHistory/**
+          - api/tests/ClickHouse/**
+          - clickhouse/**
+
+area:providers:
+  - changed-files:
+      - any-glob-to-any-file:
+          - api/src/DataImport/**
+          - api/src/Provider/ZtmGdansk/**
+          - api/tests/DataImport/**
+          - api/tests/ZtmGdansk/**
+
+area:federation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - api/**/*Federation*
+          - api/**/*Federated*
+
+area:ui:
+  - changed-files:
+      - any-glob-to-any-file:
+          - front/src/components/ui/**
+          - front/src/stories/**
+
+location:trójmiasto:
+  - changed-files:
+      - any-glob-to-any-file:
+          - api/src/Provider/ZtmGdansk/**
+          - api/tests/ZtmGdansk/**
