@@ -14,7 +14,9 @@ otherwise it serves the built assets using Vite's `build/public/.vite/manifest.j
 `express.static` doesn't serve it and `/manifest.json` stays the web manifest). `/assets/` (the hashed build output)
 is served as immutable and never falls through to the page: a missing asset is a 404, because during a rolling
 deploy a request can reach a replica of the other version, and a 200 HTML page would be cached as the asset.
-Routes use Express 5 (path-to-regexp 8)
+There is no service worker: the Workbox one only precached assets and kept serving such poisoned copies (#243), so
+`vite-plugin-pwa` now builds a self-destroying `sw.js` that removes it from browsers that installed it, and the
+page registers none. Routes use Express 5 (path-to-regexp 8)
 syntax: optional parts are braces (`{/:provider}/manifest.json`), wildcards are named (`{/*path}`).
 
 Runtime config reaches components via `composables/useAppConfig`.
