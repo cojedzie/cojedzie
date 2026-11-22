@@ -1,6 +1,22 @@
 <template>
     <div class="page-container timetable-page">
-        <ui-breadcrumbs :crumbs="crumbs" class="trail" />
+        <header class="header">
+            <ui-breadcrumbs :crumbs="crumbs" />
+            <!-- what the page is about: a line at a stop is the line's timetable, the stop is the column's heading -->
+            <!-- on the search, its own section's title says it already -->
+            <h1 class="heading" :class="{ 'visually-hidden': !onLineRoute && !route.params.stop }">
+                <template v-if="onLineRoute">
+                    Rozkład linii
+                    <line-symbol v-if="headingLine" :line="headingLine" size="large" />
+                </template>
+                <template v-else-if="route.params.stop">
+                    Rozkład na
+                    <stop-label v-if="headingStop" :stop="headingStop" />
+                    <template v-else>przystanku</template>
+                </template>
+                <template v-else>Rozkłady jazdy</template>
+            </h1>
+        </header>
         <div class="columns" :class="{ 'with-main': stopOpen }">
             <!-- the route's side view (the line page), otherwise the search, kept across routes with its query -->
             <div class="column side">
@@ -27,9 +43,11 @@
 import { computed, shallowRef } from "vue";
 import { useRoute } from "vue-router";
 import type { Line, Stop } from "@/model";
-import { useBreadcrumbs } from "@/composables/useBreadcrumbs";
+import { BREADCRUMB_HOLD_MS, useBreadcrumbs } from "@/composables/useBreadcrumbs";
+import { useHeld } from "@/composables/useHeld";
 import { useSelectionStore } from "@/stores/selection";
 import LineSymbol from "@/components/line/LineSymbol.vue";
+import StopLabel from "@/components/stop/StopLabel.vue";
 import UiBreadcrumbs from "@/components/ui/UiBreadcrumbs.vue";
 import TimetableStartPage from "@/pages/TimetableStartPage.vue";
 
@@ -51,6 +69,19 @@ const line = shallowRef<Line | null>(null);
 const stop = shallowRef<Stop | null>(null);
 
 const crumbs = useBreadcrumbs(() => ({ line: line.value, stop: stop.value }));
+
+const onLineRoute = computed(() => route.params.line !== undefined);
+
+// the heading names only the line or stop its route names, and like the crumbs keeps the previous one while the next
+// loads, rather than flashing a placeholder between two names
+const headingLine = useHeld(
+    () => (line.value && line.value.id === route.params.line ? line.value : null),
+    BREADCRUMB_HOLD_MS,
+);
+const headingStop = useHeld(
+    () => (stop.value && stop.value.id === route.params.stop ? stop.value : null),
+    BREADCRUMB_HOLD_MS,
+);
 </script>
 
 <style scoped>
@@ -65,8 +96,26 @@ const crumbs = useBreadcrumbs(() => ({ line: line.value, stop: stop.value }));
     }
 }
 
-.trail {
-    margin-block-end: --spacing(4);
+/* the trail and the heading above both columns, the heading's text lined up with the page */
+.header {
+    display: flex;
+    flex-direction: column;
+    margin-block-end: --spacing(6);
+}
+
+.heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: --spacing(3);
+    margin: 0;
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--leading-tight);
+
+    @variant md {
+        font-size: var(--text-3xl);
+    }
 }
 
 .columns {

@@ -1,7 +1,5 @@
 <template>
     <article class="line-page" :aria-busy="loading ? 'true' : undefined">
-        <h2 class="title">Linia <line-symbol v-if="found" :line="found.line" /></h2>
-
         <div v-if="loading" class="loading">
             <ui-icon icon="spinner" />
         </div>
@@ -9,7 +7,7 @@
         <p v-else-if="!found" class="message">Nie znaleziono linii.</p>
         <p v-else-if="found.tracks.length === 0" class="message">Ta linia nie ma żadnej trasy.</p>
         <section v-else-if="track" class="route" aria-labelledby="line-route">
-            <h3 id="line-route" class="route-title">Trasa</h3>
+            <h2 id="line-route" class="route-title">Trasa</h2>
             <div class="direction">
                 <track-direction-switch v-model="track" :tracks="found.tracks" />
             </div>
@@ -26,7 +24,6 @@ import api from "@/api";
 import type { Line, Track } from "@/model";
 import { chooseTrack, fetchLine, type LineWithTracks } from "@/timetable";
 import { useSelectionStore } from "@/stores/selection";
-import LineSymbol from "@/components/line/LineSymbol.vue";
 import TrackDirectionSwitch from "@/components/track/TrackDirectionSwitch.vue";
 import TrackStopRail from "@/components/track/TrackStopRail.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -113,20 +110,10 @@ const track = computed({
     @apply section-surface;
 }
 
-.title {
-    display: flex;
-    align-items: center;
-    gap: --spacing(2);
-    margin: 0;
-    font-size: var(--text-2xl);
-    font-weight: 600;
-}
-
 .route {
     display: flex;
     flex-direction: column;
     gap: --spacing(3);
-    margin-block-start: --spacing(4);
 }
 
 .route-title {

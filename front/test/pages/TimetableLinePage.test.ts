@@ -140,7 +140,9 @@ describe("the line page", () => {
     it("heads the page with the line and offers its main tracks by where they go", async () => {
         const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l6");
 
-        expect(wrapper.find("h2").text()).toBe("Linia 6");
+        // the section's heading names the line, the page heads its route
+        expect(wrapper.find("h1").text()).toBe("Rozkład linii 6");
+        expect(wrapper.findComponent(TimetableLinePage).find("h2").text()).toBe("Trasa");
         expect(segments(wrapper)).toEqual(["Łostowice", "Jelitkowo"]);
         expect(requests("v1_line_details")).toHaveLength(1);
         expect(requests("v1_track_list")).toHaveLength(1);
@@ -273,7 +275,7 @@ describe("the line page", () => {
     it("says when the line has no tracks", async () => {
         const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l0");
 
-        expect(wrapper.find("h2").text()).toBe("Linia 0");
+        expect(wrapper.find("h1").text()).toBe("Rozkład linii 0");
         expect(wrapper.text()).toContain("Ta linia nie ma żadnej trasy");
         expect(rail(wrapper).exists()).toBe(false);
     });
@@ -294,7 +296,7 @@ describe("the line page", () => {
         answerSix();
         await flushPromises();
 
-        expect(wrapper.find("h2").text()).toBe("Linia 8");
+        expect(wrapper.find("h1").text()).toBe("Rozkład linii 8");
         expect(railStops(wrapper)).toEqual(["Wrzeszcz", "Jelitkowo przystanek końcowy"]);
         expect(wrapper.find("[aria-busy=true]").exists()).toBe(false);
     });

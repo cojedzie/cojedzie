@@ -1,7 +1,7 @@
 <template>
     <section ref="root" class="stop-timetable" aria-label="Rozkład jazdy">
         <div class="heading">
-            <h2 class="title">Godziny odjazdów</h2>
+            <component :is="`h${headingLevel ?? 2}`" class="title">Godziny odjazdów</component>
             <ui-date-picker v-model="date" v-bind="picker" class="picker" />
             <!-- how the day is shown is set once and kept, so it waits behind the gear, out of the way of the day; the
                  gear is placed by a box of its own, as its dialog is teleported and makes it two nodes -->
@@ -74,6 +74,8 @@ const props = defineProps<{
     lineFixed?: boolean;
     /** The day is being fetched: the controls stay, the views wait */
     loading?: boolean;
+    /** The level of the "Godziny odjazdów" heading, one under the page's heading it comes after */
+    headingLevel?: 2 | 3;
     /** The moment the day is seen at, only when it is today: the views mark the first run not gone yet, scrolled to */
     now?: Temporal.Instant;
 }>();

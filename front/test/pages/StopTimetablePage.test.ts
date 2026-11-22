@@ -15,6 +15,9 @@ const line = (id: string, symbol: string) => ({ id, symbol, type: "tram", night:
 const six = line("l6", "6");
 const eight = line("l8", "8");
 
+const strzyza = { id: "d2", name: "Strzyża PKM" };
+const wrzeszcz = { id: "d3", name: "Wrzeszcz" };
+
 const stop = {
     id: "s1",
     name: "Brama Wyżynna",
@@ -68,8 +71,8 @@ async function mountPage(path: string, { routes = baseRoutes, details = provider
     return { wrapper, router };
 }
 
-/** The "pokaż trasę" link, if the page shows one */
-const routeLink = (wrapper: VueWrapper) => wrapper.findAll("a").find(link => link.text() === "pokaż trasę");
+/** The link to the line's route, if the page shows one */
+const routeLink = (wrapper: VueWrapper) => wrapper.findAll("a").find(link => link.text() === "Trasa");
 
 const timetableQueries = () =>
     get.mock.calls.filter(([endpoint]) => endpoint === "v1_stop_timetable").map(([, options]) => options.query);
@@ -85,7 +88,7 @@ describe("StopTimetablePage", () => {
                     return {
                         data: [
                             { order: 1, track: { id: "t8", line: eight } },
-                            { order: 2, track: { id: "t6", line: six } },
+                            { order: 2, track: { id: "t6", line: six, destination: strzyza } },
                         ],
                     };
                 default:
@@ -94,10 +97,10 @@ describe("StopTimetablePage", () => {
         });
     });
 
-    it("heads the page with the stop, its directions with their lines, and its lines", async () => {
+    it("shows a stop's directions with their lines, and its lines, leaving its name to the section's heading", async () => {
         const { wrapper } = await mountPage("/trojmiasto/timetable/stops/s1?date=2026-11-13");
 
-        expect(wrapper.find("h1").text()).toBe("Brama Wyżynna 01");
+        expect(wrapper.find("h1, h2").exists()).toBe(false);
         expect(wrapper.findComponent({ name: "StopDestinations" }).props("destinations")).toEqual(stop.destinations);
         expect(wrapper.findAll(".chip").map(chip => chip.text())).toEqual(["Wszystkie", "6", "8"]);
     });
@@ -117,6 +120,13 @@ describe("StopTimetablePage", () => {
         expect(wrapper.find(".timetable").attributes("data-date")).toBe(today);
         expect(wrapper.find(".timetable").attributes("data-line-fixed")).toBe("false");
         expect(wrapper.find(".chip[aria-current=page]").text()).toBe("Wszystkie");
+    });
+
+    it("heads a line at the stop with the stop and the direction of the line's track through it", async () => {
+        const { wrapper } = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1");
+
+        expect(wrapper.find("h2").text()).toBe("Brama Wyżynna 01");
+        expect(wrapper.find(".direction").text()).toBe("Kierunek: Strzyża PKM");
     });
 
     it("shows one line's day on the line's route, with its chip pressed", async () => {
@@ -189,9 +199,9 @@ describe("StopTimetablePage", () => {
                 endpoint === "v1_stop_tracks"
                     ? {
                           data: [
-                              { order: 1, track: { id: "t6-short", kind: "side", line: six } },
+                              { order: 1, track: { id: "t6-short", kind: "side", line: six, destination: wrzeszcz } },
                               { order: 2, track: { id: "t8", kind: "main", line: eight } },
-                              { order: 3, track: { id: "t6", kind: "main", line: six } },
+                              { order: 3, track: { id: "t6", kind: "main", line: six, destination: strzyza } },
                           ],
                       }
                     : fallback(endpoint, options),
@@ -202,6 +212,14 @@ describe("StopTimetablePage", () => {
             const { wrapper } = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1", { routes });
 
             expect(routeLink(wrapper)?.attributes("href")).toBe("/trojmiasto/timetable/lines/l6?track=t6");
+        });
+
+        it("names the direction of the track the route link opens", async () => {
+            const main = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1", { routes });
+            expect(main.wrapper.find(".direction").text()).toBe("Kierunek: Strzyża PKM");
+
+            const side = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1?track=t6-short", { routes });
+            expect(side.wrapper.find(".direction").text()).toBe("Kierunek: Wrzeszcz");
         });
 
         it("keeps the track in the URL when it runs through the stop", async () => {

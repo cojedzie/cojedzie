@@ -66,7 +66,7 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   real data, where side tracks often end at a main track's destination).
   Non-passenger tracks never come from the API (ADR 0031), so nothing filters them. Tests: `test/timetable/`.
 - `components/timetable/` — the timetable's views (#146), thin over the builders of `src/timetable`: `StopTimetable`
-  puts them together for a stop's day: a heading row "Godziny odjazdów" with the date picker (`v-model:date`, limited
+  puts them together for a stop's day: a heading row "Godziny odjazdów" (`h2`, or the `headingLevel` given) with the date picker (`v-model:date`, limited
   to `range`; on a phone under the row, across the width) and a gear "Ustawienia rozkładu" (`UiSectionSettings`,
   `size="large"`) whose dialog holds how the day is shown, as it is set once and kept: "Widok" (`v-model:view`,
   `list` / `hours`) and "Grupowanie" (`v-model:grouping`, `line` / `combined`, hidden with `lineFixed`, where a line
@@ -289,8 +289,15 @@ render; `.storybook/setup.js` sets `version` and `production`.
 
 The "Rozkład" navigation entry (both bars) is the route `timetable` (`/:provider/timetable`), a feature section (ADR
 0037) whose component `pages/TimetablePage.vue` is the layout of its pages: the departures page's columns, a third on
-the left and two thirds on the right. Above the columns, on every page of the section, is the breadcrumb trail (see [App
-shell and navigation](#app-shell-and-navigation)), named from the `line` and `stop` its pages emit. It loads the provider's details (`selection.loadProvider`), which the pages wait
+the left and two thirds on the right. Above the columns, on every page of the section, is its header: the breadcrumb
+trail (see [App shell and navigation](#app-shell-and-navigation)) and the page's `h1`, both named from the `line` and
+`stop` its pages emit, nothing fetched for them. The `h1` is "Rozkład linii" with the line's `LineSymbol` (`size="large"`)
+on a line and on a line at a stop (a line at a stop is the line's timetable, the stop heads the right column), "Rozkład
+na" with the stop's `StopLabel` on a whole stop, and "Rozkłady jazdy" on the search, visually hidden there as the search's own
+section says it. Like the crumbs, it names only the line or stop of its route ("Rozkład na przystanku", or no symbol,
+until the page loads it), and keeps the previous one for at most `BREADCRUMB_HOLD_MS` while the next loads (`useHeld`, a value
+that keeps what it was for a while once it goes `null`), so moving between stops doesn't flash a placeholder. It loads
+the provider's details (`selection.loadProvider`), which the pages wait
 for: they carry the time zone and the timetable's range. The left column is the route's `side` view
 (`<router-view name="side">`, the line page) when it has one and `TimetableStartPage`, the search, otherwise, so the
 search sits next to `timetable-stop`. It is the `v-else` of the side router view's slot, so it stays the same instance
@@ -304,9 +311,9 @@ column does (the search, or the line page).
 The line page (`pages/TimetableLinePage.vue`) is the `side` view of `timetable-line` (`lines/:line`, which has no
 default view) and of `timetable-line-stop`, so the same instance stays on the left while its stops are opened (vue-router
 renders the same component in the same view without remounting it). It fetches the line once per line
-(`fetchLine`, after the provider's details, dropping a late answer for a previous line) and heads itself "Linia" with
-the `LineSymbol`; while loading it is `aria-busy` with a spinner, and it says "Nie znaleziono linii." (404), "Ta linia
-nie ma żadnej trasy." or "Nie udało się wczytać linii." instead of the route: a "Trasa" heading, the direction switch
+(`fetchLine`, after the provider's details, dropping a late answer for a previous line) and leaves naming the line to
+the section's `h1`; while loading it is `aria-busy` with a spinner, and it says "Nie znaleziono linii." (404), "Ta linia
+nie ma żadnej trasy." or "Nie udało się wczytać linii." instead of the route: a "Trasa" heading (`h2`), the direction switch
 and the rail. The track shown is `chooseTrack` of `?track=` and the open stop (`route.params.stop`); picking one in
 `TrackDirectionSwitch` `replace`s
 `?track=`, so trying directions adds no history entries, and an unknown one stays in the URL. `TrackStopRail` gets the
@@ -347,11 +354,15 @@ it without the page styling inside `StopPickerHistory` (ADR 0036).
 Children: `timetable-stop` (`stops/:stop`) and `timetable-line-stop` (`lines/:line/stops/:stop`), both
 `pages/StopTimetablePage.vue`, of a single stop, never a group. It fetches the stop (`v1_stop_details`, with its
 destinations) and its tracks once per stop, then the day (`fetchTimetableDay` with those tracks) whenever the stop, the
-line or the date changes; stale responses are dropped. The header: `StopLabel` (name and code), the directions with their
+line or the date changes; stale responses are dropped. The header leaves a whole stop's name to the section's `h1`; on a
+line at a stop it heads the column with the stop (`h2`, `StopLabel`) and "Kierunek: <destination>" of the line's track
+shown there (below), with on a phone, where the line page is hidden, a "Trasa" link to it. `StopTimetable` gets
+`heading-level` 3 under that `h2`, 2 otherwise. Then the directions with their
 lines (`components/stop/StopDestinations.vue`, shared with `StopPickerEntry`, which compacts the lines into groups by
 type first and keeps the list to one row; the page shows every line and lets it wrap, `wrap`) and line chips, router links keeping the query (`?date=`): "Wszystkie" to `timetable-stop` and one per line to
-`timetable-line-stop`, the current one `aria-current="page"`. With a line, "pokaż trasę" links to `timetable-line`
-with `?track=`: the page's `?track=` when that track runs through the stop, otherwise the line's first track through
+`timetable-line-stop`, the current one `aria-current="page"`. The line's track shown, named by "Kierunek" and opened by
+"Trasa" (`timetable-line` with `?track=`), is the page's `?track=` when that track runs through the stop, otherwise the
+line's first track through
 it, main before side (`chooseTrack` over the line's tracks among the stop's, which `fetchStopTracks` asks for at
 version `^1.1` to get their `kind`). The date comes
 from `?date=` (`timetableDateFromQuery`) and picking one pushes it (`timetableDateQuery`). A provider with

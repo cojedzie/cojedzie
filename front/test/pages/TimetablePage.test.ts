@@ -418,7 +418,7 @@ describe("TimetablePage's search", () => {
     });
 });
 
-describe("TimetablePage's breadcrumbs", () => {
+describe("TimetablePage's header", () => {
     /** Lets the stub pages emit what they loaded */
     let load: () => void;
     let loaded: Promise<void>;
@@ -541,5 +541,57 @@ describe("TimetablePage's breadcrumbs", () => {
         expect(onLine.text()).toMatch(/^Linia\s/);
         const current = nav.find("[aria-current=page]");
         expect(current.findComponent({ name: "StopLabel" }).props("stop")).toMatchObject({ id: "s1", variant: "01" });
+    });
+
+    type Wrapper = Awaited<ReturnType<typeof mountSection>>["wrapper"];
+
+    /** The page's heading: the stop or line it names, or its text while it names none */
+    const heading = (wrapper: Wrapper) => {
+        const h1 = wrapper.find("h1");
+        const stop = h1.findComponent({ name: "StopLabel" });
+        const line = h1.findComponent({ name: "LineSymbol" });
+
+        return [h1.text(), stop.exists() ? stop.props("stop").id : line.exists() ? line.props("line").id : null];
+    };
+
+    it("heads the search, a stop by its name, and a line with or without a stop by the line", async () => {
+        load();
+        const { wrapper, router } = await mountSection("/trojmiasto/timetable", [], routes);
+        expect(heading(wrapper)).toEqual(["Rozkłady jazdy", null]);
+
+        await router.push("/trojmiasto/timetable/stops/s1");
+        await flushPromises();
+        expect(heading(wrapper)).toEqual([expect.stringMatching(/^Rozkład na Brama Wyżynna/), "s1"]);
+
+        await router.push("/trojmiasto/timetable/lines/l8");
+        await flushPromises();
+        expect(heading(wrapper)).toEqual([expect.stringMatching(/^Rozkład linii/), "l8"]);
+
+        await router.push("/trojmiasto/timetable/lines/l8/stops/s1");
+        await flushPromises();
+        expect(heading(wrapper)).toEqual([expect.stringMatching(/^Rozkład linii/), "l8"]);
+    });
+
+    it("says what the page is until its line or stop loads", async () => {
+        const onLine = await mountSection("/trojmiasto/timetable/lines/l8/stops/s1", [], routes);
+        expect(heading(onLine.wrapper)).toEqual(["Rozkład linii", null]);
+
+        const atStop = await mountSection("/trojmiasto/timetable/stops/s2", [], routes);
+        expect(heading(atStop.wrapper)).toEqual(["Rozkład na przystanku", null]);
+    });
+
+    it("keeps heading the open stop while the next one loads", async () => {
+        const { wrapper, router } = await mountSection("/trojmiasto/timetable/stops/s1", [], routes);
+        load();
+        await flushPromises();
+
+        loaded = new Promise(resolve => (load = resolve));
+        await router.push("/trojmiasto/timetable/stops/s2");
+        await flushPromises();
+        expect(heading(wrapper)[1]).toBe("s1");
+
+        load();
+        await flushPromises();
+        expect(heading(wrapper)[1]).toBe("s2");
     });
 });
