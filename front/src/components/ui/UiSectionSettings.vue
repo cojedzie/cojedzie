@@ -28,8 +28,9 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, PropType, ref, useTemplateRef, watch } from "vue";
+import { PropType, ref, useTemplateRef } from "vue";
 import { FloatingPlacement } from "@/composables/useFloating";
+import { usePopupFocus } from "@/composables/usePopupFocus";
 import UiDialog from "@/components/ui/UiDialog.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 import UiTooltip from "@/components/ui/UiTooltip.vue";
@@ -49,18 +50,11 @@ const button = useTemplateRef<HTMLButtonElement>("button");
 const content = useTemplateRef<HTMLElement>("content");
 const open = ref(false);
 
-// the dialog is teleported to the end of the page: the keyboard is taken into it, and back to the gear when it closes
-watch(open, async open => {
-    if (open) {
-        await nextTick();
-        content.value?.querySelector<HTMLElement>("button, input, select, textarea, a[href], [tabindex]")?.focus();
-    }
-});
-
-function close() {
-    open.value = false;
-    button.value?.focus();
-}
+const close = usePopupFocus(
+    open,
+    () => content.value,
+    () => button.value,
+);
 </script>
 
 <style scoped>

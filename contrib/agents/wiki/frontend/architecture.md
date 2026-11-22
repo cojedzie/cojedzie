@@ -142,7 +142,8 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).
   `UiSectionSettings` is the gear button for `#actions`: it opens its slot in a `UiDialog` anchored to itself,
   teleported to `#popups` and labelled with the gear's `label`. As the dialog is at the end of the page, opening it
-  focuses its first control, and Escape closes it and focuses the gear again. `size="large"` makes the gear a 44px
+  focuses its first control, and Escape closes it and focuses the gear again (`usePopupFocus`, shared by the popups a
+  button opens, e.g. the direction switch's menu). `size="large"` makes the gear a 44px
   tap target on a phone, for a gear outside a section's header (the stop timetable's). Having two roots, it takes no
   class: a parent places it in a box of its own. Stories: `Ui/Section`, `Ui/Section/Settings`.
 - `components/ui/UiToggleGroup.vue` — one of a few options side by side (`v-model`, `options` of `{ value, label,
