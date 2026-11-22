@@ -122,8 +122,7 @@ const open = ref(false);
 async function show() {
     open.value = true;
     await nextTick();
-    // the popup isn't in its place yet, scrolling to the day would jump the page to where it was before
-    calendar.value?.focus({ preventScroll: true });
+    calendar.value?.focus();
 }
 
 function close({ returnFocus = false } = {}) {

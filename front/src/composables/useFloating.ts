@@ -88,6 +88,11 @@ export function positionFloating(
         }
     }
 
+    // until the first, asynchronous, update places it, the element would sit at the end of the page, where focusing
+    // anything in it (popups focus their first control when they open) scrolls the page; pinned to the viewport,
+    // it doesn't move the page
+    Object.assign(floating.style, { position: "fixed", top: "0", left: "0" });
+
     return autoUpdate(reference, floating, update);
 }
 

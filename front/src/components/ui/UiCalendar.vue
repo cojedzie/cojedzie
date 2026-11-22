@@ -147,9 +147,9 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 /** Moves the keyboard focus to the focused day, e.g. when the calendar opens. */
-async function focus(options?: { preventScroll?: boolean }) {
+async function focus() {
     await nextTick();
-    root.value?.querySelector<HTMLButtonElement>(`[data-date="${focused.value.toString()}"]`)?.focus(options);
+    root.value?.querySelector<HTMLButtonElement>(`[data-date="${focused.value.toString()}"]`)?.focus();
 }
 
 defineExpose({ focus });
