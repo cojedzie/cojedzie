@@ -66,10 +66,12 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   real data, where side tracks often end at a main track's destination).
   Non-passenger tracks never come from the API (ADR 0031), so nothing filters them. Tests: `test/timetable/`.
 - `components/timetable/` — the timetable's views (#146), thin over the builders of `src/timetable`: `StopTimetable`
-  puts them together for a stop's day: the date picker (`v-model:date`, limited to `range`), the "Lista | Godziny"
-  switch (`v-model:view`, `list` / `hours`) and the "Linie | Razem" switch (`v-model:grouping`, `line` / `combined`,
-  hidden with `lineFixed`, where a line shows per line), a step smaller than the date on a phone (the `md` breakpoint,
-  `useMediaQuery`), the loading and empty-day messages (`loading`), and only the shown view built (one computed); the
+  puts them together for a stop's day: a heading row "Godziny odjazdów" with the date picker (`v-model:date`, limited
+  to `range`; on a phone under the row, across the width) and a gear "Ustawienia rozkładu" (`UiSectionSettings`,
+  `size="large"`) whose dialog holds how the day is shown, as it is set once and kept: "Widok" (`v-model:view`,
+  `list` / `hours`) and "Grupowanie" (`v-model:grouping`, `line` / `combined`, hidden with `lineFixed`, where a line
+  shows per line), small toggle groups in settings rows. Then the loading and empty-day messages (`loading`), and only
+  the shown view built (one computed); the
   page fetches the day and persists the choices (see [Timetable pages](#timetable-pages)). With `now` (the page passes
   it only for today) it marks the first run not gone yet (`nearestEntry` over the day sorted by planned time): each
   view sets `data-nearest` on that run's cell (prop `nearest`, a departure key) and `StopTimetable` scrolls it to the
@@ -135,7 +137,10 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   `icon` and `title` (or a `#title` slot getting both), an `#actions` slot on the right of the header and the
   content in the default slot; `collapsible` adds a fold button (state in `v-model:collapsed`, or internal).
   `UiSectionSettings` is the gear button for `#actions`: it opens its slot in a `UiDialog` anchored to itself,
-  teleported to `#popups`. Stories: `Ui/Section`, `Ui/Section/Settings`.
+  teleported to `#popups` and labelled with the gear's `label`. As the dialog is at the end of the page, opening it
+  focuses its first control, and Escape closes it and focuses the gear again. `size="large"` makes the gear a 44px
+  tap target on a phone, for a gear outside a section's header (the stop timetable's). Having two roots, it takes no
+  class: a parent places it in a box of its own. Stories: `Ui/Section`, `Ui/Section/Settings`.
 - `components/ui/UiToggleGroup.vue` — one of a few options side by side (`v-model`, `options` of `{ value, label,
   icon? }`, `label` for screen readers, `variant` `normal`/`primary`, `size` `small`/`normal`/`large`): a
   `role="group"` of buttons with `aria-pressed`, styled like the switch. A thumb measured from the selected button

@@ -7,6 +7,7 @@ export default {
 
     argTypes: {
         label: { control: { type: "text" } },
+        size: { options: ["normal", "large"], control: { type: "inline-radio" } },
         placement: {
             options: ["left-start", "bottom-end", "right-start", "auto"],
             control: { type: "select" },

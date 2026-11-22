@@ -1,16 +1,23 @@
 <template>
     <section ref="root" class="stop-timetable" aria-label="Rozkład jazdy">
-        <div class="controls">
+        <div class="heading">
+            <h2 class="title">Godziny odjazdów</h2>
             <ui-date-picker v-model="date" v-bind="picker" class="picker" />
-            <div class="switches">
-                <ui-toggle-group v-model="view" :options="views" label="Widok" v-bind="switches" />
-                <ui-toggle-group
-                    v-if="!lineFixed"
-                    v-model="grouping"
-                    :options="groupings"
-                    label="Grupowanie"
-                    v-bind="switches"
-                />
+            <!-- how the day is shown is set once and kept, so it waits behind the gear, out of the way of the day; the
+                 gear is placed by a box of its own, as its dialog is teleported and makes it two nodes -->
+            <div class="gear">
+                <ui-section-settings label="Ustawienia rozkładu" placement="bottom-end" size="large">
+                    <div class="settings">
+                        <div class="field">
+                            <span class="field-name" aria-hidden="true">Widok</span>
+                            <ui-toggle-group v-model="view" :options="views" label="Widok" size="small" />
+                        </div>
+                        <div v-if="!lineFixed" class="field">
+                            <span class="field-name" aria-hidden="true">Grupowanie</span>
+                            <ui-toggle-group v-model="grouping" :options="groupings" label="Grupowanie" size="small" />
+                        </div>
+                    </div>
+                </ui-section-settings>
             </div>
         </div>
 
@@ -33,7 +40,6 @@
 
 <script lang="ts" setup>
 import { computed, nextTick, useTemplateRef, watch } from "vue";
-import { useMediaQuery } from "@vueuse/core";
 import type { Departure, TimetableRange } from "@/model";
 import {
     buildCombinedTimetable,
@@ -49,6 +55,7 @@ import TimetableHoursPerLine from "@/components/timetable/TimetableHoursPerLine.
 import TimetableListCombined from "@/components/timetable/TimetableListCombined.vue";
 import TimetableListPerLine from "@/components/timetable/TimetableListPerLine.vue";
 import UiDatePicker from "@/components/ui/UiDatePicker.vue";
+import UiSectionSettings from "@/components/ui/UiSectionSettings.vue";
 import UiToggleGroup from "@/components/ui/UiToggleGroup.vue";
 
 export type StopTimetableView = "list" | "hours";
@@ -76,11 +83,8 @@ const date = defineModel<Temporal.PlainDate>("date", { required: true });
 const view = defineModel<StopTimetableView>("view", { default: "list" });
 const grouping = defineModel<StopTimetableGrouping>("grouping", { default: "line" });
 
-// the date is the page's main control, in the primary colour, the switches only change how it is shown; on a phone the
-// switches are a step smaller than the date, so that both fit in one row under it
-const desktop = useMediaQuery("(min-width: 768px)");
+// the date is the page's main control, in the primary colour
 const picker = computed(() => ({ variant: "primary", min: props.range?.from, max: props.range?.to }) as const);
-const switches = computed(() => ({ variant: "normal", size: desktop.value ? "normal" : "small" }) as const);
 
 const views: UiToggleGroupOption<StopTimetableView>[] = [
     { value: "list", label: "Lista", icon: "timetable-list" },
@@ -137,30 +141,71 @@ watch(
 <style scoped>
 @reference "@styles/tailwind.css";
 
-.controls {
-    display: flex;
-    flex-wrap: wrap;
+/* the heading and the gear over a line, the day next to them, or on a phone under them across the whole width */
+.heading {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "title gear"
+        "picker picker";
     align-items: center;
-    justify-content: space-between;
-    gap: --spacing(2) --spacing(6);
-    margin-block-start: --spacing(2);
-}
-
-.switches {
-    display: flex;
     gap: --spacing(2);
+
+    /* the line under the heading's row alone, whichever the row holds */
+    &::after {
+        content: "";
+        grid-row: 1;
+        grid-column: 1 / -1;
+        align-self: end;
+        border-block-end: 2px solid var(--color-darker);
+        pointer-events: none;
+    }
+
+    @variant md {
+        grid-template-columns: 1fr auto auto;
+        grid-template-areas: "title picker gear";
+    }
 }
 
-/* on a phone the date takes the whole row, and the switches the row under it, from edge to edge */
-@variant max-md {
-    .picker,
-    .switches {
-        inline-size: 100%;
-    }
+/* the heading's row keeps clear of its line */
+.title {
+    grid-area: title;
+    margin: 0 0 --spacing(1.5);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+}
 
-    .switches {
-        justify-content: space-between;
+.picker {
+    grid-area: picker;
+
+    /* next to the heading from md, under its line on a phone */
+    @variant md {
+        margin-block-end: --spacing(1.5);
     }
+}
+
+.gear {
+    grid-area: gear;
+    margin-block-end: --spacing(1.5);
+}
+
+/* the names and the switches in two columns: the switches share a width, so their edges line up */
+.settings {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    gap: --spacing(2) --spacing(4);
+}
+
+.field {
+    display: contents;
+}
+
+.field-name {
+    @apply settings-field-name;
+
+    font-size: var(--text-xs);
+    font-weight: bold;
 }
 
 .empty {

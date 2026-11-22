@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from "@storybook/vue3-vite";
+import { userEvent, within } from "storybook/test";
 import { ref, shallowRef } from "vue";
 import StopTimetable, { type StopTimetableGrouping, type StopTimetableView } from "./StopTimetable.vue";
 import type { Departure } from "@/model";
@@ -53,12 +54,20 @@ const render: Story["render"] = args => ({
     `,
 });
 
-/** A morning at the stop, seen at 09:40: switch between the list and hours, per line and combined */
+/** A morning at the stop, seen at 09:40: switch between the list and hours, per line and combined, under the gear */
 export const Stop: Story = { render };
+
+/** The gear opened: how the day is shown */
+export const Settings: Story = {
+    render,
+    play: async ({ canvasElement }) => {
+        await userEvent.click(within(canvasElement).getByRole("button", { name: "Ustawienia rozkładu" }));
+    },
+};
 
 export const Hours: Story = { render, args: { view: "hours" } };
 
-/** One line at the stop: no grouping to choose */
+/** One line at the stop: no grouping to choose in the settings */
 export const FixedLine: Story = {
     render,
     args: {
