@@ -73,7 +73,9 @@ stay in `contrib/agents/specs/`. See `contrib/agents/skills-config/issue-tracker
 ### Triage labels
 
 The default five roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), as GitHub
-labels. See `contrib/agents/skills-config/triage-labels.md`.
+labels, plus `ready-for-ux` for issues waiting for UX/UI design (their body carries a UX/UI brief). After a spec, its
+issue gets a summary, a few user stories and, when needed, the UX/UI brief. See
+`contrib/agents/skills-config/triage-labels.md` and `contrib/agents/skills-config/issue-tracker.md`.
 
 ### Domain docs
 

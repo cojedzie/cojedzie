@@ -67,7 +67,21 @@ fall back to `gh issue view 42`.
 
 ## When a skill says "publish to the issue tracker"
 
-Create a GitHub issue. A spec goes to `contrib/agents/specs/` instead.
+Create a GitHub issue. A spec goes to `contrib/agents/specs/` instead, and its issue (created, or the one the spec was
+written for) is updated so it stands on its own once the spec is dropped. Don't link the spec. The body has these
+sections:
+
+- **Summary**: the problem and the solution from the rider's point of view, a few paragraphs.
+- **User stories**: the 5–6 most telling stories of the spec, not the whole list.
+- **Decisions**: the implementation decisions an implementer needs, without file paths (names of modules, routes and
+  components are fine).
+- **UX/UI brief**, only when the look or interaction still has to be designed: the context (pages, layout, the
+  surrounding shell), the content to show, what to decide and draw, the constraints (design tokens, accessibility,
+  widths) and the deliverables (mockups at phone and desktop width, states). The issue then gets `ready-for-ux`
+  (see `triage-labels.md`) instead of `ready-for-agent`.
+- **Acceptance criteria** and **Out of scope**.
+
+Keep the `Parent:` line, and a `Blocked by:` line only while a blocker is open.
 
 ## When a skill says "fetch the relevant ticket"
 
