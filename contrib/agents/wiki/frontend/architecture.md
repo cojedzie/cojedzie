@@ -143,7 +143,7 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   `UiSectionSettings` is the gear button for `#actions`: it opens its slot in a `UiDialog` anchored to itself,
   teleported to `#popups` and labelled with the gear's `label`. As the dialog is at the end of the page, opening it
   focuses its first control, and Escape closes it and focuses the gear again (`usePopupFocus`, shared by the popups a
-  button opens, e.g. the direction switch's menu). `size="large"` makes the gear a 44px
+  button opens: the direction switch's menu, the heading's line picker). `size="large"` makes the gear a 44px
   tap target on a phone, for a gear outside a section's header (the stop timetable's). Having two roots, it takes no
   class: a parent places it in a box of its own. Stories: `Ui/Section`, `Ui/Section/Settings`.
 - `components/ui/UiToggleGroup.vue` — one of a few options side by side (`v-model`, `options` of `{ value, label,
@@ -297,7 +297,14 @@ on a line and on a line at a stop (a line at a stop is the line's timetable, the
 na" with the stop's `StopLabel` on a whole stop, and "Rozkłady jazdy" on the search, visually hidden there as the search's own
 section says it. Like the crumbs, it names only the line or stop of its route ("Rozkład na przystanku", or no symbol,
 until the page loads it), and keeps the previous one for at most `BREADCRUMB_HOLD_MS` while the next loads (`useHeld`, a value
-that keeps what it was for a while once it goes `null`), so moving between stops doesn't flash a placeholder. It loads
+that keeps what it was for a while once it goes `null`), so moving between stops doesn't flash a placeholder. On a line
+at a stop the symbol is `TimetableLinePicker`, the only way to change the line a stop's timetable shows: a button
+"Linia 8, zmień linię" (`aria-haspopup="dialog"`, `aria-expanded`) opening "Linie na tym przystanku" below it (across
+the page on a phone): the open stop's lines, each its `LineSymbol` and where it goes from the stop (`linesOfStop` over
+the stop's destinations, by symbol), the current one `aria-current="page"`, then "Wszystkie linie razem"; the rows link
+to `timetable-line-stop` and `timetable-stop`, keeping only `?date=` (another line's `?track=` means nothing). It is
+presentational, the layout passes the lines and the links; it lists the stop's lines only once the stop of the route
+is loaded. Story: `Timetable/Line Picker`. It loads
 the provider's details (`selection.loadProvider`), which the pages wait
 for: they carry the time zone and the timetable's range. The left column is the route's `side` view
 (`<router-view name="side">`, the line page) when it has one and `TimetableStartPage`, the search, otherwise, so the
@@ -348,8 +355,7 @@ stops doesn't, as on the departures page, so the list doesn't reorder under the 
 it next to the opened stop. Deep links and `StopDetailsDialog` don't record either. The lists look like `StopPicker`'s
 through `@utility list-header` (a group's heading bar) and `@utility stop-entry-list` (rows of `StopPickerEntry`). The
 open stop (the route's `:stop`, where the router's exact-active match wouldn't see it) gets
-`aria-current="page"` on its link, and its row the background of the stop timetable page's current chip
-(`--color-hover-primary`): `stop-entry-list` highlights a row holding `[aria-current="page"]`, so the history's rows get
+`aria-current="page"` on its link, and its row the background of a current row elsewhere (`--color-hover-primary`): `stop-entry-list` highlights a row holding `[aria-current="page"]`, so the history's rows get
 it without the page styling inside `StopPickerHistory` (ADR 0036).
 
 Children: `timetable-stop` (`stops/:stop`) and `timetable-line-stop` (`lines/:line/stops/:stop`), both
@@ -360,8 +366,8 @@ line at a stop it heads the column with the stop (`h2`, `StopLabel`) and "Kierun
 shown there (below), with on a phone, where the line page is hidden, a "Trasa" link to it. `StopTimetable` gets
 `heading-level` 3 under that `h2`, 2 otherwise. Then the directions with their
 lines (`components/stop/StopDestinations.vue`, shared with `StopPickerEntry`, which compacts the lines into groups by
-type first and keeps the list to one row; the page shows every line and lets it wrap, `wrap`) and line chips, router links keeping the query (`?date=`): "Wszystkie" to `timetable-stop` and one per line to
-`timetable-line-stop`, the current one `aria-current="page"`. The line's track shown, named by "Kierunek" and opened by
+type first and keeps the list to one row; the page shows every line and lets it wrap, `wrap`). The line is changed
+from the section's heading (above). The line's track shown, named by "Kierunek" and opened by
 "Trasa" (`timetable-line` with `?track=`), is the page's `?track=` when that track runs through the stop, otherwise the
 line's first track through
 it, main before side (`chooseTrack` over the line's tracks among the stop's, which `fetchStopTracks` asks for at

@@ -97,12 +97,12 @@ describe("StopTimetablePage", () => {
         });
     });
 
-    it("shows a stop's directions with their lines, and its lines, leaving its name to the section's heading", async () => {
+    it("shows a stop's directions with their lines, leaving its name and lines to the section's heading", async () => {
         const { wrapper } = await mountPage("/trojmiasto/timetable/stops/s1?date=2026-11-13");
 
         expect(wrapper.find("h1, h2").exists()).toBe(false);
         expect(wrapper.findComponent({ name: "StopDestinations" }).props("destinations")).toEqual(stop.destinations);
-        expect(wrapper.findAll(".chip").map(chip => chip.text())).toEqual(["Wszystkie", "6", "8"]);
+        expect(wrapper.find("nav[aria-label=Linie]").exists()).toBe(false);
     });
 
     it("tells the layout which stop it loaded, so the breadcrumbs can name it", async () => {
@@ -119,7 +119,6 @@ describe("StopTimetablePage", () => {
         expect(timetableQueries()[0]).not.toHaveProperty("line");
         expect(wrapper.find(".timetable").attributes("data-date")).toBe(today);
         expect(wrapper.find(".timetable").attributes("data-line-fixed")).toBe("false");
-        expect(wrapper.find(".chip[aria-current=page]").text()).toBe("Wszystkie");
     });
 
     it("heads a line at the stop with the stop and the direction of the line's track through it", async () => {
@@ -129,22 +128,11 @@ describe("StopTimetablePage", () => {
         expect(wrapper.find(".direction").text()).toBe("Kierunek: Strzyża PKM");
     });
 
-    it("shows one line's day on the line's route, with its chip pressed", async () => {
+    it("shows one line's day on the line's route", async () => {
         const { wrapper } = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1?date=2026-11-13");
 
         expect(timetableQueries()).toEqual([expect.objectContaining({ date: "2026-11-13", line: "l6" })]);
         expect(wrapper.find(".timetable").attributes("data-line-fixed")).toBe("true");
-        expect(wrapper.find(".chip[aria-current=page]").text()).toBe("6");
-    });
-
-    it("links the chips to the line's and the whole stop's routes, keeping the date", async () => {
-        const { wrapper } = await mountPage("/trojmiasto/timetable/lines/l6/stops/s1?date=2026-11-13");
-
-        expect(wrapper.findAll(".chip").map(chip => chip.attributes("href"))).toEqual([
-            "/trojmiasto/timetable/stops/s1?date=2026-11-13",
-            "/trojmiasto/timetable/lines/l6/stops/s1?date=2026-11-13",
-            "/trojmiasto/timetable/lines/l8/stops/s1?date=2026-11-13",
-        ]);
     });
 
     it("puts another date picked in the URL and fetches its day", async () => {

@@ -7,7 +7,15 @@
             <h1 class="heading" :class="{ 'visually-hidden': !onLineRoute && !route.params.stop }">
                 <template v-if="onLineRoute">
                     Rozkład linii
-                    <line-symbol v-if="headingLine" :line="headingLine" size="large" />
+                    <!-- at a stop, the line switches to the stop's other lines -->
+                    <timetable-line-picker
+                        v-if="headingLine && route.params.stop"
+                        :line="headingLine"
+                        :lines="stopLines"
+                        :line-to="lineAtStop"
+                        :all-to="wholeStop"
+                    />
+                    <line-symbol v-else-if="headingLine" :line="headingLine" size="large" />
                 </template>
                 <template v-else-if="route.params.stop">
                     Rozkład na
@@ -41,13 +49,15 @@
 
 <script setup lang="ts">
 import { computed, shallowRef } from "vue";
-import { useRoute } from "vue-router";
-import type { Line, Stop } from "@/model";
+import { type RouteLocationRaw, useRoute } from "vue-router";
+import type { Line, StopWithDestinations } from "@/model";
+import { linesOfStop } from "@/timetable";
 import { BREADCRUMB_HOLD_MS, useBreadcrumbs } from "@/composables/useBreadcrumbs";
 import { useHeld } from "@/composables/useHeld";
 import { useSelectionStore } from "@/stores/selection";
 import LineSymbol from "@/components/line/LineSymbol.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
+import TimetableLinePicker from "@/components/timetable/TimetableLinePicker.vue";
 import UiBreadcrumbs from "@/components/ui/UiBreadcrumbs.vue";
 import TimetableStartPage from "@/pages/TimetableStartPage.vue";
 
@@ -66,7 +76,7 @@ const onLine = computed(() => route.name === "timetable-line");
 /** The line the line page loaded, named by the hint and the breadcrumbs without fetching it again */
 const line = shallowRef<Line | null>(null);
 /** The stop the stop's timetable loaded, named by the breadcrumbs */
-const stop = shallowRef<Stop | null>(null);
+const stop = shallowRef<StopWithDestinations | null>(null);
 
 const crumbs = useBreadcrumbs(() => ({ line: line.value, stop: stop.value }));
 
@@ -82,6 +92,22 @@ const headingStop = useHeld(
     () => (stop.value && stop.value.id === route.params.stop ? stop.value : null),
     BREADCRUMB_HOLD_MS,
 );
+
+// the line picker lists the open stop's lines once it is loaded, and switches between them on the same day
+const loadedStop = computed(() => (stop.value?.id === route.params.stop ? stop.value : null));
+const stopLines = computed(() => linesOfStop(loadedStop.value?.destinations ?? []));
+const sameDay = computed(() => (route.query.date ? { date: route.query.date } : {}));
+
+const lineAtStop = (line: Line): RouteLocationRaw => ({
+    name: "timetable-line-stop",
+    params: { provider: route.params.provider, line: line.id, stop: route.params.stop },
+    query: sameDay.value,
+});
+const wholeStop = computed((): RouteLocationRaw => ({
+    name: "timetable-stop",
+    params: { provider: route.params.provider, stop: route.params.stop },
+    query: sameDay.value,
+}));
 </script>
 
 <style scoped>
