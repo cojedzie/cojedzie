@@ -40,9 +40,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
+import { computed, ref, useTemplateRef } from "vue";
 import type { Track } from "@/model";
 import { trackDestination, trackEndsLabel } from "@/timetable";
+import { usePopupFocus } from "@/composables/usePopupFocus";
 import type { UiToggleGroupOption } from "@/components/ui/UiToggleGroup.vue";
 import UiDialog from "@/components/ui/UiDialog.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
@@ -88,18 +89,11 @@ const more = useTemplateRef<HTMLButtonElement>("more");
 const menu = useTemplateRef<InstanceType<typeof UiMenu>>("menu");
 const open = ref(false);
 
-// the menu is teleported to the end of the page: the keyboard is taken into it, and back to the button when it closes
-watch(open, async open => {
-    if (open) {
-        await nextTick();
-        (menu.value?.$el as HTMLElement | undefined)?.querySelector<HTMLElement>("button")?.focus();
-    }
-});
-
-function close() {
-    open.value = false;
-    more.value?.focus();
-}
+const close = usePopupFocus(
+    open,
+    () => menu.value?.$el as HTMLElement | undefined,
+    () => more.value,
+);
 
 function pick(track: Track) {
     open.value = false;
