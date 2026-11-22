@@ -29,5 +29,6 @@ export { default as UiSwitch } from "./UiSwitch.vue";
 export { default as UiToggleGroup } from "./UiToggleGroup.vue";
 export { default as UiCalendar } from "./UiCalendar.vue";
 export { default as UiDatePicker } from "./UiDatePicker.vue";
+export { default as UiBreadcrumbs } from "./UiBreadcrumbs.vue";
 export { default as UiSection } from "./UiSection.vue";
 export { default as UiSectionSettings } from "./UiSectionSettings.vue";

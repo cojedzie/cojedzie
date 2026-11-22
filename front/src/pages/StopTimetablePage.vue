@@ -75,6 +75,9 @@ import UiIcon from "@/components/ui/UiIcon.vue";
 
 defineOptions({ name: "StopTimetablePage" });
 
+/** `stop`: the stop loaded, so the layout can name it */
+const emit = defineEmits<{ stop: [stop: StopWithDestinations] }>();
+
 const route = useRoute();
 const router = useRouter();
 const today = useToday();
@@ -129,6 +132,7 @@ watch(
         if (current) {
             stop.value = details.data as StopWithDestinations;
             tracks.value = stopTracks;
+            emit("stop", stop.value);
         }
     },
     { immediate: true },

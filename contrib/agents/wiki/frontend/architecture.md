@@ -212,6 +212,33 @@ route under `/:provider/<feature>` plus an entry there; it appears in the deskto
 `exact-active-class`, so a section's entry stays lit on the pages nested under its route (the timetable's stop pages).
 Tests and Storybook build their own routers: each needs a stub route for every entry (`departures`, `timetable`).
 
+**Breadcrumbs** come from the route, never from the browser history, so a deep link gets a meaningful trail. A route
+declares its crumb in `meta.breadcrumb` (`RouteMeta` is augmented in `src/breadcrumbs.ts`): `label(route, data)`, the
+crumb's text, saying what the crumb is ("Linia", "Przystanek") until `data` holds a line or stop whose id matches the
+route's params, so a previous stop's name never shows for the next one; `parent`, the name of the previous crumb's
+route, which is logical rather than the router's nesting (`timetable-line-stop` → `timetable-line` → `timetable`,
+though the first two are siblings); and `query`, the keys its link keeps (the line crumb keeps `track`, none keeps
+`date`), and optionally `content(route, data)`, a component and its props shown instead of the text once the data is
+there (the timetable's, `components/timetable/breadcrumbs.ts`: the stop as `StopLabel truncate`, its code in a badge,
+the line as "Linia" and its `LineSymbol`, `LineCrumb`); the label then stays the crumb's accessible name; and `icon`,
+shown instead of the text when space runs out (the section's, `calendar`). A crumb whose content isn't loaded yet is
+`pending` and drawn muted. `buildTrail(route, router, data)`
+walks the parents and returns `{ label, content, icon, pending, to, current }`, root first, each linking to its route with the params
+of the current route it takes; `useBreadcrumbs(data)` wraps it for a component and keeps a pending crumb showing what
+it showed before, for the same route, until its content arrives or `BREADCRUMB_HOLD_MS` (a second) passes, so opening
+another stop doesn't flash "Przystanek" between two names.
+Nothing is fetched for the trail: the pages emit what they loaded (the line page `line`, the stop timetable `stop`)
+and the layout passes it as `data`. `UiBreadcrumbs` only renders crumbs (a `nav` "Ścieżka", the last one plain text
+with `aria-current="page"`, `chevron-right` separators hidden from screen readers and outside the links). Each crumb
+fills the row: 44px high on a phone, `--control-height-md` from `md`. It never wraps, and collapses in steps, measured
+on resize before paint: first only the current crumb shortens (text with an ellipsis, a component as it can, the links
+before it never); once it would drop under 6rem, crumbs with an icon show just the icon; last, the middle crumbs
+become "…", kept in the list as visually hidden links. A component nested in
+flex boxes only shrinks when every box on the way allows it (`min-inline-size: 0`), so `StopLabel` has a `truncate`
+prop (name shortened, code whole) rather than the trail styling inside it. Only the timetable section shows a trail, above both columns (see
+[Timetable pages](#timetable-pages)); another section adopts it by declaring crumbs and rendering the component.
+Tests: `test/breadcrumbs.test.ts` over the real route table; story `Ui/Breadcrumbs`.
+
 Switching the provider only pushes the new route. `<router-view>` is keyed by the provider, so `MainPage` mounts
 anew: it clears the previous provider's messages and departures, and `selection.loadProvider` clears the stops and
 the old provider when the id differs (so Back/Forward clears them too) and ignores details of a provider it was
@@ -243,14 +270,16 @@ a backdrop click or Escape. `ProviderSwitcher` picks between the two with `useMe
 Images in templates go through `@resources/images/...`: a root-relative `src="/images/..."` is turned into a module
 import by `@vitejs/plugin-vue`, which the dev server answers with the PNG and the page fails to load.
 
-Storybook's preview installs Pinia and a memory router with stub `providers`, `departures` and `timetable` routes (at
-`/trojmiasto`), so shell components using `RouterLink` render; `.storybook/setup.js` sets `version` and `production`.
+Storybook's preview installs Pinia and a memory router with stub `providers`, `departures` and `timetable` routes and
+the timetable's pages (at `/trojmiasto`), so components using `RouterLink` (the shell, the stop rail, the breadcrumbs)
+render; `.storybook/setup.js` sets `version` and `production`.
 
 ## Timetable pages
 
 The "Rozkład" navigation entry (both bars) is the route `timetable` (`/:provider/timetable`), a feature section (ADR
 0037) whose component `pages/TimetablePage.vue` is the layout of its pages: the departures page's columns, a third on
-the left and two thirds on the right. It loads the provider's details (`selection.loadProvider`), which the pages wait
+the left and two thirds on the right. Above the columns, on every page of the section, is the breadcrumb trail (see [App
+shell and navigation](#app-shell-and-navigation)), named from the `line` and `stop` its pages emit. It loads the provider's details (`selection.loadProvider`), which the pages wait
 for: they carry the time zone and the timetable's range. The left column is the route's `side` view
 (`<router-view name="side">`, the line page) when it has one and `TimetableStartPage`, the search, otherwise, so the
 search sits next to `timetable-stop`. It is the `v-else` of the side router view's slot, so it stays the same instance

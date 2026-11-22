@@ -2,8 +2,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
-import { createMemoryHistory, createRouter } from "vue-router";
+import { defineComponent, onMounted, watch } from "vue";
+import { createMemoryHistory, createRouter, type RouteRecordRaw, useRoute } from "vue-router";
 import TimetablePage from "@/pages/TimetablePage.vue";
+import { routes as appRoutes } from "@/routes";
 import { useHistoryStore } from "@/stores/history";
 import { Temporal } from "@/time";
 
@@ -413,5 +415,131 @@ describe("TimetablePage's search", () => {
         await flushPromises();
 
         expect(wrapper.findAll("section[aria-label=Linie] li").map(item => item.text())).toEqual(["11"]);
+    });
+});
+
+describe("TimetablePage's breadcrumbs", () => {
+    /** Lets the stub pages emit what they loaded */
+    let load: () => void;
+    let loaded: Promise<void>;
+
+    /** A page reporting what it loaded to the layout once the test lets it */
+    const reporting = (event: string, data: object) =>
+        defineComponent({
+            emits: [event],
+            setup(_, { emit }) {
+                onMounted(async () => {
+                    await loaded;
+                    emit(event, data);
+                });
+                return () => null;
+            },
+        });
+
+    const linePage = reporting("line", line("l8", "8", "tram"));
+
+    /** The stop timetable, reporting each stop it opens once the test lets it */
+    const stopPage = defineComponent({
+        emits: ["stop"],
+        setup(_, { emit }) {
+            const route = useRoute();
+            watch(
+                () => route.params.stop as string,
+                async id => {
+                    await loaded;
+                    emit(
+                        "stop",
+                        [bramaUp, bramaDown].find(stop => stop.id === id),
+                    );
+                },
+                { immediate: true },
+            );
+            return () => null;
+        },
+    });
+
+    /** The app's routes and their crumbs, with the layout and the stub pages */
+    const section = appRoutes.find(route => route.name === "timetable")!;
+    const routes = [
+        {
+            ...section,
+            component: TimetablePage,
+            children: section.children!.map(child => ({
+                ...child,
+                component: undefined,
+                components: {
+                    ...(child.name !== "timetable-line" && { default: stopPage }),
+                    ...(child.name?.toString().startsWith("timetable-line") && { side: linePage }),
+                },
+            })),
+        },
+    ] as RouteRecordRaw[];
+
+    beforeEach(() => {
+        loaded = new Promise(resolve => (load = resolve));
+        get.mockReset();
+        get.mockResolvedValue({ data: { id: "trojmiasto", timezone: "Europe/Warsaw" } });
+    });
+
+    const crumbs = (wrapper: Awaited<ReturnType<typeof mountSection>>["wrapper"]) =>
+        wrapper.findAll("nav[aria-label=Ścieżka] li").map(crumb => crumb.text());
+
+    /** The stop the current crumb shows, or its text while it shows none */
+    const currentCrumb = (wrapper: Awaited<ReturnType<typeof mountSection>>["wrapper"]) => {
+        const current = wrapper.find("nav[aria-label=Ścieżka] [aria-current=page]");
+        const label = current.findComponent({ name: "StopLabel" });
+        return label.exists() ? label.props("stop").id : current.text();
+    };
+
+    it("keeps naming the open stop while the next one loads, instead of flashing a placeholder", async () => {
+        const { wrapper, router } = await mountSection("/trojmiasto/timetable/stops/s1", [], routes);
+        load();
+        await flushPromises();
+        expect(currentCrumb(wrapper)).toBe("s1");
+
+        loaded = new Promise(resolve => (load = resolve));
+        await router.push("/trojmiasto/timetable/stops/s2");
+        await flushPromises();
+        expect(currentCrumb(wrapper)).toBe("s1");
+
+        load();
+        await flushPromises();
+        expect(currentCrumb(wrapper)).toBe("s2");
+    });
+
+    it("says what the crumb is when the next stop doesn't arrive within a second", async () => {
+        vi.useFakeTimers();
+        const { wrapper, router } = await mountSection("/trojmiasto/timetable/stops/s1", [], routes);
+        load();
+        await flushPromises();
+
+        loaded = new Promise(resolve => (load = resolve));
+        await router.push("/trojmiasto/timetable/stops/s2");
+        await vi.advanceTimersByTimeAsync(1000);
+
+        expect(currentCrumb(wrapper)).toBe("Przystanek");
+        vi.useRealTimers();
+    });
+
+    it("names a deep-linked line and stop once their pages load them", async () => {
+        const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l8/stops/s1?track=t1", [], routes);
+
+        expect(crumbs(wrapper)).toEqual(["Rozkład", "Linia", "Przystanek"]);
+
+        load();
+        await flushPromises();
+
+        const nav = wrapper.find("nav[aria-label=Ścieżka]");
+        const [root, onLine] = nav.findAll("a");
+        expect([root, onLine].map(link => link.attributes("href"))).toEqual([
+            "/trojmiasto/timetable",
+            "/trojmiasto/timetable/lines/l8?track=t1",
+        ]);
+        // the line as the word and its symbol, named in full for screen readers; the stop with its code in a badge
+        expect(onLine.attributes("aria-label")).toBe("Linia 8");
+        expect(onLine.findComponent({ name: "LineSymbol" }).props("line")).toMatchObject({ id: "l8" });
+        expect(onLine.text()).toMatch(/^Linia\s/);
+        const current = nav.find("[aria-current=page]");
+        expect(current.findComponent({ name: "StopLabel" }).props("stop")).toMatchObject({ id: "s1", variant: "01" });
     });
 });

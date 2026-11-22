@@ -1,5 +1,6 @@
 <template>
     <div class="page-container timetable-page">
+        <ui-breadcrumbs :crumbs="crumbs" class="trail" />
         <div class="columns" :class="{ 'with-main': stopOpen }">
             <!-- the route's side view (the line page), otherwise the search, kept across routes with its query -->
             <div class="column side">
@@ -10,7 +11,7 @@
             </div>
             <div class="column main">
                 <router-view v-slot="{ Component }">
-                    <component :is="Component" v-if="Component" />
+                    <component :is="Component" v-if="Component" @stop="stop = $event" />
                     <p v-else-if="onLine" class="hint">
                         Wybierz przystanek na trasie linii
                         <line-symbol v-if="line?.id === route.params.line" :line="line" />
@@ -25,9 +26,11 @@
 <script setup lang="ts">
 import { computed, shallowRef } from "vue";
 import { useRoute } from "vue-router";
-import type { Line } from "@/model";
+import type { Line, Stop } from "@/model";
+import { useBreadcrumbs } from "@/composables/useBreadcrumbs";
 import { useSelectionStore } from "@/stores/selection";
 import LineSymbol from "@/components/line/LineSymbol.vue";
+import UiBreadcrumbs from "@/components/ui/UiBreadcrumbs.vue";
 import TimetableStartPage from "@/pages/TimetableStartPage.vue";
 
 defineOptions({ name: "TimetablePage" });
@@ -42,8 +45,12 @@ void selection.loadProvider(route.params.provider as string);
 const stopOpen = computed(() => route.params.stop !== undefined);
 const onLine = computed(() => route.name === "timetable-line");
 
-/** The line the line page loaded, named by the hint without fetching it again */
+/** The line the line page loaded, named by the hint and the breadcrumbs without fetching it again */
 const line = shallowRef<Line | null>(null);
+/** The stop the stop's timetable loaded, named by the breadcrumbs */
+const stop = shallowRef<Stop | null>(null);
+
+const crumbs = useBreadcrumbs(() => ({ line: line.value, stop: stop.value }));
 </script>
 
 <style scoped>
@@ -56,6 +63,10 @@ const line = shallowRef<Line | null>(null);
     @variant md {
         padding-block-start: --spacing(8);
     }
+}
+
+.trail {
+    margin-block-end: --spacing(4);
 }
 
 .columns {

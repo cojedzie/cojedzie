@@ -118,7 +118,8 @@ type Wrapper = Awaited<ReturnType<typeof mountSection>>["wrapper"];
 
 const field = (wrapper: Wrapper) => wrapper.find(".field").text();
 const options = (wrapper: Wrapper) => wrapper.findAll(".option").map(option => option.text());
-const rail = (wrapper: Wrapper) => wrapper.find("ol");
+/** The stop rail, the line page's list (the section's breadcrumbs are one too) */
+const rail = (wrapper: Wrapper) => wrapper.findComponent(TimetableLinePage).find("ol");
 const railStops = (wrapper: Wrapper) =>
     rail(wrapper)
         .findAll("li")
@@ -222,7 +223,7 @@ describe("the line page", () => {
         const { wrapper } = await mountSection("/trojmiasto/timetable/lines/gone");
 
         expect(wrapper.text()).toContain("Nie znaleziono linii");
-        expect(wrapper.find("ol").exists()).toBe(false);
+        expect(rail(wrapper).exists()).toBe(false);
     });
 
     it("says when the line has no tracks", async () => {
@@ -230,7 +231,7 @@ describe("the line page", () => {
 
         expect(wrapper.find("h2").text()).toBe("Linia 0");
         expect(wrapper.text()).toContain("Ta linia nie ma żadnej trasy");
-        expect(wrapper.find("ol").exists()).toBe(false);
+        expect(rail(wrapper).exists()).toBe(false);
     });
 
     it("is busy until the line arrives, and drops a late answer for the previous line", async () => {
