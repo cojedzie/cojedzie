@@ -1,5 +1,5 @@
 <template>
-    <span class="line-symbol" :class="[line.type, { night: line.night, fast: line.fast }]">
+    <span class="line-symbol" :class="[line.type, size, { night: line.night, fast: line.fast }]">
         <span class="parts">
             <slot v-if="!simple" name="icon">
                 <span class="type-icon">
@@ -30,6 +30,8 @@ defineProps({
         required: true,
     },
     simple: Boolean,
+    /** `large` stands in a page's heading */
+    size: { type: String as PropType<"normal" | "large">, default: "normal" },
 });
 </script>
 
@@ -101,6 +103,20 @@ defineProps({
 
     & .night-icon {
         margin-inline-end: --spacing(1);
+    }
+
+    &.large {
+        font-size: var(--text-xl);
+
+        & .type-icon {
+            inline-size: --spacing(9);
+            block-size: --spacing(8);
+        }
+
+        & .number {
+            padding-inline: --spacing(2);
+            border-width: 2px;
+        }
     }
 }
 </style>
