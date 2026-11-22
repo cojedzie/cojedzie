@@ -5,8 +5,9 @@ import * as UiSectionSettingsStories from "./UiSectionSettings.stories";
 
 # Section settings
 
-A gear button for the `#actions` of a `UiSection`. It opens its slot in a dialog anchored to itself, and closes it
-on a click outside.
+A gear button for the `#actions` of a `UiSection`. It opens its slot in a dialog anchored to itself, named by its
+`label`, and closes it on a click outside or Escape. The keyboard goes into the dialog when it opens, and back to the
+gear on Escape. `size="large"` makes the gear a 44px tap target on a phone, for a gear outside a section's header.
 
 <Canvas of={UiSectionSettingsStories.Default} />
 

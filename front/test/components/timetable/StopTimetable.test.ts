@@ -17,6 +17,9 @@ const UiToggleGroup = {
     </div>`,
 };
 
+// the dialog's content, always shown: the gear itself is UiSectionSettings' own
+const UiSectionSettings = { props: ["label"], template: `<div class="settings" :data-label="label"><slot /></div>` };
+
 function mountTimetable(props: Record<string, unknown> = {}) {
     const wrapper = mount(StopTimetable, {
         props: {
@@ -31,6 +34,7 @@ function mountTimetable(props: Record<string, unknown> = {}) {
             stubs: {
                 UiDatePicker: true,
                 UiToggleGroup,
+                UiSectionSettings,
                 TimetableListPerLine: view("list-per-line"),
                 TimetableListCombined: view("list-combined"),
                 TimetableHoursPerLine: view("hours-per-line"),
@@ -50,18 +54,31 @@ const shown = (wrapper: ReturnType<typeof mountTimetable>) =>
 describe("StopTimetable", () => {
     afterEach(() => vi.restoreAllMocks());
 
-    it("shows the list per line first, and the view and grouping picked with the switches", async () => {
+    it("heads the departures with the settings of how they are shown", () => {
+        const wrapper = mountTimetable();
+
+        expect(wrapper.find("h2").text()).toBe("Godziny odjazdów");
+        expect(wrapper.find(".settings").attributes("data-label")).toBe("Ustawienia rozkładu");
+    });
+
+    it("shows the list per line first, and the view and grouping picked in the settings", async () => {
         const wrapper = mountTimetable();
         expect(shown(wrapper)).toEqual(["list-per-line"]);
 
-        await wrapper.find("[data-label=Grupowanie] .combined").trigger("click");
+        await wrapper.find(".settings [data-label=Grupowanie] .combined").trigger("click");
         expect(shown(wrapper)).toEqual(["list-combined"]);
 
-        await wrapper.find("[data-label=Widok] .hours").trigger("click");
+        await wrapper.find(".settings [data-label=Widok] .hours").trigger("click");
         expect(shown(wrapper)).toEqual(["hours-combined"]);
 
-        await wrapper.find("[data-label=Grupowanie] .line").trigger("click");
+        await wrapper.find(".settings [data-label=Grupowanie] .line").trigger("click");
         expect(shown(wrapper)).toEqual(["hours-per-line"]);
+    });
+
+    it("has no switches outside the settings", () => {
+        const wrapper = mountTimetable();
+
+        expect(wrapper.findAll(".toggle").every(toggle => toggle.element.closest(".settings"))).toBe(true);
     });
 
     it("has no grouping to choose for one line, and shows it per line", () => {
