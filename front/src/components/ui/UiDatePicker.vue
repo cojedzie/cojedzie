@@ -44,6 +44,7 @@
                         :today="today"
                         :variant="variant"
                         flat
+                        stretch
                         @update:model-value="pick"
                     />
                 </div>

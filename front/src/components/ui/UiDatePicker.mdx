@@ -58,7 +58,8 @@ When the field has too little room, it names the day shortly ("pt. 13.11").
 
 The month calendar is `UiCalendar`, which can be used on its own, for example as a filter. It always shows six weeks
 from Monday, so it keeps its height. On its own it has an outline like the other controls; `flat` leaves it out
-where something frames the calendar already (the picker's popup, a filter panel). Its days come from `buildMonth` in `src/time/`, one cell model per day: what a day shows (later, for
+where something frames the calendar already (the picker's popup, a filter panel). `stretch` makes it as wide as its
+container, with the days spread evenly: the picker's popup spans the page width on phones. Its days come from `buildMonth` in `src/time/`, one cell model per day: what a day shows (later, for
 example, whether there is service on it) belongs in that model.
 
 <Canvas of={UiDatePickerStories.Calendar} />
