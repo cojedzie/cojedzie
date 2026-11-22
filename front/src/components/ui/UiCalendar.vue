@@ -1,5 +1,5 @@
 <template>
-    <div ref="root" class="calendar" :class="[variant, flat && 'flat']">
+    <div ref="root" class="calendar" :class="[variant, flat && 'flat', stretch && 'stretch']">
         <div class="header">
             <button
                 type="button"
@@ -72,8 +72,10 @@ const props = withDefaults(
         variant?: "normal" | "primary";
         /** Without its own outline, inside something that frames it already (a popup, a filter panel) */
         flat?: boolean;
+        /** Fills the width of its container, spreading the days evenly, instead of keeping to its content */
+        stretch?: boolean;
     }>(),
-    { min: undefined, max: undefined, today: undefined, variant: "normal", flat: false },
+    { min: undefined, max: undefined, today: undefined, variant: "normal", flat: false, stretch: false },
 );
 
 /** The chosen day */
@@ -181,6 +183,15 @@ defineExpose({ focus });
         border: 0;
         border-radius: 0;
         background: none;
+    }
+
+    &.stretch {
+        display: flex;
+
+        /* the days are of equal width, so the columns share the room evenly */
+        & .weeks {
+            inline-size: 100%;
+        }
     }
 
     & .header {
