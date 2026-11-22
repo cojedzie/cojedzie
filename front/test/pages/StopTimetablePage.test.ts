@@ -102,6 +102,12 @@ describe("StopTimetablePage", () => {
         expect(wrapper.findAll(".chip").map(chip => chip.text())).toEqual(["Wszystkie", "6", "8"]);
     });
 
+    it("tells the layout which stop it loaded, so the breadcrumbs can name it", async () => {
+        const { wrapper } = await mountPage("/trojmiasto/timetable/stops/s1");
+
+        expect(wrapper.emitted("stop")).toEqual([[stop]]);
+    });
+
     it("shows a stop's day of all lines, today without a date", async () => {
         const { wrapper } = await mountPage("/trojmiasto/timetable/stops/s1");
         const today = todayIn(Temporal.Now.timeZoneId()).toString();

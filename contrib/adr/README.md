@@ -66,6 +66,7 @@ Don't write one for local implementation details that the code and the wiki alre
 | [0040](0040-fixes-are-backported-to-the-supported-release-line.md) | Fixes are backported to the supported release line by CI | Accepted |
 | [0041](0041-the-supported-release-line-is-released-weekly.md) | The supported release line is released weekly by CI, and at once for serious vulnerabilities | Accepted |
 | [0042](0042-accounts-are-keycloak-identities-checked-by-the-hub.md) | Accounts are Keycloak identities, the hub's API only checks their tokens | Accepted |
+| [0043](0043-breadcrumbs-are-declared-by-routes.md) | Breadcrumbs are declared by routes, named from what the pages loaded | Accepted |
 
 <!-- Add a row for each new ADR: | [0001](0001-short-title.md) | Title | Accepted | -->
 

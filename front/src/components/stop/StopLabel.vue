@@ -1,5 +1,5 @@
 <template>
-    <div class="stop-label">
+    <div class="stop-label" :class="{ truncate }">
         <span class="name">{{ stop.name }}</span>
         <span v-if="stop.variant" class="badge variant">{{ stop.variant }}</span>
     </div>
@@ -16,6 +16,8 @@ defineProps({
         type: Object as PropType<Stop>,
         required: true,
     },
+    /** stays on one line, shortening the name to fit and keeping the code whole */
+    truncate: Boolean,
 });
 </script>
 
@@ -27,6 +29,22 @@ defineProps({
 
     & .name {
         line-height: 1.1;
+    }
+
+    &.truncate {
+        display: flex;
+        align-items: center;
+        min-inline-size: 0;
+        white-space: nowrap;
+
+        & .name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        & .variant {
+            flex-shrink: 0;
+        }
     }
 
     & .variant {
