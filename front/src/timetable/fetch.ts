@@ -21,7 +21,7 @@ import type { ApiClient } from "@/api/client";
 import type { Endpoints } from "@/api/endpoints";
 import type { UrlParams } from "@/api/utils";
 import { Temporal } from "@/time";
-import type { Departure, Line, Track } from "@/model";
+import type { Departure, Destination, Line, Track } from "@/model";
 
 /**
  * Which entries make up a day (ADR 0029). Provisional: the views are to be tried with it, so nothing may depend on
@@ -97,11 +97,27 @@ export async function fetchStopTracks(client: Client, stop: string): Promise<Tra
     return data.map(({ track }) => track as Track);
 }
 
-/** The lines of the tracks, each once, in the order of their symbols ("6", "12", "N1"), as the timetable lists them. */
-export function linesOfTracks(tracks: Track[]): Line[] {
-    const lines = new Map(tracks.map(track => [track.line.id, track.line]));
+/** A line at a stop, with the names of where it goes from there */
+export type StopLine = { line: Line; directions: string[] };
 
-    return [...lines.values()].sort((a, b) => a.symbol.localeCompare(b.symbol, undefined, { numeric: true }));
+/**
+ * The lines of a stop's destinations, each once, in the order of their symbols ("6", "12", "N1") as the timetable
+ * lists them, each with the names of the destinations it goes to from the stop.
+ */
+export function linesOfStop(destinations: Destination[]): StopLine[] {
+    const lines = new Map<string, StopLine>();
+
+    for (const { stop, lines: going } of destinations) {
+        for (const line of going ?? []) {
+            const entry = lines.get(line.id) ?? { line, directions: [] };
+            if (!entry.directions.includes(stop.name)) {
+                entry.directions.push(stop.name);
+            }
+            lines.set(line.id, entry);
+        }
+    }
+
+    return [...lines.values()].sort((a, b) => a.line.symbol.localeCompare(b.line.symbol, undefined, { numeric: true }));
 }
 
 /** The tracks of a line, in one request: the API's largest page, more than any line has. */

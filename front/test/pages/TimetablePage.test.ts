@@ -58,9 +58,17 @@ const tracks = [
 /** The tracks of the lines the query names, as the API filters them */
 const tracksOf = (query: { line: string }) => tracks.filter(({ line }) => query.line.split(",").includes(line.id));
 
+// popups in place, their title and content
+const UiDialog = {
+    emits: ["leave"],
+    template: "<div class='popup' v-bind='$attrs'><slot name='title' /><slot /></div>",
+};
+
 const stubs = {
     UiIcon: true,
     UiTooltip: true,
+    UiDialog,
+    teleport: true,
     StopPickerEntry: {
         props: ["stop"],
         template: '<div class="entry"><slot name="primary-action" />{{ stop.name }} {{ stop.variant }}</div>',
@@ -438,6 +446,16 @@ describe("TimetablePage's header", () => {
 
     const linePage = reporting("line", line("l8", "8", "tram"));
 
+    const towards = (name: string, ...lines: object[]) => ({ stop: stop(`to-${name}`, name, "01"), lines });
+    /** Where the stops' lines go from them */
+    const destinationsOf: Record<string, object[]> = {
+        s1: [
+            towards("Jelitkowo", line("l8", "8", "tram"), line("l6", "6", "tram")),
+            towards("Migowo", line("l2", "2", "tram")),
+        ],
+        s2: [towards("Łostowice", line("l8", "8", "tram"))],
+    };
+
     /** The stop timetable, reporting each stop it opens once the test lets it */
     const stopPage = defineComponent({
         emits: ["stop"],
@@ -447,10 +465,8 @@ describe("TimetablePage's header", () => {
                 () => route.params.stop as string,
                 async id => {
                     await loaded;
-                    emit(
-                        "stop",
-                        [bramaUp, bramaDown].find(stop => stop.id === id),
-                    );
+                    const found = [bramaUp, bramaDown].find(stop => stop.id === id)!;
+                    emit("stop", { ...found, destinations: destinationsOf[found.id] });
                 },
                 { immediate: true },
             );
@@ -593,5 +609,69 @@ describe("TimetablePage's header", () => {
         load();
         await flushPromises();
         expect(heading(wrapper)[1]).toBe("s2");
+    });
+
+    describe("line picker", () => {
+        const picker = (wrapper: Wrapper) => wrapper.find("h1 button[aria-haspopup=dialog]");
+        const rows = (wrapper: Wrapper) =>
+            wrapper.findAll(".popup a").map(row => ({
+                text: row.text().replace(/\s+/g, " "),
+                href: row.attributes("href"),
+                current: row.attributes("aria-current"),
+            }));
+
+        it("switches a line at a stop to another of the stop's lines, or to all of them, keeping the day", async () => {
+            load();
+            const { wrapper, router } = await mountSection(
+                "/trojmiasto/timetable/lines/l8/stops/s1?track=t1&date=2026-11-13",
+                [],
+                routes,
+            );
+
+            expect(picker(wrapper).attributes("aria-label")).toBe("Linia 8, zmień linię");
+            expect(picker(wrapper).attributes("aria-expanded")).toBe("false");
+
+            await picker(wrapper).trigger("click");
+
+            expect(picker(wrapper).attributes("aria-expanded")).toBe("true");
+            expect(wrapper.find(".popup").text()).toContain("Linie na tym przystanku");
+            expect(rows(wrapper)).toEqual([
+                {
+                    text: "2 Migowo",
+                    href: "/trojmiasto/timetable/lines/l2/stops/s1?date=2026-11-13",
+                    current: undefined,
+                },
+                {
+                    text: "6 Jelitkowo",
+                    href: "/trojmiasto/timetable/lines/l6/stops/s1?date=2026-11-13",
+                    current: undefined,
+                },
+                {
+                    text: "8 Jelitkowo",
+                    href: "/trojmiasto/timetable/lines/l8/stops/s1?date=2026-11-13",
+                    current: "page",
+                },
+                {
+                    text: "Wszystkie linie razem",
+                    href: "/trojmiasto/timetable/stops/s1?date=2026-11-13",
+                    current: undefined,
+                },
+            ]);
+
+            await wrapper.findAll(".popup a")[0].trigger("click");
+            await flushPromises();
+
+            expect(router.currentRoute.value.fullPath).toBe("/trojmiasto/timetable/lines/l2/stops/s1?date=2026-11-13");
+            expect(wrapper.find(".popup").exists()).toBe(false);
+        });
+
+        it("is only on a line at a stop: a whole stop and a line's page have no stop's lines to pick", async () => {
+            load();
+            const atStop = await mountSection("/trojmiasto/timetable/stops/s1", [], routes);
+            expect(picker(atStop.wrapper).exists()).toBe(false);
+
+            const onLine = await mountSection("/trojmiasto/timetable/lines/l8", [], routes);
+            expect(picker(onLine.wrapper).exists()).toBe(false);
+        });
     });
 });

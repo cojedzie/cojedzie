@@ -21,20 +21,6 @@
                 wrap
                 class="directions"
             />
-            <nav class="lines" aria-label="Linie">
-                <router-link :to="stopRoute" class="chip" :aria-current="lineId ? undefined : 'page'">
-                    Wszystkie
-                </router-link>
-                <router-link
-                    v-for="line in lines"
-                    :key="line.id"
-                    :to="lineRoute(line)"
-                    class="chip"
-                    :aria-current="line.id === lineId ? 'page' : undefined"
-                >
-                    <line-symbol :line="line" />
-                </router-link>
-            </nav>
         </header>
 
         <template v-if="ready">
@@ -62,12 +48,11 @@ import { computed, ref, shallowRef, watch } from "vue";
 import { type RouteLocationRaw, useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import api from "@/api";
-import { convertTimetableRange, type Departure, type Line, type StopWithDestinations, type Track } from "@/model";
+import { convertTimetableRange, type Departure, type StopWithDestinations, type Track } from "@/model";
 import {
     chooseTrack,
     fetchStopTracks,
     fetchTimetableDay,
-    linesOfTracks,
     timetableDateFromQuery,
     timetableDateQuery,
     trackDestination,
@@ -76,7 +61,6 @@ import { Temporal } from "@/time";
 import { useToday } from "@/composables/useToday";
 import { useSelectionStore } from "@/stores/selection";
 import { useTimetableSettingsStore } from "@/stores/timetable-settings";
-import LineSymbol from "@/components/line/LineSymbol.vue";
 import StopDestinations from "@/components/stop/StopDestinations.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import StopTimetable from "@/components/timetable/StopTimetable.vue";
@@ -147,8 +131,6 @@ watch(
     { immediate: true },
 );
 
-const lines = computed(() => linesOfTracks(tracks.value ?? []));
-
 const departures = shallowRef<Departure[] | null>(null);
 const failed = ref(false);
 /** When the day shown was fetched, only when it is today: the timetable scrolls to that time */
@@ -185,19 +167,6 @@ watch(
     },
     { immediate: true },
 );
-
-// the chips switch between the whole stop and its lines on the same day
-const stopRoute = computed((): RouteLocationRaw => ({
-    name: "timetable-stop",
-    params: { provider: providerId.value, stop: stopId.value },
-    query: route.query,
-}));
-
-const lineRoute = (line: Line): RouteLocationRaw => ({
-    name: "timetable-line-stop",
-    params: { provider: providerId.value, line: line.id, stop: stopId.value },
-    query: route.query,
-});
 
 // the line's track at this stop, as the line page shows it: the one in the URL when it runs through this stop,
 // otherwise the line's first track through it, main before side; all the stop's tracks run through it
@@ -259,33 +228,6 @@ const trackRoute = computed((): RouteLocationRaw | null => {
 
 .directions {
     font-size: var(--text-sm);
-}
-
-.lines {
-    display: flex;
-    flex-wrap: wrap;
-    gap: --spacing(1);
-}
-
-.chip {
-    @apply focus-ring;
-    display: inline-flex;
-    align-items: center;
-    min-block-size: --spacing(8);
-    padding: --spacing(0.5) --spacing(3);
-    border: 1px solid var(--color-divider);
-    border-radius: var(--radius-full);
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-        background: var(--color-hover);
-    }
-
-    &[aria-current="page"] {
-        border-color: var(--color-primary);
-        background: var(--color-hover-primary);
-    }
 }
 
 /* a 44px tap target, on a phone only: from md the line page is next to the stop */

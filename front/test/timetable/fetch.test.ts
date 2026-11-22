@@ -19,8 +19,8 @@
 
 import { Temporal } from "@/time";
 import { describe, expect, it, vi } from "vitest";
-import { fetchLine, fetchTimetableDay, linesOfTracks, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
-import type { Line, Track } from "@/model";
+import { fetchLine, fetchTimetableDay, linesOfStop, TIMETABLE_DAY_MODE, TIMETABLE_PAGE_SIZE } from "@/timetable";
+import type { Line, Stop, Track } from "@/model";
 
 const six = { id: "l6", symbol: "6", type: "tram", night: false, fast: false, $type: "vnd.cojedzie.line" };
 
@@ -100,20 +100,28 @@ describe("fetching a timetable day", () => {
     });
 });
 
-describe("linesOfTracks", () => {
-    it("lists the lines of a stop's tracks once each, by symbol", () => {
-        const line = (symbol: string) => ({ ...six, id: `l${symbol}`, symbol }) as Line;
-        const track = (line: Line, id: string) => ({ id, description: "", line }) as Track;
+describe("linesOfStop", () => {
+    const line = (symbol: string) => ({ ...six, id: `l${symbol}`, symbol }) as Line;
+    const towards = (name: string, ...lines: Line[]) => ({ stop: { id: name, name } as Stop, lines });
 
-        const lines = linesOfTracks([
-            track(line("12"), "a"),
-            track(line("6"), "b"),
-            track(line("N1"), "c"),
-            track(line("6"), "d"),
-            track(line("111"), "e"),
+    it("lists a stop's lines once each, by symbol, with where they go from it", () => {
+        const [six, twelve, night] = [line("6"), line("12"), line("N1")];
+
+        const lines = linesOfStop([towards("Jelitkowo", twelve, six), towards("Oliwa", night, six)]);
+
+        expect(lines.map(({ line, directions }) => [line.symbol, directions])).toEqual([
+            ["6", ["Jelitkowo", "Oliwa"]],
+            ["12", ["Jelitkowo"]],
+            ["N1", ["Oliwa"]],
         ]);
+    });
 
-        expect(lines.map(line => line.symbol)).toEqual(["6", "12", "111", "N1"]);
+    it("names a direction once, however many of its stops a line goes to", () => {
+        const six = line("6");
+
+        expect(linesOfStop([towards("Jelitkowo", six), towards("Jelitkowo", six)])[0].directions).toEqual([
+            "Jelitkowo",
+        ]);
     });
 });
 
