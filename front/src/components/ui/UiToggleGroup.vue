@@ -60,9 +60,20 @@ function place() {
     const index = props.options.findIndex(option => option.value === modelValue.value);
     const button = buttons.value?.[index];
 
-    thumb.value = button
-        ? { insetInlineStart: `${button.offsetLeft}px`, inlineSize: `${button.offsetWidth}px` }
-        : undefined;
+    if (!button || !group.value) {
+        thumb.value = undefined;
+        return;
+    }
+
+    // measured to the fraction of a pixel: a stretched group's buttons aren't whole pixels wide, and the offsets'
+    // rounding would leave the thumb a pixel off its button
+    const outer = group.value.getBoundingClientRect();
+    const inner = button.getBoundingClientRect();
+
+    thumb.value = {
+        insetInlineStart: `${inner.left - outer.left - group.value.clientLeft}px`,
+        inlineSize: `${inner.width}px`,
+    };
 }
 
 watch([modelValue, () => props.options], () => nextTick(place));
