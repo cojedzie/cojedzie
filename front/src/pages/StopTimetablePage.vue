@@ -1,9 +1,20 @@
 <template>
     <article class="stop-timetable-page">
         <header class="header">
-            <h1 class="title">
-                <stop-label v-if="stop" :stop="stop" />
-            </h1>
+            <!-- a whole stop is named by the section's heading; a line at a stop is the line's, the stop heads the column -->
+            <template v-if="lineId">
+                <h2 class="title">
+                    <stop-label v-if="stop" :stop="stop" />
+                </h2>
+                <div class="direction-row">
+                    <span v-if="direction" class="direction">Kierunek: {{ direction }}</span>
+                    <!-- on a phone the line page is hidden next to the stop: the way to it -->
+                    <router-link v-if="trackRoute" :to="trackRoute" class="route-link">
+                        <ui-icon icon="destination" />
+                        Trasa
+                    </router-link>
+                </div>
+            </template>
             <stop-destinations
                 v-if="stop?.destinations?.length"
                 :destinations="stop.destinations"
@@ -24,10 +35,6 @@
                     <line-symbol :line="line" />
                 </router-link>
             </nav>
-            <router-link v-if="trackRoute" :to="trackRoute" class="route-link">
-                <ui-icon icon="destination" />
-                pokaż trasę
-            </router-link>
         </header>
 
         <template v-if="ready">
@@ -43,6 +50,7 @@
                 :time-zone="provider.timezone"
                 :range="range"
                 :line-fixed="!!lineId"
+                :heading-level="lineId ? 3 : 2"
                 :now="seenAt"
             />
         </template>
@@ -62,6 +70,7 @@ import {
     linesOfTracks,
     timetableDateFromQuery,
     timetableDateQuery,
+    trackDestination,
 } from "@/timetable";
 import { Temporal } from "@/time";
 import { useToday } from "@/composables/useToday";
@@ -190,20 +199,27 @@ const lineRoute = (line: Line): RouteLocationRaw => ({
     query: route.query,
 });
 
-// the line page on the track in the URL when it runs through this stop, otherwise on the line's first track through
-// it, main before side; all the stop's tracks run through it
-const trackRoute = computed((): RouteLocationRaw | null => {
+// the line's track at this stop, as the line page shows it: the one in the URL when it runs through this stop,
+// otherwise the line's first track through it, main before side; all the stop's tracks run through it
+const track = computed(() => {
     const lineTracks = (tracks.value ?? []).filter(track => track.line.id === lineId.value);
-    const track = chooseTrack(lineTracks, { query: route.query.track });
+    return chooseTrack(lineTracks, { query: route.query.track });
+});
 
-    if (!track || !router.hasRoute("timetable-line")) {
+const direction = computed(() => (track.value ? trackDestination(track.value)?.name : undefined));
+
+// the line page on that track
+const trackRoute = computed((): RouteLocationRaw | null => {
+    const shown = track.value;
+
+    if (!shown || !router.hasRoute("timetable-line")) {
         return null;
     }
 
     return {
         name: "timetable-line",
-        params: { provider: providerId.value, line: track.line.id },
-        query: { track: track.id },
+        params: { provider: providerId.value, line: shown.line.id },
+        query: { track: shown.id },
     };
 });
 </script>
@@ -224,7 +240,21 @@ const trackRoute = computed((): RouteLocationRaw | null => {
 .title {
     margin: 0;
     font-size: var(--text-2xl);
-    font-weight: 600;
+    font-weight: var(--font-weight-medium);
+    line-height: var(--leading-tight);
+}
+
+.direction-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: --spacing(2);
+    margin-block-start: calc(--spacing(2) * -1);
+    font-size: var(--text-sm);
+}
+
+.direction {
+    color: var(--color-muted);
 }
 
 .directions {
@@ -258,11 +288,17 @@ const trackRoute = computed((): RouteLocationRaw | null => {
     }
 }
 
+/* a 44px tap target, on a phone only: from md the line page is next to the stop */
 .route-link {
     display: inline-flex;
     gap: --spacing(1);
     align-items: center;
-    align-self: flex-start;
+    min-block-size: --spacing(11);
+    margin-inline-start: auto;
+
+    @variant md {
+        display: none;
+    }
 }
 
 .no-timetable,
