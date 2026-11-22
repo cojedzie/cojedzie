@@ -8,10 +8,13 @@
         <p v-else-if="failed" class="message">Nie udało się wczytać linii.</p>
         <p v-else-if="!found" class="message">Nie znaleziono linii.</p>
         <p v-else-if="found.tracks.length === 0" class="message">Ta linia nie ma żadnej trasy.</p>
-        <template v-else-if="track">
-            <track-direction-picker v-model="track" :tracks="found.tracks" class="direction" />
+        <section v-else-if="track" class="route" aria-labelledby="line-route">
+            <h3 id="line-route" class="route-title">Trasa</h3>
+            <div class="direction">
+                <track-direction-switch v-model="track" :tracks="found.tracks" />
+            </div>
             <track-stop-rail :track="track" :current="stopId" />
-        </template>
+        </section>
     </article>
 </template>
 
@@ -24,7 +27,7 @@ import type { Line, Track } from "@/model";
 import { chooseTrack, fetchLine, type LineWithTracks } from "@/timetable";
 import { useSelectionStore } from "@/stores/selection";
 import LineSymbol from "@/components/line/LineSymbol.vue";
-import TrackDirectionPicker from "@/components/track/TrackDirectionPicker.vue";
+import TrackDirectionSwitch from "@/components/track/TrackDirectionSwitch.vue";
 import TrackStopRail from "@/components/track/TrackStopRail.vue";
 import UiIcon from "@/components/ui/UiIcon.vue";
 
@@ -119,8 +122,25 @@ const track = computed({
     font-weight: 600;
 }
 
+.route {
+    display: flex;
+    flex-direction: column;
+    gap: --spacing(3);
+    margin-block-start: --spacing(4);
+}
+
+.route-title {
+    @apply ui-section-header;
+
+    margin: 0;
+    padding-inline: 0;
+    font-weight: var(--font-weight-medium);
+}
+
+/* the switch keeps to one row: its directions shorten, it doesn't widen the page */
 .direction {
-    margin-block: --spacing(4) --spacing(2);
+    display: flex;
+    min-inline-size: 0;
 }
 
 .loading {

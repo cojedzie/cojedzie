@@ -95,13 +95,17 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   with two headsigns), a night line with runs after midnight at both ends of the day, departed and live runs;
   `between(departures, "09:00", "10:30")` and `ofLine(departures, line)` cut the slices.
 - `components/track/` — tracks. `TrackPicker` (departure filters) shows each track's description and stops. The line
-  page has its own two, thin over `src/timetable`: `TrackDirectionPicker` (`v-model` track) over `UiSelect`, its closed
-  field "Kierunek: <destination>" (through `UiSelect`'s `selected` slot, which falls back to the default one), the
-  options in `orderTracks` order labelled by `trackLabel`, a side track with a quiet "skrócony / inny przebieg" (provisional, like the labels);
+  page has its own two, thin over `src/timetable`: `TrackDirectionSwitch` (`v-model` track), a `UiToggleGroup`
+  "Kierunek" of the line's **main** tracks named by their destination (`trackEndsLabel`, origin → destination, for main
+  tracks sharing one), and in its `after` slot a "⋮" button (`overflow` icon) opening a `UiMenu` of the side tracks
+  (and those without a kind), each `trackEndsLabel`, the chosen one `aria-current`. The button is there only when the
+  line has side tracks; with one chosen no segment is pressed, and the button is filled like a pressed one and named
+  "Inne przebiegi: <track>". Like `UiSectionSettings`, opening the menu focuses its first item and Escape returns to
+  the button. It has two roots (the menu is teleported), so the page places it in a box of its own;
   `TrackStopRail` (`track`, `current` stop id), the stops on a vertical line in `var(--color-line-<type>)` with a dot
   each, filled at both ends, every stop but the last a stretched link to `timetable-line-stop` keeping `?track=`, the
   last one "przystanek końcowy". The current stop's link is `aria-current="page"` and the rail highlights its own row
-  from that. Stories (`Track/*`) use `track.fixtures.ts`, a tram line with a shortened run and a bus line; Storybook's
+  from that. Stories (`Track/*`) use `track.fixtures.ts`, a tram line with two shortened runs and a bus line; Storybook's
   router has `timetable-line-stop` for the rail's links.
 - `src/time` — dates and times (ADR 0033), framework-free like `src/timetable` (same ESLint rule). Calendar dates are
   `Temporal.PlainDate`, months `Temporal.PlainYearMonth`, moments `Temporal.Instant`, clock times of a day
@@ -145,7 +149,9 @@ can instrument Express. Node is 24 in every image and compose service (Sentry SD
   icon? }`, `label` for screen readers, `variant` `normal`/`primary`, `size` `small`/`normal`/`large`): a
   `role="group"` of buttons with `aria-pressed`, styled like the switch. A thumb measured from the selected button
   slides under it; until it is measured (first render, tests) the selected button fills itself. Only `large` is 44px
-  high. Generic in the value type, so its story casts it to a component with string values for `Meta`. Story:
+  high. Its `after` slot holds more of the group after the options, a `ui-control-segment` (the direction switch's
+  "⋮"); with a value no option has, nothing is pressed and the thumb is gone. Generic in the value type, so its story
+  casts it to a component with string values for `Meta`. Story:
   `Ui/ToggleGroup`.
 - `components/ui/UiDatePicker.vue` + `UiCalendar.vue` — choosing one day (`v-model` `Temporal.PlainDate`, `min`/`max`,
   `today` override, `label`, `variant`, `size`): day arrows around a field opening `UiCalendar` in a `UiDialog`, and a
@@ -300,8 +306,9 @@ default view) and of `timetable-line-stop`, so the same instance stays on the le
 renders the same component in the same view without remounting it). It fetches the line once per line
 (`fetchLine`, after the provider's details, dropping a late answer for a previous line) and heads itself "Linia" with
 the `LineSymbol`; while loading it is `aria-busy` with a spinner, and it says "Nie znaleziono linii." (404), "Ta linia
-nie ma żadnej trasy." or "Nie udało się wczytać linii." instead of the picker and rail. The track shown is
-`chooseTrack` of `?track=` and the open stop (`route.params.stop`); picking one in `TrackDirectionPicker` `replace`s
+nie ma żadnej trasy." or "Nie udało się wczytać linii." instead of the route: a "Trasa" heading, the direction switch
+and the rail. The track shown is `chooseTrack` of `?track=` and the open stop (`route.params.stop`); picking one in
+`TrackDirectionSwitch` `replace`s
 `?track=`, so trying directions adds no history entries, and an unknown one stays in the URL. `TrackStopRail` gets the
 open stop as `current`. Its links carry `?track=` and no `?date=`, so an opened stop starts at today, and the stop
 timetable page's chips keep `track` along harmlessly.
