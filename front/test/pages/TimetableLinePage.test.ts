@@ -27,6 +27,7 @@ const track = (id: string, kind: string, line: object, stops: object[]) => ({
     description: "",
     line,
     stops,
+    origin: stops[0],
     destination: stops.at(-1),
 });
 
@@ -43,22 +44,14 @@ const tracks: Record<string, object[]> = {
 
 const lines: Record<string, object> = { l6: six, l8: eight, l0: empty };
 
-// renders the field and every option, letting the test pick one
-const UiSelect = defineComponent({
-    props: ["options", "modelValue"],
-    emits: ["update:modelValue"],
-    template: `<div>
-        <div class="field"><slot name="selected" :option="modelValue" /></div>
-        <button v-for="o in options" :key="o.id" class="option" @click="$emit('update:modelValue', o)">
-            <slot :option="o" />
-        </button>
-    </div>`,
-});
+// the overflow menu's popup, in place
+const UiDialog = defineComponent({ emits: ["leave"], template: "<div class='popup'><slot /></div>" });
 
 const stubs = {
     UiIcon: true,
     UiTooltip: true,
-    UiSelect,
+    UiDialog,
+    teleport: true,
     LineSymbol: { props: ["line"], template: "<span class='symbol'>{{ line.symbol }}</span>" },
     StopLabel: { props: ["stop"], template: "<span>{{ stop.name }}</span>" },
 };
@@ -116,8 +109,17 @@ const requests = (endpoint: string) => get.mock.calls.filter(([called]) => calle
 
 type Wrapper = Awaited<ReturnType<typeof mountSection>>["wrapper"];
 
-const field = (wrapper: Wrapper) => wrapper.find(".field").text();
-const options = (wrapper: Wrapper) => wrapper.findAll(".option").map(option => option.text());
+const direction = (wrapper: Wrapper) => wrapper.find("[role=group][aria-label=Kierunek]");
+const segments = (wrapper: Wrapper) =>
+    direction(wrapper)
+        .findAll("button[aria-pressed]")
+        .map(segment => segment.text());
+const pressed = (wrapper: Wrapper) =>
+    direction(wrapper)
+        .findAll("button[aria-pressed=true]")
+        .map(segment => segment.text());
+const overflow = (wrapper: Wrapper) => direction(wrapper).find("button[aria-haspopup]");
+const menu = (wrapper: Wrapper) => wrapper.findAll(".popup li button");
 /** The stop rail, the line page's list (the section's breadcrumbs are one too) */
 const rail = (wrapper: Wrapper) => wrapper.findComponent(TimetableLinePage).find("ol");
 const railStops = (wrapper: Wrapper) =>
@@ -135,11 +137,11 @@ describe("the line page", () => {
         get.mockImplementation(answer);
     });
 
-    it("heads the page with the line and offers its tracks, the main ones first", async () => {
+    it("heads the page with the line and offers its main tracks by where they go", async () => {
         const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l6");
 
         expect(wrapper.find("h2").text()).toBe("Linia 6");
-        expect(options(wrapper)).toEqual(["→ Łostowice", "→ Jelitkowo", "→ Wrzeszcz skrócony / inny przebieg"]);
+        expect(segments(wrapper)).toEqual(["Łostowice", "Jelitkowo"]);
         expect(requests("v1_line_details")).toHaveLength(1);
         expect(requests("v1_track_list")).toHaveLength(1);
     });
@@ -147,7 +149,7 @@ describe("the line page", () => {
     it("shows the first main track's stops, each but the last opening the line's timetable there", async () => {
         const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l6");
 
-        expect(field(wrapper)).toBe("Kierunek: Łostowice");
+        expect(pressed(wrapper)).toEqual(["Łostowice"]);
         expect(railStops(wrapper)).toEqual(["Jelitkowo", "Wrzeszcz", "Łostowice przystanek końcowy"]);
         expect(railLinks(wrapper)).toEqual([
             "/trojmiasto/timetable/lines/l6/stops/c?track=t2",
@@ -157,11 +159,11 @@ describe("the line page", () => {
 
     it("shows the track the URL asks for, and the first main one for a track the line doesn't have", async () => {
         const asked = await mountSection("/trojmiasto/timetable/lines/l6?track=t1");
-        expect(field(asked.wrapper)).toBe("Kierunek: Jelitkowo");
+        expect(pressed(asked.wrapper)).toEqual(["Jelitkowo"]);
         expect(railStops(asked.wrapper)[0]).toBe("Łostowice");
 
         const unknown = await mountSection("/trojmiasto/timetable/lines/l6?track=gone");
-        expect(field(unknown.wrapper)).toBe("Kierunek: Łostowice");
+        expect(pressed(unknown.wrapper)).toEqual(["Łostowice"]);
         expect(unknown.router.currentRoute.value.fullPath).toBe("/trojmiasto/timetable/lines/l6?track=gone");
     });
 
@@ -170,16 +172,58 @@ describe("the line page", () => {
         await router.push("/trojmiasto/timetable/lines/l6");
         await flushPromises();
 
-        await wrapper.findAll(".option")[1].trigger("click");
+        await direction(wrapper).findAll("button[aria-pressed]")[1].trigger("click");
         await flushPromises();
 
         expect(router.currentRoute.value.query).toEqual({ track: "t1" });
-        expect(field(wrapper)).toBe("Kierunek: Jelitkowo");
+        expect(pressed(wrapper)).toEqual(["Jelitkowo"]);
 
         router.back();
         await flushPromises();
 
         expect(router.currentRoute.value.fullPath).toBe("/trojmiasto/timetable");
+    });
+
+    it("folds the side tracks into a menu, picking one presses no direction and marks the menu", async () => {
+        const { wrapper, router } = await mountSection("/trojmiasto/timetable");
+        await router.push("/trojmiasto/timetable/lines/l6");
+        await flushPromises();
+
+        expect(overflow(wrapper).attributes("aria-label")).toBe("Inne przebiegi");
+        expect(menu(wrapper)).toEqual([]);
+
+        await overflow(wrapper).trigger("click");
+        expect(menu(wrapper).map(item => item.text())).toEqual(["Łostowice → Wrzeszcz"]);
+
+        await menu(wrapper)[0].trigger("click");
+        await flushPromises();
+
+        expect(router.currentRoute.value.query).toEqual({ track: "t3" });
+        expect(menu(wrapper)).toEqual([]);
+        expect(pressed(wrapper)).toEqual([]);
+        expect(overflow(wrapper).attributes("aria-label")).toBe("Inne przebiegi: Łostowice → Wrzeszcz");
+        expect(railStops(wrapper)).toEqual(["Łostowice", "Brama Wyżynna", "Wrzeszcz przystanek końcowy"]);
+
+        router.back();
+        await flushPromises();
+        expect(router.currentRoute.value.fullPath).toBe("/trojmiasto/timetable");
+    });
+
+    it("shows a side track the URL asks for as the menu's choice", async () => {
+        const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l6?track=t3");
+
+        expect(pressed(wrapper)).toEqual([]);
+        expect(overflow(wrapper).attributes("aria-label")).toBe("Inne przebiegi: Łostowice → Wrzeszcz");
+
+        await overflow(wrapper).trigger("click");
+        expect(menu(wrapper).map(item => item.attributes("aria-current"))).toEqual(["true"]);
+    });
+
+    it("has no menu for a line without side tracks", async () => {
+        const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l8");
+
+        expect(segments(wrapper)).toEqual(["Jelitkowo"]);
+        expect(overflow(wrapper).exists()).toBe(false);
     });
 
     it("stays next to a stop opened on the route, marking it current", async () => {
@@ -201,7 +245,7 @@ describe("the line page", () => {
     it("shows a track through the open stop when the URL names none", async () => {
         const { wrapper } = await mountSection("/trojmiasto/timetable/lines/l6/stops/s1");
 
-        expect(field(wrapper)).toBe("Kierunek: Jelitkowo");
+        expect(pressed(wrapper)).toEqual(["Jelitkowo"]);
         expect(rail(wrapper).find("a[aria-current=page]").attributes("href")).toBe(
             "/trojmiasto/timetable/lines/l6/stops/s1?track=t1",
         );

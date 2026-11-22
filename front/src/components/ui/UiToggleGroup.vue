@@ -20,6 +20,7 @@
             <ui-icon v-if="option.icon" :icon="option.icon" />
             <span class="caption">{{ option.label }}</span>
         </button>
+        <slot name="after" />
     </div>
 </template>
 
@@ -32,6 +33,9 @@ import UiIcon from "@/components/ui/UiIcon.vue";
 export type UiToggleGroupOption<T> = { value: T; label: string; icon?: PredefinedIcon };
 
 defineOptions({ name: "UiToggleGroup" });
+
+/** `after`: more of the group after its options, e.g. a menu of the choices that don't fit; a `ui-control-segment` */
+defineSlots<{ after?: () => unknown }>();
 
 const props = withDefaults(
     defineProps<{

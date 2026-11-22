@@ -49,6 +49,7 @@ const track = (id: string, line: Line, kind: Track["kind"], route: Stop[]): Trac
     description: "",
     line,
     stops: route,
+    origin: route[0],
     destination: route.at(-1),
 });
 
@@ -58,11 +59,12 @@ const bus = line("l111", "111", "bus");
 const { lostowice, brama, dworzec, wrzeszcz, oliwa, jelitkowo, oliwaPkp, zabianka } = stops;
 
 export const tracks = {
-    /** The tram's main tracks in both directions and a run shortened to Zajezdnia Wrzeszcz */
+    /** The tram's main tracks in both directions, and runs shortened to Zajezdnia Wrzeszcz and to Dworzec Główny */
     tram: [
         track("t6-out", six, "main", [lostowice, brama, dworzec, wrzeszcz, oliwa, jelitkowo]),
         track("t6-in", six, "main", [jelitkowo, oliwa, wrzeszcz, dworzec, brama, lostowice]),
         track("t6-short", six, "side", [lostowice, brama, dworzec, wrzeszcz]),
+        track("t6-dworzec", six, "side", [jelitkowo, oliwa, wrzeszcz, dworzec]),
     ],
     bus: [
         track("t111-out", bus, "main", [oliwaPkp, oliwa, zabianka]),
