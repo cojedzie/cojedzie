@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from "vitest";
-import { mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vitest";
+import { flushPromises, mount } from "@vue/test-utils";
 import UiDatePicker from "@/components/ui/UiDatePicker.vue";
 import UiCalendar from "@/components/ui/UiCalendar.vue";
 import { Temporal } from "@/time";
@@ -77,6 +77,18 @@ describe("UiDatePicker", () => {
         expect(picked(wrapper)).toEqual(["2026-11-20"]);
         expect(wrapper.findComponent(UiCalendar).exists()).toBe(false);
         expect(field.attributes("aria-expanded")).toBe("false");
+    });
+
+    it("focuses the chosen day without scrolling the page when it opens", async () => {
+        const focus = vi.spyOn(HTMLElement.prototype, "focus");
+        const wrapper = picker("2026-11-13");
+
+        await wrapper.find(".field").trigger("click");
+        await flushPromises();
+
+        expect(focus.mock.contexts.at(-1)).toBe(wrapper.find("[data-date='2026-11-13']").element);
+        expect(focus).toHaveBeenLastCalledWith({ preventScroll: true });
+        focus.mockRestore();
     });
 
     it("closes the calendar with Escape", async () => {
