@@ -11,7 +11,7 @@ permissions:
   issues: write
 
 env:
-  TRIAGE_LABELS: needs-triage needs-info ready-for-agent ready-for-human
+  TRIAGE_LABELS: needs-triage needs-info ready-for-agent ready-for-human ready-for-ux
 
 jobs:
   label:
