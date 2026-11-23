@@ -1,7 +1,7 @@
 <template>
     <div class="page-container timetable-page">
         <header class="header">
-            <ui-breadcrumbs :crumbs="crumbs" />
+            <ui-breadcrumbs :crumbs="crumbs" class="trail" />
             <!-- what the page is about: a line at a stop is the line's timetable, the stop is the column's heading -->
             <!-- on the search, its own section's title says it already -->
             <h1 class="heading" :class="{ 'visually-hidden': !onLineRoute && !route.params.stop }">
@@ -121,12 +121,13 @@ const wholeStop = computed((): RouteLocationRaw => ({
 <style scoped>
 @reference "@styles/tailwind.css";
 
-/* the departures page's layout: a third on the left, two thirds on the right; on a phone the pages stand alone */
+/*
+ * the departures page's layout: a third on the left, two thirds on the right; on a phone the pages stand alone. The
+ * trail fills the band the departures page leaves empty under the app's header, so the heading starts higher.
+ */
 .timetable-page {
-    margin-block-start: --spacing(4);
-
     @variant md {
-        padding-block-start: --spacing(8);
+        padding-block-start: --spacing(2);
     }
 }
 
@@ -135,6 +136,15 @@ const wholeStop = computed((): RouteLocationRaw => ({
     display: flex;
     flex-direction: column;
     margin-block-end: --spacing(6);
+}
+
+/* the crumbs' tap targets are taller than their text, this keeps the trail apart from the heading anyway */
+.trail {
+    margin-block-end: --spacing(2);
+
+    @variant md {
+        margin-block-end: --spacing(4);
+    }
 }
 
 .heading {

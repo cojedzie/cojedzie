@@ -292,7 +292,8 @@ The "Rozkład" navigation entry (both bars) is the route `timetable` (`/:provide
 0037) whose component `pages/TimetablePage.vue` is the layout of its pages: the departures page's columns, a third on
 the left and two thirds on the right. Above the columns, on every page of the section, is its header: the breadcrumb
 trail (see [App shell and navigation](#app-shell-and-navigation)) and the page's `h1`, both named from the `line` and
-`stop` its pages emit, nothing fetched for them. The `h1` is "Rozkład linii" with the line's `LineSymbol` (`size="large"`)
+`stop` its pages emit, nothing fetched for them. The trail fills the band the departures page leaves empty under the
+app's header (the section has less padding at its top), with room between it and the `h1`. The `h1` is "Rozkład linii" with the line's `LineSymbol` (`size="large"`)
 on a line and on a line at a stop (a line at a stop is the line's timetable, the stop heads the right column), "Rozkład
 na" with the stop's `StopLabel` on a whole stop, and "Rozkłady jazdy" on the search, visually hidden there as the search's own
 section says it. Like the crumbs, it names only the line or stop of its route ("Rozkład na przystanku", or no symbol,
