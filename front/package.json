@@ -12,12 +12,21 @@
     "@eslint/js": "^10.0.1",
     "@floating-ui/dom": "^1.8.0",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
+<<<<<<< HEAD
     "@sentry/vite-plugin": "^11.9.0",
     "@sentry/vue": "^11.9.0",
     "@storybook/addon-docs": "^10.6.5",
     "@storybook/vue3-vite": "^10.6.5",
     "@tabler/icons-vue": "^3.50.0",
     "@tailwindcss/vite": "^4.3.3",
+=======
+    "@sentry/vite-plugin": "^11.16.0",
+    "@sentry/vue": "^11.16.0",
+    "@storybook/addon-docs": "^10.6.8",
+    "@storybook/vue3-vite": "^10.6.8",
+    "@tabler/icons-vue": "^3.52.0",
+    "@tailwindcss/vite": "^4.3.5",
+>>>>>>> 00cdd951 (build(front): Bump the front group in /front with 14 updates)
     "@types/ejs": "^3.0.5",
     "@types/express": "^5.0.6",
     "@types/leaflet": "^1.7.5",
@@ -28,11 +37,12 @@
     "@vitejs/plugin-vue": "^6.0.10",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vue/devtools-api": "^8",
-    "@vue/test-utils": "^2.5.1",
+    "@vue/test-utils": "^2.6.0",
     "@xmldom/xmldom": "^0.9.12",
     "axios": "^1.21.0",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
+<<<<<<< HEAD
     "eslint-plugin-storybook": "^10.6.5",
     "eslint-plugin-vue": "^10.12.0",
     "globals": "^17.13.0",
@@ -43,19 +53,39 @@
     "module-alias": "^2.2.2",
     "moment": "^2.22.2",
     "prettier": "^3.9.10",
+=======
+    "eslint-plugin-storybook": "^10.6.8",
+    "eslint-plugin-vue": "^10.12.1",
+    "globals": "^17.14.0",
+    "happy-dom": "^21.0.4",
+    "leaflet": "^1.7.1",
+    "lodash": "^4.17.21",
+    "maplibre-gl": "^6.19.0",
+    "module-alias": "^2.3.5",
+    "prettier": "^3.10.1",
+>>>>>>> 00cdd951 (build(front): Bump the front group in /front with 14 updates)
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "sass": "^1.107.0",
     "storybook": "^10.6.5",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
+<<<<<<< HEAD
     "typescript-eslint": "^8.72.1",
+=======
+    "typescript-eslint": "^8.73.0",
+>>>>>>> 00cdd951 (build(front): Bump the front group in /front with 14 updates)
     "uuid": "^14.0.3",
     "vite": "^8.3.5",
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-pwa": "^2.0.0",
+<<<<<<< HEAD
     "vitest": "^5.0.5",
     "vue": "^3.5.44",
+=======
+    "vitest": "^5.1.1",
+    "vue": "^3.5.46",
+>>>>>>> 00cdd951 (build(front): Bump the front group in /front with 14 updates)
     "vue-dragscroll": "^4.0.6",
     "vue-eslint-parser": "^10.4.1",
     "vue-router": "^5.4.0",
@@ -64,9 +94,13 @@
     "workbox-window": "^7.4.1"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@sentry/node": "^11.9.0",
+=======
+    "@sentry/node": "^11.16.0",
+>>>>>>> 00cdd951 (build(front): Bump the front group in /front with 14 updates)
     "@vueuse/core": "^15.0.0",
-    "browserslist": "^4.21.5",
+    "browserslist": "^4.29.6",
     "browserslist-useragent": "^4.0.0",
     "ejs": "^7.0.2",
     "express": "^5.3.0",
