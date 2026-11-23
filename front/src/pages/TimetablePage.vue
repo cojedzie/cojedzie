@@ -24,6 +24,13 @@
                 </template>
                 <template v-else>Rozkłady jazdy</template>
             </h1>
+            <!-- a whole stop's lines, under its name; a line at a stop has them under the stop in its column -->
+            <stop-destinations
+                v-if="!onLineRoute && headingStop?.destinations?.length"
+                :destinations="headingStop.destinations"
+                wrap
+                class="destinations"
+            />
         </header>
         <div class="columns" :class="{ 'with-main': stopOpen }">
             <!-- the route's side view (the line page), otherwise the search, kept across routes with its query -->
@@ -56,6 +63,7 @@ import { BREADCRUMB_HOLD_MS, useBreadcrumbs } from "@/composables/useBreadcrumbs
 import { useHeld } from "@/composables/useHeld";
 import { useSelectionStore } from "@/stores/selection";
 import LineSymbol from "@/components/line/LineSymbol.vue";
+import StopDestinations from "@/components/stop/StopDestinations.vue";
 import StopLabel from "@/components/stop/StopLabel.vue";
 import TimetableLinePicker from "@/components/timetable/TimetableLinePicker.vue";
 import UiBreadcrumbs from "@/components/ui/UiBreadcrumbs.vue";
@@ -142,6 +150,11 @@ const wholeStop = computed((): RouteLocationRaw => ({
     @variant md {
         font-size: var(--text-3xl);
     }
+}
+
+.destinations {
+    margin-block-start: --spacing(2);
+    font-size: var(--text-sm);
 }
 
 .columns {

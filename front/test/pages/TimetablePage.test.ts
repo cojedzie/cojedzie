@@ -588,6 +588,22 @@ describe("TimetablePage's header", () => {
         expect(heading(wrapper)).toEqual([expect.stringMatching(/^Rozkład linii/), "l8"]);
     });
 
+    it("lists a whole stop's directions under its name, leaving a line's stop to its column", async () => {
+        load();
+        const { wrapper, router } = await mountSection("/trojmiasto/timetable/stops/s1", [], routes);
+        const directions = () => wrapper.find("header h1 + .stop-destinations");
+
+        expect(
+            directions()
+                .findAll(".name")
+                .map(name => name.text()),
+        ).toEqual(["Jelitkowo", "Migowo"]);
+
+        await router.push("/trojmiasto/timetable/lines/l8/stops/s1");
+        await flushPromises();
+        expect(directions().exists()).toBe(false);
+    });
+
     it("says what the page is until its line or stop loads", async () => {
         const onLine = await mountSection("/trojmiasto/timetable/lines/l8/stops/s1", [], routes);
         expect(heading(onLine.wrapper)).toEqual(["Rozkład linii", null]);

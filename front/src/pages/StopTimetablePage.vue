@@ -1,20 +1,19 @@
 <template>
     <article class="stop-timetable-page">
-        <header class="header">
-            <!-- a whole stop is named by the section's heading; a line at a stop is the line's, the stop heads the column -->
-            <template v-if="lineId">
-                <h2 class="title">
-                    <stop-label v-if="stop" :stop="stop" />
-                </h2>
-                <div class="direction-row">
-                    <span v-if="direction" class="direction">Kierunek: {{ direction }}</span>
-                    <!-- on a phone the line page is hidden next to the stop: the way to it -->
-                    <router-link v-if="trackRoute" :to="trackRoute" class="route-link">
-                        <ui-icon icon="destination" />
-                        Trasa
-                    </router-link>
-                </div>
-            </template>
+        <!-- a whole stop is named by the page's heading, its lines under it; a line at a stop is the line's, the stop
+             heads the column -->
+        <header v-if="lineId" class="header">
+            <h2 class="title">
+                <stop-label v-if="stop" :stop="stop" />
+            </h2>
+            <div class="direction-row">
+                <span v-if="direction" class="direction">Kierunek: {{ direction }}</span>
+                <!-- on a phone the line page is hidden next to the stop: the way to it -->
+                <router-link v-if="trackRoute" :to="trackRoute" class="route-link">
+                    <ui-icon icon="destination" />
+                    Trasa
+                </router-link>
+            </div>
             <stop-destinations
                 v-if="stop?.destinations?.length"
                 :destinations="stop.destinations"
@@ -200,10 +199,12 @@ const trackRoute = computed((): RouteLocationRaw | null => {
     @apply section-surface;
 }
 
+/* as far from the timetable as the page's header is from the columns */
 .header {
     display: flex;
     flex-direction: column;
     gap: --spacing(2);
+    margin-block-end: --spacing(6);
 }
 
 .title {
