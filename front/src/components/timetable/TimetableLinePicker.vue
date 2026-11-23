@@ -16,13 +16,14 @@
             v-if="open"
             :reference="button"
             arrow
+            flush
             placement="bottom-start"
             class="lines-popup"
             aria-label="Linie na tym przystanku"
             @leave="open = false"
             @keydown.esc="close"
         >
-            <div ref="content">
+            <div ref="content" class="content">
                 <p class="title">Linie na tym przystanku</p>
                 <ul class="rows">
                     <li v-for="{ line: other, directions } in lines" :key="other.id">
@@ -107,7 +108,8 @@ const close = usePopupFocus(
 
 /* under the button from md, across the page on a phone */
 .lines-popup {
-    inline-size: --spacing(72);
+    /* flush: the padding is the content's, inside this width */
+    inline-size: --spacing(78);
     font-size: var(--text-sm);
     font-weight: normal;
     line-height: var(--leading-tight);
@@ -117,8 +119,13 @@ const close = usePopupFocus(
     }
 }
 
+/* the rows' highlights reach close to the popup's edges, a popup's usual padding would leave a frame around them */
+.content {
+    padding: --spacing(1.5);
+}
+
 .title {
-    margin: 0 0 --spacing(1.5);
+    margin: --spacing(1) 0 --spacing(1.5);
     padding-inline: --spacing(2);
     color: var(--color-muted);
     font-size: var(--text-xs);
@@ -152,7 +159,8 @@ const close = usePopupFocus(
     align-items: center;
     gap: --spacing(2.5);
     min-block-size: --spacing(11);
-    padding-inline: --spacing(2);
+    /* directions wrapped onto several lines keep off the highlight's edges */
+    padding: --spacing(1.5) --spacing(2);
     border-radius: var(--radius-sm);
     color: var(--color-body);
     text-decoration: none;
