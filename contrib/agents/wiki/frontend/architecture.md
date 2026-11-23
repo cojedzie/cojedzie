@@ -297,7 +297,9 @@ on a line and on a line at a stop (a line at a stop is the line's timetable, the
 na" with the stop's `StopLabel` on a whole stop, and "Rozkłady jazdy" on the search, visually hidden there as the search's own
 section says it. Like the crumbs, it names only the line or stop of its route ("Rozkład na przystanku", or no symbol,
 until the page loads it), and keeps the previous one for at most `BREADCRUMB_HOLD_MS` while the next loads (`useHeld`, a value
-that keeps what it was for a while once it goes `null`), so moving between stops doesn't flash a placeholder. On a line
+that keeps what it was for a while once it goes `null`), so moving between stops doesn't flash a placeholder. Under the
+`h1` of a whole stop come the stop's directions with their lines (`StopDestinations`, from the emitted stop), so they
+read with the stop's name rather than with the timetable. On a line
 at a stop the symbol is `TimetableLinePicker`, the only way to change the line a stop's timetable shows: a button
 "Linia 8, zmień linię" (`aria-haspopup="dialog"`, `aria-expanded`) opening "Linie na tym przystanku" below it (across
 the page on a phone): the open stop's lines, each its `LineSymbol` and where it goes from the stop (`linesOfStop` over
@@ -361,10 +363,10 @@ it without the page styling inside `StopPickerHistory` (ADR 0036).
 Children: `timetable-stop` (`stops/:stop`) and `timetable-line-stop` (`lines/:line/stops/:stop`), both
 `pages/StopTimetablePage.vue`, of a single stop, never a group. It fetches the stop (`v1_stop_details`, with its
 destinations) and its tracks once per stop, then the day (`fetchTimetableDay` with those tracks) whenever the stop, the
-line or the date changes; stale responses are dropped. The header leaves a whole stop's name to the section's `h1`; on a
-line at a stop it heads the column with the stop (`h2`, `StopLabel`) and "Kierunek: <destination>" of the line's track
+line or the date changes; stale responses are dropped. A whole stop has no header of its own: its name and directions are
+the section's, under the `h1`. On a line at a stop the header heads the column with the stop (`h2`, `StopLabel`) and "Kierunek: <destination>" of the line's track
 shown there (below), with on a phone, where the line page is hidden, a "Trasa" link to it. `StopTimetable` gets
-`heading-level` 3 under that `h2`, 2 otherwise. Then the directions with their
+`heading-level` 3 under that `h2`, 2 otherwise. Then the stop's directions with their
 lines (`components/stop/StopDestinations.vue`, shared with `StopPickerEntry`, which compacts the lines into groups by
 type first and keeps the list to one row; the page shows every line and lets it wrap, `wrap`). The line is changed
 from the section's heading (above). The line's track shown, named by "Kierunek" and opened by

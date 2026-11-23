@@ -97,12 +97,11 @@ describe("StopTimetablePage", () => {
         });
     });
 
-    it("shows a stop's directions with their lines, leaving its name and lines to the section's heading", async () => {
+    it("leaves a whole stop's name and its directions to the page's heading", async () => {
         const { wrapper } = await mountPage("/trojmiasto/timetable/stops/s1?date=2026-11-13");
 
-        expect(wrapper.find("h1, h2").exists()).toBe(false);
-        expect(wrapper.findComponent({ name: "StopDestinations" }).props("destinations")).toEqual(stop.destinations);
-        expect(wrapper.find("nav[aria-label=Linie]").exists()).toBe(false);
+        expect(wrapper.find("header").exists()).toBe(false);
+        expect(wrapper.findComponent({ name: "StopDestinations" }).exists()).toBe(false);
     });
 
     it("tells the layout which stop it loaded, so the breadcrumbs can name it", async () => {
@@ -126,6 +125,9 @@ describe("StopTimetablePage", () => {
 
         expect(wrapper.find("h2").text()).toBe("Brama Wyżynna 01");
         expect(wrapper.find(".direction").text()).toBe("Kierunek: Strzyża PKM");
+        expect(wrapper.find("header").findComponent({ name: "StopDestinations" }).props("destinations")).toEqual(
+            stop.destinations,
+        );
     });
 
     it("shows one line's day on the line's route", async () => {
